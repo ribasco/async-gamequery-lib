@@ -1,4 +1,4 @@
-package com.ribasco.gamecrawler.net.servers;
+package com.ribasco.gamecrawler.protocols;
 
 import java.net.InetSocketAddress;
 
@@ -7,7 +7,18 @@ import java.net.InetSocketAddress;
  */
 public interface Server {
     InetSocketAddress getAddress();
+
+    void setAddress(InetSocketAddress address);
+
     String getName();
+
+    void setName(String name);
+
     String getCountry();
+
+    void setCountry(String country);
+
     int getPing();
+
+    void setPing(int ping);
 }

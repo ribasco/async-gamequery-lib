@@ -58,11 +58,12 @@ import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQ
 
 public class SourceClient extends GameClient<NioDatagramChannel> {
     private static final Logger log = LoggerFactory.getLogger(SourceClient.class);
-    private Map<String, Integer> challengeMap;
+    //TODO: Implement caching of challenge numbers
+    private Map<String, Integer> challengeCache;
 
     public SourceClient() {
         super(new NioEventLoopGroup(1));
-        challengeMap = new HashMap<>();
+        challengeCache = new HashMap<>();
     }
 
     @Override
@@ -184,6 +185,7 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
                     getPlayerDetails(challengeRes[0], address, (msg, sender, error) -> {
                         if (error != null)
                             spPromise.tryFailure(error);
+                        spPromise.trySuccess(msg);
                         responseCallback.onComplete(msg, sender, error);
                     });
                 } else {
@@ -208,7 +210,6 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
     }
 
     public Promise<Map<String, String>> getServerRules(int challenge, InetSocketAddress address, ResponseCallback<Map<String, String>> responseCallback) {
-
         return sendGameServerRequest(address, new SourceRulesRequestPacket(challenge), responseCallback);
     }
 

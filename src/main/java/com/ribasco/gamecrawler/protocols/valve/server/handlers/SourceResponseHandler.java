@@ -41,7 +41,7 @@ public class SourceResponseHandler extends SimpleChannelInboundHandler<DefaultRe
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DefaultResponseWrapper response) throws Exception {
         //Retrieve the request map registry
-        Session registry = Session.getRegistry();
+        Session registry = Session.getInstance();
 
         //Note: This handler assumes that we have an existing SESSION ID
 

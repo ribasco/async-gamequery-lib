@@ -59,7 +59,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
      */
     private Runnable REQUEST_MONITOR = () -> {
         //Filter entries that have elapsed for more than 5 seconds
-        Session.getRegistry().entrySet().stream().filter(entry -> entry.getValue() != null && entry.getValue().hasElapsed(DEFAULT_RESPONSE_TIMEOUT)).forEach(e -> {
+        Session.getInstance().entrySet().stream().filter(entry -> entry.getValue() != null && entry.getValue().hasElapsed(DEFAULT_RESPONSE_TIMEOUT)).forEach(e -> {
             log.debug("Request: {} has Elapsed for more than 5 seconds (Duration: {}). Cancelling", e.getKey(), (e.getValue() != null) ? e.getValue().getDuration() : "N/A");
 
             //Set to failure status with a TimeoutException
@@ -82,7 +82,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                 log.debug("{} already marked as done. Unable to set to failure state.", e.getKey());
 
             //Remove from the registry
-            Session.getRegistry().unregister(e.getKey());
+            Session.getInstance().unregister(e.getKey());
             cancelledTasks.incrementAndGet();
         });
     };
@@ -223,7 +223,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                         //Check to see if something went wrong during write operation
                         if (future.isSuccess()) {
                             //Register the session
-                            Session.getRegistry().register(sessionId, promise);
+                            Session.getInstance().register(sessionId, promise);
                             log.debug("Successfully Sent Request for \"{}\"", sessionId);
                         } else {
                             try {
@@ -233,7 +233,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                                 }
                             } finally {
                                 //We need to unregister if an error occured
-                                if (Session.getRegistry().unregister(sessionId))
+                                if (Session.getInstance().unregister(sessionId))
                                     log.debug("Successfully Unregistered {}", sessionId);
                             }
                         }
@@ -242,7 +242,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
         } catch (Exception e) {
             log.debug("An internal error occured inside sendGameServerRequest(). Setting promise to a failure state. (Request: {})", requestPacket.toString());
             promise.tryFailure(e);
-            Session.getRegistry().unregister(sessionId);
+            Session.getInstance().unregister(sessionId);
         } finally {
             releaseChannel(destination, (T) c);
         }
@@ -254,15 +254,15 @@ public abstract class GameClient<T extends Channel> implements Closeable {
     }
 
     public void waitForAll(int timeout) {
-        if (Session.getRegistry().size() > 0) {
-            log.debug("There are still {} pending requests that have not received any reply from the server. Channel ", Session.getRegistry().size());
+        if (Session.getInstance().size() > 0) {
+            log.debug("There are still {} pending requests that have not received any reply from the server. Channel ", Session.getInstance().size());
 
             final AtomicInteger ctr = new AtomicInteger();
 
             SimpleDateFormat sdf = new SimpleDateFormat("@ hh:mm:ss a");
 
             //Display the remaining pending requests and their status
-            Session.getRegistry().entrySet().forEach(entry -> {
+            Session.getInstance().entrySet().forEach(entry -> {
                 SessionInfo details = entry.getValue();
                 String countVal = String.format("%05d", ctr.incrementAndGet());
                 if (details != null) {
@@ -280,16 +280,16 @@ public abstract class GameClient<T extends Channel> implements Closeable {
 
             try {
                 int timeoutCtr = 0;
-                while (Session.getRegistry().size() > 0) {
-                    log.warn("[REGISTRY] {} requests are still in-pending.", Session.getRegistry().size());
+                while (Session.getInstance().size() > 0) {
+                    log.warn("[REGISTRY] {} requests are still in-pending.", Session.getInstance().size());
                     if ((timeout != -1) && (++timeoutCtr > timeout)) {
                         log.debug("Wait timeout expired for {} second(s), forcing to stop.", timeout);
                         throw new TimeoutException("Wait has expired");
                     }
                     Thread.sleep(1000);
                 }
-                if (Session.getRegistry().size() > 0)
-                    log.warn("Registry is still filled with {} unfulfilled tasks and listeners are still waiting for results...Quitting Anyway", Session.getRegistry().size());
+                if (Session.getInstance().size() > 0)
+                    log.warn("Registry is still filled with {} unfulfilled tasks and listeners are still waiting for results...Quitting Anyway", Session.getInstance().size());
                 else
                     log.info("Registry is now clean. Shutting down gracefully");
             } catch (TimeoutException | InterruptedException e) {

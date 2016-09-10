@@ -1,7 +1,7 @@
-/*
+/***************************************************************************************************
  * MIT License
  *
- * Copyright (c) [year] [fullname]
+ * Copyright (c) 2016 Rafael Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,13 +20,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
+ **************************************************************************************************/
 
 package com.ribasco.gamecrawler.protocols.valve.server.handlers;
 
-import com.ribasco.gamecrawler.protocols.RequestRegistry;
-import com.ribasco.gamecrawler.protocols.Session;
 import com.ribasco.gamecrawler.protocols.DefaultResponseWrapper;
+import com.ribasco.gamecrawler.protocols.Session;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Promise;
@@ -42,7 +41,7 @@ public class SourceResponseHandler extends SimpleChannelInboundHandler<DefaultRe
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DefaultResponseWrapper response) throws Exception {
         //Retrieve the request map registry
-        RequestRegistry registry = Session.getRegistry();
+        Session registry = Session.getRegistry();
 
         //Note: This handler assumes that we have an existing SESSION ID
 

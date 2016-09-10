@@ -65,7 +65,7 @@ public class SourceCommandLineClient {
 
             //Create our filter
             SourceMasterFilter masterFilter = new SourceMasterFilter();
-            masterFilter.dedicated(true).isSecure(true);
+            masterFilter.appId(550).dedicated(true).isSecure(true);
 
             log.info("Querying Master Server with Filter {}", masterFilter.toString());
 

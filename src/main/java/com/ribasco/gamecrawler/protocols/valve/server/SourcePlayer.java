@@ -22,62 +22,68 @@
  * SOFTWARE.
  */
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.gamecrawler.protocols.valve.server;
 
-import java.net.InetSocketAddress;
+import com.ribasco.gamecrawler.protocols.GamePlayer;
 
 /**
- * Created by raffy on 8/28/2016.
+ * Created by raffy on 9/6/2016.
  */
-public abstract class GenericServer implements Server {
+public class SourcePlayer implements GamePlayer {
+    private byte index;
+    private String name;
+    private int score;
+    private float duration;
 
-    private InetSocketAddress address;
-    private String country;
-    private int ping;
-
-    public GenericServer()
-    {
-        this.address = null;
-        this.country = null;
-        this.ping = -1;
+    public SourcePlayer() {
     }
 
-    public InetSocketAddress getAddress() {
-        return address;
+    public SourcePlayer(byte index, String name, int score, float duration) {
+        this.index = index;
+        this.name = name;
+        this.score = score;
+        this.duration = duration;
     }
 
-    public String getHostAddress()
-    {
-        return address.getAddress().getHostAddress();
+    public byte getIndex() {
+        return index;
     }
 
-    public int getPort()
-    {
-        return address.getPort();
+    public void setIndex(byte index) {
+        this.index = index;
     }
 
-    public void setAddress(InetSocketAddress address) {
-        this.address = address;
+    public String getName() {
+        return name;
     }
 
-    public String getCountry() {
-        return country;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setCountry(String country) {
-        this.country = country;
+    public int getScore() {
+        return score;
     }
 
-    public int getPing() {
-        return ping;
+    public void setScore(int score) {
+        this.score = score;
     }
 
-    public void setPing(int ping) {
-        this.ping = ping;
+    public float getDuration() {
+        return duration;
+    }
+
+    public void setDuration(float duration) {
+        this.duration = duration;
     }
 
     @Override
     public String toString() {
-        return String.format("IP: %s, PORT: %d", getAddress().getAddress().getHostAddress(), getAddress().getPort());
+        return "SourcePlayer{" +
+                "index=" + index +
+                ", name='" + name + '\'' +
+                ", score=" + score +
+                ", duration=" + duration +
+                '}';
     }
 }

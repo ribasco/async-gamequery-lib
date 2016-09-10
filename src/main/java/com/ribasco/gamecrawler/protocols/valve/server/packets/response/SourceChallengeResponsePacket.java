@@ -22,62 +22,33 @@
  * SOFTWARE.
  */
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.gamecrawler.protocols.valve.server.packets.response;
 
-import java.net.InetSocketAddress;
+import com.ribasco.gamecrawler.protocols.valve.server.SourceResponsePacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.util.ReferenceCountUtil;
 
 /**
- * Created by raffy on 8/28/2016.
+ * Created by raffy on 9/5/2016.
  */
-public abstract class GenericServer implements Server {
+public class SourceChallengeResponsePacket extends SourceResponsePacket<Integer> {
 
-    private InetSocketAddress address;
-    private String country;
-    private int ping;
-
-    public GenericServer()
-    {
-        this.address = null;
-        this.country = null;
-        this.ping = -1;
-    }
-
-    public InetSocketAddress getAddress() {
-        return address;
-    }
-
-    public String getHostAddress()
-    {
-        return address.getAddress().getHostAddress();
-    }
-
-    public int getPort()
-    {
-        return address.getPort();
-    }
-
-    public void setAddress(InetSocketAddress address) {
-        this.address = address;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getPing() {
-        return ping;
-    }
-
-    public void setPing(int ping) {
-        this.ping = ping;
+    public SourceChallengeResponsePacket(ByteBuf buffer) {
+        super(buffer);
     }
 
     @Override
-    public String toString() {
-        return String.format("IP: %s, PORT: %d", getAddress().getAddress().getHostAddress(), getAddress().getPort());
+    protected Integer createFromBuffer() {
+        ByteBuf data = this.getBuffer();
+        Integer challengeNumber;
+
+        try {
+            //Read the 32bit challenge number
+            challengeNumber = data.readIntLE();
+        } finally {
+            ReferenceCountUtil.release(data);
+        }
+
+        return challengeNumber;
     }
 }

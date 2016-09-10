@@ -2,19 +2,38 @@
 <Configuration status="INFO">
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <!-- <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/> -->
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%-22t] %-5level %logger{36} - %msg%n"/>
         </Console>
-        <File name="MyFile" fileName="logs/app.log" immediateFlush="false" append="false">
+        <File name="MainFile" fileName="logs/main.log" immediateFlush="false" append="false">
+            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%-22t] %-5level - %msg%n"/>
+        </File>
+        <File name="ErrorFile" fileName="logs/error.log" immediateFlush="false" append="false">
             <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </File>
     </Appenders>
+
     <Loggers>
-        <Logger name="com.github.koraktor.steamcondenser" level="error" />
-        <Logger name="com.ribasco.gamecrawler.clients" level="debug"/>
+        <Logger name="com.github.koraktor.steamcondenser" level="error"/>
+        <!-- <Logger name="com.ribasco.gamecrawler.protocols.RequestRegistry" level="debug"/>
+        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.handlers.SourceResponseDecoder" level="info" />
+        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.handlers.SourceResponseHandler" level="info" />
+        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.SourcePacketHelper" level="debug" />
+        <Logger name="com.ribasco.gamecrawler.clients.GameClient" level="debug"/>
+        <Logger name="com.ribasco.gamecrawler.clients.SourceClient" level="debug"/>
+        <Logger name="com.ribasco.gamecrawler.cli.SourceCommandLineClientnt" level="debug"/>
+
+        <Logger name="com.ribasco.gamecrawler.protocols.Session" level="debug" />
         <Logger name="com.ribasco.gamecrawler.protocols.handlers" level="info"/>
+        <Logger name="com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket" level="info"/>
+        <Logger name="com.ribasco.gamecrawler.protocols.handlers.ErrorHandler" level="info"/>
+-->
+        <Logger name="com.ribasco.gamecrawler" level="info"/>
+        <Logger name="com.ribasco.gamecrawler.protocols.valve.server.handlers.SourceRequestEncoder" level="info"/>
+
         <Root level="info">
-            <AppenderRef ref="Console" />
-            <AppenderRef ref="MyFile"/>
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="MainFile"/>
         </Root>
     </Loggers>
 </Configuration>

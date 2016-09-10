@@ -22,62 +22,33 @@
  * SOFTWARE.
  */
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.gamecrawler.protocols.valve.server.packets.response;
 
-import java.net.InetSocketAddress;
+import com.ribasco.gamecrawler.protocols.valve.server.SourcePlayer;
+import com.ribasco.gamecrawler.protocols.valve.server.SourceResponsePacket;
+import com.ribasco.gamecrawler.utils.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
+import io.netty.util.CharsetUtil;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Created by raffy on 8/28/2016.
+ * Created by raffy on 9/6/2016.
  */
-public abstract class GenericServer implements Server {
+public class SourcePlayerResponsePacket extends SourceResponsePacket<List<SourcePlayer>> {
 
-    private InetSocketAddress address;
-    private String country;
-    private int ping;
-
-    public GenericServer()
-    {
-        this.address = null;
-        this.country = null;
-        this.ping = -1;
-    }
-
-    public InetSocketAddress getAddress() {
-        return address;
-    }
-
-    public String getHostAddress()
-    {
-        return address.getAddress().getHostAddress();
-    }
-
-    public int getPort()
-    {
-        return address.getPort();
-    }
-
-    public void setAddress(InetSocketAddress address) {
-        this.address = address;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getPing() {
-        return ping;
-    }
-
-    public void setPing(int ping) {
-        this.ping = ping;
+    public SourcePlayerResponsePacket(ByteBuf buffer) {
+        super(buffer);
     }
 
     @Override
-    public String toString() {
-        return String.format("IP: %s, PORT: %d", getAddress().getAddress().getHostAddress(), getAddress().getPort());
+    protected List<SourcePlayer> createFromBuffer() {
+        List<SourcePlayer> playerList = new ArrayList<>();
+        ByteBuf data = getBuffer();
+        byte numOfPlayers = data.readByte();
+        for (int i = 0; i < numOfPlayers; i++)
+            playerList.add(new SourcePlayer(data.readByte(), ByteBufUtils.readString(data, CharsetUtil.UTF_8), data.readIntLE(), Float.intBitsToFloat(data.readIntLE())));
+        return playerList;
     }
 }

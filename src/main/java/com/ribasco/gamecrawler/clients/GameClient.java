@@ -224,7 +224,6 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                         if (future.isSuccess()) {
                             //Register the session
                             Session.getRegistry().register(sessionId, promise);
-
                             log.debug("Successfully Sent Request for \"{}\"", sessionId);
                         } else {
                             try {
@@ -242,8 +241,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             );
         } catch (Exception e) {
             log.debug("An internal error occured inside sendGameServerRequest(). Setting promise to a failure state. (Request: {})", requestPacket.toString());
-            if (!promise.isDone())
-                promise.setFailure(e);
+            promise.tryFailure(e);
             Session.getRegistry().unregister(sessionId);
         } finally {
             releaseChannel(destination, (T) c);

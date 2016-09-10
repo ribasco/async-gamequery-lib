@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) [year] [fullname]
+ * Copyright (c) 2016 Rafael Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -92,16 +92,6 @@ public abstract class GameClient<T extends Channel> implements Closeable {
      */
     private ChannelPoolHandler DEFAULT_POOL_HANDLER = new AbstractChannelPoolHandler() {
         @Override
-        public void channelAcquired(Channel ch) throws Exception {
-            //log.debug("[CHANNEL ACQUIRED] {}, Is Open: {}, Is Active: {}, Is Registered: {}", ch, ch.isOpen(), ch.isActive(), ch.isRegistered());
-        }
-
-        @Override
-        public void channelReleased(Channel ch) throws Exception {
-            //log.debug("[CHANNEL RELEASED] {}, Is Open: {}, Is Active: {}, Is Registered: {}", ch, ch.isOpen(), ch.isActive(), ch.isRegistered());
-        }
-
-        @Override
         public void channelCreated(Channel ch) throws Exception {
             //log.debug("[CHANNEL CREATED] {}, Is Open: {}, Is Active: {}, Is Registered: {}", ch, ch.isOpen(), ch.isActive(), ch.isRegistered());
             configureChannel((T) ch);
@@ -134,7 +124,6 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             //Reset cancelled task counter
             cancelledTasks.set(0);
 
-            //TODO: Do not cancel tasks on timeout, instead throw a TimeoutException
             //Monitor each request from the session, cancel if any of them takes too long to be received
             group.next().scheduleWithFixedDelay(REQUEST_MONITOR, 1, 2, TimeUnit.SECONDS);
 
@@ -152,15 +141,6 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                 //.option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.SO_SNDBUF, 1048576)
                 .option(ChannelOption.SO_RCVBUF, 1048576);
-
-        //TODO: Remove this since we are using a channel pool.
-                /*.handler(new ChannelInitializer<T>() {
-                    @Override
-                    protected void initChannel(T ch) throws Exception {
-                        log.debug("Initializing channel");
-                        initializeChannels(ch);
-                    }
-                });*/
     }
 
     protected T acquireChannel(InetSocketAddress address) throws TimeoutException {
@@ -243,7 +223,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                         //Check to see if something went wrong during write operation
                         if (future.isSuccess()) {
                             //Register the session
-                            getRegistry().register(sessionId, promise);
+                            Session.getRegistry().register(sessionId, promise);
 
                             log.debug("Successfully Sent Request for \"{}\"", sessionId);
                         } else {
@@ -254,7 +234,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                                 }
                             } finally {
                                 //We need to unregister if an error occured
-                                if (getRegistry().unregister(sessionId))
+                                if (Session.getRegistry().unregister(sessionId))
                                     log.debug("Successfully Unregistered {}", sessionId);
                             }
                         }
@@ -264,7 +244,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             log.debug("An internal error occured inside sendGameServerRequest(). Setting promise to a failure state. (Request: {})", requestPacket.toString());
             if (!promise.isDone())
                 promise.setFailure(e);
-            getRegistry().unregister(sessionId);
+            Session.getRegistry().unregister(sessionId);
         } finally {
             releaseChannel(destination, (T) c);
         }
@@ -276,15 +256,15 @@ public abstract class GameClient<T extends Channel> implements Closeable {
     }
 
     public void waitForAll(int timeout) {
-        if (getRegistry().size() > 0) {
-            log.debug("There are still {} pending requests that have not received any reply from the server. Channel ", getRegistry().size());
+        if (Session.getRegistry().size() > 0) {
+            log.debug("There are still {} pending requests that have not received any reply from the server. Channel ", Session.getRegistry().size());
 
             final AtomicInteger ctr = new AtomicInteger();
 
             SimpleDateFormat sdf = new SimpleDateFormat("@ hh:mm:ss a");
 
             //Display the remaining pending requests and their status
-            getRegistry().entrySet().forEach(entry -> {
+            Session.getRegistry().entrySet().forEach(entry -> {
                 SessionInfo details = entry.getValue();
                 String countVal = String.format("%05d", ctr.incrementAndGet());
                 if (details != null) {
@@ -295,23 +275,23 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                     String timeRegistered = sdf.format(details.getTimeRegistered());
                     double runDuration = details.getDuration();
 
-                    log.warn("{}) PENDING REQUEST for \"{}\" = (Is Done: {}, Is Success: {}, Has Error: {}, Time Registered: {}, Run Duration: {})", countVal, sessionId, isDone, isSuccess, hasError, timeRegistered, runDuration);
+                    log.debug("{}) PENDING REQUEST for \"{}\" = (Is Done: {}, Is Success: {}, Has Error: {}, Time Registered: {}, Run Duration: {})", countVal, sessionId, isDone, isSuccess, hasError, timeRegistered, runDuration);
                 } else
-                    log.warn("{}) PENDING REQUEST for \"{}\" = (N/A)", countVal, entry.getKey());
+                    log.debug("{}) PENDING REQUEST for \"{}\" = (N/A)", countVal, entry.getKey());
             });
 
             try {
                 int timeoutCtr = 0;
-                while (getRegistry().size() > 0) {
-                    log.warn("[REGISTRY] {} requests are still in-pending.", getRegistry().size());
+                while (Session.getRegistry().size() > 0) {
+                    log.warn("[REGISTRY] {} requests are still in-pending.", Session.getRegistry().size());
                     if ((timeout != -1) && (++timeoutCtr > timeout)) {
                         log.debug("Wait timeout expired for {} second(s), forcing to stop.", timeout);
                         throw new TimeoutException("Wait has expired");
                     }
                     Thread.sleep(1000);
                 }
-                if (getRegistry().size() > 0)
-                    log.warn("Registry is still filled with {} unfulfilled tasks and listeners are still waiting for results...Quitting Anyway", getRegistry().size());
+                if (Session.getRegistry().size() > 0)
+                    log.warn("Registry is still filled with {} unfulfilled tasks and listeners are still waiting for results...Quitting Anyway", Session.getRegistry().size());
                 else
                     log.info("Registry is now clean. Shutting down gracefully");
             } catch (TimeoutException | InterruptedException e) {
@@ -320,16 +300,12 @@ public abstract class GameClient<T extends Channel> implements Closeable {
         }
     }
 
-    protected <V> Promise<V> createPromise() {
+    <V> Promise<V> createPromise() {
         return this.group.next().newPromise();
     }
 
-    protected String createSessionId(InetSocketAddress destination, Class<? extends GameRequestPacket> requestClass) {
+    private String createSessionId(InetSocketAddress destination, Class<? extends GameRequestPacket> requestClass) {
         return Session.getSessionId(destination, requestClass);
-    }
-
-    protected RequestRegistry getRegistry() {
-        return Session.getRegistry();
     }
 
     @Override
@@ -338,10 +314,5 @@ public abstract class GameClient<T extends Channel> implements Closeable {
         group.shutdownGracefully();
     }
 
-    /**
-     * Configure channel created by the pool
-     *
-     * @param ch
-     */
     protected abstract void configureChannel(T ch);
 }

@@ -1,7 +1,7 @@
-/*
+/***************************************************************************************************
  * MIT License
  *
- * Copyright (c) [year] [fullname]
+ * Copyright (c) 2016 Rafael Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,20 +20,12 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
+ **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.gamecrawler.clients;
 
 /**
- * Created by raffy on 9/7/2016.
+ * Created by raffy on 9/10/2016.
  */
-public enum ResponseState {
-    SUCCESS(true),
-    FAILED(false);
-
-    private boolean successState;
-
-    ResponseState(boolean success) {
-        this.successState = success;
-    }
+public class SourceRconClient {
 }

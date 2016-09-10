@@ -1,4 +1,4 @@
-/*
+/***************************************************************************************************
  * MIT License
  *
  * Copyright (c) [year] [fullname]
@@ -20,64 +20,40 @@
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
- */
+ **************************************************************************************************/
 
 package com.ribasco.gamecrawler.protocols;
+
+import com.ribasco.gamecrawler.protocols.ResponseWrapper;
 
 import java.net.InetSocketAddress;
 
 /**
- * Created by raffy on 8/28/2016.
+ * Created by raffy on 9/5/2016.
  */
-public abstract class GenericServer implements Server {
+public class DefaultResponseWrapper implements ResponseWrapper {
+    private String sessionId;
+    private InetSocketAddress senderAddress;
+    private Object responseObject;
 
-    private InetSocketAddress address;
-    private String country;
-    private int ping;
-
-    public GenericServer()
-    {
-        this.address = null;
-        this.country = null;
-        this.ping = -1;
-    }
-
-    public InetSocketAddress getAddress() {
-        return address;
-    }
-
-    public String getHostAddress()
-    {
-        return address.getAddress().getHostAddress();
-    }
-
-    public int getPort()
-    {
-        return address.getPort();
-    }
-
-    public void setAddress(InetSocketAddress address) {
-        this.address = address;
-    }
-
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public int getPing() {
-        return ping;
-    }
-
-    public void setPing(int ping) {
-        this.ping = ping;
+    public DefaultResponseWrapper(String sessionId, InetSocketAddress senderAddress, Object responseObject) {
+        this.sessionId = sessionId;
+        this.senderAddress = senderAddress;
+        this.responseObject = responseObject;
     }
 
     @Override
-    public String toString() {
-        return String.format("IP: %s, PORT: %d", getAddress().getAddress().getHostAddress(), getAddress().getPort());
+    public InetSocketAddress getSenderAddress() {
+        return this.senderAddress;
+    }
+
+    @Override
+    public String getSessionId() {
+        return this.sessionId;
+    }
+
+    @Override
+    public Object getResponseData() {
+        return this.responseObject;
     }
 }

@@ -46,7 +46,7 @@ public class Session {
         private static final Session INSTANCE = new Session();
     }
 
-    public static Session getRegistry() {
+    public static Session getInstance() {
         return SessionHolder.INSTANCE;
     }
 

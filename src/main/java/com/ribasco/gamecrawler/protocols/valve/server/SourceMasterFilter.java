@@ -105,6 +105,7 @@ public class SourceMasterFilter {
      * Servers with ALL of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
      * @param tags Array of String game server tags
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter gamedata(String... tags) {
@@ -115,6 +116,7 @@ public class SourceMasterFilter {
      * Servers with ANY of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
      * @param tags Array of String game server tags
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter gamedataOr(String... tags) {
@@ -125,6 +127,7 @@ public class SourceMasterFilter {
      * Servers with their hostname matching [hostname]
      *
      * @param nameWildcard Hostname to lookup (can use * as a wildcard)
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter withHostName(String nameWildcard) {
@@ -135,6 +138,7 @@ public class SourceMasterFilter {
      * Servers running version [version]
      *
      * @param version Version to search (can use * as a wildcard)
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter hasVersion(String version) {
@@ -145,17 +149,18 @@ public class SourceMasterFilter {
      * Return only one server for each unique IP address matched
      *
      * @param value True to return only one server for each unique IP
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter onlyOneServerPerUniqueIp(boolean value) {
         return create("collapse_addr_hash", new Boolean(value));
     }
 
-
     /**
      * Return only servers on the specified IP address (port supported and optional)
      *
      * @param ipPort IP[:port] format
+     *
      * @return SourceMasterFilter
      */
     public SourceMasterFilter hasServerIp(String ipPort) {
@@ -175,7 +180,7 @@ public class SourceMasterFilter {
     private SourceMasterFilter create(String key, Object value) {
         if (allServersSet)
             throw new RuntimeException("All servers filter have been selected. You can not add additional filters in the chain if this property is set");
-        
+
         if (StringUtils.isEmpty(key) && value == null) {
             return this;
         }

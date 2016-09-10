@@ -38,9 +38,10 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.netty.buffer.ByteBufUtil.prettyHexDump;
+
 /**
- * <p>Responsible for accepting valid datagram packets that will later on be processed by other handlers.
- * This should be placed first in the chain. Invalid packets will be discarded.</p>
+ * <p>Responsible for verifying and assembling datagram packets</p>
  */
 public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
 
@@ -75,7 +76,7 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         ByteBuf data = ((DatagramPacket) msg).content();
 
         if (log.isDebugEnabled()) {
-            //System.out.println(prettyHexDump(packet.content()));
+            System.out.println(prettyHexDump(packet.content()));
         }
 
         //Verify size
@@ -99,62 +100,7 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         }
         //If the packet is a split type...further processing is needed
         else if (protocolHeader == 0xFFFFFFFE) {
-            int packetCount, packetNumber, requestId, splitSize, packetChecksum = 0;
-            boolean isCompressed = false;
-
-            //Start processing
-            requestId = data.readIntLE();
-            //read the most significant bit is set
-            isCompressed = ((requestId & 0x80000000) != 0);
-            //The total number of packets in the response.
-            packetCount = data.readByte();
-            //The number of the packet. Starts at 0.
-            packetNumber = data.readByte();
-
-            log.debug("Split Packet Received = (Request {}, Packet Number {}, Packet Count {}, Is Compressed: {})", requestId, packetNumber, packetCount, isCompressed);
-
-            //Retrieve the split packet map
-            SplitPacketContainer splitPacketContainer = this.requestMap.get(requestId);
-
-            //If request is not yet on the map, create and retrieve
-            if (splitPacketContainer == null) {
-                //Create our new split packet container
-                splitPacketContainer = new SplitPacketContainer(packetCount);
-                //Add it to the map
-                this.requestMap.put(requestId, splitPacketContainer);
-            }
-
-            //As per protocol, the size is only present in the first packet of the response and only if the response is being compressed.
-            //split size = Maximum size of packet before packet switching occurs. The default value is 1248 bytes (0x04E0
-            if (isCompressed) {
-                splitSize = data.readIntLE();
-                packetChecksum = data.readIntLE();
-            } else {
-                splitSize = data.readShortLE();
-            }
-
-            //TODO: Handle compressed split packets
-            int bufferSize = Math.min(splitSize, data.readableBytes());
-            byte[] splitPacket = new byte[bufferSize];
-            data.readBytes(splitPacket); //transfer the split data into this buffer
-
-            //Add the split packet to the container
-            splitPacketContainer.addPacket(packetNumber, splitPacket);
-
-            //Have we received all packets for this request?
-            if (splitPacketContainer.isComplete()) {
-                log.debug("Split Packets have all been successfully received from Request {}. Re-assembling packets.", requestId);
-
-                //Re-assemble the split packets
-                ByteBuf reassembledPacket = reassembleSplitPackets(splitPacketContainer, ctx.channel().alloc(), isCompressed, splitSize, packetChecksum);
-
-                //Discard the protocol header
-                reassembledPacket.readIntLE();
-
-                //Pass to the next handlers in the chain
-                ctx.fireChannelRead(new DatagramPacket(reassembledPacket.retain(), packet.recipient(), packet.sender()));
-            }
-            //release here
+            processSplitPackets(data, ctx, packet);
         }
         //Packet is not being handled by any of our processors, discard
         else {
@@ -162,6 +108,64 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
             ((DatagramPacket) msg).release();
         }
         log.trace("SourcePacketHandler.channelRead() : END");
+    }
+
+    private void processSplitPackets(ByteBuf data, ChannelHandlerContext ctx, DatagramPacket packet) {
+        int packetCount, packetNumber, requestId, splitSize, packetChecksum = 0;
+        boolean isCompressed = false;
+
+        //Start processing
+        requestId = data.readIntLE();
+        //read the most significant bit is set
+        isCompressed = ((requestId & 0x80000000) != 0);
+        //The total number of packets in the response.
+        packetCount = data.readByte();
+        //The number of the packet. Starts at 0.
+        packetNumber = data.readByte();
+
+        log.debug("Split Packet Received = (Request {}, Packet Number {}, Packet Count {}, Is Compressed: {})", requestId, packetNumber, packetCount, isCompressed);
+
+        //Retrieve the split packet map
+        SplitPacketContainer splitPacketContainer = this.requestMap.get(requestId);
+
+        //If request is not yet on the map, create and retrieve
+        if (splitPacketContainer == null) {
+            //Create our new split packet container
+            splitPacketContainer = new SplitPacketContainer(packetCount);
+            //Add it to the map
+            this.requestMap.put(requestId, splitPacketContainer);
+        }
+
+        //As per protocol, the size is only present in the first packet of the response and only if the response is being compressed.
+        //split size = Maximum size of packet before packet switching occurs. The default value is 1248 bytes (0x04E0
+        if (isCompressed) {
+            splitSize = data.readIntLE();
+            packetChecksum = data.readIntLE();
+        } else {
+            splitSize = data.readShortLE();
+        }
+
+        //TODO: Handle compressed split packets
+        int bufferSize = Math.min(splitSize, data.readableBytes());
+        byte[] splitPacket = new byte[bufferSize];
+        data.readBytes(splitPacket); //transfer the split data into this buffer
+
+        //Add the split packet to the container
+        splitPacketContainer.addPacket(packetNumber, splitPacket);
+
+        //Have we received all packets for this request?
+        if (splitPacketContainer.isComplete()) {
+            log.debug("Split Packets have all been successfully received from Request {}. Re-assembling packets.", requestId);
+
+            //Re-assemble the split packets
+            ByteBuf reassembledPacket = reassembleSplitPackets(splitPacketContainer, ctx.channel().alloc(), isCompressed, splitSize, packetChecksum);
+
+            //Discard the protocol header
+            reassembledPacket.readIntLE();
+
+            //Pass to the next handlers in the chain
+            ctx.fireChannelRead(new DatagramPacket(reassembledPacket.retain(), packet.recipient(), packet.sender()));
+        }
     }
 
     /**
@@ -180,7 +184,8 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         //Loop throgh each entry
         container.forEachEntry(packetEntry -> {
             log.debug("Packet #{} : {}", packetEntry.getKey(), packetEntry.getValue());
-            //if compression is enabled, decompress
+
+            //Throw exception if compression is set. Not yet supported.
             if (isCompressed)
                 throw new IllegalStateException("Compression is not yet supported at this time sorry");
 
@@ -214,11 +219,5 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         log.trace("reassembleSplitPackets : END");
 
         return packetBuffer;
-    }
-
-
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        super.channelReadComplete(ctx);
     }
 }

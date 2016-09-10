@@ -63,9 +63,4 @@ public class SourceRequestEncoder<T extends GameRequestPacket> extends MessageTo
             System.out.println(ByteBufUtil.prettyHexDump(buffer));
         }
     }
-
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        super.exceptionCaught(ctx, cause);
-    }
 }

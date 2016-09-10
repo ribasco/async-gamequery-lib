@@ -35,12 +35,12 @@ import java.util.Map;
  * Created by raffy on 9/5/2016.
  */
 @Deprecated
-//TODO: Replace with enums instead
 public class SourceConstants {
     public static final Map<Byte, Class<? extends SourceResponsePacket>> HEADER_RESPONSE_MAP;
     public static final Map<Byte, Class<? extends SourceRequestPacket>> HEADER_REQUEST_MAP;
     public static final Map<Class<? extends SourceRequestPacket>, Class<? extends SourceResponsePacket>> REQUEST_RESPONSE_MAP;
 
+    //TODO: Move all these to enum classes
     public static final byte RESPONSE_CHALLENGE_HEADER = 0x41;
     public static final byte RESPONSE_INFO_HEADER = 0x49;
     public static final byte RESPONSE_MASTER_HEADER = 0x66;

@@ -30,8 +30,8 @@
 
     <groupId>com.ribasco</groupId>
     <artifactId>game-crawler-lib</artifactId>
-    <version>1.0-SNAPSHOT</version>
-    
+    <version>0.1-SNAPSHOT</version>
+
     <build>
         <plugins>
             <plugin>

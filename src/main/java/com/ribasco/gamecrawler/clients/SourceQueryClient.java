@@ -62,7 +62,7 @@ public class SourceQueryClient extends GameClient<NioDatagramChannel> {
     private Map<String, Integer> challengeCache;
 
     public SourceQueryClient() {
-        super(new NioEventLoopGroup(1));
+        super(new NioEventLoopGroup());
         challengeCache = new HashMap<>();
     }
 
@@ -81,8 +81,9 @@ public class SourceQueryClient extends GameClient<NioDatagramChannel> {
         //Send and receive a batch of master server list
         log.debug("Sending Master Server Request");
 
-        Promise<Vector<InetSocketAddress>> sdPromise = createPromise();
+        final Promise<Vector<InetSocketAddress>> sdPromise = createPromise();
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
+        final InetSocketAddress destination = SourceMasterRequestPacket.SOURCE_MASTER;
 
         //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
@@ -91,13 +92,13 @@ public class SourceQueryClient extends GameClient<NioDatagramChannel> {
 
         //Create our task listener
         GenericFutureListener<Future<? super Vector<InetSocketAddress>>> listener = future -> {
-            if (!future.isSuccess() && future.cause() != null) {
-                sdPromise.tryFailure(future.cause());
-                //responseCallback.onComplete(null, future.cause());
+            if (future.isDone()) {
+                if (!future.isSuccess() && future.cause() != null) {
+                    sdPromise.tryFailure(future.cause());
+                    responseCallback.onComplete(null, destination, future.cause());
+                }
             }
         };
-
-        final InetSocketAddress destination = SourceMasterRequestPacket.SOURCE_MASTER;
 
         while (!isDone) {
             try {
@@ -105,7 +106,6 @@ public class SourceQueryClient extends GameClient<NioDatagramChannel> {
 
                 //Send initial query to the master server
                 Promise<Vector<InetSocketAddress>> p = sendRequest(destination, new SourceMasterRequestPacket(region, filter, startAddress));
-
                 p.addListener(listener);
 
                 //Retrieve the first batch, timeout after 2.5 seconds
@@ -130,7 +130,7 @@ public class SourceQueryClient extends GameClient<NioDatagramChannel> {
                     isDone = true;
 
                 //Sleep
-                Thread.sleep(50);
+                Thread.sleep(30);
             } catch (TimeoutException e) {
                 log.warn("Timeout/Thread Interruption Occured during retrieval of server list");
                 isDone = true;

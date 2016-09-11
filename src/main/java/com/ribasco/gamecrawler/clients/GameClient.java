@@ -26,11 +26,7 @@ package com.ribasco.gamecrawler.clients;
 
 import com.ribasco.gamecrawler.protocols.*;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.WriteBufferWaterMark;
-import io.netty.channel.pool.*;
+import io.netty.channel.*;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.ResourceLeakDetector;
 import io.netty.util.concurrent.Promise;
@@ -41,7 +37,6 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.SimpleDateFormat;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -55,12 +50,15 @@ public abstract class GameClient<T extends Channel> implements Closeable {
     protected AtomicInteger cancelledTasks = new AtomicInteger();
     private final EventLoopGroup group;
     private final Bootstrap bootstrap;
+    private Channel channel;
     public static final int DEFAULT_RESPONSE_TIMEOUT = 15;
+
 
     /**
      * Runnable responsible for monitoring the request map. Throw a timeout error if any of the request have reached the maximum wait time.
      */
     private Runnable REQUEST_MONITOR = () -> {
+        log.debug("Running Task Monitor...");
         //Filter entries that have elapsed for more than 5 seconds
         Session.getInstance().entrySet().stream().filter(entry -> entry.getValue() != null && entry.getValue().hasElapsed(DEFAULT_RESPONSE_TIMEOUT)).forEach(e -> {
             log.debug("Request: {} has Elapsed for more than 5 seconds (Duration: {}). Cancelling", e.getKey(), (e.getValue() != null) ? e.getValue().getDuration() : "N/A");
@@ -84,6 +82,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             else
                 log.debug("{} already marked as done. Unable to set to failure state.", e.getKey());
 
+
             //Remove from the registry
             Session.getInstance().unregister(e.getKey());
             cancelledTasks.incrementAndGet();
@@ -91,24 +90,10 @@ public abstract class GameClient<T extends Channel> implements Closeable {
     };
 
     /**
-     * Default Pool Handler
+     * Constructor
+     *
+     * @param group {@link EventLoopGroup} instance
      */
-    private ChannelPoolHandler DEFAULT_POOL_HANDLER = new AbstractChannelPoolHandler() {
-        @Override
-        public void channelCreated(Channel ch) throws Exception {
-            //log.debug("[CHANNEL CREATED] {}, Is Open: {}, Is Active: {}, Is Registered: {}", ch, ch.isOpen(), ch.isActive(), ch.isRegistered());
-            configureChannel((T) ch);
-        }
-    };
-
-    private ChannelPoolMap<InetSocketAddress, SimpleChannelPool> DEFAULT_POOLMAP = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
-        @Override
-        protected SimpleChannelPool newPool(InetSocketAddress key) {
-            log.debug("Creating simple channel poool for {}", key);
-            return new SimpleChannelPool(bootstrap.remoteAddress(key).localAddress(0), DEFAULT_POOL_HANDLER);
-        }
-    };
-
     public GameClient(EventLoopGroup group) {
         this.group = group;
         this.bootstrap = new Bootstrap();
@@ -117,7 +102,11 @@ public abstract class GameClient<T extends Channel> implements Closeable {
         configureBootstrap(bootstrap);
 
         try {
-            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
+            if (log.isDebugEnabled())
+                ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
+
+            //Bind to channel
+            channel = bootstrap.bind(0).sync().channel();
 
             //Reset cancelled task counter
             cancelledTasks.set(0);
@@ -125,9 +114,10 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             //Monitor each request from the session, cancel if any of them takes too long to be received
             group.next().scheduleWithFixedDelay(REQUEST_MONITOR, 3, 1, TimeUnit.SECONDS);
 
-            //log.info("Now listening in local port: {}", ((InetSocketAddress) channel.localAddress()).getPort());
+            log.info("Now listening in local port: {}", ((InetSocketAddress) channel.localAddress()).getPort());
         } catch (Exception e) {
             log.error("Error during initialize", e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -138,43 +128,26 @@ public abstract class GameClient<T extends Channel> implements Closeable {
                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT)
                 //.option(ChannelOption.AUTO_READ, true)
                 .option(ChannelOption.SO_SNDBUF, 1048576)
-                .option(ChannelOption.SO_RCVBUF, 1048576);
-    }
-
-    private T acquireChannel(InetSocketAddress address) throws TimeoutException {
-        T c = null;
-        try {
-            ChannelPool pool = DEFAULT_POOLMAP.get(address);
-            c = (T) pool.acquire().get(); //5, TimeUnit.SECONDS
-            if (c == null)
-                log.debug("Unable to acquire channel for address {}", address);
-        } catch (InterruptedException | ExecutionException e) {
-            log.error("Problem acquiring channel from pool", e);
-        } catch (Exception e) {
-            throw e;
-        }
-        return c;
-    }
-
-    protected void releaseChannel(InetSocketAddress address, T channel) {
-        try {
-            if (channel != null) {
-                DEFAULT_POOLMAP.get(address).release(channel).sync();
-                return;
-            }
-            log.debug("Unable to release channel for '{}'. Null instance.", address);
-        } catch (InterruptedException e) {
-            log.error("Interrupted", e);
-        }
+                .option(ChannelOption.SO_RCVBUF, 1048576)
+                .handler(new ChannelInitializer<T>() {
+                    @Override
+                    protected void initChannel(T ch) throws Exception {
+                        configureChannel(ch);
+                    }
+                });
     }
 
     protected <A> Promise<A> sendRequest(InetSocketAddress destination, GameRequestPacket requestPacket, ResponseCallback<A> responseCallback) {
         Promise<A> requestPromise = sendRequest(destination, requestPacket);
         requestPromise.addListener(future -> {
             if (future.isSuccess()) {
+                log.debug("Received SUCCESS Response for {}:{}. Invoking Callback", destination.getAddress().getHostAddress(), destination.getPort());
                 responseCallback.onComplete(requestPromise.get(), destination, null);
+                log.debug("Callback done! {}:{}", destination.getAddress().getHostAddress(), destination.getPort());
             } else {
+                log.debug("Received ERROR Response for {}:{}. Invoking Callback", destination.getAddress().getHostAddress(), destination.getPort());
                 responseCallback.onComplete(null, destination, future.cause());
+                log.debug("Callback done! {}:{}", destination.getAddress().getHostAddress(), destination.getPort());
             }
         });
         return requestPromise;
@@ -194,20 +167,15 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             throw new IllegalArgumentException("Request Packet or Destination Address cannot be null/empty");
         }
 
-        Channel c = null;
-
         //Create session id
         String sessionId = createSessionId(destination, requestPacket.getClass());
 
         try {
-            //Acquire a channel from the pool
-            c = acquireChannel(destination);
-
             //Wrap the request details in an envelope
             RequestEnvelope envelope = new RequestEnvelope<>(requestPacket, destination);
 
             //TODO: Need to refactor this. The outcome of this operation will determine if the request get going to be registerd in the session or not
-            c.writeAndFlush(envelope).addListener(
+            channel.writeAndFlush(envelope).addListener(
                     future -> {
                         //Check to see if something went wrong during write operation
                         if (future.isSuccess()) {
@@ -227,10 +195,9 @@ public abstract class GameClient<T extends Channel> implements Closeable {
             );
         } catch (Exception e) {
             log.debug("An internal error occured inside sendRequest(). Setting promise to a failure state. (Request: {})", requestPacket.toString());
+            log.debug(e.getMessage(), e);
             promise.tryFailure(e);
             Session.getInstance().unregister(sessionId);
-        } finally {
-            releaseChannel(destination, (T) c);
         }
         return promise;
     }

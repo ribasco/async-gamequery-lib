@@ -25,6 +25,8 @@
 package com.ribasco.gamecrawler.protocols;
 
 import io.netty.util.concurrent.Promise;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -32,6 +34,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * Created by raffy on 9/8/2016.
  */
 public class SessionInfo {
+
+    private static final Logger log = LoggerFactory.getLogger(SessionInfo.class);
+
     private String sessionId;
     private Promise promise;
     private long timeRegistered;
@@ -49,6 +54,7 @@ public class SessionInfo {
 
     public boolean hasElapsed(long seconds) {
         long elapsed = (System.currentTimeMillis() - timeRegistered) / 1000;
+        log.debug("Checking elapsed value for session {} = {}", sessionId, elapsed);
         return (elapsed > seconds);
     }
 

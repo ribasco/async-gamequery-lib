@@ -25,16 +25,15 @@
 package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
 
 import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
 import com.ribasco.gamecrawler.utils.ByteUtils;
-
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_PLAYER_HEADER;
 
 /**
  * Created by raffy on 9/1/2016.
  */
 public class SourcePlayerRequestPacket extends SourceRequestPacket {
     public SourcePlayerRequestPacket(int challenge) {
-        setHeader(REQUEST_PLAYER_HEADER);
+        setHeader(SourceRequest.PLAYER);
         setPayload(ByteUtils.byteArrayFromInteger(Integer.reverseBytes(challenge)));
     }
 

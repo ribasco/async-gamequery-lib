@@ -28,7 +28,7 @@ import com.ribasco.gamecrawler.protocols.DefaultResponseWrapper;
 import com.ribasco.gamecrawler.protocols.Response;
 import com.ribasco.gamecrawler.protocols.ResponseWrapper;
 import com.ribasco.gamecrawler.protocols.Session;
-import com.ribasco.gamecrawler.protocols.valve.server.SourcePacketHelper;
+import com.ribasco.gamecrawler.protocols.valve.server.SourceMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -54,7 +54,7 @@ public class SourceResponseDecoder extends MessageToMessageDecoder<DatagramPacke
         ByteBuf data = msg.content();
 
         //Is this a valid header for the Server Info Response?
-        if (!SourcePacketHelper.isValidResponsePacket(data)) {
+        if (!SourceMapper.isValidResponsePacket(data)) {
             if (log.isDebugEnabled())
                 System.out.println(ByteBufUtil.prettyHexDump(msg.content()));
             log.warn("No valid handlers found for this packet. Discarding Packet.");
@@ -63,7 +63,7 @@ public class SourceResponseDecoder extends MessageToMessageDecoder<DatagramPacke
         }
 
         //At this point, the buffer SHOULD ALWAYS start from the response header. Not from the protocol header.
-        Response responsePacket = SourcePacketHelper.getResponsePacket(data);
+        Response responsePacket = SourceMapper.getResponsePacket(data);
 
         //We dont have a valid response packet for this message, we need to discard it.
         if (responsePacket == null) {

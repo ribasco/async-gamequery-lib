@@ -26,6 +26,7 @@ package com.ribasco.gamecrawler.protocols.valve.server.handlers;
 
 import com.ribasco.gamecrawler.protocols.DefaultResponseWrapper;
 import com.ribasco.gamecrawler.protocols.Session;
+import com.ribasco.gamecrawler.protocols.SessionInfo;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.util.concurrent.Promise;
@@ -40,18 +41,18 @@ public class SourceResponseHandler extends SimpleChannelInboundHandler<DefaultRe
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DefaultResponseWrapper response) throws Exception {
-        //Retrieve the request map registry
-        Session registry = Session.getInstance();
-
-        //Note: This handler assumes that we have an existing SESSION ID
-
-        //Get the request id (should be assigned by the check handler)
+        //Retrieve the session id associated with this response
         String sessionId = response.getSessionId();
 
+        //Retrieve the session information for the response
+        SessionInfo sessionInfo = Session.getSessionInfo(sessionId);
+
         //Retrieve the promise associated with this request
-        Promise<Object> promise = registry.getPromise(sessionId);
+        Promise<Object> promise = sessionInfo.getPromise();
+
         if (promise == null) {
-            log.warn("No promise was assigned to request '{}' after retrieval", sessionId);
+            //Do nothing here and just return, let the task monitor cancel the request
+            log.error("No promise was assigned to request '{}' after retrieval", sessionId);
             return;
         }
 
@@ -62,8 +63,8 @@ public class SourceResponseHandler extends SimpleChannelInboundHandler<DefaultRe
         promise.setSuccess(responseObj);
 
         //Remove the request from the registry
-        registry.unregister(sessionId);
+        Session.getInstance().unregister(sessionId);
 
-        log.debug("Successfully Processed '{}' (Current Size of Registry: {})", sessionId, registry.size());
+        log.debug("Successfully Processed '{}' (Current Size of Registry: {})", sessionId, Session.getInstance().getTotalRequests());
     }
 }

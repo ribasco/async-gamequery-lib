@@ -24,12 +24,13 @@
 
 package com.ribasco.gamecrawler.cli;
 
-import com.ribasco.gamecrawler.clients.SourceClient;
+import com.ribasco.gamecrawler.clients.SourceQueryClient;
 import com.ribasco.gamecrawler.protocols.ResponseCallback;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceMasterFilter;
 import com.ribasco.gamecrawler.protocols.valve.server.SourcePlayer;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceServer;
-import com.ribasco.gamecrawler.protocols.valve.server.packets.requests.SourceMasterRequestPacket;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceChallengeRequest;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceMasterServerRegion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +39,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_PLAYER_HEADER;
 
 public class SourceCommandLineClient {
     private static final Logger log = LoggerFactory.getLogger(SourceCommandLineClient.class);
@@ -58,14 +57,21 @@ public class SourceCommandLineClient {
 
         AtomicInteger totalChallengeRecieved = new AtomicInteger();
         AtomicInteger totalChallengeNotReceived = new AtomicInteger();
+
+        AtomicInteger totalPlayerRecordsReceived = new AtomicInteger();
+        AtomicInteger totalPlayerRecordsInError = new AtomicInteger();
+
+        AtomicInteger totalNumberOfServersWithPlayers = new AtomicInteger();
+        AtomicInteger totalNumberOfServersWithoutPlayers = new AtomicInteger();
+
         int cancelled = 0;
 
         //Run client test code
-        try (SourceClient client = new SourceClient()) {
+        try (SourceQueryClient client = new SourceQueryClient()) {
 
             //Create our filter
             SourceMasterFilter masterFilter = new SourceMasterFilter();
-            masterFilter.appId(550).dedicated(true).isSecure(true);
+            masterFilter.dedicated(true).isSecure(true).isWhitelisted(true);
 
             log.info("Querying Master Server with Filter {}", masterFilter.toString());
 
@@ -82,7 +88,9 @@ public class SourceCommandLineClient {
             ResponseCallback<List<SourcePlayer>> sourcePlayerResponseCallback = (playerList, sender, error) -> {
                 if (error != null) {
                     log.error("[PLAYER:ERROR] From {}:{} ({} = {})", sender.getAddress().getHostAddress(), sender.getPort(), error.getClass().getSimpleName(), error.getMessage());
+                    totalPlayerRecordsInError.incrementAndGet();
                 } else {
+                    totalPlayerRecordsReceived.incrementAndGet();
                     log.info("[PLAYER:INFO] From {}:{}, Total Players : {}", sender.getAddress().getHostAddress(), sender.getPort(), playerList.size());
                     playerList.forEach(player -> log.info("---> {}", player.toString()));
                 }
@@ -96,12 +104,10 @@ public class SourceCommandLineClient {
                     log.info("[CHALLENGE:INFO]: Challenge Number from {}:{} = {}", sender.getAddress().getHostAddress(), sender.getPort(), challenge);
                     totalChallengeRecieved.incrementAndGet();
 
+
                     //Retrieve player from server using challenge number
                     client.getPlayerDetails(challenge, sender, sourcePlayerResponseCallback);
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
-                    }
+
                     client.getServerRules(challenge, sender, sourceRulesResponseCallback);
                 }
             };
@@ -118,8 +124,12 @@ public class SourceCommandLineClient {
                     log.info("[SERVERINFO:INFO] From {}:{} (Name = {}, Map = {}, Players = {}, Max Players = {})", sender.getAddress().getHostAddress(), sender.getPort(), serverInfo.getName(), serverInfo.getMapName(), serverInfo.getNumOfPlayers(), serverInfo.getMaxPlayers());
                     totalInfoRecSuccess.incrementAndGet();
 
-                    //Retrieve Server Challenge only if there are players in the server
-                    client.getServerChallenge(sender, REQUEST_PLAYER_HEADER, sourceChallengeCallback);
+                    if (serverInfo.getNumOfPlayers() > 0) {
+                        totalNumberOfServersWithPlayers.incrementAndGet();
+                        //Retrieve Server Challenge only if there are players in the server
+                        client.getServerChallenge(sender, SourceChallengeRequest.PLAYER, sourceChallengeCallback);
+                    } else
+                        totalNumberOfServersWithoutPlayers.incrementAndGet();
                 }
                 totalInfoReceived.incrementAndGet();
             };
@@ -141,11 +151,10 @@ public class SourceCommandLineClient {
             };
 
             //Retrieve servers from master
-            client.getServersFromMaster(SourceMasterRequestPacket.REGION_ALL, masterFilter, sourceMasterCallback).sync();
-            log.info("Waiting till all requests have been processed");
+            client.getServersFromMaster(SourceMasterServerRegion.REGION_ALL, masterFilter, sourceMasterCallback).sync();
 
-            //Iterate remaining requests that have not been processed
-            client.waitForAll();
+            //Iterate remaining request that have not been processed
+            client.waitForAll(60);
 
             cancelled = client.getCancelledTaskCount();
 
@@ -166,6 +175,10 @@ public class SourceCommandLineClient {
             log.info("Total Server Info Replies Received (errors + success): {}", totalInfoReceived.get());
             log.info("Total Challenge Records Received: {}", totalChallengeRecieved.get());
             log.info("Total Challenge Records NOT Received: {}", totalChallengeNotReceived.get());
+            log.info("Total Player Records Received: {}", totalPlayerRecordsReceived.get());
+            log.info("Total Player Records NOT Received due to error: {}", totalPlayerRecordsInError.get());
+            log.info("Total number of servers with Players: {}", totalNumberOfServersWithPlayers.get());
+            log.info("Total number of servers without Players: {}", totalNumberOfServersWithoutPlayers.get());
             log.info("Total Reported Requests Expired by Task Monitor: {}", cancelled);
             log.info("===================================================================");
 

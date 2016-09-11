@@ -26,66 +26,17 @@ package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
 
 import com.ribasco.gamecrawler.protocols.valve.server.SourceMasterFilter;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceMasterServerRegion;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 
 import java.net.InetSocketAddress;
 
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_MASTER_HEADER;
-
 /**
  * Created by raffy on 9/1/2016.
  */
 public class SourceMasterRequestPacket extends SourceRequestPacket {
-    /**
-     * Master server header
-     */
-    public static final byte A2M_GET_SERVERS_BATCH2_HEADER = 0x31;
-
-    /**
-     * The region code for the US east coast
-     */
-    public static final byte REGION_US_EAST_COAST = 0x00;
-
-    /**
-     * The region code for the US west coast
-     */
-    public static final byte REGION_US_WEST_COAST = 0x01;
-
-    /**
-     * The region code for South America
-     */
-    public static final byte REGION_SOUTH_AMERICA = 0x02;
-
-    /**
-     * The region code for Europe
-     */
-    public static final byte REGION_EUROPE = 0x03;
-
-    /**
-     * The region code for Asia
-     */
-    public static final byte REGION_ASIA = 0x04;
-
-    /**
-     * The region code for Australia
-     */
-    public static final byte REGION_AUSTRALIA = 0x05;
-
-    /**
-     * The region code for the Middle East
-     */
-    public static final byte REGION_MIDDLE_EAST = 0x06;
-
-    /**
-     * The region code for the whole world
-     */
-    public static final byte REGION_ALL = (byte) 0xFF;
-
-    /**
-     * The region code for Africa
-     */
-    public static final byte REGION_AFRICA = 0x07;
 
     /**
      * The master server address for Source Servers
@@ -98,13 +49,13 @@ public class SourceMasterRequestPacket extends SourceRequestPacket {
 
     private String startIp;
 
-    public SourceMasterRequestPacket(byte region, SourceMasterFilter filter, InetSocketAddress startIp) {
+    public SourceMasterRequestPacket(SourceMasterServerRegion region, SourceMasterFilter filter, InetSocketAddress startIp) {
         this(region, filter, new StringBuilder().append(startIp.getAddress().getHostAddress()).append(":").append(startIp.getPort()).toString());
     }
 
-    public SourceMasterRequestPacket(byte region, SourceMasterFilter filter, String startIp) {
-        setHeader(new byte[]{REQUEST_MASTER_HEADER});
-        this.region = region;
+    public SourceMasterRequestPacket(SourceMasterServerRegion region, SourceMasterFilter filter, String startIp) {
+        setHeader(SourceRequest.MASTER);
+        this.region = region.getHeader();
         this.filter = filter;
         this.startIp = startIp;
     }

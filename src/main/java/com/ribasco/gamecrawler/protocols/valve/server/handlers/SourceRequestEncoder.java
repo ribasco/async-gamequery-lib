@@ -24,8 +24,8 @@
 
 package com.ribasco.gamecrawler.protocols.valve.server.handlers;
 
-import com.ribasco.gamecrawler.protocols.GameRequestEnvelope;
 import com.ribasco.gamecrawler.protocols.GameRequestPacket;
+import com.ribasco.gamecrawler.protocols.RequestEnvelope;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
@@ -40,11 +40,11 @@ import java.util.List;
 /**
  * <p>Translate Game Queries to the underlying protocol implementation for transport</p>
  */
-public class SourceRequestEncoder<T extends GameRequestPacket> extends MessageToMessageEncoder<GameRequestEnvelope<T>> {
+public class SourceRequestEncoder<T extends GameRequestPacket> extends MessageToMessageEncoder<RequestEnvelope<T>> {
     private static final Logger log = LoggerFactory.getLogger(SourceRequestEncoder.class);
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, GameRequestEnvelope<T> requestEnvelope, List<Object> out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, RequestEnvelope<T> requestEnvelope, List<Object> out) throws Exception {
         //Unpack the contents of the message
         InetSocketAddress destination = requestEnvelope.getAddress();
         GameRequestPacket request = requestEnvelope.getRequest();
@@ -52,10 +52,10 @@ public class SourceRequestEncoder<T extends GameRequestPacket> extends MessageTo
         //Translate the content to it's intended form
         byte[] data = request.getRequestData();
 
-        //Pack the message into a buffer (message wrapper)
-        ByteBuf buffer = ctx.alloc().buffer(data.length);
-        buffer.writeBytes(data);
+        //Pack the message into the allocated buffer
+        ByteBuf buffer = ctx.alloc().buffer(data.length).writeBytes(data);
 
+        //Wrap the buffer into a DatagramPacket and send it to the next handlers
         out.add(new DatagramPacket(buffer, destination));
 
         log.debug("Request {} Successfully Sent to {}:{}", request.getClass().getSimpleName(), destination.getAddress().getHostAddress(), destination.getPort());

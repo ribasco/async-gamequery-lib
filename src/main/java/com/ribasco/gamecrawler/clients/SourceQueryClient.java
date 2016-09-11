@@ -30,11 +30,13 @@ import com.ribasco.gamecrawler.protocols.handlers.ErrorHandler;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceMasterFilter;
 import com.ribasco.gamecrawler.protocols.valve.server.SourcePlayer;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceServer;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceChallengeRequest;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceMasterServerRegion;
 import com.ribasco.gamecrawler.protocols.valve.server.handlers.SourcePacketHandler;
 import com.ribasco.gamecrawler.protocols.valve.server.handlers.SourceRequestEncoder;
 import com.ribasco.gamecrawler.protocols.valve.server.handlers.SourceResponseDecoder;
 import com.ribasco.gamecrawler.protocols.valve.server.handlers.SourceResponseHandler;
-import com.ribasco.gamecrawler.protocols.valve.server.packets.requests.*;
+import com.ribasco.gamecrawler.protocols.valve.server.packets.request.*;
 import io.netty.channel.ChannelPipeline;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -54,14 +56,12 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_PLAYER_HEADER;
-
-public class SourceClient extends GameClient<NioDatagramChannel> {
-    private static final Logger log = LoggerFactory.getLogger(SourceClient.class);
+public class SourceQueryClient extends GameClient<NioDatagramChannel> {
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
     //TODO: Implement caching of challenge numbers
     private Map<String, Integer> challengeCache;
 
-    public SourceClient() {
+    public SourceQueryClient() {
         super(new NioEventLoopGroup(1));
         challengeCache = new HashMap<>();
     }
@@ -77,14 +77,14 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
         p.addLast(new ErrorHandler());
     }
 
-    public Promise<Vector<InetSocketAddress>> getServersFromMaster(byte region, SourceMasterFilter filter, ResponseCallback<InetSocketAddress> responseCallback) {
+    public Promise<Vector<InetSocketAddress>> getServersFromMaster(SourceMasterServerRegion region, SourceMasterFilter filter, ResponseCallback<InetSocketAddress> responseCallback) {
         //Send and receive a batch of master server list
         log.debug("Sending Master Server Request");
 
         Promise<Vector<InetSocketAddress>> sdPromise = createPromise();
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
 
-        //As per protocol specs, this is required as our starting seed address
+        //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
 
         boolean isDone = false;
@@ -104,7 +104,7 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
                 log.debug("Sending master server with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter.toString());
 
                 //Send initial query to the master server
-                Promise<Vector<InetSocketAddress>> p = sendGameServerRequest(destination, new SourceMasterRequestPacket(region, filter, startAddress));
+                Promise<Vector<InetSocketAddress>> p = sendRequest(destination, new SourceMasterRequestPacket(region, filter, startAddress));
 
                 p.addListener(listener);
 
@@ -157,12 +157,12 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
         return sdPromise;
     }
 
-    public Promise<Integer> getServerChallenge(InetSocketAddress address, byte type, ResponseCallback<Integer> responseCallback) {
-        return sendGameServerRequest(address, new SourceChallengeRequestPacket(type), responseCallback);
+    public Promise<Integer> getServerChallenge(InetSocketAddress address, SourceChallengeRequest request, ResponseCallback<Integer> responseCallback) {
+        return sendRequest(address, new SourceChallengeRequestPacket(request.getRequest().getHeader()), responseCallback);
     }
 
     public Promise<SourceServer> getServerDetails(InetSocketAddress address, ResponseCallback<SourceServer> responseCallback) {
-        return sendGameServerRequest(address, new SourceInfoRequestPacket(), responseCallback);
+        return sendRequest(address, new SourceInfoRequestPacket(), responseCallback);
     }
 
     public Promise<List<SourcePlayer>> getPlayerDetails(InetSocketAddress address, ResponseCallback<List<SourcePlayer>> responseCallback) {
@@ -170,7 +170,7 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
         Promise<List<SourcePlayer>> spPromise = createPromise();
         try {
             final int[] challengeRes = {-1};
-            getServerChallenge(address, REQUEST_PLAYER_HEADER, (challenge, sender, error) -> {
+            getServerChallenge(address, SourceChallengeRequest.PLAYER, (challenge, sender, error) -> {
                 if (error != null) {
                     spPromise.tryFailure(error);
                     responseCallback.onComplete(null, address, error);
@@ -202,7 +202,7 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
     }
 
     public Promise<List<SourcePlayer>> getPlayerDetails(int challenge, InetSocketAddress address, ResponseCallback<List<SourcePlayer>> responseCallback) {
-        return sendGameServerRequest(address, new SourcePlayerRequestPacket(challenge), responseCallback);
+        return sendRequest(address, new SourcePlayerRequestPacket(challenge), responseCallback);
     }
 
     public Promise<Map<String, String>> getServerRules(InetSocketAddress address, ResponseCallback<Map<String, String>> responseCallback) {
@@ -210,7 +210,7 @@ public class SourceClient extends GameClient<NioDatagramChannel> {
     }
 
     public Promise<Map<String, String>> getServerRules(int challenge, InetSocketAddress address, ResponseCallback<Map<String, String>> responseCallback) {
-        return sendGameServerRequest(address, new SourceRulesRequestPacket(challenge), responseCallback);
+        return sendRequest(address, new SourceRulesRequestPacket(challenge), responseCallback);
     }
 
     public int getCancelledTaskCount() {

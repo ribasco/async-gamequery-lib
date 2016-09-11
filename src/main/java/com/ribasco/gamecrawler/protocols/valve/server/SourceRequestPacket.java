@@ -25,6 +25,7 @@
 package com.ribasco.gamecrawler.protocols.valve.server;
 
 import com.ribasco.gamecrawler.protocols.GameRequestPacket;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.slf4j.Logger;
@@ -45,9 +46,12 @@ public abstract class SourceRequestPacket implements GameRequestPacket {
         return header;
     }
 
-    public void setHeader(byte header)
-    {
-        this.header = new byte[] {header};
+    public void setHeader(SourceRequest request) {
+        setHeader(request.getHeader());
+    }
+
+    public void setHeader(byte header) {
+        this.header = new byte[]{header};
     }
 
     public void setHeader(byte[] header) {

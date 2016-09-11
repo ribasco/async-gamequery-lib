@@ -30,7 +30,7 @@ import io.netty.buffer.ByteBuf;
 import java.net.InetSocketAddress;
 import java.util.Vector;
 
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.RESPONSE_MASTER_SECONDARY_HEADER;
+import static com.ribasco.gamecrawler.protocols.valve.server.enums.SourceResponse.MASTER_SECONDARY;
 
 /**
  * Created by raffy on 9/5/2016.
@@ -54,8 +54,8 @@ public class SourceMasterResponsePacket extends SourceResponsePacket<Vector<Inet
 
         ByteBuf data = getBuffer();
 
-        //Verify that the secondary header is correct
-        if (RESPONSE_MASTER_SECONDARY_HEADER != data.readByte()) {
+        //Verify that the secondary header get correct
+        if (MASTER_SECONDARY.getHeader() != data.readByte()) {
             throw new RuntimeException("Invalid Secondary Header");
         }
 

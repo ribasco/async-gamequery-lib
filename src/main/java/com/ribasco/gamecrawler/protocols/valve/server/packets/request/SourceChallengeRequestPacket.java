@@ -25,8 +25,7 @@
 package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
 
 import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
-
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_CHALLENGE_HEADER;
+import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
 
 /**
  * Created by raffy on 9/5/2016.
@@ -34,7 +33,7 @@ import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQ
 public class SourceChallengeRequestPacket extends SourceRequestPacket {
 
     public SourceChallengeRequestPacket() {
-        setHeader(REQUEST_CHALLENGE_HEADER);
+        setHeader(SourceRequest.CHALLENGE.getHeader());
     }
 
     public SourceChallengeRequestPacket(byte requestHeaderType) {

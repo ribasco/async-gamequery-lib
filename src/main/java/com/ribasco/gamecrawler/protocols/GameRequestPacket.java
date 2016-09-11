@@ -27,7 +27,7 @@ package com.ribasco.gamecrawler.protocols;
 /**
  * Created by raffy on 9/1/2016.
  */
-//REVIEW: This should not be associated with request. Need to have a separate class for handling and issuing requests
+//REVIEW: This should not be associated with request. Need to have a separate class for handling and issuing request
 public interface GameRequestPacket extends Request<byte[]>, Packet {
 
 }

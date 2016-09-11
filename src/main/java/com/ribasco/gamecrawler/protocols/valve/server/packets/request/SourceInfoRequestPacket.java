@@ -22,23 +22,18 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols.valve.server.packets.requests;
+package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
 
+import com.ribasco.gamecrawler.protocols.valve.server.SourceConstants;
 import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
 
-import static com.ribasco.gamecrawler.protocols.valve.server.SourceConstants.REQUEST_CHALLENGE_HEADER;
-
 /**
- * Created by raffy on 9/5/2016.
+ * Created by raffy on 9/1/2016.
  */
-public class SourceChallengeRequestPacket extends SourceRequestPacket {
+public class SourceInfoRequestPacket extends SourceRequestPacket {
 
-    public SourceChallengeRequestPacket() {
-        setHeader(REQUEST_CHALLENGE_HEADER);
-    }
-
-    public SourceChallengeRequestPacket(byte requestHeaderType) {
-        setHeader(requestHeaderType);
-        setPayload(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+    public SourceInfoRequestPacket() {
+        setHeader(new byte[]{SourceConstants.REQUEST_INFO_HEADER});
+        setPayload("Source Engine Query\0".getBytes());
     }
 }

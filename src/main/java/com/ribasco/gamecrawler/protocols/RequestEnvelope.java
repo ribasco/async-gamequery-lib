@@ -29,12 +29,12 @@ import java.net.InetSocketAddress;
 /**
  * Created by raffy on 9/5/2016.
  */
-public class GameRequestEnvelope<T extends GameRequestPacket> {
+public class RequestEnvelope<T extends GameRequestPacket> {
 
     private T request;
     private InetSocketAddress address;
 
-    public GameRequestEnvelope(T request, InetSocketAddress address) {
+    public RequestEnvelope(T request, InetSocketAddress address) {
         this.request = request;
         this.address = address;
     }

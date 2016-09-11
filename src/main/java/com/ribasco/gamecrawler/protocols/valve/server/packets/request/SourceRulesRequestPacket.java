@@ -22,7 +22,7 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols.valve.server.packets.requests;
+package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
 
 import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
 import com.ribasco.gamecrawler.utils.ByteUtils;

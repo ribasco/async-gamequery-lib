@@ -117,8 +117,7 @@ public abstract class GameClient<T extends Channel> implements Closeable {
         configureBootstrap(bootstrap);
 
         try {
-            if (log.isDebugEnabled())
-                ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
+            ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 
             //Reset cancelled task counter
             cancelledTasks.set(0);

@@ -62,55 +62,63 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.trace("SourcePacketHandler.channelRead() : START");
 
-        //Make sure we are only receiving an instance of DatagramPacket
-        if (!(msg instanceof DatagramPacket)) {
-            ReferenceCountUtil.release(msg);
-            return;
-        }
-
-        //REVIEW: Figure out why some request in the registry have no promise assigned to them
-        //REVIEW: (e.g. No promise was assigned to request '101.99.86.58:29028:SourcePlayerRequestPacket' after retrieval)
-
-        //Retrived the packet instance
-        DatagramPacket packet = (DatagramPacket) msg;
-        ByteBuf data = ((DatagramPacket) msg).content();
-
-        if (log.isDebugEnabled()) {
-            System.out.println(prettyHexDump(packet.content()));
-        }
-
-        //Verify size
-        if (data.readableBytes() <= 5) {
-            log.debug("Not a valid datagram for processing. Size getTotalRequests needs to be at least more than or equal to 5 bytes. Discarding. (Readable Bytes: {})", data.readableBytes());
-            ((DatagramPacket) msg).release();
-            return;
-        }
-
-        //Try to read protocol header, determine if its a single packet or a split-packet
-        int protocolHeader = data.readIntLE();
-
-        //If the packet arrived is single type, we can forward it to the next handler
-        if (protocolHeader == 0xFFFFFFFF) {
-            //Verify if packet is a valid source packet
-            if (SourceMapper.isValidResponsePacket(data)) {
-                log.debug("VALID HEADER, PASSING TO THE CHAIN");
-                //Pass the message to the succeeding handlers
-                ctx.fireChannelRead(packet.retain());
+        try {
+            //Make sure we are only receiving an instance of DatagramPacket
+            if (!(msg instanceof DatagramPacket)) {
+                return;
             }
-        }
-        //If the packet is a split type...further processing get needed
-        else if (protocolHeader == 0xFFFFFFFE) {
-            processSplitPackets(data, ctx, packet);
-        }
-        //Packet is not being handled by any of our processors, discard
-        else {
-            log.debug("Not a valid protocol header. Discarding. (Header Received: Dec = {}, Hex = {})", protocolHeader, Integer.toHexString(protocolHeader));
-            ((DatagramPacket) msg).release();
+
+            //REVIEW: Figure out why some request in the registry have no promise assigned to them
+            //REVIEW: (e.g. No promise was assigned to request '101.99.86.58:29028:SourcePlayerRequestPacket' after retrieval)
+
+            //Retrived the packet instance
+            DatagramPacket packet = (DatagramPacket) msg;
+            ByteBuf data = ((DatagramPacket) msg).content();
+
+            if (log.isDebugEnabled()) {
+                System.out.println(prettyHexDump(packet.content()));
+            }
+
+            //Verify size
+            if (data.readableBytes() <= 5) {
+                log.debug("Not a valid datagram for processing. Size getTotalRequests needs to be at least more than or equal to 5 bytes. Discarding. (Readable Bytes: {})", data.readableBytes());
+                return;
+            }
+
+            //Try to read protocol header, determine if its a single packet or a split-packet
+            int protocolHeader = data.readIntLE();
+
+            //If the packet arrived is single type, we can forward it to the next handler
+            if (protocolHeader == 0xFFFFFFFF) {
+                //Verify if packet is a valid source packet
+                if (SourceMapper.isValidResponsePacket(data)) {
+                    //Pass the message to the succeeding handlers
+                    ctx.fireChannelRead(packet.retain());
+                    return;
+                }
+            }
+            //If the packet is a split type...further processing get needed
+            else if (protocolHeader == 0xFFFFFFFE) {
+                ByteBuf reassembledPacket = processSplitPackets(data, ctx.channel().alloc());
+                //Check if we already have a reassembled packet
+                if (reassembledPacket != null) {
+                    ctx.fireChannelRead(new DatagramPacket(reassembledPacket.retain(), packet.recipient(), packet.sender()));
+                    return;
+                }
+            }
+            //Packet is not being handled by any of our processors, discard
+            else {
+                log.debug("Not a valid protocol header. Discarding. (Header Received: Dec = {}, Hex = {})", protocolHeader, Integer.toHexString(protocolHeader));
+                return;
+            }
+        } finally {
+            //Release
+            ReferenceCountUtil.release(msg);
         }
         log.trace("SourcePacketHandler.channelRead() : END");
     }
 
-    private void processSplitPackets(ByteBuf data, ChannelHandlerContext ctx, DatagramPacket packet) {
+    private ByteBuf processSplitPackets(ByteBuf data, ByteBufAllocator allocator) throws Exception {
         int packetCount, packetNumber, requestId, splitSize, packetChecksum = 0;
         boolean isCompressed = false;
 
@@ -157,15 +165,27 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         if (splitPacketContainer.isComplete()) {
             log.debug("Split Packets have all been successfully received from Request {}. Re-assembling packets.", requestId);
 
-            //Re-assemble the split packets
-            ByteBuf reassembledPacket = reassembleSplitPackets(splitPacketContainer, ctx.channel().alloc(), isCompressed, splitSize, packetChecksum);
+            //Retrieve total split packets received based on their length
+            int packetSize = splitPacketContainer.getPacketSize();
+            //Allocate a new buffer to store the re-assembled packets
+            ByteBuf packetBuffer = allocator.buffer(packetSize);
+
+            try {
+                //Start re-assembling split-packets from the container
+                reassembleSplitPackets(splitPacketContainer, packetBuffer, isCompressed, splitSize, packetChecksum);
+            } catch (Exception e) {
+                //If an error occurs, make sure we release the allocated buffer
+                packetBuffer.release();
+                throw e;
+            }
 
             //Discard the protocol header
-            reassembledPacket.readIntLE();
-
-            //Pass to the next handlers in the chain
-            ctx.fireChannelRead(new DatagramPacket(reassembledPacket.retain(), packet.recipient(), packet.sender()));
+            packetBuffer.readIntLE();
+            return packetBuffer;
         }
+
+        //No complete packet yet
+        return null;
     }
 
     /**
@@ -175,11 +195,11 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
      *
      * @return
      */
-    private ByteBuf reassembleSplitPackets(SplitPacketContainer container, ByteBufAllocator allocator, boolean isCompressed, int decompressedSize, int packetChecksum) {
+    private void reassembleSplitPackets(SplitPacketContainer container, ByteBuf packetBuffer, boolean isCompressed, int decompressedSize, int packetChecksum) {
         log.trace("reassembleSplitPackets : START");
 
-        int packetSize = container.getPacketSize();
-        ByteBuf packetBuffer = allocator.buffer(packetSize);
+        if (packetBuffer == null)
+            throw new IllegalArgumentException("Packet Buffer is not initialized");
 
         //Loop throgh each entry
         container.forEachEntry(packetEntry -> {
@@ -217,7 +237,5 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         });
 
         log.trace("reassembleSplitPackets : END");
-
-        return packetBuffer;
     }
 }

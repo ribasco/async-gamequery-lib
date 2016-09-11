@@ -26,7 +26,6 @@ package com.ribasco.gamecrawler.protocols.valve.server.packets.response;
 
 import com.ribasco.gamecrawler.protocols.valve.server.SourceResponsePacket;
 import io.netty.buffer.ByteBuf;
-import io.netty.util.ReferenceCountUtil;
 
 /**
  * Created by raffy on 9/5/2016.
@@ -42,13 +41,9 @@ public class SourceChallengeResponsePacket extends SourceResponsePacket<Integer>
         ByteBuf data = this.getBuffer();
         Integer challengeNumber;
 
-        try {
-            //Read the 32bit challenge number
-            challengeNumber = data.readIntLE();
-        } finally {
-            ReferenceCountUtil.release(data);
-        }
-
+        //Read the 32bit challenge number
+        challengeNumber = data.readIntLE();
+        
         return challengeNumber;
     }
 }

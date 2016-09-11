@@ -35,6 +35,9 @@ import static com.ribasco.gamecrawler.utils.ByteBufUtils.readString;
  */
 public class SourceInfoResponsePacket extends SourceResponsePacket<SourceServer> {
 
+    /**
+     * This is for internal use only and no need to expose to the public API
+     */
     private static byte EDF_GAME_ID = (byte) 0x01;
     private static byte EDF_GAME_PORT = (byte) 0x80;
     private static byte EDF_SERVER_ID = (byte) 0x10;
@@ -49,54 +52,49 @@ public class SourceInfoResponsePacket extends SourceResponsePacket<SourceServer>
     protected SourceServer createFromBuffer() {
 
         ByteBuf data = getBuffer();
-
         SourceServer server = new SourceServer();
 
-        try {
-            //Start Decoding
-            server.setNetworkVersion(data.readByte());
-            server.setName(readString(data));
-            server.setMapName(readString(data));
-            server.setGameDirectory(readString(data));
-            server.setGameDescription(readString(data));
-            server.setAppId(data.readShortLE());
-            server.setNumOfPlayers(data.readByte());
-            server.setMaxPlayers(data.readByte());
-            server.setNumOfBots(data.readByte());
-            server.setDedicated(data.readByte() == 1);
-            server.setOperatingSystem((char) data.readByte());
-            server.setPasswordProtected(data.readByte() == 1);
-            server.setSecure(data.readByte() == 1);
-            server.setGameVersion(readString(data));
+        //Start Decoding
+        server.setNetworkVersion(data.readByte());
+        server.setName(readString(data));
+        server.setMapName(readString(data));
+        server.setGameDirectory(readString(data));
+        server.setGameDescription(readString(data));
+        server.setAppId(data.readShortLE());
+        server.setNumOfPlayers(data.readByte());
+        server.setMaxPlayers(data.readByte());
+        server.setNumOfBots(data.readByte());
+        server.setDedicated(data.readByte() == 1);
+        server.setOperatingSystem((char) data.readByte());
+        server.setPasswordProtected(data.readByte() == 1);
+        server.setSecure(data.readByte() == 1);
+        server.setGameVersion(readString(data));
 
-            if (data.readableBytes() > 0) {
-                byte extraDataFlag = data.readByte();
+        if (data.readableBytes() > 0) {
+            byte extraDataFlag = data.readByte();
 
-                if ((extraDataFlag & EDF_GAME_PORT) != 0) {
-                    data.readShortLE(); //discard, we already know which port based on the sender address
-                }
-
-                if ((extraDataFlag & EDF_SERVER_ID) != 0) {
-                    //this.info.put("serverId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
-                    server.setServerId(data.readLongLE());
-                }
-
-                if ((extraDataFlag & EDF_SOURCE_TV) != 0) {
-                    server.setTvPort(data.readShortLE());
-                    server.setTvName(readString(data));
-                }
-
-                if ((extraDataFlag & EDF_SERVER_TAGS) != 0) {
-                    server.setServerTags(readString(data));
-                }
-
-                if ((extraDataFlag & EDF_GAME_ID) != 0) {
-                    server.setGameId(data.readLongLE());
-                    //this.info.put("gameId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
-                }
+            if ((extraDataFlag & EDF_GAME_PORT) != 0) {
+                data.readShortLE(); //discard, we already know which port based on the sender address
             }
-        } finally {
-            data.release();
+
+            if ((extraDataFlag & EDF_SERVER_ID) != 0) {
+                //this.info.put("serverId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
+                server.setServerId(data.readLongLE());
+            }
+
+            if ((extraDataFlag & EDF_SOURCE_TV) != 0) {
+                server.setTvPort(data.readShortLE());
+                server.setTvName(readString(data));
+            }
+
+            if ((extraDataFlag & EDF_SERVER_TAGS) != 0) {
+                server.setServerTags(readString(data));
+            }
+
+            if ((extraDataFlag & EDF_GAME_ID) != 0) {
+                server.setGameId(data.readLongLE());
+                //this.info.put("gameId", Long.reverseBytes((this.contentData.getInt() << 32) | this.contentData.getInt()));
+            }
         }
 
         return server;

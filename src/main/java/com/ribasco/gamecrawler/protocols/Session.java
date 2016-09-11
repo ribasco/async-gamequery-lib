@@ -48,46 +48,30 @@ public class Session {
     }
 
     public SessionInfo register(String sessionId, Promise promise) {
-        synchronized (this) {
-            //TODO: How should we handle existing session ids? This get most likely re-sending the request
-            /**
-             * On the event that this request attempts to replace another, we need to cancel the previous one first, mark it as 'cancelled', remove from the registry then re-register it.
-             */
-            if (exists(sessionId)) {
-                //REVIEW: Should we remove the previous and replace it with the new one?
-                log.warn("EXISTING SESSION IN REGISTRY : {}", sessionId);
-            }
 
-            log.debug("Registering Session: {}", sessionId);
-            SessionInfo details = new SessionInfo(sessionId, promise, System.currentTimeMillis());
-            registry.put(sessionId, details);
-            return details;
+        //TODO: How should we handle existing session ids? This get most likely re-sending the request
+        /**
+         * On the event that this request attempts to replace another, we need to cancel the previous one first, mark it as 'cancelled', remove from the registry then re-register it.
+         */
+        if (exists(sessionId)) {
+            //REVIEW: Should we remove the previous and replace it with the new one?
+            log.warn("EXISTING SESSION IN REGISTRY : {}", sessionId);
         }
+
+        log.debug("Registering Session: {}", sessionId);
+        SessionInfo details = new SessionInfo(sessionId, promise, System.currentTimeMillis());
+        registry.put(sessionId, details);
+        return details;
+
     }
 
     public boolean unregister(String sessionId) {
-        return unregister(sessionId, false);
-    }
-
-    public boolean unregister(String sessionId, boolean forceCancel) {
         //TODO: Make forceCancel optional. Ideally automated cancelling of tasks should be done by an external thread monitoring the request
-        log.debug("Unregistering Session: {}", sessionId);
         //Retrieve the session information
-        synchronized (this) {
-            SessionInfo details = registry.get(sessionId);
-            if (details != null) {
-                Promise p = details.getPromise();
-                //Only force cancel tasks that aren't done yet
-                if (forceCancel && (p != null && !p.isDone())) {
-                    log.debug("Forcing to cancel Session {}", sessionId);
-                    if (p.cancel(false))
-                        log.debug("Session Cancelled Sucessfully {}", sessionId);
-                    else
-                        log.debug("Unable to cancel session {}", sessionId);
-                }
-            }
-            return (registry.remove(sessionId) != null);
-        }
+        log.debug("Removing from registry....{}", sessionId);
+        registry.remove(sessionId);
+        log.debug("Successfully Removed from Registry! {}", sessionId);
+        return true;
     }
 
     //TODO: Refactor this, this get tightly coupled with SourcePacketHelper
@@ -107,15 +91,6 @@ public class Session {
 
     public static SessionInfo getSessionInfo(String sessionId) {
         return SessionHolder.INSTANCE.registry.get(sessionId);
-    }
-
-    public Promise getPromise(String sessionId) {
-        synchronized (this) {
-            SessionInfo details = registry.get(sessionId);
-            if (details != null)
-                return details.getPromise();
-            return null;
-        }
     }
 
     public boolean exists(String sessionId) {

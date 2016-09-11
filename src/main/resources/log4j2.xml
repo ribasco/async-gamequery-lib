@@ -44,7 +44,7 @@
         <Logger name="com.ribasco.gamecrawler.protocols.valve.source.handlers.SourceResponseHandler" level="info" />
         <Logger name="com.ribasco.gamecrawler.protocols.valve.source.SourcePacketHelper" level="debug" />
         <Logger name="com.ribasco.gamecrawler.clients.GameClient" level="debug"/>
-        <Logger name="com.ribasco.gamecrawler.clients.SourceClient" level="debug"/>
+        <Logger name="com.ribasco.gamecrawler.clients.SourceQueryClientlient" level="debug"/>
         <Logger name="com.ribasco.gamecrawler.cli.SourceCommandLineClientnt" level="debug"/>
 
         <Logger name="com.ribasco.gamecrawler.protocols.Session" level="debug" />

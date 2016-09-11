@@ -22,18 +22,22 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
-
-import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
-import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
+package com.ribasco.gamecrawler.protocols.valve.server.enums;
 
 /**
- * Created by raffy on 9/1/2016.
+ * Created by raffy on 9/11/2016.
  */
-public class SourceInfoRequestPacket extends SourceRequestPacket {
+public enum SourceChallengeRequest {
+    PLAYER(SourceRequest.PLAYER),
+    RULES(SourceRequest.RULES);
 
-    public SourceInfoRequestPacket() {
-        setHeader(SourceRequest.INFO);
-        setPayload("Source Engine Query\0".getBytes());
+    private SourceRequest request;
+
+    SourceChallengeRequest(SourceRequest request) {
+        this.request = request;
+    }
+
+    public SourceRequest getRequest() {
+        return request;
     }
 }

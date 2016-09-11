@@ -22,18 +22,29 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols.valve.server.packets.request;
-
-import com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket;
-import com.ribasco.gamecrawler.protocols.valve.server.enums.SourceRequest;
+package com.ribasco.gamecrawler.protocols.valve.server.enums;
 
 /**
- * Created by raffy on 9/1/2016.
+ * Created by raffy on 9/11/2016.
  */
-public class SourceInfoRequestPacket extends SourceRequestPacket {
+public enum SourceMasterServerRegion {
+    REGION_US_EAST_COAST(0x00),
+    REGION_US_WEST_COAST(0x01),
+    REGION_SOUTH_AMERICA(0x02),
+    REGION_EUROPE(0x03),
+    REGION_ASIA(0x04),
+    REGION_AUSTRALIA(0x05),
+    REGION_MIDDLE_EAST(0x06),
+    REGION_AFRICA(0x07),
+    REGION_ALL(0xFF);
 
-    public SourceInfoRequestPacket() {
-        setHeader(SourceRequest.INFO);
-        setPayload("Source Engine Query\0".getBytes());
+    private byte header;
+
+    SourceMasterServerRegion(int header) {
+        this.header = (byte) header;
+    }
+
+    public byte getHeader() {
+        return header;
     }
 }

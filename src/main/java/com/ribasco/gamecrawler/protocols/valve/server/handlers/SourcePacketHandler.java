@@ -25,7 +25,7 @@
 package com.ribasco.gamecrawler.protocols.valve.server.handlers;
 
 import com.ribasco.gamecrawler.protocols.SplitPacketContainer;
-import com.ribasco.gamecrawler.protocols.valve.server.SourcePacketHelper;
+import com.ribasco.gamecrawler.protocols.valve.server.SourceMapper;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.ChannelHandlerContext;
@@ -68,7 +68,7 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        //REVIEW: Figure out why some requests in the registry have no promise assigned to them
+        //REVIEW: Figure out why some request in the registry have no promise assigned to them
         //REVIEW: (e.g. No promise was assigned to request '101.99.86.58:29028:SourcePlayerRequestPacket' after retrieval)
 
         //Retrived the packet instance
@@ -81,7 +81,7 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
 
         //Verify size
         if (data.readableBytes() <= 5) {
-            log.debug("Not a valid datagram for processing. Size size needs to be at least more than or equal to 5 bytes. Discarding. (Readable Bytes: {})", data.readableBytes());
+            log.debug("Not a valid datagram for processing. Size getTotalRequests needs to be at least more than or equal to 5 bytes. Discarding. (Readable Bytes: {})", data.readableBytes());
             ((DatagramPacket) msg).release();
             return;
         }
@@ -92,13 +92,13 @@ public class SourcePacketHandler extends ChannelInboundHandlerAdapter {
         //If the packet arrived is single type, we can forward it to the next handler
         if (protocolHeader == 0xFFFFFFFF) {
             //Verify if packet is a valid source packet
-            if (SourcePacketHelper.isValidResponsePacket(data)) {
+            if (SourceMapper.isValidResponsePacket(data)) {
                 log.debug("VALID HEADER, PASSING TO THE CHAIN");
                 //Pass the message to the succeeding handlers
                 ctx.fireChannelRead(packet.retain());
             }
         }
-        //If the packet is a split type...further processing is needed
+        //If the packet is a split type...further processing get needed
         else if (protocolHeader == 0xFFFFFFFE) {
             processSplitPackets(data, ctx, packet);
         }

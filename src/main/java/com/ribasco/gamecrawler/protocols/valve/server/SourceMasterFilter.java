@@ -179,7 +179,7 @@ public class SourceMasterFilter {
 
     private SourceMasterFilter create(String key, Object value) {
         if (allServersSet)
-            throw new RuntimeException("All servers filter have been selected. You can not add additional filters in the chain if this property is set");
+            throw new RuntimeException("All servers filter have been selected. You can not add additional filters in the chain if this property get set");
 
         if (StringUtils.isEmpty(key) && value == null) {
             return this;

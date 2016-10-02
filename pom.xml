@@ -50,7 +50,50 @@
         <powermock.version>1.6.5</powermock.version>
     </properties>
 
+    <prerequisites>
+        <maven>3.0.0</maven>
+    </prerequisites>
+
+    <issueManagement>
+        <system>jira</system>
+        <url>https://issues.sonatype.org/browse/AHC</url>
+    </issueManagement>
+
+    <mailingLists>
+        <mailingList>
+            <name>asynchttpclient</name>
+            <archive>http://groups.google.com/group/asynchttpclient/topics</archive>
+            <subscribe>http://groups.google.com/group/asynchttpclient/subscribe</subscribe>
+            <unsubscribe>http://groups.google.com/group/asynchttpclient/subscribe</unsubscribe>
+            <post>asynchttpclient@googlegroups.com</post>
+        </mailingList>
+    </mailingLists>
+
     <dependencies>
+        <dependency>
+            <groupId>org.asynchttpclient</groupId>
+            <artifactId>async-http-client</artifactId>
+            <version>2.1.0-alpha1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId></groupId>
+                    <artifactId></artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-client -->
+        <dependency>
+            <groupId>org.glassfish.jersey.core</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>2.23.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson -->
+        <dependency>
+            <groupId>org.glassfish.jersey.media</groupId>
+            <artifactId>jersey-media-json-jackson</artifactId>
+            <version>2.23.2</version>
+        </dependency>
+
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>

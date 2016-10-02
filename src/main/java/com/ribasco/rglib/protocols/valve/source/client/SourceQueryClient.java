@@ -56,9 +56,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by raffy on 9/14/2016.
  */
-public class SourceServerQueryClient extends GameServerQueryClient<SourceServerRequest, SourceServerResponse, SourceServerMessenger> {
+public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest, SourceServerResponse, SourceServerMessenger> {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceServerQueryClient.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
 
     private Map<Integer, InetSocketAddress> challengeMap = new HashMap<>();
 
@@ -85,7 +85,7 @@ public class SourceServerQueryClient extends GameServerQueryClient<SourceServerR
         }
     }
 
-    public SourceServerQueryClient() {
+    public SourceQueryClient() {
         super(new SourceServerMessenger());
     }
 

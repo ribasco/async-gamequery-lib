@@ -50,7 +50,7 @@ import java.util.Map;
  */
 public abstract class NettyTransport<T extends Channel> implements Transport<Message> {
     private Bootstrap bootstrap;
-    private EventLoopGroup eventLoopGroup;
+    private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
@@ -215,11 +215,11 @@ public abstract class NettyTransport<T extends Channel> implements Transport<Mes
     }
 
     public EventLoopGroup getEventLoopGroup() {
-        return this.eventLoopGroup;
+        return eventLoopGroup;
     }
 
     public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
-        this.eventLoopGroup = eventLoopGroup;
+        NettyTransport.eventLoopGroup = eventLoopGroup;
     }
 
     public ChannelType getChannelType() {

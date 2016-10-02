@@ -61,19 +61,19 @@ public class NettyTcpTransport extends NettyTransport<SocketChannel> {
                     @Override
                     public void channelCreated(Channel ch) throws Exception {
                         getChannelInitializer().initializeChannel(ch);
-                        log.info("Channel Created : {} for {}", ch, ch.remoteAddress());
+                        log.debug("Channel Created : {} for {}", ch, ch.remoteAddress());
                     }
 
                     @Override
                     public void channelReleased(Channel ch) throws Exception {
                         super.channelReleased(ch);
-                        log.info("Channel Released : {} for {}", ch, ch.remoteAddress());
+                        log.debug("Channel Released : {} for {}", ch, ch.remoteAddress());
                     }
 
                     @Override
                     public void channelAcquired(Channel ch) throws Exception {
                         super.channelAcquired(ch);
-                        log.info("Channel Acquired: {} for {}", ch, ch.remoteAddress());
+                        log.debug("Channel Acquired: {} for {}", ch, ch.remoteAddress());
                     }
                 });
             }

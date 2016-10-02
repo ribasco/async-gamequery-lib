@@ -45,7 +45,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * Created by raffy on 9/30/2016.
  */
-public class SynchronousClient<Req extends AbstractRequest,
+public abstract class SynchronousClient<Req extends AbstractRequest,
         Res extends AbstractResponse,
         M extends AbstractMessenger>
         extends AbstractClient<Req, Res, M> {
@@ -133,7 +133,7 @@ public class SynchronousClient<Req extends AbstractRequest,
         }
 
         final Deque<Task> taskQueue = requestMap.get(message.recipient());
-        log.info("Adding request {} to the queue", message);
+        log.debug("Adding request {} to the queue", message);
         taskQueue.add(new Task<>(message, callback, rPromise));
         open(); //lazy start
 
@@ -155,20 +155,20 @@ public class SynchronousClient<Req extends AbstractRequest,
                         return;
                     }
 
-                    log.info("Processing Queue for address '{}'", inetSocketAddressDequeEntry.getKey());
+                    log.debug("Processing Queue for address '{}'", inetSocketAddressDequeEntry.getKey());
 
                     //Check the status of the task located on the head of the queue
                     final Task rh = requestQueue.peek();
 
-                    log.info("There are currently {} items in the queue", requestQueue.size());
+                    log.debug("There are currently {} items in the queue", requestQueue.size());
                     if (rh == null)
                         return;
 
                     //Check if we have pending request
                     if (rh.status == RequestStatus.NEW) {
-                        log.info("Found a request in the queue. Sending request for transport : {}", rh.request);
+                        log.debug("Found a request in the queue. Sending request for transport : {}", rh.request);
                         super.sendRequest((Req) rh.request, rh.callback).addListener(future -> {
-                            log.info("Request done: {}", rh.request);
+                            log.debug("Request done: {}", rh.request);
                             //Set status to done
                             rh.status = RequestStatus.DONE;
                             if (future.isSuccess())
@@ -181,7 +181,7 @@ public class SynchronousClient<Req extends AbstractRequest,
                         //Set status to sent
                         rh.status = RequestStatus.SENT;
                     } else if (rh.status == RequestStatus.SENT) {
-                        log.info("There is still a request pending for completion : {} with status: {}", rh.request, rh.status);
+                        log.debug("There is still a request pending for completion : {} with status: {}", rh.request, rh.status);
                     }
                 });
             }, 500, 500, TimeUnit.MILLISECONDS);
@@ -192,8 +192,7 @@ public class SynchronousClient<Req extends AbstractRequest,
 
     @Override
     public void close() throws IOException {
-        log.info("Closing Client");
-        log.info("- Current Request Map Size: {}", requestMap.size());
+        log.debug("Closing Client");
         super.close();
         scheduledService.shutdown();
         started.set(false);

@@ -60,7 +60,7 @@ public class SourceServerMessenger extends GameServerMessenger<SourceServerReque
 
         //Set our channel initializer
         transport.setChannelInitializer(channel -> {
-            log.info("Initializing Channel");
+            log.debug("Initializing Channel");
             channel.pipeline().addLast(new SourceRequestEncoder(builder));
             channel.pipeline().addLast(new SourcePacketAssembler());
             channel.pipeline().addLast(new SourcePacketDecoder(this, builder));

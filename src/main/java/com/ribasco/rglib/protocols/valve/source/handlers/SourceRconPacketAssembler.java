@@ -66,21 +66,24 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
 
-    private LinkedList<ResponseContainer> responseQueue = new LinkedList<>();
+    private LinkedList<RconSplitPacketBuilder> responseQueue = new LinkedList<>();
 
-    private static final int HEADER_SIZE = 4;
-    private static final int TRAILER_SIZE = 2;
+    private AtomicBoolean isSplitPacket = new AtomicBoolean(false);
+    private AtomicInteger totalBytesRead = new AtomicInteger();
+
+    private static final int HEADER_SIZE = 12; //4 bytes * 3
+    private static final int TRAILER_SIZE = 2; //2 null bytes
 
     private SourceRconPacketBuilder builder;
 
-    private final class ResponseContainer {
+    private final class RconSplitPacketBuilder {
         private int requestId;
         private int size;
         private int type;
         private InetSocketAddress sender;
         private ByteArrayOutputStream body;
 
-        public ResponseContainer(int requestId, int size, int type, InetSocketAddress sender, ByteArrayOutputStream body) {
+        public RconSplitPacketBuilder(int requestId, int size, int type, InetSocketAddress sender, ByteArrayOutputStream body) {
             this.requestId = requestId;
             this.size = size;
             this.type = type;
@@ -92,11 +95,11 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            ResponseContainer that = (ResponseContainer) o;
+            RconSplitPacketBuilder that = (RconSplitPacketBuilder) o;
             return new EqualsBuilder()
-                    .append(requestId, ((ResponseContainer) o).requestId)
-                    .append(sender.getAddress().getHostAddress(), ((ResponseContainer) o).sender.getAddress().getHostAddress())
-                    .append(sender.getPort(), ((ResponseContainer) o).sender.getPort())
+                    .append(requestId, ((RconSplitPacketBuilder) o).requestId)
+                    .append(sender.getAddress().getHostAddress(), ((RconSplitPacketBuilder) o).sender.getAddress().getHostAddress())
+                    .append(sender.getPort(), ((RconSplitPacketBuilder) o).sender.getPort())
                     .isEquals();
         }
 
@@ -111,16 +114,13 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
 
         @Override
         public String toString() {
-            return "ResponseContainer{" +
+            return "RconSplitPacketBuilder{" +
                     "requestId=" + requestId +
                     ", size=" + size +
                     ", type=" + type +
                     ", sender=" + sender;
         }
     }
-
-    private AtomicBoolean isSplitPacket = new AtomicBoolean(false);
-    private AtomicInteger totalBytesRead = new AtomicInteger();
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -132,7 +132,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        log.info("READ: START (Total Readable Bytes: {}, From Handler Instance: {})", msg.readableBytes(), this);
+        log.debug("READ: START (Total Readable Bytes: {}, From Handler Instance: {})", msg.readableBytes(), this);
 
         final InetSocketAddress sender = (InetSocketAddress) ctx.channel().remoteAddress();
 
@@ -152,7 +152,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
 
         //Did we get an auth response?
         if (responseHeader == 2) {
-            log.info("Found auth");
+            log.debug("Found auth");
             msg.resetReaderIndex();
             ctx.fireChannelRead(msg.retain());
             return;
@@ -170,7 +170,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 msg.getByte(packetSize - 1) == 0;
 
         if (isValidResponseHeader) {
-            log.info("Declared Body Size: {}, Request Id: {}, Header: {}, Readable Bytes: {}, Reader Index: {}, Total Packet Size: {}", bodySize, requestId, responseHeader, msg.readableBytes(), msg.readerIndex(), packetSize);
+            log.debug("Declared Body Size: {}, Request Id: {}, Header: {}, Readable Bytes: {}, Reader Index: {}, Total Packet Size: {}", bodySize, requestId, responseHeader, msg.readableBytes(), msg.readerIndex(), packetSize);
 
             //Do we have a body to process?
             if (msg.readableBytes() > 2) {
@@ -178,7 +178,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 //for the next handler to process.
                 if (hasNullTerminator) {
                     //Reconstruct the packet and pass to the next handler
-                    log.info("Passing data to the next handler");
+                    log.debug("Passing data to the next handler");
 
                     //No need to reset the index at this point
                     SourceRconCmdResponsePacket responsePacket = builder.construct(msg);
@@ -188,7 +188,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     ByteBuf newMsg = ctx.channel().alloc().buffer(pData.length);
                     newMsg.writeBytes(pData);
 
-                    log.info("Completed Packet: \n{}", ByteBufUtil.prettyHexDump(newMsg));
+                    log.debug("Completed Packet: \n{}", ByteBufUtil.prettyHexDump(newMsg));
 
                     //Pass the message to the next handler
                     ctx.fireChannelRead(newMsg);
@@ -202,7 +202,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     isSplitPacket.set(true);
 
                     String hexDump = ByteBufUtil.prettyHexDump(msg);
-                    log.info("Partial Body: {}", hexDump);
+                    log.debug("Partial Body: {}", hexDump);
                     //StringBuffer partialBody = new StringBuffer(msg.readCharSequence(msg.readableBytes(), StandardCharsets.UTF_8).toString());
 
                     //Create our new body container, this will be processed once we have received all packets
@@ -214,20 +214,20 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     body.write(ByteUtils.byteArrayFromInteger(Integer.reverseBytes(responseHeader)));
 
                     //Write the body content to the byte output stream
-                    readToOs(msg, body, msg.readableBytes());
+                    //readToOs(msg, body, msg.readableBytes());
+                    msg.readBytes(body, msg.readableBytes());
 
-                    log.info("Writing initial response body to container: \n{}", ByteBufUtil.prettyHexDump(Unpooled.copiedBuffer(body.toByteArray())));
+                    log.debug("Writing initial response body to container: \n{}", ByteBufUtil.prettyHexDump(Unpooled.copiedBuffer(body.toByteArray())));
 
-                    responseQueue.add(new ResponseContainer(requestId, bodySize, responseHeader, sender, body));
+                    responseQueue.add(new RconSplitPacketBuilder(requestId, bodySize, responseHeader, sender, body));
 
-                    log.info("Found a possible split packet! Readable Bytes : {}, Has Null Terminator: {}, Byte #1: {}, Byte #2: {} \n {}", msg.readableBytes(), hasNullTerminator, msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), hexDump);
+                    log.debug("Found a possible split packet! Readable Bytes : {}, Byte #1: {}, Byte #2: {} \n {}", msg.readableBytes(), msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), hexDump);
                 }
             }
             //No readable body
             else {
                 //If we reach this point, then we received an empty response.
-                log.info("RECEIVED AN EMPTY VALID RESPONSE. Skipping for now : ");
-                //TODO: Skip for now until we have an actual implementation. Safe to ignore?
+                log.debug("Received a valid empty response from the server. Skipping");
                 msg.skipBytes(msg.readableBytes());
             }
         }
@@ -246,29 +246,30 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 totalBytesRead.addAndGet(msg.readableBytes());
 
                 if (!hasNullTerminator) {
-                    final ResponseContainer container = responseQueue.peek();
+                    final RconSplitPacketBuilder container = responseQueue.peek();
                     if (container == null) {
                         throw new IllegalStateException("Unable to find the response container for this packet");
                     }
-                    log.info("Appending body to the response container (Current Size: {}) : \n{}", msg.readableBytes(), hexDump);
+                    log.debug("Appending body to the response container (Current Size: {}) : \n{}", msg.readableBytes(), hexDump);
 
                     //Append the split-packet to the container
-                    readToOs(msg, container.body, msg.readableBytes());
+                    //readToOs(msg, container.body, msg.readableBytes());
+                    msg.readBytes(container.body, msg.readableBytes());
                 } else {
-                    log.info("FOUND THE END OF THE SPLIT PACKET!!!! Last Two Bytes ({}, {}), Total Bytes Read: {}", msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), totalBytesRead.get());
+                    log.debug("FOUND THE END OF THE SPLIT PACKET!!!! Last Two Bytes ({}, {}), Total Bytes Read: {}", msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), totalBytesRead.get());
                     isSplitPacket.set(false);
 
                     // Remove the container from the head of the queue
-                    final ResponseContainer container = responseQueue.remove();
+                    final RconSplitPacketBuilder container = responseQueue.poll();
 
-                    log.info("Adding the last response body of the split packet : \n{}", ByteBufUtil.prettyHexDump(msg));
+                    log.debug("Adding the last response body of the split packet : \n{}", ByteBufUtil.prettyHexDump(msg));
 
                     //Read the last partial body to the output stream
-                    readToOs(msg, container.body, msg.readableBytes());
+                    msg.readBytes(container.body, msg.readableBytes());
 
                     //Perform post-processing of the response
                     if (container != null) {
-                        log.info("START : Re-assembling Packet. Total Body Size: {}", container.body.size());
+                        log.debug("START : Re-assembling Packet. Total Body Size: {}", container.body.size());
 
                         //Transfer the data from the byte output stream into the allocated buffer
                         final ByteBuf packetBuffer = ctx.channel().alloc().buffer(container.body.size());
@@ -292,7 +293,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                             //Make sure that the length of the response body is > 0
                             assert bodyLength > 0;
 
-                            log.info(" * Appending Response Body (Length until Null Byte: {}, Size: {}, Id: {}, Type: {})", bodyLength, size, id, type);
+                            log.debug(" * Appending Response Body (Length until Null Byte: {}, Size: {}, Id: {}, Type: {})", bodyLength, size, id, type);
 
                             //Append the partial response to the string buffer
                             reassembledResponseBody.append(packetBuffer.readCharSequence(bodyLength, StandardCharsets.UTF_8));
@@ -304,7 +305,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                             packetBuffer.skipBytes(2);
                         }
 
-                        log.info("END : Re-assembling Packet");
+                        log.debug("END : Re-assembling Packet");
 
                         //Process the completed body
                         SourceRconResponsePacket packet = new SourceRconCmdResponsePacket();
@@ -318,7 +319,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                         assembledPacket.writeBytes(pData);
 
                         //Pass the assembled packet to the next handler in the chain
-                        log.info("Passing assembled packet to the next handler. Queue size is now {}", responseQueue.size());
+                        log.debug("Passing assembled packet to the next handler. Queue size is now {}", responseQueue.size());
                         ctx.fireChannelRead(assembledPacket);
                     } else
                         throw new IllegalStateException("Did not find a container for this packet");
@@ -327,7 +328,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 throw new IllegalStateException("Response is neither valid or handled. Not marked as a split packet");
             }
         }
-        log.info("READ: DONE");
+        log.debug("READ: DONE");
     }
 
     private ByteBuf processBodyBuffer(ByteBuf body) {

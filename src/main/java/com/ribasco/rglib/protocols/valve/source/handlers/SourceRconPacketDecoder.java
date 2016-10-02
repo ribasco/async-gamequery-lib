@@ -57,7 +57,7 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        log.info("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
+        log.debug("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
 
         //Assemble the completed/assembled packet
         final SourceRconResponsePacket packet = builder.construct(msg);
@@ -76,7 +76,7 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
                 response.setRecipient((InetSocketAddress) ctx.channel().localAddress());
                 response.setRequestId(packet.getId());
                 response.setResponsePacket(packet);
-                log.info("Response Processed. Sending back to the messenger : {}", response);
+                log.debug("Response Processed. Sending back to the messenger : {}", response);
                 messenger.receive(response);
                 msg.discardReadBytes();
             } else

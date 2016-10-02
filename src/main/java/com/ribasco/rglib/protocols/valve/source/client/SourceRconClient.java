@@ -62,7 +62,7 @@ public class SourceRconClient extends SynchronousClient<SourceRconRequest, Sourc
         if (StringUtils.isEmpty(password))
             throw new IllegalArgumentException("No password specified");
         int id = createRequestId();
-        log.info("Requesting with id: {}", id);
+        log.debug("Requesting with id: {}", id);
         Promise<Integer> promise = sendRequest(new SourceRconAuthRequest(address, id, password), (response, sender, error) -> {
             if (response != null && error == null)
                 authMap.put(sender, response);

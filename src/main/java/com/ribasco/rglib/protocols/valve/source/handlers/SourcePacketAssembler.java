@@ -97,7 +97,7 @@ public class SourcePacketAssembler extends ChannelInboundHandlerAdapter {
 
         @Override
         public String toString() {
-            return "ResponseContainer{" +
+            return "RconSplitPacketBuilder{" +
                     "requestId='" + requestId + '\'' +
                     ", address=" + address +
                     '}';

@@ -38,22 +38,9 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.github.koraktor.steamcondenser" level="error"/>
-        <!-- <Logger name="com.ribasco.gamecrawler.protocols.Session"debug"/>
-        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.handlers.SourceResponseDecoder" level="info" />
-        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.handlers.SourceResponseHandler" level="info" />
-        <Logger name="com.ribasco.gamecrawler.protocols.valve.source.SourcePacketHelper" level="debug" />
-        <Logger name="com.ribasco.gamecrawler.clients.GameClient" level="debug"/>
-        <Logger name="com.ribasco.gamecrawler.clients.SourceQueryClientlient" level="debug"/>
-        <Logger name="com.ribasco.gamecrawler.cli.SourceCommandLineClientnt" level="debug"/>
-
-        <Logger name="com.ribasco.gamecrawler.protocols.Session" level="debug" />
-        <Logger name="com.ribasco.gamecrawler.protocols.handlers" level="info"/>
-        <Logger name="com.ribasco.gamecrawler.protocols.valve.server.SourceRequestPacket" level="info"/>
-        <Logger name="com.ribasco.gamecrawler.protocols.handlers.ErrorHandler" level="info"/>
--->
-        <Logger name="com.ribasco.gamecrawler" level="info"/>
-        <Logger name="com.ribasco.gamecrawler.protocols.valve.server.handlers.SourceRequestEncoder" level="info"/>
+        <Logger name="com.ribasco.rglib.DemoClient" level="debug"/>
+        <Logger name="com.ribasco.rglib.protocols" level="info"/>
+        <Logger name="com.ribasco.rglib.core" level="info"/>
 
         <Root level="info">
             <AppenderRef ref="Console"/>

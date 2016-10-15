@@ -24,6 +24,9 @@
 
 package com.ribasco.rglib.core;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -48,5 +51,14 @@ public abstract class AbstractGameServerResponse<T extends Decodable<U>, U> exte
     @Override
     public U getMessage() {
         return responsePacket.toObject();
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("type", this.getClass().getSimpleName())
+                .append("sender", sender())
+                .append("responsePacket", responsePacket)
+                .toString();
     }
 }

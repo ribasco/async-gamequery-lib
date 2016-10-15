@@ -22,25 +22,16 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.session;
-
-import com.ribasco.rglib.core.AbstractRequest;
-import com.ribasco.rglib.core.AbstractResponse;
+package com.ribasco.rglib.core.utils;
 
 /**
- * Created by raffy on 9/25/2016.
+ * Created by raffy on 10/14/2016.
  */
-public interface SessionKeyFactory<A extends SessionKey, Req extends AbstractRequest, Res extends AbstractResponse> {
-    /**
-     * Create a {@link SessionKey} based on request instance. The key will be based on the matching {@link AbstractResponse} of the request.
-     *
-     * @param request
-     *
-     * @return
-     */
-    A createKey(Req request);
-
-    A createKey(Res response);
-
-    A duplicate(A key);
+public class ConcurrentUtils {
+    public static void sleepUninterrupted(int milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException ignored) {
+        }
+    }
 }

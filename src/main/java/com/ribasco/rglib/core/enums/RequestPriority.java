@@ -22,32 +22,14 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.session;
-
-import com.ribasco.rglib.core.AbstractRequest;
-import com.ribasco.rglib.core.AbstractResponse;
+package com.ribasco.rglib.core.enums;
 
 /**
- * Created by raffy on 9/26/2016.
+ * Created by raffy on 10/7/2016.
  */
-public class DefaultSessionKeyFactory extends AbstractSessionKeyFactory<DefaultSessionKey, AbstractRequest, AbstractResponse> {
-
-    @Override
-    public DefaultSessionKey createKey(AbstractRequest request) {
-        //Look for the response class associated with this request
-        final Class<? extends AbstractResponse> responseClass = findResponseClass(request);
-        if (responseClass == null)
-            throw new IllegalStateException(String.format("Unable to create session key for request. No response handler found for request '%s'. Please add mapping for this request using addMapping()", request.getClass().getSimpleName()));
-        return new DefaultSessionKey(responseClass, request.recipient());
-    }
-
-    @Override
-    public DefaultSessionKey createKey(AbstractResponse response) {
-        return new DefaultSessionKey(response);
-    }
-
-    @Override
-    public DefaultSessionKey duplicate(DefaultSessionKey key) {
-        return new DefaultSessionKey(key);
-    }
+public enum RequestPriority {
+    REALTIME,
+    HIGH,
+    MEDIUM,
+    LOW
 }

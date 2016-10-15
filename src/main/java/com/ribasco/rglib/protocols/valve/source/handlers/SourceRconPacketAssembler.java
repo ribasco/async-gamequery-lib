@@ -40,7 +40,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -88,6 +87,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             this.size = size;
             this.type = type;
             this.sender = sender;
+            //TODO: Maybe we should replace this with a bytebuf instance instead? To avoid redundancy
             this.body = body;
         }
 
@@ -152,8 +152,9 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
 
         //Did we get an auth response?
         if (responseHeader == 2) {
-            log.debug("Found auth");
+            log.debug("Found authentication response");
             msg.resetReaderIndex();
+            //Instantly pass this to the next handler
             ctx.fireChannelRead(msg.retain());
             return;
         }
@@ -169,13 +170,13 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 msg.getByte(packetSize - 2) == 0 &&
                 msg.getByte(packetSize - 1) == 0;
 
+        //Do we have a valid response header?
         if (isValidResponseHeader) {
             log.debug("Declared Body Size: {}, Request Id: {}, Header: {}, Readable Bytes: {}, Reader Index: {}, Total Packet Size: {}", bodySize, requestId, responseHeader, msg.readableBytes(), msg.readerIndex(), packetSize);
 
             //Do we have a body to process?
             if (msg.readableBytes() > 2) {
-                //We have the acceptable number of bytes we could process and pass instantly
-                //for the next handler to process.
+                //Do we have a null terminator in the body?
                 if (hasNullTerminator) {
                     //Reconstruct the packet and pass to the next handler
                     log.debug("Passing data to the next handler");
@@ -194,19 +195,21 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     ctx.fireChannelRead(newMsg);
                 }
                 //No null terminator so it must be a split-packet response
+                //At this point, we need to mark this as the start of a split-packet response
                 else {
                     //If we reach this point and the body does not yet have a null terminator and size is > 500.
                     // Then its safe to assume that we might have a split-packet response here.
 
-                    //Mark this as a split packet
+                    //Mark the start of a split packet
                     isSplitPacket.set(true);
 
                     String hexDump = ByteBufUtil.prettyHexDump(msg);
                     log.debug("Partial Body: {}", hexDump);
-                    //StringBuffer partialBody = new StringBuffer(msg.readCharSequence(msg.readableBytes(), StandardCharsets.UTF_8).toString());
 
-                    //Create our new body container, this will be processed once we have received all packets
-                    ByteArrayOutputStream body = new ByteArrayOutputStream();
+                    //Create our new body container,
+                    // Note: This body contains multiple rcon command responses so we need to breakdown and
+                    // process each response after we have received everything
+                    final ByteArrayOutputStream body = new ByteArrayOutputStream();
 
                     //Include the header fields (Total of 12 bytes)
                     body.write(ByteUtils.byteArrayFromInteger(Integer.reverseBytes(bodySize)));
@@ -226,7 +229,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             }
             //No readable body
             else {
-                //If we reach this point, then we received an empty response.
+                //If we reach this point, then we have received an empty response from the game server.
                 log.debug("Received a valid empty response from the server. Skipping");
                 msg.skipBytes(msg.readableBytes());
             }
@@ -235,6 +238,8 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
         else {
             //If we reach this point and we have readable bytes > 0, then this is most likely
             // a continuation of a series of split-packets
+
+            //Make sure this is marked-as a split packet response before we proceed
             if (isSplitPacket.get()) {
                 //reset the index since this is not a valid header
                 msg.resetReaderIndex();
@@ -256,7 +261,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     //readToOs(msg, container.body, msg.readableBytes());
                     msg.readBytes(container.body, msg.readableBytes());
                 } else {
-                    log.debug("FOUND THE END OF THE SPLIT PACKET!!!! Last Two Bytes ({}, {}), Total Bytes Read: {}", msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), totalBytesRead.get());
+                    log.debug("Found the end of the split-packet response. Last Two Bytes ({}, {}), Total Bytes Read: {}", msg.getByte(packetSize - 2), msg.getByte(packetSize - 1), totalBytesRead.get());
                     isSplitPacket.set(false);
 
                     // Remove the container from the head of the queue
@@ -267,7 +272,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     //Read the last partial body to the output stream
                     msg.readBytes(container.body, msg.readableBytes());
 
-                    //Perform post-processing of the response
+                    //Perform post-processing of the response body
                     if (container != null) {
                         log.debug("START : Re-assembling Packet. Total Body Size: {}", container.body.size());
 
@@ -280,7 +285,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                         //Process all packets within the container, make sure we remove all the headers
                         packetBuffer.markReaderIndex();
 
-                        //Now that we have received a complete packet, we can start assembling
+                        //Now that we have received a complete packet, we can start the re-assembly process
                         while (packetBuffer.readableBytes() > 0) {
                             //Read the header (12 bytes total)
                             int size = packetBuffer.readIntLE(); //Declared body size
@@ -315,12 +320,14 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                         packet.setBody(reassembledResponseBody.toString());
 
                         byte[] pData = builder.deconstruct(packet);
-                        ByteBuf assembledPacket = ctx.channel().alloc().buffer(pData.length);
-                        assembledPacket.writeBytes(pData);
+
+                        //Allocate our new buffer for the re-assembled packet
+                        final ByteBuf reassembledPacket = ctx.channel().alloc().buffer(pData.length);
+                        reassembledPacket.writeBytes(pData);
 
                         //Pass the assembled packet to the next handler in the chain
                         log.debug("Passing assembled packet to the next handler. Queue size is now {}", responseQueue.size());
-                        ctx.fireChannelRead(assembledPacket);
+                        ctx.fireChannelRead(reassembledPacket);
                     } else
                         throw new IllegalStateException("Did not find a container for this packet");
                 }
@@ -329,19 +336,5 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             }
         }
         log.debug("READ: DONE");
-    }
-
-    private ByteBuf processBodyBuffer(ByteBuf body) {
-
-        return null;
-    }
-
-    private void readToOs(ByteBuf buf, ByteArrayOutputStream bos, int length) throws IOException {
-        buf.readBytes(bos, length);
-    }
-
-    @Override
-    public void channelWritabilityChanged(ChannelHandlerContext ctx) throws Exception {
-        super.channelWritabilityChanged(ctx);
     }
 }

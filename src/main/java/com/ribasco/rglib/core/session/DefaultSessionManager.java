@@ -24,108 +24,165 @@
 
 package com.ribasco.rglib.core.session;
 
-import com.ribasco.rglib.core.AbstractRequest;
-import com.ribasco.rglib.core.AbstractResponse;
-import com.ribasco.rglib.core.ReadRequestTimeoutTimerTask;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multimaps;
+import com.google.common.collect.TreeMultimap;
+import com.ribasco.rglib.core.*;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.concurrent.Promise;
+import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Created by raffy on 9/25/2016.
  */
-public class DefaultSessionManager<T extends AbstractRequest, A extends AbstractResponse> implements SessionManager<T, A> {
+public class DefaultSessionManager<Req extends AbstractRequest,
+        Res extends AbstractResponse>
+        implements SessionManager<Req, Res> {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultSessionManager.class);
-    private final ConcurrentHashMap<SessionKey, Promise<?>> session = new ConcurrentHashMap<>();
-    private static final int DEFAULT_READ_TIMEOUT = 5;
+    private static final int DEFAULT_READ_TIMEOUT = 15;
     private HashedWheelTimer sessionTimer;
-    private SessionKeyFactory factory;
-    private Map<Class<? extends T>, Class<? extends A>> directory = null;
+    private SessionIdFactory factory;
+    private final Multimap<SessionId, SessionValue<Req, Res>> session = Multimaps.synchronizedSortedSetMultimap(TreeMultimap.create(new SessionIdComparator(), new SessionValueComparator()));
+    private Map<Class<? extends Req>, Class<? extends Res>> directory = null;
+    private final AtomicLong indexCounter = new AtomicLong();
 
-    public DefaultSessionManager(AbstractSessionKeyFactory factory) {
+    private class SessionIdComparator implements Comparator<SessionId> {
+        @Override
+        public int compare(SessionId o1, SessionId o2) {
+            return new CompareToBuilder()
+                    .append(o1.getId(), o2.getId())
+                    .toComparison();
+        }
+    }
+
+    private class SessionValueComparator implements Comparator<SessionValue> {
+        @Override
+        public int compare(SessionValue o1, SessionValue o2) {
+            return new CompareToBuilder()
+                    .append(o1.getIndex(), o2.getIndex())
+                    .toComparison();
+        }
+    }
+
+    public DefaultSessionManager(AbstractSessionIdFactory factory) {
         sessionTimer = new HashedWheelTimer();
         directory = new HashMap<>();
-        this.factory = (factory != null) ? factory : new DefaultSessionKeyFactory();
+        this.factory = (factory != null) ? factory : new DefaultSessionIdFactory();
         factory.setLookup(directory);
     }
 
     @Override
-    public Promise<?> retrievePromise(SessionKey key) {
-        return session.get(key);
-    }
-
-    @Override
-    public SessionKey retrieveKey(A response) {
-        SessionKey key = factory.createKey(response);
-        if (!session.containsKey(key)) {
-            return null;
-        }
-        return session.keySet().stream()
-                .filter(keyEntry -> keyEntry.equals(key))
-                .findFirst()
-                .orElse(null);
-    }
-
-    @Override
-    public SessionKey createKey(T request) {
-        return factory.createKey(request);
-    }
-
-    @Override
-    public SessionKey createKey(A response) {
-        return factory.createKey(response);
-    }
-
-    @Override
-    public SessionKey register(T request, Promise<?> promise) {
-        SessionKey key = createKey(request);
-        if (!session.containsKey(key)) {
-            key.setTimeout(sessionTimer.newTimeout(new ReadRequestTimeoutTimerTask(key, this), DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS));
-            session.put(key, promise);
-            log.debug("Registered Session: {}", key);
-            return key;
-        }
+    public SessionValue<Req, Res> getSession(AbstractMessage message) {
+        final SessionId id = getId(message);
+        if (id != null)
+            return getSession(id);
         return null;
     }
 
     @Override
-    public Set<Map.Entry<SessionKey, Promise<?>>> getPendingEntries() {
-        return session.entrySet();
+    public SessionValue<Req, Res> getSession(SessionId id) {
+        final Collection<SessionValue<Req, Res>> c = session.get(id);
+        synchronized (this) {
+            return (id != null && c.size() > 0) ? c.iterator().next() : null;
+        }
     }
 
     @Override
-    public Class<? extends A> lookupResponseClass(T request) {
+    public SessionId getId(AbstractMessage message) {
+        if (factory == null)
+            throw new IllegalStateException("No id factory assigned");
+        final SessionId id = factory.createId(message);
+        synchronized (this) {
+            if (!session.containsKey(id)) {
+                return null;
+            }
+            return session.keySet().stream()
+                    .filter(sessionId -> sessionId.equals(id))
+                    .findFirst()
+                    .orElse(null);
+        }
+    }
+
+    @Override
+    public SessionId register(RequestDetails<Req> requestDetails) {
+        log.debug("Registering session : {}", requestDetails.getRequest());
+        final SessionId id = factory.createId(requestDetails.getRequest());
+        //Create our session store object and set it's properties
+        SessionValue<Req, Res> sessionValue = new SessionValue<>(id, requestDetails, indexCounter.incrementAndGet());
+        sessionValue.setExpectedResponse(findResponseClass(requestDetails.getRequest()));
+        sessionValue.setTimeout(sessionTimer.newTimeout(new ReadRequestTimeoutTimerTask(id, this), DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS));
+        //Add to the registry
+        synchronized (this) {
+            session.put(id, sessionValue);
+        }
+        return id;
+    }
+
+    @Override
+    public boolean unregister(SessionId id) {
+        return unregister(getSession(id));
+    }
+
+    @Override
+    public synchronized boolean unregister(SessionValue sessionValue) {
+        log.debug("Unregistering session {}", sessionValue.getId());
+        if (sessionValue == null) {
+            log.error("Session Value is null {}", session.entries().size());
+            return false;
+        }
+        synchronized (this) {
+            //Cancel the timeout instance
+            if (sessionValue.getTimeout() != null &&
+                    !sessionValue.getTimeout().isCancelled() &&
+                    !sessionValue.getTimeout().isExpired()) {
+                sessionValue.getTimeout().cancel();
+            }
+            return session.remove(sessionValue.getId(), sessionValue);
+        }
+    }
+
+    @Override
+    public boolean isRegistered(AbstractMessage message) {
+        return getId(message) != null;
+    }
+
+    @Override
+    public synchronized Collection<Map.Entry<SessionId, SessionValue<Req, Res>>> getSessionEntries() {
+        return session.entries();
+    }
+
+    @Override
+    public Class<? extends Res> findResponseClass(Req request) {
         return directory.get(request.getClass());
     }
 
     @Override
-    public Map<Class<? extends T>, Class<? extends A>> getDirectoryMap() {
+    public Map<Class<? extends Req>, Class<? extends Res>> getLookupMap() {
         return directory;
     }
 
     @Override
-    public SessionKeyFactory getSessionKeyFactory() {
+    public SessionIdFactory getSessionIdFactory() {
         return this.factory;
     }
 
     @Override
-    public void unregister(SessionKey key) {
-        //Remove the key from the session map
-        session.remove(key);
-        log.debug("Unregistered session '{}'", key);
-    }
-
-    @Override
     public void close() throws IOException {
+        if (getSessionEntries().size() > 0) {
+            log.warn("Request to shutdown has been initiated but the session manager still contains " +
+                    "pending entries that has not completed. Notifying all pending entries " +
+                    "that shutdown has been initiated.");
+        }
         sessionTimer.stop();
         session.clear();
     }

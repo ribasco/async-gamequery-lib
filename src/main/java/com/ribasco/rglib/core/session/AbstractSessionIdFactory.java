@@ -24,23 +24,60 @@
 
 package com.ribasco.rglib.core.session;
 
+import com.ribasco.rglib.core.AbstractMessage;
 import com.ribasco.rglib.core.AbstractRequest;
 import com.ribasco.rglib.core.AbstractResponse;
 
+import java.net.InetSocketAddress;
 import java.util.Map;
 
 /**
  * Created by raffy on 9/26/2016.
  */
-public abstract class AbstractSessionKeyFactory<A extends SessionKey, Req extends AbstractRequest, Res extends AbstractResponse> implements SessionKeyFactory<A, Req, Res> {
+public abstract class AbstractSessionIdFactory<
+        Req extends AbstractRequest,
+        Res extends AbstractResponse>
+        implements SessionIdFactory {
+
+    protected static final String DEFAULT_ID_FORMAT = "%s:%s:%s";
+
     private Map<Class<? extends Req>, Class<? extends Res>> lookup;
 
-    protected Class<? extends Res> findResponseClass(Req request) {
+    protected Class<? extends Res> getResponseClass(Req request) {
         if (lookup == null)
             throw new IllegalStateException("Lookup map has not been initialized");
         if (request != null)
             return lookup.get(request.getClass());
         return null;
+    }
+
+    /**
+     * Create a generic id based on the message
+     *
+     * @param message
+     *
+     * @return
+     */
+    protected String createIdStringFromMsg(AbstractMessage message) {
+        //Format: <response class name> : <ip address> : <port>
+        if (message == null)
+            throw new NullPointerException("Message not specified");
+
+        InetSocketAddress address;
+        Class messageClass;
+
+        if (message instanceof AbstractRequest) {
+            messageClass = getResponseClass((Req) message);
+            address = message.recipient();
+        } else {
+            messageClass = message.getClass();
+            address = message.sender();
+        }
+
+        return String.format(DEFAULT_ID_FORMAT,
+                messageClass.getSimpleName(),
+                address.getAddress().getHostAddress(),
+                String.valueOf(address.getPort()));
     }
 
     public Map<Class<? extends Req>, Class<? extends Res>> getLookup() {

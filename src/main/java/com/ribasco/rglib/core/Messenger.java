@@ -36,7 +36,7 @@ import java.io.Closeable;
  * <li>Decides which handlers should be receiving the message</li>
  * </ul>
  */
-public interface Messenger<Request, Response> extends Closeable {
+public interface Messenger<Request extends AbstractRequest, Response extends AbstractResponse> extends Closeable {
     <V> Promise<V> send(Request request);
 
     void receive(Response response);

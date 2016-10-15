@@ -28,7 +28,6 @@ package com.ribasco.rglib.core.utils;
  * Created by raffy on 9/9/2016.
  */
 public class ByteUtils {
-    //TODO: Move this to it's own utility class?
     public static byte[] byteArrayFromInteger(int integer) {
         return new byte[]{
                 (byte) (integer >> 24),
@@ -36,5 +35,9 @@ public class ByteUtils {
                 (byte) (integer >> 8),
                 (byte) integer
         };
+    }
+
+    public static String bytesToHex(byte[] bytes) {
+        return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
     }
 }

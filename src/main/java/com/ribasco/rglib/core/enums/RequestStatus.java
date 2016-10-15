@@ -22,11 +22,39 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.rglib.core.enums;
 
 /**
- * Created by raffy on 9/6/2016.
+ * Identifies the stages of the request flow
  */
-public interface PacketAssembler<T extends Packet> {
-    byte[] assemblePacket(T packet);
+public enum RequestStatus {
+    /**
+     * Unprocessed request and is currently in-queue
+     */
+    NEW,
+    /**
+     * Request has been removed from the queue and is currently being processed
+     */
+    ACCEPTED,
+    /**
+     * Request could not be sent at this time, if marked for RETRY,
+     * it will be placed on the bottom of the queue and scheduled for re-processing.
+     */
+    RETRY,
+    /**
+     * Indicates that the request is now in preparation stage and will be sent through the transport
+     */
+    REGISTERED,
+    /**
+     * A request has been issued to the underlying transport but is currently awaiting for completion
+     */
+    SENDING,
+    /**
+     * Request has been sent through the underlying transport and is awaiting for response
+     */
+    SENT,
+    /**
+     * Response from the server has been received
+     */
+    DONE
 }

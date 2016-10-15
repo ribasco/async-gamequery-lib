@@ -27,7 +27,6 @@ package com.ribasco.rglib.protocols.valve.source.packets.request;
 import com.ribasco.rglib.protocols.valve.source.SourceRconRequestPacket;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceRconRequestType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * Created by raffy on 9/24/2016.
@@ -44,11 +43,7 @@ public class SourceRconCmdRequestPacket extends SourceRconRequestPacket {
     }
 
     @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("type", "COMMAND")
-                .append("command", command)
-                .toString();
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("rcon_command", command);
     }
 }

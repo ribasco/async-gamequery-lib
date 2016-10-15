@@ -84,7 +84,6 @@ public class SourcePacketAssembler extends ChannelInboundHandlerAdapter {
                     .append(address.getAddress().getHostAddress(), rhs.address.getAddress().getHostAddress())
                     .append(address.getPort(), rhs.address.getPort())
                     .isEquals();
-
         }
 
         @Override
@@ -262,7 +261,7 @@ public class SourcePacketAssembler extends ChannelInboundHandlerAdapter {
             if (isCompressed)
                 throw new IllegalStateException("Compression is not yet supported at this time sorry");
 
-            //TODO: From SteamAppManager Condenser
+            //TODO: From Steam Condenser (should we still implement this?)
             /*if(isCompressed) {
                 try {
                     ByteArrayInputStream stream = new ByteArrayInputStream(packetData);

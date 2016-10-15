@@ -24,8 +24,18 @@
 
 package com.ribasco.rglib.protocols.valve.source.client;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ribasco.rglib.core.Callback;
 import com.ribasco.rglib.core.client.GameServerQueryClient;
+import com.ribasco.rglib.core.enums.RequestPriority;
+import com.ribasco.rglib.core.utils.ConcurrentUtils;
 import com.ribasco.rglib.protocols.valve.source.SourceMasterFilter;
 import com.ribasco.rglib.protocols.valve.source.SourceServerMessenger;
 import com.ribasco.rglib.protocols.valve.source.SourceServerRequest;
@@ -44,14 +54,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by raffy on 9/14/2016.
@@ -60,7 +68,27 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
 
-    private Map<Integer, InetSocketAddress> challengeMap = new HashMap<>();
+    private LoadingCache<InetSocketAddress, Integer> challengeCache;
+    final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("cache-pool-%d").setDaemon(true).build();
+    final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(new ScheduledThreadPoolExecutor(32, threadFactory));
+    private static final int MAX_CHALLENGE_CACHE_SIZE = 32000;
+
+    public SourceQueryClient() {
+        super(new SourceServerMessenger());
+        challengeCache = CacheBuilder.newBuilder()
+                .maximumSize(MAX_CHALLENGE_CACHE_SIZE)
+                .expireAfterWrite(3, TimeUnit.MINUTES)
+                .build(new CacheLoader<InetSocketAddress, Integer>() {
+                    @Override
+                    public Integer load(InetSocketAddress key) throws Exception {
+                        try {
+                            return getServerChallenge(SourceChallengeType.ANY, key, null).get();
+                        } catch (ExecutionException e) {
+                            throw e;
+                        }
+                    }
+                });
+    }
 
     private final class MasterErrorListener implements GenericFutureListener<Promise<Vector<InetSocketAddress>>> {
 
@@ -79,30 +107,150 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
             if (future.isDone()) {
                 if (!future.isSuccess() && future.cause() != null) {
                     sdPromise.tryFailure(future.cause());
-                    callback.onComplete(null, destination, future.cause());
+                    if (callback != null)
+                        callback.onComplete(null, destination, future.cause());
                 }
             }
         }
     }
 
-    public SourceQueryClient() {
-        super(new SourceServerMessenger());
+    public Future<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address, Callback<Integer> callback) {
+        return sendRequest(new SourceChallengeRequest(type, address), callback, RequestPriority.REALTIME);
+    }
+
+    private final ReentrantLock lock = new ReentrantLock();
+
+    public void getChallengeFromCache(InetSocketAddress address, Callback<Integer> callback) {
+        log.debug("Obtaining lock from thread {}", Thread.currentThread().getName());
+        //lock.lock();
+        try {
+            ListenableFuture<Integer> lFuture = executorService.submit(() -> challengeCache.get(address));
+            lFuture.addListener(() -> {
+                try {
+                    int challenge = lFuture.get();
+                    callback.onComplete(challenge, address, null);
+                } catch (ExecutionException e) {
+                    callback.onComplete(null, address, e.getCause());
+                } catch (InterruptedException e) {
+                    callback.onComplete(null, address, e);
+                }
+            }, executorService);
+        } finally {
+            //lock.unlock();
+        }
     }
 
     public Future<Map<String, String>> getServerRules(int challenge, InetSocketAddress address, Callback<Map<String, String>> callback) {
         return sendRequest(new SourceRulesRequest(challenge, address), callback);
     }
 
-    public Future<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address, Callback<Integer> callback) {
-        return sendRequest(new SourceChallengeRequest(type, address), callback);
+    public Future<Map<String, String>> getServerRules(InetSocketAddress address, Callback<Map<String, String>> callback) {
+        final Promise<Map<String, String>> pPromise = getMessenger().getTransport().newPromise();
+        getServerChallenge(SourceChallengeType.RULES, address, (challenge, sender, error) -> {
+            if (error != null) {
+                callback.onComplete(null, sender, error);
+                pPromise.tryFailure(error);
+                return;
+            }
+            getServerRules(challenge, address, (rules, rulesSender, rulesError) -> {
+                if (rulesError != null) {
+                    callback.onComplete(null, address, rulesError);
+                    pPromise.tryFailure(rulesError);
+                    return;
+                }
+                callback.onComplete(rules, address, null);
+                pPromise.trySuccess(rules);
+            });
+        });
+        return pPromise;
     }
 
-    public Future<List<SourcePlayer>> getPlayers(int challenge, InetSocketAddress address, Callback<List<SourcePlayer>> callback) {
+    public Future<Map<String, String>> getServerRulesCached(InetSocketAddress address, Callback<Map<String, String>> callback) {
+        final Promise<Map<String, String>> pPromise = getMessenger().getTransport().newPromise();
+
+        getChallengeFromCache(address, (challengeNumber, sender, error) -> {
+            if (error != null) {
+                Throwable err = null;
+                if (error instanceof ExecutionException)
+                    err = error.getCause();
+                else
+                    err = error;
+                callback.onComplete(null, address, err);
+                pPromise.tryFailure(err);
+                return;
+            }
+            //We have successfully received a challenge number
+            getServerRules(challengeNumber, address, (response, sender1, error1) -> {
+                if (error1 != null) {
+                    callback.onComplete(null, address, error1);
+                    pPromise.tryFailure(error1);
+                    return;
+                }
+                callback.onComplete(response, address, null);
+                pPromise.trySuccess(response);
+            });
+        });
+        return pPromise;
+    }
+
+    public Future<List<SourcePlayer>> getPlayers(InetSocketAddress address, Callback<List<SourcePlayer>> callback) {
+        final Promise<List<SourcePlayer>> pPromise = getMessenger().getTransport().newPromise();
+        getServerChallenge(SourceChallengeType.PLAYER, address, (challenge, sender, error) -> {
+            if (error != null) {
+                callback.onComplete(null, address, error);
+                pPromise.tryFailure(error);
+                return;
+            }
+            getPlayers(challenge, address, (playerList, playerSender, playerError) -> {
+                if (playerError != null) {
+                    callback.onComplete(null, address, playerError);
+                    pPromise.tryFailure(playerError);
+                    return;
+                }
+                callback.onComplete(playerList, address, null);
+                pPromise.trySuccess(playerList);
+            });
+        });
+        return pPromise;
+    }
+
+    public Future<List<SourcePlayer>> getPlayers(Integer challenge, InetSocketAddress address, Callback<List<SourcePlayer>> callback) {
         return sendRequest(new SourcePlayerRequest(challenge, address), callback);
+    }
+
+    public Future<List<SourcePlayer>> getPlayersCached(InetSocketAddress address, Callback<List<SourcePlayer>> callback) {
+        final Promise<List<SourcePlayer>> pPromise = getMessenger().getTransport().newPromise();
+        getChallengeFromCache(address, (challengeNumber, sender, error) -> {
+            if (error != null) {
+                Throwable err = null;
+                if (error instanceof ExecutionException)
+                    err = error.getCause();
+                else
+                    err = error;
+                callback.onComplete(null, address, err);
+                pPromise.tryFailure(err);
+                return;
+            }
+            getPlayers(challengeNumber, address, (response, sender1, error1) -> {
+                if (error1 != null) {
+                    callback.onComplete(null, address, error1);
+                    pPromise.tryFailure(error1);
+                    return;
+                }
+                callback.onComplete(response, address, null);
+                pPromise.trySuccess(response);
+            });
+        });
+
+        return pPromise;
     }
 
     public Future<SourceServer> getServerInfo(InetSocketAddress address, Callback<SourceServer> callback) {
         return sendRequest(new SourceInfoRequest(address), callback);
+    }
+
+    private boolean isIpTerminator(InetSocketAddress address) {
+        return "0.0.0.0".equals(address.getAddress().getHostAddress()) && address.getPort() == 0;
     }
 
     public Future<Vector<InetSocketAddress>> getMasterServerList(SourceMasterServerRegion region, SourceMasterFilter filter, Callback<InetSocketAddress> callback) {
@@ -112,37 +260,31 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
         final Promise<Vector<InetSocketAddress>> sdPromise = getMessenger().getTransport().newPromise();
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
         final InetSocketAddress destination = SourceMasterRequestPacket.SOURCE_MASTER;
-
-        boolean isDone = false;
-
         final AtomicBoolean done = new AtomicBoolean();
 
         while (!done.get()) {
-            System.err.println("Getting from master server...");
+            log.debug("Getting from master server with seed : " + startAddress);
             try {
                 log.debug("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
 
                 //Send initial query to the master source
-                final Promise<Vector<InetSocketAddress>> p = sendRequest(new SourceMasterServerRequest(destination, region, filter, startAddress));
+                final Future<Vector<InetSocketAddress>> p = sendRequest(new SourceMasterServerRequest(destination, region, filter, startAddress), RequestPriority.HIGH);
                 p.addListener(new MasterErrorListener(sdPromise, callback, destination));
 
-                //Retrieve the first batch, timeout after 2.5 seconds
-                //final SourceMasterServerResponse response = p.get(2500, TimeUnit.MILLISECONDS);
-                final Vector<InetSocketAddress> serverList = p.get(2500, TimeUnit.MILLISECONDS);//response.getMessage();
+                //Retrieve the first batch, timeout after 3 seconds
+                final Vector<InetSocketAddress> serverList = p.get(3000, TimeUnit.MILLISECONDS);//response.getMessage();
 
                 //Iterate through each address and call onComplete responseCallback. Make sure we don't include the last source ip received
                 final InetSocketAddress lastServerIp = startAddress;
 
-                //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip we just received)
+                //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip received)
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
-                    try {
+                    if (callback != null && !isIpTerminator(ip))
                         callback.onComplete(ip, destination, null);
-                        //Add a delay here. We shouldn't send requests too fast to the master server
-                        // there is a high chance that we might not receive the end of the list.
-                        Thread.sleep(13);
-                        serverMasterList.add(ip);
-                    } catch (InterruptedException ignored) {
-                    }
+                    //Add a delay here. We shouldn't send requests too fast to the master server
+                    // there is a high chance that we might not receive the end of the list.
+                    ConcurrentUtils.sleepUninterrupted(13);
+                    serverMasterList.add(ip);
                 });
 
                 //Retrieve the last element of the source list and use it as the next seed for the next query
@@ -151,7 +293,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                 log.debug("Last Server Received: {}:{}", startAddress.getAddress().getHostAddress(), startAddress.getPort());
 
                 //Did we reach the end? (Master Server sometimes sends a 0.0.0.0:0 address if we have reached the end)
-                if ("0.0.0.0".equals(startAddress.getAddress().getHostAddress()) && startAddress.getPort() == 0) {
+                if (isIpTerminator(startAddress)) {
                     log.debug("Reached the end of the server list");
                     done.set(true);
                 }
@@ -160,6 +302,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
             } catch (InterruptedException | TimeoutException e) {
                 log.debug("Timeout/Thread Interruption Occured during retrieval of source list");
                 done.set(true);
+                //sdPromise.tryFailure(new ReadTimeoutException(null, "Timeout occured"));
             } catch (ExecutionException e) {
                 sdPromise.tryFailure(e.getCause());
                 callback.onComplete(null, destination, e);
@@ -175,8 +318,15 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
         return sdPromise;
     }
 
+    public Cache<InetSocketAddress, Integer> getChallengeCache() {
+        return challengeCache;
+    }
+
     @Override
     public void close() throws IOException {
         super.close();
+        challengeCache.invalidateAll();
+        challengeCache.cleanUp();
+        executorService.shutdown();
     }
 }

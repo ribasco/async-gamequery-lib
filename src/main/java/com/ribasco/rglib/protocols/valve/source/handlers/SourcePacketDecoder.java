@@ -55,6 +55,7 @@ public class SourcePacketDecoder extends MessageToMessageDecoder<DatagramPacket>
                 response.setSender(msg.sender());
                 response.setRecipient(msg.recipient());
                 response.setResponsePacket(packet);
+                //Pass the message back to the messenger
                 messenger.receive(response);
                 return;
             }

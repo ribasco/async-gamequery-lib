@@ -24,26 +24,26 @@
 
 package com.ribasco.rglib.core.exceptions;
 
-import com.ribasco.rglib.core.session.SessionKey;
+import com.ribasco.rglib.core.session.SessionId;
 
 /**
  * Created by raffy on 9/21/2016.
  */
 public class ReadTimeoutException extends Exception {
 
-    private SessionKey key;
+    private SessionId key;
 
-    public ReadTimeoutException(SessionKey key, String message) {
+    public ReadTimeoutException(SessionId key, String message) {
         super(message);
         this.key = key;
     }
 
-    public ReadTimeoutException(SessionKey key, String message, Throwable cause) {
+    public ReadTimeoutException(SessionId key, String message, Throwable cause) {
         super(message, cause);
         this.key = key;
     }
 
-    public SessionKey getKey() {
+    public SessionId getKey() {
         return key;
     }
 }

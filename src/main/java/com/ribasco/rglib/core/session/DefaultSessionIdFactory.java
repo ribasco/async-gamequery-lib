@@ -22,37 +22,23 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.core.session;
 
-import com.ribasco.rglib.core.AbstractGameServerRequest;
-
-import java.net.InetSocketAddress;
+import com.ribasco.rglib.core.AbstractMessage;
+import com.ribasco.rglib.core.AbstractRequest;
+import com.ribasco.rglib.core.AbstractResponse;
 
 /**
- * Created by raffy on 9/24/2016.
+ * Created by raffy on 9/26/2016.
  */
-public abstract class SourceRconRequest<T extends SourceRconRequestPacket>
-        extends AbstractGameServerRequest<T>
-        implements SourceRconMessage {
-    private int requestId;
-
-    public SourceRconRequest(InetSocketAddress recipient, int requestId) {
-        super(recipient);
-        this.requestId = requestId;
+public class DefaultSessionIdFactory extends AbstractSessionIdFactory<AbstractRequest, AbstractResponse> {
+    @Override
+    public SessionId createId(AbstractMessage message) {
+        return new SessionId(createIdStringFromMsg(message));
     }
 
     @Override
-    public int getRequestId() {
-        return requestId;
-    }
-
-    @Override
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
-    }
-
-    @Override
-    public String toString() {
-        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
+    public SessionId duplicate(SessionId id) {
+        return new SessionId(id);
     }
 }

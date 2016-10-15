@@ -22,12 +22,22 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.core.handlers;
 
-import com.ribasco.rglib.core.session.DefaultSessionKeyFactory;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Created by raffy on 9/26/2016.
+ * Created by raffy on 10/14/2016.
  */
-public class SourceSessionKeyFactory extends DefaultSessionKeyFactory {
+public class ErrorHandler extends ChannelDuplexHandler {
+    private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("Unhandled exception caught within the pipeline {} for Channel {}", cause, ctx.channel());
+        cause.printStackTrace(System.err);
+    }
 }

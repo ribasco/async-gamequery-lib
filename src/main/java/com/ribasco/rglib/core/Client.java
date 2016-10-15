@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core;
 
+import com.ribasco.rglib.core.enums.RequestPriority;
 import io.netty.util.concurrent.Future;
 
 import java.io.Closeable;
@@ -34,5 +35,9 @@ import java.io.Closeable;
 public interface Client<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
     <V> Future<V> sendRequest(Req message);
 
+    <V> Future<V> sendRequest(Req message, RequestPriority priority);
+
     <V> Future<V> sendRequest(Req message, Callback<V> callback);
+
+    <V> Future<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority);
 }

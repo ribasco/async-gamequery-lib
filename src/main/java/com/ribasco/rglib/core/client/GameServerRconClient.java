@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core.client;
 
+import com.ribasco.rglib.core.AbstractClient;
 import com.ribasco.rglib.core.AbstractGameServerRequest;
 import com.ribasco.rglib.core.AbstractGameServerResponse;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
@@ -35,7 +36,7 @@ import com.ribasco.rglib.core.transport.NettyTransport;
 public abstract class GameServerRconClient<Req extends AbstractGameServerRequest,
         Res extends AbstractGameServerResponse,
         M extends GameServerMessenger<Req, Res, NettyTransport>>
-        extends SynchronousClient<Req, Res, M> {
+        extends AbstractClient<Req, Res, M> {
     public GameServerRconClient(M messenger) {
         super(messenger);
     }

@@ -25,6 +25,8 @@
 package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.enums.ChannelType;
+import com.ribasco.rglib.core.enums.ProcessingMode;
+import com.ribasco.rglib.core.handlers.ErrorHandler;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
 import com.ribasco.rglib.core.transport.NettyUdpTransport;
 import com.ribasco.rglib.protocols.valve.source.handlers.SourcePacketAssembler;
@@ -47,7 +49,7 @@ public class SourceServerMessenger extends GameServerMessenger<SourceServerReque
 
     public SourceServerMessenger() {
         //Use the default session manager
-        super(new NettyUdpTransport());
+        super(new NettyUdpTransport(), ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
@@ -61,6 +63,7 @@ public class SourceServerMessenger extends GameServerMessenger<SourceServerReque
         //Set our channel initializer
         transport.setChannelInitializer(channel -> {
             log.debug("Initializing Channel");
+            channel.pipeline().addLast(new ErrorHandler());
             channel.pipeline().addLast(new SourceRequestEncoder(builder));
             channel.pipeline().addLast(new SourcePacketAssembler());
             channel.pipeline().addLast(new SourcePacketDecoder(this, builder));

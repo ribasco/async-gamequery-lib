@@ -24,12 +24,7 @@
 
 package com.ribasco.rglib.core;
 
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.net.InetSocketAddress;
-
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by raffy on 9/14/2016.
@@ -37,30 +32,5 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 public abstract class AbstractRequest<T> extends AbstractMessage<T> {
     public AbstractRequest(InetSocketAddress recipient) {
         super(null, recipient);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null)
-            return false;
-        if (obj == this)
-            return true;
-        if (obj.getClass() != getClass())
-            return false;
-
-        AbstractRequest r = (AbstractRequest) obj;
-        return new EqualsBuilder()
-                .append(recipient(), r.recipient())
-                .append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), new Integer(1)).getClass())
-                .isEquals();
-    }
-
-
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(51, 103)
-                .append(recipient())
-                .append(getMessage())
-                .hashCode();
     }
 }

@@ -22,37 +22,18 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
-
-import com.ribasco.rglib.core.AbstractGameServerRequest;
-
-import java.net.InetSocketAddress;
+package com.ribasco.rglib.core.enums;
 
 /**
- * Created by raffy on 9/24/2016.
+ * Indicates how a request should be processed.
  */
-public abstract class SourceRconRequest<T extends SourceRconRequestPacket>
-        extends AbstractGameServerRequest<T>
-        implements SourceRconMessage {
-    private int requestId;
-
-    public SourceRconRequest(InetSocketAddress recipient, int requestId) {
-        super(recipient);
-        this.requestId = requestId;
-    }
-
-    @Override
-    public int getRequestId() {
-        return requestId;
-    }
-
-    @Override
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
-    }
-
-    @Override
-    public String toString() {
-        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
-    }
+public enum ProcessingMode {
+    /**
+     * Wait for the head of the queue to complete before processing the next
+     */
+    SYNCHRONOUS,
+    /**
+     * Does not wait for each request to complete. Will process available requests immediately
+     */
+    ASYNCHRONOUS
 }

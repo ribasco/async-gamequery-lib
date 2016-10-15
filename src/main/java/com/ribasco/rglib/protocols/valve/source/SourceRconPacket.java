@@ -26,6 +26,7 @@ package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.AbstractPacket;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceRconRequestType;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by raffy on 9/24/2016.
@@ -74,5 +75,11 @@ public abstract class SourceRconPacket extends AbstractPacket {
 
     public void setBody(String body) {
         this.body = body;
+    }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("id", getId())
+                .append("rcon_packet_type", type);
     }
 }

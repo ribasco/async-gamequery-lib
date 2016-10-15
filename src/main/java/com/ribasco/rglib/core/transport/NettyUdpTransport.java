@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core.transport;
 
+import com.ribasco.rglib.core.AbstractMessage;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.nio.NioDatagramChannel;
@@ -35,7 +36,7 @@ import java.net.InetSocketAddress;
 /**
  * Created by raffy on 9/13/2016.
  */
-public class NettyUdpTransport extends NettyTransport<NioDatagramChannel> {
+public class NettyUdpTransport<M extends AbstractMessage> extends NettyTransport<NioDatagramChannel, M> {
 
     private Logger log = LoggerFactory.getLogger(NettyUdpTransport.class);
     private NioDatagramChannel channel; //maintain only one channel
@@ -63,6 +64,7 @@ public class NettyUdpTransport extends NettyTransport<NioDatagramChannel> {
         if (channel == null || !channel.isOpen()) {
             try {
                 //TODO: Change this to asynchronous, do not sync, return a ChannelFuture instead
+                log.debug("Re-binding channel");
                 channel = (NioDatagramChannel) bind(0).sync().channel();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);

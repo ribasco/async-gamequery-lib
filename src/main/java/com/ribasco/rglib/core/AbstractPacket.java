@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core;
 
+import com.ribasco.rglib.core.utils.ByteUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -77,12 +78,14 @@ public abstract class AbstractPacket implements Packet {
         this.trailer = trailer;
     }
 
+    public ToStringBuilder toStringBuilder() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("class", this.getClass().getSimpleName())
+                .append("header", ByteUtils.bytesToHex(getPacketHeader()));
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.DEFAULT_STYLE)
-                .append("header", getPacketHeader())
-                .append("payload", getPayload())
-                .append("trailer", getTrailer())
-                .toString();
+        return toStringBuilder().toString();
     }
 }

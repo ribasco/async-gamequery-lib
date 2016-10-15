@@ -27,18 +27,32 @@ package com.ribasco.rglib.core.messenger;
 import com.ribasco.rglib.core.AbstractGameServerRequest;
 import com.ribasco.rglib.core.AbstractGameServerResponse;
 import com.ribasco.rglib.core.AbstractMessenger;
+import com.ribasco.rglib.core.enums.ProcessingMode;
+import com.ribasco.rglib.core.session.AbstractSessionIdFactory;
 import com.ribasco.rglib.core.session.SessionManager;
 import com.ribasco.rglib.core.transport.NettyTransport;
 
 /**
  * Messenger using the UDP Transport protocol
  */
-public abstract class GameServerMessenger<A extends AbstractGameServerRequest, B extends AbstractGameServerResponse, T extends NettyTransport> extends AbstractMessenger<A, B, T> {
+public abstract class GameServerMessenger<A extends AbstractGameServerRequest,
+        B extends AbstractGameServerResponse,
+        T extends NettyTransport>
+        extends AbstractMessenger<A, B, T> {
+
     public GameServerMessenger(T transport) {
         super(transport);
     }
 
-    public GameServerMessenger(T transport, SessionManager sessionManager) {
-        super(transport, sessionManager);
+    public GameServerMessenger(T transport, ProcessingMode processingMode) {
+        super(transport, processingMode);
+    }
+
+    public GameServerMessenger(T transport, AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
+        super(transport, keyFactory, processingMode);
+    }
+
+    public GameServerMessenger(T transport, SessionManager sessionManager, ProcessingMode processingMode) {
+        super(transport, sessionManager, processingMode);
     }
 }

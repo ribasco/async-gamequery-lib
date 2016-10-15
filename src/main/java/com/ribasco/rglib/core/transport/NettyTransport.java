@@ -24,7 +24,8 @@
 
 package com.ribasco.rglib.core.transport;
 
-import com.ribasco.rglib.core.Message;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import com.ribasco.rglib.core.AbstractMessage;
 import com.ribasco.rglib.core.Transport;
 import com.ribasco.rglib.core.enums.ChannelType;
 import io.netty.bootstrap.Bootstrap;
@@ -48,7 +49,7 @@ import java.util.Map;
 /**
  * Created by raffy on 9/15/2016.
  */
-public abstract class NettyTransport<T extends Channel> implements Transport<Message> {
+public abstract class NettyTransport<T extends Channel, MSG extends AbstractMessage> implements Transport<MSG> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;
@@ -115,49 +116,36 @@ public abstract class NettyTransport<T extends Channel> implements Transport<Mes
     }
 
     @Override
-    public <V> Promise<V> send(Message data) {
+    public <V> Promise<V> send(MSG data) {
         return send(data, false);
     }
 
     @Override
-    public <V> Promise<V> send(Message data, boolean flushImmediately) {
-        synchronized (this) {
-            T c = null;
-            ChannelPromise writePromise = null;
-            try {
-                c = getChannel(data.recipient());
-                writePromise = c.newPromise();
-                if (flushImmediately) {
-                    c.writeAndFlush(data, writePromise);
-                } else
-                    c.write(data, writePromise);
-            } finally {
-                if (c != null)
-                    cleanupChannel(c);
-            }
-            return (Promise<V>) writePromise;
-        }
+    public <V> Promise<V> send(MSG data, boolean flushImmediately) {
+        T c = getChannel(data.recipient());
+        ChannelFuture cf = null;
+        final ChannelPromise writePromise = c.newPromise();
+        send(data, flushImmediately, writePromise);
+        return (Promise<V>) writePromise;
     }
 
     @Override
-    public void send(Message data, boolean flushImmediately, ChannelPromise writePromise) {
-        synchronized (this) {
-            T c = null;
-            try {
-                c = getChannel(data.recipient());
-                if (flushImmediately) {
-                    c.writeAndFlush(data, writePromise);
-                } else
-                    c.write(data, writePromise);
-            } finally {
-                if (c != null)
-                    cleanupChannel(c);
-            }
+    public void send(MSG data, boolean flushImmediately, ChannelPromise writePromise) {
+        T c = null;
+        try {
+            c = (T) writePromise.channel();
+            if (flushImmediately) {
+                c.writeAndFlush(data, writePromise);
+            } else
+                c.write(data, writePromise);
+        } finally {
+            if (c != null)
+                cleanupChannel(c);
         }
     }
 
     /**
-     * Perform cleanupChannel operations on a channel after calling {@link #send(Message, boolean)}
+     * Perform cleanupChannel operations on a channel after calling {@link #send(AbstractMessage, boolean)}
      *
      * @param c Channel
      */
@@ -189,7 +177,7 @@ public abstract class NettyTransport<T extends Channel> implements Transport<Mes
                 return new OioEventLoopGroup();
             case NIO_TCP:
             case NIO_UDP:
-                return new NioEventLoopGroup();
+                return new NioEventLoopGroup(12, new ThreadFactoryBuilder().setNameFormat("event-loop-%d").setDaemon(true).build());
         }
         return null;
     }
@@ -200,10 +188,6 @@ public abstract class NettyTransport<T extends Channel> implements Transport<Mes
 
     public Bootstrap getBootstrap() {
         return bootstrap;
-    }
-
-    public T getChannel() {
-        return getChannel(null);
     }
 
     public ChannelInitializerCallback getChannelInitializer() {
@@ -232,6 +216,7 @@ public abstract class NettyTransport<T extends Channel> implements Transport<Mes
 
     @Override
     public void close() throws IOException {
+        log.debug("Shutting down gracefully");
         eventLoopGroup.shutdownGracefully();
     }
 

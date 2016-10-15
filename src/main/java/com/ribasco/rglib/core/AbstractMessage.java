@@ -24,17 +24,22 @@
 
 package com.ribasco.rglib.core;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by raffy on 9/18/2016.
  */
-public abstract class AbstractMessage<T> implements Message<T> {
+public abstract class AbstractMessage<T> implements Message<T>, Comparable<AbstractMessage<T>> {
     private InetSocketAddress sender;
     private InetSocketAddress recipient;
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractMessage.class);
 
     public AbstractMessage(InetSocketAddress sender, InetSocketAddress recipient) {
         this.sender = sender;
@@ -64,12 +69,70 @@ public abstract class AbstractMessage<T> implements Message<T> {
     @Override
     public abstract T getMessage();
 
+    protected final EqualsBuilder equalsBuilder(Object rhs) {
+        final EqualsBuilder builder = new EqualsBuilder();
+        AbstractMessage r = (AbstractMessage) rhs;
+        builder.append(recipient(), r.recipient());
+        builder.append(sender(), r.sender());
+        builder.append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), new Integer(1)).getClass());
+        return builder;
+    }
+
+    protected final HashCodeBuilder hashCodeBuilder(int primeX, int primeY) {
+        final HashCodeBuilder builder = new HashCodeBuilder(primeX, primeY);
+        builder.append(sender());
+        builder.append(recipient());
+        builder.append(getMessage());
+        return builder;
+    }
+
+    protected final CompareToBuilder compareToBuilder(AbstractMessage<T> rhs) {
+        final CompareToBuilder builder = new CompareToBuilder();
+        InetSocketAddress lhsSender = defaultIfNull(sender(), new InetSocketAddress(0));
+        InetSocketAddress rhsSender = defaultIfNull(rhs.sender(), new InetSocketAddress(0));
+        InetSocketAddress lhsReciepient = defaultIfNull(recipient(), new InetSocketAddress(0));
+        InetSocketAddress rhsReciepient = defaultIfNull(rhs.recipient(), new InetSocketAddress(0));
+        builder.append(lhsSender.getAddress().getHostAddress(), rhsSender.getAddress().getHostAddress());
+        builder.append(lhsSender.getPort(), rhsSender.getPort());
+        builder.append(lhsReciepient.getAddress().getHostAddress(), rhsReciepient.getAddress().getHostAddress());
+        builder.append(lhsReciepient.getPort(), rhsReciepient.getPort());
+        builder.append(getClass().getSimpleName(), rhs.getClass().getSimpleName());
+        return builder;
+    }
+
+    protected final ToStringBuilder toStringBuilder() {
+        final ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE);
+        builder.append("ClassName", this.getClass().getSimpleName());
+        builder.append("Message", getMessage());
+        builder.append("Recipient", recipient());
+        builder.append("Sender", sender());
+        return builder;
+    }
+
+    @Override
+    public int compareTo(AbstractMessage<T> rhs) {
+        return compareToBuilder(rhs).toComparison();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null)
+            return false;
+        if (obj == this)
+            return true;
+        if (obj.getClass() != getClass())
+            return false;
+        log.debug("Sender = {}, Recipient = {}", sender(), recipient());
+        return equalsBuilder(obj).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return hashCodeBuilder(51, 103).hashCode();
+    }
+
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("Message", getMessage())
-                .append("Recipient", recipient())
-                .append("Sender", sender())
-                .toString();
+        return toStringBuilder().toString();
     }
 }

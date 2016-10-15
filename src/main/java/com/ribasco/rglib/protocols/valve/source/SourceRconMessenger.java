@@ -25,8 +25,9 @@
 package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.enums.ChannelType;
+import com.ribasco.rglib.core.enums.ProcessingMode;
+import com.ribasco.rglib.core.handlers.ErrorHandler;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
-import com.ribasco.rglib.core.session.DefaultSessionManager;
 import com.ribasco.rglib.core.transport.NettyTcpTransport;
 import com.ribasco.rglib.protocols.valve.source.handlers.SourceRconPacketAssembler;
 import com.ribasco.rglib.protocols.valve.source.handlers.SourceRconPacketDecoder;
@@ -37,9 +38,6 @@ import com.ribasco.rglib.protocols.valve.source.request.SourceRconTerminator;
 import com.ribasco.rglib.protocols.valve.source.response.SourceRconAuthResponse;
 import com.ribasco.rglib.protocols.valve.source.response.SourceRconCmdResponse;
 import io.netty.channel.ChannelOption;
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.GlobalEventExecutor;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,8 +51,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
     public SourceRconMessenger() {
-        super(new NettyTcpTransport(), new DefaultSessionManager(new SourceRconSessionKeyFactory()));
-        Promise p = new DefaultPromise(GlobalEventExecutor.INSTANCE);
+        super(new NettyTcpTransport(), new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
     }
 
     @Override
@@ -64,6 +61,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         transport.setChannelType(ChannelType.NIO_TCP);
         //Set our channel initializer
         transport.setChannelInitializer(channel -> {
+            channel.pipeline().addLast(new ErrorHandler());
             channel.pipeline().addLast(new SourceRconRequestEncoder(builder));
             channel.pipeline().addLast(new SourceRconPacketAssembler());
             channel.pipeline().addLast(new SourceRconPacketDecoder(builder, m));

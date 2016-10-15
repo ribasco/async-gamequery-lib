@@ -22,37 +22,62 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.core.session;
 
-import com.ribasco.rglib.core.AbstractGameServerRequest;
+import org.apache.commons.lang3.builder.CompareToBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
-import java.net.InetSocketAddress;
+import java.io.Serializable;
 
-/**
- * Created by raffy on 9/24/2016.
- */
-public abstract class SourceRconRequest<T extends SourceRconRequestPacket>
-        extends AbstractGameServerRequest<T>
-        implements SourceRconMessage {
-    private int requestId;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
-    public SourceRconRequest(InetSocketAddress recipient, int requestId) {
-        super(recipient);
-        this.requestId = requestId;
+public final class SessionId implements Serializable, Comparable<SessionId> {
+    private String id;
+
+    public SessionId(SessionId id) {
+        this(id.getId());
+    }
+
+    public SessionId(String id) {
+        this.id = id;
+    }
+
+    public final String getId() {
+        return id;
+    }
+
+    public final void setId(String id) {
+        this.id = id;
     }
 
     @Override
-    public int getRequestId() {
-        return requestId;
+    public final boolean equals(Object o) {
+        if (!(o instanceof SessionId || o instanceof String))
+            return false;
+        if (o == null && getId() != null)
+            return false;
+        if (o == this)
+            return true;
+        if (o instanceof String) {
+            return defaultIfNull(getId(), "").equalsIgnoreCase((String) o);
+        }
+        return defaultIfNull(getId(), "").equalsIgnoreCase(((SessionId) o).getId());
     }
 
     @Override
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
+    public final int hashCode() {
+        return new HashCodeBuilder(61, 235).append(getId()).hashCode();
     }
 
     @Override
     public String toString() {
-        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
+        return "SessionId{" +
+                "id='" + id + '\'' +
+                '}';
+    }
+
+    @Override
+    public int compareTo(SessionId o) {
+        return new CompareToBuilder().append(getId(), o.getId()).toComparison();
     }
 }

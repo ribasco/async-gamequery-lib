@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core.transport;
 
+import com.ribasco.rglib.core.AbstractMessage;
 import com.ribasco.rglib.protocols.valve.source.SourceChannelAttributes;
 import io.netty.channel.Channel;
 import io.netty.channel.pool.AbstractChannelPoolHandler;
@@ -43,7 +44,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Created by raffy on 9/13/2016.
  */
-public class NettyTcpTransport extends NettyTransport<SocketChannel> {
+public class NettyTcpTransport<M extends AbstractMessage> extends NettyTransport<SocketChannel, M> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyTcpTransport.class);
 

@@ -34,14 +34,14 @@ import java.net.InetSocketAddress;
 /**
  * Created by raffy on 9/13/2016.
  */
-public interface Transport<T extends Message> extends Closeable {
+public interface Transport<T extends AbstractMessage> extends Closeable {
     void initialize();
 
     <V> Promise<V> send(T data);
 
     <V> Promise<V> send(T data, boolean flushImmediately);
 
-    void send(Message data, boolean flushImmediately, ChannelPromise writePromise);
+    void send(T data, boolean flushImmediately, ChannelPromise writePromise);
 
     Channel flush();
 

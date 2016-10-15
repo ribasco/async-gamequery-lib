@@ -24,15 +24,16 @@
 
 package com.ribasco.rglib.core;
 
-import com.ribasco.rglib.core.session.SessionKey;
+import com.ribasco.rglib.core.enums.RequestPriority;
+import com.ribasco.rglib.core.session.SessionId;
+import com.ribasco.rglib.core.session.SessionValue;
 import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -62,66 +63,78 @@ public abstract class AbstractClient<Req extends AbstractRequest,
 
     @Override
     public <V> Promise<V> sendRequest(Req message) {
-        return sendRequest(message, (response, sender, error) -> {
-            //do nothing?
-        });
+        return sendRequest(message, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
+    }
+
+    @Override
+    public <V> Promise<V> sendRequest(Req message, RequestPriority priority) {
+        return sendRequest(message, null, priority);
     }
 
     @Override
     public <V> Promise<V> sendRequest(Req message, Callback<V> callback) {
+        return sendRequest(message, callback, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
+    }
+
+    @Override
+    public <V> Promise<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
         //Promise containing the actual server message
         final Promise<V> clientPromise = messenger.getTransport().newPromise();
 
         try {
+            log.debug("Sending request : {}", message);
             //Promise retrieved from the messenger containing the AbstractResponse instance
-            final Promise<Res> messengerPromise = messenger.send(message);
+            final Promise<Res> messengerPromise = messenger.send(message, priority);
 
-            //Listens for completion
+            //Listen for completion events then notify the client accordingly
             messengerPromise.addListener(future -> {
                 if (future.isDone()) {
+                    V responseData = null;
+                    Throwable exception = null;
                     try {
-                        if (future.isSuccess()) {
-                            final Res r = (Res) future.get();
-                            final V responseData = (V) r.getMessage();
-                            clientPromise.trySuccess(responseData);
-                            callback.onComplete(responseData, r.sender(), null);
-                        } else if (future.isCancelled()) {
-                            CancellationException ex = new CancellationException();
-                            clientPromise.tryFailure(ex);
-                            callback.onComplete(null, message.recipient(), ex);
-                        } else if (!future.isSuccess() && future.cause() != null) {
-                            clientPromise.tryFailure(future.cause());
-                            callback.onComplete(null, message.recipient(), future.cause());
-                        } else {
-                            throw new IllegalStateException("Unhandled");
-                        }
+                        if (future.isSuccess())
+                            responseData = (V) ((Res) future.get()).getMessage();
+                        else
+                            exception = future.cause();
                     } catch (InterruptedException | IllegalStateException | ExecutionException e) {
                         log.error("Got an error while retrieving: {} for {}", e.getMessage(), message.recipient());
-                        clientPromise.tryFailure(e);
-                        callback.onComplete(null, message.recipient(), e);
+                        exception = e;
+                    } finally {
+                        //#1) Invoke the callback for completion first
+                        if (callback != null)
+                            callback.onComplete(responseData, message.recipient(), exception);
+                        //#2) Alert all registered listeners
+                        if (exception != null)
+                            clientPromise.tryFailure(exception);
+                        else
+                            clientPromise.trySuccess(responseData);
                     }
                 }
             });
             Thread.sleep(getSleepTime());
         } catch (Exception e) {
+            if (callback != null)
+                callback.onComplete(null, message.recipient(), e);
             clientPromise.tryFailure(e);
-            callback.onComplete(null, message.recipient(), e);
         }
-
         return clientPromise;
     }
 
     public void waitForAll() {
-        Set<Map.Entry<SessionKey, Promise<?>>> entries = messenger.getRemaining();
+        final Collection<Map.Entry<SessionId, SessionValue<Req, Res>>> entries = messenger.getRemaining();
         try {
             log.debug("There are still {} requests that are pending", entries.size());
-            while (entries.size() > 0) {
-                log.debug("Waiting... Size: {}", entries.size());
-                entries.stream().forEachOrdered(entry -> {
-                    log.debug(">> Session Remaining: {}", entry.getKey());
-                });
+            while (messenger.hasPendingRequests()
+                    || messenger.getRemaining().size() > 0) {
+                log.debug("Waiting... Sesion Size: {} - Request Size: {}", entries.size(), messenger.getPendingRequestSize());
+                synchronized (messenger.getSessionManager()) {
+                    entries.stream().forEachOrdered(entry -> {
+                        log.debug(">> Session Remaining: {}", entry.getKey());
+                    });
+                }
                 Thread.sleep(1000);
             }
+            log.debug("No more pending requests found");
         } catch (InterruptedException e) {
             log.error(e.getMessage(), e);
         }
@@ -137,6 +150,11 @@ public abstract class AbstractClient<Req extends AbstractRequest,
 
     @Override
     public void close() throws IOException {
+        if (getMessenger().hasPendingRequests()) {
+            log.warn("There are still entries pending");
+            waitForAll();
+        }
+        log.debug("Shutting down messenger");
         if (messenger != null)
             messenger.close();
     }

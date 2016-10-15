@@ -25,8 +25,10 @@
 package com.ribasco.rglib.core;
 
 import com.ribasco.rglib.core.exceptions.ReadTimeoutException;
-import com.ribasco.rglib.core.session.SessionKey;
+import com.ribasco.rglib.core.session.SessionId;
 import com.ribasco.rglib.core.session.SessionManager;
+import com.ribasco.rglib.core.session.SessionValue;
+import com.ribasco.rglib.core.transport.NettyTransport;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
 import io.netty.util.concurrent.Promise;
@@ -38,27 +40,45 @@ import org.slf4j.LoggerFactory;
  */
 public class ReadRequestTimeoutTimerTask implements TimerTask {
     private static final Logger log = LoggerFactory.getLogger(ReadRequestTimeoutTimerTask.class);
-    private SessionKey key;
+    private SessionId id;
     private SessionManager sessionManager;
 
-    public ReadRequestTimeoutTimerTask(SessionKey key, SessionManager sessionManager) {
-        this.key = key;
+    public ReadRequestTimeoutTimerTask(SessionId sessionId, SessionManager sessionManager) {
+        this.id = sessionId;
         this.sessionManager = sessionManager;
     }
 
     @Override
     public void run(Timeout timeout) throws Exception {
-        log.debug("Timeout occured for Session {}", key);
+        log.debug("Timeout occured for Session {}", id);
         //Notify the listener that timeout has occured
-        synchronized (this) {
-            final Promise clientPromise = sessionManager.retrievePromise(key);
+
+        final SessionValue session = sessionManager.getSession(id);
+
+        if (session == null) {
+            log.error("could not find session value for id {}. Registry Size : {}", id, sessionManager.getSessionEntries().size());
+            return;
+        }
+
+        final Promise clientPromise = session.getClientPromise();
+        final TimeoutCallback timeoutCallback = session.getTimeoutCallback();
+        final RequestDetails details = session.getRequestDetails();
+        final NettyTransport transport = details.getTransport();
+
+        //If a timeout occurs, do not notify the client yet. Retry re-sending the request and if
+        // it reaches a max retry of 3 times, we will then notify the client for the failure
+        try {
             //Check first if the promise has been completed
             if (clientPromise != null && !clientPromise.isSuccess()) {
+                //log.info("Timeout for Session {}", session.getId());
                 //Send a ReadTimeoutException to the client
-                clientPromise.tryFailure(new ReadTimeoutException(sessionManager.getSessionKeyFactory().duplicate(key), String.format("Timeout occured for Message=%s, Address=%s", key.getResponseClass().getSimpleName(), key.getResponseAddress())));
+                clientPromise.tryFailure(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
             }
+        } catch (Exception e) {
+            log.error("Error occured for {} with Promise status (IsDone: {}, IsSuccess: {}, HasException: {}). Error = {}", id, clientPromise.isDone(), clientPromise.isSuccess(), clientPromise.cause(), e);
+        } finally {
             //Unregister from the session
-            sessionManager.unregister(key);
+            sessionManager.unregister(id);
         }
     }
 }

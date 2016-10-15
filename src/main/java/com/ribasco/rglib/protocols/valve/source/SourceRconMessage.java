@@ -24,33 +24,11 @@
 
 package com.ribasco.rglib.protocols.valve.source;
 
-import com.ribasco.rglib.core.session.DefaultSessionKey;
-import com.ribasco.rglib.core.session.SessionKey;
-import io.netty.util.Timeout;
-
-import java.net.InetSocketAddress;
-
 /**
- * Created by raffy on 9/25/2016.
+ * Created by raffy on 10/7/2016.
  */
-public class SourceServerSessionKey extends DefaultSessionKey<SourceServerRequest, SourceServerResponse> {
-    public SourceServerSessionKey(SessionKey key) {
-        super(key);
-    }
+public interface SourceRconMessage {
+    int getRequestId();
 
-    public SourceServerSessionKey(SourceServerResponse response) {
-        super(response);
-    }
-
-    public SourceServerSessionKey(SourceServerResponse response, Timeout timeout) {
-        super(response, timeout);
-    }
-
-    public SourceServerSessionKey(Class<SourceServerResponse> responseClass, InetSocketAddress responseAddress) {
-        super(responseClass, responseAddress);
-    }
-
-    public SourceServerSessionKey(Class<SourceServerResponse> responseClass, InetSocketAddress messageAddress, Timeout timeout) {
-        super(responseClass, messageAddress, timeout);
-    }
+    void setRequestId(int requestId);
 }

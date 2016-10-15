@@ -22,31 +22,15 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.core.session;
 
-import com.ribasco.rglib.core.session.AbstractSessionKeyFactory;
+import com.ribasco.rglib.core.AbstractMessage;
 
 /**
- * Created by raffy on 9/26/2016.
+ * Created by raffy on 9/25/2016.
  */
-public class SourceRconSessionKeyFactory extends AbstractSessionKeyFactory<SourceRconSessionKey, SourceRconRequest, SourceRconResponse> {
+public interface SessionIdFactory {
+    SessionId createId(AbstractMessage message);
 
-    @Override
-    public SourceRconSessionKey createKey(SourceRconRequest request) {
-        //Look for the response class associated with this request
-        final Class<? extends SourceRconResponse> responseClass = findResponseClass(request);
-        if (responseClass == null)
-            throw new IllegalStateException(String.format("Unable to create session key for request. No response handler found for request '%s'. Please add mapping for this request using addMapping()", request.getClass().getSimpleName()));
-        return new SourceRconSessionKey(responseClass, request);
-    }
-
-    @Override
-    public SourceRconSessionKey createKey(SourceRconResponse response) {
-        return new SourceRconSessionKey(response);
-    }
-
-    @Override
-    public SourceRconSessionKey duplicate(SourceRconSessionKey key) {
-        return new SourceRconSessionKey(key);
-    }
+    SessionId duplicate(SessionId id);
 }

@@ -25,15 +25,15 @@
 package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.AbstractGameServerResponse;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.net.InetSocketAddress;
 
 /**
  * Created by raffy on 9/24/2016.
  */
-public abstract class SourceRconResponse<T, P extends SourceRconResponsePacket<T>> extends AbstractGameServerResponse<P, T> {
+public abstract class SourceRconResponse<T, P extends SourceRconResponsePacket<T>>
+        extends AbstractGameServerResponse<P, T>
+        implements SourceRconMessage {
 
     private int requestId;
 
@@ -42,19 +42,18 @@ public abstract class SourceRconResponse<T, P extends SourceRconResponsePacket<T
         this.requestId = requestId;
     }
 
+    @Override
     public int getRequestId() {
         return requestId;
     }
 
+    @Override
     public void setRequestId(int requestId) {
         this.requestId = requestId;
     }
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("responseName", this.getClass().getSimpleName())
-                .append("sender", this.sender())
-                .append("requestId", requestId).toString();
+        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
     }
 }

@@ -25,6 +25,8 @@
 package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.AbstractPacket;
+import com.ribasco.rglib.core.utils.ByteUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * Created by raffy on 9/1/2016.
@@ -42,5 +44,10 @@ public abstract class SourceServerPacket extends AbstractPacket {
 
     public void setProtocolHeader(byte[] protocolHeader) {
         this.protocolHeader = protocolHeader;
+    }
+
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("protocol_header", ByteUtils.bytesToHex(this.protocolHeader));
     }
 }

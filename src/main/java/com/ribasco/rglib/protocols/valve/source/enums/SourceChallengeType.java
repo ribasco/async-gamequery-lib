@@ -29,7 +29,8 @@ package com.ribasco.rglib.protocols.valve.source.enums;
  */
 public enum SourceChallengeType {
     PLAYER(SourceGameRequest.PLAYER),
-    RULES(SourceGameRequest.RULES);
+    RULES(SourceGameRequest.RULES),
+    ANY(SourceGameRequest.RULES);
 
     private SourceGameRequest request;
 

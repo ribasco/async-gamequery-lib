@@ -24,35 +24,27 @@
 
 package com.ribasco.rglib.protocols.valve.source;
 
-import com.ribasco.rglib.core.AbstractGameServerRequest;
-
-import java.net.InetSocketAddress;
+import com.ribasco.rglib.core.AbstractMessage;
+import com.ribasco.rglib.core.session.AbstractSessionIdFactory;
+import com.ribasco.rglib.core.session.SessionId;
 
 /**
- * Created by raffy on 9/24/2016.
+ * Created by raffy on 9/26/2016.
  */
-public abstract class SourceRconRequest<T extends SourceRconRequestPacket>
-        extends AbstractGameServerRequest<T>
-        implements SourceRconMessage {
-    private int requestId;
+public class SourceRconSessionIdFactory extends AbstractSessionIdFactory<SourceRconRequest, SourceRconResponse> {
+    @Override
+    public SessionId createId(AbstractMessage message) {
+        if (!(message instanceof SourceRconMessage)) {
+            throw new IllegalStateException("Message is not an instance of SourceRconMessage");
+        }
+        String id = new StringBuffer().append(createIdStringFromMsg(message))
+                .append(":").append(((SourceRconMessage) message).getRequestId()).toString();
 
-    public SourceRconRequest(InetSocketAddress recipient, int requestId) {
-        super(recipient);
-        this.requestId = requestId;
+        return new SessionId(id);
     }
 
     @Override
-    public int getRequestId() {
-        return requestId;
-    }
-
-    @Override
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
-    }
-
-    @Override
-    public String toString() {
-        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
+    public SessionId duplicate(SessionId id) {
+        return new SessionId(id);
     }
 }

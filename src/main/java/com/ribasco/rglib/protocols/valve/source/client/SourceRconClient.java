@@ -24,8 +24,9 @@
 
 package com.ribasco.rglib.protocols.valve.source.client;
 
+import com.ribasco.rglib.core.AbstractClient;
 import com.ribasco.rglib.core.Callback;
-import com.ribasco.rglib.core.client.SynchronousClient;
+import com.ribasco.rglib.core.enums.RequestPriority;
 import com.ribasco.rglib.protocols.valve.source.SourceRconMessenger;
 import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
 import com.ribasco.rglib.protocols.valve.source.SourceRconResponse;
@@ -44,7 +45,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by raffy on 9/14/2016.
  */
-public class SourceRconClient extends SynchronousClient<SourceRconRequest, SourceRconResponse, SourceRconMessenger> {
+public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRconResponse, SourceRconMessenger> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
@@ -63,21 +64,25 @@ public class SourceRconClient extends SynchronousClient<SourceRconRequest, Sourc
             throw new IllegalArgumentException("No password specified");
         int id = createRequestId();
         log.debug("Requesting with id: {}", id);
+        Promise<Integer> p = this.getMessenger().getTransport().newPromise();
+
         Promise<Integer> promise = sendRequest(new SourceRconAuthRequest(address, id, password), (response, sender, error) -> {
-            if (response != null && error == null)
-                authMap.put(sender, response);
+            if (error != null) {
+                callback.onComplete(null, sender, error);
+                return;
+            }
+            authMap.put(sender, response);
             callback.onComplete(response, sender, error);
-        });
+        }, RequestPriority.HIGH);
         return promise;
     }
 
     public Promise<String> execute(InetSocketAddress address, String command, Callback<String> callback) {
-        //Integer id = getAuthenticationId(address);
         if (!isAuthenticated(address))
             throw new IllegalStateException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
 
-        Integer id = createRequestId();
-        log.info("Executing command '{}' using request id: {}", command, id);
+        final Integer id = createRequestId();
+        log.debug("Executing command '{}' using request id: {}", command, id);
 
         return sendRequest(new SourceRconCmdRequest(address, id, command), callback);
     }
@@ -93,4 +98,9 @@ public class SourceRconClient extends SynchronousClient<SourceRconRequest, Sourc
     private int createRequestId() {
         return RandomUtils.nextInt(100000000, 999999999);
     }
+
+    /*@Override
+    public Object resolveKey(SourceRconRequest message) {
+        return message.recipient();
+    }*/
 }

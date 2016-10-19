@@ -36,8 +36,7 @@ import com.ribasco.rglib.core.transport.NettyTransport;
  * Messenger using the UDP Transport protocol
  */
 public abstract class GameServerMessenger<A extends AbstractGameServerRequest,
-        B extends AbstractGameServerResponse,
-        T extends NettyTransport>
+        B extends AbstractGameServerResponse, T extends NettyTransport<A>>
         extends AbstractMessenger<A, B, T> {
 
     public GameServerMessenger(T transport) {

@@ -27,7 +27,6 @@ package com.ribasco.rglib.core;
 import com.ribasco.rglib.core.enums.RequestPriority;
 import com.ribasco.rglib.core.enums.RequestStatus;
 import com.ribasco.rglib.core.transport.NettyTransport;
-import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -35,6 +34,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -43,7 +43,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class RequestDetails<R extends AbstractRequest> implements Comparable<RequestDetails> {
     private static final Logger log = LoggerFactory.getLogger(RequestDetails.class);
     private R request;
-    private Promise promise;
+    private CompletableFuture<?> promise;
     private RequestStatus status;
     private RequestPriority priority;
     private TimeoutCallback timeoutCallback;
@@ -51,7 +51,7 @@ public class RequestDetails<R extends AbstractRequest> implements Comparable<Req
     private NettyTransport transport;
     private long timeCreated;
 
-    public RequestDetails(R request, Promise promise, RequestPriority priority, TimeoutCallback handler, NettyTransport transport) {
+    public RequestDetails(R request, CompletableFuture<?> promise, RequestPriority priority, TimeoutCallback handler, NettyTransport transport) {
         this.status = RequestStatus.NEW;
         this.request = request;
         this.promise = promise;
@@ -83,11 +83,11 @@ public class RequestDetails<R extends AbstractRequest> implements Comparable<Req
         this.timeoutCallback = timeoutCallback;
     }
 
-    public synchronized Promise getPromise() {
-        return promise;
+    public synchronized <T> CompletableFuture<T> getPromise() {
+        return (CompletableFuture<T>) promise;
     }
 
-    public synchronized void setPromise(Promise promise) {
+    public synchronized <T> void setPromise(CompletableFuture<T> promise) {
         this.promise = promise;
     }
 
@@ -103,12 +103,12 @@ public class RequestDetails<R extends AbstractRequest> implements Comparable<Req
         return retries.get();
     }
 
-    public synchronized R getRequest() {
-        return request;
-    }
-
     public synchronized void setRequest(R request) {
         this.request = request;
+    }
+
+    public synchronized R getRequest() {
+        return request;
     }
 
     public synchronized RequestStatus getStatus() {

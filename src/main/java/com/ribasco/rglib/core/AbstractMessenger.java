@@ -31,7 +31,6 @@ import com.ribasco.rglib.core.enums.RequestStatus;
 import com.ribasco.rglib.core.session.*;
 import com.ribasco.rglib.core.transport.NettyTransport;
 import com.ribasco.rglib.core.utils.ConcurrentUtils;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,16 +38,14 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
  * Created by raffy on 9/14/2016.
  */
-public abstract class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse, T extends NettyTransport> implements Messenger<A, B> {
+public abstract class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse, T extends NettyTransport<A>> implements Messenger<A, B> {
 
     public static final RequestPriority DEFAULT_REQUEST_PRIORITY = RequestPriority.MEDIUM;
     public static final ProcessingMode DEFAULT_PROCESSING_MODE = ProcessingMode.ASYNCHRONOUS;
@@ -73,12 +70,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             return o2.getPriority().compareTo(o1.getPriority());
         }
     }
-
-    /**
-     * Handle timeout occurences
-     */
-    private final TimeoutCallback TIMEOUT_CALLBACK = (sessMan, sessId) -> true;
-
 
     /**
      * A runnable that process requests synchronously. A request wont be removed from the queue until it completes.
@@ -110,22 +101,27 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                     requestDetails.setStatus(RequestStatus.REGISTERED);
 
                     if (id != null) {
-                        transport.send(requestDetails.getRequest(), true).addListener(future -> {
-                            //Did our write operation succeed?
-                            if (future.isSuccess()) {
-                                //Set the status as sent
-                                requestDetails.setStatus(RequestStatus.SENT);
-                                //If the write is successful, listen for event completion
-                                requestDetails.getPromise().addListener(future1 -> {
-                                    //Update the status
-                                    requestDetails.setStatus(RequestStatus.DONE);
-                                    //Only remove from the queue once the task completes
-                                    requestQueue.remove(requestDetails);
-                                });
-                            } else {
-                                //If write is a failure, notify the listeners
-                                requestDetails.getPromise().tryFailure(future.cause());
+                        final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
+
+                        //On write completion success, remove from the request queue
+                        writeFuture.thenAccept((Void) -> {
+                            //Set the status as sent
+                            requestDetails.setStatus(RequestStatus.SENT);
+                            //If the write is successful, perform this action once the request receives a response
+                            requestDetails.getPromise().thenRun(() -> {
+                                //Update the status
+                                requestDetails.setStatus(RequestStatus.DONE);
+                                //Only remove from the queue once the task completes
                                 requestQueue.remove(requestDetails);
+                            });
+                        }).exceptionally(new Function<Throwable, Void>() {
+                            @Override
+                            public Void apply(Throwable throwable) {
+                                //If write is a failure, notify the listeners
+                                //requestDetails.getPromise().tryFailure(future.cause());
+                                requestDetails.getPromise().completeExceptionally(throwable);
+                                requestQueue.remove(requestDetails);
+                                return null;
                             }
                         });
                     }
@@ -133,7 +129,8 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 ConcurrentUtils.sleepUninterrupted(5);
             } catch (Exception e) {
                 if (requestDetails != null && requestDetails.getPromise() != null)
-                    requestDetails.getPromise().tryFailure(e);
+                    requestDetails.getPromise().completeExceptionally(e);
+                //requestDetails.getPromise().tryFailure(e);
             }
         }
     };
@@ -155,7 +152,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                     requestDetails.setStatus(RequestStatus.ACCEPTED);
 
                     final A request = requestDetails.getRequest();
-                    final Promise clientPromise = requestDetails.getPromise();
+                    final CompletableFuture clientPromise = requestDetails.getPromise();
 
                     //Set local address for transport
                     request.setSender(transport.localAddress());
@@ -167,24 +164,22 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                     requestDetails.setStatus(RequestStatus.REGISTERED);
 
                     //Send then listen for the write completion status
-                    transport.send(request, true).addListener(future -> {
-                        //Assuming that the request has been registered in the session,
-                        // check if the write operation is successful
-                        if (future.isSuccess()) {
-                            //Update the request status
-                            requestDetails.setStatus(RequestStatus.SENT);
-                        } else {
-                            //If the write operation failed, we need to unregister from the session
-                            log.debug("Write operation failed, unregistering from session : {}", id);
-                            requestDetails.setStatus(RequestStatus.DONE);
-                            //Remove from the registry
-                            sessionManager.unregister(id);
-                            clientPromise.tryFailure(future.cause());
-                        }
+                    transport.send(request, true).thenAccept((Void) -> {
+                        //Update the request status
+                        requestDetails.setStatus(RequestStatus.SENT);
+                    }).exceptionally(throwable -> {
+                        //If the write operation failed, we need to unregister from the session
+                        log.debug("Write operation failed, unregistering from session : {}", id);
+                        requestDetails.setStatus(RequestStatus.DONE);
+                        //Remove from the registry
+                        sessionManager.unregister(id);
+                        clientPromise.completeExceptionally(throwable);
+                        return null;
                     });
                     requestDetails.setStatus(RequestStatus.SENDING);
                 } catch (Exception e) {
-                    requestDetails.getPromise().tryFailure(e);
+                    requestDetails.getPromise().completeExceptionally(e);
+                    //requestDetails.getPromise().tryFailure(e);
                 }
             }
         }
@@ -238,37 +233,20 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      */
     public abstract void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
 
-    /**
-     * Sends a request to it's destination using the default priority
-     *
-     * @param request
-     * @param <V>
-     *
-     * @return
-     */
     @Override
-    public <V> Promise<V> send(A request) {
+    public CompletableFuture<B> send(A request) {
         return send(request, DEFAULT_REQUEST_PRIORITY);
     }
 
-    /**
-     * Sends a request using the specified priority level
-     *
-     * @param request
-     * @param priority
-     * @param <V>
-     *
-     * @return
-     */
-    public <V> Promise<V> send(A request, RequestPriority priority) {
-        final Promise<V> clientPromise = transport.newPromise();
+    public CompletableFuture<B> send(A request, RequestPriority priority) {
+        final CompletableFuture<B> promise = new CompletableFuture<>();
         log.debug("Adding request '{}' to queue", request.getClass().getSimpleName());
         //Add to the request queue
-        if (!requestQueue.add(new RequestDetails<>(request, clientPromise, priority, TIMEOUT_CALLBACK, getTransport()))) {
+        if (!requestQueue.add(new RequestDetails<>(request, promise, priority, null, getTransport()))) {
             log.error("Unable to add to the queue");
         }
         //Return the promise instance back to the client
-        return clientPromise;
+        return promise;
     }
 
     /**
@@ -285,14 +263,14 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             SessionValue session = sessionManager.getSession(response);
             if (session != null) {
                 //1) Retrieve our client promise from the session
-                final Promise clientPromise = session.getClientPromise();
+                final CompletableFuture<B> clientPromise = session.getClientPromise();
                 try {
                     //2) Unregister the session
                     sessionManager.unregister(session);
                     //4) Notify the client that we have successfully received a response from the server
-                    clientPromise.trySuccess(response);
+                    clientPromise.complete(response);
                 } catch (Exception e) {
-                    clientPromise.tryFailure(e);
+                    clientPromise.completeExceptionally(e);
                 }
             } else {
                 log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());

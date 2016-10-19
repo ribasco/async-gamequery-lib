@@ -24,20 +24,14 @@
 
 package com.ribasco.rglib.core;
 
-import io.netty.util.concurrent.Promise;
-
 import java.io.Closeable;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * <ul>
- * <li>Delivers the message using the underlying transport</li>
- * <li>Sends a message back to the client if the destination did not respond.</li>
- * <li>Contains a map of requests and their destination</li>
- * <li>Decides which handlers should be receiving the message</li>
- * </ul>
+ * {@link Messenger} is responsible for sending and receiving messages from clients.
  */
-public interface Messenger<Request extends AbstractRequest, Response extends AbstractResponse> extends Closeable {
-    <V> Promise<V> send(Request request);
+public interface Messenger<Req extends AbstractRequest, Response extends AbstractResponse> extends Closeable {
+    CompletableFuture<Response> send(Req request);
 
     void receive(Response response);
 }

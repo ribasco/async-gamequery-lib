@@ -25,11 +25,10 @@
 package com.ribasco.rglib.core;
 
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelPromise;
-import io.netty.util.concurrent.Promise;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/13/2016.
@@ -37,11 +36,9 @@ import java.net.InetSocketAddress;
 public interface Transport<T extends AbstractMessage> extends Closeable {
     void initialize();
 
-    <V> Promise<V> send(T data);
+    CompletableFuture<Void> send(T data);
 
-    <V> Promise<V> send(T data, boolean flushImmediately);
-
-    void send(T data, boolean flushImmediately, ChannelPromise writePromise);
+    CompletableFuture<Void> send(T data, boolean flushImmediately);
 
     Channel flush();
 

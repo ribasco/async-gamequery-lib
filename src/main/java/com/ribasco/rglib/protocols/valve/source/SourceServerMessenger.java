@@ -43,17 +43,17 @@ import java.util.Map;
 /**
  * Created by raffy on 9/14/2016.
  */
-public class SourceServerMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse, NettyUdpTransport> {
+public class SourceServerMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse, NettyUdpTransport<SourceServerRequest>> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceServerMessenger.class);
 
     public SourceServerMessenger() {
         //Use the default session manager
-        super(new NettyUdpTransport(), ProcessingMode.ASYNCHRONOUS);
+        super(new NettyUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyUdpTransport transport) {
+    public void configureTransport(NettyUdpTransport<SourceServerRequest> transport) {
         //Set to NIO UDP Type
         transport.setChannelType(ChannelType.NIO_UDP);
 

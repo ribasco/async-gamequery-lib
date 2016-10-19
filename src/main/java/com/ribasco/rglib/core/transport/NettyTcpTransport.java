@@ -32,19 +32,17 @@ import io.netty.channel.pool.AbstractChannelPoolMap;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/13/2016.
  */
-public class NettyTcpTransport<M extends AbstractMessage> extends NettyTransport<SocketChannel, M> {
+public class NettyTcpTransport<M extends AbstractMessage> extends NettyTransport<M> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyTcpTransport.class);
 
@@ -81,23 +79,30 @@ public class NettyTcpTransport<M extends AbstractMessage> extends NettyTransport
         };
     }
 
-    @Override
-    public NioSocketChannel getChannel(InetSocketAddress address) {
-        try {
-            final SimpleChannelPool pool = poolMap.get(address);
-            NioSocketChannel c = (NioSocketChannel) pool.acquire().sync().get(2500, TimeUnit.SECONDS);
-            c.attr(SourceChannelAttributes.CHANNEL_POOL).set(pool);
-            return c;
-        } catch (TimeoutException | InterruptedException | ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     @Override
-    public void cleanupChannel(Channel c) {
+    public Void cleanupChannel(Channel c) {
         //Release channel from the pool
         if (c.hasAttr(SourceChannelAttributes.CHANNEL_POOL)) {
             c.attr(SourceChannelAttributes.CHANNEL_POOL).get().release(c);
         }
+        return null;
+    }
+
+    @Override
+    public CompletableFuture<Channel> getChannel(InetSocketAddress address) {
+        final CompletableFuture<Channel> channelFuture = new CompletableFuture<>();
+        final SimpleChannelPool pool = poolMap.get(address);
+        //Acquire from pool and listen for completion
+        pool.acquire().addListener((Future<Channel> future) -> {
+            if (future.isSuccess()) {
+                SocketChannel channel = (SocketChannel) future.get();
+                channel.attr(SourceChannelAttributes.CHANNEL_POOL).set(pool);
+                channelFuture.complete(channel);
+            } else {
+                channelFuture.completeExceptionally(future.cause());
+            }
+        });
+        return channelFuture;
     }
 }

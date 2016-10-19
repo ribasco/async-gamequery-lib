@@ -36,7 +36,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
-import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,11 +44,12 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/15/2016.
  */
-public abstract class NettyTransport<T extends Channel, MSG extends AbstractMessage> implements Transport<MSG> {
+public abstract class NettyTransport<Msg extends AbstractMessage> implements Transport<Msg> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;
@@ -115,33 +115,48 @@ public abstract class NettyTransport<T extends Channel, MSG extends AbstractMess
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public <V> Promise<V> send(MSG data) {
-        return send(data, false);
+    public CompletableFuture<Void> send(Msg data) {
+        return send(data, true);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public <V> Promise<V> send(MSG data, boolean flushImmediately) {
-        T c = getChannel(data.recipient());
-        ChannelFuture cf = null;
-        final ChannelPromise writePromise = c.newPromise();
-        send(data, flushImmediately, writePromise);
-        return (Promise<V>) writePromise;
+    public CompletableFuture<Void> send(Msg data, boolean flushImmediately) {
+        //Obtain a channel then write to it once acquired
+        return getChannel(data.recipient()).thenCompose(channel -> writeToChannel(channel, data, flushImmediately));
     }
 
-    @Override
-    public void send(MSG data, boolean flushImmediately, ChannelPromise writePromise) {
-        T c = null;
-        try {
-            c = (T) writePromise.channel();
-            if (flushImmediately) {
-                c.writeAndFlush(data, writePromise);
-            } else
-                c.write(data, writePromise);
-        } finally {
-            if (c != null)
-                cleanupChannel(c);
-        }
+    /**
+     * A method to send data over the transport. Since the current netty version does not yet support {@link CompletableFuture},
+     * we need to convert the returned {@link ChannelFuture} to it's {@link CompletableFuture} version.
+     *
+     * @param channel          The underlying {@link Channel} to be used for data transport.
+     * @param data             An instance of {@link AbstractMessage} that will be sent through the transport
+     * @param flushImmediately True if transport should immediately flush the message after send.
+     *
+     * @return A {@link CompletableFuture} with return type of {@link Channel} (The channel used for the transport)
+     */
+    private CompletableFuture<Void> writeToChannel(Channel channel, Msg data, boolean flushImmediately) {
+        final CompletableFuture<Void> writeResultFuture = new CompletableFuture<>();
+        final ChannelFuture writeFuture = (flushImmediately) ? channel.writeAndFlush(data) : channel.write(data);
+        writeFuture.addListener((ChannelFuture future) -> {
+            try {
+                if (future.isSuccess())
+                    writeResultFuture.complete(null);
+                else
+                    writeResultFuture.completeExceptionally(future.cause());
+            } finally {
+                //Clean-up channel after write
+                cleanupChannel(channel);
+            }
+        });
+        return writeResultFuture;
     }
 
     /**
@@ -149,25 +164,14 @@ public abstract class NettyTransport<T extends Channel, MSG extends AbstractMess
      *
      * @param c Channel
      */
-    public void cleanupChannel(Channel c) {
+    public Void cleanupChannel(Channel c) {
         //this method is meant to be overriden to perform cleanup operations (optional only)
+        return null;
     }
 
     @Override
     public Channel flush() {
         throw new NotImplementedException("No concrete class has implemented this method");
-    }
-
-    public ChannelPromise newChannelPromise(InetSocketAddress address) {
-        return getChannel(address).newPromise();
-    }
-
-    public ChannelPromise newVoidPromise(InetSocketAddress address) {
-        return getChannel(address).voidPromise();
-    }
-
-    public <V> Promise<V> newPromise() {
-        return eventLoopGroup.next().newPromise();
     }
 
     public EventLoopGroup createEventLoopGroup(ChannelType type) {
@@ -220,5 +224,5 @@ public abstract class NettyTransport<T extends Channel, MSG extends AbstractMess
         eventLoopGroup.shutdownGracefully();
     }
 
-    public abstract T getChannel(InetSocketAddress address);
+    public abstract CompletableFuture<Channel> getChannel(InetSocketAddress address);
 }

@@ -24,19 +24,21 @@
 
 package com.ribasco.rglib.core.transport;
 
-import com.ribasco.rglib.core.AbstractMessage;
+import com.ribasco.rglib.core.AbstractRequest;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/13/2016.
  */
-public class NettyUdpTransport<M extends AbstractMessage> extends NettyTransport<NioDatagramChannel, M> {
+public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport<M> {
 
     private Logger log = LoggerFactory.getLogger(NettyUdpTransport.class);
     private NioDatagramChannel channel; //maintain only one channel
@@ -53,23 +55,26 @@ public class NettyUdpTransport<M extends AbstractMessage> extends NettyTransport
     }
 
     @Override
-    public void cleanupChannel(Channel c) {
-        //do nothing
+    public Void cleanupChannel(Channel c) {
+        return null; //do nothing
     }
 
     @Override
-    public NioDatagramChannel getChannel(InetSocketAddress address) {
-        //disregard address
+    public CompletableFuture<Channel> getChannel(InetSocketAddress address) {
+        final CompletableFuture<Channel> cf = new CompletableFuture<>();
         //lazy initialization
         if (channel == null || !channel.isOpen()) {
-            try {
-                //TODO: Change this to asynchronous, do not sync, return a ChannelFuture instead
-                log.debug("Re-binding channel");
-                channel = (NioDatagramChannel) bind(0).sync().channel();
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            bind(0).addListener((ChannelFuture future) -> {
+                if (future.isSuccess()) {
+                    channel = (NioDatagramChannel) future.channel();
+                    cf.complete(channel);
+                } else {
+                    cf.completeExceptionally(future.cause());
+                }
+            });
+        } else {
+            cf.complete(channel);
         }
-        return channel;
+        return cf;
     }
 }

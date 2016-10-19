@@ -32,7 +32,6 @@ import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
 import com.ribasco.rglib.protocols.valve.source.SourceRconResponse;
 import com.ribasco.rglib.protocols.valve.source.request.SourceRconAuthRequest;
 import com.ribasco.rglib.protocols.valve.source.request.SourceRconCmdRequest;
-import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -40,6 +39,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -59,31 +59,33 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
         authMap = new ConcurrentHashMap<>();
     }
 
-    public Promise<Integer> authenticate(InetSocketAddress address, String password, Callback<Integer> callback) {
+    public CompletableFuture<Boolean> authenticate(InetSocketAddress address, String password, Callback<Integer> callback) {
         if (StringUtils.isEmpty(password))
             throw new IllegalArgumentException("No password specified");
         int id = createRequestId();
         log.debug("Requesting with id: {}", id);
-        Promise<Integer> p = this.getMessenger().getTransport().newPromise();
-
-        Promise<Integer> promise = sendRequest(new SourceRconAuthRequest(address, id, password), (response, sender, error) -> {
-            if (error != null) {
-                callback.onComplete(null, sender, error);
-                return;
+        CompletableFuture<Integer> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
+        return authRequestFuture.thenApply(requestId -> {
+            if (requestId != -1) {
+                authMap.put(address, requestId);
+                if (callback != null)
+                    callback.onComplete(requestId, address, null);
+                return true;
             }
-            authMap.put(sender, response);
-            callback.onComplete(response, sender, error);
-        }, RequestPriority.HIGH);
-        return promise;
+            return false;
+        }).exceptionally(throwable -> {
+            log.error("An error occured during authentication: {}", throwable.getMessage());
+            if (callback != null)
+                callback.onComplete(null, address, throwable);
+            return false;
+        });
     }
 
-    public Promise<String> execute(InetSocketAddress address, String command, Callback<String> callback) {
+    public CompletableFuture<String> execute(InetSocketAddress address, String command, Callback<String> callback) {
         if (!isAuthenticated(address))
             throw new IllegalStateException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
-
         final Integer id = createRequestId();
         log.debug("Executing command '{}' using request id: {}", command, id);
-
         return sendRequest(new SourceRconCmdRequest(address, id, command), callback);
     }
 

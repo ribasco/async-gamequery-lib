@@ -46,7 +46,7 @@ import java.util.Map;
 /**
  * Created by raffy on 9/24/2016.
  */
-public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse, NettyTcpTransport> {
+public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse, NettyTcpTransport<SourceRconRequest>> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 

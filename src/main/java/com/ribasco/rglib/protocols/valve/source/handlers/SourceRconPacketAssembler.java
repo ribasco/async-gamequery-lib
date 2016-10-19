@@ -87,7 +87,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             this.size = size;
             this.type = type;
             this.sender = sender;
-            //TODO: Maybe we should replace this with a bytebuf instance instead? To avoid redundancy
+            //TODO: Maybe we should replace this with a bytebuf instance instead? To avoid re-allocating
             this.body = body;
         }
 

@@ -31,9 +31,10 @@ import com.ribasco.rglib.core.session.SessionValue;
 import com.ribasco.rglib.core.transport.NettyTransport;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
-import io.netty.util.concurrent.Promise;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/20/2016.
@@ -60,7 +61,7 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
             return;
         }
 
-        final Promise clientPromise = session.getClientPromise();
+        final CompletableFuture<?> clientPromise = session.getClientPromise();
         final TimeoutCallback timeoutCallback = session.getTimeoutCallback();
         final RequestDetails details = session.getRequestDetails();
         final NettyTransport transport = details.getTransport();
@@ -69,13 +70,13 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
         // it reaches a max retry of 3 times, we will then notify the client for the failure
         try {
             //Check first if the promise has been completed
-            if (clientPromise != null && !clientPromise.isSuccess()) {
+            if (clientPromise != null && !clientPromise.isCompletedExceptionally()) {
                 //log.info("Timeout for Session {}", session.getId());
                 //Send a ReadTimeoutException to the client
-                clientPromise.tryFailure(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
+                clientPromise.completeExceptionally(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
             }
         } catch (Exception e) {
-            log.error("Error occured for {} with Promise status (IsDone: {}, IsSuccess: {}, HasException: {}). Error = {}", id, clientPromise.isDone(), clientPromise.isSuccess(), clientPromise.cause(), e);
+            log.error("Error occured for {} with Promise status (IsDone: {}, IsDone: {}, HasException: {}). Error = {}", id, clientPromise.isDone(), clientPromise.isDone(), clientPromise.isCompletedExceptionally(), e);
         } finally {
             //Unregister from the session
             sessionManager.unregister(id);

@@ -30,13 +30,14 @@ import com.ribasco.rglib.core.RequestDetails;
 import com.ribasco.rglib.core.TimeoutCallback;
 import com.ribasco.rglib.core.transport.NettyTransport;
 import io.netty.util.Timeout;
-import io.netty.util.concurrent.Promise;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Contains the details of the given Session
@@ -77,7 +78,7 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
         return timeRegistered;
     }
 
-    public Promise getClientPromise() {
+    public <V> CompletableFuture<V> getClientPromise() {
         return this.requestDetails.getPromise();
     }
 

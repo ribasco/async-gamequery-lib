@@ -25,19 +25,19 @@
 package com.ribasco.rglib.core;
 
 import com.ribasco.rglib.core.enums.RequestPriority;
-import io.netty.util.concurrent.Future;
 
 import java.io.Closeable;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/13/2016.
  */
 public interface Client<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
-    <V> Future<V> sendRequest(Req message);
+    <V> CompletableFuture<V> sendRequest(Req message);
 
-    <V> Future<V> sendRequest(Req message, RequestPriority priority);
+    <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority);
 
-    <V> Future<V> sendRequest(Req message, Callback<V> callback);
+    <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback);
 
-    <V> Future<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority);
+    <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority);
 }

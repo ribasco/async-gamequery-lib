@@ -28,13 +28,14 @@ import com.ribasco.rglib.core.AbstractClient;
 import com.ribasco.rglib.core.AbstractGameServerRequest;
 import com.ribasco.rglib.core.AbstractGameServerResponse;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
+import com.ribasco.rglib.core.transport.NettyTransport;
 
 /**
  * Created by raffy on 9/14/2016.
  */
 public abstract class GameServerQueryClient<Req extends AbstractGameServerRequest,
         Res extends AbstractGameServerResponse,
-        M extends GameServerMessenger>
+        M extends GameServerMessenger<Req, Res, ? extends NettyTransport<Req>>>
         extends AbstractClient<Req, Res, M> {
     public GameServerQueryClient(M messenger) {
         super(messenger);

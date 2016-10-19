@@ -27,21 +27,22 @@ package com.ribasco.rglib.core;
 import com.ribasco.rglib.core.enums.RequestPriority;
 import com.ribasco.rglib.core.session.SessionId;
 import com.ribasco.rglib.core.session.SessionValue;
-import io.netty.util.concurrent.Promise;
+import com.ribasco.rglib.core.transport.NettyTransport;
+import com.ribasco.rglib.core.utils.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/14/2016.
  */
 public abstract class AbstractClient<Req extends AbstractRequest,
         Res extends AbstractResponse,
-        M extends AbstractMessenger>
+        M extends AbstractMessenger<Req, Res, ? extends NettyTransport<Req>>>
         implements Client<Req, Res> {
     private M messenger;
 
@@ -62,62 +63,39 @@ public abstract class AbstractClient<Req extends AbstractRequest,
     }
 
     @Override
-    public <V> Promise<V> sendRequest(Req message) {
+    public <V> CompletableFuture<V> sendRequest(Req message) {
         return sendRequest(message, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
     }
 
     @Override
-    public <V> Promise<V> sendRequest(Req message, RequestPriority priority) {
+    public <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
         return sendRequest(message, null, priority);
     }
 
     @Override
-    public <V> Promise<V> sendRequest(Req message, Callback<V> callback) {
+    public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback) {
         return sendRequest(message, callback, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
     }
 
     @Override
-    public <V> Promise<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
-        //Promise containing the actual server message
-        final Promise<V> clientPromise = messenger.getTransport().newPromise();
-
-        try {
-            log.debug("Sending request : {}", message);
-            //Promise retrieved from the messenger containing the AbstractResponse instance
-            final Promise<Res> messengerPromise = messenger.send(message, priority);
-
-            //Listen for completion events then notify the client accordingly
-            messengerPromise.addListener(future -> {
-                if (future.isDone()) {
-                    V responseData = null;
-                    Throwable exception = null;
-                    try {
-                        if (future.isSuccess())
-                            responseData = (V) ((Res) future.get()).getMessage();
-                        else
-                            exception = future.cause();
-                    } catch (InterruptedException | IllegalStateException | ExecutionException e) {
-                        log.error("Got an error while retrieving: {} for {}", e.getMessage(), message.recipient());
-                        exception = e;
-                    } finally {
-                        //#1) Invoke the callback for completion first
-                        if (callback != null)
-                            callback.onComplete(responseData, message.recipient(), exception);
-                        //#2) Alert all registered listeners
-                        if (exception != null)
-                            clientPromise.tryFailure(exception);
-                        else
-                            clientPromise.trySuccess(responseData);
-                    }
-                }
-            });
-            Thread.sleep(getSleepTime());
-        } catch (Exception e) {
+    public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
+        log.debug("Sending request : {}", message);
+        //Send the request then transform the result once a response is received
+        final CompletableFuture<V> messengerPromise = messenger.send(message, priority).thenApply((Res response) -> {
+            //Extract the actual message from the response object
+            V responseData = (V) response.getMessage();
+            //Invoke the callback if specified
             if (callback != null)
-                callback.onComplete(null, message.recipient(), e);
-            clientPromise.tryFailure(e);
-        }
-        return clientPromise;
+                callback.onComplete(responseData, message.recipient(), null);
+            return responseData;
+        }).exceptionally(throwable -> {
+            log.error("Error occured after sending request : {}", throwable.getMessage());
+            if (callback != null)
+                callback.onComplete(null, message.recipient(), throwable);
+            return null;
+        });
+        ConcurrentUtils.sleepUninterrupted(getSleepTime());
+        return messengerPromise;
     }
 
     public void waitForAll() {

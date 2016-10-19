@@ -35,7 +35,7 @@ import com.ribasco.rglib.core.transport.NettyTransport;
  */
 public abstract class GameServerRconClient<Req extends AbstractGameServerRequest,
         Res extends AbstractGameServerResponse,
-        M extends GameServerMessenger<Req, Res, NettyTransport>>
+        M extends GameServerMessenger<Req, Res, NettyTransport<Req>>>
         extends AbstractClient<Req, Res, M> {
     public GameServerRconClient(M messenger) {
         super(messenger);

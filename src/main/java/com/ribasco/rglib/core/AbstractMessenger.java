@@ -40,7 +40,6 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
 
 /**
  * Created by raffy on 9/14/2016.
@@ -57,7 +56,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private final AtomicBoolean stopped = new AtomicBoolean(false);
     private SessionManager<A, B> sessionManager;
     private T transport;
-    private PriorityBlockingQueue<RequestDetails<A>> requestQueue;
+    private PriorityBlockingQueue<RequestDetails<A, B>> requestQueue;
     private ProcessingMode processingMode;
     private int maxRetries;
 
@@ -79,7 +78,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         while (!stopped.get()) {
             //Since we are processing synchronously, we will not remove the head of the queue immediately but rather
             //only remove the head once it completes
-            final RequestDetails<A> requestDetails = requestQueue.peek();
+            final RequestDetails<A, B> requestDetails = requestQueue.peek();
 
             try {
                 //Do we have any requests to process?
@@ -90,6 +89,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
 
                 final RequestStatus status = requestDetails.getStatus();
 
+                //Only process new REQUESTS
                 if (status == RequestStatus.NEW) {
                     requestDetails.setStatus(RequestStatus.ACCEPTED);
                     requestDetails.getRequest().setSender(transport.localAddress());
@@ -108,29 +108,25 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                             //Set the status as sent
                             requestDetails.setStatus(RequestStatus.SENT);
                             //If the write is successful, perform this action once the request receives a response
-                            requestDetails.getPromise().thenRun(() -> {
+                            requestDetails.getClientPromise().whenComplete((res, error) -> {
                                 //Update the status
                                 requestDetails.setStatus(RequestStatus.DONE);
                                 //Only remove from the queue once the task completes
                                 requestQueue.remove(requestDetails);
                             });
-                        }).exceptionally(new Function<Throwable, Void>() {
-                            @Override
-                            public Void apply(Throwable throwable) {
-                                //If write is a failure, notify the listeners
-                                //requestDetails.getPromise().tryFailure(future.cause());
-                                requestDetails.getPromise().completeExceptionally(throwable);
+                        }).whenComplete((aVoid, throwable) -> {
+                            //If we encounter a write error, notify the listeners then immediately remove it from the queue
+                            if (throwable != null) {
+                                requestDetails.getClientPromise().completeExceptionally(throwable);
                                 requestQueue.remove(requestDetails);
-                                return null;
                             }
                         });
                     }
                 }
                 ConcurrentUtils.sleepUninterrupted(5);
             } catch (Exception e) {
-                if (requestDetails != null && requestDetails.getPromise() != null)
-                    requestDetails.getPromise().completeExceptionally(e);
-                //requestDetails.getPromise().tryFailure(e);
+                if (requestDetails != null && requestDetails.getClientPromise() != null)
+                    requestDetails.getClientPromise().completeExceptionally(e);
             }
         }
     };
@@ -142,7 +138,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         log.info("Running async processor for {}. Request Queue: {}", this.getClass().getSimpleName(), requestQueue.hashCode());
         while (!stopped.get()) {
             //Remove the head of the queue immediately and process accordingly
-            final RequestDetails<A> requestDetails = requestQueue.poll();
+            final RequestDetails<A, B> requestDetails = requestQueue.poll();
 
             //Only process new requests
             if (requestDetails != null && (requestDetails.getStatus() == RequestStatus.NEW
@@ -152,7 +148,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                     requestDetails.setStatus(RequestStatus.ACCEPTED);
 
                     final A request = requestDetails.getRequest();
-                    final CompletableFuture clientPromise = requestDetails.getPromise();
 
                     //Set local address for transport
                     request.setSender(transport.localAddress());
@@ -169,17 +164,17 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                         requestDetails.setStatus(RequestStatus.SENT);
                     }).exceptionally(throwable -> {
                         //If the write operation failed, we need to unregister from the session
-                        log.debug("Write operation failed, unregistering from session : {}", id);
+                        log.error("Write operation failed, unregistering from session : {}", id);
                         requestDetails.setStatus(RequestStatus.DONE);
                         //Remove from the registry
                         sessionManager.unregister(id);
-                        clientPromise.completeExceptionally(throwable);
+                        if (requestDetails.getClientPromise() != null)
+                            requestDetails.getClientPromise().completeExceptionally(throwable);
                         return null;
                     });
                     requestDetails.setStatus(RequestStatus.SENDING);
                 } catch (Exception e) {
-                    requestDetails.getPromise().completeExceptionally(e);
-                    //requestDetails.getPromise().tryFailure(e);
+                    requestDetails.getClientPromise().completeExceptionally(e);
                 }
             }
         }
@@ -233,18 +228,31 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      */
     public abstract void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
 
+    /**
+     * Send a request using the default priority
+     *
+     * @param request An instance of {@link AbstractRequest} to be sent
+     *
+     * @return A {@link CompletableFuture} containing a value of {@link AbstractResponse}
+     */
     @Override
     public CompletableFuture<B> send(A request) {
         return send(request, DEFAULT_REQUEST_PRIORITY);
     }
 
+    /**
+     * Adds the request to the queue then it will be sent through the underlying transport.
+     *
+     * @param request  An instance of {@link AbstractRequest}
+     * @param priority
+     *
+     * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the server if available.
+     */
     public CompletableFuture<B> send(A request, RequestPriority priority) {
         final CompletableFuture<B> promise = new CompletableFuture<>();
         log.debug("Adding request '{}' to queue", request.getClass().getSimpleName());
         //Add to the request queue
-        if (!requestQueue.add(new RequestDetails<>(request, promise, priority, null, getTransport()))) {
-            log.error("Unable to add to the queue");
-        }
+        requestQueue.add(new RequestDetails<>(request, promise, priority, getTransport()));
         //Return the promise instance back to the client
         return promise;
     }
@@ -260,25 +268,26 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         log.debug("Receiving '{}' from {}", response.getClass().getSimpleName(), response.sender());
         synchronized (this) {
             //Retrieve the existing session for this response
-            SessionValue session = sessionManager.getSession(response);
+            final SessionValue<A, B> session = sessionManager.getSession(response);
             if (session != null) {
                 //1) Retrieve our client promise from the session
                 final CompletableFuture<B> clientPromise = session.getClientPromise();
-                try {
-                    //2) Unregister the session
-                    sessionManager.unregister(session);
-                    //4) Notify the client that we have successfully received a response from the server
-                    clientPromise.complete(response);
-                } catch (Exception e) {
-                    clientPromise.completeExceptionally(e);
-                }
+                //2) Unregister the session
+                sessionManager.unregister(session);
+                //4) Notify the client that we have successfully received a response from the server
+                clientPromise.complete(response);
             } else {
                 log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());
             }
         }
     }
 
-    public PriorityBlockingQueue<RequestDetails<A>> getRequestQueue() {
+    /**
+     * Retrieve the internal request queue
+     *
+     * @return A {@link PriorityBlockingQueue} instance
+     */
+    public PriorityBlockingQueue<RequestDetails<A, B>> getRequestQueue() {
         return requestQueue;
     }
 

@@ -74,7 +74,7 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
      *
      * @return A {@link SessionId} if the request has been successfully registered.
      */
-    SessionId register(RequestDetails<Req> requestDetails);
+    SessionId register(RequestDetails<Req, Res> requestDetails);
 
     /**
      * Removes the associated session from the registry (if available) using a {@link SessionId} instance.

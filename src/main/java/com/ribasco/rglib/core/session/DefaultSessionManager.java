@@ -114,7 +114,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     }
 
     @Override
-    public SessionId register(RequestDetails<Req> requestDetails) {
+    public SessionId register(RequestDetails<Req, Res> requestDetails) {
         log.debug("Registering session : {}", requestDetails.getRequest());
         final SessionId id = factory.createId(requestDetails.getRequest());
         //Create our session store object and set it's properties

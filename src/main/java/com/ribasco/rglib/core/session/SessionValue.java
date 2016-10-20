@@ -27,7 +27,6 @@ package com.ribasco.rglib.core.session;
 import com.ribasco.rglib.core.AbstractRequest;
 import com.ribasco.rglib.core.AbstractResponse;
 import com.ribasco.rglib.core.RequestDetails;
-import com.ribasco.rglib.core.TimeoutCallback;
 import com.ribasco.rglib.core.transport.NettyTransport;
 import io.netty.util.Timeout;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -47,12 +46,12 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
 
     private Timeout timeout;
     private SessionId id;
-    private RequestDetails<Req> requestDetails;
+    private RequestDetails<Req, Res> requestDetails;
     private final long timeRegistered = System.currentTimeMillis();
     private Class<? extends AbstractResponse> expectedResponse;
     private long index = -1;
 
-    public SessionValue(SessionId id, RequestDetails<Req> requestDetails, long index) {
+    public SessionValue(SessionId id, RequestDetails<Req, Res> requestDetails, long index) {
         this.id = id;
         this.requestDetails = requestDetails;
         this.index = index;
@@ -78,27 +77,23 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
         return timeRegistered;
     }
 
-    public <V> CompletableFuture<V> getClientPromise() {
-        return this.requestDetails.getPromise();
+    public CompletableFuture<Res> getClientPromise() {
+        return this.requestDetails.getClientPromise();
     }
 
     public Req getRequest() {
         return this.requestDetails.getRequest();
     }
 
-    public NettyTransport getRequestTransport() {
+    public NettyTransport<Req> getRequestTransport() {
         return this.requestDetails.getTransport();
     }
 
-    public TimeoutCallback getTimeoutCallback() {
-        return this.requestDetails.getTimeoutCallback();
-    }
-
-    public RequestDetails<Req> getRequestDetails() {
+    public RequestDetails<Req, Res> getRequestDetails() {
         return requestDetails;
     }
 
-    public void setRequestDetails(RequestDetails<Req> requestDetails) {
+    public void setRequestDetails(RequestDetails<Req, Res> requestDetails) {
         this.requestDetails = requestDetails;
     }
 

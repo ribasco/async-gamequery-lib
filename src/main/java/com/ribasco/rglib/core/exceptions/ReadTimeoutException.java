@@ -29,7 +29,7 @@ import com.ribasco.rglib.core.session.SessionId;
 /**
  * Created by raffy on 9/21/2016.
  */
-public class ReadTimeoutException extends Exception {
+public class ReadTimeoutException extends RuntimeException {
 
     private SessionId key;
 

@@ -81,19 +81,11 @@ public abstract class AbstractClient<Req extends AbstractRequest,
     public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
         log.debug("Sending request : {}", message);
         //Send the request then transform the result once a response is received
-        final CompletableFuture<V> messengerPromise = messenger.send(message, priority).thenApply((Res response) -> {
-            //Extract the actual message from the response object
-            V responseData = (V) response.getMessage();
-            //Invoke the callback if specified
-            if (callback != null)
-                callback.onComplete(responseData, message.recipient(), null);
-            return responseData;
-        }).exceptionally(throwable -> {
-            log.error("Error occured after sending request : {}", throwable.getMessage());
-            if (callback != null)
-                callback.onComplete(null, message.recipient(), throwable);
-            return null;
-        });
+        final CompletableFuture<V> messengerPromise = messenger.send(message, priority)
+                .thenApply((Res response) -> (V) response.getMessage());
+        if (callback != null) {
+            messengerPromise.whenComplete((result, throwable) -> callback.onComplete(result, message.recipient(), throwable));
+        }
         ConcurrentUtils.sleepUninterrupted(getSleepTime());
         return messengerPromise;
     }
@@ -104,7 +96,7 @@ public abstract class AbstractClient<Req extends AbstractRequest,
             log.debug("There are still {} requests that are pending", entries.size());
             while (messenger.hasPendingRequests()
                     || messenger.getRemaining().size() > 0) {
-                log.debug("Waiting... Sesion Size: {} - Request Size: {}", entries.size(), messenger.getPendingRequestSize());
+                log.debug("Waiting... Session Size: {} - Request Size: {}", entries.size(), messenger.getPendingRequestSize());
                 synchronized (messenger.getSessionManager()) {
                     entries.stream().forEachOrdered(entry -> {
                         log.debug(">> Session Remaining: {}", entry.getKey());

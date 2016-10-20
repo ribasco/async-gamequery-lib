@@ -40,55 +40,54 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Contains all the properties associated with this request
  */
-public class RequestDetails<R extends AbstractRequest> implements Comparable<RequestDetails> {
+public class RequestDetails<Req extends AbstractRequest, Res extends AbstractResponse> implements Comparable<RequestDetails> {
     private static final Logger log = LoggerFactory.getLogger(RequestDetails.class);
-    private R request;
-    private CompletableFuture<?> promise;
+    private Req request;
+    private CompletableFuture<Res> clientPromise;
     private RequestStatus status;
     private RequestPriority priority;
-    private TimeoutCallback timeoutCallback;
+    private NettyTransport<Req> transport;
+    private Class<Res> expectedResponseClass;
     private AtomicInteger retries = new AtomicInteger(0);
-    private NettyTransport transport;
     private long timeCreated;
 
-    public RequestDetails(R request, CompletableFuture<?> promise, RequestPriority priority, TimeoutCallback handler, NettyTransport transport) {
+    public RequestDetails(Req request, CompletableFuture<Res> clientPromise, RequestPriority priority, NettyTransport<Req> transport) {
         this.status = RequestStatus.NEW;
         this.request = request;
-        this.promise = promise;
+        this.clientPromise = clientPromise;
         this.priority = priority;
-        this.timeoutCallback = handler;
         this.transport = transport;
         this.timeCreated = System.currentTimeMillis();
     }
 
     /**
-     * Copy constructor
+     * Copy Constructor
      *
-     * @param requestDetails
+     * @param requestDetails An {@link RequestDetails} that will be used as reference for the copy
      */
-    public RequestDetails(RequestDetails<R> requestDetails) {
+    public RequestDetails(RequestDetails<Req, Res> requestDetails) {
         this.request = requestDetails.getRequest();
-        this.promise = requestDetails.getPromise();
+        this.clientPromise = requestDetails.getClientPromise();
         this.status = requestDetails.getStatus();
         this.priority = requestDetails.getPriority();
-        this.timeoutCallback = requestDetails.getTimeoutCallback();
         this.retries = new AtomicInteger(requestDetails.getRetries());
+        this.expectedResponseClass = requestDetails.getExpectedResponseClass();
     }
 
-    public synchronized TimeoutCallback getTimeoutCallback() {
-        return timeoutCallback;
+    public Class<Res> getExpectedResponseClass() {
+        return expectedResponseClass;
     }
 
-    public synchronized void setTimeoutCallback(TimeoutCallback timeoutCallback) {
-        this.timeoutCallback = timeoutCallback;
+    public void setExpectedResponseClass(Class<Res> expectedResponseClass) {
+        this.expectedResponseClass = expectedResponseClass;
     }
 
-    public synchronized <T> CompletableFuture<T> getPromise() {
-        return (CompletableFuture<T>) promise;
+    public synchronized CompletableFuture<Res> getClientPromise() {
+        return clientPromise;
     }
 
-    public synchronized <T> void setPromise(CompletableFuture<T> promise) {
-        this.promise = promise;
+    public synchronized void setClientPromise(CompletableFuture<Res> clientPromise) {
+        this.clientPromise = clientPromise;
     }
 
     public synchronized RequestPriority getPriority() {
@@ -103,11 +102,11 @@ public class RequestDetails<R extends AbstractRequest> implements Comparable<Req
         return retries.get();
     }
 
-    public synchronized void setRequest(R request) {
+    public synchronized void setRequest(Req request) {
         this.request = request;
     }
 
-    public synchronized R getRequest() {
+    public synchronized Req getRequest() {
         return request;
     }
 
@@ -123,7 +122,7 @@ public class RequestDetails<R extends AbstractRequest> implements Comparable<Req
         return this.retries.getAndAdd(1);
     }
 
-    public NettyTransport getTransport() {
+    public NettyTransport<Req> getTransport() {
         return transport;
     }
 

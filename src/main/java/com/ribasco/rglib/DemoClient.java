@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib;
 
+import com.google.common.cache.CacheStats;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
@@ -67,8 +68,8 @@ public class DemoClient {
             //app.testQueue();
             //app.runSimpleAppTest();
             //app.runTestSuite();
-            //app.testRcon();
-            app.runSimpleTest();
+            app.testRcon();
+            //app.runSimpleTest();
             //app.runSimpleTestEx();
             //app.listAllServers();
             //app.testBatch();
@@ -83,7 +84,7 @@ public class DemoClient {
             // app.testMultimap();
             //app.testQueue();
             //app.extractThenProcess();
-            app.testSimpleQuery();
+            //app.testSimpleQuery();
         } finally {
             log.info("Closing App");
             app.close();
@@ -359,16 +360,21 @@ public class DemoClient {
                     log.error("Problem authenticating rcon with {}", sender);
             }).get();
 
+            List<CompletableFuture> futures = new ArrayList<>();
+
             for (String command : commands) {
                 log.info("Executing command '{}'", command);
-                sourceRconClient.execute(address1, command, (response, sender, error) -> {
+                futures.add(sourceRconClient.execute(address1, command, (response, sender, error) -> {
                     if (error != null) {
                         log.error("Error occured while executing command: {}", error.getMessage());
                         return;
                     }
                     log.info("Received Reply for command '{}': \n{}", command, response);
-                });
+                }));
             }
+
+            //Wait
+            CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).get();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
@@ -727,6 +733,8 @@ public class DemoClient {
             log.debug("   Total Rules Error (Timeout): {}", rulesTimeout);
             log.debug(" ");
             log.debug("   Total Challenge Entries in Cache : {}", sourceQueryClient.getChallengeCache().size());
+            CacheStats stats = sourceQueryClient.getChallengeCache().stats();
+            log.debug("   Cache Stats: Average load penalty: {}, Load Count: {}, Load Exception Count: {}, Load Success Count: {}, Hit Count: {}, Hit Rate: {}", stats.averageLoadPenalty(), stats.loadCount(), stats.loadExceptionCount(), stats.loadSuccessCount(), stats.hitCount(), stats.hitRate());
 
             successRateInfo = Math.round((serverInfoCtr.doubleValue() / masterServerCtr.doubleValue()) * 100.0D);
             successRateChallenge = Math.round((challengeCtr.doubleValue() / masterServerCtr.doubleValue()) * 100.0D);

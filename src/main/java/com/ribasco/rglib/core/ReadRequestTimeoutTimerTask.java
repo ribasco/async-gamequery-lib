@@ -28,13 +28,10 @@ import com.ribasco.rglib.core.exceptions.ReadTimeoutException;
 import com.ribasco.rglib.core.session.SessionId;
 import com.ribasco.rglib.core.session.SessionManager;
 import com.ribasco.rglib.core.session.SessionValue;
-import com.ribasco.rglib.core.transport.NettyTransport;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/20/2016.
@@ -53,32 +50,18 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
     public void run(Timeout timeout) throws Exception {
         log.debug("Timeout occured for Session {}", id);
         //Notify the listener that timeout has occured
-
         final SessionValue session = sessionManager.getSession(id);
 
+        //Do not proceed if the session is null
         if (session == null) {
             log.error("could not find session value for id {}. Registry Size : {}", id, sessionManager.getSessionEntries().size());
             return;
         }
 
-        final CompletableFuture<?> clientPromise = session.getClientPromise();
-        final RequestDetails details = session.getRequestDetails();
-        final NettyTransport transport = details.getTransport();
-
-        //If a timeout occurs, do not notify the client yet. Retry re-sending the request and if
-        // it reaches a max retry of 3 times, we will then notify the client for the failure
-        try {
-            //Check first if the promise has been completed
-            if (clientPromise != null && !clientPromise.isCompletedExceptionally()) {
-                //log.info("Timeout for Session {}", session.getId());
-                //Send a ReadTimeoutException to the client
-                clientPromise.completeExceptionally(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
-            }
-        } catch (Exception e) {
-            log.error("Error occured for {} with Promise status (IsDone: {}, IsDone: {}, HasException: {}). Error = {}", id, clientPromise.isDone(), clientPromise.isDone(), clientPromise.isCompletedExceptionally(), e);
-        } finally {
-            //Unregister from the session
-            sessionManager.unregister(id);
+        //Check first if the promise has been completed
+        if (session.getClientPromise() != null && !session.getClientPromise().isCompletedExceptionally()) {
+            //Send a ReadTimeoutException to the client
+            boolean called = session.getClientPromise().completeExceptionally(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
         }
     }
 }

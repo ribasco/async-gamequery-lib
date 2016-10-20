@@ -43,7 +43,7 @@ public class ReadTimeoutException extends RuntimeException {
         this.key = key;
     }
 
-    public SessionId getKey() {
+    public SessionId getSessionId() {
         return key;
     }
 }

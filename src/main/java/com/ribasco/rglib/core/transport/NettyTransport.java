@@ -181,7 +181,7 @@ public abstract class NettyTransport<Msg extends AbstractMessage> implements Tra
                 return new OioEventLoopGroup();
             case NIO_TCP:
             case NIO_UDP:
-                return new NioEventLoopGroup(12, new ThreadFactoryBuilder().setNameFormat("event-loop-%d").setDaemon(true).build());
+                return new NioEventLoopGroup(8, new ThreadFactoryBuilder().setNameFormat("event-loop-%d").setDaemon(true).build());
         }
         return null;
     }

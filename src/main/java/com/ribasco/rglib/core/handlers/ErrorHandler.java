@@ -38,6 +38,7 @@ public class ErrorHandler extends ChannelDuplexHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         log.error("Unhandled exception caught within the pipeline {} for Channel {}", cause, ctx.channel());
-        cause.printStackTrace(System.err);
+        if (log.isDebugEnabled())
+            cause.printStackTrace(System.err);
     }
 }

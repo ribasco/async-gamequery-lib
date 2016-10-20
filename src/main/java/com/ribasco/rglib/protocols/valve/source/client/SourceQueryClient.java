@@ -436,7 +436,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
                 //Thread.sleep(serverList.size() * 15);
             } catch (InterruptedException | TimeoutException e) {
-                log.debug("Timeout/Thread Interruption Occured during retrieval of source list");
+                log.error("Timeout/Thread Interruption Occured during retrieval of server list from master");
                 done.set(true);
             } catch (ExecutionException e) {
                 masterPromise.completeExceptionally(e);

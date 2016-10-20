@@ -136,6 +136,7 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("Id", this.getId())
                 .append("Index", this.getIndex())
                 .append("Request", this.getRequestDetails().getRequest().getClass().getSimpleName())
                 .append("Priority", this.getRequestDetails().getPriority())

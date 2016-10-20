@@ -98,9 +98,7 @@ public abstract class AbstractClient<Req extends AbstractRequest,
                     || messenger.getRemaining().size() > 0) {
                 log.debug("Waiting... Session Size: {} - Request Size: {}", entries.size(), messenger.getPendingRequestSize());
                 synchronized (messenger.getSessionManager()) {
-                    entries.stream().forEachOrdered(entry -> {
-                        log.debug(">> Session Remaining: {}", entry.getKey());
-                    });
+                    entries.stream().forEachOrdered(entry -> log.debug(">> Pending Session Id: {}, Promise: {}, Status: {}", entry.getKey(), entry.getValue().getClientPromise(), entry.getValue().getRequestDetails().getStatus()));
                 }
                 Thread.sleep(1000);
             }

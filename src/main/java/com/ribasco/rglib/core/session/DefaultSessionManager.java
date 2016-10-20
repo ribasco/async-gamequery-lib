@@ -28,6 +28,7 @@ import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
 import com.ribasco.rglib.core.*;
+import com.ribasco.rglib.core.enums.RequestStatus;
 import io.netty.util.HashedWheelTimer;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.slf4j.Logger;
@@ -124,6 +125,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         //Add to the registry
         synchronized (this) {
             session.put(id, sessionValue);
+            requestDetails.setStatus(RequestStatus.REGISTERED);
         }
         return id;
     }

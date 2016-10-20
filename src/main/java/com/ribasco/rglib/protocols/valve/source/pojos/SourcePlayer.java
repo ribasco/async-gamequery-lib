@@ -24,12 +24,15 @@
 
 package com.ribasco.rglib.protocols.valve.source.pojos;
 
-import com.ribasco.rglib.core.pojos.Player;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
+import java.time.Duration;
 
 /**
  * Created by raffy on 9/6/2016.
  */
-public class SourcePlayer implements Player {
+public class SourcePlayer {
     private byte index;
     private String name;
     private int score;
@@ -79,11 +82,11 @@ public class SourcePlayer implements Player {
 
     @Override
     public String toString() {
-        return "SourcePlayer{" +
-                "index=" + index +
-                ", name='" + name + '\'' +
-                ", score=" + score +
-                ", duration=" + duration +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("index", getIndex())
+                .append("name", getName())
+                .append("score", getScore())
+                .append("duration (mins)", Duration.ofSeconds((long) getDuration()).toMinutes())
+                .toString();
     }
 }

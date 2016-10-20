@@ -100,30 +100,35 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                     //Update the status to registered
                     requestDetails.setStatus(RequestStatus.REGISTERED);
 
-                    if (id != null) {
-                        final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
+                    final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
 
-                        //On write completion success, remove from the request queue
-                        writeFuture.thenAccept((Void) -> {
-                            //Set the status as sent
+                    //Perform actions upon write completion
+                    writeFuture.whenComplete((aVoid, writeError) -> {
+                        //If we encounter a write error, notify the listeners then immediately remove it from the queue
+                        if (writeError != null) {
+                            requestDetails.setStatus(RequestStatus.DONE);
+                            requestDetails.getClientPromise().completeExceptionally(writeError);
+                            requestQueue.remove(requestDetails);
+                            performSessionCleanup(id);
+                        }
+                        //Write operation successful
+                        else {
+                            //Update status to SENT
                             requestDetails.setStatus(RequestStatus.SENT);
-                            //If the write is successful, perform this action once the request receives a response
+
+                            //Since we process requests synchronously, this request will only be removed
+                            //from the queue when it completes
                             requestDetails.getClientPromise().whenComplete((res, error) -> {
                                 //Update the status
                                 requestDetails.setStatus(RequestStatus.DONE);
                                 //Only remove from the queue once the task completes
                                 requestQueue.remove(requestDetails);
+                                //Perform session cleanup
+                                performSessionCleanup(id);
                             });
-                        }).whenComplete((aVoid, throwable) -> {
-                            //If we encounter a write error, notify the listeners then immediately remove it from the queue
-                            if (throwable != null) {
-                                requestDetails.getClientPromise().completeExceptionally(throwable);
-                                requestQueue.remove(requestDetails);
-                            }
-                        });
-                    }
+                        }
+                    });
                 }
-                ConcurrentUtils.sleepUninterrupted(5);
             } catch (Exception e) {
                 if (requestDetails != null && requestDetails.getClientPromise() != null)
                     requestDetails.getClientPromise().completeExceptionally(e);
@@ -141,36 +146,33 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             final RequestDetails<A, B> requestDetails = requestQueue.poll();
 
             //Only process new requests
-            if (requestDetails != null && (requestDetails.getStatus() == RequestStatus.NEW
-                    || requestDetails.getStatus() == RequestStatus.RETRY)) {
+            if (requestDetails != null && requestDetails.getStatus() == RequestStatus.NEW) {
                 try {
                     //Set status to ACCEPTED
                     requestDetails.setStatus(RequestStatus.ACCEPTED);
 
-                    final A request = requestDetails.getRequest();
-
                     //Set local address for transport
-                    request.setSender(transport.localAddress());
+                    requestDetails.getRequest().setSender(transport.localAddress());
 
                     //Register the session immediately, duplicate requests will be queued in the order they are sent.
                     final SessionId id = sessionManager.register(requestDetails);
 
-                    //Update the status to registered
-                    requestDetails.setStatus(RequestStatus.REGISTERED);
+                    //Perform session cleanup operations on completion
+                    requestDetails.getClientPromise().whenComplete((response, throwable) -> performSessionCleanup(id));
 
                     //Send then listen for the write completion status
-                    transport.send(request, true).thenAccept((Void) -> {
-                        //Update the request status
-                        requestDetails.setStatus(RequestStatus.SENT);
-                    }).exceptionally(throwable -> {
-                        //If the write operation failed, we need to unregister from the session
-                        log.error("Write operation failed, unregistering from session : {}", id);
-                        requestDetails.setStatus(RequestStatus.DONE);
-                        //Remove from the registry
-                        sessionManager.unregister(id);
-                        if (requestDetails.getClientPromise() != null)
-                            requestDetails.getClientPromise().completeExceptionally(throwable);
-                        return null;
+                    transport.send(requestDetails.getRequest(), true).whenComplete((aVoid, writeError) -> {
+                        if (writeError != null) {
+                            //If the write operation failed, we need to unregister from the session
+                            log.error("Write operation failed, unregistering from session : {}", id);
+                            requestDetails.setStatus(RequestStatus.DONE);
+                            //Notify listeners
+                            if (requestDetails.getClientPromise() != null)
+                                requestDetails.getClientPromise().completeExceptionally(writeError);
+                        } else {
+                            //Update the request status
+                            requestDetails.setStatus(RequestStatus.SENT);
+                        }
                     });
                     requestDetails.setStatus(RequestStatus.SENDING);
                 } catch (Exception e) {
@@ -249,10 +251,13 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the server if available.
      */
     public CompletableFuture<B> send(A request, RequestPriority priority) {
-        final CompletableFuture<B> promise = new CompletableFuture<>();
+        CompletableFuture<B> promise = new CompletableFuture<>();
+
         log.debug("Adding request '{}' to queue", request.getClass().getSimpleName());
+
         //Add to the request queue
         requestQueue.add(new RequestDetails<>(request, promise, priority, getTransport()));
+
         //Return the promise instance back to the client
         return promise;
     }
@@ -272,13 +277,19 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             if (session != null) {
                 //1) Retrieve our client promise from the session
                 final CompletableFuture<B> clientPromise = session.getClientPromise();
-                //2) Unregister the session
-                sessionManager.unregister(session);
-                //4) Notify the client that we have successfully received a response from the server
+                //2) Notify the client that we have successfully received a response from the server
                 clientPromise.complete(response);
             } else {
                 log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());
             }
+        }
+    }
+
+    private void performSessionCleanup(SessionId id) {
+        final SessionValue session = sessionManager.getSession(id);
+        if (session != null) {
+            log.debug("Unregistering from session : {}", session.getId());
+            sessionManager.unregister(session);
         }
     }
 

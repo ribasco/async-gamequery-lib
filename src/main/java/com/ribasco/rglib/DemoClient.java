@@ -265,12 +265,12 @@ public class DemoClient {
             //log.info("Sending Request {}", reqNum);
             sourceQueryClient.getServerInfo(serverAddress, (serverInfo, infoSender, serverInfoError) -> {
                 if (serverInfoError != null) {
-                    log.debug("[REQUEST {}] : From: {} = {}", reqNum, infoSender, serverInfoError.getMessage());
+                    log.debug("[REQUEST {}] : From: {} = {} (Session: {})", reqNum, infoSender, serverInfoError.getMessage(), sourceQueryClient.getMessenger().getSessionManager().getSessionEntries());
                     return;
                 }
-                log.debug("[REQUEST {}] : From: {} (Data: {})", reqNum, infoSender, serverInfo);
+                log.debug("[REQUEST {}] : From: {} (Data: {}) (Session: {})", reqNum, infoSender, serverInfo, sourceQueryClient.getMessenger().getSessionManager().getSessionEntries());
             });
-            Thread.sleep(10);
+            Thread.sleep(200);
         }
         Thread.sleep(10000);
         sourceQueryClient.waitForAll();
@@ -425,7 +425,7 @@ public class DemoClient {
         SourceMasterFilter filter = new SourceMasterFilter()
                 .appId(550)
                 .dedicated(true)
-                //.isEmpty(false)
+                .isEmpty(false)
                 .isSecure(true);
         double start = System.currentTimeMillis();
         runTest(8, filter);

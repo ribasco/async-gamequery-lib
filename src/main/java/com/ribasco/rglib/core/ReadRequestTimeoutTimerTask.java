@@ -62,7 +62,6 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
         }
 
         final CompletableFuture<?> clientPromise = session.getClientPromise();
-        final TimeoutCallback timeoutCallback = session.getTimeoutCallback();
         final RequestDetails details = session.getRequestDetails();
         final NettyTransport transport = details.getTransport();
 

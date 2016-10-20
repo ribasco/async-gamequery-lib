@@ -69,6 +69,7 @@ public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport
                     channel = (NioDatagramChannel) future.channel();
                     cf.complete(channel);
                 } else {
+                    channel = null;
                     cf.completeExceptionally(future.cause());
                 }
             });

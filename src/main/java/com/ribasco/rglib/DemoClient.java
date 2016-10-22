@@ -39,6 +39,10 @@ import com.ribasco.rglib.protocols.valve.source.client.SourceRconClient;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceChallengeType;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceMasterServerRegion;
 import com.ribasco.rglib.protocols.valve.source.pojos.SourceServer;
+import com.ribasco.rglib.protocols.valve.steam.MasterServerFilter;
+import com.ribasco.rglib.protocols.valve.steam.client.MasterServerClient;
+import com.ribasco.rglib.protocols.valve.steam.enums.MasterServerRegion;
+import com.ribasco.rglib.protocols.valve.steam.enums.MasterServerType;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +65,19 @@ public class DemoClient {
 
     private SourceRconClient sourceRconClient;
     private SourceQueryClient sourceQueryClient;
+    private MasterServerClient masterServerClient;
+
+    public DemoClient() {
+        sourceRconClient = new SourceRconClient();
+        sourceQueryClient = new SourceQueryClient();
+        masterServerClient = new MasterServerClient();
+    }
+
+    public void close() throws IOException {
+        sourceRconClient.close();
+        sourceQueryClient.close();
+        masterServerClient.close();
+    }
 
     public static void main(String[] args) throws Exception {
         final DemoClient app = new DemoClient();
@@ -68,8 +85,9 @@ public class DemoClient {
             //app.testQueue();
             //app.runSimpleAppTest();
             //app.runTestSuite();
-            app.testRcon();
+            //app.testRcon();
             //app.runSimpleTest();
+            //app.runSimpleTestCached();
             //app.runSimpleTestEx();
             //app.listAllServers();
             //app.testBatch();
@@ -79,16 +97,31 @@ public class DemoClient {
             //app.testChallengeCache();
             //app.testDuplicateQueryRequests();
 
-            //app.runSimpleTestCached();
             //app.testChallengeCacheEx();
             // app.testMultimap();
             //app.testQueue();
             //app.extractThenProcess();
             //app.testSimpleQuery();
+
+            app.testMasterServerClient();
         } finally {
             log.info("Closing App");
             app.close();
         }
+    }
+
+    public void testMasterServerClient() {
+        MasterServerFilter filter = new MasterServerFilter().dedicated(true).appId(730);//.isEmpty(false);
+        masterServerClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, new Callback<InetSocketAddress>() {
+            @Override
+            public void onComplete(InetSocketAddress response, InetSocketAddress sender, Throwable error) {
+                if (error != null) {
+                    log.error("Error from master : {}", error);
+                    return;
+                }
+                log.info("Got from master {}", response);
+            }
+        });
     }
 
     public void testSimpleQuery() {
@@ -303,16 +336,6 @@ public class DemoClient {
         sourceQueryClient.waitForAll();
     }
 
-    public DemoClient() {
-        sourceRconClient = new SourceRconClient();
-        sourceQueryClient = new SourceQueryClient();
-    }
-
-    public void close() throws IOException {
-        sourceRconClient.close();
-        sourceQueryClient.close();
-    }
-
     public void testRcon2() {
         InetSocketAddress address1 = new InetSocketAddress("192.168.1.14", 27015);
         InetSocketAddress address2 = new InetSocketAddress("192.168.1.14", 27016);
@@ -425,7 +448,7 @@ public class DemoClient {
         SourceMasterFilter filter = new SourceMasterFilter()
                 .appId(550)
                 .dedicated(true)
-                .isEmpty(false)
+                //.isEmpty(false)
                 .isSecure(true);
         double start = System.currentTimeMillis();
         runTest(8, filter);
@@ -437,7 +460,7 @@ public class DemoClient {
         SourceMasterFilter filter = new SourceMasterFilter()
                 .appId(550)
                 .dedicated(true)
-                .isEmpty(false)
+                //.isEmpty(false)
                 .isSecure(true);
         for (int i = 0; i < 3; i++) {
             log.info("Running Iteration #{}", i);

@@ -22,10 +22,12 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.protocols.valve.steam.enums;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+/**
+ * Created by raffy on 9/11/2016.
+ */
+public enum MasterServerRegion {
 
     /**
      * US East Coast Region Code
@@ -66,7 +68,7 @@ public enum SourceMasterServerRegion {
 
     private byte header;
 
-    SourceMasterServerRegion(int header) {
+    MasterServerRegion(int header) {
         this.header = (byte) header;
     }
 

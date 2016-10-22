@@ -22,36 +22,50 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.handlers;
+package com.ribasco.rglib.core.client;
 
-import com.ribasco.rglib.core.transport.handlers.AbstractRequestEncoder;
-import com.ribasco.rglib.protocols.valve.source.SourceRconPacket;
-import com.ribasco.rglib.protocols.valve.source.SourceRconPacketBuilder;
-import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.ribasco.rglib.core.AbstractRequest;
+import com.ribasco.rglib.core.AbstractResponse;
+import com.ribasco.rglib.core.Callback;
+import com.ribasco.rglib.core.Client;
+import com.ribasco.rglib.core.enums.RequestPriority;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
 
-import java.util.List;
-
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 /**
- * Created by raffy on 9/24/2016.
+ * Created by raffy on 10/15/2016.
  */
-public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconRequest, SourceRconPacket> {
-    private static final Logger log = LoggerFactory.getLogger(SourceRconRequestEncoder.class);
+public abstract class RestClient implements Client<AbstractRequest, AbstractResponse> {
+    protected final AsyncHttpClient httpClient = new DefaultAsyncHttpClient();
+    private final Gson gson = new GsonBuilder().create();
 
-    public SourceRconRequestEncoder(SourceRconPacketBuilder builder) {
-        super(builder);
+    @Override
+    public <V> CompletableFuture<V> sendRequest(AbstractRequest message) {
+        return null;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, SourceRconRequest msg, List<Object> out) throws Exception {
-        byte[] deconstructedPacket = builder.deconstruct((SourceRconPacket) msg.getMessage());
-        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
-            ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
-            out.add(buffer);
-        }
+    public <V> CompletableFuture<V> sendRequest(AbstractRequest message, RequestPriority priority) {
+        return null;
+    }
+
+    @Override
+    public <V> CompletableFuture<V> sendRequest(AbstractRequest message, Callback<V> callback) {
+        return null;
+    }
+
+    @Override
+    public <V> CompletableFuture<V> sendRequest(AbstractRequest message, Callback<V> callback, RequestPriority priority) {
+        return null;
+    }
+
+    @Override
+    public void close() throws IOException {
+
     }
 }

@@ -40,6 +40,7 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.Function;
 
 /**
  * Created by raffy on 9/14/2016.
@@ -57,6 +58,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private SessionManager<A, B> sessionManager;
     private T transport;
     private PriorityBlockingQueue<RequestDetails<A, B>> requestQueue;
+    private Function<PriorityBlockingQueue<RequestDetails<A, B>>, Void> requestProcessor;
     private ProcessingMode processingMode;
     private int maxRetries;
 
@@ -69,118 +71,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             return o2.getPriority().compareTo(o1.getPriority());
         }
     }
-
-    /**
-     * A runnable that process requests synchronously. A request wont be removed from the queue until it completes.
-     */
-    private Runnable syncRequestProcessor = () -> {
-        log.info("Running sync processor for {}. Request Queue = {}", this.getClass().getSimpleName(), requestQueue.hashCode());
-        while (!stopped.get()) {
-            //Since we are processing synchronously, we will not remove the head of the queue immediately but rather
-            //only remove the head once it completes
-            final RequestDetails<A, B> requestDetails = requestQueue.peek();
-
-            try {
-                //Do we have any requests to process?
-                if (requestDetails == null) {
-                    ConcurrentUtils.sleepUninterrupted(50);
-                    continue;
-                }
-
-                final RequestStatus status = requestDetails.getStatus();
-
-                //Only process new REQUESTS
-                if (status == RequestStatus.NEW) {
-                    requestDetails.setStatus(RequestStatus.ACCEPTED);
-                    requestDetails.getRequest().setSender(transport.localAddress());
-
-                    //Register the request to the session manager
-                    final SessionId id = sessionManager.register(requestDetails);
-
-                    //Update the status to registered
-                    requestDetails.setStatus(RequestStatus.REGISTERED);
-
-                    final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
-
-                    //Perform actions upon write completion
-                    writeFuture.whenComplete((aVoid, writeError) -> {
-                        //If we encounter a write error, notify the listeners then immediately remove it from the queue
-                        if (writeError != null) {
-                            requestDetails.setStatus(RequestStatus.DONE);
-                            requestDetails.getClientPromise().completeExceptionally(writeError);
-                            requestQueue.remove(requestDetails);
-                            performSessionCleanup(id);
-                        }
-                        //Write operation successful
-                        else {
-                            //Update status to SENT
-                            requestDetails.setStatus(RequestStatus.SENT);
-
-                            //Since we process requests synchronously, this request will only be removed
-                            //from the queue when it completes
-                            requestDetails.getClientPromise().whenComplete((res, error) -> {
-                                //Update the status
-                                requestDetails.setStatus(RequestStatus.DONE);
-                                //Only remove from the queue once the task completes
-                                requestQueue.remove(requestDetails);
-                                //Perform session cleanup
-                                performSessionCleanup(id);
-                            });
-                        }
-                    });
-                }
-            } catch (Exception e) {
-                if (requestDetails != null && requestDetails.getClientPromise() != null)
-                    requestDetails.getClientPromise().completeExceptionally(e);
-            }
-        }
-    };
-
-    /**
-     * A Runnable that process requests asynchronously. Requests are immediately removed and processed from the queue.
-     */
-    private Runnable asyncRequestProcessor = () -> {
-        log.info("Running async processor for {}. Request Queue: {}", this.getClass().getSimpleName(), requestQueue.hashCode());
-        while (!stopped.get()) {
-            //Remove the head of the queue immediately and process accordingly
-            final RequestDetails<A, B> requestDetails = requestQueue.poll();
-
-            //Only process new requests
-            if (requestDetails != null && requestDetails.getStatus() == RequestStatus.NEW) {
-                try {
-                    //Set status to ACCEPTED
-                    requestDetails.setStatus(RequestStatus.ACCEPTED);
-
-                    //Set local address for transport
-                    requestDetails.getRequest().setSender(transport.localAddress());
-
-                    //Register the session immediately, duplicate requests will be queued in the order they are sent.
-                    final SessionId id = sessionManager.register(requestDetails);
-
-                    //Perform session cleanup operations on completion
-                    requestDetails.getClientPromise().whenComplete((response, throwable) -> performSessionCleanup(id));
-
-                    //Send then listen for the write completion status
-                    transport.send(requestDetails.getRequest(), true).whenComplete((aVoid, writeError) -> {
-                        if (writeError != null) {
-                            //If the write operation failed, we need to unregister from the session
-                            log.error("Write operation failed, unregistering from session : {}", id);
-                            requestDetails.setStatus(RequestStatus.DONE);
-                            //Notify listeners
-                            if (requestDetails.getClientPromise() != null)
-                                requestDetails.getClientPromise().completeExceptionally(writeError);
-                        } else {
-                            //Update the request status
-                            requestDetails.setStatus(RequestStatus.SENT);
-                        }
-                    });
-                    requestDetails.setStatus(RequestStatus.SENDING);
-                } catch (Exception e) {
-                    requestDetails.getClientPromise().completeExceptionally(e);
-                }
-            }
-        }
-    };
 
     public AbstractMessenger(T transport) {
         this(transport, DEFAULT_PROCESSING_MODE);
@@ -210,9 +100,14 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         //Initialize the transport
         transport.initialize();
         //Initialize server
-        messengerService = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-service-%d").build());
+        messengerService = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-service").build());
+        //Set our request processor
+        requestProcessor = (processingMode == ProcessingMode.SYNCHRONOUS) ? this::processSync : this::processAsync;
         //Start our request scheduler
-        messengerService.execute((processingMode == ProcessingMode.SYNCHRONOUS) ? syncRequestProcessor : asyncRequestProcessor);
+        messengerService.execute(() -> {
+            while (!stopped.get())
+                requestProcessor.apply(requestQueue);
+        });
     }
 
     /**
@@ -283,6 +178,119 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());
             }
         }
+    }
+
+    /**
+     * A Function that process requests synchronously
+     *
+     * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
+     */
+    private Void processSync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
+        //Since we are processing synchronously, we will not remove the head of the queue immediately but rather
+        //only remove the head once it completes
+        final RequestDetails<A, B> requestDetails = requestQueue.peek();
+
+        try {
+            //Do we have any requests to process?
+            if (requestDetails == null) {
+                ConcurrentUtils.sleepUninterrupted(50);
+                return null;
+            }
+
+            final RequestStatus status = requestDetails.getStatus();
+
+            //Only process new REQUESTS
+            if (status == RequestStatus.NEW) {
+                requestDetails.setStatus(RequestStatus.ACCEPTED);
+                requestDetails.getRequest().setSender(transport.localAddress());
+
+                //Register the request to the session manager
+                final SessionId id = sessionManager.register(requestDetails);
+
+                //Update the status to registered
+                requestDetails.setStatus(RequestStatus.REGISTERED);
+
+                final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
+
+                //Perform actions upon write completion
+                writeFuture.whenComplete((aVoid, writeError) -> {
+                    //If we encounter a write error, notify the listeners then immediately remove it from the queue
+                    if (writeError != null) {
+                        requestDetails.setStatus(RequestStatus.DONE);
+                        requestDetails.getClientPromise().completeExceptionally(writeError);
+                        requestQueue.remove(requestDetails);
+                        performSessionCleanup(id);
+                    }
+                    //Write operation successful
+                    else {
+                        //Update status to SENT
+                        requestDetails.setStatus(RequestStatus.SENT);
+
+                        //Since we process requests synchronously, this request will only be removed
+                        //from the queue when it completes
+                        requestDetails.getClientPromise().whenComplete((res, error) -> {
+                            //Update the status
+                            requestDetails.setStatus(RequestStatus.DONE);
+                            //Only remove from the queue once the task completes
+                            requestQueue.remove(requestDetails);
+                            //Perform session cleanup
+                            performSessionCleanup(id);
+                        });
+                    }
+                });
+            }
+        } catch (Exception e) {
+            if (requestDetails != null && requestDetails.getClientPromise() != null)
+                requestDetails.getClientPromise().completeExceptionally(e);
+        }
+        return null;
+    }
+
+    /**
+     * A Function that process requests asynchronously
+     *
+     * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
+     */
+    private Void processAsync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
+        //Remove the head of the queue immediately and process accordingly
+        final RequestDetails<A, B> requestDetails = requestQueue.poll();
+
+        //Only process new requests
+        if (requestDetails != null && requestDetails.getStatus() == RequestStatus.NEW) {
+            try {
+                //Set status to ACCEPTED
+                requestDetails.setStatus(RequestStatus.ACCEPTED);
+
+                //Set local address for transport
+                requestDetails.getRequest().setSender(transport.localAddress());
+
+                //Register the session immediately, duplicate requests will be queued in the order they are sent.
+                final SessionId id = sessionManager.register(requestDetails);
+
+                //Perform session cleanup operations on completion
+                requestDetails.getClientPromise().whenComplete((response, throwable) -> performSessionCleanup(id));
+
+                //Send then listen for the write completion status
+                transport.send(requestDetails.getRequest(), true).whenComplete((aVoid, writeError) -> {
+                    if (writeError != null) {
+                        //If the write operation failed, we need to unregister from the session
+                        log.error("Write operation failed, unregistering from session : {}", id);
+                        requestDetails.setStatus(RequestStatus.DONE);
+                        //Notify listeners
+                        if (requestDetails.getClientPromise() != null)
+                            requestDetails.getClientPromise().completeExceptionally(writeError);
+                    } else {
+                        //Update the request status
+                        requestDetails.setStatus(RequestStatus.SENT);
+                    }
+                });
+                requestDetails.setStatus(RequestStatus.SENDING);
+            } catch (Exception e) {
+                requestDetails.getClientPromise().completeExceptionally(e);
+            }
+        }
+
+        return null;
     }
 
     private void performSessionCleanup(SessionId id) {
@@ -386,7 +394,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         stopped.set(true);
         try {
             messengerService.shutdown();
-            messengerService.awaitTermination(5, TimeUnit.SECONDS);
+            messengerService.awaitTermination(10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             log.error("Error on close", e);
         }

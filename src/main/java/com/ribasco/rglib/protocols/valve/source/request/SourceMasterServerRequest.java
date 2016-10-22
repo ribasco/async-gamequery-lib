@@ -31,9 +31,7 @@ import com.ribasco.rglib.protocols.valve.source.packets.request.SourceMasterRequ
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/15/2016.
- */
+@Deprecated
 public class SourceMasterServerRequest<T> extends SourceServerRequest<SourceMasterRequestPacket> {
 
     private SourceMasterServerRegion region;

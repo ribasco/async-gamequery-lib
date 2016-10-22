@@ -36,7 +36,7 @@ import com.ribasco.rglib.core.client.GameServerQueryClient;
 import com.ribasco.rglib.core.enums.RequestPriority;
 import com.ribasco.rglib.core.utils.ConcurrentUtils;
 import com.ribasco.rglib.protocols.valve.source.SourceMasterFilter;
-import com.ribasco.rglib.protocols.valve.source.SourceServerMessenger;
+import com.ribasco.rglib.protocols.valve.source.SourceQueryMessenger;
 import com.ribasco.rglib.protocols.valve.source.SourceServerRequest;
 import com.ribasco.rglib.protocols.valve.source.SourceServerResponse;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceChallengeType;
@@ -62,23 +62,23 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query Protocol</a>
  */
-public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest, SourceServerResponse, SourceServerMessenger> {
+public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest, SourceServerResponse, SourceQueryMessenger> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
 
     private LoadingCache<InetSocketAddress, Integer> challengeCache;
     private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("cache-pool-%d").setDaemon(true).build();
-    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(new ScheduledThreadPoolExecutor(32, threadFactory));
+    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(new ScheduledThreadPoolExecutor(64, threadFactory));
     private static final int MAX_CHALLENGE_CACHE_SIZE = 32000;
     private int maxCacheSize = MAX_CHALLENGE_CACHE_SIZE;
     private Duration cacheExpiration = Duration.ofMinutes(10);
     private Duration cacheRefreshInterval = Duration.ofMinutes(5);
 
     /**
-     * Default Constructor using the {@link SourceServerMessenger}
+     * Default Constructor using the {@link SourceQueryMessenger}
      */
     public SourceQueryClient() {
-        super(new SourceServerMessenger());
+        super(new SourceQueryMessenger());
     }
 
     /**
@@ -106,7 +106,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
      * @see #getServerRules(int, InetSocketAddress)
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address, Callback<Integer> callback) {
-        return sendRequest(new SourceChallengeRequest(type, address), callback, RequestPriority.REALTIME);
+        return sendRequest(new SourceChallengeRequest(type, address), callback, RequestPriority.HIGH);
     }
 
     /**
@@ -252,7 +252,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>
-     * Retrieve players currently residing on the specified server. Please note that this method sends an initial
+     * Retrieve a list of active players in the server. Please note that this method sends an initial
      * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link #getPlayersCached(InetSocketAddress)} instead.
      * </p>
@@ -274,7 +274,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve players currently residing on the specified server. You NEED to obtain a valid challenge number from the server first.</p>
+     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server first.</p>
      *
      * @param challenge The challenge number to be used for the request
      * @param address   The {@link InetSocketAddress} of the source server
@@ -290,7 +290,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve players currently residing on the specified server. You NEED to obtain a valid challenge number from the server first.</p>
+     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server first.</p>
      *
      * @param challenge The challenge number to be used for the request
      * @param address   The {@link InetSocketAddress} of the source server
@@ -307,7 +307,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve players currently residing on the specified server. This uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve a list of active players in the server. This uses the internal cache to retrieve the challenge number (if available).</p>
      *
      * @param address The {@link InetSocketAddress} of the source server
      *
@@ -321,7 +321,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve players currently residing on the specified server. This uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve a list of active players in the server. This uses the internal cache to retrieve the challenge number (if available).</p>
      *
      * @param address  The {@link InetSocketAddress} of the source server
      * @param callback A {@link Callback} that will be invoked when a response has been received
@@ -388,6 +388,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
      *
      * @see #getMasterServerList(SourceMasterServerRegion, SourceMasterFilter)
      */
+    @Deprecated
     //TODO: Move this to it's own client interface since this is not source protocol specific
     public CompletableFuture<Vector<InetSocketAddress>> getMasterServerList(final SourceMasterServerRegion region, final SourceMasterFilter filter, final Callback<InetSocketAddress> callback) {
         //As per protocol specs, this get required as our starting seed address
@@ -396,12 +397,12 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
         final CompletableFuture<Vector<InetSocketAddress>> masterPromise = new CompletableFuture<>();
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
         final InetSocketAddress destination = SourceMasterRequestPacket.SOURCE_MASTER;
-        final AtomicBoolean done = new AtomicBoolean();
+        final AtomicBoolean done = new AtomicBoolean(false);
 
         while (!done.get()) {
             log.debug("Getting from master server with seed : " + startAddress);
             try {
-                log.debug("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
+                log.info("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
 
                 //Send initial query to the master source
                 final CompletableFuture<Vector<InetSocketAddress>> p = sendRequest(new SourceMasterServerRequest(destination, region, filter, startAddress), RequestPriority.HIGH);
@@ -416,16 +417,16 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
                     if (callback != null && !isIpTerminator(ip))
                         callback.onComplete(ip, destination, null);
-                    serverMasterList.add(ip);
                     //Add a delay here. We shouldn't send requests too fast to the master server
                     // there is a high chance that we might not receive the end of the list.
                     ConcurrentUtils.sleepUninterrupted(13);
+                    serverMasterList.add(ip);
                 });
 
                 //Retrieve the last element of the source list and use it as the next seed for the next query
                 startAddress = serverList.lastElement();
 
-                log.debug("Last Server Received: {}:{}", startAddress.getAddress().getHostAddress(), startAddress.getPort());
+                log.info("Last Server IP Received: {}:{}", startAddress.getAddress().getHostAddress(), startAddress.getPort());
 
                 //Did the master send a terminator address?
                 // If so, mark as complete
@@ -433,22 +434,26 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                     log.debug("Reached the end of the server list");
                     done.set(true);
                 }
-
                 //Thread.sleep(serverList.size() * 15);
             } catch (InterruptedException | TimeoutException e) {
-                log.error("Timeout/Thread Interruption Occured during retrieval of server list from master");
-                done.set(true);
-            } catch (ExecutionException e) {
+                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of server list from master");
+                done.set(true); //stop looping if we receive a timeout
+                if (callback != null)
+                    callback.onComplete(null, destination, e);
                 masterPromise.completeExceptionally(e);
-                callback.onComplete(null, destination, e);
-                return masterPromise;
+            } catch (ExecutionException e) {
+                log.error("ExecutionException occured {}", e);
+                if (callback != null)
+                    callback.onComplete(null, destination, e);
+                masterPromise.completeExceptionally(e);
             }
         } //while
 
         log.debug("Got a total list of {} servers from master", serverMasterList.size());
 
         //Returns the complete server list retrieved from the master server
-        masterPromise.complete(serverMasterList);
+        if (!masterPromise.isDone() && !masterPromise.isCompletedExceptionally())
+            masterPromise.complete(serverMasterList);
 
         return masterPromise;
     }
@@ -460,6 +465,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
      *
      * @return true if the {@link InetSocketAddress} supplied is a terminator address
      */
+    @Deprecated
     private static boolean isIpTerminator(InetSocketAddress address) {
         return "0.0.0.0".equals(address.getAddress().getHostAddress()) && address.getPort() == 0;
     }

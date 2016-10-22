@@ -22,55 +22,21 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.protocols.valve.steam.enums;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+import java.net.InetSocketAddress;
 
-    /**
-     * US East Coast Region Code
-     */
-    REGION_US_EAST_COAST(0x00),
-    /**
-     * US West Coast Region Code
-     */
-    REGION_US_WEST_COAST(0x01),
-    /**
-     * South America Region Code
-     */
-    REGION_SOUTH_AMERICA(0x02),
-    /**
-     * Europe Region Code
-     */
-    REGION_EUROPE(0x03),
-    /**
-     * Asia Region Code
-     */
-    REGION_ASIA(0x04),
-    /**
-     * Australia Region Code
-     */
-    REGION_AUSTRALIA(0x05),
-    /**
-     * Middle East Region Code
-     */
-    REGION_MIDDLE_EAST(0x06),
-    /**
-     * Africa Region Code
-     */
-    REGION_AFRICA(0x07),
-    /**
-     * Code to display ALL Regions
-     */
-    REGION_ALL(0xFF);
+public enum MasterServerType {
+    SOURCE(new InetSocketAddress("hl2master.steampowered.com", 27011)),
+    GOLDSRC(new InetSocketAddress("hl1master.steampowered.com", 27010));
 
-    private byte header;
+    private InetSocketAddress masterAddress;
 
-    SourceMasterServerRegion(int header) {
-        this.header = (byte) header;
+    MasterServerType(InetSocketAddress address) {
+        this.masterAddress = address;
     }
 
-    public byte getHeader() {
-        return header;
+    public InetSocketAddress getMasterAddress() {
+        return masterAddress;
     }
 }

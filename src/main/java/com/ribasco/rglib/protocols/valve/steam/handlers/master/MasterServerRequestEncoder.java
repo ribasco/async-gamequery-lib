@@ -22,36 +22,35 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.handlers;
+package com.ribasco.rglib.protocols.valve.steam.handlers.master;
 
 import com.ribasco.rglib.core.transport.handlers.AbstractRequestEncoder;
-import com.ribasco.rglib.protocols.valve.source.SourceRconPacket;
-import com.ribasco.rglib.protocols.valve.source.SourceRconPacketBuilder;
-import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
+import com.ribasco.rglib.protocols.valve.steam.MasterServerPacket;
+import com.ribasco.rglib.protocols.valve.steam.MasterServerPacketBuilder;
+import com.ribasco.rglib.protocols.valve.steam.packets.request.MasterServerRequestPacket;
+import com.ribasco.rglib.protocols.valve.steam.request.master.MasterServerRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.channel.socket.DatagramPacket;
 
 import java.util.List;
 
-
 /**
- * Created by raffy on 9/24/2016.
+ * Created by raffy on 10/22/2016.
  */
-public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconRequest, SourceRconPacket> {
-    private static final Logger log = LoggerFactory.getLogger(SourceRconRequestEncoder.class);
+public class MasterServerRequestEncoder extends AbstractRequestEncoder<MasterServerRequest, MasterServerPacket> {
 
-    public SourceRconRequestEncoder(SourceRconPacketBuilder builder) {
+    public MasterServerRequestEncoder(MasterServerPacketBuilder builder) {
         super(builder);
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, SourceRconRequest msg, List<Object> out) throws Exception {
-        byte[] deconstructedPacket = builder.deconstruct((SourceRconPacket) msg.getMessage());
+    protected void encode(ChannelHandlerContext ctx, MasterServerRequest request, List<Object> out) throws Exception {
+        MasterServerRequestPacket packet = request.getMessage();
+        byte[] deconstructedPacket = builder.deconstruct(packet);
         if (deconstructedPacket != null && deconstructedPacket.length > 0) {
             ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
-            out.add(buffer);
+            out.add(new DatagramPacket(buffer, request.recipient()));
         }
     }
 }

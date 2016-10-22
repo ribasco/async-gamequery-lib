@@ -26,12 +26,8 @@ package com.ribasco.rglib.protocols.valve.source;
 
 import com.ribasco.rglib.core.enums.ChannelType;
 import com.ribasco.rglib.core.enums.ProcessingMode;
-import com.ribasco.rglib.core.handlers.ErrorHandler;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
-import com.ribasco.rglib.core.transport.NettyUdpTransport;
-import com.ribasco.rglib.protocols.valve.source.handlers.SourcePacketAssembler;
-import com.ribasco.rglib.protocols.valve.source.handlers.SourcePacketDecoder;
-import com.ribasco.rglib.protocols.valve.source.handlers.SourceRequestEncoder;
+import com.ribasco.rglib.core.transport.NettyPooledUdpTransport;
 import com.ribasco.rglib.protocols.valve.source.request.*;
 import com.ribasco.rglib.protocols.valve.source.response.*;
 import io.netty.channel.ChannelOption;
@@ -43,32 +39,21 @@ import java.util.Map;
 /**
  * Created by raffy on 9/14/2016.
  */
-public class SourceServerMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse, NettyUdpTransport<SourceServerRequest>> {
+public class SourceQueryMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse, NettyPooledUdpTransport<SourceServerRequest>> {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceServerMessenger.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
-    public SourceServerMessenger() {
+    public SourceQueryMessenger() {
         //Use the default session manager
-        super(new NettyUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
+        super(new NettyPooledUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyUdpTransport<SourceServerRequest> transport) {
+    public void configureTransport(NettyPooledUdpTransport<SourceServerRequest> transport) {
         //Set to NIO UDP Type
         transport.setChannelType(ChannelType.NIO_UDP);
-
-        //Instantiate our packet builder
-        SourcePacketBuilder builder = new SourcePacketBuilder(transport.getAllocator());
-
         //Set our channel initializer
-        transport.setChannelInitializer(channel -> {
-            log.debug("Initializing Channel");
-            channel.pipeline().addLast(new ErrorHandler());
-            channel.pipeline().addLast(new SourceRequestEncoder(builder));
-            channel.pipeline().addLast(new SourcePacketAssembler());
-            channel.pipeline().addLast(new SourcePacketDecoder(this, builder));
-        });
-
+        transport.setChannelInitializer(new SourceQueryChannelInitializer(this));
         //Channel Options
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);

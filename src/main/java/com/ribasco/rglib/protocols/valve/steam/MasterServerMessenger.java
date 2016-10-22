@@ -22,44 +22,45 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.protocols.valve.steam;
 
 import com.ribasco.rglib.core.enums.ChannelType;
 import com.ribasco.rglib.core.enums.ProcessingMode;
 import com.ribasco.rglib.core.messenger.GameServerMessenger;
-import com.ribasco.rglib.core.transport.NettyPooledTcpTransport;
-import com.ribasco.rglib.protocols.valve.source.request.SourceRconAuthRequest;
-import com.ribasco.rglib.protocols.valve.source.request.SourceRconCmdRequest;
-import com.ribasco.rglib.protocols.valve.source.request.SourceRconTerminator;
-import com.ribasco.rglib.protocols.valve.source.response.SourceRconAuthResponse;
-import com.ribasco.rglib.protocols.valve.source.response.SourceRconCmdResponse;
+import com.ribasco.rglib.core.transport.NettyPooledUdpTransport;
+import com.ribasco.rglib.protocols.valve.steam.request.master.MasterServerRequest;
+import com.ribasco.rglib.protocols.valve.steam.response.master.MasterServerResponse;
 import io.netty.channel.ChannelOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse, NettyPooledTcpTransport<SourceRconRequest>> {
+/**
+ * Created by raffy on 10/22/2016.
+ */
+public class MasterServerMessenger extends GameServerMessenger<MasterServerRequest, MasterServerResponse, NettyPooledUdpTransport<MasterServerRequest>> {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
-
-    public SourceRconMessenger() {
-        super(new NettyPooledTcpTransport<>(), new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
+    public MasterServerMessenger() {
+        super(new NettyPooledUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyPooledTcpTransport<SourceRconRequest> transport) {
-        transport.setChannelType(ChannelType.NIO_TCP);
-        transport.setChannelInitializer(new SourceRconChannelInitializer(this));
+    public void configureTransport(NettyPooledUdpTransport<MasterServerRequest> transport) {
+        //Set to NIO UDP Type
+        transport.setChannelType(ChannelType.NIO_UDP);
+
+        //Instantiate our packet builder
+        MasterServerPacketBuilder builder = new MasterServerPacketBuilder(transport.getAllocator());
+
+        //Set our channel initializer
+        transport.setChannelInitializer(new MasterServerChannelInitializer(this));
+
         //Channel Options
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 4);
+        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
     }
 
     @Override
-    public void configureMappings(Map<Class<? extends SourceRconRequest>, Class<? extends SourceRconResponse>> map) {
-        map.put(SourceRconAuthRequest.class, SourceRconAuthResponse.class);
-        map.put(SourceRconCmdRequest.class, SourceRconCmdResponse.class);
-        map.put(SourceRconTerminator.class, SourceRconCmdResponse.class);
+    public void configureMappings(Map<Class<? extends MasterServerRequest>, Class<? extends MasterServerResponse>> map) {
+        map.put(MasterServerRequest.class, MasterServerResponse.class);
     }
 }

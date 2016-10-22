@@ -22,55 +22,23 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.core.transport.handlers;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-    /**
-     * US East Coast Region Code
-     */
-    REGION_US_EAST_COAST(0x00),
-    /**
-     * US West Coast Region Code
-     */
-    REGION_US_WEST_COAST(0x01),
-    /**
-     * South America Region Code
-     */
-    REGION_SOUTH_AMERICA(0x02),
-    /**
-     * Europe Region Code
-     */
-    REGION_EUROPE(0x03),
-    /**
-     * Asia Region Code
-     */
-    REGION_ASIA(0x04),
-    /**
-     * Australia Region Code
-     */
-    REGION_AUSTRALIA(0x05),
-    /**
-     * Middle East Region Code
-     */
-    REGION_MIDDLE_EAST(0x06),
-    /**
-     * Africa Region Code
-     */
-    REGION_AFRICA(0x07),
-    /**
-     * Code to display ALL Regions
-     */
-    REGION_ALL(0xFF);
+/**
+ * Created by raffy on 10/14/2016.
+ */
+public class ErrorHandler extends ChannelDuplexHandler {
+    private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
 
-    private byte header;
-
-    SourceMasterServerRegion(int header) {
-        this.header = (byte) header;
-    }
-
-    public byte getHeader() {
-        return header;
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        log.error("Unhandled exception caught within the pipeline {} for Channel {}, Id: {}", cause, ctx.channel(), ctx.channel().id());
+        cause.printStackTrace(System.err);
+        throw new Exception(cause);
     }
 }

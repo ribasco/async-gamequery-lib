@@ -22,16 +22,25 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.client;
+package com.ribasco.rglib.core.transport;
 
-import com.ribasco.rglib.core.AbstractClient;
-import com.ribasco.rglib.core.AbstractMessenger;
+import com.ribasco.rglib.core.AbstractRequest;
+import com.ribasco.rglib.core.transport.pool.BindingChannelPool;
+import io.netty.channel.pool.ChannelPool;
 
 /**
- * Created by raffy on 9/14/2016.
+ * A pooled udp transport implementation
+ *
+ * @param <M> A type extending {@link AbstractRequest}
  */
-public abstract class WebServiceClient extends AbstractClient {
-    public WebServiceClient(AbstractMessenger messenger) {
-        super(messenger);
+public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, Class<?>> {
+    @Override
+    public Class<?> createKey(M message) {
+        return message.getClass();
+    }
+
+    @Override
+    public ChannelPool createChannelPool(Class<?> key) {
+        return new BindingChannelPool(getBootstrap(), channelPoolHandler);
     }
 }

@@ -26,6 +26,7 @@ package com.ribasco.rglib.core.transport;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ribasco.rglib.core.AbstractMessage;
+import com.ribasco.rglib.core.AbstractRequest;
 import com.ribasco.rglib.core.Transport;
 import com.ribasco.rglib.core.enums.ChannelType;
 import io.netty.bootstrap.Bootstrap;
@@ -46,21 +47,14 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 9/15/2016.
- */
-public abstract class NettyTransport<Msg extends AbstractMessage> implements Transport<Msg> {
+public abstract class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
-    private ChannelInitializerCallback channelInitializer;
+    private ChannelInitializer channelInitializer;
     private ChannelType channelType;
-
-    public interface ChannelInitializerCallback {
-        void initializeChannel(Channel channel);
-    }
 
     public NettyTransport() {
         bootstrap = new Bootstrap();
@@ -108,9 +102,6 @@ public abstract class NettyTransport<Msg extends AbstractMessage> implements Tra
         if (log.isDebugEnabled())
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 
-        if (channelType == null)
-            throw new IllegalStateException("No channel type has been specified");
-
         //Initialize bootstrap
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
     }
@@ -119,17 +110,17 @@ public abstract class NettyTransport<Msg extends AbstractMessage> implements Tra
      * {@inheritDoc}
      */
     @Override
-    public CompletableFuture<Void> send(Msg data) {
-        return send(data, true);
+    public CompletableFuture<Void> send(Msg message) {
+        return send(message, true);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public CompletableFuture<Void> send(Msg data, boolean flushImmediately) {
+    public final CompletableFuture<Void> send(Msg message, boolean flushImmediately) {
         //Obtain a channel then write to it once acquired
-        return getChannel(data.recipient()).thenCompose(channel -> writeToChannel(channel, data, flushImmediately));
+        return getChannel(message).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
     }
 
     /**
@@ -194,12 +185,16 @@ public abstract class NettyTransport<Msg extends AbstractMessage> implements Tra
         return bootstrap;
     }
 
-    public ChannelInitializerCallback getChannelInitializer() {
+    public ChannelInitializer getChannelInitializer() {
         return channelInitializer;
     }
 
-    public void setChannelInitializer(ChannelInitializerCallback channelInitializer) {
+    public void setChannelInitializer(ChannelInitializer channelInitializer) {
         this.channelInitializer = channelInitializer;
+    }
+
+    protected void initializeChannel(Channel channel) {
+        getChannelInitializer().initializeChannel(channel, this);
     }
 
     public EventLoopGroup getEventLoopGroup() {
@@ -224,5 +219,5 @@ public abstract class NettyTransport<Msg extends AbstractMessage> implements Tra
         eventLoopGroup.shutdownGracefully();
     }
 
-    public abstract CompletableFuture<Channel> getChannel(InetSocketAddress address);
+    public abstract CompletableFuture<Channel> getChannel(Msg message);
 }

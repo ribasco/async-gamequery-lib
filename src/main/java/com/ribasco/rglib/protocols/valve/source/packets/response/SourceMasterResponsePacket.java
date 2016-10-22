@@ -32,9 +32,7 @@ import java.util.Vector;
 
 import static com.ribasco.rglib.protocols.valve.source.enums.SourceGameResponse.MASTER_SECONDARY;
 
-/**
- * Created by raffy on 9/5/2016.
- */
+@Deprecated
 public class SourceMasterResponsePacket extends SourceResponsePacket<Vector<InetSocketAddress>> {
     private Vector<InetSocketAddress> servers;
     private StringBuffer ip;

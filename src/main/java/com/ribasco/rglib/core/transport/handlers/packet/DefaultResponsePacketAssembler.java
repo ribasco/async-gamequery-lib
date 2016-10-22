@@ -22,41 +22,46 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.handlers;
+package com.ribasco.rglib.core.transport.handlers.packet;
 
-import com.ribasco.rglib.core.handlers.AbstractRequestEncoder;
-import com.ribasco.rglib.protocols.valve.source.SourcePacketBuilder;
-import com.ribasco.rglib.protocols.valve.source.SourceRequestPacket;
-import com.ribasco.rglib.protocols.valve.source.SourceServerRequest;
+import com.ribasco.rglib.core.PacketAssembler;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
-
-import java.util.List;
+import io.netty.util.ReferenceCountUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Created by raffy on 9/17/2016.
+ * Created by raffy on 10/22/2016.
  */
-@ChannelHandler.Sharable
-public class SourceRequestEncoder extends AbstractRequestEncoder<SourceServerRequest> {
+public class DefaultResponsePacketAssembler<M> extends ChannelInboundHandlerAdapter {
+    private static final Logger log = LoggerFactory.getLogger(DefaultResponsePacketAssembler.class);
 
-    private SourcePacketBuilder builder;
+    private PacketAssembler assembler;
 
-    public SourceRequestEncoder(SourcePacketBuilder builder) {
-        this.builder = builder;
+    public DefaultResponsePacketAssembler(PacketAssembler assembler) {
+        this.assembler = assembler;
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, SourceServerRequest request, List<Object> out) throws Exception {
-        //Retrieve the request packet from the message
-        SourceRequestPacket packet = request.getMessage();
-        //Deconstruct the packet
-        byte[] deconstructedPacket = builder.deconstruct(packet);
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        try {
+            //Make sure we are only receiving an instance of DatagramPacket
+            if (!(msg instanceof DatagramPacket)) {
+                return;
+            }
+            //Retrived the packet instance
+            final DatagramPacket packet = (DatagramPacket) msg;
+            final ByteBuf data = ((DatagramPacket) msg).content();
 
-        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
-            ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
-            out.add(new DatagramPacket(buffer, request.recipient()));
+            assembler.assemble(ctx, data);
+        } catch (Exception e) {
+            log.error("Error while processing packet for {}", ((DatagramPacket) msg).sender());
+            throw e;
+        } finally {
+            ReferenceCountUtil.release(msg);
         }
     }
 }

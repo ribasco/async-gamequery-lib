@@ -24,6 +24,7 @@
 
 package com.ribasco.rglib.core.enums;
 
+import io.netty.channel.Channel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
@@ -38,13 +39,13 @@ public enum ChannelType {
     OIO_UDP(OioDatagramChannel.class),
     NIO_UDP(NioDatagramChannel.class);
 
-    Class channelClass;
+    Class<? extends Channel> channelClass;
 
-    ChannelType(Class channelType) {
+    ChannelType(Class<? extends Channel> channelType) {
         this.channelClass = channelType;
     }
 
-    public Class getChannelClass() {
+    public Class<? extends Channel> getChannelClass() {
         return channelClass;
     }
 }

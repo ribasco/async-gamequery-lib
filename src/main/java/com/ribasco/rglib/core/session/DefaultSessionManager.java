@@ -124,8 +124,12 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         sessionValue.setTimeout(sessionTimer.newTimeout(new ReadRequestTimeoutTimerTask(id, this), DEFAULT_READ_TIMEOUT, TimeUnit.SECONDS));
         //Add to the registry
         synchronized (this) {
-            session.put(id, sessionValue);
-            requestDetails.setStatus(RequestStatus.REGISTERED);
+            if (session.put(id, sessionValue)) {
+                requestDetails.setStatus(RequestStatus.REGISTERED);
+            } else {
+                log.warn("Cancelled timeout for '{}' since the registration failed", id);
+                sessionValue.getTimeout().cancel();
+            }
         }
         return id;
     }
@@ -136,13 +140,13 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     }
 
     @Override
-    public synchronized boolean unregister(SessionValue sessionValue) {
+    public boolean unregister(SessionValue sessionValue) {
         log.debug("Unregistering session {}", sessionValue.getId());
-        if (sessionValue == null) {
-            log.error("Session Value is null {}", session.entries().size());
-            return false;
-        }
         synchronized (this) {
+            if (sessionValue == null) {
+                log.error("Session Value is null {}", session.entries().size());
+                return false;
+            }
             //Cancel the timeout instance
             if (sessionValue.getTimeout() != null &&
                     !sessionValue.getTimeout().isCancelled() &&

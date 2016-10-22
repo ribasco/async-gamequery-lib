@@ -33,9 +33,7 @@ import io.netty.buffer.Unpooled;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/1/2016.
- */
+@Deprecated
 public class SourceMasterRequestPacket extends SourceRequestPacket {
 
     /**

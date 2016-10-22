@@ -24,8 +24,9 @@
 
 package com.ribasco.rglib.protocols.valve.source.handlers;
 
-import com.ribasco.rglib.protocols.valve.source.SourceRconMessenger;
+import com.ribasco.rglib.core.Messenger;
 import com.ribasco.rglib.protocols.valve.source.SourceRconPacketBuilder;
+import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
 import com.ribasco.rglib.protocols.valve.source.SourceRconResponse;
 import com.ribasco.rglib.protocols.valve.source.SourceRconResponsePacket;
 import com.ribasco.rglib.protocols.valve.source.packets.response.SourceRconAuthResponsePacket;
@@ -48,9 +49,9 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketDecoder.class);
 
     private SourceRconPacketBuilder builder;
-    private SourceRconMessenger messenger;
+    private Messenger<SourceRconRequest, SourceRconResponse> messenger;
 
-    public SourceRconPacketDecoder(SourceRconPacketBuilder builder, SourceRconMessenger messenger) {
+    public SourceRconPacketDecoder(SourceRconPacketBuilder builder, Messenger<SourceRconRequest, SourceRconResponse> messenger) {
         this.builder = builder;
         this.messenger = messenger;
     }

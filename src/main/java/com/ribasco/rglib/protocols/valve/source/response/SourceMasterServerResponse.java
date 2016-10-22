@@ -30,9 +30,7 @@ import com.ribasco.rglib.protocols.valve.source.packets.response.SourceMasterRes
 import java.net.InetSocketAddress;
 import java.util.Vector;
 
-/**
- * Created by raffy on 9/19/2016.
- */
+@Deprecated
 public class SourceMasterServerResponse extends SourceServerResponse<Vector<InetSocketAddress>, SourceMasterResponsePacket> {
 
     public SourceMasterServerResponse() {

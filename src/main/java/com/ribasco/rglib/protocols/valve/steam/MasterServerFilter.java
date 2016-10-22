@@ -22,80 +22,82 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source;
+package com.ribasco.rglib.protocols.valve.steam;
 
 import org.apache.commons.lang3.StringUtils;
 
-@Deprecated
-public class SourceMasterFilter {
+/**
+ * Created by raffy on 9/6/2016.
+ */
+public class MasterServerFilter {
     private StringBuilder filter;
     private boolean allServersSet = false;
 
-    public SourceMasterFilter() {
+    public MasterServerFilter() {
         filter = new StringBuilder();
     }
 
-    public SourceMasterFilter allServers() {
+    public MasterServerFilter allServers() {
         filter.setLength(0);
         allServersSet = true;
         return this;
     }
 
-    public SourceMasterFilter isSpecProxy(boolean value) {
+    public MasterServerFilter isSpecProxy(boolean value) {
         return create("proxy", new Boolean(value));
     }
 
-    public SourceMasterFilter isFull(boolean value) {
+    public MasterServerFilter isFull(boolean value) {
         return create("full", new Boolean(value));
     }
 
-    public SourceMasterFilter isEmpty(boolean value) {
+    public MasterServerFilter isEmpty(boolean value) {
         return create("empty", new Boolean(value));
     }
 
-    public SourceMasterFilter isPasswordProtected(boolean value) {
+    public MasterServerFilter isPasswordProtected(boolean value) {
         return create("password", new Boolean(value));
     }
 
-    public SourceMasterFilter isLinuxServer(boolean value) {
+    public MasterServerFilter isLinuxServer(boolean value) {
         return create("linux", new Boolean(value));
     }
 
-    public SourceMasterFilter mapName(String value) {
+    public MasterServerFilter mapName(String value) {
         return create("map", value);
     }
 
-    public SourceMasterFilter gamedir(String value) {
+    public MasterServerFilter gamedir(String value) {
         return create("gamedir", value);
     }
 
-    public SourceMasterFilter isSecure(boolean value) {
+    public MasterServerFilter isSecure(boolean value) {
         return create("secure", new Boolean(value));
     }
 
-    public SourceMasterFilter dedicated(boolean value) {
+    public MasterServerFilter dedicated(boolean value) {
         return create("dedicated", new Boolean(value));
     }
 
-    public SourceMasterFilter and() {
+    public MasterServerFilter and() {
         return create("and", "");
     }
 
-    public SourceMasterFilter nor() {
+    public MasterServerFilter nor() {
         return create("nor", "");
     }
 
-    public SourceMasterFilter napp(int appId) {
+    public MasterServerFilter napp(int appId) {
         if (appId > 0)
             return create("napp", appId);
         return this;
     }
 
-    public SourceMasterFilter hasNoPlayers(boolean value) {
+    public MasterServerFilter hasNoPlayers(boolean value) {
         return create("noplayers", new Boolean(value));
     }
 
-    public SourceMasterFilter gametypes(String... tags) {
+    public MasterServerFilter gametypes(String... tags) {
         return create("gametype", StringUtils.join(tags, ","));
     }
 
@@ -106,7 +108,7 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter gamedata(String... tags) {
+    public MasterServerFilter gamedata(String... tags) {
         return create("gamedata", StringUtils.join(tags, ","));
     }
 
@@ -117,7 +119,7 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter gamedataOr(String... tags) {
+    public MasterServerFilter gamedataOr(String... tags) {
         return create("gamedataor", StringUtils.join(tags, ","));
     }
 
@@ -128,7 +130,7 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter withHostName(String nameWildcard) {
+    public MasterServerFilter withHostName(String nameWildcard) {
         return create("name_match", nameWildcard);
     }
 
@@ -139,7 +141,7 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter hasVersion(String version) {
+    public MasterServerFilter hasVersion(String version) {
         return create("version_match", version);
     }
 
@@ -150,7 +152,7 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter onlyOneServerPerUniqueIp(boolean value) {
+    public MasterServerFilter onlyOneServerPerUniqueIp(boolean value) {
         return create("collapse_addr_hash", new Boolean(value));
     }
 
@@ -161,21 +163,21 @@ public class SourceMasterFilter {
      *
      * @return MasterServerFilter
      */
-    public SourceMasterFilter hasServerIp(String ipPort) {
+    public MasterServerFilter hasServerIp(String ipPort) {
         return create("gameaddr", ipPort);
     }
 
-    public SourceMasterFilter isWhitelisted(boolean value) {
+    public MasterServerFilter isWhitelisted(boolean value) {
         return create("white", new Boolean(value));
     }
 
-    public SourceMasterFilter appId(int appId) {
+    public MasterServerFilter appId(int appId) {
         if (appId > 0)
             return create("appId", appId);
         return this;
     }
 
-    private SourceMasterFilter create(String key, Object value) {
+    private MasterServerFilter create(String key, Object value) {
         if (allServersSet)
             throw new RuntimeException("All servers filter have been selected. You can not add additional filters in the chain if this property get set");
 

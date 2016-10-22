@@ -24,21 +24,33 @@
 
 package com.ribasco.rglib.protocols.valve.source;
 
-import com.ribasco.rglib.core.AbstractMessenger;
-import com.ribasco.rglib.core.AbstractPacketBuilder;
-import com.ribasco.rglib.core.SplitPacketContainer;
+import com.ribasco.rglib.core.transport.ChannelInitializer;
+import com.ribasco.rglib.core.transport.NettyTransport;
+import com.ribasco.rglib.core.transport.handlers.ErrorHandler;
 import com.ribasco.rglib.protocols.valve.source.handlers.SourceQueryPacketAssembler;
-import io.netty.channel.pool.ChannelPool;
-import io.netty.util.AttributeKey;
+import com.ribasco.rglib.protocols.valve.source.handlers.SourceQueryPacketDecoder;
+import com.ribasco.rglib.protocols.valve.source.handlers.SourceQueryRequestEncoder;
+import io.netty.channel.Channel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+public class SourceQueryChannelInitializer implements ChannelInitializer {
 
-/**
- * Created by raffy on 9/26/2016.
- */
-public class SourceChannelAttributes {
-    public static final AttributeKey<? extends AbstractPacketBuilder> PACKET_BUILDER = AttributeKey.valueOf("packetBuilder");
-    public static final AttributeKey<? extends AbstractMessenger> MESSENGER = AttributeKey.valueOf("messenger");
-    public static final AttributeKey<? extends Map<SourceQueryPacketAssembler.SplitPacketKey, SplitPacketContainer>> SPLIT_PACKET_CONTAINER = AttributeKey.valueOf("splitPacketContainer");
-    public static final AttributeKey<ChannelPool> CHANNEL_POOL = AttributeKey.valueOf("channelPool");
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryChannelInitializer.class);
+
+    private SourceQueryMessenger messenger;
+
+    public SourceQueryChannelInitializer(SourceQueryMessenger messenger) {
+        this.messenger = messenger;
+    }
+
+    @Override
+    public void initializeChannel(Channel channel, NettyTransport transport) {
+        SourcePacketBuilder builder = new SourcePacketBuilder(transport.getAllocator());
+        log.debug("Initializing Channel");
+        channel.pipeline().addLast(new ErrorHandler());
+        channel.pipeline().addLast(new SourceQueryRequestEncoder(builder));
+        channel.pipeline().addLast(new SourceQueryPacketAssembler());
+        channel.pipeline().addLast(new SourceQueryPacketDecoder(messenger, builder));
+    }
 }

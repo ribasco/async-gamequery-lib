@@ -22,10 +22,20 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.gamecrawler.protocols;
+package com.ribasco.rglib.core.transport.handlers;
+
+import com.ribasco.rglib.core.AbstractPacket;
+import com.ribasco.rglib.core.AbstractPacketBuilder;
+import com.ribasco.rglib.core.AbstractRequest;
+import io.netty.handler.codec.MessageToMessageEncoder;
 
 /**
- * Created by raffy on 9/6/2016.
+ * Created by raffy on 9/17/2016.
  */
-public abstract class GameResponsePacket implements Response, Packet {
+public abstract class AbstractRequestEncoder<T extends AbstractRequest, P extends AbstractPacket> extends MessageToMessageEncoder<T> {
+    protected AbstractPacketBuilder<P> builder;
+
+    public AbstractRequestEncoder(AbstractPacketBuilder<P> builder) {
+        this.builder = builder;
+    }
 }

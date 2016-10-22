@@ -32,7 +32,6 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -46,10 +45,11 @@ public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport
     @Override
     public void initialize() {
         super.initialize();
+        NettyTransport transport = this;
         getBootstrap().handler(new ChannelInitializer<NioDatagramChannel>() {
             @Override
             protected void initChannel(NioDatagramChannel ch) throws Exception {
-                getChannelInitializer().initializeChannel(ch);
+                getChannelInitializer().initializeChannel(ch, transport);
             }
         });
     }
@@ -60,13 +60,16 @@ public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport
     }
 
     @Override
-    public CompletableFuture<Channel> getChannel(InetSocketAddress address) {
+    public CompletableFuture<Channel> getChannel(M message) {
         final CompletableFuture<Channel> cf = new CompletableFuture<>();
         //lazy initialization
         if (channel == null || !channel.isOpen()) {
             bind(0).addListener((ChannelFuture future) -> {
                 if (future.isSuccess()) {
                     channel = (NioDatagramChannel) future.channel();
+                    channel.closeFuture().addListener((ChannelFuture f) -> {
+                        log.info("CHANNEL CLOSED: {}, Is Open: {}, For Address: {}, Cause: {}", f.channel().id(), f.channel().isOpen(), message.recipient(), f.cause());
+                    });
                     cf.complete(channel);
                 } else {
                     channel = null;

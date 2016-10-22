@@ -22,55 +22,17 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.protocols.valve.steam;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+import com.ribasco.rglib.core.AbstractPacket;
+import com.ribasco.rglib.core.utils.ByteUtils;
+import org.apache.commons.lang3.builder.ToStringBuilder;
 
-    /**
-     * US East Coast Region Code
-     */
-    REGION_US_EAST_COAST(0x00),
-    /**
-     * US West Coast Region Code
-     */
-    REGION_US_WEST_COAST(0x01),
-    /**
-     * South America Region Code
-     */
-    REGION_SOUTH_AMERICA(0x02),
-    /**
-     * Europe Region Code
-     */
-    REGION_EUROPE(0x03),
-    /**
-     * Asia Region Code
-     */
-    REGION_ASIA(0x04),
-    /**
-     * Australia Region Code
-     */
-    REGION_AUSTRALIA(0x05),
-    /**
-     * Middle East Region Code
-     */
-    REGION_MIDDLE_EAST(0x06),
-    /**
-     * Africa Region Code
-     */
-    REGION_AFRICA(0x07),
-    /**
-     * Code to display ALL Regions
-     */
-    REGION_ALL(0xFF);
+public abstract class MasterServerPacket extends AbstractPacket {
+    private byte[] protocolHeader = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
 
-    private byte header;
-
-    SourceMasterServerRegion(int header) {
-        this.header = (byte) header;
-    }
-
-    public byte getHeader() {
-        return header;
+    @Override
+    public ToStringBuilder toStringBuilder() {
+        return super.toStringBuilder().append("protocol_header", ByteUtils.bytesToHex(this.protocolHeader));
     }
 }

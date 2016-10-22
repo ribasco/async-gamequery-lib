@@ -22,55 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.protocols.valve.source;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+import com.ribasco.rglib.core.transport.ChannelInitializer;
+import com.ribasco.rglib.core.transport.NettyTransport;
+import com.ribasco.rglib.core.transport.handlers.ErrorHandler;
+import com.ribasco.rglib.protocols.valve.source.handlers.SourceRconPacketAssembler;
+import com.ribasco.rglib.protocols.valve.source.handlers.SourceRconPacketDecoder;
+import com.ribasco.rglib.protocols.valve.source.handlers.SourceRconRequestEncoder;
+import io.netty.channel.Channel;
 
-    /**
-     * US East Coast Region Code
-     */
-    REGION_US_EAST_COAST(0x00),
-    /**
-     * US West Coast Region Code
-     */
-    REGION_US_WEST_COAST(0x01),
-    /**
-     * South America Region Code
-     */
-    REGION_SOUTH_AMERICA(0x02),
-    /**
-     * Europe Region Code
-     */
-    REGION_EUROPE(0x03),
-    /**
-     * Asia Region Code
-     */
-    REGION_ASIA(0x04),
-    /**
-     * Australia Region Code
-     */
-    REGION_AUSTRALIA(0x05),
-    /**
-     * Middle East Region Code
-     */
-    REGION_MIDDLE_EAST(0x06),
-    /**
-     * Africa Region Code
-     */
-    REGION_AFRICA(0x07),
-    /**
-     * Code to display ALL Regions
-     */
-    REGION_ALL(0xFF);
+/**
+ * Created by raffy on 10/22/2016.
+ */
+public class SourceRconChannelInitializer implements ChannelInitializer {
+    private SourceRconMessenger messenger;
 
-    private byte header;
-
-    SourceMasterServerRegion(int header) {
-        this.header = (byte) header;
+    public SourceRconChannelInitializer(SourceRconMessenger messenger) {
+        this.messenger = messenger;
     }
 
-    public byte getHeader() {
-        return header;
+    @Override
+    public void initializeChannel(Channel channel, NettyTransport transport) {
+        SourceRconPacketBuilder rconBuilder = new SourceRconPacketBuilder(transport.getAllocator());
+        channel.pipeline().addLast(new ErrorHandler());
+        channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder));
+        channel.pipeline().addLast(new SourceRconPacketAssembler());
+        channel.pipeline().addLast(new SourceRconPacketDecoder(rconBuilder, messenger));
     }
 }

@@ -45,15 +45,16 @@ import java.util.concurrent.ConcurrentHashMap;
  * <p>Responsible for verifying and assembling datagram packets</p>
  */
 @ChannelHandler.Sharable
-public class SourcePacketAssembler extends ChannelInboundHandlerAdapter {
+public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
 
-    private static final Logger log = LoggerFactory.getLogger(SourcePacketAssembler.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryPacketAssembler.class);
 
     /**
      * A container for split packets. Since we are dealing with multiple responses here,
      * we need to create a map for each type of response to avoid conflicts.
      */
     //FIX: Different servers can return the same request id, so using the request id as the sole key can cause conflicts
+    //TODO: In case we don't recieve a split packet response at a point in time, we need to define some sort of retention policy, perhaps we use CacheBuilder instead of map?
     private Map<SplitPacketKey, SplitPacketContainer> requestMap = new ConcurrentHashMap<>();
 
     public static final class SplitPacketKey {

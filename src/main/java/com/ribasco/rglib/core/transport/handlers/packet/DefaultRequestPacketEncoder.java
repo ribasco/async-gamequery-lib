@@ -22,14 +22,33 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.handlers;
+package com.ribasco.rglib.core.transport.handlers.packet;
 
+import com.ribasco.rglib.core.AbstractPacket;
+import com.ribasco.rglib.core.AbstractPacketBuilder;
 import com.ribasco.rglib.core.AbstractRequest;
-import io.netty.handler.codec.MessageToMessageEncoder;
+import com.ribasco.rglib.core.transport.handlers.AbstractRequestEncoder;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+
+import java.util.List;
 
 /**
- * Created by raffy on 9/17/2016.
+ * Created by raffy on 10/22/2016.
  */
-public abstract class AbstractRequestEncoder<T extends AbstractRequest> extends MessageToMessageEncoder<T> {
+public class DefaultRequestPacketEncoder<P extends AbstractPacket, R extends AbstractRequest<P>> extends AbstractRequestEncoder<R, P> {
+    public DefaultRequestPacketEncoder(AbstractPacketBuilder<P> builder) {
+        super(builder);
+    }
 
+    @Override
+    protected void encode(ChannelHandlerContext ctx, R request, List<Object> out) throws Exception {
+        P packet = request.getMessage();
+        byte[] deconstructedPacket = builder.deconstruct(packet);
+        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
+            ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
+            out.add(new DatagramPacket(buffer, request.recipient()));
+        }
+    }
 }

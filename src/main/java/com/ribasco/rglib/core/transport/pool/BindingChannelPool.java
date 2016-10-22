@@ -22,23 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.handlers;
+package com.ribasco.rglib.core.transport.pool;
 
-import io.netty.channel.ChannelDuplexHandler;
-import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.pool.ChannelHealthChecker;
+import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.channel.pool.SimpleChannelPool;
 
 /**
- * Created by raffy on 10/14/2016.
+ * A channel pool that creates connection less {@link io.netty.channel.Channel} instances
  */
-public class ErrorHandler extends ChannelDuplexHandler {
-    private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
+public class BindingChannelPool extends SimpleChannelPool {
+    public BindingChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler) {
+        super(bootstrap, handler);
+    }
+
+    public BindingChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
+        super(bootstrap, handler, healthCheck);
+    }
+
+    public BindingChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck) {
+        super(bootstrap, handler, healthCheck, releaseHealthCheck);
+    }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        log.error("Unhandled exception caught within the pipeline {} for Channel {}", cause, ctx.channel());
-        if (log.isDebugEnabled())
-            cause.printStackTrace(System.err);
+    protected ChannelFuture connectChannel(Bootstrap bs) {
+        return bs.localAddress(0).bind();
     }
 }

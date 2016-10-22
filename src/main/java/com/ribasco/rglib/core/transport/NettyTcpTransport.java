@@ -24,81 +24,46 @@
 
 package com.ribasco.rglib.core.transport;
 
-import com.ribasco.rglib.core.AbstractMessage;
-import com.ribasco.rglib.protocols.valve.source.SourceChannelAttributes;
+import com.ribasco.rglib.core.AbstractRequest;
 import io.netty.channel.Channel;
-import io.netty.channel.pool.AbstractChannelPoolHandler;
-import io.netty.channel.pool.AbstractChannelPoolMap;
-import io.netty.channel.pool.ChannelPoolMap;
-import io.netty.channel.pool.SimpleChannelPool;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
-import io.netty.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 9/13/2016.
- */
-public class NettyTcpTransport<M extends AbstractMessage> extends NettyTransport<M> {
+public class NettyTcpTransport<M extends AbstractRequest> extends NettyTransport<M> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyTcpTransport.class);
-
-    //Provide Channel Pooling mechanism here
-    private ChannelPoolMap<InetSocketAddress, SimpleChannelPool> poolMap;
 
     @Override
     public void initialize() {
         super.initialize();
-        //Initialize our pool map instance
-        poolMap = new AbstractChannelPoolMap<InetSocketAddress, SimpleChannelPool>() {
+        NettyTransport transport = this;
+        getBootstrap().handler(new ChannelInitializer<SocketChannel>() {
             @Override
-            protected SimpleChannelPool newPool(InetSocketAddress key) {
-                return new SimpleChannelPool(getBootstrap().remoteAddress(key), new AbstractChannelPoolHandler() {
-                    @Override
-                    public void channelCreated(Channel ch) throws Exception {
-                        getChannelInitializer().initializeChannel(ch);
-                        log.debug("Channel Created : {} for {}", ch, ch.remoteAddress());
-                    }
-
-                    @Override
-                    public void channelReleased(Channel ch) throws Exception {
-                        super.channelReleased(ch);
-                        log.debug("Channel Released : {} for {}", ch, ch.remoteAddress());
-                    }
-
-                    @Override
-                    public void channelAcquired(Channel ch) throws Exception {
-                        super.channelAcquired(ch);
-                        log.debug("Channel Acquired: {} for {}", ch, ch.remoteAddress());
-                    }
-                });
+            protected void initChannel(SocketChannel ch) throws Exception {
+                getChannelInitializer().initializeChannel(ch, transport);
             }
-        };
+        });
     }
-
 
     @Override
     public Void cleanupChannel(Channel c) {
-        //Release channel from the pool
-        if (c.hasAttr(SourceChannelAttributes.CHANNEL_POOL)) {
-            c.attr(SourceChannelAttributes.CHANNEL_POOL).get().release(c);
-        }
+        //not implemented
         return null;
     }
 
     @Override
-    public CompletableFuture<Channel> getChannel(InetSocketAddress address) {
+    public CompletableFuture<Channel> getChannel(M address) {
         final CompletableFuture<Channel> channelFuture = new CompletableFuture<>();
-        final SimpleChannelPool pool = poolMap.get(address);
+        ChannelFuture f = getBootstrap().connect(address.recipient());
         //Acquire from pool and listen for completion
-        pool.acquire().addListener((Future<Channel> future) -> {
+        f.addListener((ChannelFuture future) -> {
             if (future.isSuccess()) {
-                SocketChannel channel = (SocketChannel) future.get();
-                channel.attr(SourceChannelAttributes.CHANNEL_POOL).set(pool);
-                channelFuture.complete(channel);
+                channelFuture.complete(future.channel());
             } else {
                 channelFuture.completeExceptionally(future.cause());
             }

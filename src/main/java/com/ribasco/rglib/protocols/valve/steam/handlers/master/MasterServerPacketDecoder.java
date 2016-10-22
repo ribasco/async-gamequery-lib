@@ -22,39 +22,45 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.handlers;
+package com.ribasco.rglib.protocols.valve.steam.handlers.master;
 
-import com.ribasco.rglib.protocols.valve.source.*;
+import com.ribasco.rglib.protocols.valve.steam.MasterServerMessenger;
+import com.ribasco.rglib.protocols.valve.steam.MasterServerPacketBuilder;
+import com.ribasco.rglib.protocols.valve.steam.packets.response.MasterServerResponsePacket;
+import com.ribasco.rglib.protocols.valve.steam.response.master.MasterServerResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 /**
- * Decodes the packet and wraps it to a response object
+ * Created by raffy on 10/22/2016.
  */
-public class SourcePacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
+public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
-    private SourcePacketBuilder builder;
-    private SourceServerMessenger messenger;
+    private static final Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);
+    private MasterServerMessenger messenger;
+    private MasterServerPacketBuilder builder;
 
-    public SourcePacketDecoder(SourceServerMessenger messenger, SourcePacketBuilder builder) {
-        this.builder = builder;
+    public MasterServerPacketDecoder(MasterServerMessenger messenger, MasterServerPacketBuilder builder) {
         this.messenger = messenger;
+        this.builder = builder;
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         //Create our response packet from the datagram we received
-        final SourceResponsePacket packet = builder.construct(msg.content());
-
+        final MasterServerResponsePacket packet = builder.construct(msg.content());
         if (packet != null) {
-            SourceServerResponse response = SourceResponseFactory.createResponseFrom(packet);
+            final MasterServerResponse response = new MasterServerResponse();
             if (response != null) {
                 response.setSender(msg.sender());
                 response.setRecipient(msg.recipient());
                 response.setResponsePacket(packet);
+                log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
                 //Pass the message back to the messenger
                 messenger.receive(response);
                 return;

@@ -22,55 +22,20 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.valve.source.enums;
+package com.ribasco.rglib.core.transport.handlers.packet;
 
-@Deprecated
-public enum SourceMasterServerRegion {
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.socket.DatagramPacket;
+import io.netty.handler.codec.MessageToMessageDecoder;
 
-    /**
-     * US East Coast Region Code
-     */
-    REGION_US_EAST_COAST(0x00),
-    /**
-     * US West Coast Region Code
-     */
-    REGION_US_WEST_COAST(0x01),
-    /**
-     * South America Region Code
-     */
-    REGION_SOUTH_AMERICA(0x02),
-    /**
-     * Europe Region Code
-     */
-    REGION_EUROPE(0x03),
-    /**
-     * Asia Region Code
-     */
-    REGION_ASIA(0x04),
-    /**
-     * Australia Region Code
-     */
-    REGION_AUSTRALIA(0x05),
-    /**
-     * Middle East Region Code
-     */
-    REGION_MIDDLE_EAST(0x06),
-    /**
-     * Africa Region Code
-     */
-    REGION_AFRICA(0x07),
-    /**
-     * Code to display ALL Regions
-     */
-    REGION_ALL(0xFF);
+import java.util.List;
 
-    private byte header;
+/**
+ * Created by raffy on 10/22/2016.
+ */
+public class DefaultResponsePacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
+    @Override
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
 
-    SourceMasterServerRegion(int header) {
-        this.header = (byte) header;
-    }
-
-    public byte getHeader() {
-        return header;
     }
 }

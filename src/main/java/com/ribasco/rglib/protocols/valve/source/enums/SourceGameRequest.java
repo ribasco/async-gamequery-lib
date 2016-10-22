@@ -33,6 +33,7 @@ public enum SourceGameRequest {
 
     CHALLENGE((byte) 0x57),
     INFO((byte) 0x54),
+    @Deprecated
     MASTER((byte) 0x31),
     PLAYER((byte) 0x55),
     RULES((byte) 0x56);

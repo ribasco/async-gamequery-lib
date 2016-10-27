@@ -22,27 +22,36 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.economy;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/25/2016.
+ */
+public class GetAssetPrices extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    private int appId;
+    private String currency;
+    private String language;
 
-    String getName();
+    public GetAssetPrices(int apiVersion, int appId) {
+        this(apiVersion, appId, null, null);
+    }
 
-    void setName(String name);
+    public GetAssetPrices(int apiVersion, int appId, String currency, String language) {
+        super(SteamApiConstants.STEAM_ECONOMY, "GetAssetPrices", apiVersion);
+        this.appId = appId;
+        this.currency = currency;
+        this.language = language;
+    }
 
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("appid", this.appId);
+        addParam("currency", this.currency);
+        addParam("language", this.language);
+    }
 }

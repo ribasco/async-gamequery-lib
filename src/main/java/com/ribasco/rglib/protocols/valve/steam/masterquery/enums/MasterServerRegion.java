@@ -22,27 +22,57 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.masterquery.enums;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+/**
+ * Created by raffy on 9/11/2016.
+ */
+public enum MasterServerRegion {
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+    /**
+     * US East Coast Region Code
+     */
+    REGION_US_EAST_COAST(0x00),
+    /**
+     * US West Coast Region Code
+     */
+    REGION_US_WEST_COAST(0x01),
+    /**
+     * South America Region Code
+     */
+    REGION_SOUTH_AMERICA(0x02),
+    /**
+     * Europe Region Code
+     */
+    REGION_EUROPE(0x03),
+    /**
+     * Asia Region Code
+     */
+    REGION_ASIA(0x04),
+    /**
+     * Australia Region Code
+     */
+    REGION_AUSTRALIA(0x05),
+    /**
+     * Middle East Region Code
+     */
+    REGION_MIDDLE_EAST(0x06),
+    /**
+     * Africa Region Code
+     */
+    REGION_AFRICA(0x07),
+    /**
+     * Code to display ALL Regions
+     */
+    REGION_ALL(0xFF);
 
-    void setAddress(InetSocketAddress address);
+    private byte header;
 
-    String getName();
+    MasterServerRegion(int header) {
+        this.header = (byte) header;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public byte getHeader() {
+        return header;
+    }
 }

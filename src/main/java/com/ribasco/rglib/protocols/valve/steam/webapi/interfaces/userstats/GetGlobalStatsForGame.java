@@ -22,27 +22,36 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/26/2016.
+ */
+public class GetGlobalStatsForGame extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    private int appId;
+    private int count;
+    private String name;
+    private int startDate = -1;
+    private int endDate = -1;
 
-    String getName();
+    public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name) {
+        super(SteamApiConstants.STEAM_USER_STATS, "GetGlobalStatsForGame", apiVersion);
+        this.appId = appId;
+        this.count = count;
+        this.name = name;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("appid", this.appId);
+        addParam("count", this.count);
+        addParam("name", this.name);
+        addParam("startdate", this.startDate);
+        addParam("enddate", this.endDate);
+    }
 }

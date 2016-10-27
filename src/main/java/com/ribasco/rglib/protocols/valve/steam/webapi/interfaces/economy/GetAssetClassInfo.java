@@ -22,27 +22,40 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.economy;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+import java.util.List;
 
-    void setAddress(InetSocketAddress address);
+public class GetAssetClassInfo extends SteamWebApiRequest {
 
-    String getName();
+    private int appId;
+    private String language;
+    private Long[] classIds;
 
-    void setName(String name);
+    public GetAssetClassInfo(int apiVersion, int appId, List<Long> classIds) {
+        this(apiVersion, appId, null, classIds.toArray(new Long[0]));
+    }
 
-    String getCountry();
+    public GetAssetClassInfo(int apiVersion, int appId, String language, Long... classIds) {
+        super(SteamApiConstants.STEAM_ECONOMY, "GetAssetClassInfo", apiVersion);
+        this.appId = appId;
+        this.language = language;
+        this.classIds = classIds;
+    }
 
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("appid", this.appId);
+        //Add class id params
+        if (this.classIds != null) {
+            addParam("class_count", this.classIds.length);
+            addParam("language", this.language);
+            for (int i = 0; i < classIds.length; i++)
+                addParam(String.format("classid%d", i), classIds[i]);
+        }
+    }
 }

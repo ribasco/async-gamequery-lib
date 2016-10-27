@@ -22,27 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.core.transport.pool;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.pool.ChannelHealthChecker;
+import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.channel.pool.SimpleChannelPool;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * A channel pool that creates connection less {@link io.netty.channel.Channel} instances
+ */
+public class ConnlessChannelPool extends SimpleChannelPool {
+    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler) {
+        super(bootstrap, handler);
+    }
 
-    void setAddress(InetSocketAddress address);
+    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
+        super(bootstrap, handler, healthCheck);
+    }
 
-    String getName();
+    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck) {
+        super(bootstrap, handler, healthCheck, releaseHealthCheck);
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected ChannelFuture connectChannel(Bootstrap bs) {
+        return bs.localAddress(0).bind();
+    }
 }

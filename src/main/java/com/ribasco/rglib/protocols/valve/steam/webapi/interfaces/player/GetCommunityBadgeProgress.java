@@ -22,27 +22,28 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.player;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Gets all the quests needed to get the specified badge, and which are completed
+ */
+public class GetCommunityBadgeProgress extends SteamWebApiRequest {
+    private long steamId;
+    private int badgeId = -1;
 
-    void setAddress(InetSocketAddress address);
+    public GetCommunityBadgeProgress(int apiVersion, long steamId, int badgeId) {
+        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetCommunityBadgeProgress", apiVersion);
+        this.steamId = steamId;
+        this.badgeId = badgeId;
+    }
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", this.steamId);
+        addParam("badgeid", this.badgeId);
+    }
 }

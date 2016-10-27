@@ -22,27 +22,52 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamPlayerAchievement {
+    @SerializedName("apiname")
+    private String key;
+    @SerializedName("achieved")
+    private int achieved;
+    @SerializedName("name")
+    private String name;
+    @SerializedName("description")
+    private String description;
 
-    void setAddress(InetSocketAddress address);
+    public String getKey() {
+        return key;
+    }
 
-    String getName();
+    public void setKey(String name) {
+        this.key = name;
+    }
 
-    void setName(String name);
+    public int getAchieved() {
+        return achieved;
+    }
 
-    String getCountry();
+    public void setAchieved(int achieved) {
+        this.achieved = achieved;
+    }
 
-    void setCountry(String country);
+    public String getName() {
+        return name;
+    }
 
-    int getPing();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    void setPing(int ping);
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 }

@@ -77,6 +77,8 @@ public abstract class SteamWebApiRequest extends AbstractWebRequest {
 
     protected void addParam(String name, Object value) {
         RequestBuilder builder = getRequestBuilder();
+        if (value == null)
+            return;
         String strValue = String.valueOf(value);
         if (NumberUtils.isNumber(strValue)) {
             Double nVal = Double.valueOf(strValue);

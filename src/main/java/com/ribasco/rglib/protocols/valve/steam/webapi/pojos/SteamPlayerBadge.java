@@ -22,27 +22,59 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamPlayerBadge {
+    @SerializedName("badgeid")
+    private int badgeId;
+    private int level;
+    @SerializedName("completion_time")
+    private int completionTime;
+    private int xp;
+    private int scarcity;
 
-    void setAddress(InetSocketAddress address);
+    public int getBadgeId() {
+        return badgeId;
+    }
 
-    String getName();
+    public void setBadgeId(int badgeId) {
+        this.badgeId = badgeId;
+    }
 
-    void setName(String name);
+    public int getLevel() {
+        return level;
+    }
 
-    String getCountry();
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
-    void setCountry(String country);
+    public int getCompletionTime() {
+        return completionTime;
+    }
 
-    int getPing();
+    public void setCompletionTime(int completionTime) {
+        this.completionTime = completionTime;
+    }
 
-    void setPing(int ping);
+    public int getXp() {
+        return xp;
+    }
+
+    public void setXp(int xp) {
+        this.xp = xp;
+    }
+
+    public int getScarcity() {
+        return scarcity;
+    }
+
+    public void setScarcity(int scarcity) {
+        this.scarcity = scarcity;
+    }
 }

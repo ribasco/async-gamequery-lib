@@ -22,27 +22,51 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+import java.util.Map;
 
-    void setAddress(InetSocketAddress address);
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamAssetDescription {
+    private String type;
+    private String value;
+    @SerializedName("app_data")
+    private Map<String, String> appData;
+    private String color;
 
-    String getName();
+    public String getType() {
+        return type;
+    }
 
-    void setName(String name);
+    public void setType(String type) {
+        this.type = type;
+    }
 
-    String getCountry();
+    public String getValue() {
+        return value;
+    }
 
-    void setCountry(String country);
+    public void setValue(String value) {
+        this.value = value;
+    }
 
-    int getPing();
+    public Map<String, String> getAppData() {
+        return appData;
+    }
 
-    void setPing(int ping);
+    public void setAppData(Map<String, String> appData) {
+        this.appData = appData;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
 }

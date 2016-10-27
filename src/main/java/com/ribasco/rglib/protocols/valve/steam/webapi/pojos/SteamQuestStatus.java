@@ -22,27 +22,31 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamQuestStatus {
+    @SerializedName("questid")
+    private int questId;
+    private boolean completed;
 
-    void setAddress(InetSocketAddress address);
+    public int getQuestId() {
+        return questId;
+    }
 
-    String getName();
+    public void setQuestId(int questId) {
+        this.questId = questId;
+    }
 
-    void setName(String name);
+    public boolean isCompleted() {
+        return completed;
+    }
 
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }

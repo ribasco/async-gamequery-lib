@@ -22,27 +22,21 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.masterquery.enums;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+public enum MasterServerType {
+    SOURCE(new InetSocketAddress("hl2master.steampowered.com", 27011)),
+    GOLDSRC(new InetSocketAddress("hl1master.steampowered.com", 27010));
 
-    void setAddress(InetSocketAddress address);
+    private InetSocketAddress masterAddress;
 
-    String getName();
+    MasterServerType(InetSocketAddress address) {
+        this.masterAddress = address;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public InetSocketAddress getMasterAddress() {
+        return masterAddress;
+    }
 }

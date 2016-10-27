@@ -22,27 +22,29 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.player;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Gets information about a player's recently played games
+ */
+public class GetRecentlyPlayedGames extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    private long steamId;
+    private int count;
 
-    String getName();
+    public GetRecentlyPlayedGames(int apiVersion, long steamId, int count) {
+        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetRecentlyPlayedGames", apiVersion);
+        this.steamId = steamId;
+        this.count = count;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", this.steamId);
+        addParam("count", this.count);
+    }
 }

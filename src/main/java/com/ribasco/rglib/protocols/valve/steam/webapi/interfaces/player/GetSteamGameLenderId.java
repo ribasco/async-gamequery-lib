@@ -22,27 +22,28 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.player;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Returns valid lender SteamID if game currently played is borrowed
+ */
+public class GetSteamGameLenderId extends SteamWebApiRequest {
+    private long steamid;
+    private int appId;
 
-    void setAddress(InetSocketAddress address);
+    public GetSteamGameLenderId(int apiVersion, long steamId, int appId) {
+        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "IsPlayingSharedGame", apiVersion);
+        this.steamid = steamId;
+        this.appId = appId;
+    }
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", this.steamid);
+        addParam("appid_playing", this.appId);
+    }
 }

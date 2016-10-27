@@ -22,27 +22,54 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/26/2016.
+ */
+public class ServerUpdateStatus extends SteamResponse {
+    @SerializedName("up_to_date")
+    private boolean upToDate;
 
-    void setAddress(InetSocketAddress address);
+    @SerializedName("version_is_listable")
+    private boolean versionListable;
 
-    String getName();
+    @SerializedName("required_version")
+    private int requiredVersion;
 
-    void setName(String name);
+    private String message;
 
-    String getCountry();
+    public boolean isUpToDate() {
+        return upToDate;
+    }
 
-    void setCountry(String country);
+    public void setUpToDate(boolean upToDate) {
+        this.upToDate = upToDate;
+    }
 
-    int getPing();
+    public boolean isVersionListable() {
+        return versionListable;
+    }
 
-    void setPing(int ping);
+    public void setVersionListable(boolean versionListable) {
+        this.versionListable = versionListable;
+    }
+
+    public int getRequiredVersion() {
+        return requiredVersion;
+    }
+
+    public void setRequiredVersion(int requiredVersion) {
+        this.requiredVersion = requiredVersion;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

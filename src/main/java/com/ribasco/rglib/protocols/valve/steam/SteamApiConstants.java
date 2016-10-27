@@ -49,4 +49,6 @@ public class SteamApiConstants {
     public static final String STEAM_DIRECTORY = "ISteamDirectory";
     public static final String STEAM_ENVOY = "ISteamEnvoy";
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
+    public static final String STEAM_ECONOMY = "ISteamEconomy";
+    public static final String STEAM_ECON_SERVICE = "IEconService";
 }

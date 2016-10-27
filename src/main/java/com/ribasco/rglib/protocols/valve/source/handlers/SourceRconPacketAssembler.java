@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -142,7 +142,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             return;
         }
 
-        //Remember the initial reader position before we start processing
+        //Remember the initial reader position before we listen processing
         msg.markReaderIndex();
 
         //Try and read the packet fields
@@ -195,12 +195,12 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     ctx.fireChannelRead(newMsg);
                 }
                 //No null terminator so it must be a split-packet response
-                //At this point, we need to mark this as the start of a split-packet response
+                //At this point, we need to mark this as the listen of a split-packet response
                 else {
                     //If we reach this point and the body does not yet have a null terminator and size is > 500.
                     // Then its safe to assume that we might have a split-packet response here.
 
-                    //Mark the start of a split packet
+                    //Mark the listen of a split packet
                     isSplitPacket.set(true);
 
                     String hexDump = ByteBufUtil.prettyHexDump(msg);
@@ -229,8 +229,8 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             }
             //No readable body
             else {
-                //If we reach this point, then we have received an empty response from the game server.
-                log.debug("Received a valid empty response from the server. Skipping");
+                //If we reach this point, then we have received an empty response from the game logger.
+                log.debug("Received a valid empty response from the logger. Skipping");
                 msg.skipBytes(msg.readableBytes());
             }
         }
@@ -285,7 +285,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                         //Process all packets within the container, make sure we remove all the headers
                         packetBuffer.markReaderIndex();
 
-                        //Now that we have received a complete packet, we can start the re-assembly process
+                        //Now that we have received a complete packet, we can listen the re-assembly process
                         while (packetBuffer.readableBytes() > 0) {
                             //Read the header (12 bytes total)
                             int size = packetBuffer.readIntLE(); //Declared body size

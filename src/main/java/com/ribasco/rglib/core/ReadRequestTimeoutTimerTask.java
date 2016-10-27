@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,8 @@ import io.netty.util.TimerTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
+
 /**
  * Created by raffy on 9/20/2016.
  */
@@ -59,9 +61,9 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
         }
 
         //Check first if the promise has been completed
-        if (session.getClientPromise() != null && !session.getClientPromise().isCompletedExceptionally()) {
+        if (session.getClientPromise() != null && !session.getClientPromise().isDone() && !session.getClientPromise().isCancelled() && !timeout.isCancelled()) {
             //Send a ReadTimeoutException to the client
-            boolean called = session.getClientPromise().completeExceptionally(new ReadTimeoutException(sessionManager.getSessionIdFactory().duplicate(id), String.format("Timeout occured for '%s'", id)));
+            session.getClientPromise().completeExceptionally(new ReadTimeoutException(id, String.format("Timeout occured for '%s' Started: %d minutes ago", id, Duration.ofMillis(System.currentTimeMillis() - session.getTimeRegistered()).toMinutes())));
         }
     }
 }

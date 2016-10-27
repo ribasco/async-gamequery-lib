@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -102,7 +102,7 @@ public class SourceMasterFilter {
     /**
      * Servers with ALL of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
-     * @param tags Array of String game server tags
+     * @param tags Array of String game logger tags
      *
      * @return MasterServerFilter
      */
@@ -113,7 +113,7 @@ public class SourceMasterFilter {
     /**
      * Servers with ANY of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
-     * @param tags Array of String game server tags
+     * @param tags Array of String game logger tags
      *
      * @return MasterServerFilter
      */
@@ -144,9 +144,9 @@ public class SourceMasterFilter {
     }
 
     /**
-     * Return only one server for each unique IP address matched
+     * Return only one logger for each unique IP address matched
      *
-     * @param value True to return only one server for each unique IP
+     * @param value True to return only one logger for each unique IP
      *
      * @return MasterServerFilter
      */

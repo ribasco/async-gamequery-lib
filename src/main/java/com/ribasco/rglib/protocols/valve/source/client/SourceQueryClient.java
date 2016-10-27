@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -34,6 +34,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ribasco.rglib.core.Callback;
 import com.ribasco.rglib.core.client.GameServerQueryClient;
 import com.ribasco.rglib.core.enums.RequestPriority;
+import com.ribasco.rglib.core.exceptions.CacheTimeoutException;
 import com.ribasco.rglib.core.utils.ConcurrentUtils;
 import com.ribasco.rglib.protocols.valve.source.SourceMasterFilter;
 import com.ribasco.rglib.protocols.valve.source.SourceQueryMessenger;
@@ -45,6 +46,10 @@ import com.ribasco.rglib.protocols.valve.source.packets.request.SourceMasterRequ
 import com.ribasco.rglib.protocols.valve.source.pojos.SourcePlayer;
 import com.ribasco.rglib.protocols.valve.source.pojos.SourceServer;
 import com.ribasco.rglib.protocols.valve.source.request.*;
+import com.ribasco.rglib.protocols.valve.steam.master.MasterServerFilter;
+import com.ribasco.rglib.protocols.valve.steam.master.client.MasterServerQueryClient;
+import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerRegion;
+import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,11 +73,11 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     private LoadingCache<InetSocketAddress, Integer> challengeCache;
     private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("cache-pool-%d").setDaemon(true).build();
-    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(new ScheduledThreadPoolExecutor(64, threadFactory));
+    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(64, threadFactory));
     private static final int MAX_CHALLENGE_CACHE_SIZE = 32000;
     private int maxCacheSize = MAX_CHALLENGE_CACHE_SIZE;
-    private Duration cacheExpiration = Duration.ofMinutes(10);
-    private Duration cacheRefreshInterval = Duration.ofMinutes(5);
+    private Duration cacheExpiration = Duration.ofMinutes(15);
+    private Duration cacheRefreshInterval = Duration.ofMinutes(10);
 
     /**
      * Default Constructor using the {@link SourceQueryMessenger}
@@ -82,25 +87,25 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieves a Server Challenge number from the server. This is used for some requests (such as PLAYERS and RULES) that requires a challenge number.</p>
+     * <p>Retrieves a Server Challenge number from the logger. This is used for some requests (such as PLAYERS and RULES) that requires a challenge number.</p>
      *
      * @param type    A {@link SourceChallengeType}
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
+     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the logger challenge number
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address) {
         return getServerChallenge(type, address, null);
     }
 
     /**
-     * <p>Retrieves a Server Challenge number from the server. This is used for some requests (such as PLAYERS and RULES) that requires a challenge number.</p>
+     * <p>Retrieves a Server Challenge number from the logger. This is used for some requests (such as PLAYERS and RULES) that requires a challenge number.</p>
      *
      * @param type     A {@link SourceChallengeType}
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
+     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the logger challenge number
      *
      * @see #getPlayers(Integer, InetSocketAddress)
      * @see #getServerRules(int, InetSocketAddress)
@@ -111,10 +116,10 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>Retrieves a challenge number from the internal cache if available.  If the challenge number does not yet exist in the cache then a
-     * request (using: {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}) will be issued to the server to obtain the latest challenge number.</p>
+     * request (using: {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}) will be issued to the logger to obtain the latest challenge number.</p>
      * <p>This is considered to be thread-safe.</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
      * @return A {@link CompletableFuture} containing the resulting challenge {@link Integer}
      *
@@ -125,19 +130,19 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
             try {
                 return getChallengeCache().get(address);
             } catch (ExecutionException e) {
-                throw new RuntimeException(e.getCause());
+                throw new CacheTimeoutException(e.getCause());
             }
         }, executorService);
     }
 
     /**
-     * <p>Retrieve source server rules information. Please note that this method sends an initial challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
+     * <p>Retrieve source logger rules information. Please note that this method sends an initial challenge request (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link #getServerRulesCached(InetSocketAddress)} instead.
      * </p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerRules(int, InetSocketAddress)
      */
@@ -146,14 +151,14 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve source server rules information. Please note that this method sends an initial challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
+     * <p>Retrieve source logger rules information. Please note that this method sends an initial challenge request (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link #getServerRulesCached(InetSocketAddress)} instead.
      * </p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerRules(int, InetSocketAddress, Callback)
      */
@@ -168,13 +173,13 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>
-     * Retrieve source server rules information. You NEED to obtain a valid challenge number from the server first.
+     * Retrieve source logger rules information. You NEED to obtain a valid challenge number from the logger first.
      * </p>
      *
      * @param challenge The challenge number to be used for the request
-     * @param address   The {@link InetSocketAddress} of the source server
+     * @param address   The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -185,14 +190,14 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>
-     * Retrieve source server rules information. You NEED to obtain a valid challenge number from the server first.
+     * Retrieve source logger rules information. You NEED to obtain a valid challenge number from the logger first.
      * </p>
      *
      * @param challenge The challenge number to be used for the request
-     * @param address   The {@link InetSocketAddress} of the source server
+     * @param address   The {@link InetSocketAddress} of the source logger
      * @param callback  A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -202,11 +207,11 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve source server rules information. Uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve source logger rules information. Uses the internal cache to retrieve the challenge number (if available).</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
@@ -215,12 +220,12 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve source server rules information. Uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve source logger rules information. Uses the internal cache to retrieve the challenge number (if available).</p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
      *
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
@@ -235,14 +240,14 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>
-     * Retrieve players currently residing on the specified server. Please note that this method sends an initial
-     * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
+     * Retrieve players currently residing on the specified logger. Please note that this method sends an initial
+     * challenge request (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link #getPlayersCached(InetSocketAddress)} instead.
      * </p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(int, InetSocketAddress)
      */
@@ -252,15 +257,15 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
     /**
      * <p>
-     * Retrieve a list of active players in the server. Please note that this method sends an initial
-     * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
+     * Retrieve a list of active players in the logger. Please note that this method sends an initial
+     * challenge request (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link #getPlayersCached(InetSocketAddress)} instead.
      * </p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(int, InetSocketAddress)
      */
@@ -274,12 +279,12 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server first.</p>
+     * <p>Retrieve a list of active players in the logger. You NEED to obtain a valid challenge number from the logger first.</p>
      *
      * @param challenge The challenge number to be used for the request
-     * @param address   The {@link InetSocketAddress} of the source server
+     * @param address   The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(InetSocketAddress)
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
@@ -290,13 +295,13 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server first.</p>
+     * <p>Retrieve a list of active players in the logger. You NEED to obtain a valid challenge number from the logger first.</p>
      *
      * @param challenge The challenge number to be used for the request
-     * @param address   The {@link InetSocketAddress} of the source server
+     * @param address   The {@link InetSocketAddress} of the source logger
      * @param callback  A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(InetSocketAddress)
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
@@ -307,11 +312,11 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve a list of active players in the server. This uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve a list of active players in the logger. This uses the internal cache to retrieve the challenge number (if available).</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(int, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -321,12 +326,12 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     }
 
     /**
-     * <p>Retrieve a list of active players in the server. This uses the internal cache to retrieve the challenge number (if available).</p>
+     * <p>Retrieve a list of active players in the logger. This uses the internal cache to retrieve the challenge number (if available).</p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the server
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on the logger
      *
      * @see #getPlayers(int, InetSocketAddress, Callback)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -343,7 +348,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     /**
      * <p>Retrieves information of the Source Server</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
      */
@@ -354,7 +359,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     /**
      * <p>Retrieves information of the Source Server</p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
+     * @param address  The {@link InetSocketAddress} of the source logger
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
@@ -366,7 +371,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     /**
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
-     * @param region A {@link SourceMasterServerRegion} value that specifies which server region the master server should return
+     * @param region A {@link SourceMasterServerRegion} value that specifies which logger region the master logger should return
      * @param filter A {@link SourceMasterFilter} representing a set of filters to be used by the query
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
@@ -380,16 +385,16 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     /**
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
-     * @param region   A {@link SourceMasterServerRegion} value that specifies which server region the master server should return
+     * @param region   A {@link SourceMasterServerRegion} value that specifies which logger region the master logger should return
      * @param filter   A {@link SourceMasterFilter} representing a set of filters to be used by the query
      * @param callback A {@link Callback} that will be invoked when a response has been received
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
      *
-     * @see #getMasterServerList(SourceMasterServerRegion, SourceMasterFilter)
+     * @see MasterServerQueryClient#getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
+     * @deprecated
      */
     @Deprecated
-    //TODO: Move this to it's own client interface since this is not source protocol specific
     public CompletableFuture<Vector<InetSocketAddress>> getMasterServerList(final SourceMasterServerRegion region, final SourceMasterFilter filter, final Callback<InetSocketAddress> callback) {
         //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
@@ -400,7 +405,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
         final AtomicBoolean done = new AtomicBoolean(false);
 
         while (!done.get()) {
-            log.debug("Getting from master server with seed : " + startAddress);
+            log.debug("Getting from master logger with seed : " + startAddress);
             try {
                 log.info("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
 
@@ -417,7 +422,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
                     if (callback != null && !isIpTerminator(ip))
                         callback.onComplete(ip, destination, null);
-                    //Add a delay here. We shouldn't send requests too fast to the master server
+                    //Add a delay here. We shouldn't send requests too fast to the master logger
                     // there is a high chance that we might not receive the end of the list.
                     ConcurrentUtils.sleepUninterrupted(13);
                     serverMasterList.add(ip);
@@ -431,12 +436,12 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                 //Did the master send a terminator address?
                 // If so, mark as complete
                 if (isIpTerminator(startAddress)) {
-                    log.debug("Reached the end of the server list");
+                    log.debug("Reached the end of the logger list");
                     done.set(true);
                 }
                 //Thread.sleep(serverList.size() * 15);
             } catch (InterruptedException | TimeoutException e) {
-                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of server list from master");
+                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of logger list from master");
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
                     callback.onComplete(null, destination, e);
@@ -451,7 +456,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
 
         log.debug("Got a total list of {} servers from master", serverMasterList.size());
 
-        //Returns the complete server list retrieved from the master server
+        //Returns the complete logger list retrieved from the master logger
         if (!masterPromise.isDone() && !masterPromise.isCompletedExceptionally())
             masterPromise.complete(serverMasterList);
 
@@ -461,7 +466,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     /**
      * <p>A helper to determine if the address is a terminator type address</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
+     * @param address The {@link InetSocketAddress} of the source logger
      *
      * @return true if the {@link InetSocketAddress} supplied is a terminator address
      */
@@ -549,7 +554,6 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
                             return executorService.submit(() -> load(key));
                         }
                     });
-
         }
         return challengeCache;
     }
@@ -563,6 +567,11 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
     public void close() throws IOException {
         super.close();
         getChallengeCache().cleanUp();
-        executorService.shutdown();
+        try {
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("Interrupted Shutdown", e);
+        }
     }
 }

@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import com.ribasco.rglib.core.session.SessionId;
 /**
  * Created by raffy on 9/21/2016.
  */
-public class ReadTimeoutException extends RuntimeException {
+public class ReadTimeoutException extends TimeoutException {
 
     private SessionId key;
 

@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,6 @@ public abstract class AbstractClient<Req extends AbstractRequest,
         return sendRequest(message, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
     }
 
-    @Override
     public <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
         return sendRequest(message, null, priority);
     }
@@ -77,7 +76,6 @@ public abstract class AbstractClient<Req extends AbstractRequest,
         return sendRequest(message, callback, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
     }
 
-    @Override
     public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
         log.debug("Sending request : {}", message);
         //Send the request then transform the result once a response is received

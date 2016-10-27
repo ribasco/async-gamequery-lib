@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 
 /**
- * Created by raffy on 9/14/2016.
+ * <p>The base implementation of the {@link Messenger} interface.</p>
+ *
+ * @param <A>
+ * @param <B>
+ * @param <T>
  */
 public abstract class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse, T extends NettyTransport<A>> implements Messenger<A, B> {
 
@@ -99,8 +103,8 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         configureMappings(this.sessionManager.getLookupMap());
         //Initialize the transport
         transport.initialize();
-        //Initialize server
-        messengerService = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-service").build());
+        //Initialize logger
+        messengerService = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-%d").build());
         //Set our request processor
         requestProcessor = (processingMode == ProcessingMode.SYNCHRONOUS) ? this::processSync : this::processAsync;
         //Start our request scheduler
@@ -115,7 +119,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      *
      * @param transport
      */
-
     public abstract void configureTransport(T transport);
 
     /**
@@ -143,7 +146,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      * @param request  An instance of {@link AbstractRequest}
      * @param priority
      *
-     * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the server if available.
+     * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the logger if available.
      */
     public CompletableFuture<B> send(A request, RequestPriority priority) {
         CompletableFuture<B> promise = new CompletableFuture<>();
@@ -172,7 +175,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             if (session != null) {
                 //1) Retrieve our client promise from the session
                 final CompletableFuture<B> clientPromise = session.getClientPromise();
-                //2) Notify the client that we have successfully received a response from the server
+                //2) Notify the client that we have successfully received a response from the logger
                 clientPromise.complete(response);
             } else {
                 log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());

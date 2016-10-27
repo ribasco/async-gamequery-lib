@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ package com.ribasco.rglib.core.session;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ribasco.rglib.core.*;
 import com.ribasco.rglib.core.enums.RequestStatus;
 import io.netty.util.HashedWheelTimer;
@@ -76,7 +77,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     }
 
     public DefaultSessionManager(AbstractSessionIdFactory factory) {
-        sessionTimer = new HashedWheelTimer();
+        sessionTimer = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("timeout-%d").setDaemon(true).build());
         directory = new HashMap<>();
         this.factory = (factory != null) ? factory : new DefaultSessionIdFactory();
         factory.setLookup(directory);
@@ -148,9 +149,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
                 return false;
             }
             //Cancel the timeout instance
-            if (sessionValue.getTimeout() != null &&
-                    !sessionValue.getTimeout().isCancelled() &&
-                    !sessionValue.getTimeout().isExpired()) {
+            if (sessionValue.getTimeout() != null) {
                 sessionValue.getTimeout().cancel();
             }
             return session.remove(sessionValue.getId(), sessionValue);

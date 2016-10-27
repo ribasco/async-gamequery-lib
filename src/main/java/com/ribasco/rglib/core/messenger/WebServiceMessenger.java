@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,29 +24,50 @@
 
 package com.ribasco.rglib.core.messenger;
 
-import com.ribasco.rglib.core.AbstractMessenger;
-import com.ribasco.rglib.core.transport.NettyTransport;
-import io.netty.channel.ChannelOption;
+import com.ribasco.rglib.core.AbstractWebRequest;
+import com.ribasco.rglib.core.AbstractWebResponse;
+import com.ribasco.rglib.core.Messenger;
+import org.asynchttpclient.AsyncCompletionHandler;
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Response;
 
+import java.io.IOException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Messenger using the TCP Transport Protocol
  */
-public class WebServiceMessenger extends AbstractMessenger {
-    public WebServiceMessenger(NettyTransport transport) {
-        super(transport);
+public class WebServiceMessenger<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Messenger<Req, Res> {
+
+    private AsyncHttpClient httpTransport;
+    private Map<Class<? extends Req>, Class<? extends Res>> lookupDirectory;
+
+    public WebServiceMessenger() {
+        this.httpTransport = new DefaultAsyncHttpClient();
+        this.lookupDirectory = new ConcurrentHashMap<>();
     }
 
     @Override
-    public void configureTransport(NettyTransport transport) {
-        //Channel Options
-        transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
+    public CompletableFuture<Res> send(Req request) {
+        return httpTransport.prepareRequest(request.getMessage()).execute(new AsyncCompletionHandler<Res>() {
+            @Override
+            public Res onCompleted(Response response) throws Exception {
+                return null;
+            }
+        }).toCompletableFuture();
+    }
+
+
+    @Override
+    public void receive(Res response) {
+
     }
 
     @Override
-    public void configureMappings(Map map) {
+    public void close() throws IOException {
 
     }
 }

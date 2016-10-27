@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import com.ribasco.rglib.core.enums.RequestPriority;
 import com.ribasco.rglib.protocols.valve.source.SourceRconMessenger;
 import com.ribasco.rglib.protocols.valve.source.SourceRconRequest;
 import com.ribasco.rglib.protocols.valve.source.SourceRconResponse;
+import com.ribasco.rglib.protocols.valve.source.exceptions.RconNotYetAuthException;
 import com.ribasco.rglib.protocols.valve.source.request.SourceRconAuthRequest;
 import com.ribasco.rglib.protocols.valve.source.request.SourceRconCmdRequest;
 import org.apache.commons.lang3.RandomUtils;
@@ -43,7 +44,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A client used for executing commands to the server using the Valve RCON Protocol
+ * A client used for executing commands to the Source Server using the Valve RCON Protocol
  *
  * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol Specifications</a>
  */
@@ -56,13 +57,16 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      */
     private Map<InetSocketAddress, Integer> authMap;
 
+    /**
+     * Default Constructor
+     */
     public SourceRconClient() {
         super(new SourceRconMessenger());
         authMap = new ConcurrentHashMap<>();
     }
 
     /**
-     * <p>Establish an authentication request to the server.</p>
+     * <p>Establish an authentication request to the Server.</p>
      *
      * @param address  The {@link InetSocketAddress} of the source server
      * @param password A non-empty password {@link String}
@@ -76,7 +80,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     }
 
     /**
-     * <p>Establish an authentication request to the server.</p>
+     * <p>Establish an authentication request to the Server.</p>
      *
      * @param address  The {@link InetSocketAddress} of the source server
      * @param password A non-empty password {@link String}
@@ -105,21 +109,22 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     }
 
     /**
-     * <p>Sends a command request to the server provided. Authentication is REQUIRED issuing a command to the server.</p>
+     * <p>Sends a command to the Source server. Authentication is REQUIRED</p>
      *
      * @param address The {@link InetSocketAddress} of the source server
      * @param command The {@link String} containing the command to be issued on the server
      *
      * @return A {@link CompletableFuture} which contains a response {@link String} returned by the server
      *
+     * @throws RconNotYetAuthException thrown if not yet authenticated to the server
      * @see #authenticate(InetSocketAddress, String)
      */
-    public CompletableFuture<String> execute(InetSocketAddress address, String command) {
+    public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
         return execute(address, command, null);
     }
 
     /**
-     * <p>Sends a command request to the server provided. Authentication is REQUIRED issuing a command to the server.</p>
+     * <p>Sends a command to the Source server. Authentication is REQUIRED.</p>
      *
      * @param address  The {@link InetSocketAddress} of the source server
      * @param command  The {@link String} containing the command to be issued on the server
@@ -127,11 +132,12 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @return A {@link CompletableFuture} which contains a response {@link String} returned by the server
      *
+     * @throws RconNotYetAuthException thrown if not yet authenticated to the server
      * @see #authenticate(InetSocketAddress, String)
      */
-    public CompletableFuture<String> execute(InetSocketAddress address, String command, Callback<String> callback) {
+    public CompletableFuture<String> execute(InetSocketAddress address, String command, Callback<String> callback) throws RconNotYetAuthException {
         if (!isAuthenticated(address))
-            throw new IllegalStateException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
+            throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
         final Integer id = createRequestId();
         log.debug("Executing command '{}' using request id: {}", command, id);
         return sendRequest(new SourceRconCmdRequest(address, id, command), callback);

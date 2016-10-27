@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.TreeMultimap;
 import com.ribasco.rglib.core.Callback;
 import com.ribasco.rglib.core.exceptions.ReadTimeoutException;
+import com.ribasco.rglib.core.exceptions.TimeoutException;
 import com.ribasco.rglib.core.session.SessionId;
 import com.ribasco.rglib.core.session.SessionValue;
 import com.ribasco.rglib.core.utils.ConcurrentUtils;
@@ -38,11 +39,13 @@ import com.ribasco.rglib.protocols.valve.source.client.SourceQueryClient;
 import com.ribasco.rglib.protocols.valve.source.client.SourceRconClient;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceChallengeType;
 import com.ribasco.rglib.protocols.valve.source.enums.SourceMasterServerRegion;
+import com.ribasco.rglib.protocols.valve.source.exceptions.RconNotYetAuthException;
+import com.ribasco.rglib.protocols.valve.source.pojos.SourcePlayer;
 import com.ribasco.rglib.protocols.valve.source.pojos.SourceServer;
-import com.ribasco.rglib.protocols.valve.steam.MasterServerFilter;
-import com.ribasco.rglib.protocols.valve.steam.client.MasterServerClient;
-import com.ribasco.rglib.protocols.valve.steam.enums.MasterServerRegion;
-import com.ribasco.rglib.protocols.valve.steam.enums.MasterServerType;
+import com.ribasco.rglib.protocols.valve.steam.master.MasterServerFilter;
+import com.ribasco.rglib.protocols.valve.steam.master.client.MasterServerQueryClient;
+import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerRegion;
+import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerType;
 import org.apache.commons.lang3.builder.CompareToBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +56,9 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * Created by raffy on 9/13/2016.
@@ -65,18 +70,18 @@ public class DemoClient {
 
     private SourceRconClient sourceRconClient;
     private SourceQueryClient sourceQueryClient;
-    private MasterServerClient masterServerClient;
+    private MasterServerQueryClient masterServerQueryClient;
 
     public DemoClient() {
         sourceRconClient = new SourceRconClient();
         sourceQueryClient = new SourceQueryClient();
-        masterServerClient = new MasterServerClient();
+        masterServerQueryClient = new MasterServerQueryClient();
     }
 
     public void close() throws IOException {
         sourceRconClient.close();
         sourceQueryClient.close();
-        masterServerClient.close();
+        masterServerQueryClient.close();
     }
 
     public static void main(String[] args) throws Exception {
@@ -85,9 +90,9 @@ public class DemoClient {
             //app.testQueue();
             //app.runSimpleAppTest();
             //app.runTestSuite();
-            //app.testRcon();
+            app.testRcon();
             //app.runSimpleTest();
-            //app.runSimpleTestCached();
+            app.runSimpleTestCached();
             //app.runSimpleTestEx();
             //app.listAllServers();
             //app.testBatch();
@@ -103,16 +108,191 @@ public class DemoClient {
             //app.extractThenProcess();
             //app.testSimpleQuery();
 
-            app.testMasterServerClient();
+            //app.testMasterServerClient();
+            //app.runNewSimpleTest();
         } finally {
             log.info("Closing App");
             app.close();
         }
     }
 
+    public void runNewSimpleTest() {
+        MasterServerFilter filter = MasterServerFilter.create()
+                .appId(550)
+                .dedicated(true)
+                .isEmpty(false)
+                .isSecure(true);
+        double start = System.currentTimeMillis();
+        runNewSimpleTest(10, filter);
+        double end = ((System.currentTimeMillis() - start) / 1000) / 60;
+        log.info("Test Completed in {} minutes", end);
+    }
+
+    private Map<String, Double> runNewSimpleTest(int sleepTime, MasterServerFilter filter) {
+
+        final Map<String, Double> resultMap = new HashMap<>();
+
+        double successRateInfo, successRateChallenge, successRatePlayer, successRateRules;
+        final AtomicInteger masterServerCtr = new AtomicInteger(), masterError = new AtomicInteger(), masterTimeout = new AtomicInteger();
+        final AtomicInteger serverInfoCtr = new AtomicInteger(), serverInfoTimeout = new AtomicInteger(), serverInfoErr = new AtomicInteger();
+        final AtomicInteger challengeCtr = new AtomicInteger(), challengeTimeout = new AtomicInteger(), challengeErr = new AtomicInteger();
+        final AtomicInteger playersCtr = new AtomicInteger(), playersTimeout = new AtomicInteger(), playersOtherErr = new AtomicInteger();
+        final AtomicInteger rulesCtr = new AtomicInteger(), rulesTimeout = new AtomicInteger(), rulesOtherErr = new AtomicInteger();
+
+        try {
+            sourceQueryClient.setSleepTime(sleepTime);
+
+            masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
+                try {
+                    if (masterServerError != null) {
+                        log.debug("[MASTER : ERROR] : From: {} = {}", masterServerSender, masterServerError.getMessage());
+                        if (masterServerError instanceof ReadTimeoutException) {
+                            masterTimeout.incrementAndGet();
+                        } else
+                            masterError.incrementAndGet();
+                        return;
+                    }
+
+                    log.debug("[MASTER : INFO] : {}", serverAddress);
+                    masterServerCtr.incrementAndGet();
+
+                    sourceQueryClient.getServerInfo(serverAddress, (serverInfo, infoSender, serverInfoError) -> {
+                        if (serverInfoError != null) {
+                            log.debug("[SERVER : ERROR] : From: {} = {}", infoSender, serverInfoError.getMessage());
+                            if (serverInfoError instanceof ReadTimeoutException) {
+                                serverInfoTimeout.incrementAndGet();
+                            } else
+                                serverInfoErr.incrementAndGet();
+                            return;
+                        }
+
+                        serverInfoCtr.incrementAndGet();
+                        log.debug("[SERVER : INFO] : From: {} (Data: {})", infoSender, serverInfo);
+                    });
+
+                    //Get Challenge
+                    sourceQueryClient.getServerChallenge(SourceChallengeType.PLAYER, serverAddress, (challengeNum, serverChallengeSender, serverChallengeError) -> {
+                        try {
+                            if (serverChallengeError != null) {
+                                log.debug("[CHALLENGE : ERROR] For: '{}', Message: '{}')", serverChallengeSender, serverChallengeError.getMessage());
+                                if (serverChallengeError instanceof ReadTimeoutException)
+                                    challengeTimeout.incrementAndGet();
+                                else
+                                    challengeErr.incrementAndGet();
+                                return;
+                            }
+                            log.debug("[CHALLENGE : INFO] Challenge '{}' from {}", challengeNum, serverChallengeSender);
+                            challengeCtr.incrementAndGet();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }).thenAccept(challenge -> {
+                        CompletableFuture<List<SourcePlayer>> playersFuture = sourceQueryClient.getPlayers(challenge, serverAddress, new Callback<List<SourcePlayer>>() {
+                            @Override
+                            public void onComplete(List<SourcePlayer> players, InetSocketAddress playerSender, Throwable playerError) {
+                                if (playerError != null) {
+                                    log.debug("[PLAYERS : ERROR] For: '{}', Message: '{}')", playerSender, playerError.getMessage());
+                                    if (playerError instanceof ReadTimeoutException)
+                                        playersTimeout.incrementAndGet();
+                                    else
+                                        playersOtherErr.incrementAndGet();
+                                    return;
+                                }
+                                playersCtr.incrementAndGet();
+                                log.debug("[PLAYERS : INFO] : From {}, PlayerData = {}", playerSender, players);
+                            }
+                        });
+                        playersFuture.whenComplete(new BiConsumer<List<SourcePlayer>, Throwable>() {
+                            @Override
+                            public void accept(List<SourcePlayer> sourcePlayers, Throwable throwable) {
+                                CompletableFuture<Map<String, String>> rulesFuture = sourceQueryClient.getServerRules(challenge, serverAddress, (rules, rulesSender, rulesError) -> {
+                                    if (rulesError != null) {
+                                        log.debug("[RULES : ERROR] For: '{}', Message: '{}')", rulesSender, rulesError.getMessage());
+                                        if (rulesError instanceof ReadTimeoutException)
+                                            rulesTimeout.incrementAndGet();
+                                        else
+                                            rulesOtherErr.incrementAndGet();
+                                        return;
+                                    }
+                                    rulesCtr.incrementAndGet();
+                                    log.debug("[RULES : INFO] From {}, Rules = {}", rulesSender, rules);
+                                });
+                            }
+                        });
+                    });
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+            }).exceptionally(new Function<Throwable, Vector<InetSocketAddress>>() {
+                @Override
+                public Vector<InetSocketAddress> apply(Throwable throwable) {
+                    return new Vector<InetSocketAddress>();
+                }
+            }).get(); //masterServerList
+
+            //log.info("Waiting for requests to complete...");
+            sourceQueryClient.waitForAll();
+
+            log.debug("   Total Master Server Retrieved: {}", masterServerCtr);
+            log.debug("   Total Master Server Error (Others): {}", masterError);
+            log.debug("   Total Master Server Error (Timeout): {}", masterTimeout);
+            log.debug(" ");
+            log.debug("   Total Server Info Retrieved: {}", serverInfoCtr);
+            log.debug("   Total Server Info Error (Others): {}", serverInfoErr);
+            log.debug("   Total Server Info Error (Timeout): {}", serverInfoTimeout);
+            log.debug(" ");
+            log.debug("   Total Challenge Numbers Received: {}", challengeCtr);
+            log.debug("   Total Challenge Error (Others): {}", challengeErr);
+            log.debug("   Total Challenge Error (Timeout): {}", challengeTimeout);
+            log.debug(" ");
+            log.debug("   Total Player Records Received: {}", playersCtr);
+            log.debug("   Total Player Error (Others): {}", playersOtherErr);
+            log.debug("   Total Player Error (Timeout): {}", playersTimeout);
+            log.debug(" ");
+            log.debug("   Total Rules Records Received: {}", rulesCtr);
+            log.debug("   Total Rules Error (Others): {}", rulesOtherErr);
+            log.debug("   Total Rules Error (Timeout): {}", rulesTimeout);
+
+            successRateInfo = Math.round((serverInfoCtr.doubleValue() / masterServerCtr.doubleValue()) * 100.0D);
+            successRateChallenge = Math.round((challengeCtr.doubleValue() / masterServerCtr.doubleValue()) * 100.0D);
+            successRatePlayer = Math.round((playersCtr.doubleValue() / challengeCtr.doubleValue()) * 100.0D);
+            successRateRules = Math.round((rulesCtr.doubleValue() / challengeCtr.doubleValue()) * 100.0D);
+
+            resultMap.put("masterTotal", masterServerCtr.doubleValue());
+            resultMap.put("masterErrorOther", masterError.doubleValue());
+            resultMap.put("masterErrorTimeout", masterTimeout.doubleValue());
+
+            resultMap.put("infoTotal", serverInfoCtr.doubleValue());
+            resultMap.put("infoErrorOther", serverInfoErr.doubleValue());
+            resultMap.put("infoErrorTimeout", serverInfoTimeout.doubleValue());
+            resultMap.put("infoRate", successRateInfo);
+
+            resultMap.put("challengeTotal", challengeCtr.doubleValue());
+            resultMap.put("challengeErrorOther", challengeErr.doubleValue());
+            resultMap.put("challengeErrorTimeout", challengeTimeout.doubleValue());
+            resultMap.put("challengeRate", successRateChallenge);
+
+            resultMap.put("playerTotal", playersCtr.doubleValue());
+            resultMap.put("playerErrorOther", playersOtherErr.doubleValue());
+            resultMap.put("playerErrorTimeout", playersTimeout.doubleValue());
+            resultMap.put("playerRate", successRatePlayer);
+
+            resultMap.put("rulesTotal", rulesCtr.doubleValue());
+            resultMap.put("rulesErrorOther", rulesOtherErr.doubleValue());
+            resultMap.put("rulesErrorTimeout", rulesTimeout.doubleValue());
+            resultMap.put("rulesRate", successRateRules);
+
+            return resultMap;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     public void testMasterServerClient() {
         MasterServerFilter filter = new MasterServerFilter().dedicated(true).appId(730);//.isEmpty(false);
-        masterServerClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, new Callback<InetSocketAddress>() {
+        masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, new Callback<InetSocketAddress>() {
             @Override
             public void onComplete(InetSocketAddress response, InetSocketAddress sender, Throwable error) {
                 if (error != null) {
@@ -140,7 +320,11 @@ public class DemoClient {
 
             CompletableFuture<String> res = sourceRconClient.authenticate(address, "***REMOVED***", null).thenCompose(success -> {
                 if (success) {
-                    return sourceRconClient.execute(address, "status", null);
+                    try {
+                        return sourceRconClient.execute(address, "status", null);
+                    } catch (RconNotYetAuthException e) {
+                        e.printStackTrace();
+                    }
                 }
                 return CompletableFuture.completedFuture("");
             });
@@ -162,7 +346,7 @@ public class DemoClient {
                 .isSecure(true);
 
         try {
-            log.info("Retrieving master server list...");
+            log.info("Retrieving master logger list...");
             final Vector<InetSocketAddress> serverList = sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, null).get();
 
             AtomicInteger playerError = new AtomicInteger();
@@ -385,15 +569,19 @@ public class DemoClient {
 
             List<CompletableFuture> futures = new ArrayList<>();
 
-            for (String command : commands) {
-                log.info("Executing command '{}'", command);
-                futures.add(sourceRconClient.execute(address1, command, (response, sender, error) -> {
-                    if (error != null) {
-                        log.error("Error occured while executing command: {}", error.getMessage());
-                        return;
-                    }
-                    log.info("Received Reply for command '{}': \n{}", command, response);
-                }));
+            try {
+                for (String command : commands) {
+                    log.info("Executing command '{}'", command);
+                    futures.add(sourceRconClient.execute(address1, command, (response, sender, error) -> {
+                        if (error != null) {
+                            log.error("Error occured while executing command: {}", error.getMessage());
+                            return;
+                        }
+                        log.info("Received Reply for command '{}': \n{}", command, response);
+                    }));
+                }
+            } catch (RconNotYetAuthException e) {
+                e.printStackTrace();
             }
 
             //Wait
@@ -457,10 +645,10 @@ public class DemoClient {
     }
 
     public void runSimpleTestCached() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
-                //.isEmpty(false)
+                .isEmpty(false)
                 .isSecure(true);
         for (int i = 0; i < 3; i++) {
             log.info("Running Iteration #{}", i);
@@ -658,7 +846,7 @@ public class DemoClient {
         return null;
     }
 
-    private Map<String, Double> runTestCached(int sleepTime, SourceMasterFilter filter) {
+    private Map<String, Double> runTestCached(int sleepTime, MasterServerFilter filter) {
         final Map<String, Double> resultMap = new HashMap<>();
 
         double successRateInfo, successRateChallenge, successRatePlayer, successRateRules;
@@ -672,11 +860,11 @@ public class DemoClient {
             sourceQueryClient.setSleepTime(sleepTime);
 
             try {
-                sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
+                masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
                     try {
                         if (masterServerError != null) {
                             log.debug("[MASTER : ERROR] : From: {} = {}", masterServerSender, masterServerError.getMessage());
-                            if (masterServerError instanceof ReadTimeoutException) {
+                            if (masterServerError instanceof TimeoutException) {
                                 masterTimeout.incrementAndGet();
                             } else
                                 masterError.incrementAndGet();
@@ -689,7 +877,7 @@ public class DemoClient {
                         sourceQueryClient.getServerInfo(serverAddress, (serverInfo, infoSender, serverInfoError) -> {
                             if (serverInfoError != null) {
                                 log.debug("[SERVER : ERROR] : From: {} = {}", infoSender, serverInfoError.getMessage());
-                                if (serverInfoError instanceof ReadTimeoutException) {
+                                if (serverInfoError instanceof TimeoutException) {
                                     serverInfoTimeout.incrementAndGet();
                                 } else
                                     serverInfoErr.incrementAndGet();
@@ -702,7 +890,7 @@ public class DemoClient {
                         sourceQueryClient.getPlayersCached(serverAddress, (players, playerSender, playerError) -> {
                             if (playerError != null) {
                                 log.debug("[PLAYERS : ERROR] For: '{}', Message: '{}')", playerSender, playerError.getMessage());
-                                if (playerError instanceof ReadTimeoutException)
+                                if (playerError instanceof TimeoutException)
                                     playersTimeout.incrementAndGet();
                                 else
                                     playersOtherErr.incrementAndGet();
@@ -715,7 +903,7 @@ public class DemoClient {
                         sourceQueryClient.getServerRulesCached(serverAddress, (rules, rulesSender, rulesError) -> {
                             if (rulesError != null) {
                                 log.debug("[RULES : ERROR] For: '{}', Message: '{}')", rulesSender, rulesError.getMessage());
-                                if (rulesError instanceof ReadTimeoutException)
+                                if (rulesError instanceof TimeoutException)
                                     rulesTimeout.incrementAndGet();
                                 else
                                     rulesOtherErr.incrementAndGet();
@@ -729,7 +917,7 @@ public class DemoClient {
                     }
                 }).get(); //masterServerList
             } catch (Exception e) {
-                log.error("Error occured in master server list {}", e.getMessage());
+                log.error("Error occured in master logger list {}", e.getMessage());
             }
 
             //log.info("Waiting for requests to complete...");
@@ -852,7 +1040,7 @@ public class DemoClient {
                             log.debug("[CHALLENGE : INFO] Challenge '{}' from {}", challengeNum, serverChallengeSender);
                             challengeCtr.incrementAndGet();
 
-                            sourceQueryClient.getPlayers(serverAddress, (players, playerSender, playerError) -> {
+                            sourceQueryClient.getPlayers(challengeNum, serverAddress, (players, playerSender, playerError) -> {
                                 if (playerError != null) {
                                     log.debug("[PLAYERS : ERROR] For: '{}', Message: '{}')", playerSender, playerError.getMessage());
                                     if (playerError instanceof ReadTimeoutException)
@@ -865,7 +1053,7 @@ public class DemoClient {
                                 log.debug("[PLAYERS : INFO] : From {}, PlayerData = {}", playerSender, players);
                             });
 
-                            sourceQueryClient.getServerRules(serverAddress, (rules, rulesSender, rulesError) -> {
+                            sourceQueryClient.getServerRules(challengeNum, serverAddress, (rules, rulesSender, rulesError) -> {
                                 if (rulesError != null) {
                                     log.debug("[RULES : ERROR] For: '{}', Message: '{}')", rulesSender, rulesError.getMessage());
                                     if (rulesError instanceof ReadTimeoutException)

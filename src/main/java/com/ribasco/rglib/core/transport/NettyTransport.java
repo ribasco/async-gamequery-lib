@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -43,9 +43,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.channels.spi.SelectorProvider;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public abstract class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
@@ -55,13 +57,16 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
     private ChannelInitializer channelInitializer;
     private ChannelType channelType;
+    private ThreadFactory tFactory = new ThreadFactoryBuilder().setNameFormat("transport-el-" + instanceCtr.get() + "-%d").setDaemon(true).build();
+    private ExecutorService executorService = Executors.newFixedThreadPool(32, tFactory);
+    private static AtomicInteger instanceCtr = new AtomicInteger();
 
     public NettyTransport() {
         bootstrap = new Bootstrap();
         channelAttributes = new HashMap<>();
+        instanceCtr.incrementAndGet();
     }
 
-    @Override
     public InetSocketAddress localAddress() {
         return (InetSocketAddress) bootstrap.config().localAddress();
     }
@@ -82,7 +87,6 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         bootstrap.option(channelOption, value);
     }
 
-    @Override
     public void initialize() {
         //Make sure we have a type set
         if (channelType == null)
@@ -96,7 +100,7 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         //Default Channel Options
         addChannelOption(ChannelOption.ALLOCATOR, allocator);
         addChannelOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
-        addChannelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+        addChannelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
 
         //Set resource leak detection if debugging is enabled
         if (log.isDebugEnabled())
@@ -117,7 +121,6 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
     /**
      * {@inheritDoc}
      */
-    @Override
     public final CompletableFuture<Void> send(Msg message, boolean flushImmediately) {
         //Obtain a channel then write to it once acquired
         return getChannel(message).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
@@ -143,15 +146,14 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
                 else
                     writeResultFuture.completeExceptionally(future.cause());
             } finally {
-                //Clean-up channel after write
-                cleanupChannel(channel);
+                cleanupChannel(future.channel());
             }
         });
         return writeResultFuture;
     }
 
     /**
-     * Perform cleanupChannel operations on a channel after calling {@link #send(AbstractMessage, boolean)}
+     * Perform cleanupChannel operations on a channel after calling {@link #send(AbstractRequest, boolean)}
      *
      * @param c Channel
      */
@@ -160,7 +162,6 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         return null;
     }
 
-    @Override
     public Channel flush() {
         throw new NotImplementedException("No concrete class has implemented this method");
     }
@@ -172,7 +173,7 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
                 return new OioEventLoopGroup();
             case NIO_TCP:
             case NIO_UDP:
-                return new NioEventLoopGroup(8, new ThreadFactoryBuilder().setNameFormat("event-loop-%d").setDaemon(true).build());
+                return new NioEventLoopGroup(8, executorService, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE);
         }
         return null;
     }
@@ -215,8 +216,14 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
 
     @Override
     public void close() throws IOException {
-        log.debug("Shutting down gracefully");
-        eventLoopGroup.shutdownGracefully();
+        try {
+            log.debug("Shutting down gracefully");
+            eventLoopGroup.shutdownGracefully();
+            executorService.shutdown();
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            log.error("Error while closing transport", e);
+        }
     }
 
     public abstract CompletableFuture<Channel> getChannel(Msg message);

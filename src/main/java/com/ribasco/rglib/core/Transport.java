@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,23 +24,12 @@
 
 package com.ribasco.rglib.core;
 
-import io.netty.channel.Channel;
-
 import java.io.Closeable;
-import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 9/13/2016.
  */
 public interface Transport<T extends AbstractMessage> extends Closeable {
-    void initialize();
-
     CompletableFuture<Void> send(T data);
-
-    CompletableFuture<Void> send(T data, boolean flushImmediately);
-
-    Channel flush();
-
-    InetSocketAddress localAddress();
 }

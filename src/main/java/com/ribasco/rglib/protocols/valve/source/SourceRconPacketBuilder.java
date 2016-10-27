@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -62,7 +62,7 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
             //Remember the reader index
             data.markReaderIndex();
 
-            //Read from the start
+            //Read from the listen
             data.readerIndex(0);
             int size = data.readIntLE();
             int id = data.readIntLE();

@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,8 +24,6 @@
 
 package com.ribasco.rglib.core;
 
-import com.ribasco.rglib.core.enums.RequestPriority;
-
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,9 +33,5 @@ import java.util.concurrent.CompletableFuture;
 public interface Client<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
     <V> CompletableFuture<V> sendRequest(Req message);
 
-    <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority);
-
     <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback);
-
-    <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority);
 }

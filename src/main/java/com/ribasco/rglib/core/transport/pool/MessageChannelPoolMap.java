@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.function.Function;
 
 /**
- * A {@link ChannelPoolMap} implementation that use {@link AbstractMessage} as it's key for the underlying map container
+ * A {@link ChannelPoolMap} implementation that takes an {@link AbstractMessage} as a reference for the key-lookup.
  *
  * @param <M> An {@link AbstractMessage} that will be used as a reference for our key lookup
- * @param <K> The key that will be used for our underlying map.
+ * @param <K> The actual key that will be used for the underlying {@link ChannelPoolMap} implementation.
  *            The type of this key should be the same type returned by our key resolver.
  */
 public class MessageChannelPoolMap<M extends AbstractMessage, K>
@@ -48,6 +48,9 @@ public class MessageChannelPoolMap<M extends AbstractMessage, K>
     private Function<M, K> keyResolver;
     private Function<K, ChannelPool> poolFactory;
 
+    /**
+     * The internal {@link ChannelPoolMap} implementation that use the actual key type for the map
+     */
     private AbstractChannelPoolMap<K, ChannelPool> internalPoolMap = new AbstractChannelPoolMap<K, ChannelPool>() {
         @Override
         protected ChannelPool newPool(K key) {
@@ -55,11 +58,25 @@ public class MessageChannelPoolMap<M extends AbstractMessage, K>
         }
     };
 
+    /**
+     * <p>Accepts two functions that will be used internally for processing the key and creating the {@link ChannelPool}</p>
+     *
+     * @param keyResolver A function that accepts an {@link AbstractMessage} as the input and returns a type of a key (as specified).
+     *                    This will be used to resolve keys based on the {@link AbstractMessage} argument.
+     * @param poolFactory A factory function that returns a {@link ChannelPool} implementation based on the key provided.
+     */
     public MessageChannelPoolMap(Function<M, K> keyResolver, Function<K, ChannelPool> poolFactory) {
         this.keyResolver = keyResolver;
         this.poolFactory = poolFactory;
     }
 
+    /**
+     * Retrieve a {@link ChannelPool} instance based on the {@link AbstractMessage} provided.
+     *
+     * @param message An {@link AbstractMessage} to be used to derive the actual key from
+     *
+     * @return A {@link ChannelPool} instance
+     */
     @Override
     public ChannelPool get(M message) {
         return internalPoolMap.get(keyResolver.apply(message));

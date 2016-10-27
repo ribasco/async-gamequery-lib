@@ -1,7 +1,7 @@
 /***************************************************************************************************
  * MIT License
  *
- * Copyright (c) 2016 Rafael Ibasco
+ * Copyright (c) 2016 Rafael Luis Ibasco
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,8 +25,10 @@
 package com.ribasco.rglib.core.transport;
 
 import com.ribasco.rglib.core.AbstractRequest;
-import com.ribasco.rglib.core.transport.pool.BindingChannelPool;
+import com.ribasco.rglib.core.transport.pool.ConnLessChannelPool;
 import io.netty.channel.pool.ChannelPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A pooled udp transport implementation
@@ -34,6 +36,8 @@ import io.netty.channel.pool.ChannelPool;
  * @param <M> A type extending {@link AbstractRequest}
  */
 public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, Class<?>> {
+    private static final Logger log = LoggerFactory.getLogger(NettyPooledUdpTransport.class);
+
     @Override
     public Class<?> createKey(M message) {
         return message.getClass();
@@ -41,6 +45,7 @@ public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPoo
 
     @Override
     public ChannelPool createChannelPool(Class<?> key) {
-        return new BindingChannelPool(getBootstrap(), channelPoolHandler);
+        log.debug("Creating Channel Pool For : {}", key.getSimpleName());
+        return new ConnLessChannelPool(getBootstrap(), channelPoolHandler);
     }
 }

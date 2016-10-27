@@ -1,8 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml steamApiVersion="1.0" encoding="UTF-8"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ MIT License
   ~
-  ~ Copyright (c) 2016 Rafael Ibasco
+  ~ Copyright (c) 2016 Rafael Luis Ibasco
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -87,16 +87,16 @@
             </exclusions>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.glassfish.jersey.core/jersey-client -->
-        <!-- <dependency>
+        <dependency>
              <groupId>org.glassfish.jersey.core</groupId>
              <artifactId>jersey-client</artifactId>
              <version>2.23.2</version>
          </dependency>
-         &lt;!&ndash; https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson &ndash;&gt;
+        <!-- &lt;!&ndash; https://mvnrepository.com/artifact/org.glassfish.jersey.media/jersey-media-json-jackson &ndash;&gt;
          <dependency>
              <groupId>org.glassfish.jersey.media</groupId>
              <artifactId>jersey-media-json-jackson</artifactId>
-             <version>2.23.2</version>
+             <steamApiVersion>2.23.2</steamApiVersion>
          </dependency>-->
 
         <dependency>

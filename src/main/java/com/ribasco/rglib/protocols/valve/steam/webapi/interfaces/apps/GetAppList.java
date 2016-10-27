@@ -22,27 +22,25 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.apps;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Returns a list of available steam apps and their appIds
+ */
+public class GetAppList extends SteamWebApiRequest {
+    public static final int VERSION_1 = 1;
+    public static final int VERSION_2 = 2;
 
-    void setAddress(InetSocketAddress address);
+    public GetAppList(int version) {
+        super(SteamApiConstants.STEAM_APPS, "GetAppList", version);
+    }
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        //no params needed
+    }
 }

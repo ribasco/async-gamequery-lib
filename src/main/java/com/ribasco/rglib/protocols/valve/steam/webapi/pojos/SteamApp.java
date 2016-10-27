@@ -22,27 +22,36 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+public class SteamApp {
+    private int appid;
+    private String name;
 
-    void setAddress(InetSocketAddress address);
+    public int getAppid() {
+        return appid;
+    }
 
-    String getName();
+    public void setAppid(int appid) {
+        this.appid = appid;
+    }
 
-    void setName(String name);
+    public String getName() {
+        return name;
+    }
 
-    String getCountry();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("appId", getAppid())
+                .append("name", getName())
+                .toString();
+    }
 }

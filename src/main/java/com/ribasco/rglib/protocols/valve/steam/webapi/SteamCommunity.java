@@ -22,27 +22,15 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiClient;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
-
-    void setAddress(InetSocketAddress address);
-
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+/**
+ * Created by raffy on 10/26/2016.
+ */
+public class SteamCommunity extends SteamWebApiInterface {
+    public SteamCommunity(SteamWebApiClient client) {
+        super(client);
+    }
 }

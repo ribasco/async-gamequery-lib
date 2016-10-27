@@ -22,30 +22,38 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.transport;
+package com.ribasco.rglib.protocols.valve.steam.webapi.deserializers;
 
-import com.ribasco.rglib.core.AbstractRequest;
-import com.ribasco.rglib.core.transport.pool.ConnlessChannelPool;
-import io.netty.channel.pool.ChannelPool;
+import com.google.gson.*;
+import com.ribasco.rglib.protocols.valve.steam.webapi.pojos.SteamAssetDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * A pooled udp transport implementation
- *
- * @param <M> A type extending {@link AbstractRequest}
+ * Created by raffy on 10/27/2016.
  */
-public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, Class<?>> {
-    private static final Logger log = LoggerFactory.getLogger(NettyPooledUdpTransport.class);
+public class SteamAssetDescDeserializer implements JsonDeserializer<SteamAssetDescription> {
+    private static final Logger log = LoggerFactory.getLogger(SteamAssetDescDeserializer.class);
 
     @Override
-    public Class<?> createKey(M message) {
-        return message.getClass();
-    }
-
-    @Override
-    public ChannelPool createChannelPool(Class<?> key) {
-        log.debug("Creating Channel Pool For : {}", key.getSimpleName());
-        return new ConnlessChannelPool(getBootstrap(), channelPoolHandler);
+    public SteamAssetDescription deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        SteamAssetDescription desc = new SteamAssetDescription();
+        JsonObject jsonObj = json.getAsJsonObject();
+        String type = jsonObj.getAsJsonPrimitive("type").getAsString();
+        String value = jsonObj.getAsJsonPrimitive("value").getAsString();
+        Map<String, String> mAppData = new HashMap<>();
+        JsonElement appData = jsonObj.get("app_data");
+        if (appData.isJsonObject()) {
+            desc.setAppData(context.deserialize(appData, HashMap.class));
+        } else {
+            desc.setAppData(mAppData);
+        }
+        desc.setType(type);
+        desc.setValue(value);
+        return desc;
     }
 }

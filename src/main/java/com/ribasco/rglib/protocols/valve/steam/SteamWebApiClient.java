@@ -25,9 +25,9 @@
 package com.ribasco.rglib.protocols.valve.steam;
 
 import com.ribasco.rglib.core.client.AbstractRestClient;
-import com.ribasco.rglib.protocols.valve.steam.api.*;
-import com.ribasco.rglib.protocols.valve.steam.api.user.ResolveVanityURL;
-import com.ribasco.rglib.protocols.valve.steam.pojos.*;
+import com.ribasco.rglib.protocols.valve.steam.webapi.*;
+import com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.user.ResolveVanityURL;
+import com.ribasco.rglib.protocols.valve.steam.webapi.pojos.*;
 import org.asynchttpclient.BoundRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -74,14 +75,6 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
         this.apiToken = apiToken;
     }
 
-    @Override
-    public void close() {
-        try {
-            httpClient.close();
-        } catch (IOException ignored) {
-        }
-    }
-
     public static void main(String[] args) {
         String authToken = "903BC0B13739EF74242523BC3013F076";
         SteamWebApiClient apiClient = new SteamWebApiClient(authToken);
@@ -92,6 +85,7 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
             SteamUserStats steamUserStats = new SteamUserStats(apiClient);
             SteamPlayerService playerService = new SteamPlayerService(apiClient);
             SteamUser steamUser = new SteamUser(apiClient);
+            SteamEconomy steamEconomy = new SteamEconomy(apiClient);
 
             steamApps.getAppList().exceptionally(throwable -> {
                 log.error("Error Occured", throwable);
@@ -275,10 +269,37 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
                     log.info("Got Steam Id From Vanity url: {}", aLong);
                 }
             }).join();
+
+            steamEconomy.getAssetPrices(730).thenAccept(new Consumer<List<SteamAssetPriceInfo>>() {
+                @Override
+                public void accept(List<SteamAssetPriceInfo> steamAssetPriceInfos) {
+                    log.info("Retrieved Steam Asset Price Info for CSGO");
+                    steamAssetPriceInfos.forEach(new Consumer<SteamAssetPriceInfo>() {
+                        @Override
+                        public void accept(SteamAssetPriceInfo steamAssetPriceInfo) {
+                            log.info(" {}", steamAssetPriceInfo);
+                        }
+                    });
+                }
+            }).join();
+
+            steamEconomy.getAssetClassInfo(730, "en", 186150629L, 506856209L, 506856210L, 903185406L,
+                    613589849L, 613589850L, 613589851L, 613589852L, 613589853L, 613589854L, 613589855L).thenAccept(new Consumer<Map<String, SteamAssetClassInfo>>() {
+                @Override
+                public void accept(Map<String, SteamAssetClassInfo> stringSteamAssetClassInfoMap) {
+                    stringSteamAssetClassInfoMap.forEach((classId, classInfo) -> {
+                        log.info("ID: {}, Info: {}", classId, classInfo);
+                    });
+                }
+            }).join();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            apiClient.close();
+            try {
+                apiClient.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 

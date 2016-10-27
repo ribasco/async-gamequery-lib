@@ -22,27 +22,55 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamAssetTag {
+    @SerializedName("internal_name")
+    private String internalName;
 
-    void setAddress(InetSocketAddress address);
+    @SerializedName("name")
+    private String name;
 
-    String getName();
+    @SerializedName("category")
+    private String category;
 
-    void setName(String name);
+    @SerializedName("category_name")
+    private String categoryName;
 
-    String getCountry();
+    public String getInternalName() {
+        return internalName;
+    }
 
-    void setCountry(String country);
+    public void setInternalName(String internalName) {
+        this.internalName = internalName;
+    }
 
-    int getPing();
+    public String getName() {
+        return name;
+    }
 
-    void setPing(int ping);
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getCategoryName() {
+        return categoryName;
+    }
+
+    public void setCategoryName(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

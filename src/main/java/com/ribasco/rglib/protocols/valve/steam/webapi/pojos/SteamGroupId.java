@@ -22,27 +22,33 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamGroupId {
+    @SerializedName("gid")
+    private String groupId;
 
-    void setAddress(InetSocketAddress address);
+    public Long getGroupIdAsLong() {
+        return Long.valueOf(groupId);
+    }
 
-    String getName();
+    public String getGroupId() {
+        return groupId;
+    }
 
-    void setName(String name);
+    public void setGroupId(String groupId) {
+        this.groupId = groupId;
+    }
 
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    public String toString() {
+        return "SteamGroupId{" +
+                "groupId='" + groupId + '\'' +
+                '}';
+    }
 }

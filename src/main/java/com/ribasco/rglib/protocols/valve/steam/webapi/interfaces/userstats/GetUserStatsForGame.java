@@ -22,27 +22,28 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/26/2016.
+ */
+public class GetUserStatsForGame extends SteamWebApiRequest {
+    private long steamId;
+    private int appId;
 
-    void setAddress(InetSocketAddress address);
+    public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
+        super(SteamApiConstants.STEAM_USER_STATS, "GetUserStatsForGame", apiVersion);
+        this.steamId = steamId;
+        this.appId = appId;
+    }
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", steamId);
+        addParam("appid", appId);
+    }
 }

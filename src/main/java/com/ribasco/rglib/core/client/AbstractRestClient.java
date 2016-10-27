@@ -24,8 +24,6 @@
 
 package com.ribasco.rglib.core.client;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.ribasco.rglib.core.AbstractWebRequest;
@@ -46,7 +44,6 @@ import java.util.concurrent.CompletableFuture;
 public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Client<Req, Res> {
     private static final Logger log = LoggerFactory.getLogger(AbstractRestClient.class);
     protected final AsyncHttpClient httpClient = new DefaultAsyncHttpClient();
-    private final Gson jsonBuilder = new GsonBuilder().create();
     private JsonParser jsonParser = new JsonParser();
     private AsyncCompletionHandler<JsonObject> jsonResponseHandler = new AsyncCompletionHandler<JsonObject>() {
         @Override
@@ -82,10 +79,6 @@ public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res ext
         });
     }
 
-    public Gson getJsonBuilder() {
-        return jsonBuilder;
-    }
-
     public JsonParser getJsonParser() {
         return jsonParser;
     }
@@ -96,6 +89,6 @@ public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res ext
 
     @Override
     public void close() throws IOException {
-
+        httpClient.close();
     }
 }

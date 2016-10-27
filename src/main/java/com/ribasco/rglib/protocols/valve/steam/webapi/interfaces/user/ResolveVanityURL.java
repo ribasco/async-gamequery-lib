@@ -22,27 +22,50 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.user;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class ResolveVanityURL extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    public enum VanityUrlType {
+        DEFAULT(1),
+        INDIVIDUAL_PROFILE(1),
+        GROUP(2),
+        OFFICIAL_GAME_GROUP(3);
 
-    String getName();
+        private int type;
 
-    void setName(String name);
+        VanityUrlType(int type) {
+            this.type = type;
+        }
 
-    String getCountry();
+        public int getType() {
+            return type;
+        }
+    }
 
-    void setCountry(String country);
+    private String vanityUrl;
+    private int type;
 
-    int getPing();
+    public ResolveVanityURL(int apiVersion, String vanityUrl) {
+        this(apiVersion, vanityUrl, VanityUrlType.DEFAULT);
+    }
 
-    void setPing(int ping);
+    public ResolveVanityURL(int apiVersion, String vanityUrl, VanityUrlType urlType) {
+        super(SteamApiConstants.STEAM_USER, "ResolveVanityURL", apiVersion);
+        this.vanityUrl = vanityUrl;
+        this.type = urlType.getType();
+    }
+
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("vanityurl", this.vanityUrl);
+        addParam("url_type", this.type);
+    }
 }

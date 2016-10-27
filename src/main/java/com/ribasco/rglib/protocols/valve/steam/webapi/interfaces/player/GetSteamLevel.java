@@ -22,27 +22,25 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.player;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Returns the Steam Level of a user
+ */
+public class GetSteamLevel extends SteamWebApiRequest {
+    private long steamId;
 
-    void setAddress(InetSocketAddress address);
+    public GetSteamLevel(int apiVersion, long steamId) {
+        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetSteamLevel", apiVersion);
+        this.steamId = steamId;
+    }
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", steamId);
+    }
 }

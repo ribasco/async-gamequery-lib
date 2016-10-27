@@ -22,27 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.masterquery;
+
+import com.ribasco.rglib.core.AbstractGameServerRequest;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.enums.MasterServerRegion;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.packets.MasterServerRequestPacket;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 9/15/2016.
+ */
+public class MasterServerRequest<T> extends AbstractGameServerRequest<MasterServerRequestPacket> {
 
-    void setAddress(InetSocketAddress address);
+    private MasterServerRegion region;
+    private MasterServerFilter filter;
+    private InetSocketAddress startIp;
 
-    String getName();
+    public MasterServerRequest(InetSocketAddress recipient, MasterServerRegion region, MasterServerFilter filter, InetSocketAddress startIp) {
+        super(recipient);
+        this.region = region;
+        this.filter = filter;
+        this.startIp = startIp;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    public MasterServerRequestPacket getMessage() {
+        return new MasterServerRequestPacket(region, filter, startIp);
+    }
 }

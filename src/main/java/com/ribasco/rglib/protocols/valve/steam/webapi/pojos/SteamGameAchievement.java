@@ -22,27 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/26/2016.
+ */
+public class SteamGameAchievement {
+    @SerializedName("name")
+    private String name;
+    @SerializedName("percent")
+    private double percentage;
 
-    void setAddress(InetSocketAddress address);
+    public String getName() {
+        return name;
+    }
 
-    String getName();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    void setName(String name);
+    public double getPercentage() {
+        return percentage;
+    }
 
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public void setPercentage(double percentage) {
+        this.percentage = percentage;
+    }
 }

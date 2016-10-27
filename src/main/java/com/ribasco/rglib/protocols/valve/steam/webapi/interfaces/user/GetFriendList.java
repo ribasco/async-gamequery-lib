@@ -22,27 +22,31 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.user;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
 
-    void setAddress(InetSocketAddress address);
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class GetFriendList extends SteamWebApiRequest {
 
-    String getName();
+    private long steamId;
+    private String relationship = "friend";
 
-    void setName(String name);
+    public GetFriendList(int apiVersion, long steamId, String relationship) {
+        super(SteamApiConstants.STEAM_USER, "GetFriendList", apiVersion);
+        this.steamId = steamId;
+        this.relationship = defaultIfEmpty(relationship, "friend");
+    }
 
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", this.steamId);
+        addParam("relationship", this.relationship);
+    }
 }

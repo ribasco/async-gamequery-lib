@@ -46,10 +46,10 @@ import com.ribasco.rglib.protocols.valve.source.packets.request.SourceMasterRequ
 import com.ribasco.rglib.protocols.valve.source.pojos.SourcePlayer;
 import com.ribasco.rglib.protocols.valve.source.pojos.SourceServer;
 import com.ribasco.rglib.protocols.valve.source.request.*;
-import com.ribasco.rglib.protocols.valve.steam.master.MasterServerFilter;
-import com.ribasco.rglib.protocols.valve.steam.master.client.MasterServerQueryClient;
-import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerRegion;
-import com.ribasco.rglib.protocols.valve.steam.master.enums.MasterServerType;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.MasterServerFilter;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.client.MasterServerQueryClient;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.enums.MasterServerRegion;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.enums.MasterServerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

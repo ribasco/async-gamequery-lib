@@ -22,27 +22,17 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.masterquery;
+
+import com.ribasco.rglib.core.AbstractGameServerResponse;
+import com.ribasco.rglib.protocols.valve.steam.masterquery.packets.MasterServerResponsePacket;
 
 import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.util.Vector;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+public class MasterServerResponse extends AbstractGameServerResponse<MasterServerResponsePacket, Vector<InetSocketAddress>> {
 
-    void setAddress(InetSocketAddress address);
-
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public MasterServerResponse() {
+        super(null, null);
+    }
 }

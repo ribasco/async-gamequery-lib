@@ -22,27 +22,28 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamKeyValuePair<K, V> {
+    private K name;
+    private V value;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+    public K getName() {
+        return name;
+    }
 
-    void setAddress(InetSocketAddress address);
+    public void setName(K name) {
+        this.name = name;
+    }
 
-    String getName();
+    public V getValue() {
+        return value;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    public void setValue(V value) {
+        this.value = value;
+    }
 }

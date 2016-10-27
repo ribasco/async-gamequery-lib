@@ -22,27 +22,45 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.apps;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/25/2016.
+ */
+public class UpToDateCheck extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    private int appId;
+    private int serverVersion;
 
-    String getName();
+    public UpToDateCheck(int version, int serverVersion, int appId) {
+        super(SteamApiConstants.STEAM_APPS, "UpToDateCheck", version);
+        this.appId = appId;
+        this.serverVersion = serverVersion;
+    }
 
-    void setName(String name);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        requestBuilder.addQueryParam("appid", String.valueOf(getAppId()));
+        requestBuilder.addQueryParam("version", String.valueOf(getServerVersion()));
+    }
 
-    String getCountry();
+    public int getServerVersion() {
+        return serverVersion;
+    }
 
-    void setCountry(String country);
+    public void setServerVersion(int serverVersion) {
+        this.serverVersion = serverVersion;
+    }
 
-    int getPing();
+    public int getAppId() {
+        return appId;
+    }
 
-    void setPing(int ping);
+    public void setAppId(int appId) {
+        this.appId = appId;
+    }
 }

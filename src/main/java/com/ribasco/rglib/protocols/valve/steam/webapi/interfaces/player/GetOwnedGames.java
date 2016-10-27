@@ -22,27 +22,32 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.interfaces.player;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.ribasco.rglib.protocols.valve.steam.SteamApiConstants;
+import com.ribasco.rglib.protocols.valve.steam.SteamWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Return a list of games owned by the player
+ */
+public class GetOwnedGames extends SteamWebApiRequest {
 
-    void setAddress(InetSocketAddress address);
+    private long steamId;
+    private boolean includeAppInfo = false;
+    private boolean includePlayedFreeGames = false;
 
-    String getName();
+    public GetOwnedGames(int apiVersion, long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
+        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetOwnedGames", apiVersion);
+        this.steamId = steamId;
+        this.includeAppInfo = includeAppInfo;
+        this.includePlayedFreeGames = includePlayedFreeGames;
+    }
 
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("steamid", this.steamId);
+        addParam("include_appinfo", (this.includeAppInfo) ? 1 : 0);
+        addParam("include_played_free_games", (this.includePlayedFreeGames) ? 1 : 0);
+    }
 }

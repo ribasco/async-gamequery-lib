@@ -22,27 +22,42 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamGameStatsSchema {
+    @SerializedName("name")
+    private String name;
+    @SerializedName("defaultvalue")
+    private int defaultValue;
+    @SerializedName("displaynName")
+    private String displayName;
 
-    void setAddress(InetSocketAddress address);
+    public String getName() {
+        return name;
+    }
 
-    String getName();
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    void setName(String name);
+    public int getDefaultValue() {
+        return defaultValue;
+    }
 
-    String getCountry();
+    public void setDefaultValue(int defaultValue) {
+        this.defaultValue = defaultValue;
+    }
 
-    void setCountry(String country);
+    public String getDisplayName() {
+        return displayName;
+    }
 
-    int getPing();
-
-    void setPing(int ping);
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
 }

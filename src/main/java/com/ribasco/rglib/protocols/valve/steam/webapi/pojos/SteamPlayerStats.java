@@ -22,27 +22,48 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import java.util.List;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamPlayerStats {
+    private String steamId;
+    private String gameName;
+    private List<SteamPlayerAchievement> achievements;
+    private List<SteamKeyValuePair<String, Integer>> stats;
 
-    void setAddress(InetSocketAddress address);
+    public String getSteamId() {
+        return steamId;
+    }
 
-    String getName();
+    public void setSteamId(String steamId) {
+        this.steamId = steamId;
+    }
 
-    void setName(String name);
+    public String getGameName() {
+        return gameName;
+    }
 
-    String getCountry();
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
 
-    void setCountry(String country);
+    public List<SteamPlayerAchievement> getAchievements() {
+        return achievements;
+    }
 
-    int getPing();
+    public void setAchievements(List<SteamPlayerAchievement> achievements) {
+        this.achievements = achievements;
+    }
 
-    void setPing(int ping);
+    public List<SteamKeyValuePair<String, Integer>> getStats() {
+        return stats;
+    }
+
+    public void setStats(List<SteamKeyValuePair<String, Integer>> stats) {
+        this.stats = stats;
+    }
 }

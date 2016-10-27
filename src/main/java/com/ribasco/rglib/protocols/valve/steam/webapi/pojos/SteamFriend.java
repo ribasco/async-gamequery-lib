@@ -22,27 +22,44 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.pojos;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.annotations.SerializedName;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamFriend {
 
-    void setAddress(InetSocketAddress address);
+    @SerializedName("steamid")
+    private long steamId;
 
-    String getName();
+    private String relationship;
 
-    void setName(String name);
+    @SerializedName("friend_since")
+    private long friendSince;
 
-    String getCountry();
+    public long getSteamId() {
+        return steamId;
+    }
 
-    void setCountry(String country);
+    public void setSteamId(long steamId) {
+        this.steamId = steamId;
+    }
 
-    int getPing();
+    public String getRelationship() {
+        return relationship;
+    }
 
-    void setPing(int ping);
+    public void setRelationship(String relationship) {
+        this.relationship = relationship;
+    }
+
+    public long getFriendSince() {
+        return friendSince;
+    }
+
+    public void setFriendSince(long friendSince) {
+        this.friendSince = friendSince;
+    }
 }

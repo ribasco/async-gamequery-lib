@@ -22,27 +22,36 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.core.pojos;
+package com.ribasco.rglib.protocols.valve.steam.webapi.deserializers;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import com.google.gson.*;
+import com.ribasco.rglib.protocols.valve.steam.webapi.pojos.SteamAssetClassInfo;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.Map;
 
-    void setAddress(InetSocketAddress address);
+/**
+ * Created by raffy on 10/27/2016.
+ */
+public class SteamAssetClassInfoMapDeserializer implements JsonDeserializer<Map<String, SteamAssetClassInfo>> {
+    private static final Logger log = LoggerFactory.getLogger(SteamAssetClassInfoMapDeserializer.class);
 
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+    @Override
+    public Map<String, SteamAssetClassInfo> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        Map<String, SteamAssetClassInfo> map = new HashMap<>();
+        JsonObject jObject = json.getAsJsonObject();
+        for (Map.Entry<String, JsonElement> entry : jObject.entrySet()) {
+            String key = entry.getKey();
+            JsonElement value = entry.getValue();
+            //Only process entries that are of type object
+            if (value.isJsonObject()) {
+                map.put(key, context.deserialize(value, SteamAssetClassInfo.class));
+            }
+        }
+        log.info("Finished populating map. Total Map Size: {}", map.size());
+        return map;
+    }
 }

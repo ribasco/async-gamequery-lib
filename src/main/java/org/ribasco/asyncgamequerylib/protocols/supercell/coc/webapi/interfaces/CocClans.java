@@ -44,7 +44,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * A CoC Interface for issuing clan specific queries
+ * <p>A Web API Implementation of the Clan interface. Contains methods for clan-related inquiries.</p>
+ *
+ * @author Rafael Luis Ibasco
+ * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/clans">Clash of Clans API - Clans</a>
  */
 public class CocClans extends CocWebApiInterface {
     /**

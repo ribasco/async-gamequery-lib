@@ -32,12 +32,28 @@ import java.net.InetSocketAddress;
 /**
  * A class representing a Raw Log Entry from a Source Server
  */
-public final class RawLogEntry {
+public final class SourceLogEntry {
     private String message;
     private InetSocketAddress sourceAddress;
 
-    public RawLogEntry(String message, InetSocketAddress sourceAddress) {
+    public SourceLogEntry(String message, InetSocketAddress sourceAddress) {
         this.message = message;
+        this.sourceAddress = sourceAddress;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public InetSocketAddress getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(InetSocketAddress sourceAddress) {
         this.sourceAddress = sourceAddress;
     }
 

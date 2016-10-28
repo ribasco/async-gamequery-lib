@@ -37,9 +37,9 @@ import java.util.function.Consumer;
  */
 public class SourceLogListenHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private Consumer<RawLogEntry> logEventCallback;
+    private Consumer<SourceLogEntry> logEventCallback;
 
-    public SourceLogListenHandler(Consumer<RawLogEntry> logEventCallback) {
+    public SourceLogListenHandler(Consumer<SourceLogEntry> logEventCallback) {
         this.logEventCallback = logEventCallback;
     }
 
@@ -52,7 +52,7 @@ public class SourceLogListenHandler extends SimpleChannelInboundHandler<Datagram
             data.skipBytes(2);
             //Pass to the callback
             if (logEventCallback != null)
-                logEventCallback.accept(new RawLogEntry(new String(raw, Charsets.UTF_8), msg.sender()));
+                logEventCallback.accept(new SourceLogEntry(new String(raw, Charsets.UTF_8), msg.sender()));
         }
     }
 }

@@ -27,9 +27,6 @@ package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-/**
- * Created by raffy on 10/28/2016.
- */
 public class CocLeagueIconUrls {
     private String small;
     private String tiny;

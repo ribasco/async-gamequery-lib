@@ -30,6 +30,7 @@ import com.google.gson.reflect.TypeToken;
 import org.apache.commons.lang3.StringUtils;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiClient;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiInterface;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.enums.VanityUrlType;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user.*;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.SteamBanStatus;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.SteamFriend;
@@ -117,7 +118,7 @@ public class SteamUser extends SteamWebApiInterface {
         });
     }
 
-    public CompletableFuture<Long> getSteamIdFromVanityUrl(String urlPath, ResolveVanityURL.VanityUrlType type) {
+    public CompletableFuture<Long> getSteamIdFromVanityUrl(String urlPath, VanityUrlType type) {
         CompletableFuture<JsonObject> json = sendRequest(new ResolveVanityURL(VERSION_1, urlPath, type));
         return json.thenApply(root -> {
             JsonObject response = root.getAsJsonObject("response");

@@ -25,36 +25,32 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery;
 
 import io.netty.channel.ChannelOption;
+import org.ribasco.asyncgamequerylib.core.Transport;
 import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
 import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.messenger.GameServerMessenger;
-import org.ribasco.asyncgamequerylib.core.transport.NettyPooledUdpTransport;
+import org.ribasco.asyncgamequerylib.core.transport.udp.NettyPooledUdpTransport;
 
 import java.util.Map;
 
 /**
  * Created by raffy on 10/22/2016.
  */
-public class MasterServerMessenger extends GameServerMessenger<MasterServerRequest, MasterServerResponse, NettyPooledUdpTransport<MasterServerRequest>> {
+public class MasterServerMessenger extends GameServerMessenger<MasterServerRequest, MasterServerResponse> {
 
     public MasterServerMessenger() {
-        super(new NettyPooledUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
+        super(ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyPooledUdpTransport<MasterServerRequest> transport) {
-        //Set to NIO UDP Type
-        transport.setChannelType(ChannelType.NIO_UDP);
-
-        //Instantiate our packet builder
-        MasterServerPacketBuilder builder = new MasterServerPacketBuilder(transport.getAllocator());
-
+    protected Transport<MasterServerRequest> createTransportService() {
+        NettyPooledUdpTransport<MasterServerRequest> transport = new NettyPooledUdpTransport<>(ChannelType.NIO_UDP);
         //Set our channel initializer
         transport.setChannelInitializer(new MasterServerChannelInitializer(this));
-
         //Channel Options
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
+        return transport;
     }
 
     @Override

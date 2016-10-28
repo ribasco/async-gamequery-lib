@@ -24,13 +24,9 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.locations;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class GetClanRankingsForLoc extends CocWebApiRequest {
 
     public GetClanRankingsForLoc(int apiVersion, int locationId) {
@@ -42,10 +38,7 @@ public class GetClanRankingsForLoc extends CocWebApiRequest {
     }
 
     public GetClanRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
-        super(CocApiConstants.COC_LOCATIONS, String.format("/%d/rankings/clans", locationId), apiVersion, limit, before, after);
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
+        super(apiVersion, CocApiConstants.UF_COC_LOCATION_CLAN_RANK, limit, before, after);
+        baseUrlProperty(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
     }
 }

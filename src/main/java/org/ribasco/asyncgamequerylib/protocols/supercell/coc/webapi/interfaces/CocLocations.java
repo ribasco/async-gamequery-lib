@@ -41,6 +41,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+/**
+ * <p>A Web API Implementation of the Location interface. Contains methods for clan/player inquiries based on location.</p>
+ *
+ * @author Rafael Luis Ibasco
+ * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/locations">Clash of Clans API - Locations</a>
+ */
 public class CocLocations extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>

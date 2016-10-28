@@ -22,54 +22,55 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.messenger;
+package org.ribasco.asyncgamequerylib.core.transport.http;
 
 import org.asynchttpclient.*;
-import org.ribasco.asyncgamequerylib.core.AbstractWebRequest;
-import org.ribasco.asyncgamequerylib.core.AbstractWebResponse;
-import org.ribasco.asyncgamequerylib.core.Messenger;
+import org.ribasco.asyncgamequerylib.core.Transport;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Messenger using the TCP Transport Protocol
- */
-//TODO: Re-evaluate the need for this
-public class WebServiceMessenger<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Messenger<Req, Res> {
-
+public class AsyncHttpTransport implements Transport<Request> {
     private AsyncHttpClient httpTransport;
-    private Map<Class<? extends Req>, Class<? extends Res>> lookupDirectory;
+    private AsyncHttpClientConfig transportConfig;
+    private static final Logger log = LoggerFactory.getLogger(AsyncHttpTransport.class);
 
-    public WebServiceMessenger() {
+    public AsyncHttpTransport() {
         this(new DefaultAsyncHttpClientConfig.Builder().build());
     }
 
-    public WebServiceMessenger(AsyncHttpClientConfig config) {
-        this.httpTransport = new DefaultAsyncHttpClient(config);
-        this.lookupDirectory = new ConcurrentHashMap<>();
+    public AsyncHttpTransport(AsyncHttpClientConfig transportConfig) {
+        this.transportConfig = transportConfig;
+        this.httpTransport = new DefaultAsyncHttpClient(this.transportConfig);
     }
 
     @Override
-    public CompletableFuture<Res> send(Req request) {
-        return httpTransport.prepareRequest(request.getMessage()).execute(new AsyncCompletionHandler<Res>() {
-            @Override
-            public Res onCompleted(Response response) throws Exception {
-                return null;
-            }
-        }).toCompletableFuture();
+    @SuppressWarnings("unchecked")
+    public <V> CompletableFuture<V> send(Request data) {
+        log.debug("Sending via transport : {}", data);
+        return (CompletableFuture<V>) httpTransport.prepareRequest(data).execute().toCompletableFuture();
     }
 
+    public AsyncHttpClientConfig getTransportConfig() {
+        return transportConfig;
+    }
 
-    @Override
-    public void receive(Res response) {
+    public void setTransportConfig(AsyncHttpClientConfig transportConfig) {
+        this.transportConfig = transportConfig;
+    }
 
+    public AsyncHttpClient getHttpTransport() {
+        return httpTransport;
+    }
+
+    public void setHttpTransport(AsyncHttpClient httpTransport) {
+        this.httpTransport = httpTransport;
     }
 
     @Override
     public void close() throws IOException {
-
+        httpTransport.close();
     }
 }

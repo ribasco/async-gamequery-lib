@@ -33,16 +33,16 @@ import io.netty.channel.pool.SimpleChannelPool;
 /**
  * A channel pool that creates connection less {@link io.netty.channel.Channel} instances
  */
-public class ConnlessChannelPool extends SimpleChannelPool {
-    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler) {
+public class ConnectionlessChannelPool extends SimpleChannelPool {
+    public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler) {
         super(bootstrap, handler);
     }
 
-    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
+    public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
         super(bootstrap, handler, healthCheck);
     }
 
-    public ConnlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck) {
+    public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck) {
         super(bootstrap, handler, healthCheck, releaseHealthCheck);
     }
 

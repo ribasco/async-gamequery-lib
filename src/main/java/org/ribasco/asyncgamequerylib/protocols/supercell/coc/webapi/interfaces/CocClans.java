@@ -44,7 +44,10 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * A CoC Interface for issuing clan specific queries
+ * <p>A Web API Implementation of the Clan interface. Contains methods for clan-related inquiries.</p>
+ *
+ * @author Rafael Luis Ibasco
+ * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/clans">Clash of Clans API - Clans</a>
  */
 public class CocClans extends CocWebApiInterface {
     /**
@@ -88,7 +91,7 @@ public class CocClans extends CocWebApiInterface {
      * so for example clan tag '#2ABC' would become '%232ABC' in the URL.
      * </p>
      *
-     * @param clanTag
+     * @param clanTag A {@link String} preceded by a hash tag '#' character
      *
      * @return A {@link CompletableFuture} returning an instance of {@link CocClanDetailedInfo}
      */

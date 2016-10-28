@@ -32,7 +32,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
 import org.ribasco.asyncgamequerylib.core.AbstractResponse;
 import org.ribasco.asyncgamequerylib.core.RequestDetails;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
+import org.ribasco.asyncgamequerylib.core.Transport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,7 +85,7 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
         return this.requestDetails.getRequest();
     }
 
-    public NettyTransport<Req> getRequestTransport() {
+    public Transport<Req> getRequestTransport() {
         return this.requestDetails.getTransport();
     }
 

@@ -24,27 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Gets information about a player's recently played games
  */
-public class GetRecentlyPlayedGames extends SteamWebApiRequest {
-
-    private long steamId;
-    private int count;
-
+public class GetRecentlyPlayedGames extends SteamPlayerServiceRequest {
     public GetRecentlyPlayedGames(int apiVersion, long steamId, int count) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetRecentlyPlayedGames", apiVersion);
-        this.steamId = steamId;
-        this.count = count;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
-        addParam("count", this.count);
+        super("GetRecentlyPlayedGames", apiVersion);
+        param("steamid", steamId);
+        param("count", count);
     }
 }

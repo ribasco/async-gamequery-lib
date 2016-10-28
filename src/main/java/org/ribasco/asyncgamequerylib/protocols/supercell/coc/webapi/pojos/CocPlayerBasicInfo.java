@@ -125,14 +125,17 @@ public class CocPlayerBasicInfo {
         this.totalDonationsReceived = totalDonationsReceived;
     }
 
-    @Override
-    public String toString() {
+    protected ToStringBuilder superStringBuilder() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
                 .append("name", getName())
                 .append("tag", getTag())
                 .append("role", getRole())
                 .append("trophies", getTrophies())
-                .append("expLevel", getExpLevel())
-                .toString();
+                .append("expLevel", getExpLevel());
+    }
+
+    @Override
+    public String toString() {
+        return superStringBuilder().toString();
     }
 }

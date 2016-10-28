@@ -51,4 +51,6 @@ public class SteamApiConstants {
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
     public static final String STEAM_ECONOMY = "ISteamEconomy";
     public static final String STEAM_ECON_SERVICE = "IEconService";
+
+    public static final String BASE_URL_FORMAT = "https://api.steampowered.com/${interface}/${method}/v${version}";
 }

@@ -24,33 +24,16 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.clans;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class GetClanWarLog extends CocWebApiRequest {
-    private int limit;
-    private int after;
-    private int before;
-
     public GetClanWarLog(int apiVersion, String clanTag) {
         this(apiVersion, clanTag, -1, -1, -1);
     }
 
     public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
-        super(CocApiConstants.COC_CLANS, String.format("/%s/warlog", encodeString(clanTag)), apiVersion);
-        this.limit = limit;
-        this.after = after;
-        this.before = before;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("limit", this.limit);
-        addParam("after", this.after);
-        addParam("before", this.before);
+        super(apiVersion, CocApiConstants.UF_COC_CLAN_WARLOG, limit, after, before);
+        baseUrlProperty(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
     }
 }

@@ -22,26 +22,27 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.transport;
+package org.ribasco.asyncgamequerylib.core.transport.udp;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
+import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
+import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
-public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport<M> {
+public class NettyBasicUdpTransport<M extends AbstractRequest> extends NettyTransport<M> {
 
-    private Logger log = LoggerFactory.getLogger(NettyUdpTransport.class);
+    private Logger log = LoggerFactory.getLogger(NettyBasicUdpTransport.class);
     private NioDatagramChannel channel; //maintain only one channel
 
-    @Override
-    public void initialize() {
-        super.initialize();
+    public NettyBasicUdpTransport(ChannelType channelType) {
+        super(channelType);
         NettyTransport transport = this;
         getBootstrap().handler(new ChannelInitializer<NioDatagramChannel>() {
             @Override
@@ -49,11 +50,6 @@ public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport
                 getChannelInitializer().initializeChannel(ch, transport);
             }
         });
-    }
-
-    @Override
-    public Void cleanupChannel(Channel c) {
-        return null; //do nothing
     }
 
     @Override

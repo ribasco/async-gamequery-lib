@@ -22,27 +22,10 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.pojos;
+package org.ribasco.asyncgamequerylib.core.transport;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
+import io.netty.channel.Channel;
 
-//TODO: To be removed. Not necessary..
-@Deprecated
-public interface Server {
-    SocketAddress getAddress();
-
-    void setAddress(InetSocketAddress address);
-
-    String getName();
-
-    void setName(String name);
-
-    String getCountry();
-
-    void setCountry(String country);
-
-    int getPing();
-
-    void setPing(int ping);
+public interface NettyChannelInitializer {
+    void initializeChannel(Channel channel, NettyTransport transport);
 }

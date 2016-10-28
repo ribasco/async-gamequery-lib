@@ -30,28 +30,24 @@ import org.ribasco.asyncgamequerylib.core.AbstractMessenger;
 import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.session.AbstractSessionIdFactory;
 import org.ribasco.asyncgamequerylib.core.session.SessionManager;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
+
+import java.util.concurrent.ExecutorService;
 
 /**
  * Messenger using the UDP Transport protocol
  */
-public abstract class GameServerMessenger<A extends AbstractGameServerRequest,
-        B extends AbstractGameServerResponse, T extends NettyTransport<A>>
-        extends AbstractMessenger<A, B, T> {
+abstract public class GameServerMessenger<A extends AbstractGameServerRequest, B extends AbstractGameServerResponse>
+        extends AbstractMessenger<A, B> {
 
-    public GameServerMessenger(T transport) {
-        super(transport);
+    public GameServerMessenger(ProcessingMode processingMode) {
+        super(processingMode);
     }
 
-    public GameServerMessenger(T transport, ProcessingMode processingMode) {
-        super(transport, processingMode);
+    public GameServerMessenger(AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
+        super(keyFactory, processingMode);
     }
 
-    public GameServerMessenger(T transport, AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
-        super(transport, keyFactory, processingMode);
-    }
-
-    public GameServerMessenger(T transport, SessionManager sessionManager, ProcessingMode processingMode) {
-        super(transport, sessionManager, processingMode);
+    public GameServerMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ExecutorService executorService) {
+        super(sessionManager, processingMode, initQueueCapacity, executorService);
     }
 }

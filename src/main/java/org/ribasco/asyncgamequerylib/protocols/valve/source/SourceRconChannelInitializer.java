@@ -25,21 +25,21 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.source;
 
 import io.netty.channel.Channel;
-import org.ribasco.asyncgamequerylib.core.transport.ChannelInitializer;
+import org.ribasco.asyncgamequerylib.core.transport.NettyChannelInitializer;
 import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.ribasco.asyncgamequerylib.core.transport.handlers.ErrorHandler;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.handlers.SourceRconPacketAssembler;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.handlers.SourceRconPacketDecoder;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.handlers.SourceRconRequestEncoder;
 
-/**
- * Created by raffy on 10/22/2016.
- */
-public class SourceRconChannelInitializer implements ChannelInitializer {
-    private SourceRconMessenger messenger;
+import java.util.function.BiConsumer;
 
-    public SourceRconChannelInitializer(SourceRconMessenger messenger) {
-        this.messenger = messenger;
+class SourceRconChannelInitializer implements NettyChannelInitializer {
+
+    private BiConsumer<SourceRconResponse, Throwable> responseHandler;
+
+    SourceRconChannelInitializer(BiConsumer<SourceRconResponse, Throwable> responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     @Override
@@ -48,6 +48,6 @@ public class SourceRconChannelInitializer implements ChannelInitializer {
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder));
         channel.pipeline().addLast(new SourceRconPacketAssembler());
-        channel.pipeline().addLast(new SourceRconPacketDecoder(rconBuilder, messenger));
+        channel.pipeline().addLast(new SourceRconPacketDecoder(rconBuilder, responseHandler));
     }
 }

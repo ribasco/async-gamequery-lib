@@ -29,7 +29,7 @@ import org.ribasco.asyncgamequerylib.core.AbstractPacket;
 import org.ribasco.asyncgamequerylib.core.AbstractPacketBuilder;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
 
-public abstract class AbstractRequestEncoder<T extends AbstractRequest, P extends AbstractPacket> extends MessageToMessageEncoder<T> {
+abstract public class AbstractRequestEncoder<T extends AbstractRequest, P extends AbstractPacket> extends MessageToMessageEncoder<T> {
     protected AbstractPacketBuilder<P> builder;
 
     public AbstractRequestEncoder(AbstractPacketBuilder<P> builder) {

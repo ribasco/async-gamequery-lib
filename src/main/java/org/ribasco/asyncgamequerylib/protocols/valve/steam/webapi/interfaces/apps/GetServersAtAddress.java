@@ -24,32 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
 
 /**
  * Created by raffy on 10/25/2016.
  */
-public class GetServersAtAddress extends SteamWebApiRequest {
-
-    private String address;
-
+public class GetServersAtAddress extends SteamAppsRequest {
     public GetServersAtAddress(int version, String address) {
-        super(SteamApiConstants.STEAM_APPS, "GetServersAtAddress", version);
-        this.address = address;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        requestBuilder.addQueryParam("addr", this.getAddress());
+        super("GetServersAtAddress", version);
+        param("addr", address);
     }
 }

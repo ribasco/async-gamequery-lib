@@ -33,7 +33,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
-import org.apache.commons.lang3.NotImplementedException;
 import org.ribasco.asyncgamequerylib.core.AbstractMessage;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
 import org.ribasco.asyncgamequerylib.core.Transport;
@@ -46,48 +45,33 @@ import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@SuppressWarnings("unchecked")
 public abstract class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
-    private ChannelInitializer channelInitializer;
-    private ChannelType channelType;
-    private ThreadFactory tFactory = new ThreadFactoryBuilder().setNameFormat("transport-el-" + instanceCtr.get() + "-%d").setDaemon(true).build();
-    private ExecutorService executorService = Executors.newFixedThreadPool(32, tFactory);
+    private NettyChannelInitializer channelInitializer;
+    private ExecutorService executorService;
     private static AtomicInteger instanceCtr = new AtomicInteger();
 
-    public NettyTransport() {
+    public NettyTransport(ChannelType channelType) {
+        this(channelType, Executors.newFixedThreadPool(32, new ThreadFactoryBuilder().setNameFormat("transport-el-" + instanceCtr.get() + "-%d").setDaemon(true).build()));
+    }
+
+    public NettyTransport(ChannelType channelType, ExecutorService executor) {
+        executorService = executor;
         bootstrap = new Bootstrap();
         channelAttributes = new HashMap<>();
         instanceCtr.incrementAndGet();
-    }
 
-    public InetSocketAddress localAddress() {
-        return (InetSocketAddress) bootstrap.config().localAddress();
-    }
-
-    protected ChannelFuture bind() {
-        return bind(0);
-    }
-
-    protected ChannelFuture bind(int inetPort) {
-        return bind(new InetSocketAddress(inetPort));
-    }
-
-    protected ChannelFuture bind(InetSocketAddress address) {
-        return this.bootstrap.bind(address);
-    }
-
-    public <A> void addChannelOption(ChannelOption<A> channelOption, A value) {
-        bootstrap.option(channelOption, value);
-    }
-
-    public void initialize() {
         //Make sure we have a type set
         if (channelType == null)
             throw new IllegalStateException("No channel type has been specified");
@@ -110,12 +94,30 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
     }
 
+    protected ChannelFuture bind() {
+        return bind(0);
+    }
+
+    protected ChannelFuture bind(int inetPort) {
+        return bind(new InetSocketAddress(inetPort));
+    }
+
+    protected ChannelFuture bind(InetSocketAddress address) {
+        return this.bootstrap.bind(address);
+    }
+
+    public <A> void addChannelOption(ChannelOption<A> channelOption, A value) {
+        bootstrap.option(channelOption, value);
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
-    public CompletableFuture<Void> send(Msg message) {
-        return send(message, true);
+    @SuppressWarnings("unchecked")
+    public <V> CompletableFuture<V> send(Msg message) {
+        message.setSender((InetSocketAddress) bootstrap.config().localAddress());
+        return (CompletableFuture<V>) send(message, true);
     }
 
     /**
@@ -157,17 +159,12 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
      *
      * @param c Channel
      */
-    public Void cleanupChannel(Channel c) {
+    public void cleanupChannel(Channel c) {
         //this method is meant to be overriden to perform cleanup operations (optional only)
-        return null;
     }
 
-    public Channel flush() {
-        throw new NotImplementedException("No concrete class has implemented this method");
-    }
-
-    public EventLoopGroup createEventLoopGroup(ChannelType type) {
-        switch (channelType) {
+    private EventLoopGroup createEventLoopGroup(ChannelType type) {
+        switch (type) {
             case OIO_TCP:
             case OIO_UDP:
                 return new OioEventLoopGroup();
@@ -182,15 +179,15 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         return allocator;
     }
 
-    public Bootstrap getBootstrap() {
+    protected Bootstrap getBootstrap() {
         return bootstrap;
     }
 
-    public ChannelInitializer getChannelInitializer() {
+    protected NettyChannelInitializer getChannelInitializer() {
         return channelInitializer;
     }
 
-    public void setChannelInitializer(ChannelInitializer channelInitializer) {
+    public void setChannelInitializer(NettyChannelInitializer channelInitializer) {
         this.channelInitializer = channelInitializer;
     }
 
@@ -206,25 +203,17 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         NettyTransport.eventLoopGroup = eventLoopGroup;
     }
 
-    public ChannelType getChannelType() {
-        return channelType;
-    }
-
-    public void setChannelType(ChannelType channelType) {
-        this.channelType = channelType;
-    }
-
     @Override
     public void close() throws IOException {
         try {
             log.debug("Shutting down gracefully");
             eventLoopGroup.shutdownGracefully();
-            executorService.shutdown();
             executorService.awaitTermination(10, TimeUnit.SECONDS);
+            executorService.shutdown();
         } catch (InterruptedException e) {
             log.error("Error while closing transport", e);
         }
     }
 
-    public abstract CompletableFuture<Channel> getChannel(Msg message);
+    abstract public CompletableFuture<Channel> getChannel(Msg message);
 }

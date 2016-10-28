@@ -24,23 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserRequest;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetUserGroupList extends SteamWebApiRequest {
-    private long steamId;
-
+public class GetUserGroupList extends SteamUserRequest {
     public GetUserGroupList(int apiVersion, long steamId) {
-        super(SteamApiConstants.STEAM_USER, "GetUserGroupList", apiVersion);
-        this.steamId = steamId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
+        super("GetUserGroupList", apiVersion);
+        param("steamid", steamId);
     }
 }

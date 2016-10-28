@@ -24,23 +24,13 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
 
 /**
  * Returns a list of available steam apps and their appIds
  */
-public class GetAppList extends SteamWebApiRequest {
-    public static final int VERSION_1 = 1;
-    public static final int VERSION_2 = 2;
-
+public class GetAppList extends SteamAppsRequest {
     public GetAppList(int version) {
-        super(SteamApiConstants.STEAM_APPS, "GetAppList", version);
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        //no params needed
+        super("GetAppList", version);
     }
 }

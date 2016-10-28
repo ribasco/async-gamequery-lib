@@ -25,35 +25,22 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-/**
- * Created by raffy on 10/27/2016.
- */
-public class GetPlayerBans extends SteamWebApiRequest {
+public class GetPlayerBans extends SteamUserRequest {
 
     private static final Logger log = LoggerFactory.getLogger(GetPlayerBans.class);
-    private Long[] steamIds;
 
     public GetPlayerBans(int apiVersion, List<Long> steamIds) {
         this(apiVersion, steamIds.toArray(new Long[0]));
     }
 
     public GetPlayerBans(int apiVersion, Long... steamIds) {
-        super(SteamApiConstants.STEAM_USER, "GetPlayerBans", apiVersion);
-        this.steamIds = steamIds;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        //List<String> strSteamIds = ListUtils.convertList(Arrays.asList(steamIds), l -> Long.toString(l));
-        //log.info("Building Request for SteamIds: {}", StringUtils.join(strSteamIds, ","));
-        addParam("steamids", StringUtils.join(this.steamIds, ","));
+        super("GetPlayerBans", apiVersion);
+        param("steamids", StringUtils.join(steamIds, ","));
     }
 }

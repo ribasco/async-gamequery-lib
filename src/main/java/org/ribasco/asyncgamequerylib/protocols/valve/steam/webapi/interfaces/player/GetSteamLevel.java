@@ -24,23 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Returns the Steam Level of a user
  */
-public class GetSteamLevel extends SteamWebApiRequest {
-    private long steamId;
-
+public class GetSteamLevel extends SteamPlayerServiceRequest {
     public GetSteamLevel(int apiVersion, long steamId) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetSteamLevel", apiVersion);
-        this.steamId = steamId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", steamId);
+        super("GetSteamLevel", apiVersion);
+        param("steamid", steamId);
     }
 }

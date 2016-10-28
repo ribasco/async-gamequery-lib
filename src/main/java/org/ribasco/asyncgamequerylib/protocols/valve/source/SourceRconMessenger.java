@@ -25,10 +25,11 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.source;
 
 import io.netty.channel.ChannelOption;
+import org.ribasco.asyncgamequerylib.core.Transport;
 import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
 import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.messenger.GameServerMessenger;
-import org.ribasco.asyncgamequerylib.core.transport.NettyPooledTcpTransport;
+import org.ribasco.asyncgamequerylib.core.transport.tcp.NettyPooledTcpTransport;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRconAuthRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRconCmdRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRconTerminator;
@@ -39,21 +40,21 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse, NettyPooledTcpTransport<SourceRconRequest>> {
+public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
     public SourceRconMessenger() {
-        super(new NettyPooledTcpTransport<>(), new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
+        super(new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyPooledTcpTransport<SourceRconRequest> transport) {
-        transport.setChannelType(ChannelType.NIO_TCP);
+    protected Transport<SourceRconRequest> createTransportService() {
+        NettyPooledTcpTransport<SourceRconRequest> transport = new NettyPooledTcpTransport<>(ChannelType.NIO_TCP);
         transport.setChannelInitializer(new SourceRconChannelInitializer(this));
-        //Channel Options
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 4);
+        return transport;
     }
 
     @Override

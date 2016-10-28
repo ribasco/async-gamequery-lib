@@ -29,6 +29,4 @@ import java.util.concurrent.CompletableFuture;
 
 public interface Client<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
     <V> CompletableFuture<V> sendRequest(Req message);
-
-    <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback);
 }

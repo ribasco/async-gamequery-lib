@@ -24,60 +24,22 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetPlayerAchievements extends SteamWebApiRequest {
-
-    private long steamId;
-    private int appId;
-    private String language = "en";
-
+public class GetPlayerAchievements extends SteamUserStatsRequest {
     public GetPlayerAchievements(int apiVersion, long steamId, int appId) {
         this(apiVersion, steamId, appId, null);
     }
 
     public GetPlayerAchievements(int apiVersion, long steamId, int appId, String language) {
-        super(SteamApiConstants.STEAM_USER_STATS, "GetPlayerAchievements", apiVersion);
-        this.steamId = steamId;
-        this.appId = appId;
-        this.language = defaultIfNull(language, "en");
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
-        addParam("appid", this.appId);
-        addParam("l", this.language);
-    }
-
-    public long getSteamId() {
-        return steamId;
-    }
-
-    public void setSteamId(long steamId) {
-        this.steamId = steamId;
-    }
-
-    public int getAppId() {
-        return appId;
-    }
-
-    public void setAppId(int appId) {
-        this.appId = appId;
-    }
-
-    public String getLanguage() {
-        return language;
-    }
-
-    public void setLanguage(String language) {
-        this.language = language;
+        super("GetPlayerAchievements", apiVersion);
+        param("steamid", steamId);
+        param("appid", appId);
+        param("l", defaultIfNull(language, "en"));
     }
 }

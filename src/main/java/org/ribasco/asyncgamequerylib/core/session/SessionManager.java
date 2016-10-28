@@ -33,9 +33,6 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 
-/**
- * Responsible for managing pending request transactions.
- */
 public interface SessionManager<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
     /**
      * Returns the {@link SessionValue} based on the {@link SessionId} provided.

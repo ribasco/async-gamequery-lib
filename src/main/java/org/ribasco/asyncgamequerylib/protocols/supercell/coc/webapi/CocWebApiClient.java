@@ -24,22 +24,19 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi;
 
-import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.enums.CocWarFrequency;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocClans;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocLeagues;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocLocations;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocPlayers;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocClanRankInfo;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * An API Client for Clash of Clans
@@ -48,23 +45,18 @@ public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWeb
 
     private static final Logger log = LoggerFactory.getLogger(CocWebApiClient.class);
 
-    private String apiToken;
-
     public CocWebApiClient(String apiToken) {
-        this.apiToken = apiToken;
+        super(apiToken);
     }
 
     @Override
-    protected void prepareRequest(BoundRequestBuilder builder) {
-        builder.addHeader("authorization", String.format("Bearer %s", this.apiToken));
+    protected CocWebApiResponse createWebApiResponse(Response response) {
+        return new CocWebApiResponse(response);
     }
 
-    public String getApiToken() {
-        return apiToken;
-    }
-
-    public void setApiToken(String apiToken) {
-        this.apiToken = apiToken;
+    @Override
+    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
+        requestBuilder.addHeader("authorization", String.format("Bearer %s", authToken));
     }
 
     public static void main(String[] args) {
@@ -82,51 +74,18 @@ public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWeb
             CocLeagues leagues = new CocLeagues(client);
             CocPlayers players = new CocPlayers(client);
 
-            clans.searchClans(CocSearchCriteria.create().warFrequency(CocWarFrequency.ALWAYS).limit(10)).thenAccept(new Consumer<List<CocClanDetailedInfo>>() {
-                @Override
-                public void accept(List<CocClanDetailedInfo> clanInfos) {
-                    log.info("Size: {}, Data: {}", clanInfos.size(), clanInfos);
-                }
-            }).join();
-            clans.getClanInfo("#PUYJGC2U").thenAccept(new Consumer<CocClanDetailedInfo>() {
-                @Override
-                public void accept(CocClanDetailedInfo clanInfo) {
-                    log.info("Clan Info: {}", clanInfo);
-                }
-            }).join();
-
-            clans.getClanMembers("#PUYJGC2U")
-                    .thenAccept(cocPlayers -> cocPlayers.forEach(cocPlayer -> log.info("{}", cocPlayer)))
-                    .join();
-
-            clans.getClanWarLog("#PUYJGC2U").thenAccept(new Consumer<List<CocWarLogEntry>>() {
-                @Override
-                public void accept(List<CocWarLogEntry> cocWarLogEntries) {
-                    cocWarLogEntries.forEach(new Consumer<CocWarLogEntry>() {
-                        @Override
-                        public void accept(CocWarLogEntry cocWarLogEntry) {
-                            log.info("War Log Entry: {}", cocWarLogEntry);
-                        }
-                    });
-                }
-            }).join();
-
+            log.info("Search Clans");
+            clans.searchClans(CocSearchCriteria.create().warFrequency(CocWarFrequency.ALWAYS).limit(10)).thenAccept(clanInfos -> log.info("Size: {}, Data: {}", clanInfos.size(), clanInfos)).join();
+            log.info("Get Clan Info");
+            clans.getClanInfo("#PUYJGC2U").thenAccept(clanInfo -> log.info("Clan Info: {}", clanInfo)).join();
+            log.info("Get Clan Members");
+            clans.getClanMembers("#PUYJGC2U").thenAccept(cocPlayers -> cocPlayers.forEach(cocPlayer -> log.info("{}", cocPlayer))).join();
+            log.info("Get Clan Warlog");
+            clans.getClanWarLog("#PUYJGC2U").thenAccept(cocWarLogEntries -> cocWarLogEntries.forEach(cocWarLogEntry -> log.info("War Log Entry: {}", cocWarLogEntry))).join();
+            log.info("Get Locations");
             locations.getLocations().thenAccept(cocClanLocations -> cocClanLocations.forEach(cocClanLocation -> log.info("Location: {}", cocClanLocation))).join();
-
             locations.getLocationInfo(32000000).thenAccept(cocLocation -> log.info("Single Location: {}", cocLocation)).join();
-
-            locations.getClanRankingsFromLocation(32000185).thenAccept(new Consumer<List<CocClanRankInfo>>() {
-                @Override
-                public void accept(List<CocClanRankInfo> cocClanRankInfos) {
-                    cocClanRankInfos.forEach(new Consumer<CocClanRankInfo>() {
-                        @Override
-                        public void accept(CocClanRankInfo cocClanRankInfo) {
-                            log.info("Ranking: {}", cocClanRankInfo);
-                        }
-                    });
-                }
-            }).join();
-
+            locations.getClanRankingsFromLocation(32000185).thenAccept(cocClanRankInfos -> cocClanRankInfos.forEach(cocClanRankInfo -> log.info("Ranking: {}", cocClanRankInfo))).join();
             log.info("Displaying Player Rankings by Location");
             locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiClient::displayListResults).join();
             log.info("Displaying Leagues");

@@ -40,7 +40,7 @@ import java.util.function.Consumer;
 
 /**
  * <p>Listens for raw log messages from a Source Based Server.</p>
- *
+ * <p>
  * <p>
  * <strong>NOTE:</strong> You need to issue the RCON Command <code>'logaddress_add [ip:port]'</code> to receive log messages from the game server.
  * Make sure that the port specified is not being blocked by an external service or firewall
@@ -104,6 +104,20 @@ public class SourceLogListenService implements Closeable {
                         ch.pipeline().addLast(new SourceLogListenHandler(logEventCallback));
                     }
                 });
+
+        SourceLogListenService service = this;
+        //Add shutdown hook
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                try {
+                    log.info("Interrupt Found. Trying to shutdown gracefully");
+                    service.shutdown();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**
@@ -132,22 +146,31 @@ public class SourceLogListenService implements Closeable {
         this.listenAddress = listenAddress;
     }
 
+    /**
+     * Start listening for log messages
+     */
     public void listen() {
         final ChannelFuture bindFuture = bootstrap.localAddress(listenAddress).bind().syncUninterruptibly();
         bindFuture.addListener((ChannelFuture future) -> {
-            log.debug("Log Service Started using {}", future.channel().localAddress());
+            String hostAddress = ((InetSocketAddress) future.channel().localAddress()).getAddress().getHostAddress();
+            int port = ((InetSocketAddress) future.channel().localAddress()).getPort();
+            log.debug("Log Service listening on port {} via address {}", port, hostAddress);
             future.channel().closeFuture().addListener(future1 -> log.debug("Service Shutting Down"));
         });
     }
 
+    /**
+     * <p>Tries to shutdown the listener gracefully</p>
+     *
+     * @throws InterruptedException
+     */
     public void shutdown() throws InterruptedException {
         listenWorkGroup.shutdownGracefully();
         listenWorkGroup.awaitTermination(10, TimeUnit.SECONDS);
     }
 
     public static void main(String[] args) {
-        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500));
-        logListenService.setLogEventCallback(SourceLogListenService::processLogData);
+        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogListenService::processLogData);
         logListenService.listen();
     }
 
@@ -155,6 +178,11 @@ public class SourceLogListenService implements Closeable {
         log.info("Got Data : {}", message);
     }
 
+    /**
+     * Calls the {@link #shutdown()} method
+     *
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
         try {

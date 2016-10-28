@@ -30,7 +30,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
 import org.ribasco.asyncgamequerylib.core.enums.RequestStatus;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,12 +45,12 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
     private CompletableFuture<Res> clientPromise;
     private RequestStatus status;
     private RequestPriority priority;
-    private NettyTransport<Req> transport;
+    private Transport<Req> transport;
     private Class<Res> expectedResponseClass;
     private AtomicInteger retries = new AtomicInteger(0);
     private long timeCreated;
 
-    public RequestDetails(Req request, CompletableFuture<Res> clientPromise, RequestPriority priority, NettyTransport<Req> transport) {
+    public RequestDetails(Req request, CompletableFuture<Res> clientPromise, RequestPriority priority, Transport<Req> transport) {
         this.status = RequestStatus.NEW;
         this.request = request;
         this.clientPromise = clientPromise;
@@ -122,11 +121,11 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
         return this.retries.getAndAdd(1);
     }
 
-    public NettyTransport<Req> getTransport() {
+    public Transport<Req> getTransport() {
         return transport;
     }
 
-    public void setTransport(NettyTransport transport) {
+    public void setTransport(Transport transport) {
         this.transport = transport;
     }
 

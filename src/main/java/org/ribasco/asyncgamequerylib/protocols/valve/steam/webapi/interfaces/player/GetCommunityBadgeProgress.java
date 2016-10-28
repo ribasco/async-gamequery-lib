@@ -24,26 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Gets all the quests needed to get the specified badge, and which are completed
  */
-public class GetCommunityBadgeProgress extends SteamWebApiRequest {
-    private long steamId;
-    private int badgeId = -1;
-
+public class GetCommunityBadgeProgress extends SteamPlayerServiceRequest {
     public GetCommunityBadgeProgress(int apiVersion, long steamId, int badgeId) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetCommunityBadgeProgress", apiVersion);
-        this.steamId = steamId;
-        this.badgeId = badgeId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
-        addParam("badgeid", this.badgeId);
+        super("GetCommunityBadgeProgress", apiVersion);
+        param("steamid", steamId);
+        param("badgeid", badgeId);
     }
 }

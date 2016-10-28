@@ -30,8 +30,8 @@ import io.netty.channel.pool.ChannelPool;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.util.concurrent.Future;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
+import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
 import org.ribasco.asyncgamequerylib.core.transport.pool.MessageChannelPoolMap;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceChannelAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,11 +43,11 @@ import java.util.concurrent.CompletableFuture;
  * @param <M> A type of {@link AbstractRequest} that will be used as a lookup reference for our key
  * @param <K> A type of the value for the internal {@link io.netty.channel.pool.ChannelPoolMap} implementation
  */
-abstract class NettyPooledTransport<M extends AbstractRequest, K> extends NettyTransport<M> {
+abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends NettyTransport<M> {
     private static final Logger log = LoggerFactory.getLogger(NettyPooledTransport.class);
 
     private MessageChannelPoolMap<M, K> poolMap;
-    final ChannelPoolHandler channelPoolHandler = new AbstractChannelPoolHandler() {
+    protected final ChannelPoolHandler channelPoolHandler = new AbstractChannelPoolHandler() {
         @Override
         public void channelCreated(Channel ch) throws Exception {
             onChannelCreate(ch);
@@ -64,9 +64,8 @@ abstract class NettyPooledTransport<M extends AbstractRequest, K> extends NettyT
         }
     };
 
-    @Override
-    public void initialize() {
-        super.initialize();
+    public NettyPooledTransport(ChannelType channelType) {
+        super(channelType);
         //Initialize our pool map instance
         poolMap = new MessageChannelPoolMap<>(this::createKey, this::createChannelPool);
     }
@@ -87,7 +86,7 @@ abstract class NettyPooledTransport<M extends AbstractRequest, K> extends NettyT
         pool.acquire().addListener((Future<Channel> future) -> {
             if (future.isSuccess()) {
                 Channel channel = future.getNow();
-                channel.attr(SourceChannelAttributes.CHANNEL_POOL).set(pool);
+                channel.attr(ChannelAttributes.CHANNEL_POOL).set(pool);
                 channelFuture.complete(channel);
             } else {
                 channelFuture.completeExceptionally(future.cause());
@@ -102,12 +101,10 @@ abstract class NettyPooledTransport<M extends AbstractRequest, K> extends NettyT
      * @param c The {@link Channel} that will need to be cleaned-up/released.
      */
     @Override
-    public Void cleanupChannel(Channel c) {
+    public void cleanupChannel(Channel c) {
         //Release channel from the pool
-        if (c.hasAttr(SourceChannelAttributes.CHANNEL_POOL)) {
-            c.attr(SourceChannelAttributes.CHANNEL_POOL).get().release(c);
-        }
-        return null;
+        if (c.hasAttr(ChannelAttributes.CHANNEL_POOL))
+            c.attr(ChannelAttributes.CHANNEL_POOL).get().release(c);
     }
 
     /**

@@ -32,7 +32,7 @@ import java.net.InetSocketAddress;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
-public abstract class AbstractMessage<T> implements Message<T>, Comparable<AbstractMessage<T>> {
+abstract public class AbstractMessage<T> implements Message<T>, Comparable<AbstractMessage<T>> {
     private InetSocketAddress sender;
     private InetSocketAddress recipient;
 

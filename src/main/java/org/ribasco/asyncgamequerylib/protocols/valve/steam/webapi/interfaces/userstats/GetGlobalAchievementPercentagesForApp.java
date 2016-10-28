@@ -24,23 +24,11 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
-/**
- * Created by raffy on 10/26/2016.
- */
-public class GetGlobalAchievementPercentagesForApp extends SteamWebApiRequest {
-    private int appId;
-
+public class GetGlobalAchievementPercentagesForApp extends SteamUserStatsRequest {
     public GetGlobalAchievementPercentagesForApp(int apiVersion, int appId) {
-        super(SteamApiConstants.STEAM_USER_STATS, "GetGlobalAchievementPercentagesForApp", apiVersion);
-        this.appId = appId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        requestBuilder.addQueryParam("gameid", String.valueOf(appId));
+        super("GetGlobalAchievementPercentagesForApp", apiVersion);
+        param("gameid", String.valueOf(appId));
     }
 }

@@ -72,7 +72,7 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
      * @param type     A {@link MasterServerType} to indicate which type of servers the master logger should return
      * @param region   A {@link MasterServerRegion} value that specifies which logger region the master logger should return
      * @param filter   A {@link MasterServerFilter} representing a set of filters to be used by the query
-     * @param callback A {@link Callback} that will be invoked when a response has been received
+     * @param callback A {@link Callback} that will be invoked repeatedly for partial response
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
      *
@@ -90,7 +90,7 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
         while (!done.get()) {
             log.debug("Getting from master logger with seed : " + startAddress);
             try {
-                log.info("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
+                log.debug("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
 
                 //Send initial query to the master source
                 final CompletableFuture<Vector<InetSocketAddress>> p = sendRequest(new MasterServerRequest(destination, region, filter, startAddress), RequestPriority.HIGH);
@@ -104,8 +104,8 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
                 //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip received)
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
                     if (callback != null && !isIpTerminator(ip))
-                        callback.onComplete(ip, destination, null);
-                    //Add a delay here. We shouldn't send requests too fast to the master logger
+                        callback.onReceive(ip, destination, null);
+                    //Add a delay here. We shouldn't send requests too fast to the master server
                     // there is a high chance that we might not receive the end of the list.
                     ConcurrentUtils.sleepUninterrupted(13);
                     serverMasterList.add(ip);
@@ -127,12 +127,12 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
                 log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of logger list from master");
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
-                    callback.onComplete(null, destination, e);
+                    callback.onReceive(null, destination, e);
                 masterPromise.completeExceptionally(e);
             } catch (ExecutionException e) {
                 log.error("ExecutionException occured {}", e);
                 if (callback != null)
-                    callback.onComplete(null, destination, e);
+                    callback.onReceive(null, destination, e);
                 masterPromise.completeExceptionally(e);
             }
         } //while

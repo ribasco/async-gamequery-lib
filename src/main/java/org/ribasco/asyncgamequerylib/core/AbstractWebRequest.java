@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
+import io.netty.handler.codec.http.HttpMethod;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
@@ -33,7 +34,8 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-public abstract class AbstractWebRequest extends AbstractRequest<Request> {
+@SuppressWarnings("all")
+abstract public class AbstractWebRequest extends AbstractRequest<Request> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractWebRequest.class);
 
@@ -44,14 +46,24 @@ public abstract class AbstractWebRequest extends AbstractRequest<Request> {
         requestBuilder = new RequestBuilder();
     }
 
-    public final RequestBuilder getRequestBuilder() {
-        return requestBuilder;
+    protected void build(RequestBuilder requestBuilder) {
+        //no implementation
     }
 
-    protected abstract void buildRequest(RequestBuilder requestBuilder);
+    protected void baseUrl(String url) {
+        request().setUrl(url);
+    }
 
-    protected void addParam(String name, Object value) {
-        RequestBuilder builder = getRequestBuilder();
+    protected void header(CharSequence header, String value) {
+        request().addHeader(header, value);
+    }
+
+    protected void method(HttpMethod method) {
+        request().setMethod(method.name());
+    }
+
+    protected void param(String name, Object value) {
+        RequestBuilder builder = request();
         if (value == null)
             return;
         String strValue = String.valueOf(value);
@@ -64,16 +76,25 @@ public abstract class AbstractWebRequest extends AbstractRequest<Request> {
         builder.addQueryParam(name, String.valueOf(value));
     }
 
-    protected static String encodeString(String element) {
+    protected static String encode(String element) {
+        return encode(element, "UTF-8");
+    }
+
+    protected static String encode(String element, String encoding) {
         try {
-            return URLEncoder.encode(element, "UTF-8");
+            return URLEncoder.encode(element, encoding);
         } catch (UnsupportedEncodingException ignored) {
         }
         return null;
     }
 
+    public final RequestBuilder request() {
+        return requestBuilder;
+    }
+
     @Override
     public Request getMessage() {
+        build(requestBuilder);
         Request webRequest = requestBuilder.build();
         log.debug("Request URL: {}, PARAMS: {}", webRequest.getUrl(), webRequest.getQueryParams());
         return requestBuilder.build();

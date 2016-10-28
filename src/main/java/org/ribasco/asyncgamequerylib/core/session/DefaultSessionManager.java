@@ -73,6 +73,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         }
     }
 
+    @SuppressWarnings("unchecked")
     public DefaultSessionManager(AbstractSessionIdFactory factory) {
         sessionTimer = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("timeout-%d").setDaemon(true).build());
         directory = new HashMap<>();

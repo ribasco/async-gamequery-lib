@@ -24,34 +24,13 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
 
-/**
- * Created by raffy on 10/25/2016.
- */
-public class GetAssetPrices extends SteamWebApiRequest {
-
-    private int appId;
-    private String currency;
-    private String language;
-
-    public GetAssetPrices(int apiVersion, int appId) {
-        this(apiVersion, appId, null, null);
-    }
-
+public class GetAssetPrices extends SteamEconomyRequest {
     public GetAssetPrices(int apiVersion, int appId, String currency, String language) {
-        super(SteamApiConstants.STEAM_ECONOMY, "GetAssetPrices", apiVersion);
-        this.appId = appId;
-        this.currency = currency;
-        this.language = language;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("appid", this.appId);
-        addParam("currency", this.currency);
-        addParam("language", this.language);
+        super("GetAssetPrices", apiVersion);
+        param("appid", appId);
+        param("currency", currency);
+        param("language", language);
     }
 }

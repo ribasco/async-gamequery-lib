@@ -24,26 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Returns valid lender SteamID if game currently played is borrowed
  */
-public class GetSteamGameLenderId extends SteamWebApiRequest {
-    private long steamid;
-    private int appId;
-
+public class GetSteamGameLenderId extends SteamPlayerServiceRequest {
     public GetSteamGameLenderId(int apiVersion, long steamId, int appId) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "IsPlayingSharedGame", apiVersion);
-        this.steamid = steamId;
-        this.appId = appId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamid);
-        addParam("appid_playing", this.appId);
+        super("IsPlayingSharedGame", apiVersion);
+        param("steamid", steamId);
+        param("appid_playing", appId);
     }
 }

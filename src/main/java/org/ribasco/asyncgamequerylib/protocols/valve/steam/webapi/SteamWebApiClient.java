@@ -24,10 +24,11 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
-import org.asynchttpclient.BoundRequestBuilder;
+import org.asynchttpclient.RequestBuilder;
+import org.asynchttpclient.Response;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.enums.VanityUrlType;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.*;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user.ResolveVanityURL;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,13 +40,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
-/**
- * Created by raffy on 9/14/2016.
- */
 public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, SteamWebApiResponse> {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiClient.class);
-
-    private String apiToken;
 
     /**
      * Default Constructor
@@ -53,26 +49,17 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
      * @param apiToken The steam web webapi token
      */
     public SteamWebApiClient(String apiToken) {
-        this.apiToken = apiToken;
+        super(apiToken);
     }
 
-    /**
-     * Include the API Authentication Token
-     *
-     * @param builder
-     */
     @Override
-    protected void prepareRequest(BoundRequestBuilder builder) {
-        super.prepareRequest(builder);
-        builder.addQueryParam("key", apiToken);
+    protected SteamWebApiResponse createWebApiResponse(Response response) {
+        return new SteamWebApiResponse(response);
     }
 
-    public String getApiToken() {
-        return apiToken;
-    }
-
-    public void setApiToken(String apiToken) {
-        this.apiToken = apiToken;
+    @Override
+    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
+        requestBuilder.addQueryParam("key", authToken);
     }
 
     public static void main(String[] args) {
@@ -263,7 +250,7 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
                 });
             }).join();
 
-            steamUser.getSteamIdFromVanityUrl("zenmast3r", ResolveVanityURL.VanityUrlType.DEFAULT).thenAccept(new Consumer<Long>() {
+            steamUser.getSteamIdFromVanityUrl("zenmast3r", VanityUrlType.DEFAULT).thenAccept(new Consumer<Long>() {
                 @Override
                 public void accept(Long aLong) {
                     log.info("Got Steam Id From Vanity url: {}", aLong);

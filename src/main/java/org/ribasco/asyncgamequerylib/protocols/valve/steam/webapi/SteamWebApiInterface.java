@@ -31,7 +31,8 @@ import org.ribasco.asyncgamequerylib.core.AbstractWebApiInterface;
  *
  * @see <a href="https://developer.valvesoftware.com/wiki/Steam_Web_API#Interfaces_and_method">Steam Interfaces and Methods</a>
  */
-abstract public class SteamWebApiInterface extends AbstractWebApiInterface<SteamWebApiClient, SteamWebApiRequest> {
+abstract public class SteamWebApiInterface
+        extends AbstractWebApiInterface<SteamWebApiClient, SteamWebApiRequest, SteamWebApiResponse> {
     /**
      * <p>Default Constructor</p>
      *

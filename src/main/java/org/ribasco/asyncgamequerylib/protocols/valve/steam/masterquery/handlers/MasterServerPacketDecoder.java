@@ -27,7 +27,6 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.handlers
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerMessenger;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerPacketBuilder;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerResponse;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.packets.MasterServerResponsePacket;
@@ -35,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * Created by raffy on 10/22/2016.
@@ -42,14 +42,15 @@ import java.util.List;
 public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);
-    private MasterServerMessenger messenger;
+    private BiConsumer<MasterServerResponse, Throwable> responseCallback;
     private MasterServerPacketBuilder builder;
 
-    public MasterServerPacketDecoder(MasterServerMessenger messenger, MasterServerPacketBuilder builder) {
-        this.messenger = messenger;
+    public MasterServerPacketDecoder(BiConsumer<MasterServerResponse, Throwable> responseCallback, MasterServerPacketBuilder builder) {
+        this.responseCallback = responseCallback;
         this.builder = builder;
     }
 
+    //TODO: maybe make a more generic version of this class?
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         //Create our response packet from the datagram we received
@@ -62,7 +63,7 @@ public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramP
                 response.setResponsePacket(packet);
                 log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
                 //Pass the message back to the messenger
-                messenger.receive(response);
+                responseCallback.accept(response, null);
                 return;
             }
         }

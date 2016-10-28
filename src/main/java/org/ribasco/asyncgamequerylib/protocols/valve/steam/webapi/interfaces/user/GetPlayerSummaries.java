@@ -25,29 +25,17 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user;
 
 import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserRequest;
 
 import java.util.List;
 
-/**
- * Created by raffy on 10/27/2016.
- */
-public class GetPlayerSummaries extends SteamWebApiRequest {
-    private Long[] steamIds;
-
+public class GetPlayerSummaries extends SteamUserRequest {
     public GetPlayerSummaries(int apiVersion, List<Long> steamIds) {
         this(apiVersion, steamIds.toArray(new Long[0]));
     }
 
     public GetPlayerSummaries(int apiVersion, Long... steamIds) {
-        super(SteamApiConstants.STEAM_USER, "GetPlayerSummaries", apiVersion);
-        this.steamIds = steamIds;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamids", StringUtils.join(steamIds, ","));
+        super("GetPlayerSummaries", apiVersion);
+        param("steamids", StringUtils.join(steamIds, ","));
     }
 }

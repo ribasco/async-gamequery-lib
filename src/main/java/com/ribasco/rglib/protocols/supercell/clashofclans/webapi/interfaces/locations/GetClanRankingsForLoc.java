@@ -22,17 +22,30 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces.locations;
 
-import com.ribasco.rglib.core.AbstractWebRequest;
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocApiConstants;
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocWebApiRequest;
 import org.asynchttpclient.RequestBuilder;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class CocWebApiRequest extends AbstractWebRequest {
+public class GetClanRankingsForLoc extends CocWebApiRequest {
+
+    public GetClanRankingsForLoc(int apiVersion, int locationId) {
+        this(apiVersion, locationId, -1, -1, -1);
+    }
+
+    public GetClanRankingsForLoc(int apiVersion, int locationId, int limit) {
+        this(apiVersion, locationId, limit, -1, -1);
+    }
+
+    public GetClanRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
+        super(CocApiConstants.COC_LOCATIONS, String.format("/%d/rankings/clans", locationId), apiVersion, limit, before, after);
+    }
+
     @Override
     protected void buildRequest(RequestBuilder requestBuilder) {
-
     }
 }

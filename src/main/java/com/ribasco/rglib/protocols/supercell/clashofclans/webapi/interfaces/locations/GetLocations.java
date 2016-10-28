@@ -22,10 +22,22 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.clans;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces.locations;
+
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocApiConstants;
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetClanInfo {
+public class GetLocations extends CocWebApiRequest {
+
+    public GetLocations(int apiVersion, int limit, int before, int after) {
+        super(CocApiConstants.COC_LOCATIONS, "", apiVersion, limit, before, after);
+    }
+
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+    }
 }

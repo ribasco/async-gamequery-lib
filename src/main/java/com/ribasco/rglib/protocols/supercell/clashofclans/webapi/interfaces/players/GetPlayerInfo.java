@@ -22,10 +22,10 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.leagues;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces.players;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetLeagueInfo {
+public class GetPlayerInfo {
 }

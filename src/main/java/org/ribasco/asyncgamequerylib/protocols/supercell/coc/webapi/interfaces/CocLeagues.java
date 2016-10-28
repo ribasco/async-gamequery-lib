@@ -44,6 +44,12 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+/**
+ * <p>A Web API Implementation of the League interface</p>
+ *
+ * @author Rafael Luis Ibasco
+ * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/leagues">Clash of Clans API - Leagues</a>
+ */
 public class CocLeagues extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>

@@ -33,9 +33,6 @@ import org.ribasco.asyncgamequerylib.core.PacketAssembler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by raffy on 10/22/2016.
- */
 public class DefaultResponsePacketAssembler<M> extends ChannelInboundHandlerAdapter {
     private static final Logger log = LoggerFactory.getLogger(DefaultResponsePacketAssembler.class);
 

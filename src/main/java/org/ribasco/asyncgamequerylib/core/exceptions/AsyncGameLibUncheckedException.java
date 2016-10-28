@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core.exceptions;
 
-/**
- * Created by raffy on 10/23/2016.
- */
 public class AsyncGameLibUncheckedException extends RuntimeException {
     public AsyncGameLibUncheckedException() {
     }

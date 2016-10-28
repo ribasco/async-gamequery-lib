@@ -29,9 +29,6 @@ import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * Created by raffy on 10/14/2016.
- */
 public class ErrorHandler extends ChannelDuplexHandler {
     private static final Logger log = LoggerFactory.getLogger(ErrorHandler.class);
 

@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core.exceptions;
 
 import org.ribasco.asyncgamequerylib.core.session.SessionId;
 
-/**
- * Created by raffy on 9/21/2016.
- */
 public class ReadTimeoutException extends TimeoutException {
 
     private SessionId key;

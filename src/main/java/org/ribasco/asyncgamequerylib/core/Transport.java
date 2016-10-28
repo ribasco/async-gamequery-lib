@@ -27,9 +27,6 @@ package org.ribasco.asyncgamequerylib.core;
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 9/13/2016.
- */
 public interface Transport<T extends AbstractMessage> extends Closeable {
     CompletableFuture<Void> send(T data);
 }

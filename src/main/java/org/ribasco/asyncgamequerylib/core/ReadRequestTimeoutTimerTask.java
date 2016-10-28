@@ -35,9 +35,6 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
-/**
- * Created by raffy on 9/20/2016.
- */
 public class ReadRequestTimeoutTimerTask implements TimerTask {
     private static final Logger log = LoggerFactory.getLogger(ReadRequestTimeoutTimerTask.class);
     private SessionId id;

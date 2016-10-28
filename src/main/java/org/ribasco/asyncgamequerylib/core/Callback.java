@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/14/2016.
- */
 public interface Callback<ResponseType> {
     void onComplete(ResponseType response, InetSocketAddress sender, Throwable error);
 }

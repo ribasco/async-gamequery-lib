@@ -34,9 +34,6 @@ import org.ribasco.asyncgamequerylib.core.transport.handlers.AbstractRequestEnco
 
 import java.util.List;
 
-/**
- * Created by raffy on 10/22/2016.
- */
 public class DefaultRequestPacketEncoder<P extends AbstractPacket, R extends AbstractRequest<P>> extends AbstractRequestEncoder<R, P> {
     public DefaultRequestPacketEncoder(AbstractPacketBuilder<P> builder) {
         super(builder);

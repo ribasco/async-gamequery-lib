@@ -31,9 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.Charset;
 
-/**
- * Created by raffy on 9/6/2016.
- */
 public class ByteBufUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ByteBufUtils.class);

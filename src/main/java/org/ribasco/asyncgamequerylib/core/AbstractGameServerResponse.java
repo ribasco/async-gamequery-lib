@@ -29,9 +29,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/18/2016.
- */
 public abstract class AbstractGameServerResponse<T extends Decodable<U>, U> extends AbstractResponse<U> {
     private T responsePacket;
 

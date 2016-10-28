@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
-/**
- * Created by raffy on 9/17/2016.
- */
 public interface Decodable<T> {
     T toObject();
 }

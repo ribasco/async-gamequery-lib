@@ -54,8 +54,6 @@ public final class SessionId implements Serializable, Comparable<SessionId> {
     public final boolean equals(Object o) {
         if (!(o instanceof SessionId || o instanceof String))
             return false;
-        if (o == null && getId() != null)
-            return false;
         if (o == this)
             return true;
         if (o instanceof String) {

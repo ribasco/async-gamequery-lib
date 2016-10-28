@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core.utils;
 
-/**
- * Created by raffy on 9/9/2016.
- */
 public class ByteUtils {
     public static byte[] byteArrayFromInteger(int integer) {
         return new byte[]{

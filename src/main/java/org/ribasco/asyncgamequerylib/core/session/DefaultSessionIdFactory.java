@@ -28,9 +28,6 @@ import org.ribasco.asyncgamequerylib.core.AbstractMessage;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
 import org.ribasco.asyncgamequerylib.core.AbstractResponse;
 
-/**
- * Created by raffy on 9/26/2016.
- */
 public class DefaultSessionIdFactory extends AbstractSessionIdFactory<AbstractRequest, AbstractResponse> {
     @Override
     public SessionId createId(AbstractMessage message) {

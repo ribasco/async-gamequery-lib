@@ -27,16 +27,13 @@ package org.ribasco.asyncgamequerylib.core.pojos;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-/**
- * Created by raffy on 8/27/2016.
- */
 public abstract class GameServer extends GenericServer {
     private String name;
 
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }

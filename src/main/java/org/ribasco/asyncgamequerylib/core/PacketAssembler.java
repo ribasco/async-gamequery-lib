@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import io.netty.channel.ChannelHandlerContext;
 
-/**
- * Created by raffy on 10/22/2016.
- */
 public interface PacketAssembler<M> {
     void assemble(ChannelHandlerContext ctx, M msg);
 }

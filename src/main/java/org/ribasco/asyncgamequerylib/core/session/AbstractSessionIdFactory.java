@@ -31,9 +31,6 @@ import org.ribasco.asyncgamequerylib.core.AbstractResponse;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-/**
- * Created by raffy on 9/26/2016.
- */
 public abstract class AbstractSessionIdFactory<
         Req extends AbstractRequest,
         Res extends AbstractResponse>

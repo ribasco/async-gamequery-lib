@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/14/2016.
- */
 public abstract class AbstractResponse<T> extends AbstractMessage<T> {
     public AbstractResponse(InetSocketAddress sender) {
         super(sender, null);

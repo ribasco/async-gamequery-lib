@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core.enums;
 
-/**
- * Created by raffy on 10/7/2016.
- */
 public enum RequestPriority {
     REALTIME,
     HIGH,

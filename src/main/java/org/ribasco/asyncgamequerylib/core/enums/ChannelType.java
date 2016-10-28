@@ -30,9 +30,6 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.channel.socket.oio.OioSocketChannel;
 
-/**
- * Created by raffy on 10/1/2016.
- */
 public enum ChannelType {
     OIO_TCP(OioSocketChannel.class),
     NIO_TCP(NioSocketChannel.class),

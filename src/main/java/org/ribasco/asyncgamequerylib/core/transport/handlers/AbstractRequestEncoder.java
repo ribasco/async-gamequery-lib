@@ -29,9 +29,6 @@ import org.ribasco.asyncgamequerylib.core.AbstractPacket;
 import org.ribasco.asyncgamequerylib.core.AbstractPacketBuilder;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
 
-/**
- * Created by raffy on 9/17/2016.
- */
 public abstract class AbstractRequestEncoder<T extends AbstractRequest, P extends AbstractPacket> extends MessageToMessageEncoder<T> {
     protected AbstractPacketBuilder<P> builder;
 

@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/13/2016.
- */
 public interface Message<T> {
     T getMessage();
 

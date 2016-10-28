@@ -32,9 +32,6 @@ import java.net.InetSocketAddress;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
-/**
- * Created by raffy on 9/18/2016.
- */
 public abstract class AbstractMessage<T> implements Message<T>, Comparable<AbstractMessage<T>> {
     private InetSocketAddress sender;
     private InetSocketAddress recipient;
@@ -74,7 +71,7 @@ public abstract class AbstractMessage<T> implements Message<T>, Comparable<Abstr
         AbstractMessage r = (AbstractMessage) rhs;
         builder.append(recipient(), r.recipient());
         builder.append(sender(), r.sender());
-        builder.append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), new Integer(1)).getClass());
+        builder.append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), 1).getClass());
         return builder;
     }
 

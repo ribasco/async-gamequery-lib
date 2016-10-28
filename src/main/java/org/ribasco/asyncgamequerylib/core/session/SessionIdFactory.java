@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core.session;
 
 import org.ribasco.asyncgamequerylib.core.AbstractMessage;
 
-/**
- * Created by raffy on 9/25/2016.
- */
 public interface SessionIdFactory {
     SessionId createId(AbstractMessage message);
 

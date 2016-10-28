@@ -33,6 +33,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public class CocClanBasicInfo {
     private String tag;
     private String name;
+    private int clanLevel;
     private CocClanBadgeUrls badgeUrls;
 
     public String getTag() {
@@ -49,6 +50,14 @@ public class CocClanBasicInfo {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getClanLevel() {
+        return clanLevel;
+    }
+
+    public void setClanLevel(int clanLevel) {
+        this.clanLevel = clanLevel;
     }
 
     public CocClanBadgeUrls getBadgeUrls() {

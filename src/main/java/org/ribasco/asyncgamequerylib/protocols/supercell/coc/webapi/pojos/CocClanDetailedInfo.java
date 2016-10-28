@@ -40,7 +40,6 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     private String type;
     private String description;
     private CocLocation location;
-    private int clanLevel;
     private int clanPoints;
     private int requiredTrophies;
     private String warFrequency;
@@ -53,7 +52,7 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     @SerializedName("members")
     private int totalMembers;
     @SerializedName("memberList")
-    private List<CocPlayer> clanMembers;
+    private List<CocPlayerBasicInfo> clanMembers;
 
     public String getDescription() {
         return description;
@@ -63,11 +62,11 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
         this.description = description;
     }
 
-    public List<CocPlayer> getClanMembers() {
+    public List<CocPlayerBasicInfo> getClanMembers() {
         return clanMembers;
     }
 
-    public void setClanMembers(List<CocPlayer> clanMembers) {
+    public void setClanMembers(List<CocPlayerBasicInfo> clanMembers) {
         this.clanMembers = clanMembers;
     }
 
@@ -85,14 +84,6 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
 
     public void setLocation(CocLocation location) {
         this.location = location;
-    }
-
-    public int getClanLevel() {
-        return clanLevel;
-    }
-
-    public void setClanLevel(int clanLevel) {
-        this.clanLevel = clanLevel;
     }
 
     public int getClanPoints() {

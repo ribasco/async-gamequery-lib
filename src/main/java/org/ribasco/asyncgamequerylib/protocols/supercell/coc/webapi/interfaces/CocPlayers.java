@@ -24,8 +24,33 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces;
 
-/**
- * Created by raffy on 10/28/2016.
- */
-public class CocPlayers {
+import com.google.gson.JsonObject;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiClient;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiInterface;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.players.GetPlayerInfo;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPlayerDetailedInfo;
+
+import java.util.concurrent.CompletableFuture;
+
+public class CocPlayers extends CocWebApiInterface {
+    /**
+     * <p>Default Constructor</p>
+     *
+     * @param client A {@link CocWebApiClient} instance
+     */
+    public CocPlayers(CocWebApiClient client) {
+        super(client);
+    }
+
+    /**
+     * <p>Retrieve a detailed information about a Player</p>
+     *
+     * @param playerTag A unique player {@link String} identifier followed by a hashtag
+     *
+     * @return A {@link CocPlayerDetailedInfo} containing the player details
+     */
+    public CompletableFuture<CocPlayerDetailedInfo> getPlayerInfo(String playerTag) {
+        CompletableFuture<JsonObject> json = sendRequest(new GetPlayerInfo(VERSION_1, playerTag));
+        return json.thenApply(root -> builder().fromJson(root, CocPlayerDetailedInfo.class));
+    }
 }

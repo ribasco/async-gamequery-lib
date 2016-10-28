@@ -31,7 +31,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * Created by raffy on 10/28/2016.
  */
-public class CocPlayer {
+public class CocPlayerBasicInfo {
     private String tag;
     private String name;
     private String role;

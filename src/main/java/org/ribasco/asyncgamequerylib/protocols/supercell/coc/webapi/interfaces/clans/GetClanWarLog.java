@@ -41,7 +41,7 @@ public class GetClanWarLog extends CocWebApiRequest {
     }
 
     public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
-        super(CocApiConstants.COC_CLANS, String.format("/%s/warlog", encodeUrl(clanTag)), apiVersion);
+        super(CocApiConstants.COC_CLANS, String.format("/%s/warlog", encodeString(clanTag)), apiVersion);
         this.limit = limit;
         this.after = after;
         this.before = before;

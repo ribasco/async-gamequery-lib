@@ -38,7 +38,7 @@ public class GetClanMembers extends CocWebApiRequest {
     private int before;
 
     public GetClanMembers(int apiVersion, String clanTag, int limit, int after, int before) {
-        super(CocApiConstants.COC_CLANS, String.format("/%s/members", encodeUrl(clanTag)), apiVersion);
+        super(CocApiConstants.COC_CLANS, String.format("/%s/members", encodeString(clanTag)), apiVersion);
     }
 
     @Override

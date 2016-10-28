@@ -64,9 +64,9 @@ public abstract class AbstractWebRequest extends AbstractRequest<Request> {
         builder.addQueryParam(name, String.valueOf(value));
     }
 
-    protected static String encodeUrl(String path) {
+    protected static String encodeString(String element) {
         try {
-            return URLEncoder.encode(path, "UTF-8");
+            return URLEncoder.encode(element, "UTF-8");
         } catch (UnsupportedEncodingException ignored) {
         }
         return null;

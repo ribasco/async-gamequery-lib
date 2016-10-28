@@ -24,6 +24,9 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 /**
  * Created by raffy on 10/28/2016.
  */
@@ -54,5 +57,14 @@ public class CocLeagueIconUrls {
 
     public void setMedium(String medium) {
         this.medium = medium;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("tiny", getTiny())
+                .append("small", getSmall())
+                .append("medium", getMedium())
+                .toString();
     }
 }

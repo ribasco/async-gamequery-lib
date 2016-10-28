@@ -24,21 +24,23 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocTypes;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiClient;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiInterface;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.deserializers.CocLeagueSeasonDeserializer;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueInfo;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueSeasonRankings;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueSeasons;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagues;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocLeague;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocLeagueSeason;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -50,6 +52,15 @@ public class CocLeagues extends CocWebApiInterface {
      */
     public CocLeagues(CocWebApiClient client) {
         super(client);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    protected void configureBuilder(GsonBuilder builder) {
+        super.configureBuilder(builder);
+        builder.registerTypeAdapter(CocLeagueSeason.class, new CocLeagueSeasonDeserializer());
     }
 
     public CompletableFuture<List<CocLeague>> getLeagueList() {
@@ -75,21 +86,21 @@ public class CocLeagues extends CocWebApiInterface {
         return json.thenApply(root -> builder().fromJson(root, CocLeague.class));
     }
 
-    public CompletableFuture<List<Map<String, String>>> getLeagueSeasons(int leagueId) {
+    public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId) {
         return getLeagueSeasons(leagueId, -1);
     }
 
-    public CompletableFuture<List<Map<String, String>>> getLeagueSeasons(int leagueId, int limit) {
+    public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit) {
         return getLeagueSeasons(leagueId, limit, -1, -1);
     }
 
-    public CompletableFuture<List<Map<String, String>>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
+    public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasons(VERSION_1, leagueId, limit, before, after));
-        return json.thenApply(new Function<JsonObject, List<Map<String, String>>>() {
+        return json.thenApply(new Function<JsonObject, List<CocLeagueSeason>>() {
             @Override
-            public List<Map<String, String>> apply(JsonObject root) {
+            public List<CocLeagueSeason> apply(JsonObject root) {
                 JsonArray items = root.getAsJsonArray("items");
-                return builder().fromJson(items, new TypeToken<List<Map<String, String>>>() {
+                return builder().fromJson(items, new TypeToken<List<CocLeagueSeason>>() {
                 }.getType());
             }
         });

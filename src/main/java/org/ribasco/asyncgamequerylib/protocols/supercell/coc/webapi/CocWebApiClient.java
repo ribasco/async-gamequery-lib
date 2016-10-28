@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Created by raffy on 10/27/2016.
+ * An API Client for Clash of Clans
  */
 public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWebApiResponse> {
 
@@ -129,7 +129,6 @@ public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWeb
 
             log.info("Displaying Player Rankings by Location");
             locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiClient::displayListResults).join();
-
             log.info("Displaying Leagues");
             leagues.getLeagueList().thenAccept(CocWebApiClient::displayListResults).join();
             log.info("Displaying League Seasons");

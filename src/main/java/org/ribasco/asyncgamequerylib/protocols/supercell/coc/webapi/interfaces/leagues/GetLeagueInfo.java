@@ -24,19 +24,12 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class GetLeagueInfo extends CocWebApiRequest {
     public GetLeagueInfo(int apiVersion, int leagueId) {
-        super(CocApiConstants.COC_LEAGUES, String.format("/%d", leagueId), apiVersion);
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
+        super(apiVersion, CocApiConstants.UF_COC_LEAGUE_INFO);
+        baseUrlProperty(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
     }
 }

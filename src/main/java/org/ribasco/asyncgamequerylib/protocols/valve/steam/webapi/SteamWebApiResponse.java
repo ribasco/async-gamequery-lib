@@ -24,14 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
-import com.google.gson.JsonObject;
-import org.ribasco.asyncgamequerylib.core.AbstractWebResponse;
+import com.google.gson.JsonElement;
+import org.asynchttpclient.Response;
+import org.ribasco.asyncgamequerylib.core.AbstractWebApiResponse;
 
-/**
- * Created by raffy on 10/25/2016.
- */
-public abstract class SteamWebApiResponse<T> extends AbstractWebResponse<T> {
-    public SteamWebApiResponse(JsonObject jsonObject) {
-        super(jsonObject);
+public class SteamWebApiResponse extends AbstractWebApiResponse<JsonElement> {
+
+    public SteamWebApiResponse(Response response) {
+        super(response);
     }
+
+
 }

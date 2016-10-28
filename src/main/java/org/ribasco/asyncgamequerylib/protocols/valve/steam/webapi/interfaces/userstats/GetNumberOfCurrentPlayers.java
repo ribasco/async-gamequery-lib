@@ -24,24 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 /**
  * Created by raffy on 10/26/2016.
  */
-public class GetNumberOfCurrentPlayers extends SteamWebApiRequest {
-
-    private int appId;
-
+public class GetNumberOfCurrentPlayers extends SteamUserStatsRequest {
     public GetNumberOfCurrentPlayers(int apiVersion, int appId) {
-        super(SteamApiConstants.STEAM_USER_STATS, "GetNumberOfCurrentPlayers", apiVersion);
-        this.appId = appId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("appid", this.appId);
+        super("GetNumberOfCurrentPlayers", apiVersion);
+        param("appid", appId);
     }
 }

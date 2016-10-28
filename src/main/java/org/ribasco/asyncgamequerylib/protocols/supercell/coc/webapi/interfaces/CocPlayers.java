@@ -32,6 +32,12 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPla
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>A Web API Implementation of the Player interface. Contains methods for player related inquiries.</p>
+ *
+ * @author Rafael Luis Ibasco
+ * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/players">Clash of Clans API - Players</a>
+ */
 public class CocPlayers extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>

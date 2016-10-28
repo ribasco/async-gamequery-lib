@@ -24,75 +24,37 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi;
 
-import org.asynchttpclient.Request;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.uri.Uri;
-import org.ribasco.asyncgamequerylib.core.AbstractWebRequest;
+import org.ribasco.asyncgamequerylib.core.AbstractWebApiRequest;
 
-/**
- * Created by raffy on 10/27/2016.
- */
-public abstract class CocWebApiRequest extends AbstractWebRequest {
+abstract public class CocWebApiRequest extends AbstractWebApiRequest {
 
-    private static final String URI_FORMAT = "https://api.clashofclans.com/v%d/%s%s";
-
-    private int limit, before, after;
-    private int apiVersion;
-    private String apiInterface;
-    private String apiMethod;
-
-    public CocWebApiRequest(String apiInterface, String apiMethod, int apiVersion) {
-        this(apiInterface, apiMethod, apiVersion, -1, -1, -1);
+    public CocWebApiRequest(int apiVersion, String urlFormat) {
+        this(apiVersion, urlFormat, -1);
     }
 
-    public CocWebApiRequest(String apiInterface, String apiMethod, int apiVersion, int limit, int before, int after) {
-        this.apiInterface = apiInterface;
-        this.apiVersion = apiVersion;
-        this.apiMethod = apiMethod;
-        this.limit = limit;
-        this.before = before;
-        this.after = after;
+    public CocWebApiRequest(int apiVersion, String urlFormat, int limit) {
+        this(apiVersion, urlFormat, limit, -1, -1);
     }
 
-    public String getApiInterface() {
-        return apiInterface;
+    public CocWebApiRequest(int apiVersion, String urlFormat, int limit, int before, int after) {
+        super(apiVersion);
+        baseUrlFormat(urlFormat);
+        baseUrlProperty(CocApiConstants.UF_PROP_VERSION, apiVersion);
+        baseUrlProperty(CocApiConstants.UF_PROP_BASEURL, CocApiConstants.UF_COC_BASE);
+        limit(limit);
+        before(before);
+        after(after);
     }
 
-    public void setApiInterface(String apiInterface) {
-        this.apiInterface = apiInterface;
+    public void limit(int limit) {
+        param("limit", limit);
     }
 
-    public int getApiVersion() {
-        return apiVersion;
+    public void before(int before) {
+        param("before", before);
     }
 
-    public void setApiVersion(int apiVersion) {
-        this.apiVersion = apiVersion;
-    }
-
-    public String getApiMethod() {
-        return apiMethod;
-    }
-
-    public void setApiMethod(String apiMethod) {
-        this.apiMethod = apiMethod;
-    }
-
-    @Override
-    public Request getMessage() {
-        //Retrieve our existing request builder
-        RequestBuilder builder = getRequestBuilder();
-        //Create our URI
-        Uri steamUri = Uri.create(String.format(URI_FORMAT, apiVersion, apiInterface, apiMethod));
-        //Pass the URI
-        builder.setUri(steamUri);
-        //Apply General Coc Params
-        addParam("limit", this.limit);
-        addParam("before", this.before);
-        addParam("after", this.after);
-        //Apply additional request parameters from the concrete class (if available)
-        buildRequest(builder);
-        //Let our super class build the request
-        return super.getMessage();
+    public void after(int after) {
+        param("after", after);
     }
 }

@@ -24,28 +24,17 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.clans;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocSearchCriteria;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
 import java.util.Map;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class SearchClan extends CocWebApiRequest {
-    private CocSearchCriteria criteria;
-
     public SearchClan(int apiVersion, CocSearchCriteria criteria) {
-        super(CocApiConstants.COC_CLANS, "", apiVersion);
-        this.criteria = criteria;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
+        super(apiVersion, CocApiConstants.UF_COC_CLAN_SEARCH);
         for (Map.Entry<String, Object> searchCriteria : criteria.getCriteriaSet()) {
-            addParam(searchCriteria.getKey(), searchCriteria.getValue());
+            param(searchCriteria.getKey(), searchCriteria.getValue());
         }
     }
 }

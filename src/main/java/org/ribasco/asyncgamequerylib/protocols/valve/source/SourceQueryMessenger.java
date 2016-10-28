@@ -26,10 +26,11 @@ package org.ribasco.asyncgamequerylib.protocols.valve.source;
 
 import io.netty.channel.ChannelOption;
 import io.netty.channel.FixedRecvByteBufAllocator;
+import org.ribasco.asyncgamequerylib.core.Transport;
 import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
 import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.messenger.GameServerMessenger;
-import org.ribasco.asyncgamequerylib.core.transport.NettyPooledUdpTransport;
+import org.ribasco.asyncgamequerylib.core.transport.udp.NettyPooledUdpTransport;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceChallengeRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceInfoRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourcePlayerRequest;
@@ -46,25 +47,23 @@ import java.util.Map;
 /**
  * Created by raffy on 9/14/2016.
  */
-public class SourceQueryMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse, NettyPooledUdpTransport<SourceServerRequest>> {
+public class SourceQueryMessenger extends GameServerMessenger<SourceServerRequest, SourceServerResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
     public SourceQueryMessenger() {
         //Use the default session manager
-        super(new NettyPooledUdpTransport<>(), ProcessingMode.ASYNCHRONOUS);
+        super(ProcessingMode.ASYNCHRONOUS);
     }
 
     @Override
-    public void configureTransport(NettyPooledUdpTransport<SourceServerRequest> transport) {
-        //Set to NIO UDP Type
-        transport.setChannelType(ChannelType.NIO_UDP);
-        //Set our channel initializer
+    protected Transport<SourceServerRequest> createTransportService() {
+        NettyPooledUdpTransport<SourceServerRequest> transport = new NettyPooledUdpTransport<>(ChannelType.NIO_UDP);
         transport.setChannelInitializer(new SourceQueryChannelInitializer(this));
-        //Channel Options
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
         transport.addChannelOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(8192));
+        return transport;
     }
 
     @Override

@@ -29,7 +29,6 @@ import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
 import org.ribasco.asyncgamequerylib.core.enums.RequestStatus;
 import org.ribasco.asyncgamequerylib.core.session.*;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.ribasco.asyncgamequerylib.core.utils.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,29 +39,28 @@ import java.util.Comparator;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 /**
- * <p>The base implementation of the {@link Messenger} interface.</p>
+ * <p>The base implementation of the {@link Messenger} interface. Contains an internal queue for the requests and process them based on priority</p>
  *
- * @param <A>
- * @param <B>
- * @param <T>
+ * @param <A> {@link AbstractRequest}
+ * @param <B> {@link AbstractResponse}
  */
-public abstract class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse, T extends NettyTransport<A>> implements Messenger<A, B> {
-
-    public static final RequestPriority DEFAULT_REQUEST_PRIORITY = RequestPriority.MEDIUM;
-    public static final ProcessingMode DEFAULT_PROCESSING_MODE = ProcessingMode.ASYNCHRONOUS;
-    public static final int DEFAULT_MAX_RETRIES = 3;
+abstract public class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse> implements Messenger<A, B> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractMessenger.class);
+
+    public static final RequestPriority DEFAULT_REQUEST_PRIORITY = RequestPriority.MEDIUM;
+    private static final ProcessingMode DEFAULT_PROCESSING_MODE = ProcessingMode.ASYNCHRONOUS;
+    private static final int DEFAULT_REQUEST_QUEUE_CAPACITY = 50;
+    private final AtomicBoolean processRequests = new AtomicBoolean(false);
     private ExecutorService messengerService;
 
-    private final AtomicBoolean stopped = new AtomicBoolean(false);
     private SessionManager<A, B> sessionManager;
-    private T transport;
+    private Transport<A> transport;
     private PriorityBlockingQueue<RequestDetails<A, B>> requestQueue;
-    private Function<PriorityBlockingQueue<RequestDetails<A, B>>, Void> requestProcessor;
+    private Consumer<PriorityBlockingQueue<RequestDetails<A, B>>> requestProcessor;
     private ProcessingMode processingMode;
     private int maxRetries;
 
@@ -76,57 +74,57 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         }
     }
 
-    public AbstractMessenger(T transport) {
-        this(transport, DEFAULT_PROCESSING_MODE);
+    public AbstractMessenger() {
+        this(DEFAULT_PROCESSING_MODE);
     }
 
-    public AbstractMessenger(T transport, ProcessingMode processingMode) {
-        this(transport, new DefaultSessionIdFactory(), processingMode);
+    public AbstractMessenger(ProcessingMode processingMode) {
+        this(new DefaultSessionIdFactory(), processingMode);
     }
 
-    public AbstractMessenger(T transport, AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
-        this(transport, new DefaultSessionManager(keyFactory), processingMode);
+    public AbstractMessenger(AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
+        this(new DefaultSessionManager(keyFactory), processingMode, DEFAULT_REQUEST_QUEUE_CAPACITY,
+                new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-%d").build()));
     }
 
-    public AbstractMessenger(T transport, SessionManager sessionManager, ProcessingMode processingMode) {
+    public AbstractMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ExecutorService executorService) {
         //Set processing mode
         this.processingMode = processingMode;
-        //Set the session manager, use default if not specified
+        //Use the default session manager if not specified
         this.sessionManager = (sessionManager != null) ? sessionManager : new DefaultSessionManager<>(new DefaultSessionIdFactory());
-        //Set messenger transport
-        this.transport = transport;
-        //Create the queue
-        requestQueue = new PriorityBlockingQueue<>(50, new RequestComparator());
-        //Configure transport before initialization
-        configureTransport(transport);
-        //Configure the mappings before initialization
+        this.requestQueue = new PriorityBlockingQueue<>(initQueueCapacity, new RequestComparator());
+        this.transport = createTransportService();
         configureMappings(this.sessionManager.getLookupMap());
-        //Initialize the transport
-        transport.initialize();
-        //Initialize logger
-        messengerService = new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-%d").build());
-        //Set our request processor
-        requestProcessor = (processingMode == ProcessingMode.SYNCHRONOUS) ? this::processSync : this::processAsync;
-        //Start our request scheduler
-        messengerService.execute(() -> {
-            while (!stopped.get())
-                requestProcessor.apply(requestQueue);
-        });
+        this.messengerService = executorService;
+        this.requestProcessor = (processingMode == ProcessingMode.SYNCHRONOUS) ? this::processSync : this::processAsync;
     }
 
     /**
-     * Configure the underlying {@link NettyTransport}
-     *
-     * @param transport
+     * Call to start processing requests
      */
-    public abstract void configureTransport(T transport);
+    private void start() {
+        if (!processRequests.get() && !messengerService.isShutdown()) {
+            processRequests.set(true);
+            messengerService.execute(() -> {
+                while (processRequests.get())
+                    requestProcessor.accept(requestQueue);
+            });
+        }
+    }
+
+    /**
+     * <p>Let the concrete messenger create and initialize the transport</p>
+     *
+     * @return
+     */
+    abstract protected Transport<A> createTransportService();
 
     /**
      * Configure request <-> response mappings
      *
      * @param map
      */
-    public abstract void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
+    abstract public void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
 
     /**
      * Send a request using the default priority
@@ -149,25 +147,21 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the logger if available.
      */
     public CompletableFuture<B> send(A request, RequestPriority priority) {
-        CompletableFuture<B> promise = new CompletableFuture<>();
-
         log.debug("Adding request '{}' to queue", request.getClass().getSimpleName());
-
-        //Add to the request queue
-        requestQueue.add(new RequestDetails<>(request, promise, priority, getTransport()));
-
-        //Return the promise instance back to the client
+        CompletableFuture<B> promise = new CompletableFuture<>();
+        requestQueue.add(new RequestDetails<>(request, promise, priority, this.transport));
+        start(); //start if not yet started
         return promise;
     }
 
     /**
-     * Meant to be called by the handlers to indicate that a response message is ready to be received and processed
+     * <p>Called by the transport when a response has been received from the server</p>
      *
-     * @param response
-     * @param
+     * @param response The response received from the server
+     * @param error    Error thrown by the transport while processing the request. Otherwise null.
      */
     @Override
-    public void receive(B response) {
+    public void accept(B response, Throwable error) {
         log.debug("Receiving '{}' from {}", response.getClass().getSimpleName(), response.sender());
         synchronized (this) {
             //Retrieve the existing session for this response
@@ -188,7 +182,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      *
      * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
      */
-    private Void processSync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
+    private void processSync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
         //Since we are processing synchronously, we will not remove the head of the queue immediately but rather
         //only remove the head once it completes
         final RequestDetails<A, B> requestDetails = requestQueue.peek();
@@ -197,7 +191,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             //Do we have any requests to process?
             if (requestDetails == null) {
                 ConcurrentUtils.sleepUninterrupted(50);
-                return null;
+                return;
             }
 
             final RequestStatus status = requestDetails.getStatus();
@@ -205,7 +199,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             //Only process new REQUESTS
             if (status == RequestStatus.NEW) {
                 requestDetails.setStatus(RequestStatus.ACCEPTED);
-                requestDetails.getRequest().setSender(transport.localAddress());
 
                 //Register the request to the session manager
                 final SessionId id = sessionManager.register(requestDetails);
@@ -232,7 +225,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                         //Since we process requests synchronously, this request will only be removed
                         //from the queue when it completes
                         requestDetails.getClientPromise().whenComplete((res, error) -> {
-                            //Update the status
                             requestDetails.setStatus(RequestStatus.DONE);
                             //Only remove from the queue once the task completes
                             requestQueue.remove(requestDetails);
@@ -246,7 +238,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             if (requestDetails != null && requestDetails.getClientPromise() != null)
                 requestDetails.getClientPromise().completeExceptionally(e);
         }
-        return null;
     }
 
     /**
@@ -254,7 +245,7 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      *
      * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
      */
-    private Void processAsync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
+    private void processAsync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
         //Remove the head of the queue immediately and process accordingly
         final RequestDetails<A, B> requestDetails = requestQueue.poll();
 
@@ -264,9 +255,6 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 //Set status to ACCEPTED
                 requestDetails.setStatus(RequestStatus.ACCEPTED);
 
-                //Set local address for transport
-                requestDetails.getRequest().setSender(transport.localAddress());
-
                 //Register the session immediately, duplicate requests will be queued in the order they are sent.
                 final SessionId id = sessionManager.register(requestDetails);
 
@@ -274,10 +262,10 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 requestDetails.getClientPromise().whenComplete((response, throwable) -> performSessionCleanup(id));
 
                 //Send then listen for the write completion status
-                transport.send(requestDetails.getRequest(), true).whenComplete((aVoid, writeError) -> {
+                transport.send(requestDetails.getRequest()).whenComplete((aVoid, writeError) -> {
                     if (writeError != null) {
                         //If the write operation failed, we need to unregister from the session
-                        log.error("Write operation failed, unregistering from session : {}", id);
+                        log.error("Write operation failed, unregistering from session : {} = {}", id, writeError);
                         requestDetails.setStatus(RequestStatus.DONE);
                         //Notify listeners
                         if (requestDetails.getClientPromise() != null)
@@ -293,9 +281,14 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
             }
         }
 
-        return null;
+        //return null;
     }
 
+    /**
+     * Unregister from the session
+     *
+     * @param id The {@link SessionId} to unregister
+     */
     private void performSessionCleanup(SessionId id) {
         final SessionValue session = sessionManager.getSession(id);
         if (session != null) {
@@ -334,31 +327,22 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
      *
      * @return
      */
-    public Collection<Map.Entry<SessionId, SessionValue<A, B>>> getRemaining() {
+    Collection<Map.Entry<SessionId, SessionValue<A, B>>> getRemaining() {
         return sessionManager.getSessionEntries();
     }
 
-    public int getPendingRequestSize() {
+    int getPendingRequestSize() {
         return requestQueue.size();
     }
 
-    public boolean hasPendingRequests() {
+    boolean hasPendingRequests() {
         return requestQueue.size() > 0 && sessionManager.getSessionEntries().size() > 0;
-    }
-
-    /**
-     * Returns the underlying transport
-     *
-     * @return Instance of {@link NettyTransport}
-     */
-    public T getTransport() {
-        return transport;
     }
 
     /**
      * Returns the underlying session manager for this instance
      *
-     * @return
+     * @return A {@link SessionManager} instance
      */
     public SessionManager getSessionManager() {
         return sessionManager;
@@ -394,7 +378,8 @@ public abstract class AbstractMessenger<A extends AbstractRequest, B extends Abs
         if (!requestQueue.isEmpty()) {
             log.warn("Request queue is not yet empty");
         }
-        stopped.set(true);
+        if (!messengerService.isTerminated())
+            processRequests.set(false);
         try {
             messengerService.shutdown();
             messengerService.awaitTermination(10, TimeUnit.SECONDS);

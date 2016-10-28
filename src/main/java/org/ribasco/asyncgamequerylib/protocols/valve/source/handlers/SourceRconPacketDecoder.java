@@ -28,11 +28,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import org.ribasco.asyncgamequerylib.core.Messenger;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconPacketBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconResponse;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconResponsePacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.exceptions.SourceRconExecutionException;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourceRconAuthResponsePacket;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourceRconCmdResponsePacket;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceRconAuthResponse;
@@ -41,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.function.BiConsumer;
 
 /**
  * Created by raffy on 9/24/2016.
@@ -49,14 +49,15 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketDecoder.class);
 
     private SourceRconPacketBuilder builder;
-    private Messenger<SourceRconRequest, SourceRconResponse> messenger;
+    private BiConsumer<SourceRconResponse, Throwable> responseCallback;
 
-    public SourceRconPacketDecoder(SourceRconPacketBuilder builder, Messenger<SourceRconRequest, SourceRconResponse> messenger) {
+    public SourceRconPacketDecoder(SourceRconPacketBuilder builder, BiConsumer<SourceRconResponse, Throwable> responseCallback) {
         this.builder = builder;
-        this.messenger = messenger;
+        this.responseCallback = responseCallback;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         log.debug("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
 
@@ -78,10 +79,10 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
                 response.setRequestId(packet.getId());
                 response.setResponsePacket(packet);
                 log.debug("Response Processed. Sending back to the messenger : {}", response);
-                messenger.receive(response);
+                responseCallback.accept(response, null);
                 msg.discardReadBytes();
             } else
-                throw new RuntimeException("Invalid response");
+                responseCallback.accept(null, new SourceRconExecutionException("Invalid response received"));
         } else {
             log.error("Was not able to retrieve response packet from data: ");
         }

@@ -22,25 +22,31 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.transport;
+package org.ribasco.asyncgamequerylib.core.transport.tcp;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;
 import org.ribasco.asyncgamequerylib.core.AbstractRequest;
+import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
+import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
-public class NettyTcpTransport<M extends AbstractRequest> extends NettyTransport<M> {
+/**
+ * <p>A basic TCP Transport Implementation which creates a new TCP Channel per connection</p>
+ *
+ * @param <M> A request extending {@link AbstractRequest}
+ */
+public class NettyBasicTcpTransport<M extends AbstractRequest> extends NettyTransport<M> {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyTcpTransport.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyBasicTcpTransport.class);
 
-    @Override
-    public void initialize() {
-        super.initialize();
+    public NettyBasicTcpTransport(ChannelType channelType) {
+        super(channelType);
         NettyTransport transport = this;
         getBootstrap().handler(new ChannelInitializer<SocketChannel>() {
             @Override
@@ -48,12 +54,6 @@ public class NettyTcpTransport<M extends AbstractRequest> extends NettyTransport
                 getChannelInitializer().initializeChannel(ch, transport);
             }
         });
-    }
-
-    @Override
-    public Void cleanupChannel(Channel c) {
-        //not implemented
-        return null;
     }
 
     @Override

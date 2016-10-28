@@ -31,7 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A Builder for Clan Search Criteria
+ * A Builder class for Clan Search Criteria
  */
 public class CocSearchCriteria {
     private Map<String, Object> criteria = new HashMap<>();

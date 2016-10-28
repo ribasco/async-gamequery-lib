@@ -24,15 +24,9 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.news;
 
-import org.apache.commons.lang3.StringUtils;
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamNewsRequest;
 
-/**
- * Created by raffy on 10/25/2016.
- */
-public class GetNewsForApp extends SteamWebApiRequest {
+public class GetNewsForApp extends SteamNewsRequest {
 
     private int appId;
     private int maxLength = -1;
@@ -41,21 +35,12 @@ public class GetNewsForApp extends SteamWebApiRequest {
     private String feeds = null;
 
     public GetNewsForApp(int apiVersion, int appId) {
-        super(SteamApiConstants.STEAM_NEWS, "GetNewsForApp", apiVersion);
-        this.appId = appId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        requestBuilder.addQueryParam("appid", String.valueOf(appId));
-        if (maxLength > 0)
-            requestBuilder.addQueryParam("maxlength", String.valueOf(maxLength));
-        if (endDate > 0)
-            requestBuilder.addQueryParam("enddate", String.valueOf(endDate));
-        if (count > 0)
-            requestBuilder.addQueryParam("count", String.valueOf(count));
-        if (!StringUtils.isEmpty(feeds))
-            requestBuilder.addQueryParam("feeds", feeds);
+        super("GetNewsForApp", apiVersion);
+        param("appid", String.valueOf(appId));
+        param("maxlength", String.valueOf(maxLength));
+        param("enddate", String.valueOf(endDate));
+        param("count", String.valueOf(count));
+        param("feeds", feeds);
     }
 
     public int getAppId() {

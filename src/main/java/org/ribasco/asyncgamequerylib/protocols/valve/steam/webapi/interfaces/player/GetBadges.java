@@ -24,23 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Gets badges that are owned by a specific user
  */
-public class GetBadges extends SteamWebApiRequest {
-    private long steamId;
-
+public class GetBadges extends SteamPlayerServiceRequest {
     public GetBadges(int apiVersion, long steamId) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetBadges", apiVersion);
-        this.steamId = steamId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", steamId);
+        super("GetBadges", apiVersion);
+        param("steamid", steamId);
     }
 }

@@ -24,34 +24,19 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
-/**
- * Created by raffy on 10/26/2016.
- */
-public class GetGlobalStatsForGame extends SteamWebApiRequest {
-
-    private int appId;
-    private int count;
-    private String name;
-    private int startDate = -1;
-    private int endDate = -1;
-
+public class GetGlobalStatsForGame extends SteamUserStatsRequest {
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name) {
-        super(SteamApiConstants.STEAM_USER_STATS, "GetGlobalStatsForGame", apiVersion);
-        this.appId = appId;
-        this.count = count;
-        this.name = name;
+        this(apiVersion, appId, count, name, -1, -1);
     }
 
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("appid", this.appId);
-        addParam("count", this.count);
-        addParam("name", this.name);
-        addParam("startdate", this.startDate);
-        addParam("enddate", this.endDate);
+    public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name, int startDate, int endDate) {
+        super("GetGlobalStatsForGame", apiVersion);
+        param("appid", appId);
+        param("count", count);
+        param("name", name);
+        param("startdate", startDate);
+        param("enddate", endDate);
     }
 }

@@ -24,68 +24,42 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
-import org.asynchttpclient.Request;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.uri.Uri;
-import org.ribasco.asyncgamequerylib.core.AbstractWebRequest;
+import org.ribasco.asyncgamequerylib.core.AbstractWebApiRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Represents a Steam API Request
  */
-public abstract class SteamWebApiRequest extends AbstractWebRequest {
-
+abstract public class SteamWebApiRequest extends AbstractWebApiRequest {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiRequest.class);
 
-    private static final String URI_FORMAT = "https://api.steampowered.com/%s/%s/v%d";
-
-    private int apiVersion;
-    private String apiInterface;
-    private String apiMethod;
+    private String steamApiInterface;
+    private String steamApiMethod;
 
     public SteamWebApiRequest(String apiInterface, String apiMethod, int apiVersion) {
-        this.apiInterface = apiInterface;
-        this.apiVersion = apiVersion;
-        this.apiMethod = apiMethod;
+        super(apiVersion);
+        this.steamApiInterface = apiInterface;
+        this.steamApiMethod = apiMethod;
+        baseUrlFormat(SteamApiConstants.BASE_URL_FORMAT);
+        baseUrlProperty("interface", apiInterface);
+        baseUrlProperty("method", apiMethod);
+        baseUrlProperty("version", apiVersion);
     }
 
-    public String getApiInterface() {
-        return apiInterface;
+    public String getSteamApiInterface() {
+        return steamApiInterface;
     }
 
-    public void setApiInterface(String apiInterface) {
-        this.apiInterface = apiInterface;
+    public void setSteamApiInterface(String steamApiInterface) {
+        this.steamApiInterface = steamApiInterface;
     }
 
-    public int getApiVersion() {
-        return apiVersion;
+    public String getSteamApiMethod() {
+        return steamApiMethod;
     }
 
-    public void setApiVersion(int apiVersion) {
-        this.apiVersion = apiVersion;
-    }
-
-    public String getApiMethod() {
-        return apiMethod;
-    }
-
-    public void setApiMethod(String apiMethod) {
-        this.apiMethod = apiMethod;
-    }
-
-    @Override
-    public Request getMessage() {
-        //Retrieve our existing request builder
-        RequestBuilder builder = getRequestBuilder();
-        //Create our URI
-        Uri steamUri = Uri.create(String.format(URI_FORMAT, apiInterface, apiMethod, apiVersion));
-        log.debug("Request URI : {}", steamUri);
-        //Pass the URI
-        builder.setUri(steamUri);
-        //Apply additional request parameters from the concrete class (if available)
-        buildRequest(builder);
-        //Let our super class build the request
-        return super.getMessage();
+    public void setSteamApiMethod(String steamApiMethod) {
+        this.steamApiMethod = steamApiMethod;
     }
 }

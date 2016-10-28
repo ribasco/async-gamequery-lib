@@ -25,18 +25,20 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery;
 
 import io.netty.channel.Channel;
-import org.ribasco.asyncgamequerylib.core.transport.ChannelInitializer;
+import org.ribasco.asyncgamequerylib.core.transport.NettyChannelInitializer;
 import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.ribasco.asyncgamequerylib.core.transport.handlers.ErrorHandler;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.handlers.MasterServerPacketDecoder;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.handlers.MasterServerRequestEncoder;
 
-public class MasterServerChannelInitializer implements ChannelInitializer {
+import java.util.function.BiConsumer;
 
-    private MasterServerMessenger messenger;
+public class MasterServerChannelInitializer implements NettyChannelInitializer {
 
-    public MasterServerChannelInitializer(MasterServerMessenger messenger) {
-        this.messenger = messenger;
+    private BiConsumer<MasterServerResponse, Throwable> responseHandler;
+
+    public MasterServerChannelInitializer(BiConsumer<MasterServerResponse, Throwable> responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     @Override
@@ -44,6 +46,6 @@ public class MasterServerChannelInitializer implements ChannelInitializer {
         MasterServerPacketBuilder builder = new MasterServerPacketBuilder(transport.getAllocator());
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new MasterServerRequestEncoder(builder));
-        channel.pipeline().addLast(new MasterServerPacketDecoder(messenger, builder));
+        channel.pipeline().addLast(new MasterServerPacketDecoder(responseHandler, builder));
     }
 }

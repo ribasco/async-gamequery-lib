@@ -24,30 +24,16 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
 
 /**
  * Return a list of games owned by the player
  */
-public class GetOwnedGames extends SteamWebApiRequest {
-
-    private long steamId;
-    private boolean includeAppInfo = false;
-    private boolean includePlayedFreeGames = false;
-
+public class GetOwnedGames extends SteamPlayerServiceRequest {
     public GetOwnedGames(int apiVersion, long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
-        super(SteamApiConstants.STEAM_PLAYER_SERVICE, "GetOwnedGames", apiVersion);
-        this.steamId = steamId;
-        this.includeAppInfo = includeAppInfo;
-        this.includePlayedFreeGames = includePlayedFreeGames;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
-        addParam("include_appinfo", (this.includeAppInfo) ? 1 : 0);
-        addParam("include_played_free_games", (this.includePlayedFreeGames) ? 1 : 0);
+        super("GetOwnedGames", apiVersion);
+        param("steamid", steamId);
+        param("include_appinfo", (includeAppInfo) ? 1 : 0);
+        param("include_played_free_games", (includePlayedFreeGames) ? 1 : 0);
     }
 }

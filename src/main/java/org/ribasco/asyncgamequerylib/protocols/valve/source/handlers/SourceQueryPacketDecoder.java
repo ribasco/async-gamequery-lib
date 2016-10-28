@@ -27,12 +27,16 @@ package org.ribasco.asyncgamequerylib.protocols.valve.source.handlers;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
-import org.ribasco.asyncgamequerylib.core.Messenger;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.*;
+import org.ribasco.asyncgamequerylib.core.exceptions.AsyncGameLibCheckedException;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.SourcePacketBuilder;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceResponseFactory;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceResponsePacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceServerResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.function.BiConsumer;
 
 /**
  * Decodes the packet and wraps it to a response object
@@ -42,28 +46,33 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<DatagramPa
     private static final Logger log = LoggerFactory.getLogger(SourceQueryPacketDecoder.class);
 
     private SourcePacketBuilder builder;
-    private Messenger<SourceServerRequest, SourceServerResponse> messenger;
+    private BiConsumer<SourceServerResponse, Throwable> responseHandler;
 
-    public SourceQueryPacketDecoder(Messenger<SourceServerRequest, SourceServerResponse> messenger, SourcePacketBuilder builder) {
+    public SourceQueryPacketDecoder(BiConsumer<SourceServerResponse, Throwable> responseHandler, SourcePacketBuilder builder) {
         this.builder = builder;
-        this.messenger = messenger;
+        this.responseHandler = responseHandler;
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         //Create our response packet from the datagram we received
         final SourceResponsePacket packet = builder.construct(msg.content());
 
         if (packet != null) {
-            SourceServerResponse response = SourceResponseFactory.createResponseFrom(packet);
-            if (response != null) {
-                response.setSender(msg.sender());
-                response.setRecipient(msg.recipient());
-                response.setResponsePacket(packet);
-                log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
-                //Pass the message back to the messenger
-                messenger.receive(response);
-                return;
+            try {
+                SourceServerResponse response = SourceResponseFactory.createResponseFrom(packet);
+                if (response != null) {
+                    response.setSender(msg.sender());
+                    response.setRecipient(msg.recipient());
+                    response.setResponsePacket(packet);
+                    log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
+                    //Pass the message back to the messenger
+                    responseHandler.accept(response, null);
+                    return;
+                }
+            } catch (Exception e) {
+                responseHandler.accept(null, new AsyncGameLibCheckedException("Error while decoding source query response", e));
             }
         }
         throw new IllegalStateException("No response packet found for the incoming datagram");

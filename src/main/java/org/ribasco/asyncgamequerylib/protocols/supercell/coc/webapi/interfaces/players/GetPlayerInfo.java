@@ -24,7 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.players;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
@@ -33,11 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
  */
 public class GetPlayerInfo extends CocWebApiRequest {
     public GetPlayerInfo(int apiVersion, String playerTag) {
-        super(CocApiConstants.COC_PLAYERS, String.format("/%s", encodeString(playerTag)), apiVersion);
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-
+        super(apiVersion, CocApiConstants.UF_COC_PLAYER_INFO);
+        baseUrlProperty(CocApiConstants.UF_PROP_PLAYERTAG, encode(playerTag));
     }
 }

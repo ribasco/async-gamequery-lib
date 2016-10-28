@@ -25,21 +25,16 @@
 package org.ribasco.asyncgamequerylib.core;
 
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
-import org.ribasco.asyncgamequerylib.core.session.SessionId;
-import org.ribasco.asyncgamequerylib.core.session.SessionValue;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.ribasco.asyncgamequerylib.core.utils.ConcurrentUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-public abstract class AbstractClient<Req extends AbstractRequest,
+abstract public class AbstractClient<Req extends AbstractRequest,
         Res extends AbstractResponse,
-        M extends AbstractMessenger<Req, Res, ? extends NettyTransport<Req>>>
+        M extends AbstractMessenger<Req, Res>>
         implements Client<Req, Res> {
     private M messenger;
 
@@ -65,42 +60,15 @@ public abstract class AbstractClient<Req extends AbstractRequest,
     }
 
     public <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
-        return sendRequest(message, null, priority);
-    }
-
-    @Override
-    public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback) {
-        return sendRequest(message, callback, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
-    }
-
-    public <V> CompletableFuture<V> sendRequest(Req message, Callback<V> callback, RequestPriority priority) {
         log.debug("Sending request : {}", message);
         //Send the request then transform the result once a response is received
-        final CompletableFuture<V> messengerPromise = messenger.send(message, priority)
-                .thenApply((Res response) -> (V) response.getMessage());
-        if (callback != null) {
-            messengerPromise.whenComplete((result, throwable) -> callback.onComplete(result, message.recipient(), throwable));
-        }
         ConcurrentUtils.sleepUninterrupted(getSleepTime());
-        return messengerPromise;
+        return messenger.send(message, priority).thenApply(this::convertToResultType);
     }
 
-    public void waitForAll() {
-        final Collection<Map.Entry<SessionId, SessionValue<Req, Res>>> entries = messenger.getRemaining();
-        try {
-            log.debug("There are still {} requests that are pending", entries.size());
-            while (messenger.hasPendingRequests()
-                    || messenger.getRemaining().size() > 0) {
-                log.debug("Waiting... Session Size: {} - Request Size: {}", entries.size(), messenger.getPendingRequestSize());
-                synchronized (messenger.getSessionManager()) {
-                    entries.stream().forEachOrdered(entry -> log.debug(">> Pending Session Id: {}, Promise: {}, Status: {}", entry.getKey(), entry.getValue().getClientPromise(), entry.getValue().getRequestDetails().getStatus()));
-                }
-                Thread.sleep(1000);
-            }
-            log.debug("No more pending requests found");
-        } catch (InterruptedException e) {
-            log.error(e.getMessage(), e);
-        }
+    @SuppressWarnings("unchecked")
+    private <V> V convertToResultType(Res message) {
+        return (V) message.getMessage();
     }
 
     public M getMessenger() {
@@ -113,10 +81,6 @@ public abstract class AbstractClient<Req extends AbstractRequest,
 
     @Override
     public void close() throws IOException {
-        if (getMessenger().hasPendingRequests()) {
-            log.warn("There are still entries pending");
-            waitForAll();
-        }
         log.debug("Shutting down messenger");
         if (messenger != null)
             messenger.close();

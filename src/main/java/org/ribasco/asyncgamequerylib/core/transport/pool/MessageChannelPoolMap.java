@@ -59,7 +59,7 @@ public class MessageChannelPoolMap<M extends AbstractMessage, K>
     };
 
     /**
-     * <p>Accepts two functions that will be used internally for processing the key and creating the {@link ChannelPool}</p>
+     * <p>Accepts two functions that will be used internally for processing the key and creation of the {@link ChannelPool} instance</p>
      *
      * @param keyResolver A function that accepts an {@link AbstractMessage} as the input and returns a type of a key (as specified).
      *                    This will be used to resolve keys based on the {@link AbstractMessage} argument.

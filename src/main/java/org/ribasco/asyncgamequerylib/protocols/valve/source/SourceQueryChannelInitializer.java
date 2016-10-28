@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.source;
 
 import io.netty.channel.Channel;
-import org.ribasco.asyncgamequerylib.core.transport.ChannelInitializer;
+import org.ribasco.asyncgamequerylib.core.transport.NettyChannelInitializer;
 import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 import org.ribasco.asyncgamequerylib.core.transport.handlers.ErrorHandler;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.handlers.SourceQueryPacketAssembler;
@@ -34,14 +34,16 @@ import org.ribasco.asyncgamequerylib.protocols.valve.source.handlers.SourceQuery
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SourceQueryChannelInitializer implements ChannelInitializer {
+import java.util.function.BiConsumer;
+
+public class SourceQueryChannelInitializer implements NettyChannelInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryChannelInitializer.class);
 
-    private SourceQueryMessenger messenger;
+    private BiConsumer<SourceServerResponse, Throwable> responseHandler;
 
-    public SourceQueryChannelInitializer(SourceQueryMessenger messenger) {
-        this.messenger = messenger;
+    public SourceQueryChannelInitializer(BiConsumer<SourceServerResponse, Throwable> responseHandler) {
+        this.responseHandler = responseHandler;
     }
 
     @Override
@@ -51,6 +53,6 @@ public class SourceQueryChannelInitializer implements ChannelInitializer {
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceQueryRequestEncoder(builder));
         channel.pipeline().addLast(new SourceQueryPacketAssembler());
-        channel.pipeline().addLast(new SourceQueryPacketDecoder(messenger, builder));
+        channel.pipeline().addLast(new SourceQueryPacketDecoder(responseHandler, builder));
     }
 }

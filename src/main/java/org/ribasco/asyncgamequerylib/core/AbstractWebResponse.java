@@ -24,20 +24,26 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
-import com.google.gson.JsonObject;
+import io.netty.handler.codec.http.HttpStatusClass;
+import org.asynchttpclient.Response;
 
-public abstract class AbstractWebResponse<T> extends AbstractResponse<T> {
-    private JsonObject jsonObject;
+import java.net.InetSocketAddress;
 
-    public AbstractWebResponse(JsonObject jsonObject) {
-        super(null);
-        this.jsonObject = jsonObject;
+abstract public class AbstractWebResponse extends AbstractResponse<Response> {
+
+    private Response response;
+
+    public AbstractWebResponse(Response response) {
+        super((InetSocketAddress) response.getRemoteAddress(), (InetSocketAddress) response.getLocalAddress());
+        this.response = response;
     }
 
-    protected abstract T convert(JsonObject root);
+    public HttpStatusClass getStatus() {
+        return HttpStatusClass.valueOf(this.response.getStatusCode());
+    }
 
     @Override
-    public T getMessage() {
-        return convert(jsonObject);
+    public Response getMessage() {
+        return this.response;
     }
 }

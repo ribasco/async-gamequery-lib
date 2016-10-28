@@ -24,12 +24,19 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi;
 
+import io.netty.handler.codec.http.HttpStatusClass;
 import org.ribasco.asyncgamequerylib.core.AbstractWebApiInterface;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.exceptions.CocIncorrectParametersException;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.exceptions.CocWebApiException;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-/**
- * Created by raffy on 10/28/2016.
- */
-public abstract class CocWebApiInterface extends AbstractWebApiInterface<CocWebApiClient, CocWebApiRequest> {
+abstract public class CocWebApiInterface
+        extends AbstractWebApiInterface<CocWebApiClient, CocWebApiRequest, CocWebApiResponse> {
+
+    private static final Logger log = LoggerFactory.getLogger(CocWebApiInterface.class);
+
     /**
      * <p>Default Constructor</p>
      *
@@ -37,5 +44,29 @@ public abstract class CocWebApiInterface extends AbstractWebApiInterface<CocWebA
      */
     public CocWebApiInterface(CocWebApiClient client) {
         super(client);
+    }
+
+    /**
+     * Handle Error Events
+     *
+     * @param response
+     * @param error
+     */
+    @Override
+    protected void errorHandler(CocWebApiResponse response, Throwable error) {
+        if (error != null)
+            throw new CocWebApiException(error);
+        if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
+            if (response.getProcessedContent() != null) {
+                CocErrorResponse err = builder().fromJson(response.getProcessedContent(), CocErrorResponse.class);
+                log.error("[ERROR FROM {}]: Reason: {}, Message: {}", response.sender(), err.getReason(), err.getMessage());
+            }
+            switch (response.getMessage().getStatusCode()) {
+                case 400:
+                    throw new CocIncorrectParametersException("Incorrect parameters provided for request");
+            }
+            //Let the base class handle the rest
+            super.errorHandler(response, error);
+        }
     }
 }

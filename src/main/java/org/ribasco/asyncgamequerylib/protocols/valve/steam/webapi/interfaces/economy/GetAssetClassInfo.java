@@ -24,38 +24,24 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
 
 import java.util.List;
 
-public class GetAssetClassInfo extends SteamWebApiRequest {
-
-    private int appId;
-    private String language;
-    private Long[] classIds;
-
+public class GetAssetClassInfo extends SteamEconomyRequest {
     public GetAssetClassInfo(int apiVersion, int appId, List<Long> classIds) {
         this(apiVersion, appId, null, classIds.toArray(new Long[0]));
     }
 
     public GetAssetClassInfo(int apiVersion, int appId, String language, Long... classIds) {
-        super(SteamApiConstants.STEAM_ECONOMY, "GetAssetClassInfo", apiVersion);
-        this.appId = appId;
-        this.language = language;
-        this.classIds = classIds;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("appid", this.appId);
+        super("GetAssetClassInfo", apiVersion);
+        param("appid", appId);
         //Add class id params
-        if (this.classIds != null) {
-            addParam("class_count", this.classIds.length);
-            addParam("language", this.language);
+        if (classIds != null) {
+            param("class_count", classIds.length);
+            param("language", language);
             for (int i = 0; i < classIds.length; i++)
-                addParam(String.format("classid%d", i), classIds[i]);
+                param(String.format("classid%d", i), classIds[i]);
         }
     }
 }

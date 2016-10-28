@@ -60,7 +60,7 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
         //Check first if the promise has been completed
         if (session.getClientPromise() != null && !session.getClientPromise().isDone() && !session.getClientPromise().isCancelled() && !timeout.isCancelled()) {
             //Send a ReadTimeoutException to the client
-            session.getClientPromise().completeExceptionally(new ReadTimeoutException(id, String.format("Timeout occured for '%s' Started: %d minutes ago", id, Duration.ofMillis(System.currentTimeMillis() - session.getTimeRegistered()).toMinutes())));
+            session.getClientPromise().completeExceptionally(new ReadTimeoutException(id, String.format("Timeout occured for '%s' Started: %f seconds ago", id, ((double) Duration.ofMillis(System.currentTimeMillis() - session.getTimeRegistered()).toMillis() / 1000.0))));
         }
     }
 }

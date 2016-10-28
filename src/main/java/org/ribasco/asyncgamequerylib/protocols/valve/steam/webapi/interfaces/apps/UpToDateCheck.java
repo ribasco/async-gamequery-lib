@@ -24,43 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
 
 /**
  * Created by raffy on 10/25/2016.
  */
-public class UpToDateCheck extends SteamWebApiRequest {
-
-    private int appId;
-    private int serverVersion;
-
+public class UpToDateCheck extends SteamAppsRequest {
     public UpToDateCheck(int version, int serverVersion, int appId) {
-        super(SteamApiConstants.STEAM_APPS, "UpToDateCheck", version);
-        this.appId = appId;
-        this.serverVersion = serverVersion;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        requestBuilder.addQueryParam("appid", String.valueOf(getAppId()));
-        requestBuilder.addQueryParam("version", String.valueOf(getServerVersion()));
-    }
-
-    public int getServerVersion() {
-        return serverVersion;
-    }
-
-    public void setServerVersion(int serverVersion) {
-        this.serverVersion = serverVersion;
-    }
-
-    public int getAppId() {
-        return appId;
-    }
-
-    public void setAppId(int appId) {
-        this.appId = appId;
+        super("UpToDateCheck", version);
+        param("appid", appId);
+        param("version", serverVersion);
     }
 }

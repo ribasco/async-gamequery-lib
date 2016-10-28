@@ -22,17 +22,36 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.transport.handlers.packet;
+package org.ribasco.asyncgamequerylib.core.transport.udp;
 
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
-import io.netty.handler.codec.MessageToMessageDecoder;
+import io.netty.channel.pool.ChannelPool;
+import org.ribasco.asyncgamequerylib.core.AbstractRequest;
+import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
+import org.ribasco.asyncgamequerylib.core.transport.NettyPooledTransport;
+import org.ribasco.asyncgamequerylib.core.transport.pool.ConnectionlessChannelPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.List;
+/**
+ * A pooled udp transport implementation
+ *
+ * @param <M> A type extending {@link AbstractRequest}
+ */
+public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, Class<?>> {
+    private static final Logger log = LoggerFactory.getLogger(NettyPooledUdpTransport.class);
 
-public class DefaultResponsePacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
+    public NettyPooledUdpTransport(ChannelType channelType) {
+        super(channelType);
+    }
+
     @Override
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+    public Class<?> createKey(M message) {
+        return message.getClass();
+    }
 
+    @Override
+    public ChannelPool createChannelPool(Class<?> key) {
+        log.debug("Creating Channel Pool For : {}", key.getSimpleName());
+        return new ConnectionlessChannelPool(getBootstrap(), channelPoolHandler);
     }
 }

@@ -26,17 +26,23 @@ package org.ribasco.asyncgamequerylib.core;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import io.netty.handler.codec.http.HttpStatusClass;
+import org.ribasco.asyncgamequerylib.core.client.AbstractApiClient;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
+import org.ribasco.asyncgamequerylib.core.exceptions.*;
 
 import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>An API Interface containing a set/group of methods that are usually defined by the publisher</p>
  *
- * @param <T> Any class extending {@link AbstractRestClient}
- * @param <R> Any class extending {@link AbstractWebRequest}
+ * @param <T>   Any class extending {@link AbstractApiClient}
+ * @param <Req> Any class extending {@link AbstractWebRequest}
  */
-public abstract class AbstractWebApiInterface<T extends AbstractRestClient, R extends AbstractWebRequest> {
+abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
+        Req extends AbstractWebApiRequest,
+        Res extends AbstractWebApiResponse<JsonElement>> {
     private T client;
     private GsonBuilder gsonBuilder = new GsonBuilder();
     private Gson jsonBuilder;
@@ -49,7 +55,7 @@ public abstract class AbstractWebApiInterface<T extends AbstractRestClient, R ex
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractRestClient} instance
+     * @param client A {@link AbstractApiClient} instance
      */
     public AbstractWebApiInterface(T client) {
         this.client = client;
@@ -75,8 +81,10 @@ public abstract class AbstractWebApiInterface<T extends AbstractRestClient, R ex
      *
      * @return A {@link CompletableFuture} that will hold the expected value once a response has been received by the server
      */
-    protected <T> CompletableFuture<T> sendRequest(R request) {
-        return client.sendRequest(request);
+    @SuppressWarnings("unchecked")
+    protected <A> CompletableFuture<A> sendRequest(Req request) {
+        CompletableFuture<Res> responseFuture = client.sendRequest(request);
+        return responseFuture.whenComplete(this::errorHandler).thenApply(this::convertToJsonObject);
     }
 
     /**
@@ -86,5 +94,50 @@ public abstract class AbstractWebApiInterface<T extends AbstractRestClient, R ex
      */
     protected void configureBuilder(GsonBuilder builder) {
         //no implementation
+    }
+
+    /**
+     * The default error handler
+     *
+     * @param response
+     * @param error
+     */
+    protected void errorHandler(Res response, Throwable error) {
+        if (error != null)
+            throw new WebException(error);
+        if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
+            switch (response.getMessage().getStatusCode()) {
+                case 400:
+                    throw new BadRequestException("Incorrect parameters provided for request");
+                case 403:
+                    throw new AccessDeniedException("Access denied, either because of missing/incorrect credentials or used API token does not grant access to the requested resource.");
+                case 404:
+                    throw new ResourceNotFoundException("Resource was not found.");
+                case 429:
+                    throw new TooManyRequestsException("Request was throttled, because amount of requests was above the threshold defined for the used API token.");
+                case 500:
+                    throw new UnknownWebException("Unknown error happened when handling the request.");
+                case 503:
+                    throw new ServiceUnavailableException("Service is temprorarily unavailable because of maintenance.");
+                default:
+                    throw new WebException("Unknown error occured on request send");
+            }
+        }
+    }
+
+    /**
+     * A convenience method to convert the response to {@link com.google.gson.JsonObject}
+     *
+     * @param response
+     * @param <A>
+     *
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    private <A> A convertToJsonObject(Res response) {
+        JsonElement processedElement = response.getProcessedContent();
+        if (processedElement != null)
+            return (A) processedElement.getAsJsonObject();
+        throw new AsyncGameLibUncheckedException("No parsed content found for response" + response);
     }
 }

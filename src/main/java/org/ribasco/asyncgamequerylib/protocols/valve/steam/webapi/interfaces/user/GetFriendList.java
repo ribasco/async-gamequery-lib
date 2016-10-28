@@ -24,29 +24,15 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
-
-import static org.apache.commons.lang3.StringUtils.defaultIfEmpty;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserRequest;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetFriendList extends SteamWebApiRequest {
-
-    private long steamId;
-    private String relationship = "friend";
-
+public class GetFriendList extends SteamUserRequest {
     public GetFriendList(int apiVersion, long steamId, String relationship) {
-        super(SteamApiConstants.STEAM_USER, "GetFriendList", apiVersion);
-        this.steamId = steamId;
-        this.relationship = defaultIfEmpty(relationship, "friend");
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", this.steamId);
-        addParam("relationship", this.relationship);
+        super("GetFriendList", apiVersion);
+        param("steamid", steamId);
+        param("relationship", relationship);
     }
 }

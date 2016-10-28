@@ -24,24 +24,12 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi;
 
-import com.google.gson.JsonObject;
-import org.ribasco.asyncgamequerylib.core.AbstractWebResponse;
+import com.google.gson.JsonElement;
+import org.asynchttpclient.Response;
+import org.ribasco.asyncgamequerylib.core.AbstractWebApiResponse;
 
-/**
- * Created by raffy on 10/27/2016.
- */
-public class CocWebApiResponse extends AbstractWebResponse {
-    public CocWebApiResponse(JsonObject jsonObject) {
-        super(jsonObject);
-    }
-
-    @Override
-    protected Object convert(JsonObject root) {
-        return null;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
+public class CocWebApiResponse extends AbstractWebApiResponse<JsonElement> {
+    public CocWebApiResponse(Response response) {
+        super(response);
     }
 }

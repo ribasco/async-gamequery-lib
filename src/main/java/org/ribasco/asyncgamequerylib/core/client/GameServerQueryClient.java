@@ -28,11 +28,10 @@ import org.ribasco.asyncgamequerylib.core.AbstractClient;
 import org.ribasco.asyncgamequerylib.core.AbstractGameServerRequest;
 import org.ribasco.asyncgamequerylib.core.AbstractGameServerResponse;
 import org.ribasco.asyncgamequerylib.core.messenger.GameServerMessenger;
-import org.ribasco.asyncgamequerylib.core.transport.NettyTransport;
 
 public abstract class GameServerQueryClient<Req extends AbstractGameServerRequest,
         Res extends AbstractGameServerResponse,
-        M extends GameServerMessenger<Req, Res, ? extends NettyTransport<Req>>>
+        M extends GameServerMessenger<Req, Res>>
         extends AbstractClient<Req, Res, M> {
     public GameServerQueryClient(M messenger) {
         super(messenger);

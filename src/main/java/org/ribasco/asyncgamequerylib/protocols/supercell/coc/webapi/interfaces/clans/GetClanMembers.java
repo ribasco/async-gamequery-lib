@@ -24,7 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.clans;
 
-import org.asynchttpclient.RequestBuilder;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiRequest;
 
@@ -32,19 +31,11 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
  * Created by raffy on 10/27/2016.
  */
 public class GetClanMembers extends CocWebApiRequest {
-
-    private int limit;
-    private int after;
-    private int before;
-
     public GetClanMembers(int apiVersion, String clanTag, int limit, int after, int before) {
-        super(CocApiConstants.COC_CLANS, String.format("/%s/members", encodeString(clanTag)), apiVersion);
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("limit", this.limit);
-        addParam("after", this.after);
-        addParam("before", this.before);
+        super(apiVersion, CocApiConstants.UF_COC_CLAN_MEMBERS);
+        baseUrlProperty(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
+        limit(limit);
+        before(before);
+        after(after);
     }
 }

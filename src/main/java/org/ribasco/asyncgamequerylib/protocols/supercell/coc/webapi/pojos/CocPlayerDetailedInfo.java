@@ -1,8 +1,5 @@
 package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.List;
 
 public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
@@ -109,9 +106,7 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
 
     @Override
     public String toString() {
-        String superClassStr = super.toString();
-        String detailedClass = new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("attackWins", attackWins)
+        return superStringBuilder().append("attackWins", attackWins)
                 .append("defenseWins", defenseWins)
                 .append("clan", clan)
                 .append("bestTrophies", bestTrophies)
@@ -123,6 +118,5 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
                 .append("heroes", heroes)
                 .append("spells", spells)
                 .toString();
-        return superClassStr + "," + detailedClass;
     }
 }

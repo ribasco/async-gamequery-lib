@@ -24,26 +24,12 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
-import org.asynchttpclient.RequestBuilder;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
-/**
- * Created by raffy on 10/26/2016.
- */
-public class GetUserStatsForGame extends SteamWebApiRequest {
-    private long steamId;
-    private int appId;
-
+public class GetUserStatsForGame extends SteamUserStatsRequest {
     public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
-        super(SteamApiConstants.STEAM_USER_STATS, "GetUserStatsForGame", apiVersion);
-        this.steamId = steamId;
-        this.appId = appId;
-    }
-
-    @Override
-    protected void buildRequest(RequestBuilder requestBuilder) {
-        addParam("steamid", steamId);
-        addParam("appid", appId);
+        super("GetUserStatsForGame", apiVersion);
+        param("steamid", steamId);
+        param("appid", appId);
     }
 }

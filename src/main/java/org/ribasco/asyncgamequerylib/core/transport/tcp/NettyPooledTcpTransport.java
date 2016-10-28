@@ -22,35 +22,34 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.core.transport;
+package org.ribasco.asyncgamequerylib.core.transport.tcp;
 
-import org.asynchttpclient.AsyncHttpClient;
-import org.asynchttpclient.DefaultAsyncHttpClient;
-import org.asynchttpclient.Response;
-import org.ribasco.asyncgamequerylib.core.AbstractWebRequest;
-import org.ribasco.asyncgamequerylib.core.Transport;
+import io.netty.channel.pool.ChannelPool;
+import io.netty.channel.pool.SimpleChannelPool;
+import org.ribasco.asyncgamequerylib.core.AbstractRequest;
+import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
+import org.ribasco.asyncgamequerylib.core.transport.NettyPooledTransport;
 
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
+import java.net.InetSocketAddress;
 
-public abstract class AsyncHttpTransport<Req extends AbstractWebRequest> implements Transport<Req> {
-    private AsyncHttpClient httpTransport;
-
-    public AsyncHttpTransport() {
-        httpTransport = new DefaultAsyncHttpClient();
+/**
+ * <p>A Pooled TCP Transport implementation which creates and reuse channels stored within a pool map.
+ * {@link InetSocketAddress} is used as the key for the {@link io.netty.channel.pool.ChannelPoolMap} implementation</p>
+ *
+ * @param <M>
+ */
+public class NettyPooledTcpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, InetSocketAddress> {
+    public NettyPooledTcpTransport(ChannelType channelType) {
+        super(channelType);
     }
 
     @Override
-    public CompletableFuture<Void> send(Req data) {
-        return httpTransport.prepareRequest(data.getMessage()).execute().toCompletableFuture().thenAccept(this::doNothingAndReturnVoid);
-    }
-
-    private void doNothingAndReturnVoid(Response response) {
-        //do nothing
+    public InetSocketAddress createKey(M message) {
+        return message.recipient();
     }
 
     @Override
-    public void close() throws IOException {
-        httpTransport.close();
+    public ChannelPool createChannelPool(InetSocketAddress key) {
+        return new SimpleChannelPool(getBootstrap().remoteAddress(key), channelPoolHandler);
     }
 }

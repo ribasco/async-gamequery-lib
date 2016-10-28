@@ -24,65 +24,68 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
+import org.apache.commons.lang3.text.StrSubstitutor;
 import org.asynchttpclient.Request;
-import org.asynchttpclient.RequestBuilder;
-import org.asynchttpclient.uri.Uri;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public abstract class AbstractWebApiRequest extends AbstractWebRequest {
+import java.util.HashMap;
+import java.util.Map;
+
+abstract public class AbstractWebApiRequest extends AbstractWebRequest {
+    public static final Logger log = LoggerFactory.getLogger(AbstractWebApiRequest.class);
+    private Map<String, String> baseUrlParams;
+    private StrSubstitutor substitutor;
     private int apiVersion;
-    private String apiInterface;
-    private String apiMethod;
-    private String uriFormat;
+    private String apiToken;
+    private String baseUrlFormat;
 
-    public AbstractWebApiRequest(int apiVersion, String apiInterface, String apiMethod) {
+    public AbstractWebApiRequest(int apiVersion) {
         this.apiVersion = apiVersion;
-        this.apiInterface = apiInterface;
-        this.apiMethod = apiMethod;
+        this.baseUrlParams = new HashMap<>();
+        this.substitutor = new StrSubstitutor(this.baseUrlParams);
     }
 
-    public String getApiInterface() {
-        return apiInterface;
-    }
-
-    public void setApiInterface(String apiInterface) {
-        this.apiInterface = apiInterface;
-    }
-
-    public int getApiVersion() {
+    public int apiVersion() {
         return apiVersion;
     }
 
-    public void setApiVersion(int apiVersion) {
+    public void apiVersion(int apiVersion) {
         this.apiVersion = apiVersion;
     }
 
-    public String getApiMethod() {
-        return apiMethod;
+    String apiToken() {
+        return apiToken;
     }
 
-    public void setApiMethod(String apiMethod) {
-        this.apiMethod = apiMethod;
+    void apiToken(String apiToken) {
+        this.apiToken = apiToken;
     }
 
-    public String getUriFormat() {
-        return uriFormat;
+    public void baseUrlProperty(String property, Object value) {
+        baseUrlParams.put(property, String.valueOf(value));
     }
 
-    public void setUriFormat(String uriFormat) {
-        this.uriFormat = uriFormat;
+    public String baseUrlProperty(String property) {
+        return baseUrlParams.get(property);
+    }
+
+    public String resolveBaseUrl() {
+        return substitutor.replace(this.baseUrlFormat);
+    }
+
+    public String baseUrlFormat() {
+        return baseUrlFormat;
+    }
+
+    public void baseUrlFormat(String baseUrlFormat) {
+        this.baseUrlFormat = baseUrlFormat;
     }
 
     @Override
     public Request getMessage() {
-        //Retrieve our existing request builder
-        RequestBuilder builder = getRequestBuilder();
-        //Create our URI
-        Uri steamUri = Uri.create(String.format(getUriFormat(), apiVersion, apiInterface, apiMethod));
-        //Pass the URI
-        builder.setUri(steamUri);
-        //Apply additional request parameters from the concrete class (if available)
-        buildRequest(builder);
-        //Let our super class build the request
+        log.info("Using Resolved URL: {}", resolveBaseUrl());
+        baseUrl(resolveBaseUrl());
         return super.getMessage();
     }
 }

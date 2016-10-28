@@ -37,9 +37,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-/**
- * Created by raffy on 10/26/2016.
- */
 public class SteamNews extends SteamWebApiInterface {
     public SteamNews(SteamWebApiClient client) {
         super(client);

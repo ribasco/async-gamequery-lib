@@ -22,13 +22,37 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans;
-
-import com.ribasco.rglib.core.client.AbstractRestClient;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.pojos;
 
 /**
- * Created by raffy on 10/27/2016.
+ * Created by raffy on 10/28/2016.
  */
-public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWebApiResponse> {
+public class CocLeagueIconUrls {
+    private String small;
+    private String tiny;
+    private String medium;
 
+    public String getSmall() {
+        return small;
+    }
+
+    public void setSmall(String small) {
+        this.small = small;
+    }
+
+    public String getTiny() {
+        return tiny;
+    }
+
+    public void setTiny(String tiny) {
+        this.tiny = tiny;
+    }
+
+    public String getMedium() {
+        return medium;
+    }
+
+    public void setMedium(String medium) {
+        this.medium = medium;
+    }
 }

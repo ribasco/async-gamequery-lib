@@ -22,10 +22,37 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.players;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.pojos;
 
 /**
- * Created by raffy on 10/27/2016.
+ * Created by raffy on 10/28/2016.
  */
-public class GetPlayerInfo {
+public class CocLocationInfo {
+    private int id;
+    private String name;
+    private boolean isCountry;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isCountry() {
+        return isCountry;
+    }
+
+    public void setCountry(boolean country) {
+        isCountry = country;
+    }
 }

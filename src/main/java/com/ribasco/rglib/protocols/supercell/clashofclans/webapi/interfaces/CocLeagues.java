@@ -22,26 +22,10 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans;
-
-import com.google.gson.JsonObject;
-import com.ribasco.rglib.core.AbstractWebResponse;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces;
 
 /**
- * Created by raffy on 10/27/2016.
+ * Created by raffy on 10/28/2016.
  */
-public class CocWebApiResponse extends AbstractWebResponse {
-    public CocWebApiResponse(JsonObject jsonObject) {
-        super(jsonObject);
-    }
-
-    @Override
-    protected Object convert(JsonObject root) {
-        return null;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
-    }
+public class CocLeagues {
 }

@@ -22,10 +22,59 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.locations;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.pojos;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
- * Created by raffy on 10/27/2016.
+ * Created by raffy on 10/28/2016.
  */
-public class GetClanRankingsForLoc {
+public class CocLocation {
+    private long id;
+    private String name;
+    private boolean isCountry;
+    private String countryCode;
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public boolean isCountry() {
+        return isCountry;
+    }
+
+    public void setCountry(boolean country) {
+        isCountry = country;
+    }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("name", getName())
+                .append("countryCode", getCountryCode())
+                .append("isCountry", isCountry())
+                .toString();
+    }
 }

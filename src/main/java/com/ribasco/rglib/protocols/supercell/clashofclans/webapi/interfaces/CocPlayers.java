@@ -22,10 +22,10 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.clans;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces;
 
 /**
- * Created by raffy on 10/27/2016.
+ * Created by raffy on 10/28/2016.
  */
-public class RetrieveClanWarLog {
+public class CocPlayers {
 }

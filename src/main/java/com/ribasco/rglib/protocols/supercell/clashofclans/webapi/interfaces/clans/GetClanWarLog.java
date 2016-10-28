@@ -22,10 +22,35 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.leagues;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi.interfaces.clans;
+
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocApiConstants;
+import com.ribasco.rglib.protocols.supercell.clashofclans.webapi.CocWebApiRequest;
+import org.asynchttpclient.RequestBuilder;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class ListLeagues {
+public class GetClanWarLog extends CocWebApiRequest {
+    private int limit;
+    private int after;
+    private int before;
+
+    public GetClanWarLog(int apiVersion, String clanTag) {
+        this(apiVersion, clanTag, -1, -1, -1);
+    }
+
+    public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
+        super(CocApiConstants.COC_CLANS, String.format("/%s/warlog", encodeUrl(clanTag)), apiVersion);
+        this.limit = limit;
+        this.after = after;
+        this.before = before;
+    }
+
+    @Override
+    protected void buildRequest(RequestBuilder requestBuilder) {
+        addParam("limit", this.limit);
+        addParam("after", this.after);
+        addParam("before", this.before);
+    }
 }

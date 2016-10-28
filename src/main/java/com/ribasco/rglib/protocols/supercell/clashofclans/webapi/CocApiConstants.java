@@ -22,10 +22,14 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package com.ribasco.rglib.protocols.supercell.clashofclans.api.leagues;
+package com.ribasco.rglib.protocols.supercell.clashofclans.webapi;
 
 /**
  * Created by raffy on 10/27/2016.
  */
-public class GetLeagueSeasons {
+public class CocApiConstants {
+    public static final String COC_CLANS = "clans";
+    public static final String COC_LOCATIONS = "locations";
+    public static final String COC_LEAGUES = "leagues";
+    public static final String COC_PLAYERS = "players";
 }

@@ -1,4 +1,4 @@
-<?xml steamApiVersion="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
   ~ MIT License
   ~
@@ -29,8 +29,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ribasco</groupId>
-    <artifactId>game-crawler-lib</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <artifactId>async-gamequery-lib</artifactId>
+    <version>0.6-SNAPSHOT</version>
 
     <build>
         <plugins>

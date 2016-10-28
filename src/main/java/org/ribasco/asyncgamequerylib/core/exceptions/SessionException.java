@@ -29,7 +29,7 @@ import org.ribasco.asyncgamequerylib.core.session.SessionId;
 /**
  * Created by raffy on 10/23/2016.
  */
-public class SessionException extends RglibCheckedException {
+public class SessionException extends AsyncGameLibCheckedException {
 
     private SessionId sessionId;
 

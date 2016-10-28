@@ -31,8 +31,14 @@ import org.ribasco.asyncgamequerylib.core.Decodable;
 import org.ribasco.asyncgamequerylib.core.utils.ByteUtils;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceGameRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceGameResponse;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.*;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.*;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.SourceChallengeRequestPacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.SourceInfoRequestPacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.SourcePlayerRequestPacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.SourceRulesRequestPacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourceChallengeResponsePacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourceInfoResponsePacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourcePlayerResponsePacket;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.response.SourceRulesResponsePacket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -160,8 +166,6 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
                 return new SourceChallengeResponsePacket();
             case INFO:
                 return new SourceInfoResponsePacket();
-            case MASTER:
-                return new SourceMasterResponsePacket();
             case PLAYER:
                 return new SourcePlayerResponsePacket();
             case RULES:
@@ -173,8 +177,6 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
                 return new SourceChallengeRequestPacket();
             case INFO:
                 return new SourceInfoRequestPacket();
-            case MASTER:
-                return new SourceMasterRequestPacket();
             case PLAYER:
                 return new SourcePlayerRequestPacket();
             case RULES:

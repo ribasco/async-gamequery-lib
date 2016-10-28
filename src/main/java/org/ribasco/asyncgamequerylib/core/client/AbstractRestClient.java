@@ -38,9 +38,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 10/15/2016.
- */
 public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Client<Req, Res> {
     private static final Logger log = LoggerFactory.getLogger(AbstractRestClient.class);
     private AsyncHttpClient httpClient;
@@ -56,11 +53,11 @@ public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res ext
         }
     };
 
-    public AbstractRestClient() {
+    protected AbstractRestClient() {
         this(new DefaultAsyncHttpClientConfig.Builder().build());
     }
 
-    public AbstractRestClient(AsyncHttpClientConfig config) {
+    private AbstractRestClient(AsyncHttpClientConfig config) {
         httpClient = new DefaultAsyncHttpClient(config);
     }
 
@@ -80,19 +77,11 @@ public abstract class AbstractRestClient<Req extends AbstractWebRequest, Res ext
         prepareRequest(builder);
         final Request request = builder.build();
         final InetSocketAddress recipient = new InetSocketAddress(request.getUri().getHost(), (request.getUri().getPort() > 0) ? request.getUri().getPort() : 80);
-        log.info("Final Request URL: {}", request.getUrl());
+        log.debug("Final Request URL: {}", request.getUrl());
         return (CompletableFuture<V>) builder.execute(jsonResponseHandler).toCompletableFuture().whenComplete((jsonElement, throwable) -> {
             if (callback != null)
                 callback.onComplete((V) jsonElement, recipient, throwable);
         });
-    }
-
-    public JsonParser getJsonParser() {
-        return jsonParser;
-    }
-
-    public void setJsonParser(JsonParser jsonParser) {
-        this.jsonParser = jsonParser;
     }
 
     @Override

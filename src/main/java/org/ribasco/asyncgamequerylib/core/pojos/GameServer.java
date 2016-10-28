@@ -33,17 +33,14 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 public abstract class GameServer extends GenericServer {
     private String name;
 
-    @Override
     public String getName() {
         return name;
     }
-
-    @Override
+    
     public void setName(String name) {
         this.name = name;
     }
 
-    @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
                 .append("name", getName()).toString();

@@ -51,7 +51,7 @@ public class SteamAssetClassInfoMapDeserializer implements JsonDeserializer<Map<
                 map.put(key, context.deserialize(value, SteamAssetClassInfo.class));
             }
         }
-        log.info("Finished populating map. Total Map Size: {}", map.size());
+        log.debug("Finished populating map. Total Map Size: {}", map.size());
         return map;
     }
 }

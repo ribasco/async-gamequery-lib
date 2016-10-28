@@ -30,8 +30,14 @@ import org.ribasco.asyncgamequerylib.core.enums.ChannelType;
 import org.ribasco.asyncgamequerylib.core.enums.ProcessingMode;
 import org.ribasco.asyncgamequerylib.core.messenger.GameServerMessenger;
 import org.ribasco.asyncgamequerylib.core.transport.NettyPooledUdpTransport;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.request.*;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.response.*;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceChallengeRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceInfoRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourcePlayerRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRulesRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceChallengeResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceInfoResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourcePlayerResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceRulesResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +73,5 @@ public class SourceQueryMessenger extends GameServerMessenger<SourceServerReques
         map.put(SourceChallengeRequest.class, SourceChallengeResponse.class);
         map.put(SourcePlayerRequest.class, SourcePlayerResponse.class);
         map.put(SourceRulesRequest.class, SourceRulesResponse.class);
-        map.put(SourceMasterServerRequest.class, SourceMasterServerResponse.class);
     }
 }

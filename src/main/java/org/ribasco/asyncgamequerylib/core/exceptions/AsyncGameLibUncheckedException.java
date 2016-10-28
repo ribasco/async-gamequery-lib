@@ -27,23 +27,23 @@ package org.ribasco.asyncgamequerylib.core.exceptions;
 /**
  * Created by raffy on 10/23/2016.
  */
-public class RglibCheckedException extends Exception {
-    public RglibCheckedException() {
+public class AsyncGameLibUncheckedException extends RuntimeException {
+    public AsyncGameLibUncheckedException() {
     }
 
-    public RglibCheckedException(String message) {
+    public AsyncGameLibUncheckedException(String message) {
         super(message);
     }
 
-    public RglibCheckedException(String message, Throwable cause) {
+    public AsyncGameLibUncheckedException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public RglibCheckedException(Throwable cause) {
+    public AsyncGameLibUncheckedException(Throwable cause) {
         super(cause);
     }
 
-    public RglibCheckedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public AsyncGameLibUncheckedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

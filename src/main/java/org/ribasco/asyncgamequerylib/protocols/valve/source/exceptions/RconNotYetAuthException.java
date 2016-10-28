@@ -24,12 +24,12 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.source.exceptions;
 
-import org.ribasco.asyncgamequerylib.core.exceptions.RglibCheckedException;
+import org.ribasco.asyncgamequerylib.core.exceptions.AsyncGameLibCheckedException;
 
 /**
- * An {@link RglibCheckedException} thrown during authentication errors
+ * An {@link AsyncGameLibCheckedException} thrown during authentication errors
  */
-public class RconNotYetAuthException extends RglibCheckedException {
+public class RconNotYetAuthException extends AsyncGameLibCheckedException {
     public RconNotYetAuthException() {
     }
 

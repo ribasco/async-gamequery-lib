@@ -24,10 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.core.exceptions;
 
-/**
- * Created by raffy on 10/24/2016.
- */
-public class TimeoutException extends RglibUncheckedException {
+public class TimeoutException extends AsyncGameLibUncheckedException {
     public TimeoutException() {
     }
 

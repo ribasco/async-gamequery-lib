@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class ListUtils {
 
     /**

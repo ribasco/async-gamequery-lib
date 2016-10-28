@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
-/**
- * Created by raffy on 9/6/2016.
- */
 public interface Packet {
     byte getSingleBytePacketHeader();
 

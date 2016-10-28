@@ -30,9 +30,6 @@ import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 10/28/2016.
- */
 public abstract class AbstractWebApiInterface<T extends AbstractRestClient, R extends AbstractWebRequest> {
     private T client;
     private GsonBuilder gsonBuilder = new GsonBuilder();

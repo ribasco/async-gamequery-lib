@@ -24,9 +24,6 @@
 
 package org.ribasco.asyncgamequerylib.core.utils;
 
-/**
- * Created by raffy on 10/14/2016.
- */
 public class ConcurrentUtils {
     public static void sleepUninterrupted(int milliseconds) {
         try {

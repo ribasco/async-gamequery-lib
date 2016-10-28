@@ -33,9 +33,6 @@ import org.slf4j.LoggerFactory;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-/**
- * Created by raffy on 9/15/2016.
- */
 public abstract class AbstractWebRequest extends AbstractRequest<Request> {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractWebRequest.class);

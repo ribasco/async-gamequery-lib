@@ -28,9 +28,6 @@ import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.uri.Uri;
 
-/**
- * Created by raffy on 10/28/2016.
- */
 public abstract class AbstractWebApiRequest extends AbstractWebRequest {
     private int apiVersion;
     private String apiInterface;

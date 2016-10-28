@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core.pojos;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 8/28/2016.
- */
 public abstract class GenericServer {
 
     private InetSocketAddress address;

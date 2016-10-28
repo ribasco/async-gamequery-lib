@@ -28,9 +28,6 @@ import java.util.Arrays;
 import java.util.function.Function;
 import java.util.function.IntFunction;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class ArrayUtils {
     /**
      * <p>Convert one array type to another</p>

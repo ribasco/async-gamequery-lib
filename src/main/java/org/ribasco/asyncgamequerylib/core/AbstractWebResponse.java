@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import com.google.gson.JsonObject;
 
-/**
- * Created by raffy on 10/25/2016.
- */
 public abstract class AbstractWebResponse<T> extends AbstractResponse<T> {
     private JsonObject jsonObject;
 

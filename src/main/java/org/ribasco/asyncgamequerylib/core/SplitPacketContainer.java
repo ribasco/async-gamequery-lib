@@ -32,9 +32,6 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
-/**
- * Created by raffy on 9/10/2016.
- */
 public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>> {
     private static final Logger log = LoggerFactory.getLogger(SplitPacketContainer.class);
     private TreeMap<Integer, byte[]> container = new TreeMap<>();
@@ -77,9 +74,7 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
      * @param action
      */
     public void forEachPacket(Consumer<? super byte[]> action) {
-        container.entrySet().stream().forEachOrdered(entry -> {
-            action.accept(entry.getValue());
-        });
+        container.entrySet().stream().forEachOrdered(entry -> action.accept(entry.getValue()));
     }
 
     /**

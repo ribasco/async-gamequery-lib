@@ -30,9 +30,6 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.ribasco.asyncgamequerylib.core.utils.ByteUtils;
 
-/**
- * Created by raffy on 9/16/2016.
- */
 public abstract class AbstractPacket implements Packet {
     private byte[] header = new byte[0];
     private byte[] payload = new byte[0];

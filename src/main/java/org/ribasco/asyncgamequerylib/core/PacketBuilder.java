@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.core;
 
 import io.netty.buffer.ByteBuf;
 
-/**
- * Created by raffy on 9/16/2016.
- */
 public interface PacketBuilder<A extends Packet> {
     <T extends A> T construct(ByteBuf data);
 

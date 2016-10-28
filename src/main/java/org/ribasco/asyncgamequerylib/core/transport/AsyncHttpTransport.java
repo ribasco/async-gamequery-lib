@@ -33,9 +33,6 @@ import org.ribasco.asyncgamequerylib.core.Transport;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 10/25/2016.
- */
 public abstract class AsyncHttpTransport<Req extends AbstractWebRequest> implements Transport<Req> {
     private AsyncHttpClient httpTransport;
 

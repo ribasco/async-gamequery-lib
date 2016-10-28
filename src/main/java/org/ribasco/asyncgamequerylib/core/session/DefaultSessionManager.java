@@ -43,9 +43,6 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
-/**
- * Created by raffy on 9/25/2016.
- */
 public class DefaultSessionManager<Req extends AbstractRequest,
         Res extends AbstractResponse>
         implements SessionManager<Req, Res> {
@@ -53,7 +50,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     private static final Logger log = LoggerFactory.getLogger(DefaultSessionManager.class);
     private static final int DEFAULT_READ_TIMEOUT = 15;
     private HashedWheelTimer sessionTimer;
-    private SessionIdFactory factory;
+    private AbstractSessionIdFactory factory;
     private final Multimap<SessionId, SessionValue<Req, Res>> session = Multimaps.synchronizedSortedSetMultimap(TreeMultimap.create(new SessionIdComparator(), new SessionValueComparator()));
     private Map<Class<? extends Req>, Class<? extends Res>> directory = null;
     private final AtomicLong indexCounter = new AtomicLong();
@@ -80,7 +77,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         sessionTimer = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("timeout-%d").setDaemon(true).build());
         directory = new HashMap<>();
         this.factory = (factory != null) ? factory : new DefaultSessionIdFactory();
-        factory.setLookup(directory);
+        this.factory.setLookup(directory);
     }
 
     @Override
@@ -144,10 +141,6 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     public boolean unregister(SessionValue sessionValue) {
         log.debug("Unregistering session {}", sessionValue.getId());
         synchronized (this) {
-            if (sessionValue == null) {
-                log.error("Session Value is null {}", session.entries().size());
-                return false;
-            }
             //Cancel the timeout instance
             if (sessionValue.getTimeout() != null) {
                 sessionValue.getTimeout().cancel();

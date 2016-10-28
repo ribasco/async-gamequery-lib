@@ -30,9 +30,6 @@ import io.netty.handler.codec.MessageToMessageDecoder;
 
 import java.util.List;
 
-/**
- * Created by raffy on 10/22/2016.
- */
 public class DefaultResponsePacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {

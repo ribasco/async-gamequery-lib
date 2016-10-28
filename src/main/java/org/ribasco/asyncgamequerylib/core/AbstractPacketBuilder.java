@@ -27,9 +27,6 @@ package org.ribasco.asyncgamequerylib.core;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public abstract class AbstractPacketBuilder<T extends AbstractPacket> implements PacketBuilder<T> {
     private ByteBufAllocator allocator;
 

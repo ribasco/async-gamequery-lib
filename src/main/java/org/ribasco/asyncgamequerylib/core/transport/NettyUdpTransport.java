@@ -34,9 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 9/13/2016.
- */
 public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport<M> {
 
     private Logger log = LoggerFactory.getLogger(NettyUdpTransport.class);
@@ -67,9 +64,7 @@ public class NettyUdpTransport<M extends AbstractRequest> extends NettyTransport
             bind(0).addListener((ChannelFuture future) -> {
                 if (future.isSuccess()) {
                     channel = (NioDatagramChannel) future.channel();
-                    channel.closeFuture().addListener((ChannelFuture f) -> {
-                        log.info("CHANNEL CLOSED: {}, Is Open: {}, For Address: {}, Cause: {}", f.channel().id(), f.channel().isOpen(), message.recipient(), f.cause());
-                    });
+                    channel.closeFuture().addListener((ChannelFuture f) -> log.debug("CHANNEL CLOSED: {}, Is Open: {}, For Address: {}, Cause: {}", f.channel().id(), f.channel().isOpen(), message.recipient(), f.cause()));
                     cf.complete(channel);
                 } else {
                     channel = null;

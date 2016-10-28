@@ -37,9 +37,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Created by raffy on 9/14/2016.
- */
 public abstract class AbstractClient<Req extends AbstractRequest,
         Res extends AbstractResponse,
         M extends AbstractMessenger<Req, Res, ? extends NettyTransport<Req>>>

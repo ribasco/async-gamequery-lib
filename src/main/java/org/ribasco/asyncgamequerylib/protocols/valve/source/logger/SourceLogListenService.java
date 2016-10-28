@@ -32,26 +32,67 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
- * <p>Listens for log messages from a Source Based Server</p>
- * <p>Note: You need to issue the RCON Command <code>'logaddress_add [ip:port]'</code> in the source server to use this service</p>
+ * <p>Listens for raw log messages from a Source Based Server.</p>
+ *
+ * <p>
+ * <strong>NOTE:</strong> You need to issue the RCON Command <code>'logaddress_add [ip:port]'</code> to receive log messages from the game server.
+ * Make sure that the port specified is not being blocked by an external service or firewall
+ * </p>
+ * <h3>Example Usage</h3>
+ * <pre>
+ * {@code
+ *  SourceLogListenService service = new SourceLogListenService(new InetSocketAddress(0));
+ *
+ *     service.setLogEventCallback(SourceLogEventHandler::handleLogMessages);
+ *     service.listen();
+ *
+ *     public class SourceLogEventPrinter {
+ *         public static void handleLogMessages(SourceLogEntry logEntry) {
+ *             System.out.println(logEntry.getMessage());
+ *         }
+ *     }
+ * }
+ * </pre>
  */
-public class SourceLogListenService {
+public class SourceLogListenService implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenService.class);
     private InetSocketAddress listenAddress;
     private Bootstrap bootstrap;
     private static final NioEventLoopGroup listenWorkGroup = new NioEventLoopGroup();
-    private Consumer<RawLogEntry> rawLogEventCallback;
+    private Consumer<SourceLogEntry> logEventCallback;
 
+    /**
+     * <p>Creates a new service that will listen to any ip address
+     * and bind to a random local port number (Similar to 0.0.0.0</p>
+     */
+    public SourceLogListenService() {
+        this(new InetSocketAddress(0));
+    }
+
+    /**
+     * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on.</p>
+     *
+     * @param listenAddress An {@link InetSocketAddress} where the listen service will bind or listen on
+     */
     public SourceLogListenService(InetSocketAddress listenAddress) {
         this(listenAddress, null);
     }
 
-    public SourceLogListenService(InetSocketAddress listenAddress, Consumer<RawLogEntry> rawLogEventCallback) {
+    /**
+     * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on and utilizing
+     * the callback specified to notify listeners of source log events</p>
+     *
+     * @param listenAddress    An {@link InetSocketAddress} where the listen service will bind or listen on
+     * @param logEventCallback A {@link Consumer} callback that will be called once a log event has been received
+     */
+    public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> logEventCallback) {
         this.listenAddress = listenAddress;
         bootstrap = new Bootstrap()
                 .localAddress(this.listenAddress)
@@ -60,7 +101,7 @@ public class SourceLogListenService {
                 .handler(new ChannelInitializer<NioDatagramChannel>() {
                     @Override
                     protected void initChannel(NioDatagramChannel ch) throws Exception {
-                        ch.pipeline().addLast(new SourceLogListenHandler(rawLogEventCallback));
+                        ch.pipeline().addLast(new SourceLogListenHandler(logEventCallback));
                     }
                 });
     }
@@ -70,17 +111,17 @@ public class SourceLogListenService {
      *
      * @return A {@link Consumer} representing the raw log event callback
      */
-    public Consumer<RawLogEntry> getRawLogEventCallback() {
-        return rawLogEventCallback;
+    public Consumer<SourceLogEntry> getLogEventCallback() {
+        return logEventCallback;
     }
 
     /**
      * <p>Sets the callback for listening on Raw Log Events</p>
      *
-     * @param rawLogEventCallback A {@link Consumer} callback for raw log events
+     * @param logEventCallback A {@link Consumer} callback for raw log events
      */
-    public void setRawLogEventCallback(Consumer<RawLogEntry> rawLogEventCallback) {
-        this.rawLogEventCallback = rawLogEventCallback;
+    public void setLogEventCallback(Consumer<SourceLogEntry> logEventCallback) {
+        this.logEventCallback = logEventCallback;
     }
 
     public InetSocketAddress getListenAddress() {
@@ -106,11 +147,20 @@ public class SourceLogListenService {
 
     public static void main(String[] args) {
         SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500));
-        logListenService.setRawLogEventCallback(SourceLogListenService::processLogData);
+        logListenService.setLogEventCallback(SourceLogListenService::processLogData);
         logListenService.listen();
     }
 
-    private static void processLogData(RawLogEntry message) {
+    private static void processLogData(SourceLogEntry message) {
         log.info("Got Data : {}", message);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            shutdown();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

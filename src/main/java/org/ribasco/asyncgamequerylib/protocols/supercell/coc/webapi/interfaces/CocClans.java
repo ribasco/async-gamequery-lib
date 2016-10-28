@@ -35,7 +35,7 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.c
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.clans.GetClanWarLog;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.clans.SearchClan;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPlayer;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
 
 import java.lang.reflect.Type;
@@ -102,9 +102,9 @@ public class CocClans extends CocWebApiInterface {
      *
      * @param clanTag A {@link String} representing the clan tag
      *
-     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayer}
+     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<List<CocPlayer>> getClanMembers(String clanTag) {
+    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag) {
         return getClanMembers(clanTag, -1, -1, -1);
     }
 
@@ -114,9 +114,9 @@ public class CocClans extends CocWebApiInterface {
      * @param clanTag A {@link String} representing the clan tag
      * @param limit   An {@link Integer} limiting the number of records returned
      *
-     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayer}
+     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<List<CocPlayer>> getClanMembers(String clanTag, int limit) {
+    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit) {
         return getClanMembers(clanTag, limit, -1, -1);
     }
 
@@ -128,15 +128,15 @@ public class CocClans extends CocWebApiInterface {
      * @param after
      * @param before
      *
-     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayer}
+     * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<List<CocPlayer>> getClanMembers(String clanTag, int limit, int after, int before) {
+    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit, int after, int before) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanMembers(VERSION_1, clanTag, limit, after, before));
-        return json.thenApply(new Function<JsonObject, List<CocPlayer>>() {
+        return json.thenApply(new Function<JsonObject, List<CocPlayerBasicInfo>>() {
             @Override
-            public List<CocPlayer> apply(JsonObject root) {
+            public List<CocPlayerBasicInfo> apply(JsonObject root) {
                 JsonArray items = root.getAsJsonArray("items");
-                Type type = new TypeToken<List<CocPlayer>>() {
+                Type type = new TypeToken<List<CocPlayerBasicInfo>>() {
                 }.getType();
                 return builder().fromJson(items, type);
             }

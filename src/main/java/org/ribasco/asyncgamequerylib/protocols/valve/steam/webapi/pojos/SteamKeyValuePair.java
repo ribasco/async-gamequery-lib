@@ -27,6 +27,8 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos;
 /**
  * Created by raffy on 10/27/2016.
  */
+//TODO: Remove this and use org.ribasco.asyncgamequerylib.core.KeyValuePair instead
+@Deprecated
 public class SteamKeyValuePair<K, V> {
     private K name;
     private V value;

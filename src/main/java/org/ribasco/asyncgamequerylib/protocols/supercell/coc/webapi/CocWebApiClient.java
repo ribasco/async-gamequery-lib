@@ -28,10 +28,11 @@ import org.asynchttpclient.BoundRequestBuilder;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.enums.CocWarFrequency;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocClans;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocLeagues;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocLocations;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.CocPlayers;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocClanRankInfo;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,8 +76,11 @@ public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWeb
                 "PxGSCchWxATXaJBUOtJviRvOlK1U7FnxnR5tYKPrQsZ2MSMsPJC0PCAZ4Tfi0abCTBzNwn5xy3bmHc4aQQ";
 
         try (CocWebApiClient client = new CocWebApiClient(token)) {
+            //Instantiate api interfaces
             CocClans clans = new CocClans(client);
             CocLocations locations = new CocLocations(client);
+            CocLeagues leagues = new CocLeagues(client);
+            CocPlayers players = new CocPlayers(client);
 
             clans.searchClans(CocSearchCriteria.create().warFrequency(CocWarFrequency.ALWAYS).limit(10)).thenAccept(new Consumer<List<CocClanDetailedInfo>>() {
                 @Override
@@ -123,19 +127,23 @@ public class CocWebApiClient extends AbstractRestClient<CocWebApiRequest, CocWeb
                 }
             }).join();
 
-            locations.getPlayerRankingsFromLocation(32000185).thenAccept(new Consumer<List<CocPlayerRankInfo>>() {
-                @Override
-                public void accept(List<CocPlayerRankInfo> cocPlayerRankInfos) {
-                    cocPlayerRankInfos.forEach(new Consumer<CocPlayerRankInfo>() {
-                        @Override
-                        public void accept(CocPlayerRankInfo cocPlayerRankInfo) {
-                            log.info("Player Rankings: {}", cocPlayerRankInfo);
-                        }
-                    });
-                }
-            }).join();
+            log.info("Displaying Player Rankings by Location");
+            locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiClient::displayListResults).join();
+
+            log.info("Displaying Leagues");
+            leagues.getLeagueList().thenAccept(CocWebApiClient::displayListResults).join();
+            log.info("Displaying League Seasons");
+            leagues.getLeagueSeasons(29000022).thenAccept(CocWebApiClient::displayListResults).join();
+            log.info("Displaying League Season Player Rankings");
+            leagues.getLeagueSeasonsPlayerRankings(29000022, "2016-06", 10).thenAccept(CocWebApiClient::displayListResults).join();
+            log.info("Retrieving Detailed Player Information");
+            players.getPlayerInfo("#J0PYGCG").thenAccept(p -> log.info("Player Info: {}", p)).join();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static <T> void displayListResults(List<T> list) {
+        list.forEach(o -> log.info("{}", o.toString()));
     }
 }

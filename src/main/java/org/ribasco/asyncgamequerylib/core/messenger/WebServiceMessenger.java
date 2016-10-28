@@ -37,6 +37,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Messenger using the TCP Transport Protocol
  */
+//TODO: Re-evaluate the need for this
 public class WebServiceMessenger<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Messenger<Req, Res> {
 
     private AsyncHttpClient httpTransport;

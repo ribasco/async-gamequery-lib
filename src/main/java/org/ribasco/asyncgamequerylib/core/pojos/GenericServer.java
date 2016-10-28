@@ -29,7 +29,7 @@ import java.net.InetSocketAddress;
 /**
  * Created by raffy on 8/28/2016.
  */
-public abstract class GenericServer implements Server {
+public abstract class GenericServer {
 
     private InetSocketAddress address;
     private String country;
@@ -41,7 +41,6 @@ public abstract class GenericServer implements Server {
         this.ping = -1;
     }
 
-    @Override
     public InetSocketAddress getAddress() {
         return address;
     }
@@ -54,28 +53,24 @@ public abstract class GenericServer implements Server {
         return address.getPort();
     }
 
-    @Override
     public void setAddress(InetSocketAddress address) {
         this.address = address;
     }
 
-    @Override
     public String getCountry() {
-        //TODO: Add geolocation mapping logic here
         return country;
     }
 
-    @Override
     public void setCountry(String country) {
         this.country = country;
     }
 
-    @Override
+
     public int getPing() {
         return ping;
     }
 
-    @Override
+
     public void setPing(int ping) {
         this.ping = ping;
     }

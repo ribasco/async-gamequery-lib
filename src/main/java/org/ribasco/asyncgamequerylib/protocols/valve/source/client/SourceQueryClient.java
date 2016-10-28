@@ -35,21 +35,16 @@ import org.ribasco.asyncgamequerylib.core.Callback;
 import org.ribasco.asyncgamequerylib.core.client.GameServerQueryClient;
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
 import org.ribasco.asyncgamequerylib.core.exceptions.CacheTimeoutException;
-import org.ribasco.asyncgamequerylib.core.utils.ConcurrentUtils;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceMasterFilter;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceQueryMessenger;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceServerRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceServerResponse;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceChallengeType;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceMasterServerRegion;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.packets.request.SourceMasterRequestPacket;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.pojos.SourcePlayer;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.pojos.SourceServer;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.request.*;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerFilter;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.client.MasterServerQueryClient;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.enums.MasterServerRegion;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.enums.MasterServerType;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceChallengeRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceInfoRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourcePlayerRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRulesRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,9 +53,7 @@ import java.net.InetSocketAddress;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A client used for querying information on Source servers. Based on the Valve Source Query Protocol.
@@ -107,7 +100,7 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
      *
      * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the logger challenge number
      *
-     * @see #getPlayers(Integer, InetSocketAddress)
+     * @see #getPlayers(int, InetSocketAddress)
      * @see #getServerRules(int, InetSocketAddress)
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address, Callback<Integer> callback) {
@@ -366,113 +359,6 @@ public class SourceQueryClient extends GameServerQueryClient<SourceServerRequest
      */
     public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address, Callback<SourceServer> callback) {
         return sendRequest(new SourceInfoRequest(address), callback);
-    }
-
-    /**
-     * <p>Retrieves a list of servers from the Steam Master Server.</p>
-     *
-     * @param region A {@link SourceMasterServerRegion} value that specifies which logger region the master logger should return
-     * @param filter A {@link SourceMasterFilter} representing a set of filters to be used by the query
-     *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
-     *
-     * @see #getMasterServerList(SourceMasterServerRegion, SourceMasterFilter, Callback)
-     */
-    public CompletableFuture<Vector<InetSocketAddress>> getMasterServerList(final SourceMasterServerRegion region, final SourceMasterFilter filter) {
-        return getMasterServerList(region, filter, null);
-    }
-
-    /**
-     * <p>Retrieves a list of servers from the Steam Master Server.</p>
-     *
-     * @param region   A {@link SourceMasterServerRegion} value that specifies which logger region the master logger should return
-     * @param filter   A {@link SourceMasterFilter} representing a set of filters to be used by the query
-     * @param callback A {@link Callback} that will be invoked when a response has been received
-     *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
-     *
-     * @see MasterServerQueryClient#getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
-     * @deprecated
-     */
-    @Deprecated
-    public CompletableFuture<Vector<InetSocketAddress>> getMasterServerList(final SourceMasterServerRegion region, final SourceMasterFilter filter, final Callback<InetSocketAddress> callback) {
-        //As per protocol specs, this get required as our starting seed address
-        InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
-
-        final CompletableFuture<Vector<InetSocketAddress>> masterPromise = new CompletableFuture<>();
-        final Vector<InetSocketAddress> serverMasterList = new Vector<>();
-        final InetSocketAddress destination = SourceMasterRequestPacket.SOURCE_MASTER;
-        final AtomicBoolean done = new AtomicBoolean(false);
-
-        while (!done.get()) {
-            log.debug("Getting from master logger with seed : " + startAddress);
-            try {
-                log.info("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
-
-                //Send initial query to the master source
-                final CompletableFuture<Vector<InetSocketAddress>> p = sendRequest(new SourceMasterServerRequest(destination, region, filter, startAddress), RequestPriority.HIGH);
-
-                //Retrieve the first batch, timeout after 3 seconds
-                final Vector<InetSocketAddress> serverList = p.get(3000, TimeUnit.MILLISECONDS);
-
-                //Iterate through each address and call onComplete responseCallback. Make sure we don't include the last source ip received
-                final InetSocketAddress lastServerIp = startAddress;
-
-                //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip received)
-                serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
-                    if (callback != null && !isIpTerminator(ip))
-                        callback.onComplete(ip, destination, null);
-                    //Add a delay here. We shouldn't send requests too fast to the master logger
-                    // there is a high chance that we might not receive the end of the list.
-                    ConcurrentUtils.sleepUninterrupted(13);
-                    serverMasterList.add(ip);
-                });
-
-                //Retrieve the last element of the source list and use it as the next seed for the next query
-                startAddress = serverList.lastElement();
-
-                log.info("Last Server IP Received: {}:{}", startAddress.getAddress().getHostAddress(), startAddress.getPort());
-
-                //Did the master send a terminator address?
-                // If so, mark as complete
-                if (isIpTerminator(startAddress)) {
-                    log.debug("Reached the end of the logger list");
-                    done.set(true);
-                }
-                //Thread.sleep(serverList.size() * 15);
-            } catch (InterruptedException | TimeoutException e) {
-                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of logger list from master");
-                done.set(true); //stop looping if we receive a timeout
-                if (callback != null)
-                    callback.onComplete(null, destination, e);
-                masterPromise.completeExceptionally(e);
-            } catch (ExecutionException e) {
-                log.error("ExecutionException occured {}", e);
-                if (callback != null)
-                    callback.onComplete(null, destination, e);
-                masterPromise.completeExceptionally(e);
-            }
-        } //while
-
-        log.debug("Got a total list of {} servers from master", serverMasterList.size());
-
-        //Returns the complete logger list retrieved from the master logger
-        if (!masterPromise.isDone() && !masterPromise.isCompletedExceptionally())
-            masterPromise.complete(serverMasterList);
-
-        return masterPromise;
-    }
-
-    /**
-     * <p>A helper to determine if the address is a terminator type address</p>
-     *
-     * @param address The {@link InetSocketAddress} of the source logger
-     *
-     * @return true if the {@link InetSocketAddress} supplied is a terminator address
-     */
-    @Deprecated
-    private static boolean isIpTerminator(InetSocketAddress address) {
-        return "0.0.0.0".equals(address.getAddress().getHostAddress()) && address.getPort() == 0;
     }
 
     /**

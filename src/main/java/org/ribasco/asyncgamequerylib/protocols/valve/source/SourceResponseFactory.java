@@ -25,7 +25,10 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.source;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceGameResponse;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.response.*;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceChallengeResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceInfoResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourcePlayerResponse;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.response.SourceRulesResponse;
 
 /**
  * Created by raffy on 9/19/2016.
@@ -40,9 +43,6 @@ public class SourceResponseFactory {
                 break;
             case INFO:
                 response = new SourceInfoResponse();
-                break;
-            case MASTER:
-                response = new SourceMasterServerResponse();
                 break;
             case PLAYER:
                 response = new SourcePlayerResponse();

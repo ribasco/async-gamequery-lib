@@ -35,11 +35,9 @@ import org.ribasco.asyncgamequerylib.core.exceptions.TimeoutException;
 import org.ribasco.asyncgamequerylib.core.session.SessionId;
 import org.ribasco.asyncgamequerylib.core.session.SessionValue;
 import org.ribasco.asyncgamequerylib.core.utils.ConcurrentUtils;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceMasterFilter;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.client.SourceQueryClient;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.client.SourceRconClient;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceChallengeType;
-import org.ribasco.asyncgamequerylib.protocols.valve.source.enums.SourceMasterServerRegion;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.exceptions.RconNotYetAuthException;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.pojos.SourcePlayer;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.pojos.SourceServer;
@@ -339,7 +337,7 @@ public class DemoClient {
     }
 
     public void extractThenProcess() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
                 //.isEmpty(false)
@@ -347,7 +345,7 @@ public class DemoClient {
 
         try {
             log.info("Retrieving master logger list...");
-            final Vector<InetSocketAddress> serverList = sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, null).get();
+            final Vector<InetSocketAddress> serverList = masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, null).get();
 
             AtomicInteger playerError = new AtomicInteger();
             AtomicInteger playerCount = new AtomicInteger();
@@ -594,7 +592,7 @@ public class DemoClient {
     }
 
     public void listAllServers() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
                 //.isEmpty(false)
@@ -602,14 +600,14 @@ public class DemoClient {
 
 
         //client.setSleepTime(15);
-        sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
+        masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
             log.info("{}", serverAddress);
         });
 
     }
 
     public void runSimpleAppTest() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
                 .isEmpty(false)
@@ -621,7 +619,7 @@ public class DemoClient {
     }
 
     public void runSimpleTestEx() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
                 //.isEmpty(false)
@@ -633,7 +631,7 @@ public class DemoClient {
     }
 
     public void runSimpleTest() {
-        SourceMasterFilter filter = new SourceMasterFilter()
+        MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
                 .dedicated(true)
                 //.isEmpty(false)
@@ -663,7 +661,7 @@ public class DemoClient {
         final ArrayList<Map<String, Double>> iterations = new ArrayList<>();
         double start, stop, total;
 
-        SourceMasterFilter filter = new SourceMasterFilter().appId(550).dedicated(true).isEmpty(false).isSecure(true);
+        MasterServerFilter filter = new MasterServerFilter().appId(550).dedicated(true).isEmpty(false).isSecure(true);
 
         //Repeat 5 times
         for (int iteration = 0; iteration < 5; iteration++) {
@@ -711,7 +709,7 @@ public class DemoClient {
         }
     }
 
-    private Map<String, Double> runTestEx(int sleepTime, SourceMasterFilter filter) {
+    private Map<String, Double> runTestEx(int sleepTime, MasterServerFilter filter) {
         final Map<String, Double> resultMap = new HashMap<>();
 
         double successRateInfo, successRateChallenge, successRatePlayer, successRateRules;
@@ -724,7 +722,7 @@ public class DemoClient {
         try {
             sourceQueryClient.setSleepTime(sleepTime);
 
-            sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
+            masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
                 try {
                     if (masterServerError != null) {
                         log.debug("[MASTER : ERROR] : From: {} = {}", masterServerSender, masterServerError.getMessage());
@@ -984,7 +982,7 @@ public class DemoClient {
         return null;
     }
 
-    private Map<String, Double> runTest(int sleepTime, SourceMasterFilter filter) {
+    private Map<String, Double> runTest(int sleepTime, MasterServerFilter filter) {
 
         final Map<String, Double> resultMap = new HashMap<>();
 
@@ -998,7 +996,7 @@ public class DemoClient {
         try {
             sourceQueryClient.setSleepTime(sleepTime);
 
-            sourceQueryClient.getMasterServerList(SourceMasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
+            masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
                 try {
                     if (masterServerError != null) {
                         log.debug("[MASTER : ERROR] : From: {} = {}", masterServerSender, masterServerError.getMessage());

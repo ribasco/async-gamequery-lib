@@ -38,9 +38,10 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="com.ribasco.rglib.DemoClient" level="debug"/>
-        <Logger name="com.ribasco.rglib.protocols" level="info"/>
-        <Logger name="com.ribasco.rglib.core" level="info"/>
+        <Logger name="org.ribasco.asyncgamequerylib.DemoClient" level="debug"/>
+        <Logger name="org.ribasco.asyncgamequerylib.protocols" level="info"/>
+        <Logger name="org.ribasco.asyncgamequerylib.core" level="info"/>
+        <Logger name="org.ribasco.asyncgamequerylib.core.AbstractRestClient" level="debug"/>
 
         <Root level="info">
             <AppenderRef ref="Console"/>

@@ -26,9 +26,6 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class SteamPlayerAchievement {
     @SerializedName("apiname")
     private String key;

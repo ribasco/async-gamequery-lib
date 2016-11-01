@@ -2,8 +2,8 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.st
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamWebApiRequest;
 
-public class GetAppDetails extends SteamWebApiRequest {
-    public GetAppDetails(String apiInterface, String apiMethod, int apiVersion) {
+public class GetFeaturedCategories extends SteamWebApiRequest {
+    public GetFeaturedCategories(String apiInterface, String apiMethod, int apiVersion) {
         super(apiInterface, apiMethod, apiVersion);
     }
 }

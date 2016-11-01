@@ -38,10 +38,9 @@
     </Appenders>
 
     <Loggers>
-        <Logger name="org.ribasco.asyncgamequerylib.DemoClient" level="debug"/>
         <Logger name="org.ribasco.asyncgamequerylib.protocols" level="info"/>
         <Logger name="org.ribasco.asyncgamequerylib.core" level="info"/>
-        <Logger name="org.ribasco.asyncgamequerylib.core.client.AbstractApiClient" level="debug"/>
+        <Logger name="org.ribasco.asyncgamequerylib.core.client.AbstractRestClient" level="debug"/>
         <Logger name="org.ribasco.asyncgamequerylib.protocols.valve.source.logger.SourceLogListenService"
                 level="debug"/>
         <Root level="info">

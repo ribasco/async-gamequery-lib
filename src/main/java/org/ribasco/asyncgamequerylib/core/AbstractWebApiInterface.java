@@ -28,7 +28,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import io.netty.handler.codec.http.HttpStatusClass;
-import org.ribasco.asyncgamequerylib.core.client.AbstractApiClient;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.core.exceptions.*;
 
@@ -37,7 +36,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * <p>An API Interface containing a set/group of methods that are usually defined by the publisher</p>
  *
- * @param <T>   Any class extending {@link AbstractApiClient}
+ * @param <T>   Any class extending {@link AbstractRestClient}
  * @param <Req> Any class extending {@link AbstractWebRequest}
  */
 abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
@@ -55,7 +54,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractApiClient} instance
+     * @param client A {@link AbstractRestClient} instance
      */
     public AbstractWebApiInterface(T client) {
         this.client = client;

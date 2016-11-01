@@ -30,6 +30,8 @@ import com.google.gson.JsonElement;
 import io.netty.handler.codec.http.HttpStatusClass;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.core.exceptions.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -42,6 +44,7 @@ import java.util.concurrent.CompletableFuture;
 abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
         Req extends AbstractWebApiRequest,
         Res extends AbstractWebApiResponse<JsonElement>> {
+    private static final Logger log = LoggerFactory.getLogger(AbstractWebApiInterface.class);
     private T client;
     private GsonBuilder gsonBuilder = new GsonBuilder();
     private Gson jsonBuilder;
@@ -134,6 +137,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      */
     @SuppressWarnings("unchecked")
     private <A> A convertToJsonObject(Res response) {
+        log.info("ConvertToJson for Response = {}", response);
         JsonElement processedElement = response.getProcessedContent();
         if (processedElement != null)
             return (A) processedElement.getAsJsonObject();

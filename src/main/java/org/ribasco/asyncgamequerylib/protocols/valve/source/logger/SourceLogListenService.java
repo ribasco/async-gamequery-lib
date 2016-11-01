@@ -169,15 +169,6 @@ public class SourceLogListenService implements Closeable {
         listenWorkGroup.awaitTermination(10, TimeUnit.SECONDS);
     }
 
-    public static void main(String[] args) {
-        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogListenService::processLogData);
-        logListenService.listen();
-    }
-
-    private static void processLogData(SourceLogEntry message) {
-        log.info("Got Data : {}", message);
-    }
-
     /**
      * Calls the {@link #shutdown()} method
      *

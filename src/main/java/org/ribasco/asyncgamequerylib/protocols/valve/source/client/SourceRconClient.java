@@ -27,13 +27,13 @@ package org.ribasco.asyncgamequerylib.protocols.valve.source.client;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ribasco.asyncgamequerylib.core.AbstractClient;
-import org.ribasco.asyncgamequerylib.core.Callback;
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconMessenger;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconRequest;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.SourceRconResponse;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.exceptions.RconNotYetAuthException;
 import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRconAuthRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.source.request.SourceRconCmdRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,7 +69,6 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @param address  The {@link InetSocketAddress} of the source server
      * @param password A non-empty password {@link String}
-     * @param callback A {@link Callback} that will be invoked when a response has been received
      *
      * @return A {@link CompletableFuture} which contains a {@link Boolean} value indicating whether the authentication succeeded or not.
      *
@@ -102,7 +101,11 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      * @see #authenticate(InetSocketAddress, String)
      */
     public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
-        return execute(address, command);
+        if (!isAuthenticated(address))
+            throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
+        final Integer id = createRequestId();
+        log.debug("Executing command '{}' using request id: {}", command, id);
+        return sendRequest(new SourceRconCmdRequest(address, id, command));
     }
 
     /**

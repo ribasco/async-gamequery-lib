@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.text.StrSubstitutor;
 import org.asynchttpclient.Request;
 import org.slf4j.Logger;
@@ -63,7 +64,8 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     }
 
     public void baseUrlProperty(String property, Object value) {
-        baseUrlParams.put(property, String.valueOf(value));
+        if (!StringUtils.isEmpty(property) && value != null)
+            baseUrlParams.put(property, String.valueOf(value));
     }
 
     public String baseUrlProperty(String property) {

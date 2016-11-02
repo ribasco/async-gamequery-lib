@@ -76,6 +76,10 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
         return jsonBuilder;
     }
 
+    protected <V> V fromJson(JsonElement element, Class<V> classTypeOf) {
+        return builder().fromJson(element, classTypeOf);
+    }
+
     /**
      * <p>Sends a requests to the internal client</p>
      *
@@ -137,7 +141,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      */
     @SuppressWarnings("unchecked")
     private <A> A convertToJsonObject(Res response) {
-        log.info("ConvertToJson for Response = {}", response);
+        log.debug("ConvertToJson for Response = {}, {}", response.getMessage().getStatusCode(), response.getMessage().getHeaders());
         JsonElement processedElement = response.getProcessedContent();
         if (processedElement != null)
             return (A) processedElement.getAsJsonObject();

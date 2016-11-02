@@ -41,7 +41,7 @@
         <Logger name="org.ribasco.asyncgamequerylib.protocols" level="info"/>
         <Logger name="org.ribasco.asyncgamequerylib.core" level="info"/>
         <Logger name="org.ribasco.asyncgamequerylib.core.client.AbstractRestClient" level="debug"/>
-        <Logger name="org.ribasco.asyncgamequerylib.protocols.valve.source.logger.SourceLogListenService"
+        <Logger name="org.ribasco.asyncgamequerylib.protocols.valve.source.query.logger.SourceLogListenService"
                 level="debug"/>
         <Root level="info">
             <AppenderRef ref="Console"/>

@@ -64,7 +64,6 @@ abstract public class AbstractRestClient<Req extends AbstractWebApiRequest, Res 
     private Res applyContentTypeProcessor(Res response) {
         if (response != null && response.getMessage() != null) {
             Response msg = response.getMessage();
-            log.info("now applying additional logic to web response with content-type : {}", msg.getContentType());
             String body = msg.getResponseBody();
             ContentTypeProcessor processor = contentProcessorMap.get(parseContentType(msg.getContentType()));
             if (log.isDebugEnabled() && processor == null)

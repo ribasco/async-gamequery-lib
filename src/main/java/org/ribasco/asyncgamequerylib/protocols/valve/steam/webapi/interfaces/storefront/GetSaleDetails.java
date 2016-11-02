@@ -6,6 +6,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamStoreApiR
 public class GetSaleDetails extends SteamStoreApiRequest {
     public GetSaleDetails(int apiVersion, int saleId, String countryCode, String language) {
         super(apiVersion, SteamApiConstants.SF_METHOD_SALE_DETAILS, countryCode, language);
-        param("id", saleId);
+        urlParam("id", saleId);
     }
 }

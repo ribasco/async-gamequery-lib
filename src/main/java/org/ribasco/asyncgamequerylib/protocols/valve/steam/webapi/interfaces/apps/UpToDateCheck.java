@@ -32,7 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class UpToDateCheck extends SteamAppsRequest {
     public UpToDateCheck(int version, int serverVersion, int appId) {
         super("UpToDateCheck", version);
-        param("appid", appId);
-        param("version", serverVersion);
+        urlParam("appid", appId);
+        urlParam("version", serverVersion);
     }
 }

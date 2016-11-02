@@ -39,12 +39,12 @@ abstract public class SteamWebApiRequest extends AbstractWebApiRequest {
 
     public SteamWebApiRequest(String apiInterface, String apiMethod, int apiVersion) {
         super(apiVersion);
-        this.steamApiInterface = apiInterface;
+        this.steamApiInterface = resolveProperties(apiInterface);
         this.steamApiMethod = apiMethod;
         baseUrlFormat(SteamApiConstants.STEAM_BASE_URL_FORMAT);
-        baseUrlProperty("interface", apiInterface);
-        baseUrlProperty("method", apiMethod);
-        baseUrlProperty("version", apiVersion);
+        property(SteamApiConstants.STEAM_PROP_INTERFACE, this.steamApiInterface);
+        property(SteamApiConstants.STEAM_PROP_METHOD, this.steamApiMethod);
+        property(SteamApiConstants.STEAM_PROP_VERSION, apiVersion);
     }
 
     public String getSteamApiInterface() {

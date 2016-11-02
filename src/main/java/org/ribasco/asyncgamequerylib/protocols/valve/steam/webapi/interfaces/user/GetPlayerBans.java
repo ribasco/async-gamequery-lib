@@ -41,6 +41,6 @@ public class GetPlayerBans extends SteamUserRequest {
 
     public GetPlayerBans(int apiVersion, Long... steamIds) {
         super("GetPlayerBans", apiVersion);
-        param("steamids", StringUtils.join(steamIds, ","));
+        urlParam("steamids", StringUtils.join(steamIds, ","));
     }
 }

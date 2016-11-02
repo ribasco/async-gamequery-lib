@@ -32,6 +32,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetNumberOfCurrentPlayers extends SteamUserStatsRequest {
     public GetNumberOfCurrentPlayers(int apiVersion, int appId) {
         super("GetNumberOfCurrentPlayers", apiVersion);
-        param("appid", appId);
+        urlParam("appid", appId);
     }
 }

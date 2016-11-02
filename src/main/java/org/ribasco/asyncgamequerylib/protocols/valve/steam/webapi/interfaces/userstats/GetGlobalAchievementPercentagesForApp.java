@@ -29,6 +29,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetGlobalAchievementPercentagesForApp extends SteamUserStatsRequest {
     public GetGlobalAchievementPercentagesForApp(int apiVersion, int appId) {
         super("GetGlobalAchievementPercentagesForApp", apiVersion);
-        param("gameid", String.valueOf(appId));
+        urlParam("gameid", String.valueOf(appId));
     }
 }

@@ -52,6 +52,23 @@ public class SteamApiConstants {
     public static final String STEAM_ENVOY = "ISteamEnvoy";
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
     public static final String STEAM_ECON_SERVICE = "IEconService";
+    public static final String STEAM_ECON_ITEMS = "IEconItems_${appId}";
+
+    //Steam URL Params
+    public static final String STEAM_URLPARAM_STEAMID = "steamid";
+
+    //Steam Methods
+    public static final String STEAM_METHOD_ECONITEMS_GETPLAYERITEMS = "GetPlayerItems";
+    public static final String STEAM_METHOD_ECONITEMS_GETSCHEMA = "GetSchema";
+    public static final String STEAM_METHOD_ECONITEMS_GETSCHEMAURL = "GetSchemaURL";
+    public static final String STEAM_METHOD_ECONITEMS_GETSTOREMETA = "GetStoreMetaData";
+    public static final String STEAM_METHOD_ECONITEMS_GETSTORESTATUS = "GetStoreStatus";
+
+    //Steam properties
+    public static final String STEAM_PROP_APPID = "appId";
+    public static final String STEAM_PROP_INTERFACE = "interface";
+    public static final String STEAM_PROP_METHOD = "method";
+    public static final String STEAM_PROP_VERSION = "version";
 
     //Store Front Constants
     public static final String SF_BASE_URL_FORMAT = "http://store.steampowered.com/api";
@@ -63,4 +80,5 @@ public class SteamApiConstants {
 
     //Store Front URL Properties
     public static final String SF_PROP_BASEURL = "baseUrl";
+
 }

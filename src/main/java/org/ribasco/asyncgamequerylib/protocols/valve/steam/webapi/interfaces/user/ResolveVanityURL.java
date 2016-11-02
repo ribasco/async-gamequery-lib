@@ -37,7 +37,7 @@ public class ResolveVanityURL extends SteamUserRequest {
 
     public ResolveVanityURL(int apiVersion, String vanityUrl, VanityUrlType urlType) {
         super("ResolveVanityURL", apiVersion);
-        param("vanityurl", vanityUrl);
-        param("url_type", urlType.getType());
+        urlParam("vanityurl", vanityUrl);
+        urlParam("url_type", urlType.getType());
     }
 }

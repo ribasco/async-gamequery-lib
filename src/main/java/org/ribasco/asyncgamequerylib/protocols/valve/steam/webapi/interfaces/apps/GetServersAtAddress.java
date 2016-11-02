@@ -32,6 +32,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetServersAtAddress extends SteamAppsRequest {
     public GetServersAtAddress(int version, String address) {
         super("GetServersAtAddress", version);
-        param("addr", address);
+        urlParam("addr", address);
     }
 }

@@ -32,6 +32,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetUserGroupList extends SteamUserRequest {
     public GetUserGroupList(int apiVersion, long steamId) {
         super("GetUserGroupList", apiVersion);
-        param("steamid", steamId);
+        urlParam("steamid", steamId);
     }
 }

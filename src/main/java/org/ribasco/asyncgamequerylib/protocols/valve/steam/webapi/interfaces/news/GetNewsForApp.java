@@ -36,11 +36,11 @@ public class GetNewsForApp extends SteamNewsRequest {
 
     public GetNewsForApp(int apiVersion, int appId) {
         super("GetNewsForApp", apiVersion);
-        param("appid", String.valueOf(appId));
-        param("maxlength", String.valueOf(maxLength));
-        param("enddate", String.valueOf(endDate));
-        param("count", String.valueOf(count));
-        param("feeds", feeds);
+        urlParam("appid", String.valueOf(appId));
+        urlParam("maxlength", String.valueOf(maxLength));
+        urlParam("enddate", String.valueOf(endDate));
+        urlParam("count", String.valueOf(count));
+        urlParam("feeds", feeds);
     }
 
     public int getAppId() {

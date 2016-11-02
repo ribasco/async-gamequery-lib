@@ -29,7 +29,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetUserStatsForGame extends SteamUserStatsRequest {
     public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
         super("GetUserStatsForGame", apiVersion);
-        param("steamid", steamId);
-        param("appid", appId);
+        urlParam("steamid", steamId);
+        urlParam("appid", appId);
     }
 }

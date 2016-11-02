@@ -32,7 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetRecentlyPlayedGames extends SteamPlayerServiceRequest {
     public GetRecentlyPlayedGames(int apiVersion, long steamId, int count) {
         super("GetRecentlyPlayedGames", apiVersion);
-        param("steamid", steamId);
-        param("count", count);
+        urlParam("steamid", steamId);
+        urlParam("count", count);
     }
 }

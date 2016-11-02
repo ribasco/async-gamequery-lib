@@ -3,8 +3,9 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.st
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamStoreApiRequest;
 
-public class GetFeaturedCategories extends SteamStoreApiRequest {
-    public GetFeaturedCategories(int apiVersion, String countryCode, String language) {
-        super(apiVersion, SteamApiConstants.SF_METHOD_FEATURED_CATEGORIES, countryCode, language);
+public class GetSaleDetails extends SteamStoreApiRequest {
+    public GetSaleDetails(int apiVersion, int saleId, String countryCode, String language) {
+        super(apiVersion, SteamApiConstants.SF_METHOD_SALE_DETAILS, countryCode, language);
+        param("id", saleId);
     }
 }

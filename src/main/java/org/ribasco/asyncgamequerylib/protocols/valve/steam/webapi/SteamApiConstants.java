@@ -24,33 +24,43 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
+@SuppressWarnings("all")
 public class SteamApiConstants {
-    public static final String STEAM_API_URI_FORMAT = "https://webapi.steampowered.com/%s/%s/v%d";
+    public static final String STEAM_BASE_URL_FORMAT = "https://api.steampowered.com/${interface}/${method}/v${version}";
     public static final String STEAM_APPS = "ISteamApps";
+    public static final String STEAM_ECONOMY = "ISteamEconomy";
+    public static final String STEAM_NEWS = "ISteamNews";
+    public static final String STEAM_USER = "ISteamUser";
+    public static final String STEAM_USER_STATS = "ISteamUserStats";
+    public static final String STEAM_PLAYER_SERVICE = "IPlayerService";
     public static final String STEAM_GAME_SERVER_STATS = "ISteamGameServerStats";
     public static final String STEAM_GAME_LEADERBOARDS = "ISteamLeaderboards";
     public static final String STEAM_MICROTXN = "ISteamMicroTxn";
     public static final String STEAM_MICROTXN_SANDBOX = "ISteamMicroTxnSandbox";
-    public static final String STEAM_NEWS = "ISteamNews";
     public static final String STEAM_PUBLISHED_ITEM_SEARCH = "ISteamPublishedItemSearch";
     public static final String STEAM_PUBLISHED_ITEM_VOTING = "ISteamPublishedItemVoting";
     public static final String STEAM_REMOTE_STORAGE = "ISteamRemoteStorage";
     public static final String STEAM_SPECIAL_SURVEY = "ISteamSpecialSurvey";
-    public static final String STEAM_USER = "ISteamUser";
     public static final String STEAM_USER_AUTH = "ISteamUserAuth";
     public static final String STEAM_USER_OAUTH = "ISteamUserOAuth";
-    public static final String STEAM_USER_STATS = "ISteamUserStats";
     public static final String STEAM_VIDEO = "ISteamVideo";
     public static final String STEAM_WEB_API_UTIL = "ISteamWebAPIUtil";
     public static final String STEAM_WEB_USER_PRESENCE_OAUTH = "ISteamWebUserPresenceOAuth";
-    public static final String STEAM_PLAYER_SERVICE = "IPlayerService";
     public static final String STEAM_ACCOUNT_RECOVERY = "IAccountRecoveryService";
     public static final String STEAM_BITPAY = "ISteamBitPay";
     public static final String STEAM_DIRECTORY = "ISteamDirectory";
     public static final String STEAM_ENVOY = "ISteamEnvoy";
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
-    public static final String STEAM_ECONOMY = "ISteamEconomy";
     public static final String STEAM_ECON_SERVICE = "IEconService";
 
-    public static final String BASE_URL_FORMAT = "https://api.steampowered.com/${interface}/${method}/v${version}";
+    //Store Front Constants
+    public static final String SF_BASE_URL_FORMAT = "http://store.steampowered.com/api";
+    public static final String SF_METHOD_APPDETAILS = "${baseUrl}/appdetails";
+    public static final String SF_METHOD_FEATURED = "${baseUrl}/featured";
+    public static final String SF_METHOD_FEATURED_CATEGORIES = "${baseUrl}/featuredcategories";
+    public static final String SF_METHOD_PACKAGE_DETAILS = "${baseUrl}/packagedetails";
+    public static final String SF_METHOD_SALE_DETAILS = "${baseUrl}/salepage";
+
+    //Store Front URL Properties
+    public static final String SF_PROP_BASEURL = "baseUrl";
 }

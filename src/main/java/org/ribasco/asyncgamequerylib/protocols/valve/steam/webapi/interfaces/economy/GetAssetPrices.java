@@ -29,8 +29,8 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetAssetPrices extends SteamEconomyRequest {
     public GetAssetPrices(int apiVersion, int appId, String currency, String language) {
         super("GetAssetPrices", apiVersion);
-        param("appid", appId);
-        param("currency", currency);
-        param("language", language);
+        urlParam("appid", appId);
+        urlParam("currency", currency);
+        urlParam("language", language);
     }
 }

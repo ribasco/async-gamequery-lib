@@ -32,7 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetSteamGameLenderId extends SteamPlayerServiceRequest {
     public GetSteamGameLenderId(int apiVersion, long steamId, int appId) {
         super("IsPlayingSharedGame", apiVersion);
-        param("steamid", steamId);
-        param("appid_playing", appId);
+        urlParam("steamid", steamId);
+        urlParam("appid_playing", appId);
     }
 }

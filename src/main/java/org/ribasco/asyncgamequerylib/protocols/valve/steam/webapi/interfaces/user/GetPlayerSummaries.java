@@ -36,6 +36,6 @@ public class GetPlayerSummaries extends SteamUserRequest {
 
     public GetPlayerSummaries(int apiVersion, Long... steamIds) {
         super("GetPlayerSummaries", apiVersion);
-        param("steamids", StringUtils.join(steamIds, ","));
+        urlParam("steamids", StringUtils.join(steamIds, ","));
     }
 }

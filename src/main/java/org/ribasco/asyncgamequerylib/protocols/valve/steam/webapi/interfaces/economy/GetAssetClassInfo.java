@@ -35,13 +35,13 @@ public class GetAssetClassInfo extends SteamEconomyRequest {
 
     public GetAssetClassInfo(int apiVersion, int appId, String language, Long... classIds) {
         super("GetAssetClassInfo", apiVersion);
-        param("appid", appId);
+        urlParam("appid", appId);
         //Add class id params
         if (classIds != null) {
-            param("class_count", classIds.length);
-            param("language", language);
+            urlParam("class_count", classIds.length);
+            urlParam("language", language);
             for (int i = 0; i < classIds.length; i++)
-                param(String.format("classid%d", i), classIds[i]);
+                urlParam(String.format("classid%d", i), classIds[i]);
         }
     }
 }

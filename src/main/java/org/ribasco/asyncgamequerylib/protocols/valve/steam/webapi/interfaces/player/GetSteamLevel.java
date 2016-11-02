@@ -32,6 +32,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetSteamLevel extends SteamPlayerServiceRequest {
     public GetSteamLevel(int apiVersion, long steamId) {
         super("GetSteamLevel", apiVersion);
-        param("steamid", steamId);
+        urlParam("steamid", steamId);
     }
 }

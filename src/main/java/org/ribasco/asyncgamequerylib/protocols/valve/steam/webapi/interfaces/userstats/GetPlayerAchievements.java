@@ -38,8 +38,8 @@ public class GetPlayerAchievements extends SteamUserStatsRequest {
 
     public GetPlayerAchievements(int apiVersion, long steamId, int appId, String language) {
         super("GetPlayerAchievements", apiVersion);
-        param("steamid", steamId);
-        param("appid", appId);
-        param("l", defaultIfNull(language, "en"));
+        urlParam("steamid", steamId);
+        urlParam("appid", appId);
+        urlParam("l", defaultIfNull(language, "en"));
     }
 }

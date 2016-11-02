@@ -32,6 +32,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetSchemaForGame extends SteamUserStatsRequest {
     public GetSchemaForGame(int apiVersion, int appId) {
         super("GetSchemaForGame", apiVersion);
-        param("appid", appId);
+        urlParam("appid", appId);
     }
 }

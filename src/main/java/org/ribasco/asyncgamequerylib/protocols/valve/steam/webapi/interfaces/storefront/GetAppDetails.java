@@ -6,6 +6,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamStoreApiR
 public class GetAppDetails extends SteamStoreApiRequest {
     public GetAppDetails(int apiVersion, int appId, String countryCode, String language) {
         super(apiVersion, SteamApiConstants.SF_METHOD_APPDETAILS, countryCode, language);
-        param("appids", appId);
+        urlParam("appids", appId);
     }
 }

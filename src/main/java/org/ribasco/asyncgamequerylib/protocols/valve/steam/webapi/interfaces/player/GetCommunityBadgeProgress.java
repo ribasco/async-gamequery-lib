@@ -32,7 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetCommunityBadgeProgress extends SteamPlayerServiceRequest {
     public GetCommunityBadgeProgress(int apiVersion, long steamId, int badgeId) {
         super("GetCommunityBadgeProgress", apiVersion);
-        param("steamid", steamId);
-        param("badgeid", badgeId);
+        urlParam("steamid", steamId);
+        urlParam("badgeid", badgeId);
     }
 }

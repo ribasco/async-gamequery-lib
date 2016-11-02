@@ -32,7 +32,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetFriendList extends SteamUserRequest {
     public GetFriendList(int apiVersion, long steamId, String relationship) {
         super("GetFriendList", apiVersion);
-        param("steamid", steamId);
-        param("relationship", relationship);
+        urlParam("steamid", steamId);
+        urlParam("relationship", relationship);
     }
 }

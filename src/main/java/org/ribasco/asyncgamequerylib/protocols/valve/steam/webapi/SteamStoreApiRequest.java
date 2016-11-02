@@ -9,8 +9,8 @@ abstract public class SteamStoreApiRequest extends SteamWebApiRequest {
         super(null, null, apiVersion);
         //Override super constructor property
         baseUrlFormat(urlFormat);
-        baseUrlProperty(SteamApiConstants.SF_PROP_BASEURL, SteamApiConstants.SF_BASE_URL_FORMAT);
-        param("c", countryCode);
-        param("l", language);
+        property(SteamApiConstants.SF_PROP_BASEURL, SteamApiConstants.SF_BASE_URL_FORMAT);
+        urlParam("c", countryCode);
+        urlParam("l", language);
     }
 }

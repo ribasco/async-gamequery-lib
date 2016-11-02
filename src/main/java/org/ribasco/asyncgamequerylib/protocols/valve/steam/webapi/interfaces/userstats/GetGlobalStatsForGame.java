@@ -33,10 +33,10 @@ public class GetGlobalStatsForGame extends SteamUserStatsRequest {
 
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name, int startDate, int endDate) {
         super("GetGlobalStatsForGame", apiVersion);
-        param("appid", appId);
-        param("count", count);
-        param("name", name);
-        param("startdate", startDate);
-        param("enddate", endDate);
+        urlParam("appid", appId);
+        urlParam("count", count);
+        urlParam("name", name);
+        urlParam("startdate", startDate);
+        urlParam("enddate", endDate);
     }
 }

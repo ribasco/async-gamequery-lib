@@ -32,8 +32,8 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetOwnedGames extends SteamPlayerServiceRequest {
     public GetOwnedGames(int apiVersion, long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
         super("GetOwnedGames", apiVersion);
-        param("steamid", steamId);
-        param("include_appinfo", (includeAppInfo) ? 1 : 0);
-        param("include_played_free_games", (includePlayedFreeGames) ? 1 : 0);
+        urlParam("steamid", steamId);
+        urlParam("include_appinfo", (includeAppInfo) ? 1 : 0);
+        urlParam("include_played_free_games", (includePlayedFreeGames) ? 1 : 0);
     }
 }

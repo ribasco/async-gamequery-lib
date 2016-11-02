@@ -33,21 +33,29 @@ import org.slf4j.LoggerFactory;
 public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, SteamWebApiResponse> {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiClient.class);
 
+    public SteamWebApiClient() {
+        super("");
+    }
+
     /**
-     * Default Constructor
-     *
-     * @param apiToken The steam web webapi token
+     * {@inheritDoc}
      */
     public SteamWebApiClient(String apiToken) {
         super(apiToken);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected SteamWebApiResponse createWebApiResponse(Response response) {
         log.debug("Creating Response for : {}", response);
         return new SteamWebApiResponse(response);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
         requestBuilder.addQueryParam("key", authToken);

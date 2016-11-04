@@ -34,7 +34,7 @@ public class SearchClan extends CocWebApiRequest {
     public SearchClan(int apiVersion, CocSearchCriteria criteria) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_SEARCH);
         for (Map.Entry<String, Object> searchCriteria : criteria.getCriteriaSet()) {
-            param(searchCriteria.getKey(), searchCriteria.getValue());
+            urlParam(searchCriteria.getKey(), searchCriteria.getValue());
         }
     }
 }

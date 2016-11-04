@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 /**
@@ -32,6 +33,6 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
 public class GetNumberOfCurrentPlayers extends SteamUserStatsRequest {
     public GetNumberOfCurrentPlayers(int apiVersion, int appId) {
         super("GetNumberOfCurrentPlayers", apiVersion);
-        urlParam("appid", appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
     }
 }

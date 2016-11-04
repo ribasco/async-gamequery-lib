@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
 
 import java.util.List;
@@ -35,7 +36,7 @@ public class GetAssetClassInfo extends SteamEconomyRequest {
 
     public GetAssetClassInfo(int apiVersion, int appId, String language, Long... classIds) {
         super("GetAssetClassInfo", apiVersion);
-        urlParam("appid", appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
         //Add class id params
         if (classIds != null) {
             urlParam("class_count", classIds.length);

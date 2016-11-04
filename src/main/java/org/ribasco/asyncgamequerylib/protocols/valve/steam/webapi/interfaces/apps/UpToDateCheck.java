@@ -24,15 +24,13 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
 
-/**
- * Created by raffy on 10/25/2016.
- */
 public class UpToDateCheck extends SteamAppsRequest {
     public UpToDateCheck(int version, int serverVersion, int appId) {
         super("UpToDateCheck", version);
-        urlParam("appid", appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
         urlParam("version", serverVersion);
     }
 }

@@ -30,7 +30,7 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
 public class GetLeagueSeasonRankings extends CocWebApiRequest {
     public GetLeagueSeasonRankings(int apiVersion, int leagueId, String seasonId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASON_RANKINGS, limit, before, after);
-        baseUrlProperty(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
-        baseUrlProperty(CocApiConstants.UF_PROP_SEASON_ID, seasonId);
+        property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
+        property(CocApiConstants.UF_PROP_SEASON_ID, seasonId);
     }
 }

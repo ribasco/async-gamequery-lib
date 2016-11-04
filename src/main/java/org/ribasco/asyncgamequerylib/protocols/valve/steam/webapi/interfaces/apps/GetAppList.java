@@ -30,7 +30,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.Ste
  * Returns a list of available steam apps and their appIds
  */
 public class GetAppList extends SteamAppsRequest {
-    public GetAppList(int version) {
-        super("GetAppList", version);
+    public GetAppList(int apiVersion) {
+        super("GetAppList", apiVersion);
     }
 }

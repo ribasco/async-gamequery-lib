@@ -24,12 +24,13 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 public class GetUserStatsForGame extends SteamUserStatsRequest {
     public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
         super("GetUserStatsForGame", apiVersion);
-        urlParam("steamid", steamId);
-        urlParam("appid", appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_STEAMID, steamId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
     }
 }

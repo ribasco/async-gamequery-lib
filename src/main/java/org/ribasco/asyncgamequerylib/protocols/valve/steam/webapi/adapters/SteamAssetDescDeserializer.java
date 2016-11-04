@@ -22,10 +22,10 @@
  * SOFTWARE.
  **************************************************************************************************/
 
-package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.deserializers;
+package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.adapters;
 
 import com.google.gson.*;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.SteamAssetClassInfo;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.SteamAssetDescription;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,22 +36,24 @@ import java.util.Map;
 /**
  * Created by raffy on 10/27/2016.
  */
-public class SteamAssetClassInfoMapDeserializer implements JsonDeserializer<Map<String, SteamAssetClassInfo>> {
-    private static final Logger log = LoggerFactory.getLogger(SteamAssetClassInfoMapDeserializer.class);
+public class SteamAssetDescDeserializer implements JsonDeserializer<SteamAssetDescription> {
+    private static final Logger log = LoggerFactory.getLogger(SteamAssetDescDeserializer.class);
 
     @Override
-    public Map<String, SteamAssetClassInfo> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        Map<String, SteamAssetClassInfo> map = new HashMap<>();
-        JsonObject jObject = json.getAsJsonObject();
-        for (Map.Entry<String, JsonElement> entry : jObject.entrySet()) {
-            String key = entry.getKey();
-            JsonElement value = entry.getValue();
-            //Only process entries that are of type object
-            if (value.isJsonObject()) {
-                map.put(key, context.deserialize(value, SteamAssetClassInfo.class));
-            }
+    public SteamAssetDescription deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        SteamAssetDescription desc = new SteamAssetDescription();
+        JsonObject jsonObj = json.getAsJsonObject();
+        String type = jsonObj.getAsJsonPrimitive("type").getAsString();
+        String value = jsonObj.getAsJsonPrimitive("value").getAsString();
+        Map<String, String> mAppData = new HashMap<>();
+        JsonElement appData = jsonObj.get("app_data");
+        if (appData.isJsonObject()) {
+            desc.setAppData(context.deserialize(appData, HashMap.class));
+        } else {
+            desc.setAppData(mAppData);
         }
-        log.debug("Finished populating map. Total Map Size: {}", map.size());
-        return map;
+        desc.setType(type);
+        desc.setValue(value);
+        return desc;
     }
 }

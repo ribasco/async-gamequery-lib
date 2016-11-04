@@ -30,6 +30,6 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
 public class GetLocationInfo extends CocWebApiRequest {
     public GetLocationInfo(int apiVersion, int locationId) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATION_INFO);
-        baseUrlProperty(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
+        property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
     }
 }

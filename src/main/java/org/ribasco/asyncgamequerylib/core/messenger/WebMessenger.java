@@ -41,8 +41,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
 /**
- * Messenger using the TCP Transport Protocol
+ * A Messenger responsible for handling Web Requests and Responses.
  */
+//TODO: Implement a generic request/response lookup service
 public class WebMessenger<Req extends AbstractWebRequest, Res extends AbstractWebResponse> implements Messenger<Req, Res> {
 
     private static final Logger log = LoggerFactory.getLogger(WebMessenger.class);

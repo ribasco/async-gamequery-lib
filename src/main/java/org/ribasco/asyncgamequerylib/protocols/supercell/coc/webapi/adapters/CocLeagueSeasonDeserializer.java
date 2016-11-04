@@ -1,4 +1,4 @@
-package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.deserializers;
+package org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.adapters;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

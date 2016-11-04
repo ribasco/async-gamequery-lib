@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     public static final Logger log = LoggerFactory.getLogger(AbstractWebApiRequest.class);
@@ -46,6 +47,13 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
         this.baseUrlParams = new HashMap<>();
         this.substitutor = new StrSubstitutor(this.baseUrlParams);
     }
+
+    @SuppressWarnings("unchecked")
+    protected void urlParam(CriteriaBuilder criteria) {
+        Set<Map.Entry<String, Object>> criteraSet = criteria.getCriteriaSet();
+        criteraSet.forEach(c -> urlParam(c.getKey(), c.getValue()));
+    }
+
 
     public int apiVersion() {
         return apiVersion;
@@ -63,17 +71,25 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
         this.apiToken = apiToken;
     }
 
-    public void baseUrlProperty(String property, Object value) {
+    protected boolean hasProperty(String property) {
+        return property(property) != null;
+    }
+
+    protected void property(String property, Object value) {
         if (!StringUtils.isEmpty(property) && value != null)
             baseUrlParams.put(property, String.valueOf(value));
     }
 
-    public String baseUrlProperty(String property) {
+    protected String property(String property) {
         return baseUrlParams.get(property);
     }
 
+    protected String resolveProperties(String textWithVariables) {
+        return substitutor.replace(textWithVariables);
+    }
+
     public String resolveBaseUrl() {
-        return substitutor.replace(this.baseUrlFormat);
+        return resolveProperties(this.baseUrlFormat);
     }
 
     public String baseUrlFormat() {
@@ -86,7 +102,6 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
 
     @Override
     public Request getMessage() {
-        log.info("Using Resolved URL: {}", resolveBaseUrl());
         baseUrl(resolveBaseUrl());
         return super.getMessage();
     }

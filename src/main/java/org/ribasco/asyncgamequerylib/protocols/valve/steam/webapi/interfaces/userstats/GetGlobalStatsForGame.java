@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 public class GetGlobalStatsForGame extends SteamUserStatsRequest {
@@ -33,10 +34,10 @@ public class GetGlobalStatsForGame extends SteamUserStatsRequest {
 
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name, int startDate, int endDate) {
         super("GetGlobalStatsForGame", apiVersion);
-        urlParam("appid", appId);
-        urlParam("count", count);
-        urlParam("name", name);
-        urlParam("startdate", startDate);
-        urlParam("enddate", endDate);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_COUNT, count);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_NAME, name);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_STARTDATE, startDate);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_ENDDATE, endDate);
     }
 }

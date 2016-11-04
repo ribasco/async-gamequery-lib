@@ -62,7 +62,7 @@ abstract public class AbstractWebRequest extends AbstractRequest<Request> {
         request().setMethod(method.name());
     }
 
-    protected void param(String name, Object value) {
+    protected void urlParam(String name, Object value) {
         RequestBuilder builder = request();
         if (value == null)
             return;

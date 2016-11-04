@@ -39,6 +39,6 @@ public class GetPlayerRankingsForLoc extends CocWebApiRequest {
 
     public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATION_PLAYER_RANK, limit, before, after);
-        baseUrlProperty(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
+        property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
     }
 }

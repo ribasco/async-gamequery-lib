@@ -33,6 +33,6 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
 public class GetPlayerInfo extends CocWebApiRequest {
     public GetPlayerInfo(int apiVersion, String playerTag) {
         super(apiVersion, CocApiConstants.UF_COC_PLAYER_INFO);
-        baseUrlProperty(CocApiConstants.UF_PROP_PLAYERTAG, encode(playerTag));
+        property(CocApiConstants.UF_PROP_PLAYERTAG, encode(playerTag));
     }
 }

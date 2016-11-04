@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
 
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
@@ -38,8 +39,8 @@ public class GetPlayerAchievements extends SteamUserStatsRequest {
 
     public GetPlayerAchievements(int apiVersion, long steamId, int appId, String language) {
         super("GetPlayerAchievements", apiVersion);
-        urlParam("steamid", steamId);
-        urlParam("appid", appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_STEAMID, steamId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
         urlParam("l", defaultIfNull(language, "en"));
     }
 }

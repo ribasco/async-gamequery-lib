@@ -27,12 +27,14 @@ package org.ribasco.asyncgamequerylib.core;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
+import com.google.gson.reflect.TypeToken;
 import io.netty.handler.codec.http.HttpStatusClass;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.core.exceptions.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Type;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -52,7 +54,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * Used by the underlying concrete classes for api versioning
      */
-    protected static final int VERSION_1 = 1, VERSION_2 = 2, VERSION_3 = 3;
+    public static final int VERSION_1 = 1, VERSION_2 = 2, VERSION_3 = 3;
 
     /**
      * <p>Default Constructor</p>
@@ -76,12 +78,21 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
         return jsonBuilder;
     }
 
+    protected <V> V fromJson(JsonElement element) {
+        return builder().fromJson(element, new TypeToken<V>() {
+        }.getType());
+    }
+
+    protected <V> V fromJson(JsonElement element, Type typeOf) {
+        return builder().fromJson(element, typeOf);
+    }
+
     protected <V> V fromJson(JsonElement element, Class<V> classTypeOf) {
         return builder().fromJson(element, classTypeOf);
     }
 
     /**
-     * <p>Sends a requests to the internal client</p>
+     * <p>Sends a requests to the internal client.</p>
      *
      * @param request An instance of {@link AbstractWebRequest}
      *
@@ -90,7 +101,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     @SuppressWarnings("unchecked")
     protected <A> CompletableFuture<A> sendRequest(Req request) {
         CompletableFuture<Res> responseFuture = client.sendRequest(request);
-        return responseFuture.whenComplete(this::errorHandler).thenApply(this::convertToJsonObject);
+        return responseFuture.whenComplete(this::handleResponseAndError).thenApply(this::convertToJsonObject);
     }
 
     /**
@@ -103,15 +114,19 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     }
 
     /**
-     * The default error handler
+     * The default error handler. Override this if needed.
      *
-     * @param response
-     * @param error
+     * @param response An instance of {@link AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
+     * @param error    A {@link Throwable} instance or <code>null</code> if no error has occured.
+     *
+     * @throws WebException
      */
-    protected void errorHandler(Res response, Throwable error) {
+    protected void handleResponseAndError(Res response, Throwable error) {
         if (error != null)
             throw new WebException(error);
-        if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
+        log.info("Handling response for {}, with status code = {}", response.getMessage().getUri(), response.getMessage().getStatusCode());
+        if (response.getStatus() == HttpStatusClass.SERVER_ERROR ||
+                response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
             switch (response.getMessage().getStatusCode()) {
                 case 400:
                     throw new BadRequestException("Incorrect parameters provided for request");
@@ -124,7 +139,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
                 case 500:
                     throw new UnknownWebException("Unknown error happened when handling the request.");
                 case 503:
-                    throw new ServiceUnavailableException("Service is temprorarily unavailable because of maintenance.");
+                    throw new ServiceUnavailableException("Service is temprorarily unavailable. Possible maintenance on-going.");
                 default:
                     throw new WebException("Unknown error occured on request send");
             }
@@ -132,15 +147,10 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     }
 
     /**
-     * A convenience method to convert the response to {@link com.google.gson.JsonObject}
-     *
-     * @param response
-     * @param <A>
-     *
-     * @return
+     * Converts the underlying processed content to a {@link com.google.gson.JsonObject} instance
      */
     @SuppressWarnings("unchecked")
-    private <A> A convertToJsonObject(Res response) {
+    protected <A> A convertToJsonObject(Res response) {
         log.debug("ConvertToJson for Response = {}, {}", response.getMessage().getStatusCode(), response.getMessage().getHeaders());
         JsonElement processedElement = response.getProcessedContent();
         if (processedElement != null)

@@ -30,6 +30,6 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
 public class GetLeagueInfo extends CocWebApiRequest {
     public GetLeagueInfo(int apiVersion, int leagueId) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_INFO);
-        baseUrlProperty(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
+        property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
     }
 }

@@ -47,11 +47,7 @@ public class SteamNews extends SteamWebApiInterface {
     }
 
     public CompletableFuture<List<SteamNewsItem>> getNewsForApp(int appId, int maxLength, int endDate, int count, String feeds) {
-        GetNewsForApp request = new GetNewsForApp(2, appId);
-        request.setMaxLength(maxLength);
-        request.setEndDate(endDate);
-        request.setCount(count);
-        request.setFeeds(feeds);
+        GetNewsForApp request = new GetNewsForApp(2, appId).maxLength(maxLength).endDate(endDate).count(count).feeds(feeds);
         CompletableFuture<JsonObject> newsItems = sendRequest(request);
         return newsItems.thenApply(new Function<JsonObject, List<SteamNewsItem>>() {
             @Override

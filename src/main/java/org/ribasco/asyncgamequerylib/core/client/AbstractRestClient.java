@@ -132,6 +132,8 @@ abstract public class AbstractRestClient<Req extends AbstractWebApiRequest, Res 
      *
      * @return A Concrete implementation of {@link AbstractWebApiResponse}
      */
+    //TODO: This needs to be re-evaluated. The web Messenger should be the one to manufacture the responses FOR the client.
+    // TODO: (Cont) The client only needs to pass in the request/response mapping definitions
     abstract protected Res createWebApiResponse(Response response);
 
     public String getAuthToken() {

@@ -59,7 +59,7 @@ public class SteamApps extends SteamWebApiInterface {
     }
 
     public CompletableFuture<List<SteamApp>> getAppList() {
-        final CompletableFuture<JsonObject> json = sendRequest(new GetAppList(2));
+        final CompletableFuture<JsonObject> json = sendRequest(new GetAppList(VERSION_2));
         return json.thenApply((JsonObject element) -> {
             JsonElement jsonApps = element.get("applist")
                     .getAsJsonObject()

@@ -39,22 +39,22 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     public CocWebApiRequest(int apiVersion, String urlFormat, int limit, int before, int after) {
         super(apiVersion);
         baseUrlFormat(urlFormat);
-        baseUrlProperty(CocApiConstants.UF_PROP_VERSION, apiVersion);
-        baseUrlProperty(CocApiConstants.UF_PROP_BASEURL, CocApiConstants.UF_COC_BASE);
+        property(CocApiConstants.UF_PROP_VERSION, apiVersion);
+        property(CocApiConstants.UF_PROP_BASEURL, CocApiConstants.UF_COC_BASE);
         limit(limit);
         before(before);
         after(after);
     }
 
     public void limit(int limit) {
-        param("limit", limit);
+        urlParam("limit", limit);
     }
 
     public void before(int before) {
-        param("before", before);
+        urlParam("before", before);
     }
 
     public void after(int after) {
-        param("after", after);
+        urlParam("after", after);
     }
 }

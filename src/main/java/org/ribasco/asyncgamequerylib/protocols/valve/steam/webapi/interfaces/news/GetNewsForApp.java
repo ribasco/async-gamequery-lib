@@ -24,62 +24,33 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.news;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamNewsRequest;
 
 public class GetNewsForApp extends SteamNewsRequest {
 
-    private int appId;
-    private int maxLength = -1;
-    private int endDate = -1;
-    private int count = -1;
-    private String feeds = null;
-
     public GetNewsForApp(int apiVersion, int appId) {
         super("GetNewsForApp", apiVersion);
-        urlParam("appid", String.valueOf(appId));
-        urlParam("maxlength", String.valueOf(maxLength));
-        urlParam("enddate", String.valueOf(endDate));
-        urlParam("count", String.valueOf(count));
-        urlParam("feeds", feeds);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
     }
 
-    public int getAppId() {
-        return appId;
+    public GetNewsForApp maxLength(int maxLength) {
+        urlParam(SteamApiConstants.STEAM_URLPARAM_MAXLENGTH, maxLength);
+        return this;
     }
 
-    public void setAppId(int appId) {
-        this.appId = appId;
+    public GetNewsForApp endDate(int endDate) {
+        urlParam(SteamApiConstants.STEAM_URLPARAM_ENDDATE, endDate);
+        return this;
     }
 
-    public int getMaxLength() {
-        return maxLength;
+    public GetNewsForApp count(int count) {
+        urlParam(SteamApiConstants.STEAM_URLPARAM_COUNT, count);
+        return this;
     }
 
-    public void setMaxLength(int maxLength) {
-        this.maxLength = maxLength;
-    }
-
-    public int getEndDate() {
-        return endDate;
-    }
-
-    public void setEndDate(int endDate) {
-        this.endDate = endDate;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
-
-    public String getFeeds() {
-        return feeds;
-    }
-
-    public void setFeeds(String feeds) {
-        this.feeds = feeds;
+    public GetNewsForApp feeds(String feeds) {
+        urlParam(SteamApiConstants.STEAM_URLPARAM_FEEDS, feeds);
+        return this;
     }
 }

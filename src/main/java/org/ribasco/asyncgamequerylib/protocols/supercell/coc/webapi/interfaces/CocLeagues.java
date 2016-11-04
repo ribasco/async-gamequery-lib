@@ -31,7 +31,7 @@ import com.google.gson.reflect.TypeToken;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocTypes;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiClient;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiInterface;
-import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.deserializers.CocLeagueSeasonDeserializer;
+import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.adapters.CocLeagueSeasonDeserializer;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueInfo;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueSeasonRankings;
 import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.interfaces.leagues.GetLeagueSeasons;

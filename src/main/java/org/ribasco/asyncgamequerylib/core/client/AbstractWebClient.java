@@ -8,6 +8,12 @@ import org.ribasco.asyncgamequerylib.core.messenger.WebMessenger;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * A generic Http Client base
+ *
+ * @param <Req> Type of {@link AbstractWebRequest}
+ * @param <Res> Type of {@link AbstractWebResponse}
+ */
 abstract class AbstractWebClient<Req extends AbstractWebRequest, Res extends AbstractWebResponse>
         implements Client<Req, Res> {
 

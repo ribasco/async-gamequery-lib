@@ -33,6 +33,6 @@ import org.ribasco.asyncgamequerylib.protocols.supercell.coc.webapi.CocWebApiReq
 public class GetClanInfo extends CocWebApiRequest {
     public GetClanInfo(int apiVersion, String clanTag) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_INFO);
-        baseUrlProperty("clanTag", encode(clanTag));
+        property("clanTag", encode(clanTag));
     }
 }

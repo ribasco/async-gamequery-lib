@@ -34,6 +34,6 @@ public class GetClanWarLog extends CocWebApiRequest {
 
     public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_WARLOG, limit, after, before);
-        baseUrlProperty(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
+        property(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
     }
 }

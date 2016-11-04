@@ -27,6 +27,7 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.client;
 import org.ribasco.asyncgamequerylib.core.Callback;
 import org.ribasco.asyncgamequerylib.core.client.GameServerQueryClient;
 import org.ribasco.asyncgamequerylib.core.enums.RequestPriority;
+import org.ribasco.asyncgamequerylib.core.functions.TriConsumer;
 import org.ribasco.asyncgamequerylib.core.utils.ConcurrentUtils;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerFilter;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.masterquery.MasterServerMessenger;
@@ -60,7 +61,7 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
      *
-     * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, Callback)
+     * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
     public CompletableFuture<Vector<InetSocketAddress>> getServerList(final MasterServerType type, final MasterServerRegion region, final MasterServerFilter filter) {
         return getServerList(type, region, filter, null);
@@ -78,7 +79,7 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
-    public CompletableFuture<Vector<InetSocketAddress>> getServerList(final MasterServerType type, final MasterServerRegion region, final MasterServerFilter filter, final Callback<InetSocketAddress> callback) {
+    public CompletableFuture<Vector<InetSocketAddress>> getServerList(final MasterServerType type, final MasterServerRegion region, final MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
 
@@ -104,7 +105,7 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
                 //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip received)
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
                     if (callback != null && !isIpTerminator(ip))
-                        callback.onReceive(ip, destination, null);
+                        callback.accept(ip, destination, null);
                     //Add a delay here. We shouldn't send requests too fast to the master server
                     // there is a high chance that we might not receive the end of the list.
                     ConcurrentUtils.sleepUninterrupted(13);
@@ -127,12 +128,12 @@ public class MasterServerQueryClient extends GameServerQueryClient<MasterServerR
                 log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of logger list from master");
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
-                    callback.onReceive(null, destination, e);
+                    callback.accept(null, destination, e);
                 masterPromise.completeExceptionally(e);
             } catch (ExecutionException e) {
                 log.error("ExecutionException occured {}", e);
                 if (callback != null)
-                    callback.onReceive(null, destination, e);
+                    callback.accept(null, destination, e);
                 masterPromise.completeExceptionally(e);
             }
         } //while

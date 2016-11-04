@@ -26,6 +26,7 @@ package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
 @SuppressWarnings("all")
 public class SteamApiConstants {
+    //Interface definitions
     public static final String STEAM_BASE_URL_FORMAT = "https://api.steampowered.com/${interface}/${method}/v${version}";
     public static final String STEAM_APPS = "ISteamApps";
     public static final String STEAM_ECONOMY = "ISteamEconomy";
@@ -56,6 +57,15 @@ public class SteamApiConstants {
 
     //Steam URL Params
     public static final String STEAM_URLPARAM_STEAMID = "steamid";
+    public static final String STEAM_URLPARAM_APPID = "appid";
+    public static final String STEAM_URLPARAM_CURRENCY = "currency";
+    public static final String STEAM_URLPARAM_LANGUAGE = "language";
+    public static final String STEAM_URLPARAM_MAXLENGTH = "maxlength";
+    public static final String STEAM_URLPARAM_STARTDATE = "startdate";
+    public static final String STEAM_URLPARAM_ENDDATE = "enddate";
+    public static final String STEAM_URLPARAM_COUNT = "count";
+    public static final String STEAM_URLPARAM_FEEDS = "feeds";
+    public static final String STEAM_URLPARAM_NAME = "name";
 
     //Steam Methods
     public static final String STEAM_METHOD_ECONITEMS_GETPLAYERITEMS = "GetPlayerItems";
@@ -64,11 +74,14 @@ public class SteamApiConstants {
     public static final String STEAM_METHOD_ECONITEMS_GETSTOREMETA = "GetStoreMetaData";
     public static final String STEAM_METHOD_ECONITEMS_GETSTORESTATUS = "GetStoreStatus";
 
-    //Steam properties
+    //Steam URL Properties
     public static final String STEAM_PROP_APPID = "appId";
     public static final String STEAM_PROP_INTERFACE = "interface";
     public static final String STEAM_PROP_METHOD = "method";
     public static final String STEAM_PROP_VERSION = "version";
+
+    //Store Front URL Properties
+    public static final String SF_PROP_BASEURL = "baseUrl";
 
     //Store Front Constants
     public static final String SF_BASE_URL_FORMAT = "http://store.steampowered.com/api";
@@ -77,8 +90,4 @@ public class SteamApiConstants {
     public static final String SF_METHOD_FEATURED_CATEGORIES = "${baseUrl}/featuredcategories";
     public static final String SF_METHOD_PACKAGE_DETAILS = "${baseUrl}/packagedetails";
     public static final String SF_METHOD_SALE_DETAILS = "${baseUrl}/salepage";
-
-    //Store Front URL Properties
-    public static final String SF_PROP_BASEURL = "baseUrl";
-
 }

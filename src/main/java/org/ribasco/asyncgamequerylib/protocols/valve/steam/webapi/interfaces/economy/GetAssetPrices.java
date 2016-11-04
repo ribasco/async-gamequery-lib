@@ -24,13 +24,14 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
 
 public class GetAssetPrices extends SteamEconomyRequest {
     public GetAssetPrices(int apiVersion, int appId, String currency, String language) {
         super("GetAssetPrices", apiVersion);
-        urlParam("appid", appId);
-        urlParam("currency", currency);
-        urlParam("language", language);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_CURRENCY, currency);
+        urlParam(SteamApiConstants.STEAM_URLPARAM_LANGUAGE, language);
     }
 }

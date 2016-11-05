@@ -1,7 +1,7 @@
 /target/
 /.idea/
-/logs/*.log
+*.log
 /docs/*.~vsd
-/async-gamequery-lib.iml
 logs/
 out/
+*.iml

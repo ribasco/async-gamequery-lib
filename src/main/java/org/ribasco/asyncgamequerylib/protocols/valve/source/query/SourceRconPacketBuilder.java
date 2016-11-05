@@ -36,9 +36,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
+ * <p>An Packet builder for the Source RCON Protocol</p>
+ *
  * Created by raffy on 9/24/2016.
  */
 public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPacket> {
@@ -48,8 +49,6 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
     public SourceRconPacketBuilder(ByteBufAllocator allocator) {
         super(allocator);
     }
-
-    AtomicInteger bytesRead = new AtomicInteger();
 
     @Override
     public <T extends SourceRconPacket> T construct(ByteBuf data) {

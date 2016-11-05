@@ -1,7 +1,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.econitems;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconItemsRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamEconItemsRequest;
 
 public class GetSchemaUrl extends SteamEconItemsRequest {
     public GetSchemaUrl(int appId, int apiVersion) {

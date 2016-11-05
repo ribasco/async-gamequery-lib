@@ -24,17 +24,18 @@
 
 package org.ribasco.asyncgamequerylib.core;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.*;
 import io.netty.handler.codec.http.HttpStatusClass;
 import org.ribasco.asyncgamequerylib.core.client.AbstractRestClient;
 import org.ribasco.asyncgamequerylib.core.exceptions.*;
+import org.ribasco.asyncgamequerylib.core.reflect.CollectionParameterizedType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -78,17 +79,41 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
         return jsonBuilder;
     }
 
-    protected <V> V fromJson(JsonElement element) {
-        return builder().fromJson(element, new TypeToken<V>() {
-        }.getType());
-    }
-
     protected <V> V fromJson(JsonElement element, Type typeOf) {
         return builder().fromJson(element, typeOf);
     }
 
     protected <V> V fromJson(JsonElement element, Class<V> classTypeOf) {
         return builder().fromJson(element, classTypeOf);
+    }
+
+    /**
+     * @see #asCollectionOf(Class, String, JsonObject, Class, boolean)
+     */
+    protected <A> List<A> asListOf(Class itemType, String searchKey, JsonObject searchElement, boolean strict) {
+        return asCollectionOf(itemType, searchKey, searchElement, ArrayList.class, strict);
+    }
+
+    /**
+     * <p>A Utility function that retrieves the specified json element and converts it to a Parameterized {@link java.util.Collection} instance.</p>
+     *
+     * @param itemType        The {@link Class} type of the item in the {@link Collection}
+     * @param searchKey       The name of the {@link JsonArray} element that we will convert
+     * @param searchElement   The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     * @param collectionClass A {@link Class} representing the concrete implementation of the {@link Collection}
+     * @param strict          If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     *
+     * @return A {@link Collection} containing the type specified by collectionClass argument
+     */
+    public <A extends Collection> A asCollectionOf(Class itemType, String searchKey, JsonObject searchElement, Class<? extends Collection> collectionClass, boolean strict) {
+        if (searchElement.has(searchKey) && searchElement.get(searchKey).isJsonArray()) {
+            return fromJson(searchElement.getAsJsonArray(searchKey), new CollectionParameterizedType(itemType, collectionClass));
+        }
+        if (strict)
+            throw new JsonElementNotFoundException(searchElement, String.format("Unable to find a JsonArray element '%s' from the search element", searchKey));
+        else {
+            return null;
+        }
     }
 
     /**
@@ -101,7 +126,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     @SuppressWarnings("unchecked")
     protected <A> CompletableFuture<A> sendRequest(Req request) {
         CompletableFuture<Res> responseFuture = client.sendRequest(request);
-        return responseFuture.whenComplete(this::handleResponseAndError).thenApply(this::convertToJsonObject);
+        return responseFuture.whenComplete(this::interceptResponse).thenApply(this::postProcessConversion);
     }
 
     /**
@@ -121,7 +146,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      *
      * @throws WebException
      */
-    protected void handleResponseAndError(Res response, Throwable error) {
+    protected void interceptResponse(Res response, Throwable error) {
         if (error != null)
             throw new WebException(error);
         log.info("Handling response for {}, with status code = {}", response.getMessage().getUri(), response.getMessage().getStatusCode());
@@ -150,11 +175,15 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      * Converts the underlying processed content to a {@link com.google.gson.JsonObject} instance
      */
     @SuppressWarnings("unchecked")
-    protected <A> A convertToJsonObject(Res response) {
+    private <A> A postProcessConversion(Res response) {
         log.debug("ConvertToJson for Response = {}, {}", response.getMessage().getStatusCode(), response.getMessage().getHeaders());
         JsonElement processedElement = response.getProcessedContent();
-        if (processedElement != null)
-            return (A) processedElement.getAsJsonObject();
+        if (processedElement != null) {
+            if (processedElement.isJsonObject())
+                return (A) processedElement.getAsJsonObject();
+            else if (processedElement.isJsonArray())
+                return (A) processedElement.getAsJsonArray();
+        }
         throw new AsyncGameLibUncheckedException("No parsed content found for response" + response);
     }
 }

@@ -24,7 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamAppsRequest;
 
 /**
  * Returns a list of available steam apps and their appIds

@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.apps;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamAppsRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamAppsRequest;
 
 public class UpToDateCheck extends SteamAppsRequest {
     public UpToDateCheck(int version, int serverVersion, int appId) {

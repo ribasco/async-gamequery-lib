@@ -33,6 +33,7 @@ import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.use
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.pojos.*;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -79,8 +80,8 @@ public class SteamUserStats extends SteamWebApiInterface {
             }.getType();
             Type statsSchemaType = new TypeToken<List<SteamGameStatsSchema>>() {
             }.getType();
-            info.setAchievementSchemaList(builder().fromJson(availableGameStats.getAsJsonArray("achievements"), achievementsSchemaType));
-            info.setStatsSchemaList(builder().fromJson(availableGameStats.getAsJsonArray("stats"), statsSchemaType));
+            info.setAchievementSchemaList(fromJson(availableGameStats.getAsJsonArray("achievements"), achievementsSchemaType));
+            info.setStatsSchemaList(fromJson(availableGameStats.getAsJsonArray("stats"), statsSchemaType));
             return info;
         });
     }
@@ -96,19 +97,11 @@ public class SteamUserStats extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamPlayerAchievement>> getPlayerAchievements(long steamId, int appId, String language) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerAchievements(VERSION_1, steamId, appId, language));
-        return json.thenApply(new Function<JsonObject, List<SteamPlayerAchievement>>() {
-            @Override
-            public List<SteamPlayerAchievement> apply(JsonObject root) {
-                JsonArray playerAchievements = root.getAsJsonObject("playerstats").getAsJsonArray("achievements");
-                Type pAchievementType = new TypeToken<List<SteamPlayerAchievement>>() {
-                }.getType();
-                return builder().fromJson(playerAchievements, pAchievementType);
-            }
-        });
+        return json.thenApply(r -> asCollectionOf(SteamPlayerAchievement.class, "achievements", r.getAsJsonObject("playerstats"), ArrayList.class, true));
     }
 
     public CompletableFuture<SteamPlayerStats> getUserStatsForGame(long steamId, int appId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetUserStatsForGame(VERSION_2, steamId, appId));
-        return json.thenApply(root -> builder().fromJson(root.getAsJsonObject("playerstats"), SteamPlayerStats.class));
+        return json.thenApply(root -> fromJson(root.getAsJsonObject("playerstats"), SteamPlayerStats.class));
     }
 }

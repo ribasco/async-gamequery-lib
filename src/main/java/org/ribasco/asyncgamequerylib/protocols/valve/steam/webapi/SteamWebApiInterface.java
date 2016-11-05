@@ -24,6 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi;
 
+import com.google.gson.JsonObject;
 import org.ribasco.asyncgamequerylib.core.AbstractWebApiInterface;
 
 /**
@@ -40,5 +41,12 @@ abstract public class SteamWebApiInterface
      */
     public SteamWebApiInterface(SteamWebApiClient client) {
         super(client);
+    }
+
+    protected JsonObject getSteamResult(JsonObject root) {
+        if (root.has("result")) {
+            return root.getAsJsonObject("result");
+        }
+        return null;
     }
 }

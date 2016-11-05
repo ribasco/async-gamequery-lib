@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.news;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamNewsRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamNewsRequest;
 
 public class GetNewsForApp extends SteamNewsRequest {
 

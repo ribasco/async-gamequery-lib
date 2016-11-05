@@ -33,6 +33,9 @@ import org.slf4j.LoggerFactory;
 public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, SteamWebApiResponse> {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiClient.class);
 
+    /**
+     * Some requests do not require a token
+     */
     public SteamWebApiClient() {
         super("");
     }

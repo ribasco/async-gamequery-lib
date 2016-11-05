@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamEconomyRequest;
 
 import java.util.List;
 

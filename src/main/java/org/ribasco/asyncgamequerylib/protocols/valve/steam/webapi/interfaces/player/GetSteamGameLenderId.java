@@ -24,7 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamPlayerServiceRequest;
 
 /**
  * Returns valid lender SteamID if game currently played is borrowed

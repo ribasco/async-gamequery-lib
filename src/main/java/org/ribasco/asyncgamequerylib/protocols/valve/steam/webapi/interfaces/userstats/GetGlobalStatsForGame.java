@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.userstats;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserStatsRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamUserStatsRequest;
 
 public class GetGlobalStatsForGame extends SteamUserStatsRequest {
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name) {

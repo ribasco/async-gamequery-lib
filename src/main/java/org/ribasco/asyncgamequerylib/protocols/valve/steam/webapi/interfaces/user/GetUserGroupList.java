@@ -24,7 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.user;
 
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamUserRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamUserRequest;
 
 /**
  * Created by raffy on 10/27/2016.

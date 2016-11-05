@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.economy;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamEconomyRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamEconomyRequest;
 
 public class GetAssetPrices extends SteamEconomyRequest {
     public GetAssetPrices(int apiVersion, int appId, String currency, String language) {

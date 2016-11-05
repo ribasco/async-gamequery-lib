@@ -25,7 +25,7 @@
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
 import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.SteamApiConstants;
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamPlayerServiceRequest;
 
 /**
  * Return a list of games owned by the player

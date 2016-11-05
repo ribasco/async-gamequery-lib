@@ -24,7 +24,7 @@
 
 package org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.player;
 
-import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.interfaces.SteamPlayerServiceRequest;
+import org.ribasco.asyncgamequerylib.protocols.valve.steam.webapi.requests.SteamPlayerServiceRequest;
 
 /**
  * Gets information about a player's recently played games

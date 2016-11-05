@@ -9,6 +9,11 @@ public class AbstractWebApiResponse<T> extends AbstractWebResponse {
         super(response);
     }
 
+    /**
+     * Returns the parsed content of the response body. It can be in any form (e.g. json, xml, vdf etc)
+     *
+     * @return
+     */
     public T getProcessedContent() {
         return processedContent;
     }

@@ -25,6 +25,13 @@
 package org.ribasco.asyncgamequerylib.core.utils;
 
 public class ByteUtils {
+    /**
+     * Convert an integer to a primitive byte array type
+     *
+     * @param integer
+     *
+     * @return
+     */
     public static byte[] byteArrayFromInteger(int integer) {
         return new byte[]{
                 (byte) (integer >> 24),

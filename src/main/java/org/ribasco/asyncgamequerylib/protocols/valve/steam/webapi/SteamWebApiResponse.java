@@ -29,10 +29,7 @@ import org.asynchttpclient.Response;
 import org.ribasco.asyncgamequerylib.core.AbstractWebApiResponse;
 
 public class SteamWebApiResponse extends AbstractWebApiResponse<JsonElement> {
-
     public SteamWebApiResponse(Response response) {
         super(response);
     }
-
-
 }

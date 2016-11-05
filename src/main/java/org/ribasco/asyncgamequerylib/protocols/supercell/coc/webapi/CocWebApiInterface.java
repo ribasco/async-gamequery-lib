@@ -53,7 +53,7 @@ abstract public class CocWebApiInterface
      * @param error
      */
     @Override
-    protected void handleResponseAndError(CocWebApiResponse response, Throwable error) {
+    protected void interceptResponse(CocWebApiResponse response, Throwable error) {
         if (error != null)
             throw new CocWebApiException(error);
         if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
@@ -66,7 +66,7 @@ abstract public class CocWebApiInterface
                     throw new CocIncorrectParametersException("Incorrect parameters provided for request");
             }
             //Let the base class handle the rest
-            super.handleResponseAndError(response, error);
+            super.interceptResponse(response, error);
         }
     }
 }

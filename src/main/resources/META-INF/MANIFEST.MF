@@ -12,5 +12,5 @@ Class-Path: netty-reactive-streams-1.0.6.jar commons-lang3-3.4.jar log
  guava-19.0.jar hk2-api-2.5.0-b05.jar jersey-client-2.23.2.jar jersey-
  common-2.23.2.jar javax.ws.rs-api-2.0.1.jar javax.inject-2.5.0-b05.ja
  r netty-codec-dns-4.1.4.Final.jar
-Main-Class: org.ribasco.asyncgamequerylib.DemoClient
+Main-Class: org.ribasco.agql.DemoClient
 

@@ -26,7 +26,7 @@ package org.ribasco.agql.core;
 
 import java.net.InetSocketAddress;
 
-public abstract class AbstractRequest<T> extends AbstractMessage<T> {
+abstract public class AbstractRequest<T> extends AbstractMessage<T> {
     public AbstractRequest(InetSocketAddress recipient) {
         super(null, recipient);
     }

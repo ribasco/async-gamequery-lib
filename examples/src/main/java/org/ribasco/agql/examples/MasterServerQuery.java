@@ -35,6 +35,7 @@ public class MasterServerQuery {
 
     public void listAllServers() {
         MasterServerFilter filter = MasterServerFilter.create().dedicated(true);
+        masterServerQueryClient.setSleepTime(8);
         masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayResult).join();
     }
 

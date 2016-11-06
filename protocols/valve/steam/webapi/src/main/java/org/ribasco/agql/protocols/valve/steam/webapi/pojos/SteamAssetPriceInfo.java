@@ -31,9 +31,6 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Created by raffy on 10/27/2016.
- */
 public class SteamAssetPriceInfo {
     @SerializedName("prices")
     private Map<String, Integer> prices;

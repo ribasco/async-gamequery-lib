@@ -2,6 +2,7 @@ package org.ribasco.agql.examples;
 
 import org.ribasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import org.ribasco.agql.protocols.valve.steam.webapi.interfaces.SteamStorefront;
+import org.ribasco.agql.protocols.valve.steam.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

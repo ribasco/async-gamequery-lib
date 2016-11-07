@@ -14,17 +14,17 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 
-public class SourceRconQuery {
-    private static final Logger log = LoggerFactory.getLogger(SourceRconQuery.class);
+public class SourceRconQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
-    public SourceRconQuery() {
+    public SourceRconQueryEx() {
         sourceRconClient = new SourceRconClient();
     }
 
     public static void main(String[] args) {
         try {
-            SourceRconQuery query = new SourceRconQuery();
+            SourceRconQueryEx query = new SourceRconQueryEx();
             query.testRcon();
             query.close();
         } catch (InterruptedException e) {

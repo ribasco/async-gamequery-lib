@@ -10,18 +10,18 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class MasterServerQuery {
+public class MasterServerQueryEx {
 
-    private static final Logger log = LoggerFactory.getLogger(MasterServerQuery.class);
+    private static final Logger log = LoggerFactory.getLogger(MasterServerQueryEx.class);
 
     private MasterServerQueryClient masterServerQueryClient;
 
-    public MasterServerQuery() {
+    public MasterServerQueryEx() {
         masterServerQueryClient = new MasterServerQueryClient();
     }
 
     public static void main(String[] args) throws IOException {
-        MasterServerQuery masterQuery = new MasterServerQuery();
+        MasterServerQueryEx masterQuery = new MasterServerQueryEx();
         try {
             masterQuery.listAllServers();
         } finally {

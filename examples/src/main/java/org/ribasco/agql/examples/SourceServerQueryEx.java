@@ -22,14 +22,14 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-public class SourceServerQuery implements Closeable {
+public class SourceServerQueryEx implements Closeable {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceServerQuery.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceServerQueryEx.class);
     private SourceRconClient sourceRconClient;
     private SourceQueryClient sourceQueryClient;
     private MasterServerQueryClient masterServerQueryClient;
 
-    public SourceServerQuery() {
+    public SourceServerQueryEx() {
         sourceRconClient = new SourceRconClient();
         sourceQueryClient = new SourceQueryClient();
         masterServerQueryClient = new MasterServerQueryClient();
@@ -45,7 +45,7 @@ public class SourceServerQuery implements Closeable {
 
     public static void main(String[] args) {
         try {
-            SourceServerQuery app = new SourceServerQuery();
+            SourceServerQueryEx app = new SourceServerQueryEx();
             app.runNewSimpleTest();
             //app.listServers();
             app.close();

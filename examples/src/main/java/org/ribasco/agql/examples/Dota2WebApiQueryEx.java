@@ -11,8 +11,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class Dota2QueryExample {
-    private static final Logger log = LoggerFactory.getLogger(Dota2QueryExample.class);
+public class Dota2WebApiQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(Dota2WebApiQueryEx.class);
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
         String authToken = "903BC0B13739EF74242523BC3013F076";
@@ -28,16 +28,16 @@ public class Dota2QueryExample {
             //Econ Interface
             List<Dota2GameItem> gameItems = econInterface.getGameItems().get();
             log.info("All of the game items..");
-            gameItems.forEach(Dota2QueryExample::displayResult);
+            gameItems.forEach(Dota2WebApiQueryEx::displayResult);
 
             List<Dota2Heroes> heroes = econInterface.getGameHeroes(false, "en").get();
-            heroes.forEach(Dota2QueryExample::displayResult);
+            heroes.forEach(Dota2WebApiQueryEx::displayResult);
 
             String iconPath = econInterface.getItemIconPath("faker_gold", Dota2IconType.NORMAL).get();
             log.info("Icon Path: {}", iconPath);
 
             List<Dota2Rarities> rarities = econInterface.getRarities("en").get();
-            rarities.forEach(Dota2QueryExample::displayResult);
+            rarities.forEach(Dota2WebApiQueryEx::displayResult);
 
             Integer prizePool = econInterface.getTournamentPrizePool(4122).get();
             log.info("Prize Pool : {}", prizePool);
@@ -50,30 +50,30 @@ public class Dota2QueryExample {
             log.info("Player Info: {}", playerInfo);
 
             List<Dota2FantasyProPlayerInfo> proPlayerInfos = fantasyInterface.getProPlayerList().get();
-            proPlayerInfos.forEach(Dota2QueryExample::displayResult);
+            proPlayerInfos.forEach(Dota2WebApiQueryEx::displayResult);
 
             //Match
             List<Dota2LiveLeagueGame> gameDetails = matchInterface.getLiveLeagueGames().get();
-            gameDetails.forEach(Dota2QueryExample::displayResult);
+            gameDetails.forEach(Dota2WebApiQueryEx::displayResult);
 
             List<Dota2League> leagues = matchInterface.getLeagueListing().get();
-            leagues.forEach(Dota2QueryExample::displayResult);
+            leagues.forEach(Dota2WebApiQueryEx::displayResult);
 
             Dota2MatchDetails matchDetails = matchInterface.getMatchDetails(2753811554L).get();
             log.info("Match Details: {}", matchDetails);
-            matchDetails.getPlayers().forEach(Dota2QueryExample::displayResult);
+            matchDetails.getPlayers().forEach(Dota2WebApiQueryEx::displayResult);
 
             Dota2MatchHistory matchHistory = matchInterface.getMatchHistory().get();
             log.info("Match History : {}", matchHistory);
 
             List<Dota2MatchDetails> matchDetailsBySeq = matchInterface.getMatchHistoryBySequenceNum(1, 10).get();
-            matchDetailsBySeq.forEach(Dota2QueryExample::displayResult);
+            matchDetailsBySeq.forEach(Dota2WebApiQueryEx::displayResult);
 
             List<Dota2MatchTeamInfo> teams = matchInterface.getTeamInfoById(1, 10).get();
-            teams.forEach(Dota2QueryExample::displayResult);
+            teams.forEach(Dota2WebApiQueryEx::displayResult);
 
             List<Dota2TopLiveGame> topLiveGames = matchInterface.getTopLiveGame(1).get();
-            topLiveGames.forEach(Dota2QueryExample::displayResult);
+            topLiveGames.forEach(Dota2WebApiQueryEx::displayResult);
 
             Dota2RealtimeServerStats serverStats = statsInterface.getRealtimeStats(90105101693392898L).get();
             log.info("Server Stats : {}", serverStats);
@@ -82,7 +82,7 @@ public class Dota2QueryExample {
             log.info("Broadcaster Info: {}", bInfo);
 
             List<Dota2TeamDetails> teamDetails = teamInterface.getTeamInfo(4, -1).get();
-            teamDetails.forEach(Dota2QueryExample::displayResult);
+            teamDetails.forEach(Dota2WebApiQueryEx::displayResult);
         } finally {
             log.info("Closing Client");
             apiClient.close();

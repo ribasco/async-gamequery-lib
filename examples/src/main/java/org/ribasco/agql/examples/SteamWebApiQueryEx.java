@@ -15,8 +15,8 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @SuppressWarnings("all")
-public class SteamWebApiQuery {
-    private static final Logger log = LoggerFactory.getLogger(SteamWebApiQuery.class);
+public class SteamWebApiQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(SteamWebApiQueryEx.class);
 
     public static void main(String[] args) {
         String authToken = "903BC0B13739EF74242523BC3013F076";
@@ -35,7 +35,7 @@ public class SteamWebApiQuery {
             steamApps.getAppList().exceptionally(throwable -> {
                 log.error("Error Occured", throwable);
                 return new ArrayList<>();
-            }).thenAccept(SteamWebApiQuery::displayResult).join();
+            }).thenAccept(SteamWebApiQueryEx::displayResult).join();
 
             steamApps.getServersAtAddress(InetAddress.getByName("103.28.55.237"))
                     .exceptionally(throwable -> {

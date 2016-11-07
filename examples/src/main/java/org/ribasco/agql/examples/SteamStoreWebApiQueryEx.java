@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class SteamStoreWebApiQuery {
-    private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiQuery.class);
+public class SteamStoreWebApiQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiQueryEx.class);
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
 

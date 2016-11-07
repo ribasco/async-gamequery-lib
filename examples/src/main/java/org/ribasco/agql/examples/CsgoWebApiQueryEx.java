@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 
-public class CsgoWebApiExample {
-    private static final Logger log = LoggerFactory.getLogger(CsgoWebApiExample.class);
+public class CsgoWebApiQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(CsgoWebApiQueryEx.class);
 
     public static void main(String[] args) throws IOException, ExecutionException, InterruptedException {
         String authToken = "903BC0B13739EF74242523BC3013F076";

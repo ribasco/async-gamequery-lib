@@ -7,11 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
-public class SourceLogMonitor {
-    private static final Logger log = LoggerFactory.getLogger(SourceLogMonitor.class);
+public class SourceLogMonitorEx {
+    private static final Logger log = LoggerFactory.getLogger(SourceLogMonitorEx.class);
 
     public static void main(String[] args) {
-        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogMonitor::processLogData);
+        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogMonitorEx::processLogData);
         logListenService.listen();
     }
 

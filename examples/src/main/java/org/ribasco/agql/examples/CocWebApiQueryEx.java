@@ -13,8 +13,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-public class CocWebApiQuery {
-    private static final Logger log = LoggerFactory.getLogger(CocWebApiQuery.class);
+public class CocWebApiQueryEx {
+    private static final Logger log = LoggerFactory.getLogger(CocWebApiQueryEx.class);
 
     public static void main(String[] args) {
         String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2" +
@@ -44,13 +44,13 @@ public class CocWebApiQuery {
             locations.getLocationInfo(32000000).thenAccept(cocLocation -> log.info("Single Location: {}", cocLocation)).join();
             locations.getClanRankingsFromLocation(32000185).thenAccept(cocClanRankInfos -> cocClanRankInfos.forEach(cocClanRankInfo -> log.info("Ranking: {}", cocClanRankInfo))).join();
             log.info("Displaying Player Rankings by Location");
-            locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiQuery::displayListResults).join();
+            locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Displaying Leagues");
-            leagues.getLeagueList().thenAccept(CocWebApiQuery::displayListResults).join();
+            leagues.getLeagueList().thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Displaying League Seasons");
-            leagues.getLeagueSeasons(29000022).thenAccept(CocWebApiQuery::displayListResults).join();
+            leagues.getLeagueSeasons(29000022).thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Displaying League Season Player Rankings");
-            leagues.getLeagueSeasonsPlayerRankings(29000022, "2016-06", 10).thenAccept(CocWebApiQuery::displayListResults).join();
+            leagues.getLeagueSeasonsPlayerRankings(29000022, "2016-06", 10).thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Retrieving Detailed Player Information");
             players.getPlayerInfo("#J0PYGCG").thenAccept(p -> log.info("Player Info: {}", p)).join();
         } catch (IOException e) {

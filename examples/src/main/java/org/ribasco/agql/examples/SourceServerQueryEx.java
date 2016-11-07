@@ -46,7 +46,7 @@ public class SourceServerQueryEx implements Closeable {
     public static void main(String[] args) {
         try {
             SourceServerQueryEx app = new SourceServerQueryEx();
-            app.runNewSimpleTest();
+            app.queryAllServers();
             //app.listServers();
             app.close();
         } catch (IOException e) {
@@ -87,14 +87,14 @@ public class SourceServerQueryEx implements Closeable {
         }
     }
 
-    public void runNewSimpleTest() {
+    public void queryAllServers() {
         MasterServerFilter filter = MasterServerFilter.create()
                 .appId(550)
                 .dedicated(true)
                 .isEmpty(false)
                 .isSecure(true);
         double start = System.currentTimeMillis();
-        runNewSimpleTest(10, filter);
+        queryAllServers(10, filter);
         double end = ((System.currentTimeMillis() - start) / 1000) / 60;
         log.info("Test Completed  in {} minutes", end);
     }
@@ -252,7 +252,7 @@ public class SourceServerQueryEx implements Closeable {
         return null;
     }
 
-    private Map<String, Double> runNewSimpleTest(int sleepTime, MasterServerFilter filter) {
+    private Map<String, Double> queryAllServers(int sleepTime, MasterServerFilter filter) {
 
         final Map<String, Double> resultMap = new HashMap<>();
 

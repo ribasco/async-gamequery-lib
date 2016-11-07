@@ -12,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.function.BiConsumer;
 
 public class SourceRconQueryEx {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
@@ -50,7 +49,8 @@ public class SourceRconQueryEx {
                 "sm version",
                 "sm exts list",
                 "meta version",
-                "meta list");
+                "meta list",
+                "unknown_cmd");
 
         try {
             //Authenticate
@@ -66,17 +66,7 @@ public class SourceRconQueryEx {
             try {
                 for (String command : commands) {
                     log.info("Executing command '{}'", command);
-                    CompletableFuture<String> resultFuture = sourceRconClient.execute(address1, command)
-                            .whenComplete(new BiConsumer<String, Throwable>() {
-                                @Override
-                                public void accept(String response, Throwable error) {
-                                    if (error != null) {
-                                        log.error("Error occured while executing command: {}", error.getMessage());
-                                        return;
-                                    }
-                                    log.info("Received Reply for command '{}': \n{}", command, response);
-                                }
-                            });
+                    CompletableFuture<String> resultFuture = sourceRconClient.execute(address1, command).whenComplete(this::handleResponse);
                     futures.add(resultFuture);
                 }
             } catch (RconNotYetAuthException e) {
@@ -88,7 +78,13 @@ public class SourceRconQueryEx {
         } catch (ExecutionException e) {
             e.printStackTrace();
         }
+    }
 
-        //sourceRconClient.waitForAll();
+    private void handleResponse(String response, Throwable error) {
+        if (error != null) {
+            log.error("Error occured while executing command: {}", error.getMessage());
+            return;
+        }
+        log.info("Received Reply: \n{}", response);
     }
 }

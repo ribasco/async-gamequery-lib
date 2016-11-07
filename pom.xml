@@ -33,7 +33,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <mvn.compiler.version>3.6.0</mvn.compiler.version>
-        <agql.version>1.0-SNAPSHOT</agql.version>
         <powermock.version>1.6.5</powermock.version>
         <netty.version>4.1.5.Final</netty.version>
         <ahc.version>2.1.0-alpha1</ahc.version>
@@ -51,7 +50,7 @@
     <groupId>org.ribasco</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>${agql.version}</version>
+    <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>

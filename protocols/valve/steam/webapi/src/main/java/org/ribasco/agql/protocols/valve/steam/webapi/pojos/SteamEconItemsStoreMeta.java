@@ -4,18 +4,19 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsStoreMeta {
     @SerializedName("carousel_data")
     private SteamEconItemsSMCarouselData carouselData;
-    private List<SteamEconItemsSMTab> tabs;
-    private List<SteamEconItemsSMFilter> filters;
+    private List<SteamEconItemsSMTab> tabs = new ArrayList<>();
+    private List<SteamEconItemsSMFilter> filters = new ArrayList<>();
     private SteamEconItemsSMSorting sorting;
     @SerializedName("dropdown_data")
     private SteamEconItemsSMDropdownData dropdownData;
     @SerializedName("player_class_data")
-    private List<SteamEconItemsSMPlayerClass> playerClassData;
+    private List<SteamEconItemsSMPlayerClass> playerClassData = new ArrayList<>();
     @SerializedName("home_page_data")
     private SteamEconItemsSMHomepage homePageData;
 

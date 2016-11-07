@@ -35,11 +35,11 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-steam-master</artifactId>
-    <name>Steam Master Server Query Protocol Library</name>
+    <name>AGQL - Valve - Steam Master Server Query Protocol</name>
     <description>A library containing classes which allow clients to communicate to the Steam Master Server
     </description>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -54,21 +54,22 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
-            <version>5.0.0.Alpha2</version>
+            <version>4.1.6.Final</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-lib-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

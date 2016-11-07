@@ -35,11 +35,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
-    <name>Dota 2 WebAPI</name>
+    <name>AGQL - Valve - Dota 2 WebAPI</name>
     <description>Implementation for the Dota 2 Specific Interfaces</description>
-
+    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
@@ -57,12 +56,12 @@
         <dependency>
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>2.1.0-alpha1</version>
+            <version>${ahc.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-steam-webapi</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -29,15 +29,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <relativePath>../pom.xml</relativePath>
+        <!-- <relativePath>../pom.xml</relativePath> -->
         <groupId>org.ribasco</groupId>
         <artifactId>async-gamequery-lib</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-lib-core</artifactId>
-    <name>Asynchronous Game Query Core Library</name>
+    <name>AGQL - Core Library</name>
     <description>The core library</description>
     <packaging>jar</packaging>
 
@@ -61,12 +60,6 @@
         </plugins>
     </build>
 
-    <properties>
-        <powermock.version>1.6.5</powermock.version>
-        <netty.version>4.1.5.Final</netty.version>
-        <ahc.version>2.1.0-alpha1</ahc.version>
-    </properties>
-
     <prerequisites>
         <maven>3.0.0</maven>
     </prerequisites>
@@ -75,12 +68,12 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>19.0</version>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.7</version>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
             <groupId>org.asynchttpclient</groupId>
@@ -104,17 +97,17 @@
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.6.2</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
-            <version>2.6.2</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.6.2</version>
+            <version>${log4j.version}</version>
         </dependency>
         <dependency>
             <groupId>io.netty</groupId>
@@ -124,7 +117,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -142,13 +135,13 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.4</version>
+            <version>${commons.lang.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-math3</artifactId>
-            <version>3.6.1</version>
+            <version>${commons.math.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jetbrains</groupId>

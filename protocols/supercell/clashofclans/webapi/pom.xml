@@ -35,17 +35,17 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-coc-webapi</artifactId>
-    <name>Clash of Clans WebAPI</name>
+    <name>AGQL - Supercell - COC WebAPI</name>
     <description>Implementation for the Clash of Clans WebAPI Interfaces</description>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
+                <version>${mvn.compiler.version}</version>
                 <configuration>
                     <source>${source.version}</source>
                     <target>${target.version}</target>
@@ -56,19 +56,19 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-lib-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.asynchttpclient</groupId>
             <artifactId>async-http-client</artifactId>
-            <version>2.1.0-alpha1</version>
+            <version>${ahc.version}</version>
         </dependency>
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.7</version>
+            <version>${gson.version}</version>
         </dependency>
     </dependencies>
 </project>

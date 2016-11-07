@@ -4,12 +4,13 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMCarouselData {
     @SerializedName("max_display_banners")
     private int maxDisplayBanners;
-    private List<SteamEconItemsCarouselBanner> banners;
+    private List<SteamEconItemsCarouselBanner> banners = new ArrayList<>();
 
     public int getMaxDisplayBanners() {
         return maxDisplayBanners;

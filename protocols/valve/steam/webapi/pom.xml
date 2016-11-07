@@ -4,10 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.ribasco</groupId>
+        <artifactId>async-gamequery-lib</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.ribasco</groupId>
     <artifactId>agql-steam-webapi</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
+    <name>Steam Web API Implementation</name>
+    <description>An implementation for the Steam Web API Interfaces</description>
     <build>
         <plugins>
             <plugin>

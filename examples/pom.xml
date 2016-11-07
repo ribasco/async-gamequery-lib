@@ -4,9 +4,16 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.ribasco</groupId>
+        <artifactId>async-gamequery-lib</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.ribasco</groupId>
     <artifactId>agql-lib-examples</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <name>Examples Project</name>
+    <description>Implementation for the Clash of Clans WebAPI Interfaces</description>
 
     <build>
         <plugins>
@@ -15,8 +22,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
+                    <source>${source.version}</source>
+                    <target>${target.version}</target>
                 </configuration>
             </plugin>
         </plugins>
@@ -35,22 +42,22 @@
         <dependency>
             <groupId>org.ribasco</groupId>
             <artifactId>agql-steam-master</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ribasco</groupId>
             <artifactId>agql-dota2-webapi</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ribasco</groupId>
             <artifactId>agql-coc-webapi</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.ribasco</groupId>
             <artifactId>agql-csgo-webapi</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

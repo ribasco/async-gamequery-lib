@@ -4,9 +4,19 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
+    <parent>
+        <groupId>org.ribasco</groupId>
+        <artifactId>async-gamequery-lib</artifactId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
     <groupId>org.ribasco</groupId>
     <artifactId>agql-source-query</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <name>Source Query/Rcon Protocol Library</name>
+    <description>A library containing classes which allow clients to communicate to source based game servers directly
+        using the Valve Rcon/Query
+        Protocol
+    </description>
 
     <build>
         <plugins>

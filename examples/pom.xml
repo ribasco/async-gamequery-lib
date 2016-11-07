@@ -29,16 +29,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <relativePath>../pom.xml</relativePath>
         <groupId>org.ribasco</groupId>
         <artifactId>async-gamequery-lib</artifactId>
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-lib-examples</artifactId>
-    <name>Examples Project</name>
+    <name>AGQL - Examples</name>
     <description>Implementation for the Clash of Clans WebAPI Interfaces</description>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -53,34 +52,35 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-source-query</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
+            <version>${slf4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-steam-master</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-dota2-webapi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-coc-webapi</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-csgo-webapi</artifactId>
             <version>${project.version}</version>
         </dependency>

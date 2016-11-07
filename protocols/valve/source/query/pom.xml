@@ -35,13 +35,13 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-source-query</artifactId>
-    <name>Source Query/Rcon Protocol Library</name>
+    <name>AGQL - Valve - Source Query/Rcon Protocol</name>
     <description>A library containing classes which allow clients to communicate to source based game servers directly
         using the Valve Rcon/Query
         Protocol
     </description>
+    <packaging>jar</packaging>
 
     <build>
         <plugins>
@@ -56,6 +56,7 @@
             </plugin>
         </plugins>
     </build>
+
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>
@@ -63,9 +64,9 @@
             <version>${guava.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-lib-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

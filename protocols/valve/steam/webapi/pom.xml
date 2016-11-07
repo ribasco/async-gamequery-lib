@@ -35,10 +35,10 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.ribasco</groupId>
     <artifactId>agql-steam-webapi</artifactId>
-    <name>Steam Web API</name>
+    <name>AGQL - Valve - Steam Web API</name>
     <description>An implementation for the Steam Web API Interfaces</description>
+    <packaging>jar</packaging>
     <build>
         <plugins>
             <plugin>
@@ -56,12 +56,12 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <version>2.7</version>
+            <version>${gson.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.ribasco</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>agql-lib-core</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

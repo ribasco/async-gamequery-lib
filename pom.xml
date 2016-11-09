@@ -50,7 +50,7 @@
     <groupId>org.ribasco</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <description>
@@ -66,7 +66,7 @@
         <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
         <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
-        <tag>async-gamequery-lib-1.0</tag>
+        <tag>master</tag>
     </scm>
 
     <mailingLists>

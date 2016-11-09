@@ -153,9 +153,9 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * A factory method that creates a {@link ChannelPool} based on the key provided.
      *
-     * @param key
+     * @param key The key to be used for {@link ChannelPool} creation
      *
-     * @return
+     * @return A {@link ChannelPool} instance
      */
     public abstract ChannelPool createChannelPool(K key);
 }

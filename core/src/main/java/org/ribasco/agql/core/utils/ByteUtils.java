@@ -26,11 +26,11 @@ package org.ribasco.agql.core.utils;
 
 public class ByteUtils {
     /**
-     * Convert an integer to a primitive byte array type
+     * <p>Convert an integer to a primitive byte array type</p>
      *
-     * @param integer
+     * @param integer The integer to be converted
      *
-     * @return
+     * @return A byte array representation of the integer specified
      */
     public static byte[] byteArrayFromInteger(int integer) {
         return new byte[]{
@@ -41,6 +41,13 @@ public class ByteUtils {
         };
     }
 
+    /**
+     * <p>Convert an array of bytes to it's Hex-String representation</p>
+     *
+     * @param bytes The array of bytes to be converted
+     *
+     * @return A Hex {@link String} representation of the byte array
+     */
     public static String bytesToHex(byte[] bytes) {
         return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
     }

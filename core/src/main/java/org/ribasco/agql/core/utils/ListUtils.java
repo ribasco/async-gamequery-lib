@@ -29,20 +29,17 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class ListUtils {
-
     /**
-     * @param from
-     * @param func
-     * @param <T>
-     * @param <U>
+     * <p>Convert the internal type of the List to another type (e.g. List<String> -> List<Integer>)</p>
      *
-     * @return
+     * @param from The {@link List} to convert
+     * @param func The {@link Function} that will perform the conversion
+     * @param <T>  The origin Type
+     * @param <U>  The destination Type
      *
-     * @see <a href="http://stackoverflow.com/questions/23057549/lambda-expression-to-convert-array-list-of-string-to-array-list-of-integers">Lambda expression to convert array/List of String to array/List of Integers</a>
+     * @return A {@link List} containing the array elements of the converted type
      */
     public static <T, U> List<U> convertList(List<T> from, Function<T, U> func) {
         return from.stream().map(func).collect(Collectors.toList());
     }
-
-
 }

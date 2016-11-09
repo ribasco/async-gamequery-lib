@@ -79,6 +79,8 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
      * If multiple sessions exists for this id, then only the top {@link SessionValue} will be removed.
      *
      * @param id The {@link SessionId} instance to be used as the lookup reference for the session.
+     *
+     * @return <code>true</code> if the operation has been successful.
      */
     boolean unregister(SessionId id);
 
@@ -86,6 +88,8 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
      * Removes the associated session from the registry (if available) using the {@link SessionValue} provided.
      *
      * @param value The {@link SessionValue} instance to be used as the lookup reference for the session.
+     *
+     * @return <code>true</code> if the operation has been successful.
      */
     boolean unregister(SessionValue value);
 
@@ -94,12 +98,12 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
      *
      * @param message An instance of {@link AbstractMessage} to be used as the lookup reference in the registry.
      *
-     * @return true if the specified message is registered in the session registry otherwise false.
+     * @return <code>true</code> if the specified message is registered in the session registry otherwise false.
      */
     boolean isRegistered(AbstractMessage message);
 
     /**
-     * Returns a flat representation of the existing entries in the session registry
+     * <p>Returns a flat representation of the existing entries in the session registry</p>
      *
      * @return a collection containing entries of {@link SessionId} and {@link SessionValue} pair.
      */

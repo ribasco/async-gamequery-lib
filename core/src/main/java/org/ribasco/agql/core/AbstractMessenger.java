@@ -115,14 +115,14 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * <p>Let the concrete messenger create and initialize the transport</p>
      *
-     * @return
+     * @return The {@link Transport} service that will be used by this messenger
      */
     abstract protected Transport<A> createTransportService();
 
     /**
-     * Configure request <-> response mappings
+     * <p>Configure request - response mappings</p>
      *
-     * @param map
+     * @param map {@link Map} representing the {@link AbstractRequest} and {@link AbstractResponse} class mappings
      */
     abstract public void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
 
@@ -142,7 +142,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
      * Adds the request to the queue then it will be sent through the underlying transport.
      *
      * @param request  An instance of {@link AbstractRequest}
-     * @param priority
+     * @param priority The {@link RequestPriority}
      *
      * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the logger if available.
      */
@@ -316,7 +316,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * Sets the processing mode of the messenger
      *
-     * @param processingMode
+     * @param processingMode The {@link ProcessingMode} for the messenger
      */
     public void setProcessingMode(ProcessingMode processingMode) {
         this.processingMode = processingMode;
@@ -353,25 +353,9 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     }
 
     /**
-     * @return The maximum number of retries after a read timeout occurs
-     */
-    public int getMaxRetries() {
-        return maxRetries;
-    }
-
-    /**
-     * Sets the maximum number of retries a messenger will re-send the request to the queue once a timeout occurs
+     * <p>Gracefully close/shutdown all expensive resources this messenger utilizes</p>
      *
-     * @param maxRetries
-     */
-    public void setMaxRetries(int maxRetries) {
-        this.maxRetries = maxRetries;
-    }
-
-    /**
-     * Gracefully close/shutdown all expensive resources this messenger utilizes
-     *
-     * @throws IOException
+     * @throws IOException Thrown when an attempt to close the resources managed by this Messenger has failed.
      */
     @Override
     public void close() throws IOException {

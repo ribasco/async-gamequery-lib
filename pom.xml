@@ -46,6 +46,7 @@
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.21</slf4j.version>
         <project.scm.id>localdev</project.scm.id>
+        <github.global.server>github</github.global.server>
     </properties>
 
     <groupId>org.ribasco</groupId>
@@ -112,6 +113,11 @@
     <!-- Distribution Management -->
     <distributionManagement>
         <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/mvn-repo</url>
+        </repository>
+        <!--<repository>
             <id></id>
             <name></name>
             <url></url>
@@ -120,7 +126,7 @@
             <id></id>
             <name></name>
             <url></url>
-        </snapshotRepository>
+        </snapshotRepository>-->
     </distributionManagement>
 
     <build>

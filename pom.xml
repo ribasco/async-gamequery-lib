@@ -23,9 +23,7 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -51,7 +49,7 @@
     <groupId>org.ribasco</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>pom</packaging>
 
     <description>
@@ -67,15 +65,16 @@
         <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
         <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
+        <tag>async-gamequery-lib-1.0</tag>
     </scm>
 
     <mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
-            <archive></archive>
-            <subscribe></subscribe>
-            <unsubscribe></unsubscribe>
-            <post></post>
+            <archive />
+            <subscribe />
+            <unsubscribe />
+            <post />
         </mailingList>
     </mailingLists>
 
@@ -111,14 +110,14 @@
     <!-- Distribution Management -->
     <distributionManagement>
         <repository>
-            <id></id>
-            <name></name>
-            <url></url>
+            <id />
+            <name />
+            <url />
         </repository>
         <snapshotRepository>
-            <id></id>
-            <name></name>
-            <url></url>
+            <id />
+            <name />
+            <url />
         </snapshotRepository>
     </distributionManagement>
 

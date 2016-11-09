@@ -45,6 +45,7 @@
         <guava.version>20.0</guava.version>
         <junit.version>4.12</junit.version>
         <slf4j.version>1.7.21</slf4j.version>
+        <project.scm.id>localdev</project.scm.id>
     </properties>
 
     <groupId>org.ribasco</groupId>
@@ -63,9 +64,9 @@
     <url>http://raffy.ibasco.com/async-gamequery-lib</url>
 
     <scm>
-        <connection>scm:git:raffy@dev.ibasco.com:raffy/async-gamequery-lib.git</connection>
         <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
-        <developerConnection>scm:git:raffy@dev.ibasco.com:raffy/async-gamequery-lib.git</developerConnection>
+        <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
+        <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
     </scm>
 
     <mailingLists>
@@ -276,7 +277,7 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

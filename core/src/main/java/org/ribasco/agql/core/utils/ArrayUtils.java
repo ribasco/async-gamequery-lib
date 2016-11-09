@@ -32,13 +32,13 @@ public class ArrayUtils {
     /**
      * <p>Convert one array type to another</p>
      *
-     * @param from
-     * @param func
-     * @param generator
-     * @param <T>
-     * @param <U>
+     * @param from      The array to convert
+     * @param func      A {@link Function} responsible for the type conversion
+     * @param generator An {@link IntFunction} that will generate the instances of the desired type
+     * @param <T>       The source type
+     * @param <U>       The destination type
      *
-     * @return
+     * @return An array of the converted type instances
      *
      * @see <a href="http://stackoverflow.com/questions/23057549/lambda-expression-to-convert-array-list-of-string-to-array-list-of-integers">Lambda expression to convert array/List of String to array/List of Integers</a>
      */

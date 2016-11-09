@@ -110,6 +110,20 @@
         <module>protocols/valve/steam/webapi</module>
     </modules>
 
+    <!-- Profiles -->
+    <profiles>
+        <!-- Disable javadoc 8 strict validation requirements -->
+        <profile>
+            <id>disable-java8-doclint</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <additionalparam>-Xdoclint:none</additionalparam>
+            </properties>
+        </profile>
+    </profiles>
+
     <!-- Distribution Management -->
     <distributionManagement>
         <repository>
@@ -117,16 +131,6 @@
             <name>Temporary Staging Repository</name>
             <url>file://${project.build.directory}/mvn-repo</url>
         </repository>
-        <!--<repository>
-            <id></id>
-            <name></name>
-            <url></url>
-        </repository>
-        <snapshotRepository>
-            <id></id>
-            <name></name>
-            <url></url>
-        </snapshotRepository>-->
     </distributionManagement>
 
     <build>
@@ -209,7 +213,7 @@
                 </configuration>
             </plugin>
             <!-- Javadoc plugin -->
-            <!--<plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
@@ -220,17 +224,7 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    &lt;!&ndash; avoiding javadoc warnings caused by Mojo annotations &ndash;&gt;
-                    <tagletArtifacts>
-                        <tagletArtifact>
-                            <groupId>org.apache.maven.plugin-tools</groupId>
-                            <artifactId>maven-plugin-tools-javadoc</artifactId>
-                            <version>2.9</version>
-                        </tagletArtifact>
-                    </tagletArtifacts>
-                </configuration>
-            </plugin>-->
+            </plugin>
         </plugins>
     </build>
 

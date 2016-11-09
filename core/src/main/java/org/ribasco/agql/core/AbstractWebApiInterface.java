@@ -155,7 +155,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      * @param response An instance of {@link AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
      * @param error    A {@link Throwable} instance or <code>null</code> if no error has occured.
      *
-     * @throws WebException
+     * @throws WebException thrown if a server/client error occurs
      */
     protected void interceptResponse(Res response, Throwable error) {
         if (error != null)

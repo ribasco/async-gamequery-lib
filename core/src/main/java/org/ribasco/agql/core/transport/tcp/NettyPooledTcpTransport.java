@@ -36,7 +36,7 @@ import java.net.InetSocketAddress;
  * <p>A Pooled TCP Transport implementation which creates and reuse channels stored within a pool map.
  * {@link InetSocketAddress} is used as the key for the {@link io.netty.channel.pool.ChannelPoolMap} implementation</p>
  *
- * @param <M>
+ * @param <M> A type of {@link AbstractRequest} that will be used as a lookup reference for our key
  */
 public class NettyPooledTcpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, InetSocketAddress> {
     public NettyPooledTcpTransport(ChannelType channelType) {

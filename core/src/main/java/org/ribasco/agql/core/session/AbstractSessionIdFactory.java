@@ -49,11 +49,11 @@ public abstract class AbstractSessionIdFactory<
     }
 
     /**
-     * Create a generic id based on the message
+     * <p>Create a generic id based on the message</p>
      *
-     * @param message
+     * @param message The {@link AbstractMessage} instance to be converted to an Id
      *
-     * @return
+     * @return A {@link String} id representation of the {@link AbstractMessage} provided
      */
     protected String createIdStringFromMsg(AbstractMessage message) {
         //Format: <response class name> : <ip address> : <port>

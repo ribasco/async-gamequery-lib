@@ -51,8 +51,12 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
     }
 
     /**
-     * @param packetNumber
-     * @param packet
+     * <p>Adds a split packet to the container</p>
+     *
+     * @param packetNumber The packet number
+     * @param packet       A byte array representing a single split-packet unit
+     *
+     * @throws PacketSizeLimitException thrown if the max number of allowed packets has been reached. This is usually specified by the protocol.
      */
     public void addPacket(int packetNumber, byte[] packet) {
         if (this.container.size() >= maxSplitPackets)
@@ -61,24 +65,19 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
     }
 
     /**
-     * @param packetNumber
+     * @param packetNumber The packet number to be removed
      */
     public void removePacket(int packetNumber) {
         this.container.remove(packetNumber);
     }
 
     /**
-     * @param action
+     * <p>Iterate each packet entry</p>
+     *
+     * @param action A {@link Consumer} callback
      */
     public void forEachEntry(Consumer<? super Map.Entry<Integer, byte[]>> action) {
         container.entrySet().stream().forEachOrdered(action);
-    }
-
-    /**
-     * @param action
-     */
-    public void forEachPacket(Consumer<? super byte[]> action) {
-        container.entrySet().stream().forEachOrdered(entry -> action.accept(entry.getValue()));
     }
 
     /**
@@ -91,9 +90,9 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
     }
 
     /**
-     * Returns the sum of each packets within this container
+     * <p>Returns the sum of each packets within this container</p>
      *
-     * @return
+     * @return The total number of packets within this container
      */
     public int getPacketSize() {
         return container.entrySet()

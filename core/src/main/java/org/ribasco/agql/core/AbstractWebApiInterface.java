@@ -88,7 +88,16 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     }
 
     /**
-     * @see #asCollectionOf(Class, String, JsonObject, Class, boolean)
+     * <p>Similar to {@link #asCollectionOf(Class, String, JsonObject, Class, boolean)}  minus the Collection class argument. This also returns a {@link List} collection type instead.</p>
+     *
+     * @param itemType      The {@link Class} type of the item in the {@link Collection}
+     * @param searchKey     The name of the {@link JsonArray} element that we will convert
+     * @param searchElement The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     * @param strict        If <code>true</code> an exception will be thrown if the listName is not found within the search element specified.
+     *                      Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     * @param <A>           The type of the List to be returned
+     *
+     * @return A {@link List} containing the parsed json entities
      */
     protected <A> List<A> asListOf(Class itemType, String searchKey, JsonObject searchElement, boolean strict) {
         return asCollectionOf(itemType, searchKey, searchElement, ArrayList.class, strict);
@@ -102,6 +111,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      * @param searchElement   The {@link JsonObject} that will be used to search for the {@link JsonArray} element
      * @param collectionClass A {@link Class} representing the concrete implementation of the {@link Collection}
      * @param strict          If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     * @param <A>             The internal type of the {@link Collection} to be returned
      *
      * @return A {@link Collection} containing the type specified by collectionClass argument
      */
@@ -120,6 +130,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      * <p>Sends a requests to the internal client.</p>
      *
      * @param request An instance of {@link AbstractWebRequest}
+     * @param <A>     The return type
      *
      * @return A {@link CompletableFuture} that will hold the expected value once a response has been received by the server
      */

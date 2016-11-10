@@ -23,8 +23,7 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -51,7 +50,7 @@
     <groupId>org.ribasco</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>1.1-SNAPSHOT</version>
+    <version>1.1</version>
     <inceptionYear>2016</inceptionYear>
     <packaging>pom</packaging>
 
@@ -68,20 +67,20 @@
         <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
         <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
-        <tag>master</tag>
+        <tag>async-gamequery-lib-1.1</tag>
     </scm>
 
     <ciManagement>
-        <url></url>
+        <url />
     </ciManagement>
 
     <mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
-            <archive/>
-            <subscribe/>
-            <unsubscribe/>
-            <post/>
+            <archive />
+            <subscribe />
+            <unsubscribe />
+            <post />
         </mailingList>
     </mailingLists>
 
@@ -218,11 +217,17 @@
                 <directory>src/main/resources/</directory>
             </resource>
         </resources>
+
         <!-- Maven Extensions -->
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
+                <version>2.10</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh-common</artifactId>
                 <version>2.10</version>
             </extension>
             <extension>
@@ -234,11 +239,6 @@
                 <groupId>org.apache.maven.scm</groupId>
                 <artifactId>maven-scm-provider-gitexe</artifactId>
                 <version>1.9.5</version>
-            </extension>
-            <extension>
-                <groupId>org.apache.maven.wagon</groupId>
-                <artifactId>wagon-ssh-common</artifactId>
-                <version>2.10</version>
             </extension>
         </extensions>
 

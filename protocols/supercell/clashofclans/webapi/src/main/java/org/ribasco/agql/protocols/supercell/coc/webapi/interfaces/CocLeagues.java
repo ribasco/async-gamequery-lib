@@ -54,7 +54,8 @@ public class CocLeagues extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link CocWebApiClient} instance
+     * @param client
+     *         A {@link CocWebApiClient} instance
      */
     public CocLeagues(CocWebApiClient client) {
         super(client);
@@ -69,14 +70,45 @@ public class CocLeagues extends CocWebApiInterface {
         builder.registerTypeAdapter(CocLeagueSeason.class, new CocLeagueSeasonDeserializer());
     }
 
+    /**
+     * <p>Get list of leagues</p>
+     *
+     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     */
     public CompletableFuture<List<CocLeague>> getLeagueList() {
         return getLeagueList(-1);
     }
 
+    /**
+     * <p>Get list of leagues</p>
+     *
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     *
+     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit) {
         return getLeagueList(limit, -1, -1);
     }
 
+    /**
+     * <p>Get list of leagues</p>
+     *
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     * @param before
+     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         Before marker can be found from the response, inside the 'paging' property. Note that only after
+     *         or before can be specified for a request, not both.
+     *         Otherwise use -1 to disregard.
+     * @param after
+     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         After marker can be found from the response, inside the 'paging' property. Note
+     *         that only after or before can be specified for a request, not both. Otherwise use
+     *         -1 to disregard.
+     *
+     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagues(VERSION_1, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocLeague>>() {
@@ -87,19 +119,63 @@ public class CocLeagues extends CocWebApiInterface {
         });
     }
 
+    /**
+     * <p>Get league information</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *
+     * @return A {@link CompletableFuture} containing a future result for {@link CocLeague}
+     */
     public CompletableFuture<CocLeague> getLeagueInfo(int leagueId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueInfo(VERSION_1, leagueId));
         return json.thenApply(root -> builder().fromJson(root, CocLeague.class));
     }
 
+    /**
+     * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId) {
         return getLeagueSeasons(leagueId, -1);
     }
 
+    /**
+     * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit) {
         return getLeagueSeasons(leagueId, limit, -1, -1);
     }
 
+    /**
+     * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     * @param before
+     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         Before marker can be found from the response, inside the 'paging' property. Note
+     *         that only after or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     * @param after
+     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasons(VERSION_1, leagueId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocLeagueSeason>>() {
@@ -112,14 +188,65 @@ public class CocLeagues extends CocWebApiInterface {
         });
     }
 
+    /**
+     * <p>Get league season player rankings. Note that league season information is available only for Legend
+     * League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     * @param seasonId
+     *         An {@link Integer} representing a valid Clash of Clans Season Id
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
+     *
+     * @see CocLeagues#getLeagueSeasons(int)
+     */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId) {
         return getLeagueSeasonsPlayerRankings(leagueId, seasonId, -1);
     }
 
+    /**
+     * <p>Get league season player rankings. Note that league season information is available only for Legend
+     * League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     * @param seasonId
+     *         An {@link Integer} representing a valid Clash of Clans Season Id
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
+     *
+     * @see CocLeagues#getLeagueSeasons(int)
+     */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit) {
         return getLeagueSeasonsPlayerRankings(leagueId, seasonId, limit, -1, -1);
     }
 
+    /**
+     * <p>Get league season player rankings. Note that league season information is available only for Legend
+     * League.</p>
+     *
+     * @param leagueId
+     *         An {@link Integer} representing a valid Clash of Clans League Id
+     * @param seasonId
+     *         An {@link Integer} representing a valid Clash of Clans Season Id
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
+     * @param before
+     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
+     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     * @param after
+     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
+     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
+     *
+     * @see CocLeagues#getLeagueSeasons(int)
+     */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasonRankings(VERSION_1, leagueId, seasonId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocPlayerRankInfo>>() {

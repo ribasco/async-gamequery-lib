@@ -53,7 +53,8 @@ public class CocClans extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link CocWebApiClient} instance
+     * @param client
+     *         A {@link CocWebApiClient} instance
      */
     public CocClans(CocWebApiClient client) {
         super(client);
@@ -67,9 +68,11 @@ public class CocClans extends CocWebApiInterface {
      * ordering as that may change in the future releases of the API.
      * </p>
      *
-     * @param criteria A {@link CocSearchCriteria} to help your life much easier
+     * @param criteria
+     *         A {@link CocSearchCriteria} to help your life much easier
      *
-     * @return A {@link CompletableFuture} containing a {@link List} of clans matching the criteria. Empty if no match found.
+     * @return A {@link CompletableFuture} containing a {@link List} of clans matching the criteria. Empty if no match
+     * found.
      */
     public CompletableFuture<List<CocClanDetailedInfo>> searchClans(CocSearchCriteria criteria) {
         CompletableFuture<JsonObject> json = sendRequest(new SearchClan(VERSION_1, criteria));
@@ -91,7 +94,8 @@ public class CocClans extends CocWebApiInterface {
      * so for example clan tag '#2ABC' would become '%232ABC' in the URL.
      * </p>
      *
-     * @param clanTag A {@link String} preceded by a hash tag '#' character
+     * @param clanTag
+     *         A {@link String} preceded by a hash tag '#' character
      *
      * @return A {@link CompletableFuture} returning an instance of {@link CocClanDetailedInfo}
      */
@@ -103,7 +107,8 @@ public class CocClans extends CocWebApiInterface {
     /**
      * <p>List clan members</p>
      *
-     * @param clanTag A {@link String} representing the clan tag
+     * @param clanTag
+     *         A {@link String} representing the clan tag
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
@@ -114,8 +119,10 @@ public class CocClans extends CocWebApiInterface {
     /**
      * <p>List clan members</p>
      *
-     * @param clanTag A {@link String} representing the clan tag
-     * @param limit   An {@link Integer} limiting the number of records returned
+     * @param clanTag
+     *         A {@link String} representing the clan tag
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
@@ -126,10 +133,20 @@ public class CocClans extends CocWebApiInterface {
     /**
      * <p>List clan members</p>
      *
-     * @param clanTag A {@link String} representing the clan tag
-     * @param limit   An {@link Integer} limiting the number of records returned
+     * @param clanTag
+     *         A {@link String} representing the clan tag
+     * @param limit
+     *         An {@link Integer} limiting the number of records returned
      * @param after
+     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         After
+     *         marker can be found from the response, inside the 'paging' property. Note that only after
+     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
      * @param before
+     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         Before marker can be found from the response,
+     *         inside the 'paging' property. Note that only after or before can be specified for a request, not
+     *         both. Otherwise use -1 to disregard.
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
@@ -146,6 +163,14 @@ public class CocClans extends CocWebApiInterface {
         });
     }
 
+    /**
+     * <p>Retrieve clan's clan war log</p>
+     *
+     * @param clanTag
+     *         A {@link String} preceded by a hash tag '#' character
+     *
+     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
+     */
     public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag) {
         return getClanWarLog(clanTag, -1, -1, -1);
     }
@@ -154,11 +179,21 @@ public class CocClans extends CocWebApiInterface {
      * <p>Retrieve clan's clan war log</p>
      *
      * @param clanTag
+     *         A {@link String} preceded by a hash tag '#' character
      * @param limit
+     *         An {@link Integer} limiting the number of records returned
      * @param after
+     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         After marker can be found from the response, inside the 'paging' property. Note
+     *         that only after or before can be specified for a request, not both. Otherwise use
+     *         -1 to disregard.
      * @param before
+     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         Before marker can be found from the response, inside the 'paging' property. Note that only after
+     *         or before can be specified for a request, not both.
+     *         Otherwise use -1 to disregard.
      *
-     * @return
+     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
      */
     public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag, int limit, int after, int before) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanWarLog(VERSION_1, clanTag, limit, after, before));

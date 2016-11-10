@@ -24,9 +24,9 @@
 
 package org.ribasco.agql.protocols.valve.dota2.webapi.pojos;
 
-import org.ribasco.agql.core.CriteriaBuilder;
+import org.ribasco.agql.core.AbstractCriteriaBuilder;
 
-public class Dota2MatchHistoryCriteria extends CriteriaBuilder<Dota2MatchHistoryCriteria> {
+public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2MatchHistoryCriteria> {
 
     public Dota2MatchHistoryCriteria heroId(int heroId) {
         return put("hero_id", heroId);

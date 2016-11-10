@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -112,7 +111,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param players The players
+     * @param players
+     *         The players
      */
     public void setPlayers(List<Dota2MatchPlayer> players) {
         this.players = players;
@@ -126,7 +126,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param radiantWin The radiant_win
+     * @param radiantWin
+     *         The radiant_win
      */
     public void setRadiantWin(boolean radiantWin) {
         this.radiantWin = radiantWin;
@@ -140,7 +141,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param duration The duration
+     * @param duration
+     *         The duration
      */
     public void setDuration(int duration) {
         this.duration = duration;
@@ -154,7 +156,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param preGameDuration The pre_game_duration
+     * @param preGameDuration
+     *         The pre_game_duration
      */
     public void setPreGameDuration(int preGameDuration) {
         this.preGameDuration = preGameDuration;
@@ -168,7 +171,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param startTime The start_time
+     * @param startTime
+     *         The start_time
      */
     public void setStartTime(int startTime) {
         this.startTime = startTime;
@@ -182,7 +186,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param matchId The match_id
+     * @param matchId
+     *         The match_id
      */
     public void setMatchId(int matchId) {
         this.matchId = matchId;
@@ -196,7 +201,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param matchSeqNum The match_seq_num
+     * @param matchSeqNum
+     *         The match_seq_num
      */
     public void setMatchSeqNum(int matchSeqNum) {
         this.matchSeqNum = matchSeqNum;
@@ -210,7 +216,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param towerStatusRadiant The tower_status_radiant
+     * @param towerStatusRadiant
+     *         The tower_status_radiant
      */
     public void setTowerStatusRadiant(int towerStatusRadiant) {
         this.towerStatusRadiant = towerStatusRadiant;
@@ -224,7 +231,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param towerStatusDire The tower_status_dire
+     * @param towerStatusDire
+     *         The tower_status_dire
      */
     public void setTowerStatusDire(int towerStatusDire) {
         this.towerStatusDire = towerStatusDire;
@@ -238,7 +246,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param barracksStatusRadiant The barracks_status_radiant
+     * @param barracksStatusRadiant
+     *         The barracks_status_radiant
      */
     public void setBarracksStatusRadiant(int barracksStatusRadiant) {
         this.barracksStatusRadiant = barracksStatusRadiant;
@@ -252,7 +261,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param barracksStatusDire The barracks_status_dire
+     * @param barracksStatusDire
+     *         The barracks_status_dire
      */
     public void setBarracksStatusDire(int barracksStatusDire) {
         this.barracksStatusDire = barracksStatusDire;
@@ -266,7 +276,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param cluster The cluster
+     * @param cluster
+     *         The cluster
      */
     public void setCluster(int cluster) {
         this.cluster = cluster;
@@ -280,7 +291,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param firstBloodTime The first_blood_time
+     * @param firstBloodTime
+     *         The first_blood_time
      */
     public void setFirstBloodTime(int firstBloodTime) {
         this.firstBloodTime = firstBloodTime;
@@ -294,7 +306,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param lobbyType The lobby_type
+     * @param lobbyType
+     *         The lobby_type
      */
     public void setLobbyType(int lobbyType) {
         this.lobbyType = lobbyType;
@@ -308,7 +321,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param humanPlayers The human_players
+     * @param humanPlayers
+     *         The human_players
      */
     public void setHumanPlayers(int humanPlayers) {
         this.humanPlayers = humanPlayers;
@@ -322,7 +336,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param leagueid The leagueid
+     * @param leagueid
+     *         The leagueid
      */
     public void setLeagueid(int leagueid) {
         this.leagueid = leagueid;
@@ -336,7 +351,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param positiveVotes The positive_votes
+     * @param positiveVotes
+     *         The positive_votes
      */
     public void setPositiveVotes(int positiveVotes) {
         this.positiveVotes = positiveVotes;
@@ -350,7 +366,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param negativeVotes The negative_votes
+     * @param negativeVotes
+     *         The negative_votes
      */
     public void setNegativeVotes(int negativeVotes) {
         this.negativeVotes = negativeVotes;
@@ -364,7 +381,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param gameMode The game_mode
+     * @param gameMode
+     *         The game_mode
      */
     public void setGameMode(int gameMode) {
         this.gameMode = gameMode;
@@ -378,7 +396,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param flags The flags
+     * @param flags
+     *         The flags
      */
     public void setFlags(int flags) {
         this.flags = flags;
@@ -392,7 +411,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param engine The engine
+     * @param engine
+     *         The engine
      */
     public void setEngine(int engine) {
         this.engine = engine;
@@ -406,7 +426,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param radiantScore The radiant_score
+     * @param radiantScore
+     *         The radiant_score
      */
     public void setRadiantScore(int radiantScore) {
         this.radiantScore = radiantScore;
@@ -420,7 +441,8 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @param direScore The dire_score
+     * @param direScore
+     *         The dire_score
      */
     public void setDireScore(int direScore) {
         this.direScore = direScore;

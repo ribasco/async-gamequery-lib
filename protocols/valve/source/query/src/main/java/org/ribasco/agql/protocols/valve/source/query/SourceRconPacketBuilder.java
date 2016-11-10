@@ -50,6 +50,19 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
         super(allocator);
     }
 
+    public static SourceRconResponsePacket getResponsePacket(int type) {
+        SourceRconResponseType responseType = SourceRconResponseType.get(type);
+        if (responseType != null) {
+            switch (responseType) {
+                case AUTH:
+                    return new SourceRconAuthResponsePacket();
+                case COMMAND:
+                    return new SourceRconCmdResponsePacket();
+            }
+        }
+        return null;
+    }
+
     @Override
     public <T extends SourceRconPacket> T construct(ByteBuf data) {
         try {
@@ -118,19 +131,6 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
 
     @Override
     public <B> B decodePacket(Decodable<B> packet) {
-        return null;
-    }
-
-    public static SourceRconResponsePacket getResponsePacket(int type) {
-        SourceRconResponseType responseType = SourceRconResponseType.get(type);
-        if (responseType != null) {
-            switch (responseType) {
-                case AUTH:
-                    return new SourceRconAuthResponsePacket();
-                case COMMAND:
-                    return new SourceRconCmdResponsePacket();
-            }
-        }
         return null;
     }
 }

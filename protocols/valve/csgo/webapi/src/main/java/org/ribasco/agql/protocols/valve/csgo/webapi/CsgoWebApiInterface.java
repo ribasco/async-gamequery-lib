@@ -34,7 +34,8 @@ abstract public class CsgoWebApiInterface extends AbstractWebApiInterface<SteamW
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractRestClient} instance
+     * @param client
+     *         A {@link AbstractRestClient} instance
      */
     public CsgoWebApiInterface(SteamWebApiClient client) {
         super(client);

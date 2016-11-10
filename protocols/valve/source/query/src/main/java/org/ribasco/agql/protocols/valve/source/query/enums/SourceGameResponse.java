@@ -44,11 +44,11 @@ public enum SourceGameResponse {
         this.header = header;
     }
 
-    public byte getHeader() {
-        return header;
-    }
-
     public static SourceGameResponse get(byte header) {
         return Arrays.stream(values()).filter(sourceResponse -> sourceResponse.getHeader() == header).findFirst().orElse(null);
+    }
+
+    public byte getHeader() {
+        return header;
     }
 }

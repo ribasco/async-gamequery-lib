@@ -46,7 +46,8 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link SteamWebApiClient} instance
+     * @param client
+     *         A {@link SteamWebApiClient} instance
      */
     public SteamEconItems(SteamWebApiClient client) {
         super(client);

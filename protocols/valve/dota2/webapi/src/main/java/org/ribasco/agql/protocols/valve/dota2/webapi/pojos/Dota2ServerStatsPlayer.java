@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -67,7 +66,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param accountId The accountId
+     * @param accountId
+     *         The accountId
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -81,7 +81,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param playerid The playerid
+     * @param playerid
+     *         The playerid
      */
     public void setPlayerid(int playerid) {
         this.playerid = playerid;
@@ -95,7 +96,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param name The name
+     * @param name
+     *         The name
      */
     public void setName(String name) {
         this.name = name;
@@ -109,7 +111,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param team The team
+     * @param team
+     *         The team
      */
     public void setTeam(int team) {
         this.team = team;
@@ -123,7 +126,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param heroid The heroid
+     * @param heroid
+     *         The heroid
      */
     public void setHeroid(int heroid) {
         this.heroid = heroid;
@@ -137,7 +141,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param level The level
+     * @param level
+     *         The level
      */
     public void setLevel(int level) {
         this.level = level;
@@ -151,7 +156,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param killCount The kill_count
+     * @param killCount
+     *         The kill_count
      */
     public void setKillCount(int killCount) {
         this.killCount = killCount;
@@ -165,7 +171,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param deathCount The death_count
+     * @param deathCount
+     *         The death_count
      */
     public void setDeathCount(int deathCount) {
         this.deathCount = deathCount;
@@ -179,7 +186,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param assistsCount The assists_count
+     * @param assistsCount
+     *         The assists_count
      */
     public void setAssistsCount(int assistsCount) {
         this.assistsCount = assistsCount;
@@ -193,7 +201,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param deniesCount The denies_count
+     * @param deniesCount
+     *         The denies_count
      */
     public void setDeniesCount(int deniesCount) {
         this.deniesCount = deniesCount;
@@ -207,7 +216,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param lhCount The lh_count
+     * @param lhCount
+     *         The lh_count
      */
     public void setLhCount(int lhCount) {
         this.lhCount = lhCount;
@@ -221,7 +231,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param gold The gold
+     * @param gold
+     *         The gold
      */
     public void setGold(int gold) {
         this.gold = gold;
@@ -235,7 +246,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param x The x
+     * @param x
+     *         The x
      */
     public void setX(double x) {
         this.x = x;
@@ -249,7 +261,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
-     * @param y The y
+     * @param y
+     *         The y
      */
     public void setY(double y) {
         this.y = y;

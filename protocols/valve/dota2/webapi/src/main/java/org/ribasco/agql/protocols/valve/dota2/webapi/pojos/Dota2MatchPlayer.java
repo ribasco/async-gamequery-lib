@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -98,7 +97,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param accountId The account_id
+     * @param accountId
+     *         The account_id
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -112,7 +112,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param playerSlot The player_slot
+     * @param playerSlot
+     *         The player_slot
      */
     public void setPlayerSlot(int playerSlot) {
         this.playerSlot = playerSlot;
@@ -126,7 +127,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param heroId The hero_id
+     * @param heroId
+     *         The hero_id
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;
@@ -140,7 +142,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item0 The item_0
+     * @param item0
+     *         The item_0
      */
     public void setItem0(int item0) {
         this.item0 = item0;
@@ -154,7 +157,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item1 The item_1
+     * @param item1
+     *         The item_1
      */
     public void setItem1(int item1) {
         this.item1 = item1;
@@ -168,7 +172,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item2 The item_2
+     * @param item2
+     *         The item_2
      */
     public void setItem2(int item2) {
         this.item2 = item2;
@@ -182,7 +187,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item3 The item_3
+     * @param item3
+     *         The item_3
      */
     public void setItem3(int item3) {
         this.item3 = item3;
@@ -196,7 +202,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item4 The item_4
+     * @param item4
+     *         The item_4
      */
     public void setItem4(int item4) {
         this.item4 = item4;
@@ -210,7 +217,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param item5 The item_5
+     * @param item5
+     *         The item_5
      */
     public void setItem5(int item5) {
         this.item5 = item5;
@@ -224,7 +232,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param kills The kills
+     * @param kills
+     *         The kills
      */
     public void setKills(int kills) {
         this.kills = kills;
@@ -238,7 +247,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param deaths The deaths
+     * @param deaths
+     *         The deaths
      */
     public void setDeaths(int deaths) {
         this.deaths = deaths;
@@ -252,7 +262,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param assists The assists
+     * @param assists
+     *         The assists
      */
     public void setAssists(int assists) {
         this.assists = assists;
@@ -266,7 +277,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param leaverStatus The leaver_status
+     * @param leaverStatus
+     *         The leaver_status
      */
     public void setLeaverStatus(int leaverStatus) {
         this.leaverStatus = leaverStatus;
@@ -280,7 +292,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param lastHits The last_hits
+     * @param lastHits
+     *         The last_hits
      */
     public void setLastHits(int lastHits) {
         this.lastHits = lastHits;
@@ -294,7 +307,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param denies The denies
+     * @param denies
+     *         The denies
      */
     public void setDenies(int denies) {
         this.denies = denies;
@@ -308,7 +322,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param goldPerMin The gold_per_min
+     * @param goldPerMin
+     *         The gold_per_min
      */
     public void setGoldPerMin(int goldPerMin) {
         this.goldPerMin = goldPerMin;
@@ -322,7 +337,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param xpPerMin The xp_per_min
+     * @param xpPerMin
+     *         The xp_per_min
      */
     public void setXpPerMin(int xpPerMin) {
         this.xpPerMin = xpPerMin;
@@ -336,7 +352,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param level The level
+     * @param level
+     *         The level
      */
     public void setLevel(int level) {
         this.level = level;
@@ -350,7 +367,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param heroDamage The hero_damage
+     * @param heroDamage
+     *         The hero_damage
      */
     public void setHeroDamage(int heroDamage) {
         this.heroDamage = heroDamage;
@@ -364,7 +382,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param towerDamage The tower_damage
+     * @param towerDamage
+     *         The tower_damage
      */
     public void setTowerDamage(int towerDamage) {
         this.towerDamage = towerDamage;
@@ -378,7 +397,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param heroHealing The hero_healing
+     * @param heroHealing
+     *         The hero_healing
      */
     public void setHeroHealing(int heroHealing) {
         this.heroHealing = heroHealing;
@@ -392,7 +412,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param gold The gold
+     * @param gold
+     *         The gold
      */
     public void setGold(int gold) {
         this.gold = gold;
@@ -406,7 +427,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param goldSpent The gold_spent
+     * @param goldSpent
+     *         The gold_spent
      */
     public void setGoldSpent(int goldSpent) {
         this.goldSpent = goldSpent;
@@ -420,7 +442,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param scaledHeroDamage The scaled_hero_damage
+     * @param scaledHeroDamage
+     *         The scaled_hero_damage
      */
     public void setScaledHeroDamage(int scaledHeroDamage) {
         this.scaledHeroDamage = scaledHeroDamage;
@@ -434,7 +457,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param scaledTowerDamage The scaled_tower_damage
+     * @param scaledTowerDamage
+     *         The scaled_tower_damage
      */
     public void setScaledTowerDamage(int scaledTowerDamage) {
         this.scaledTowerDamage = scaledTowerDamage;
@@ -448,7 +472,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param scaledHeroHealing The scaled_hero_healing
+     * @param scaledHeroHealing
+     *         The scaled_hero_healing
      */
     public void setScaledHeroHealing(int scaledHeroHealing) {
         this.scaledHeroHealing = scaledHeroHealing;
@@ -462,7 +487,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
-     * @param abilityUpgrades The ability_upgrades
+     * @param abilityUpgrades
+     *         The ability_upgrades
      */
     public void setAbilityUpgrades(List<Dota2MatchAbilityUpgrade> abilityUpgrades) {
         this.abilityUpgrades = abilityUpgrades;

@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -62,7 +61,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param score The score
+     * @param score
+     *         The score
      */
     public void setScore(int score) {
         this.score = score;
@@ -76,7 +76,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param towerState The tower_state
+     * @param towerState
+     *         The tower_state
      */
     public void setTowerState(int towerState) {
         this.towerState = towerState;
@@ -90,7 +91,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param barracksState The barracks_state
+     * @param barracksState
+     *         The barracks_state
      */
     public void setBarracksState(int barracksState) {
         this.barracksState = barracksState;
@@ -104,7 +106,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param picks The picks
+     * @param picks
+     *         The picks
      */
     public void setPicks(List<Dota2ScoreboardTeamPicks> picks) {
         this.picks = picks;
@@ -118,7 +121,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param bans The bans
+     * @param bans
+     *         The bans
      */
     public void setBans(List<Dota2ScoreboardTeamBan> bans) {
         this.bans = bans;
@@ -132,7 +136,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param players The players
+     * @param players
+     *         The players
      */
     public void setPlayers(List<Dota2ScoreboardPlayerStats> players) {
         this.players = players;
@@ -146,7 +151,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
-     * @param abilities The abilities
+     * @param abilities
+     *         The abilities
      */
     public void setAbilities(List<Dota2ScoreboardTeamAbility> abilities) {
         this.abilities = abilities;

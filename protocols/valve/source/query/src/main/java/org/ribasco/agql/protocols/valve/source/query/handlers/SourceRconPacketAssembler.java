@@ -64,63 +64,12 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
-
-    private LinkedList<RconSplitPacketBuilder> responseQueue = new LinkedList<>();
-
-    private AtomicBoolean isSplitPacket = new AtomicBoolean(false);
-    private AtomicInteger totalBytesRead = new AtomicInteger();
-
     private static final int HEADER_SIZE = 12; //4 bytes * 3
     private static final int TRAILER_SIZE = 2; //2 null bytes
-
+    private LinkedList<RconSplitPacketBuilder> responseQueue = new LinkedList<>();
+    private AtomicBoolean isSplitPacket = new AtomicBoolean(false);
+    private AtomicInteger totalBytesRead = new AtomicInteger();
     private SourceRconPacketBuilder builder;
-
-    private final class RconSplitPacketBuilder {
-        private int requestId;
-        private int size;
-        private int type;
-        private InetSocketAddress sender;
-        private ByteArrayOutputStream body;
-
-        public RconSplitPacketBuilder(int requestId, int size, int type, InetSocketAddress sender, ByteArrayOutputStream body) {
-            this.requestId = requestId;
-            this.size = size;
-            this.type = type;
-            this.sender = sender;
-            //TODO: Maybe we should replace this with a bytebuf instance instead? To avoid re-allocating
-            this.body = body;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            RconSplitPacketBuilder that = (RconSplitPacketBuilder) o;
-            return new EqualsBuilder()
-                    .append(requestId, ((RconSplitPacketBuilder) o).requestId)
-                    .append(sender.getAddress().getHostAddress(), ((RconSplitPacketBuilder) o).sender.getAddress().getHostAddress())
-                    .append(sender.getPort(), ((RconSplitPacketBuilder) o).sender.getPort())
-                    .isEquals();
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(51, 83)
-                    .append(requestId)
-                    .append(sender.getAddress().getHostAddress())
-                    .append(sender.getPort())
-                    .hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return "RconSplitPacketBuilder{" +
-                    "requestId=" + requestId +
-                    ", size=" + size +
-                    ", type=" + type +
-                    ", sender=" + sender;
-        }
-    }
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
@@ -336,5 +285,52 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             }
         }
         log.debug("READ: DONE");
+    }
+
+    private final class RconSplitPacketBuilder {
+        private int requestId;
+        private int size;
+        private int type;
+        private InetSocketAddress sender;
+        private ByteArrayOutputStream body;
+
+        public RconSplitPacketBuilder(int requestId, int size, int type, InetSocketAddress sender, ByteArrayOutputStream body) {
+            this.requestId = requestId;
+            this.size = size;
+            this.type = type;
+            this.sender = sender;
+            //TODO: Maybe we should replace this with a bytebuf instance instead? To avoid re-allocating
+            this.body = body;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RconSplitPacketBuilder that = (RconSplitPacketBuilder) o;
+            return new EqualsBuilder()
+                    .append(requestId, ((RconSplitPacketBuilder) o).requestId)
+                    .append(sender.getAddress().getHostAddress(), ((RconSplitPacketBuilder) o).sender.getAddress().getHostAddress())
+                    .append(sender.getPort(), ((RconSplitPacketBuilder) o).sender.getPort())
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(51, 83)
+                    .append(requestId)
+                    .append(sender.getAddress().getHostAddress())
+                    .append(sender.getPort())
+                    .hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "RconSplitPacketBuilder{" +
+                    "requestId=" + requestId +
+                    ", size=" + size +
+                    ", type=" + type +
+                    ", sender=" + sender;
+        }
     }
 }

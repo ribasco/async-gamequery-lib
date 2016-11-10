@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -79,7 +78,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param activateTime The activate_time
+     * @param activateTime
+     *         The activate_time
      */
     public void setActivateTime(int activateTime) {
         this.activateTime = activateTime;
@@ -93,7 +93,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param deactivateTime The deactivate_time
+     * @param deactivateTime
+     *         The deactivate_time
      */
     public void setDeactivateTime(int deactivateTime) {
         this.deactivateTime = deactivateTime;
@@ -107,7 +108,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param serverSteamId The server_steam_id
+     * @param serverSteamId
+     *         The server_steam_id
      */
     public void setServerSteamId(String serverSteamId) {
         this.serverSteamId = serverSteamId;
@@ -121,7 +123,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param lobbyId The lobby_id
+     * @param lobbyId
+     *         The lobby_id
      */
     public void setLobbyId(String lobbyId) {
         this.lobbyId = lobbyId;
@@ -135,7 +138,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param leagueId The league_id
+     * @param leagueId
+     *         The league_id
      */
     public void setLeagueId(int leagueId) {
         this.leagueId = leagueId;
@@ -149,7 +153,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param lobbyType The lobby_type
+     * @param lobbyType
+     *         The lobby_type
      */
     public void setLobbyType(int lobbyType) {
         this.lobbyType = lobbyType;
@@ -163,7 +168,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param gameTime The game_time
+     * @param gameTime
+     *         The game_time
      */
     public void setGameTime(int gameTime) {
         this.gameTime = gameTime;
@@ -177,7 +183,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param delay The delay
+     * @param delay
+     *         The delay
      */
     public void setDelay(int delay) {
         this.delay = delay;
@@ -191,7 +198,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param spectators The spectators
+     * @param spectators
+     *         The spectators
      */
     public void setSpectators(int spectators) {
         this.spectators = spectators;
@@ -205,7 +213,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param gameMode The game_mode
+     * @param gameMode
+     *         The game_mode
      */
     public void setGameMode(int gameMode) {
         this.gameMode = gameMode;
@@ -219,7 +228,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param averageMmr The average_mmr
+     * @param averageMmr
+     *         The average_mmr
      */
     public void setAverageMmr(int averageMmr) {
         this.averageMmr = averageMmr;
@@ -233,7 +243,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param sortScore The sort_score
+     * @param sortScore
+     *         The sort_score
      */
     public void setSortScore(int sortScore) {
         this.sortScore = sortScore;
@@ -247,7 +258,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param lastUpdateTime The last_update_time
+     * @param lastUpdateTime
+     *         The last_update_time
      */
     public void setLastUpdateTime(int lastUpdateTime) {
         this.lastUpdateTime = lastUpdateTime;
@@ -261,7 +273,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param radiantLead The radiant_lead
+     * @param radiantLead
+     *         The radiant_lead
      */
     public void setRadiantLead(int radiantLead) {
         this.radiantLead = radiantLead;
@@ -275,7 +288,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param radiantScore The radiant_score
+     * @param radiantScore
+     *         The radiant_score
      */
     public void setRadiantScore(int radiantScore) {
         this.radiantScore = radiantScore;
@@ -289,7 +303,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param direScore The dire_score
+     * @param direScore
+     *         The dire_score
      */
     public void setDireScore(int direScore) {
         this.direScore = direScore;
@@ -303,7 +318,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param players The players
+     * @param players
+     *         The players
      */
     public void setPlayers(List<Dota2TopLiveGamePlayer> players) {
         this.players = players;
@@ -317,7 +333,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
-     * @param buildingState The building_state
+     * @param buildingState
+     *         The building_state
      */
     public void setBuildingState(int buildingState) {
         this.buildingState = buildingState;

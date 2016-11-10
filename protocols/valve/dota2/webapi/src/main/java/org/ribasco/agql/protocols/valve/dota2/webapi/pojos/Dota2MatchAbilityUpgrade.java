@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -49,7 +48,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
-     * @param ability The ability
+     * @param ability
+     *         The ability
      */
     public void setAbility(int ability) {
         this.ability = ability;
@@ -63,7 +63,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
-     * @param time The time
+     * @param time
+     *         The time
      */
     public void setTime(int time) {
         this.time = time;
@@ -77,7 +78,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
-     * @param level The level
+     * @param level
+     *         The level
      */
     public void setLevel(int level) {
         this.level = level;

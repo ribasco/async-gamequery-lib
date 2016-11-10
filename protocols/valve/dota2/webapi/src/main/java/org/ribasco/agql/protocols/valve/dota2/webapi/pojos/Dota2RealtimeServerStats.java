@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -53,7 +52,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
-     * @param match The match
+     * @param match
+     *         The match
      */
     public void setMatch(Dota2ServerStatsMatch match) {
         this.match = match;
@@ -67,7 +67,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
-     * @param teams The teams
+     * @param teams
+     *         The teams
      */
     public void setTeams(List<Dota2ServerStatsTeam> teams) {
         this.teams = teams;
@@ -81,7 +82,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
-     * @param buildings The buildings
+     * @param buildings
+     *         The buildings
      */
     public void setBuildings(List<Dota2ServerStatsBldg> buildings) {
         this.buildings = buildings;
@@ -95,7 +97,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
-     * @param graphData The graph_data
+     * @param graphData
+     *         The graph_data
      */
     public void setGraphData(Dota2ServerStatsGraph graphData) {
         this.graphData = graphData;
@@ -109,7 +112,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
-     * @param deltaFrame The delta_frame
+     * @param deltaFrame
+     *         The delta_frame
      */
     public void setDeltaFrame(boolean deltaFrame) {
         this.deltaFrame = deltaFrame;

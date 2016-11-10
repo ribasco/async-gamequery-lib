@@ -39,15 +39,15 @@ public enum SourceRconResponseType {
         this.header = header;
     }
 
-    public int getHeader() {
-        return header;
-    }
-
     public static SourceRconResponseType get(int header) {
         return Arrays.stream(values()).filter(res -> res.getHeader() == header).findFirst().orElse(null);
     }
 
     public static boolean isValid(int header) {
         return get(header) != null;
+    }
+
+    public int getHeader() {
+        return header;
     }
 }

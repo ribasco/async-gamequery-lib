@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -55,7 +54,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param teamNumber The team_number
+     * @param teamNumber
+     *         The team_number
      */
     public void setTeamNumber(int teamNumber) {
         this.teamNumber = teamNumber;
@@ -69,7 +69,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param teamId The team_id
+     * @param teamId
+     *         The team_id
      */
     public void setTeamId(int teamId) {
         this.teamId = teamId;
@@ -83,7 +84,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param teamName The team_name
+     * @param teamName
+     *         The team_name
      */
     public void setTeamName(String teamName) {
         this.teamName = teamName;
@@ -97,7 +99,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param teamLogo The team_logo
+     * @param teamLogo
+     *         The team_logo
      */
     public void setTeamLogo(String teamLogo) {
         this.teamLogo = teamLogo;
@@ -111,7 +114,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param score The score
+     * @param score
+     *         The score
      */
     public void setScore(int score) {
         this.score = score;
@@ -125,7 +129,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
-     * @param players The players
+     * @param players
+     *         The players
      */
     public void setPlayers(List<Dota2ServerStatsPlayer> players) {
         this.players = players;

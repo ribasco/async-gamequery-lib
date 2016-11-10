@@ -53,6 +53,32 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
         super(alloc);
     }
 
+    public static <T extends SourceServerPacket> SourceServerPacket createSourcePacketFromHeader(byte header) {
+        SourceGameResponse res = SourceGameResponse.get(header);
+        switch (res) {
+            case CHALLENGE:
+                return new SourceChallengeResponsePacket();
+            case INFO:
+                return new SourceInfoResponsePacket();
+            case PLAYER:
+                return new SourcePlayerResponsePacket();
+            case RULES:
+                return new SourceRulesResponsePacket();
+        }
+        SourceGameRequest req = SourceGameRequest.get(header);
+        switch (req) {
+            case CHALLENGE:
+                return new SourceChallengeRequestPacket();
+            case INFO:
+                return new SourceInfoRequestPacket();
+            case PLAYER:
+                return new SourcePlayerRequestPacket();
+            case RULES:
+                return new SourceRulesRequestPacket();
+        }
+        return null;
+    }
+
     @Override
     public <T extends SourceServerPacket> T construct(ByteBuf data) {
         //Mark Index
@@ -157,31 +183,5 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
 
         //Return the backing array representation
         return data;
-    }
-
-    public static <T extends SourceServerPacket> SourceServerPacket createSourcePacketFromHeader(byte header) {
-        SourceGameResponse res = SourceGameResponse.get(header);
-        switch (res) {
-            case CHALLENGE:
-                return new SourceChallengeResponsePacket();
-            case INFO:
-                return new SourceInfoResponsePacket();
-            case PLAYER:
-                return new SourcePlayerResponsePacket();
-            case RULES:
-                return new SourceRulesResponsePacket();
-        }
-        SourceGameRequest req = SourceGameRequest.get(header);
-        switch (req) {
-            case CHALLENGE:
-                return new SourceChallengeRequestPacket();
-            case INFO:
-                return new SourceInfoRequestPacket();
-            case PLAYER:
-                return new SourcePlayerRequestPacket();
-            case RULES:
-                return new SourceRulesRequestPacket();
-        }
-        return null;
     }
 }

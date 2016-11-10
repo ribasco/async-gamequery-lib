@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Class-Path: commons-lang3-3.5.jar commons-math3-3.6.1.jar log4j-api-2.
+ 6.2.jar javassist-3.20.0-GA.jar slf4j-api-1.7.21.jar netty-reactive-s
+ treams-1.0.6.jar netty-all-4.1.5.Final.jar guava-20.0.jar reactive-st
+ reams-1.0.0.jar log4j-slf4j-impl-2.6.2.jar async-http-client-2.1.0-al
+ pha1.jar gson-2.8.0.jar log4j-core-2.6.2.jar
+Main-Class: 
+

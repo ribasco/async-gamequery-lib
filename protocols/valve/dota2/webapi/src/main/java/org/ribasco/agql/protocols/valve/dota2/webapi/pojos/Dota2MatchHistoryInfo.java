@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -67,7 +66,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param matchId The match_id
+     * @param matchId
+     *         The match_id
      */
     public void setMatchId(int matchId) {
         this.matchId = matchId;
@@ -81,7 +81,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param matchSeqNum The match_seq_num
+     * @param matchSeqNum
+     *         The match_seq_num
      */
     public void setMatchSeqNum(int matchSeqNum) {
         this.matchSeqNum = matchSeqNum;
@@ -95,7 +96,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param startTime The start_time
+     * @param startTime
+     *         The start_time
      */
     public void setStartTime(int startTime) {
         this.startTime = startTime;
@@ -109,7 +111,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param lobbyType The lobby_type
+     * @param lobbyType
+     *         The lobby_type
      */
     public void setLobbyType(int lobbyType) {
         this.lobbyType = lobbyType;
@@ -123,7 +126,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param radiantTeamId The radiant_team_id
+     * @param radiantTeamId
+     *         The radiant_team_id
      */
     public void setRadiantTeamId(int radiantTeamId) {
         this.radiantTeamId = radiantTeamId;
@@ -137,7 +141,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param direTeamId The dire_team_id
+     * @param direTeamId
+     *         The dire_team_id
      */
     public void setDireTeamId(int direTeamId) {
         this.direTeamId = direTeamId;
@@ -151,7 +156,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
-     * @param players The players
+     * @param players
+     *         The players
      */
     public void setPlayers(List<Dota2MatchHistoryPlayer> players) {
         this.players = players;

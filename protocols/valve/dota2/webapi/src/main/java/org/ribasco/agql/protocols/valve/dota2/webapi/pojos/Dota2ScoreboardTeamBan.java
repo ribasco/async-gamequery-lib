@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -41,7 +40,8 @@ public class Dota2ScoreboardTeamBan {
     }
 
     /**
-     * @param heroId The hero_id
+     * @param heroId
+     *         The hero_id
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;

@@ -40,7 +40,8 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractRestClient} instance
+     * @param client
+     *         A {@link AbstractRestClient} instance
      */
     public SteamStorefront(SteamWebApiClient client) {
         super(client);

@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -60,7 +59,8 @@ public class Dota2MatchHistory {
     }
 
     /**
-     * @param status The status
+     * @param status
+     *         The status
      */
     public void setStatus(int status) {
         this.status = status;
@@ -74,7 +74,8 @@ public class Dota2MatchHistory {
     }
 
     /**
-     * @param numResults The num_results
+     * @param numResults
+     *         The num_results
      */
     public void setNumResults(int numResults) {
         this.numResults = numResults;
@@ -88,7 +89,8 @@ public class Dota2MatchHistory {
     }
 
     /**
-     * @param totalResults The total_results
+     * @param totalResults
+     *         The total_results
      */
     public void setTotalResults(int totalResults) {
         this.totalResults = totalResults;
@@ -102,7 +104,8 @@ public class Dota2MatchHistory {
     }
 
     /**
-     * @param resultsRemaining The results_remaining
+     * @param resultsRemaining
+     *         The results_remaining
      */
     public void setResultsRemaining(int resultsRemaining) {
         this.resultsRemaining = resultsRemaining;
@@ -116,7 +119,8 @@ public class Dota2MatchHistory {
     }
 
     /**
-     * @param matches The matches
+     * @param matches
+     *         The matches
      */
     public void setMatches(List<Dota2MatchHistoryInfo> matches) {
         this.matches = matches;

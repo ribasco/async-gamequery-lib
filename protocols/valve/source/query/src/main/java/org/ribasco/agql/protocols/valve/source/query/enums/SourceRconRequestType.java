@@ -40,11 +40,11 @@ public enum SourceRconRequestType {
         this.header = header;
     }
 
-    public byte getHeader() {
-        return header;
-    }
-
     public static SourceRconRequestType get(byte header) {
         return Arrays.stream(values()).filter(req -> req.getHeader() == header).findFirst().orElse(null);
+    }
+
+    public byte getHeader() {
+        return header;
     }
 }

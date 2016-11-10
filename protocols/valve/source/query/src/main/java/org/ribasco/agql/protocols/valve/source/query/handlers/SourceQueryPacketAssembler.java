@@ -57,53 +57,6 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
     //TODO: In case we don't recieve a split packet response at a point in time, we need to define some sort of retention policy, perhaps we use CacheBuilder instead of map?
     private Map<SplitPacketKey, SplitPacketContainer> requestMap = new ConcurrentHashMap<>();
 
-    public static final class SplitPacketKey {
-        private Integer requestId;
-        private InetSocketAddress address;
-
-        public SplitPacketKey(Integer requestId, InetSocketAddress address) {
-            this.requestId = requestId;
-            this.address = address;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (!(o instanceof SplitPacketKey))
-                return false;
-            if (o == this)
-                return true;
-
-            final SplitPacketKey rhs = (SplitPacketKey) o;
-
-            if (requestId == null && rhs.requestId != null)
-                return false;
-            if (address == null && rhs.address != null)
-                return false;
-
-            return new EqualsBuilder()
-                    .append(requestId, rhs.requestId)
-                    .append(address.getAddress().getHostAddress(), rhs.address.getAddress().getHostAddress())
-                    .append(address.getPort(), rhs.address.getPort())
-                    .isEquals();
-        }
-
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(63, 81)
-                    .append(requestId)
-                    .append(address.getAddress().getHostAddress())
-                    .append(address.getPort()).hashCode();
-        }
-
-        @Override
-        public String toString() {
-            return "RconSplitPacketBuilder{" +
-                    "requestId='" + requestId + '\'' +
-                    ", address=" + address +
-                    '}';
-        }
-    }
-
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         log.trace("SourcePacketHandler.channelRead() : START");
@@ -159,8 +112,10 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
     /**
      * Process split-packet data
      *
-     * @param data      The {@link ByteBuf} containing the split-packet data
-     * @param allocator The {@link ByteBufAllocator} used to create/allocate pooled buffers
+     * @param data
+     *         The {@link ByteBuf} containing the split-packet data
+     * @param allocator
+     *         The {@link ByteBufAllocator} used to create/allocate pooled buffers
      *
      * @return Returns a non-null {@link ByteBuf} if the split-packets have been assembled. Null if the
      *
@@ -292,5 +247,52 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
         log.trace("reassembleSplitPackets : END");
 
         return packetBuffer.readableBytes() > 0;
+    }
+
+    public static final class SplitPacketKey {
+        private Integer requestId;
+        private InetSocketAddress address;
+
+        public SplitPacketKey(Integer requestId, InetSocketAddress address) {
+            this.requestId = requestId;
+            this.address = address;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof SplitPacketKey))
+                return false;
+            if (o == this)
+                return true;
+
+            final SplitPacketKey rhs = (SplitPacketKey) o;
+
+            if (requestId == null && rhs.requestId != null)
+                return false;
+            if (address == null && rhs.address != null)
+                return false;
+
+            return new EqualsBuilder()
+                    .append(requestId, rhs.requestId)
+                    .append(address.getAddress().getHostAddress(), rhs.address.getAddress().getHostAddress())
+                    .append(address.getPort(), rhs.address.getPort())
+                    .isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(63, 81)
+                    .append(requestId)
+                    .append(address.getAddress().getHostAddress())
+                    .append(address.getPort()).hashCode();
+        }
+
+        @Override
+        public String toString() {
+            return "RconSplitPacketBuilder{" +
+                    "requestId='" + requestId + '\'' +
+                    ", address=" + address +
+                    '}';
+        }
     }
 }

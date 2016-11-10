@@ -28,7 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-abstract public class CriteriaBuilder<T extends CriteriaBuilder> {
+abstract public class AbstractCriteriaBuilder<T extends AbstractCriteriaBuilder> {
     private Map<String, Object> criteriaMap = new HashMap<>();
 
     protected T put(String name, Object value) {

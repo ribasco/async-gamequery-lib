@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -44,7 +43,8 @@ public class Dota2TopLiveGamePlayer {
     }
 
     /**
-     * @param accountId The account_id
+     * @param accountId
+     *         The account_id
      */
     public void setAccountId(int accountId) {
         this.accountId = accountId;
@@ -58,7 +58,8 @@ public class Dota2TopLiveGamePlayer {
     }
 
     /**
-     * @param heroId The hero_id
+     * @param heroId
+     *         The hero_id
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;

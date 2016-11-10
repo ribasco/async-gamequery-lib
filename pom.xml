@@ -23,7 +23,8 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -51,6 +52,7 @@
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
     <version>1.1-SNAPSHOT</version>
+    <inceptionYear>2016</inceptionYear>
     <packaging>pom</packaging>
 
     <description>
@@ -69,13 +71,17 @@
         <tag>master</tag>
     </scm>
 
+    <ciManagement>
+        <url></url>
+    </ciManagement>
+
     <mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
-            <archive />
-            <subscribe />
-            <unsubscribe />
-            <post />
+            <archive/>
+            <subscribe/>
+            <unsubscribe/>
+            <post/>
         </mailingList>
     </mailingLists>
 
@@ -85,9 +91,24 @@
             <name>Rafael Luis Ibasco</name>
             <email>raffy@ibasco.com</email>
             <url>https://github.com/ribasco</url>
+            <roles>
+                <role>developer</role>
+            </roles>
+            <timezone>Asia/Manila</timezone>
         </developer>
     </developers>
 
+    <contributors>
+        <contributor>
+            <name>Denise Foz</name>
+            <email>dmffoz@gmail.com</email>
+            <roles>
+                <role>Technical Documentation</role>
+            </roles>
+        </contributor>
+    </contributors>
+
+    <!-- License Information -->
     <licenses>
         <license>
             <name>MIT License</name>
@@ -122,15 +143,49 @@
         </profile>
     </profiles>
 
+    <!--<repositories>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+                <updatePolicy>always</updatePolicy>
+                <checksumPolicy>warn</checksumPolicy>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>never</updatePolicy>
+                <checksumPolicy>fail</checksumPolicy>
+            </snapshots>
+            <id>agql.snapshots.repo</id>
+            <name>AGQL Snapshots</name>
+            <url>scp://dev.ibasco.com/agql/maven/snapshots</url>
+            <layout>default</layout>
+        </repository>
+    </repositories>-->
+
     <!-- Distribution Management -->
     <distributionManagement>
         <repository>
-            <id>internal.repo</id>
+            <id>agql.staging.repo</id>
             <name>Temporary Staging Repository</name>
             <url>file://${project.build.directory}/mvn-repo</url>
+            <layout>default</layout>
         </repository>
+        <snapshotRepository>
+            <id>agql.snapshots.repo</id>
+            <name>AGQL Snapshots Repository</name>
+            <url>file://${project.basedir}/target/repo/snapshots</url>
+            <uniqueVersion>true</uniqueVersion>
+            <layout>default</layout>
+        </snapshotRepository>
+        <site>
+            <id>agql.website</id>
+            <name>Async Game Query Library Site</name>
+            <url>scp://dev.ibasco.com/home/raffy/projects/agql/public_html</url>
+        </site>
+        <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
     </distributionManagement>
 
+    <!-- Build Settings -->
     <build>
         <!-- Resources -->
         <resources>
@@ -143,6 +198,11 @@
         <extensions>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.10</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh-external</artifactId>
                 <version>2.10</version>
             </extension>
@@ -151,79 +211,132 @@
                 <artifactId>maven-scm-provider-gitexe</artifactId>
                 <version>1.9.5</version>
             </extension>
-            <extension>
-                <groupId>org.apache.maven.scm</groupId>
-                <artifactId>maven-scm-manager-plexus</artifactId>
-                <version>1.9.5</version>
-            </extension>
         </extensions>
+
         <!-- Default Goal -->
         <defaultGoal>install</defaultGoal>
+
         <!-- Plugin Definitions -->
-        <plugins>
-            <!-- Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
-                <configuration>
-                    <source>${source.version}</source>
-                    <target>${target.version}</target>
-                </configuration>
-            </plugin>
-            <!-- Enforcer Plugin -->
-            <plugin>
-                <artifactId>maven-enforcer-plugin</artifactId>
-                <version>1.4.1</version>
-                <executions>
-                    <execution>
-                        <id>enforce-versions</id>
-                        <goals>
-                            <goal>enforce</goal>
-                        </goals>
-                        <configuration>
-                            <rules>
-                                <requireJavaVersion>
-                                    <version>${source.version}</version>
-                                </requireJavaVersion>
-                            </rules>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <!-- Resource Plugin (Copy resources to the output dir) -->
-            <plugin>
-                <artifactId>maven-resources-plugin</artifactId>
-                <version>3.0.1</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-            </plugin>
-            <!-- Release Plugin -->
-            <plugin>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <autoVersionSubmodules>true</autoVersionSubmodules>
-                    <checkModificationExcludes>
-                        <checkModificationExclude>pom.xml</checkModificationExclude>
-                    </checkModificationExcludes>
-                </configuration>
-            </plugin>
-            <!-- Javadoc plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <!-- Compiler Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${mvn.compiler.version}</version>
+                    <configuration>
+                        <source>${source.version}</source>
+                        <target>${target.version}</target>
+                        <fork>true</fork>
+                        <debug>true</debug>
+                        <optimize>true</optimize>
+                        <showDeprecation>true</showDeprecation>
+                        <showWarnings>true</showWarnings>
+                        <!--<compilerArgument>-Xlint:-options</compilerArgument>-->
+                    </configuration>
+                </plugin>
+                <!-- Enforcer Plugin -->
+                <plugin>
+                    <artifactId>maven-enforcer-plugin</artifactId>
+                    <version>1.4.1</version>
+                    <executions>
+                        <execution>
+                            <id>enforce-versions</id>
+                            <goals>
+                                <goal>enforce</goal>
+                            </goals>
+                            <configuration>
+                                <rules>
+                                    <requireJavaVersion>
+                                        <version>${source.version}</version>
+                                    </requireJavaVersion>
+                                    <requireMavenVersion>
+                                        <version>[3.1.1,)</version>
+                                    </requireMavenVersion>
+                                </rules>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Resource Plugin (Copy resources to the output dir) -->
+                <plugin>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                </plugin>
+                <!-- Release Plugin -->
+                <plugin>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.5.3</version>
+                    <configuration>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
+                        <checkModificationExcludes>
+                            <checkModificationExclude>pom.xml</checkModificationExclude>
+                        </checkModificationExcludes>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-api</artifactId>
+                            <version>1.9.5</version>
+                        </dependency>
+                        <dependency>
+                            <groupId>org.apache.maven.scm</groupId>
+                            <artifactId>maven-scm-provider-gitexe</artifactId>
+                            <version>1.9.5</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
+                <!-- Javadoc plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <version>2.10.4</version>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- JAR Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>3.0.2</version>
+                    <executions>
+                        <execution>
+                            <id>default-jar</id>
+                            <configuration>
+                                <archive>
+                                    <manifest>
+                                        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                    </manifest>
+                                    <index>true</index>
+                                    <manifestFile>${project.basedir}/src/main/resources/META-INF/MANIFEST.MF
+                                    </manifestFile>
+                                </archive>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+                <!-- Site Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-site-plugin</artifactId>
+                    <version>3.5.1</version>
+                </plugin>
+                <!-- Project Info Report -->
+                <plugin>
+                    <artifactId>maven-project-info-reports-plugin</artifactId>
+                    <version>2.9</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <prerequisites>

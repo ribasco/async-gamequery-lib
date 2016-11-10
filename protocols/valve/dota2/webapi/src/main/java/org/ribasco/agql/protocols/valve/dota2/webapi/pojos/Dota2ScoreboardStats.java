@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -48,7 +47,8 @@ public class Dota2ScoreboardStats {
     }
 
     /**
-     * @param duration The duration
+     * @param duration
+     *         The duration
      */
     public void setDuration(double duration) {
         this.duration = duration;
@@ -62,7 +62,8 @@ public class Dota2ScoreboardStats {
     }
 
     /**
-     * @param roshanRespawnTimer The roshan_respawn_timer
+     * @param roshanRespawnTimer
+     *         The roshan_respawn_timer
      */
     public void setRoshanRespawnTimer(int roshanRespawnTimer) {
         this.roshanRespawnTimer = roshanRespawnTimer;
@@ -76,7 +77,8 @@ public class Dota2ScoreboardStats {
     }
 
     /**
-     * @param radiantTeamScoreStats The radiant
+     * @param radiantTeamScoreStats
+     *         The radiant
      */
     public void setRadiantTeamScoreStats(Dota2ScoreboardTeamStats radiantTeamScoreStats) {
         this.radiantTeamScoreStats = radiantTeamScoreStats;

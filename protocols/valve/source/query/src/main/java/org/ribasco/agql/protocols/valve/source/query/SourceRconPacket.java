@@ -61,12 +61,12 @@ public abstract class SourceRconPacket extends AbstractPacket {
         return type;
     }
 
-    public void setType(int type) {
-        this.type = type;
-    }
-
     public void setType(SourceRconRequestType type) {
         this.type = type.getHeader();
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getBody() {

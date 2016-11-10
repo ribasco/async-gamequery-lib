@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -53,7 +52,8 @@ public class Dota2MatchHistoryPlayer {
     }
 
     /**
-     * @param accountId The account_id
+     * @param accountId
+     *         The account_id
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -67,7 +67,8 @@ public class Dota2MatchHistoryPlayer {
     }
 
     /**
-     * @param playerSlot The player_slot
+     * @param playerSlot
+     *         The player_slot
      */
     public void setPlayerSlot(int playerSlot) {
         this.playerSlot = playerSlot;
@@ -81,7 +82,8 @@ public class Dota2MatchHistoryPlayer {
     }
 
     /**
-     * @param heroId The hero_id
+     * @param heroId
+     *         The hero_id
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;

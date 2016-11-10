@@ -49,7 +49,7 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     }
 
     @SuppressWarnings("unchecked")
-    protected void urlParam(CriteriaBuilder criteria) {
+    protected void urlParam(AbstractCriteriaBuilder criteria) {
         Set<Map.Entry<String, Object>> criteraSet = criteria.getCriteriaSet();
         criteraSet.forEach(c -> urlParam(c.getKey(), c.getValue()));
     }

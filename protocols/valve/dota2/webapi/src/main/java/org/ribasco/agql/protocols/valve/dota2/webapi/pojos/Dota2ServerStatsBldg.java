@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -67,7 +66,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param team The team
+     * @param team
+     *         The team
      */
     public void setTeam(int team) {
         this.team = team;
@@ -81,7 +81,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param heading The heading
+     * @param heading
+     *         The heading
      */
     public void setHeading(double heading) {
         this.heading = heading;
@@ -95,7 +96,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param type The type
+     * @param type
+     *         The type
      */
     public void setType(int type) {
         this.type = type;
@@ -109,7 +111,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param lane The lane
+     * @param lane
+     *         The lane
      */
     public void setLane(int lane) {
         this.lane = lane;
@@ -123,7 +126,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param tier The tier
+     * @param tier
+     *         The tier
      */
     public void setTier(int tier) {
         this.tier = tier;
@@ -137,7 +141,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param x The x
+     * @param x
+     *         The x
      */
     public void setX(double x) {
         this.x = x;
@@ -151,7 +156,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param y The y
+     * @param y
+     *         The y
      */
     public void setY(double y) {
         this.y = y;
@@ -165,7 +171,8 @@ public class Dota2ServerStatsBldg {
     }
 
     /**
-     * @param destroyed The destroyed
+     * @param destroyed
+     *         The destroyed
      */
     public void setDestroyed(boolean destroyed) {
         this.destroyed = destroyed;

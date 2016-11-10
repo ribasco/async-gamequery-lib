@@ -53,10 +53,24 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
     }
 
     /**
+     * <p>A helper to determine if the address is a terminator type address</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} of the source logger
+     *
+     * @return true if the {@link InetSocketAddress} supplied is a terminator address
+     */
+    private static boolean isIpTerminator(InetSocketAddress address) {
+        return "0.0.0.0".equals(address.getAddress().getHostAddress()) && address.getPort() == 0;
+    }
+
+    /**
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
-     * @param region A {@link MasterServerRegion} value that specifies which logger region the master logger should return
-     * @param filter A {@link MasterServerFilter} representing a set of filters to be used by the query
+     * @param region
+     *         A {@link MasterServerRegion} value that specifies which logger region the master logger should return
+     * @param filter
+     *         A {@link MasterServerFilter} representing a set of filters to be used by the query
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
      *
@@ -69,10 +83,14 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
     /**
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
-     * @param type     A {@link MasterServerType} to indicate which type of servers the master logger should return
-     * @param region   A {@link MasterServerRegion} value that specifies which logger region the master logger should return
-     * @param filter   A {@link MasterServerFilter} representing a set of filters to be used by the query
-     * @param callback A {@link TriConsumer} that will be invoked repeatedly for partial response
+     * @param type
+     *         A {@link MasterServerType} to indicate which type of servers the master logger should return
+     * @param region
+     *         A {@link MasterServerRegion} value that specifies which logger region the master logger should return
+     * @param filter
+     *         A {@link MasterServerFilter} representing a set of filters to be used by the query
+     * @param callback
+     *         A {@link TriConsumer} that will be invoked repeatedly for partial response
      *
      * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
      *
@@ -144,16 +162,5 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
             masterPromise.complete(serverMasterList);
 
         return masterPromise;
-    }
-
-    /**
-     * <p>A helper to determine if the address is a terminator type address</p>
-     *
-     * @param address The {@link InetSocketAddress} of the source logger
-     *
-     * @return true if the {@link InetSocketAddress} supplied is a terminator address
-     */
-    private static boolean isIpTerminator(InetSocketAddress address) {
-        return "0.0.0.0".equals(address.getAddress().getHostAddress()) && address.getPort() == 0;
     }
 }

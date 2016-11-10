@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -56,7 +55,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param serverSteamId The server_steam_id
+     * @param serverSteamId
+     *         The server_steam_id
      */
     public void setServerSteamId(String serverSteamId) {
         this.serverSteamId = serverSteamId;
@@ -70,7 +70,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param matchid The matchid
+     * @param matchid
+     *         The matchid
      */
     public void setMatchid(String matchid) {
         this.matchid = matchid;
@@ -84,7 +85,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param timestamp The timestamp
+     * @param timestamp
+     *         The timestamp
      */
     public void setTimestamp(int timestamp) {
         this.timestamp = timestamp;
@@ -98,7 +100,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param gameTime The game_time
+     * @param gameTime
+     *         The game_time
      */
     public void setGameTime(int gameTime) {
         this.gameTime = gameTime;
@@ -112,7 +115,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param gameMode The game_mode
+     * @param gameMode
+     *         The game_mode
      */
     public void setGameMode(int gameMode) {
         this.gameMode = gameMode;
@@ -126,7 +130,8 @@ public class Dota2ServerStatsMatch {
     }
 
     /**
-     * @param leagueId The league_id
+     * @param leagueId
+     *         The league_id
      */
     public void setLeagueId(int leagueId) {
         this.leagueId = leagueId;

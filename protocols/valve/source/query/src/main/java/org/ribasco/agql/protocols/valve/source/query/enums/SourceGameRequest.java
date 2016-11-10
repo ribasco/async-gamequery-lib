@@ -42,11 +42,11 @@ public enum SourceGameRequest {
         this.header = header;
     }
 
-    public byte getHeader() {
-        return header;
-    }
-
     public static SourceGameRequest get(byte header) {
         return Arrays.stream(values()).filter(sourceRequest -> sourceRequest.getHeader() == header).findFirst().orElse(null);
+    }
+
+    public byte getHeader() {
+        return header;
     }
 }

@@ -42,7 +42,8 @@ import java.util.function.Consumer;
  * <p>Listens for raw log messages from a Source Based Server.</p>
  * <p>
  * <p>
- * <strong>NOTE:</strong> You need to issue the RCON Command <code>'logaddress_add [ip:port]'</code> to receive log messages from the game server.
+ * <strong>NOTE:</strong> You need to issue the RCON Command <code>'logaddress_add [ip:port]'</code> to receive log
+ * messages from the game server.
  * Make sure that the port specified is not being blocked by an external service or firewall
  * </p>
  * <h3>Example Usage</h3>
@@ -63,9 +64,9 @@ import java.util.function.Consumer;
  */
 public class SourceLogListenService implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenService.class);
+    private static final NioEventLoopGroup listenWorkGroup = new NioEventLoopGroup();
     private InetSocketAddress listenAddress;
     private Bootstrap bootstrap;
-    private static final NioEventLoopGroup listenWorkGroup = new NioEventLoopGroup();
     private Consumer<SourceLogEntry> logEventCallback;
 
     /**
@@ -79,7 +80,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on.</p>
      *
-     * @param listenAddress An {@link InetSocketAddress} where the listen service will bind or listen on
+     * @param listenAddress
+     *         An {@link InetSocketAddress} where the listen service will bind or listen on
      */
     public SourceLogListenService(InetSocketAddress listenAddress) {
         this(listenAddress, null);
@@ -89,8 +91,10 @@ public class SourceLogListenService implements Closeable {
      * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on and utilizing
      * the callback specified to notify listeners of source log events</p>
      *
-     * @param listenAddress    An {@link InetSocketAddress} where the listen service will bind or listen on
-     * @param logEventCallback A {@link Consumer} callback that will be called once a log event has been received
+     * @param listenAddress
+     *         An {@link InetSocketAddress} where the listen service will bind or listen on
+     * @param logEventCallback
+     *         A {@link Consumer} callback that will be called once a log event has been received
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> logEventCallback) {
         this.listenAddress = listenAddress;
@@ -132,7 +136,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Sets the callback for listening on Raw Log Events</p>
      *
-     * @param logEventCallback A {@link Consumer} callback for raw log events
+     * @param logEventCallback
+     *         A {@link Consumer} callback for raw log events
      */
     public void setLogEventCallback(Consumer<SourceLogEntry> logEventCallback) {
         this.logEventCallback = logEventCallback;

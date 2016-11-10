@@ -42,7 +42,8 @@ public class CsgoServers extends CsgoWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractRestClient} instance
+     * @param client
+     *         A {@link AbstractRestClient} instance
      */
     public CsgoServers(SteamWebApiClient client) {
         super(client);

@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -110,7 +109,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param members The members
+     * @param members
+     *         The members
      */
     public void setMembers(List<Dota2TeamMemberDetails> members) {
         this.members = members;
@@ -124,7 +124,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param teamId The team_id
+     * @param teamId
+     *         The team_id
      */
     public void setTeamId(int teamId) {
         this.teamId = teamId;
@@ -138,7 +139,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param name The name
+     * @param name
+     *         The name
      */
     public void setName(String name) {
         this.name = name;
@@ -152,7 +154,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param tag The tag
+     * @param tag
+     *         The tag
      */
     public void setTag(String tag) {
         this.tag = tag;
@@ -166,7 +169,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param timeCreated The time_created
+     * @param timeCreated
+     *         The time_created
      */
     public void setTimeCreated(int timeCreated) {
         this.timeCreated = timeCreated;
@@ -180,7 +184,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param pro The pro
+     * @param pro
+     *         The pro
      */
     public void setPro(boolean pro) {
         this.pro = pro;
@@ -194,7 +199,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param locked The locked
+     * @param locked
+     *         The locked
      */
     public void setLocked(boolean locked) {
         this.locked = locked;
@@ -208,7 +214,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param ugcLogo The ugc_logo
+     * @param ugcLogo
+     *         The ugc_logo
      */
     public void setUgcLogo(String ugcLogo) {
         this.ugcLogo = ugcLogo;
@@ -222,7 +229,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param ugcBaseLogo The ugc_base_logo
+     * @param ugcBaseLogo
+     *         The ugc_base_logo
      */
     public void setUgcBaseLogo(String ugcBaseLogo) {
         this.ugcBaseLogo = ugcBaseLogo;
@@ -236,7 +244,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param ugcBannerLogo The ugc_banner_logo
+     * @param ugcBannerLogo
+     *         The ugc_banner_logo
      */
     public void setUgcBannerLogo(String ugcBannerLogo) {
         this.ugcBannerLogo = ugcBannerLogo;
@@ -250,7 +259,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param ugcSponsorLogo The ugc_sponsor_logo
+     * @param ugcSponsorLogo
+     *         The ugc_sponsor_logo
      */
     public void setUgcSponsorLogo(String ugcSponsorLogo) {
         this.ugcSponsorLogo = ugcSponsorLogo;
@@ -264,7 +274,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param countryCode The country_code
+     * @param countryCode
+     *         The country_code
      */
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
@@ -278,7 +289,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param url The url
+     * @param url
+     *         The url
      */
     public void setUrl(String url) {
         this.url = url;
@@ -292,7 +304,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param wins The wins
+     * @param wins
+     *         The wins
      */
     public void setWins(int wins) {
         this.wins = wins;
@@ -306,7 +319,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param losses The losses
+     * @param losses
+     *         The losses
      */
     public void setLosses(int losses) {
         this.losses = losses;
@@ -320,7 +334,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param rank The rank
+     * @param rank
+     *         The rank
      */
     public void setRank(int rank) {
         this.rank = rank;
@@ -334,7 +349,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param calibrationGamesRemaining The calibration_games_remaining
+     * @param calibrationGamesRemaining
+     *         The calibration_games_remaining
      */
     public void setCalibrationGamesRemaining(int calibrationGamesRemaining) {
         this.calibrationGamesRemaining = calibrationGamesRemaining;
@@ -348,7 +364,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param gamesPlayedTotal The games_played_total
+     * @param gamesPlayedTotal
+     *         The games_played_total
      */
     public void setGamesPlayedTotal(int gamesPlayedTotal) {
         this.gamesPlayedTotal = gamesPlayedTotal;
@@ -362,7 +379,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param gamesPlayedMatchmaking The games_played_matchmaking
+     * @param gamesPlayedMatchmaking
+     *         The games_played_matchmaking
      */
     public void setGamesPlayedMatchmaking(int gamesPlayedMatchmaking) {
         this.gamesPlayedMatchmaking = gamesPlayedMatchmaking;
@@ -376,7 +394,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param leaguesParticipated The leagues_participated
+     * @param leaguesParticipated
+     *         The leagues_participated
      */
     public void setLeaguesParticipated(List<Integer> leaguesParticipated) {
         this.leaguesParticipated = leaguesParticipated;
@@ -390,7 +409,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param topMatchIds The top_match_ids
+     * @param topMatchIds
+     *         The top_match_ids
      */
     public void setTopMatchIds(List<String> topMatchIds) {
         this.topMatchIds = topMatchIds;
@@ -404,7 +424,8 @@ public class Dota2TeamDetails {
     }
 
     /**
-     * @param recentMatchIds The recent_match_ids
+     * @param recentMatchIds
+     *         The recent_match_ids
      */
     public void setRecentMatchIds(List<String> recentMatchIds) {
         this.recentMatchIds = recentMatchIds;

@@ -38,12 +38,12 @@ public abstract class SourceServerPacket extends AbstractPacket {
         return this.protocolHeader;
     }
 
-    public void setProtocolHeader(byte protocolHeader) {
-        this.protocolHeader = new byte[]{protocolHeader};
-    }
-
     public void setProtocolHeader(byte[] protocolHeader) {
         this.protocolHeader = protocolHeader;
+    }
+
+    public void setProtocolHeader(byte protocolHeader) {
+        this.protocolHeader = new byte[]{protocolHeader};
     }
 
     @Override

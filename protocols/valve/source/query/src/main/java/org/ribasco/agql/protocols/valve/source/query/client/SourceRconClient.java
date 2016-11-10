@@ -67,12 +67,16 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     /**
      * <p>Establish an authentication request to the Server.</p>
      *
-     * @param address  The {@link InetSocketAddress} of the source server
-     * @param password A non-empty password {@link String}
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     * @param password
+     *         A non-empty password {@link String}
      *
-     * @return A {@link CompletableFuture} which contains a {@link Boolean} value indicating whether the authentication succeeded or not.
+     * @return A {@link CompletableFuture} which contains a {@link Boolean} value indicating whether the authentication
+     * succeeded or not.
      *
-     * @throws IllegalArgumentException Thrown when the address or password supplied is empty or null
+     * @throws IllegalArgumentException
+     *         Thrown when the address or password supplied is empty or null
      */
     public CompletableFuture<Boolean> authenticate(InetSocketAddress address, String password) {
         if (StringUtils.isEmpty(password) || address == null)
@@ -92,12 +96,15 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     /**
      * <p>Sends a command to the Source server. Authentication is REQUIRED</p>
      *
-     * @param address The {@link InetSocketAddress} of the source server
-     * @param command The {@link String} containing the command to be issued on the server
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     * @param command
+     *         The {@link String} containing the command to be issued on the server
      *
      * @return A {@link CompletableFuture} which contains a response {@link String} returned by the server
      *
-     * @throws RconNotYetAuthException thrown if not yet authenticated to the server
+     * @throws RconNotYetAuthException
+     *         thrown if not yet authenticated to the server
      * @see #authenticate(InetSocketAddress, String)
      */
     public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
@@ -111,7 +118,8 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     /**
      * Returns the authentication id (also a request id) associated with the address specified.
      *
-     * @param server An {@link InetSocketAddress} representing the server
+     * @param server
+     *         An {@link InetSocketAddress} representing the server
      *
      * @return an {@link Integer} representing the request id used to authenticate with the server
      */
@@ -122,7 +130,8 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     /**
      * Checks the internal authentication map if the specified address is authenticated by the server or not
      *
-     * @param server An {@link InetSocketAddress} representing the server
+     * @param server
+     *         An {@link InetSocketAddress} representing the server
      *
      * @return true if the address specified is already authenticated
      */

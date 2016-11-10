@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -44,7 +43,8 @@ public class Dota2ServerStatsGraph {
     }
 
     /**
-     * @param graphGold The graph_gold
+     * @param graphGold
+     *         The graph_gold
      */
     public void setGraphGold(List<Integer> graphGold) {
         this.graphGold = graphGold;

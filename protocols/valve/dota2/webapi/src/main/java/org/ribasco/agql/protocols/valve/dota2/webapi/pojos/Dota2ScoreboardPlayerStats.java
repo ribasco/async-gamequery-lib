@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -116,7 +115,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param playerSlot The player_slot
+     * @param playerSlot
+     *         The player_slot
      */
     public void setPlayerSlot(int playerSlot) {
         this.playerSlot = playerSlot;
@@ -130,7 +130,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param accountId The account_id
+     * @param accountId
+     *         The account_id
      */
     public void setAccountId(int accountId) {
         this.accountId = accountId;
@@ -144,7 +145,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param heroId The hero_id
+     * @param heroId
+     *         The hero_id
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;
@@ -158,7 +160,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param kills The kills
+     * @param kills
+     *         The kills
      */
     public void setKills(int kills) {
         this.kills = kills;
@@ -172,7 +175,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param death The death
+     * @param death
+     *         The death
      */
     public void setDeath(int death) {
         this.death = death;
@@ -186,7 +190,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param assists The assists
+     * @param assists
+     *         The assists
      */
     public void setAssists(int assists) {
         this.assists = assists;
@@ -200,7 +205,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param lastHits The last_hits
+     * @param lastHits
+     *         The last_hits
      */
     public void setLastHits(int lastHits) {
         this.lastHits = lastHits;
@@ -214,7 +220,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param denies The denies
+     * @param denies
+     *         The denies
      */
     public void setDenies(int denies) {
         this.denies = denies;
@@ -228,7 +235,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param gold The gold
+     * @param gold
+     *         The gold
      */
     public void setGold(int gold) {
         this.gold = gold;
@@ -242,7 +250,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param level The level
+     * @param level
+     *         The level
      */
     public void setLevel(int level) {
         this.level = level;
@@ -256,7 +265,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param goldPerMin The gold_per_min
+     * @param goldPerMin
+     *         The gold_per_min
      */
     public void setGoldPerMin(int goldPerMin) {
         this.goldPerMin = goldPerMin;
@@ -270,7 +280,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param xpPerMin The xp_per_min
+     * @param xpPerMin
+     *         The xp_per_min
      */
     public void setXpPerMin(int xpPerMin) {
         this.xpPerMin = xpPerMin;
@@ -284,7 +295,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param ultimateState The ultimate_state
+     * @param ultimateState
+     *         The ultimate_state
      */
     public void setUltimateState(int ultimateState) {
         this.ultimateState = ultimateState;
@@ -298,7 +310,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param ultimateCooldown The ultimate_cooldown
+     * @param ultimateCooldown
+     *         The ultimate_cooldown
      */
     public void setUltimateCooldown(int ultimateCooldown) {
         this.ultimateCooldown = ultimateCooldown;
@@ -312,7 +325,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item0 The item0
+     * @param item0
+     *         The item0
      */
     public void setItem0(int item0) {
         this.item0 = item0;
@@ -326,7 +340,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item1 The item1
+     * @param item1
+     *         The item1
      */
     public void setItem1(int item1) {
         this.item1 = item1;
@@ -340,7 +355,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item2 The item2
+     * @param item2
+     *         The item2
      */
     public void setItem2(int item2) {
         this.item2 = item2;
@@ -354,7 +370,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item3 The item3
+     * @param item3
+     *         The item3
      */
     public void setItem3(int item3) {
         this.item3 = item3;
@@ -368,7 +385,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item4 The item4
+     * @param item4
+     *         The item4
      */
     public void setItem4(int item4) {
         this.item4 = item4;
@@ -382,7 +400,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param item5 The item5
+     * @param item5
+     *         The item5
      */
     public void setItem5(int item5) {
         this.item5 = item5;
@@ -396,7 +415,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param respawnTimer The respawn_timer
+     * @param respawnTimer
+     *         The respawn_timer
      */
     public void setRespawnTimer(int respawnTimer) {
         this.respawnTimer = respawnTimer;
@@ -410,7 +430,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param positionX The position_x
+     * @param positionX
+     *         The position_x
      */
     public void setPositionX(double positionX) {
         this.positionX = positionX;
@@ -424,7 +445,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param positionY The position_y
+     * @param positionY
+     *         The position_y
      */
     public void setPositionY(double positionY) {
         this.positionY = positionY;
@@ -438,7 +460,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
-     * @param netWorth The net_worth
+     * @param netWorth
+     *         The net_worth
      */
     public void setNetWorth(int netWorth) {
         this.netWorth = netWorth;

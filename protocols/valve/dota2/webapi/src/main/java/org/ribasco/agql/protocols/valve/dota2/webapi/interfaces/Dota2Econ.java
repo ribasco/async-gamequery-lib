@@ -52,7 +52,8 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link SteamWebApiClient} instance
+     * @param client
+     *         A {@link SteamWebApiClient} instance
      */
     public Dota2Econ(SteamWebApiClient client) {
         super(client);

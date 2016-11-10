@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -49,7 +48,8 @@ public class Dota2ScoreboardTeamAbility {
     }
 
     /**
-     * @param abilityId The ability_id
+     * @param abilityId
+     *         The ability_id
      */
     public void setAbilityId(int abilityId) {
         this.abilityId = abilityId;
@@ -63,7 +63,8 @@ public class Dota2ScoreboardTeamAbility {
     }
 
     /**
-     * @param abilityLevel The ability_level
+     * @param abilityLevel
+     *         The ability_level
      */
     public void setAbilityLevel(int abilityLevel) {
         this.abilityLevel = abilityLevel;

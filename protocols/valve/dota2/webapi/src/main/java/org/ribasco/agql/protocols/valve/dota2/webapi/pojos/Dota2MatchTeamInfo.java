@@ -90,7 +90,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param name The name
+     * @param name
+     *         The name
      */
     public void setName(String name) {
         this.name = name;
@@ -104,7 +105,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param tag The tag
+     * @param tag
+     *         The tag
      */
     public void setTag(String tag) {
         this.tag = tag;
@@ -118,7 +120,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param timeCreated The time_created
+     * @param timeCreated
+     *         The time_created
      */
     public void setTimeCreated(long timeCreated) {
         this.timeCreated = timeCreated;
@@ -132,7 +135,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param calibrationGamesRemaining The calibration_games_remaining
+     * @param calibrationGamesRemaining
+     *         The calibration_games_remaining
      */
     public void setCalibrationGamesRemaining(int calibrationGamesRemaining) {
         this.calibrationGamesRemaining = calibrationGamesRemaining;
@@ -146,7 +150,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param logo The logo
+     * @param logo
+     *         The logo
      */
     public void setLogo(long logo) {
         this.logo = logo;
@@ -160,7 +165,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param logoSponsor The logo_sponsor
+     * @param logoSponsor
+     *         The logo_sponsor
      */
     public void setLogoSponsor(long logoSponsor) {
         this.logoSponsor = logoSponsor;
@@ -174,7 +180,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param countryCode The country_code
+     * @param countryCode
+     *         The country_code
      */
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
@@ -188,7 +195,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param url The url
+     * @param url
+     *         The url
      */
     public void setUrl(String url) {
         this.url = url;
@@ -202,7 +210,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param gamesPlayed The games_played
+     * @param gamesPlayed
+     *         The games_played
      */
     public void setGamesPlayed(int gamesPlayed) {
         this.gamesPlayed = gamesPlayed;
@@ -216,7 +225,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
-     * @param adminAccountId The admin_account_id
+     * @param adminAccountId
+     *         The admin_account_id
      */
     public void setAdminAccountId(long adminAccountId) {
         this.adminAccountId = adminAccountId;

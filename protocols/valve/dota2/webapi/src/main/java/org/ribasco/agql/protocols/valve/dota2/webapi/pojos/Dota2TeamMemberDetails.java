@@ -1,4 +1,3 @@
-
 /*
  * MIT License
  *
@@ -53,7 +52,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
-     * @param accountId The account_id
+     * @param accountId
+     *         The account_id
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -67,7 +67,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
-     * @param timeJoined The time_joined
+     * @param timeJoined
+     *         The time_joined
      */
     public void setTimeJoined(long timeJoined) {
         this.timeJoined = timeJoined;
@@ -81,7 +82,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
-     * @param admin The admin
+     * @param admin
+     *         The admin
      */
     public void setAdmin(boolean admin) {
         this.admin = admin;
@@ -95,7 +97,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
-     * @param sub The sub
+     * @param sub
+     *         The sub
      */
     public void setSub(boolean sub) {
         this.sub = sub;

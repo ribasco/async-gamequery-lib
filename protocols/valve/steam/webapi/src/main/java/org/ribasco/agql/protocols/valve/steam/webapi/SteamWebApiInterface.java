@@ -30,14 +30,16 @@ import org.ribasco.agql.core.AbstractWebApiInterface;
 /**
  * <p>Represents a Steam Web API Interface</p>
  *
- * @see <a href="https://developer.valvesoftware.com/wiki/Steam_Web_API#Interfaces_and_method">Steam Interfaces and Methods</a>
+ * @see <a href="https://developer.valvesoftware.com/wiki/Steam_Web_API#Interfaces_and_method">Steam Interfaces and
+ * Methods</a>
  */
 abstract public class SteamWebApiInterface
         extends AbstractWebApiInterface<SteamWebApiClient, SteamWebApiRequest, SteamWebApiResponse> {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link SteamWebApiClient} instance
+     * @param client
+     *         A {@link SteamWebApiClient} instance
      */
     public SteamWebApiInterface(SteamWebApiClient client) {
         super(client);

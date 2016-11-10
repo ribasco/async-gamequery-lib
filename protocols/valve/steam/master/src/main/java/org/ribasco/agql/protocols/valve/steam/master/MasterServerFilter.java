@@ -63,7 +63,8 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are spectator proxies</p>
      *
-     * @param value Set to True to filter spectator proxy servers
+     * @param value
+     *         Set to True to filter spectator proxy servers
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -74,7 +75,8 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are not full</p>
      *
-     * @param value Set to True to filter servers that are full
+     * @param value
+     *         Set to True to filter servers that are full
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -160,7 +162,8 @@ public final class MasterServerFilter {
     }
 
     /**
-     * <p>A special filter, specifies that servers matching all of the following [x] conditions should not be returned</p>
+     * <p>A special filter, specifies that servers matching all of the following [x] conditions should not be
+     * returned</p>
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -169,7 +172,8 @@ public final class MasterServerFilter {
     }
 
     /**
-     * <p>A special filter, specifies that servers matching any of the following [x] conditions should not be returned</p>
+     * <p>A special filter, specifies that servers matching any of the following [x] conditions should not be
+     * returned</p>
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -178,9 +182,11 @@ public final class MasterServerFilter {
     }
 
     /**
-     * <p>Servers that are NOT running game [appid] (This was introduced to block Left 4 Dead games from the Steam Server Browser)</p>
+     * <p>Servers that are NOT running game [appid] (This was introduced to block Left 4 Dead games from the Steam
+     * Server Browser)</p>
      *
-     * @param appId An integer representing the appId of a game
+     * @param appId
+     *         An integer representing the appId of a game
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -204,7 +210,8 @@ public final class MasterServerFilter {
     /**
      * <p>Servers with all of the given tag(s) in sv_tags</p>
      *
-     * @param tags A {@link String} array of tags
+     * @param tags
+     *         A {@link String} array of tags
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -215,7 +222,8 @@ public final class MasterServerFilter {
     /**
      * Servers with ALL of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
-     * @param tags Array of String game logger tags
+     * @param tags
+     *         Array of String game logger tags
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -226,7 +234,8 @@ public final class MasterServerFilter {
     /**
      * Servers with ANY of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
-     * @param tags Array of String game logger tags
+     * @param tags
+     *         Array of String game logger tags
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -237,7 +246,8 @@ public final class MasterServerFilter {
     /**
      * Servers with their hostname matching [hostname]
      *
-     * @param nameWildcard Hostname to lookup (can use * as a wildcard)
+     * @param nameWildcard
+     *         Hostname to lookup (can use * as a wildcard)
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -248,7 +258,8 @@ public final class MasterServerFilter {
     /**
      * Servers running version [version]
      *
-     * @param version Version to search (can use * as a wildcard)
+     * @param version
+     *         Version to search (can use * as a wildcard)
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -259,7 +270,8 @@ public final class MasterServerFilter {
     /**
      * Return only one logger for each unique IP address matched
      *
-     * @param value Set to True to return only one logger for each unique IP
+     * @param value
+     *         Set to True to return only one logger for each unique IP
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -270,7 +282,8 @@ public final class MasterServerFilter {
     /**
      * <p>Return only servers on the specified IP address (port supported and optional)</p>
      *
-     * @param ipPort IP[:port] format
+     * @param ipPort
+     *         IP[:port] format
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -292,7 +305,8 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are running game [appid]</p>
      *
-     * @param appId An integer representing the appId of a game
+     * @param appId
+     *         An integer representing the appId of a game
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -305,8 +319,10 @@ public final class MasterServerFilter {
     /**
      * A utility method to create a Key-Value string pair
      *
-     * @param key   A {@link String} representing the key
-     * @param value A {@link String} representing the value associated with the key
+     * @param key
+     *         A {@link String} representing the key
+     * @param value
+     *         A {@link String} representing the value associated with the key
      *
      * @return Instance of {@link MasterServerFilter}
      */

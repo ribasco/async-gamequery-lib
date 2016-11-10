@@ -40,7 +40,8 @@ abstract public class CocWebApiInterface
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link CocWebApiClient} instance
+     * @param client
+     *         A {@link CocWebApiClient} instance
      */
     public CocWebApiInterface(CocWebApiClient client) {
         super(client);

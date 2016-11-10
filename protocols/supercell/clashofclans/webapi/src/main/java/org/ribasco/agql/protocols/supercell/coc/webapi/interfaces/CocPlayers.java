@@ -42,7 +42,8 @@ public class CocPlayers extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link CocWebApiClient} instance
+     * @param client
+     *         A {@link CocWebApiClient} instance
      */
     public CocPlayers(CocWebApiClient client) {
         super(client);
@@ -51,9 +52,10 @@ public class CocPlayers extends CocWebApiInterface {
     /**
      * <p>Retrieve a detailed information about a Player</p>
      *
-     * @param playerTag A unique player {@link String} identifier followed by a hashtag
+     * @param playerTag
+     *         A unique player {@link String} identifier followed by a hashtag
      *
-     * @return A {@link CocPlayerDetailedInfo} containing the player details
+     * @return A {@link CompletableFuture} containing a future result of {@link CocPlayerDetailedInfo}
      */
     public CompletableFuture<CocPlayerDetailedInfo> getPlayerInfo(String playerTag) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerInfo(VERSION_1, playerTag));

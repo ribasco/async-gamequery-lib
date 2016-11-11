@@ -36,7 +36,7 @@
 
     <artifactId>agql-dota2-webapi</artifactId>
     <name>AGQL - Valve - Dota 2 WebAPI</name>
-    <description>Implementation for the Dota 2 Specific Interfaces</description>
+    <description>Implementation for the Dota 2 Specific Web API Interfaces</description>
     <packaging>jar</packaging>
     <build>
         <plugins>

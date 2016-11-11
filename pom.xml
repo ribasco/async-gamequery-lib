@@ -46,6 +46,7 @@
         <slf4j.version>1.7.21</slf4j.version>
         <project.scm.id>localdev</project.scm.id>
         <github.global.server>github</github.global.server>
+        <site.dir>${project.basedir}/site</site.dir>
     </properties>
 
     <groupId>org.ribasco</groupId>
@@ -53,16 +54,14 @@
     <name>Asynchronous Game Query Library</name>
     <version>1.1-SNAPSHOT</version>
     <inceptionYear>2016</inceptionYear>
+    <url>http://raffy.ibasco.com/async-gamequery-lib</url>
     <packaging>pom</packaging>
-
     <description>
         The Asynchronous Game Query Library (AGQL) aims to be the swiss army knife for all type of game queries. It
         provides
         implementations covering a wide variety of protocols by popular game vendors (e.g. Source/Steam). All methods
         are asynchronous! Which means they are non-blocking!
     </description>
-
-    <url>http://raffy.ibasco.com/async-gamequery-lib</url>
 
     <scm>
         <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
@@ -101,7 +100,7 @@
     <contributors>
         <contributor>
             <name>Denise Foz</name>
-            <email>dmffoz@gmail.com</email>
+            <!--<email>dmffoz@gmail.com</email>-->
             <roles>
                 <role>Technical Documentation</role>
             </roles>
@@ -165,6 +164,7 @@
     <!-- Reporting -->
     <reporting>
         <plugins>
+            <!-- ChangeLog -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changelog-plugin</artifactId>
@@ -179,6 +179,27 @@
                         <reports>
                             <report>changelog</report>
                             <report>file-activity</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+            <!-- JavaDoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.4</version>
+                <configuration>
+                    <links>
+                        <link>http://commons.apache.org/lang/api</link>
+                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
+                        <link>http://this-one-will-not-work</link>
+                    </links>
+                </configuration>
+                <reportSets>
+                    <reportSet>
+                        <id>aggregate</id>
+                        <reports>
+                            <report>aggregate</report>
                         </reports>
                     </reportSet>
                 </reportSets>
@@ -204,7 +225,7 @@
         <site>
             <id>agql.website</id>
             <name>Async Game Query Library Site</name>
-            <url>scp://192.168.1.14/home/raffy/projects/agql/public_html</url>
+            <url>scp://dev.ibasco.com/home/raffy/projects/agql/site</url>
         </site>
         <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
     </distributionManagement>
@@ -240,6 +261,11 @@
                 <groupId>org.apache.maven.scm</groupId>
                 <artifactId>maven-scm-provider-gitexe</artifactId>
                 <version>1.9.5</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ftp</artifactId>
+                <version>2.10</version>
             </extension>
         </extensions>
 
@@ -359,6 +385,31 @@
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
                     <version>3.5.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-descriptor</id>
+                            <phase>site</phase>
+                            <goals>
+                                <goal>attach-descriptor</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <siteDirectory>${site.dir}</siteDirectory>
+                    </configuration>
+                    <dependencies>
+                        <dependency>
+                            <groupId>lt.velykis.maven.skins</groupId>
+                            <artifactId>reflow-velocity-tools</artifactId>
+                            <version>1.1.1</version>
+                        </dependency>
+                        <!-- Reflow skin requires Velocity >= 1.7  -->
+                        <dependency>
+                            <groupId>org.apache.velocity</groupId>
+                            <artifactId>velocity</artifactId>
+                            <version>1.7</version>
+                        </dependency>
+                    </dependencies>
                 </plugin>
                 <!-- Project Info Report -->
                 <plugin>

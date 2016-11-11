@@ -35,7 +35,7 @@
     </parent>
 
     <artifactId>agql-steam-master</artifactId>
-    <name>AGQL - Valve - Steam Master Query Protocol</name>
+    <name>AGQL - Valve - Steam Master Query</name>
     <description>A library containing classes which allow clients to communicate to the Steam Master Server
     </description>
     <packaging>jar</packaging>

@@ -23,7 +23,8 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -34,7 +35,7 @@
 
     <artifactId>agql-lib-examples</artifactId>
     <name>AGQL - Examples</name>
-    <description>Implementation for the Clash of Clans WebAPI Interfaces</description>
+    <description>Contains example codes demonstrating the basic usage of the client interfaces</description>
     <packaging>jar</packaging>
 
     <build>

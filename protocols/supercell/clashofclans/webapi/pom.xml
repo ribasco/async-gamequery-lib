@@ -36,7 +36,7 @@
 
     <artifactId>agql-coc-webapi</artifactId>
     <name>AGQL - Supercell - COC WebAPI</name>
-    <description>Implementation for the Clash of Clans WebAPI Interfaces</description>
+    <description>Implementation for the Clash of Clans Web API Interfaces</description>
     <packaging>jar</packaging>
 
     <build>

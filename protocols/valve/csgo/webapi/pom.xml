@@ -36,7 +36,7 @@
 
     <artifactId>agql-csgo-webapi</artifactId>
     <name>AGQL - Valve - CSGO WebAPI</name>
-    <description>Implementation for the Counter Strike Global Offensive WebAPI Interfaces</description>
+    <description>Implementation for the Counter Strike Global Offensive Web API Interfaces</description>
     <packaging>jar</packaging>
     <build>
         <plugins>

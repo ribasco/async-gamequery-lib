@@ -35,11 +35,8 @@
     </parent>
 
     <artifactId>agql-source-query</artifactId>
-    <name>AGQL - Valve - Source Query/Rcon Protocol</name>
-    <description>A library containing classes which allow clients to communicate to source based game servers directly
-        using the Valve Rcon/Query
-        Protocol
-    </description>
+    <name>AGQL - Valve - Source Query/Rcon</name>
+    <description>An implementation of the Valve Source Query/Rcon Protocol</description>
     <packaging>jar</packaging>
 
     <build>

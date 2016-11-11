@@ -72,7 +72,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
      * @param filter
      *         A {@link MasterServerFilter} representing a set of filters to be used by the query
      *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
+     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
@@ -92,7 +92,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
      * @param callback
      *         A {@link TriConsumer} that will be invoked repeatedly for partial response
      *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
+     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
      */

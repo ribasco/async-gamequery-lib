@@ -56,7 +56,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
      * <p>A helper to determine if the address is a terminator type address</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return true if the {@link InetSocketAddress} supplied is a terminator address
      */
@@ -68,11 +68,11 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
      * @param region
-     *         A {@link MasterServerRegion} value that specifies which logger region the master logger should return
+     *         A {@link MasterServerRegion} value that specifies which server region the master logger should return
      * @param filter
      *         A {@link MasterServerFilter} representing a set of filters to be used by the query
      *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
+     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
@@ -84,15 +84,15 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
      * @param type
-     *         A {@link MasterServerType} to indicate which type of servers the master logger should return
+     *         A {@link MasterServerType} to indicate which type of servers the master server should return
      * @param region
-     *         A {@link MasterServerRegion} value that specifies which logger region the master logger should return
+     *         A {@link MasterServerRegion} value that specifies which server region the master server should return
      * @param filter
      *         A {@link MasterServerFilter} representing a set of filters to be used by the query
      * @param callback
      *         A {@link TriConsumer} that will be invoked repeatedly for partial response
      *
-     * @return A {@link CompletableFuture} that contains a {@link java.util.Set} of servers retrieved from the master
+     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
@@ -106,7 +106,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
         final AtomicBoolean done = new AtomicBoolean(false);
 
         while (!done.get()) {
-            log.debug("Getting from master logger with seed : " + startAddress);
+            log.debug("Getting from master server with seed : " + startAddress);
             try {
                 log.debug("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
 
@@ -119,12 +119,12 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
                 //Iterate through each address and call onComplete responseCallback. Make sure we don't include the last source ip received
                 final InetSocketAddress lastServerIp = startAddress;
 
-                //With streams, we can easily filter out the unwanted entries. (e.g. Excluding the last source ip received)
+                //Filter the address entries and make sure we do not include the last server ip received
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
                     if (callback != null && !isIpTerminator(ip))
                         callback.accept(ip, destination, null);
-                    //Add a delay here. We shouldn't send requests too fast to the master server
-                    // there is a high chance that we might not receive the end of the list.
+                    //Add a fixed delay here. We shouldn't send requests too fast to the master server
+                    // there is a chance that we might not receive the end of the list.
                     ConcurrentUtils.sleepUninterrupted(13);
                     serverMasterList.add(ip);
                 });
@@ -137,12 +137,12 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
                 //Did the master send a terminator address?
                 // If so, mark as complete
                 if (isIpTerminator(startAddress)) {
-                    log.debug("Reached the end of the logger list");
+                    log.debug("Reached the end of the server list");
                     done.set(true);
                 }
                 //Thread.sleep(serverList.size() * 15);
             } catch (InterruptedException | TimeoutException e) {
-                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of logger list from master");
+                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of server list from master");
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
                     callback.accept(null, destination, e);
@@ -157,7 +157,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
 
         log.debug("Got a total list of {} servers from master", serverMasterList.size());
 
-        //Returns the complete logger list retrieved from the master logger
+        //Returns the complete server list retrieved from the master server
         if (!masterPromise.isDone() && !masterPromise.isCompletedExceptionally())
             masterPromise.complete(serverMasterList);
 

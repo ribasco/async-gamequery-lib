@@ -298,7 +298,7 @@
                         <installAtEnd>true</installAtEnd>
                     </configuration>
                 </plugin>
-                <!-- Enforcer Plugin -->
+                <!-- Enforcer Plugin (updated to test build) -->
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>1.4.1</version>

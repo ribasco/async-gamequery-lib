@@ -413,7 +413,7 @@
                     </executions>
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
-                        <skipDeploy>true</skipDeploy>
+                        <!--<skipDeploy>true</skipDeploy>-->
                     </configuration>
                     <dependencies>
                         <dependency>

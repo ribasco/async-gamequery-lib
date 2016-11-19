@@ -28,7 +28,7 @@
 
     <parent>
         <!-- <relativePath>../pom.xml</relativePath> -->
-        <groupId>org.ribasco</groupId>
+        <groupId>org.ribasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
         <version>0.9.1-SNAPSHOT</version>
     </parent>

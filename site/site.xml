@@ -32,12 +32,12 @@
         <version>1.5</version>
     </skin>
     <bannerLeft>
-        <name>Async GameQuery Library</name>
-        <src>/images/agql-logo.png</src>
+        <name>Asynchronous Game Query Library</name>
+        <src>/images/agql-banner-left.png</src>
         <href>http://raffy.ibasco.com/async-gamequery-lib/</href>
     </bannerLeft>
     <bannerRight>
-        <src>https://raffy.ibasco.com/images/maven-logo-black-on-white.png</src>
+        <src>/images/agql-banner-right.png</src>
     </bannerRight>
     <version position="right"/>
     <custom>
@@ -52,17 +52,18 @@
     </poweredBy>
     <body>
         <menu name="Overview">
-            <item name="Usage" href="usage.html"/>
+            <item name="Features" href="features.html"/>
             <item name="FAQ" href="faq.html"/>
         </menu>
-        <menu name="Configuration">
-            <item name="Web API Interfaces" href="webapiconf.html"/>
-            <item name="Valve Source Rcon/Query" href="webapiconf.html"/>
-            <item name="Source Log Listener" href="webapiconf.html"/>
-        </menu>
-        <menu name="Examples">
-            <item name="ex-supercell-coc" href="cocexample.html"/>
-            <item name="ex-valve-csgo" href="csgo.html"/>
+        <menu name="Usage/Examples">
+            <item name="Steam Master Server Query Example" href="/examples/master_query_example.html"/>
+            <item name="Source Query Example" href="/examples/source_query_example.html"/>
+            <item name="Source RCON Example" href="/examples/source_rcon_example.html"/>
+            <item name="Source Log Listener Example" href="/examples/source_log_example.html"/>
+            <item name="Clash of Clans Web API Example" href="/examples/webapi_coc_example.html"/>
+            <item name="CS:GO Web API Example" href="/examples/webapi_csgo_example.html"/>
+            <item name="Dota 2 Web API Example" href="/examples/webapi_dota2_example.html"/>
+            <item name="Steam Web API Example" href="/examples/webapi_steam_example.html"/>
         </menu>
         <menu ref="modules" inherit="top"/>
         <menu ref="reports" inherit="top"/>

@@ -40,7 +40,7 @@ public class CsgoDatacenterStatusDeserializer implements JsonDeserializer<List<C
 
     @Override
     public List<CsgoDatacenterStatus> deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-        log.info("{}", json);
+        log.debug("{}", json);
         JsonObject dataCenters = json.getAsJsonObject();
         List<CsgoDatacenterStatus> datacenterStatusList = new ArrayList<>();
         for (Map.Entry<String, JsonElement> entry : dataCenters.entrySet()) {

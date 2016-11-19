@@ -30,7 +30,7 @@
         <relativePath>../../../../pom.xml</relativePath>
         <groupId>org.ribasco</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>agql-coc-webapi</artifactId>
@@ -38,25 +38,10 @@
     <description>Implementation for the Clash of Clans Web API Interfaces</description>
     <packaging>jar</packaging>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
-                <configuration>
-                    <source>${source.version}</source>
-                    <target>${target.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>agql-lib-core</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.asynchttpclient</groupId>

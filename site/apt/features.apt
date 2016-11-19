@@ -1,0 +1,41 @@
+Usage
+
+ You can put additional content (e.g. documentation, resources, etc.) in your
+ site. See {{{./examples/creating-content.html}Creating Content}} for more
+ information on this. If you want to change the menus, breadcrumbs, links or
+ logos on your pages you need to add and configure a
+ {{{./examples/sitedescriptor.html}site descriptor}}. If you like, you also can
+ let Maven generate some {{{./examples/configuring-reports.html}reports}} for you,
+ based on the contents of your POM.
+
+%{toc|section=1|fromDepth=2|toDepth=3}
+
+* Generating a Site
+
+  To generate the project's site and reports, execute:
+
++-----+
+mvn site
++-----+
+
+  By default, the resulting site will be in the <<<target/site/>>> directory.
+
+  <<Note:>> If you have a multi module project, then the links between the
+  parent and child modules will <not> work when you use <<<mvn site>>> or
+  <<<mvn site:site>>>. If you want to use those links, you should use
+  <<<mvn site:stage>>> instead. You can read more about that goal further down on
+  this page in the section called '<Staging a Site>'.
+
+  <<Note:>> For performance reasons, Maven compares the timestamps of generated
+  files and corresponding source documents, and only regenerates documents
+  that have changed since the last build.
+  However, this only applies to documentation source documents (apt, xdoc,...).
+  If you change anything in your <<<site.xml>>>, any relevant sections in your
+  pom, or any relevant properties or resource files, you should generate the
+  site from scratch to make sure all references and links are correct.
+
+* Deploying a Site
+
+  To be able to deploy the site, you must first specify where the site will be
+  deployed. This is set in the <<<\<distributionManagement\>>>> element of the
+  POM as shown below.

@@ -23,7 +23,8 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -31,18 +32,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <mvn.compiler.version>3.6.0</mvn.compiler.version>
-        <powermock.version>1.6.5</powermock.version>
-        <netty.version>4.1.5.Final</netty.version>
-        <ahc.version>2.1.0-alpha1</ahc.version>
         <source.version>1.8</source.version>
         <target.version>1.8</target.version>
-        <gson.version>2.8.0</gson.version>
-        <commons.lang.version>3.5</commons.lang.version>
-        <commons.math.version>3.6.1</commons.math.version>
-        <log4j.version>2.6.2</log4j.version>
-        <guava.version>20.0</guava.version>
-        <junit.version>4.12</junit.version>
-        <slf4j.version>1.7.21</slf4j.version>
         <project.scm.id>localdev</project.scm.id>
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
@@ -51,15 +42,16 @@
     <groupId>org.ribasco</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>1.2-SNAPSHOT</version>
+    <version>0.9.1-SNAPSHOT</version>
     <inceptionYear>2016</inceptionYear>
     <url>http://raffy.ibasco.com/async-gamequery-lib</url>
     <packaging>pom</packaging>
     <description>
-        The Asynchronous Game Query Library (AGQL) aims to be the swiss army knife for all type of game queries. It
-        provides
-        implementations covering a wide variety of protocols by popular game vendors (e.g. Source/Steam). All methods
-        are asynchronous! Which means they are non-blocking!
+        The Asynchronous Game Query Library (AGQL) aims to be one-stop solution for all type of game queries. It
+        provides implementations covering for a wide variety of protocols by popular game vendors (e.g. Valve,
+        Supercell).
+        The core transport engine is powered by Netty, a powerful NIO client/server framework. That said, ALL game
+        protocol interfaces within this library are asynchronous!
     </description>
 
     <scm>
@@ -70,16 +62,16 @@
     </scm>
 
     <ciManagement>
-        <url />
+        <url/>
     </ciManagement>
 
     <mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
-            <archive />
-            <subscribe />
-            <unsubscribe />
-            <post />
+            <archive/>
+            <subscribe/>
+            <unsubscribe/>
+            <post/>
         </mailingList>
     </mailingLists>
 
@@ -96,22 +88,29 @@
         </developer>
     </developers>
 
-    <contributors>
-        <contributor>
-            <name>Denise Foz</name>
-            <!--<email>dmffoz@gmail.com</email>-->
-            <roles>
-                <role>Technical Documentation</role>
-            </roles>
-        </contributor>
-    </contributors>
-
     <!-- License Information -->
     <licenses>
         <license>
             <name>MIT License</name>
             <url>http://www.opensource.org/licenses/mit-license.php</url>
             <distribution>repo</distribution>
+            <comments>The MIT License (MIT)
+                Copyright (c) 2016 Asynchronous Game Query Library
+                Permission is hereby granted, free of charge, to any person obtaining a copy of this software and
+                associated documentation files (the "Software"), to deal in the Software without restriction, including
+                without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+                copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the
+                following conditions:
+
+                The above copyright notice and this permission notice shall be included in all copies or substantial
+                portions of the Software.
+
+                THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT
+                LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+                NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+                WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+                SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+            </comments>
         </license>
     </licenses>
 
@@ -191,7 +190,6 @@
                     <links>
                         <link>http://commons.apache.org/lang/api</link>
                         <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-                        <link>http://this-one-will-not-work</link>
                     </links>
                 </configuration>
                 <reportSets>
@@ -209,17 +207,14 @@
     <!-- Distribution Management -->
     <distributionManagement>
         <repository>
-            <id>agql.staging.repo</id>
-            <name>Temporary Staging Repository</name>
-            <url>file://${project.build.directory}/mvn-repo</url>
-            <layout>default</layout>
+            <name>Release Repository</name>
+            <id>ibasco.repo.release</id>
+            <url>http://repo.ibasco.com/repository/ibasco-release/</url>
         </repository>
         <snapshotRepository>
-            <id>agql.snapshots.repo</id>
-            <name>AGQL Snapshots Repository</name>
-            <url>file://${project.basedir}/target/repo/snapshots</url>
-            <uniqueVersion>true</uniqueVersion>
-            <layout>default</layout>
+            <name>Snapshots Repository</name>
+            <id>ibasco.repo.snapshots</id>
+            <url>http://repo.ibasco.com/repository/ibasco-snapshots/</url>
         </snapshotRepository>
         <site>
             <id>agql.website</id>
@@ -236,6 +231,10 @@
             <resource>
                 <filtering>true</filtering>
                 <directory>src/main/resources/</directory>
+            </resource>
+            <resource>
+                <filtering>true</filtering>
+                <directory>src/test/resources/</directory>
             </resource>
         </resources>
 
@@ -271,7 +270,7 @@
         <!-- Default Goal -->
         <defaultGoal>install</defaultGoal>
 
-        <!-- Plugin Definitions -->
+        <!-- Plugin configuration shared across all child-modules -->
         <pluginManagement>
             <plugins>
                 <!-- Compiler Plugin -->
@@ -290,6 +289,15 @@
                         <!--<compilerArgument>-Xlint:-options</compilerArgument>-->
                     </configuration>
                 </plugin>
+                <!-- Install Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-install-plugin</artifactId>
+                    <version>2.5.2</version>
+                    <configuration>
+                        <installAtEnd>true</installAtEnd>
+                    </configuration>
+                </plugin>
                 <!-- Enforcer Plugin -->
                 <plugin>
                     <artifactId>maven-enforcer-plugin</artifactId>
@@ -306,7 +314,7 @@
                                         <version>${source.version}</version>
                                     </requireJavaVersion>
                                     <requireMavenVersion>
-                                        <version>[3.1.1,)</version>
+                                        <version>[3.3.1,)</version>
                                     </requireMavenVersion>
                                 </rules>
                             </configuration>
@@ -328,6 +336,8 @@
                     <configuration>
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
+                        <useReleaseProfile>true</useReleaseProfile>
+                        <tagNameFormat>agql-@{project.version}</tagNameFormat>
                         <checkModificationExcludes>
                             <checkModificationExclude>pom.xml</checkModificationExclude>
                         </checkModificationExcludes>
@@ -344,6 +354,14 @@
                             <version>1.9.5</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <!-- Deploy Plugin -->
+                <plugin>
+                    <artifactId>maven-deploy-plugin</artifactId>
+                    <version>2.8.2</version>
+                    <configuration>
+                        <deployAtEnd>true</deployAtEnd>
+                    </configuration>
                 </plugin>
                 <!-- Javadoc plugin -->
                 <plugin>
@@ -395,6 +413,7 @@
                     </executions>
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
+                        <skipDeploy>true</skipDeploy>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -410,13 +429,36 @@
                         </dependency>
                     </dependencies>
                 </plugin>
+                <!-- Dependency Plugin -->
+                <plugin>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>2.10</version>
+                </plugin>
                 <!-- Project Info Report -->
                 <plugin>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.9</version>
                 </plugin>
+                <!-- Versions Plugin -->
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>versions-maven-plugin</artifactId>
+                    <version>2.3</version>
+                </plugin>
             </plugins>
         </pluginManagement>
+
+        <!-- Parent plugin declaration -->
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>versions-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
     </build>
 
     <prerequisites>
@@ -425,20 +467,62 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- Project Modules -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-lib-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-dota2-webapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-coc-webapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-csgo-webapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-source-query</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-steam-master</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>agql-steam-webapi</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!-- Third Party Dependencies -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.21</version>
+            </dependency>
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>${guava.version}</version>
+                <version>20.0</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>${gson.version}</version>
+                <version>2.8.0</version>
             </dependency>
             <dependency>
                 <groupId>org.asynchttpclient</groupId>
                 <artifactId>async-http-client</artifactId>
-                <version>${ahc.version}</version>
+                <version>2.1.0-alpha1</version>
                 <exclusions>
                     <exclusion>
                         <groupId>io.netty</groupId>
@@ -449,52 +533,53 @@
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-core</artifactId>
-                <version>${log4j.version}</version>
+                <version>2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-api</artifactId>
-                <version>${log4j.version}</version>
+                <version>2.7</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.logging.log4j</groupId>
                 <artifactId>log4j-slf4j-impl</artifactId>
-                <version>${log4j.version}</version>
+                <version>2.7</version>
             </dependency>
             <dependency>
                 <groupId>io.netty</groupId>
                 <artifactId>netty-all</artifactId>
-                <version>${netty.version}</version>
+                <version>4.1.6.Final</version>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>${junit.version}</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
-                <version>${powermock.version}</version>
+                <version>1.6.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-easymock</artifactId>
-                <version>${powermock.version}</version>
+                <version>1.6.5</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>${commons.lang.version}</version>
+                <version>3.5</version>
                 <scope>compile</scope>
             </dependency>
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-math3</artifactId>
-                <version>${commons.math.version}</version>
+                <version>3.6.1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
 </project>

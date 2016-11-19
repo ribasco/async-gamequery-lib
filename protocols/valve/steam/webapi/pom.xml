@@ -30,7 +30,7 @@
         <relativePath>../../../../pom.xml</relativePath>
         <groupId>org.ribasco</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>1.2-SNAPSHOT</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>agql-steam-webapi</artifactId>

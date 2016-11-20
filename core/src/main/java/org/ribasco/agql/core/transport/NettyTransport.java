@@ -110,9 +110,6 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         bootstrap.option(channelOption, value);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     @SuppressWarnings("unchecked")
     public <V> CompletableFuture<V> send(Msg message) {
@@ -120,9 +117,6 @@ public abstract class NettyTransport<Msg extends AbstractRequest> implements Tra
         return (CompletableFuture<V>) send(message, true);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public final CompletableFuture<Void> send(Msg message, boolean flushImmediately) {
         //Obtain a channel then write to it once acquired
         return getChannel(message).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));

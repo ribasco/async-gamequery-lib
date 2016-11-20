@@ -29,7 +29,7 @@
     <skin>
         <groupId>org.apache.maven.skins</groupId>
         <artifactId>maven-fluido-skin</artifactId>
-        <version>1.5</version>
+        <version>1.6</version>
     </skin>
     <bannerLeft>
         <name>Asynchronous Game Query Library</name>
@@ -44,6 +44,14 @@
         <fluidoSkin>
             <topBarEnabled>true</topBarEnabled>
             <sideBarEnabled>true</sideBarEnabled>
+            <sourceLineNumbersEnabled>true</sourceLineNumbersEnabled>
+            <profile>(pre-release)</profile>
+            <breadcrumbDivider>»</breadcrumbDivider>
+            <gitHub>
+                <projectId>ribasco/async-gamequery-lib</projectId>
+                <ribbonOrientation>right</ribbonOrientation>
+                <ribbonColor>darkblue</ribbonColor>
+            </gitHub>
         </fluidoSkin>
     </custom>
     <poweredBy>
@@ -51,11 +59,11 @@
               img="http://maven.apache.org/images/logos/maven-feather.png"/>
     </poweredBy>
     <body>
-        <menu name="Overview">
+        <menu name="Overview" inherit="top">
             <item name="Features" href="features.html"/>
             <item name="FAQ" href="faq.html"/>
         </menu>
-        <menu name="Usage/Examples">
+        <menu name="Usage/Examples" inherit="top">
             <item name="Steam Master Server Query Example" href="/examples/master_query_example.html"/>
             <item name="Source Query Example" href="/examples/source_query_example.html"/>
             <item name="Source RCON Example" href="/examples/source_rcon_example.html"/>
@@ -66,7 +74,7 @@
             <item name="Steam Web API Example" href="/examples/webapi_steam_example.html"/>
         </menu>
         <menu ref="modules" inherit="top"/>
-        <menu ref="reports" inherit="top"/>
+        <menu ref="reports" inherit="bottom"/>
         <footer><![CDATA[All rights reserved.]]></footer>
     </body>
 </project>

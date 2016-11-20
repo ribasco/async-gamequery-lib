@@ -37,6 +37,7 @@
         <project.scm.id>localdev</project.scm.id>
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
+        <github.site.path>${project.version}</github.site.path>
     </properties>
 
     <groupId>org.ribasco.agql</groupId>
@@ -59,12 +60,11 @@
         <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
         <tag>master</tag>
+        <!--<url>https://github.com/ribasco/multi-module-test</url>
+        <connection>scm:git:git://github.com/ribasco/multi-module-test.git</connection>
+        <developerConnection>scm:git:git@github.com:ribasco/multi-module-test.git</developerConnection>-->
     </scm>
-
-    <ciManagement>
-        <url/>
-    </ciManagement>
-
+    
     <mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
@@ -202,9 +202,17 @@
             <name>Async Game Query Library Site</name>
             <url>scp://dev.ibasco.com/home/raffy/projects/agql/site</url>
         </site>
+        <!--<site>
+            <id>github-site</id>
+            <name>Github site</name>
+            <url>https://ribasco.github.io/multi-module-test</url>
+        </site>-->
         <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
     </distributionManagement>
-
+    <ciManagement>
+        <system>jenkins</system>
+        <url>http://ci.ibasco.com/job/async-gamequery-lib/</url>
+    </ciManagement>
     <!-- Build Settings -->
     <build>
         <!-- Resources -->
@@ -382,7 +390,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>3.4</version>
                     <executions>
                         <execution>
                             <id>attach-descriptor</id>
@@ -429,6 +437,28 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.3</version>
                 </plugin>
+                <!-- Github Site Plugin -->
+                <!--<plugin>
+                    <groupId>com.github.github</groupId>
+                    <artifactId>site-maven-plugin</artifactId>
+                    <version>0.12</version>
+                    <executions>
+                        <execution>
+                            <id>deploy-to-github</id>
+                            <goals>
+                                <goal>site</goal>
+                            </goals>
+                            <phase>site</phase>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <path>${github.site.path}</path>
+                        <message>Creating site for ${project.artifactId} - ${project.version}</message>
+                        <repositoryName>multi-module-test</repositoryName>
+                        <repositoryOwner>ribasco</repositoryOwner>
+                        <merge>true</merge>
+                    </configuration>
+                </plugin>-->
             </plugins>
         </pluginManagement>
 

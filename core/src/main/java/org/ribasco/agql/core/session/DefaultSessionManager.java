@@ -178,9 +178,8 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     @Override
     public void close() throws IOException {
         if (getSessionEntries().size() > 0) {
-            log.warn("Request to shutdown has been initiated but the session manager still contains " +
-                    "pending entries that has not completed. Notifying all pending entries " +
-                    "that shutdown has been initiated.");
+            log.debug("Request to shutdown has been initiated but the session manager still contains " +
+                    "pending entries that has not completed.");
         }
         sessionTimer.stop();
         session.clear();

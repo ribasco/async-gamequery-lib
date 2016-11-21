@@ -104,7 +104,7 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
     }
 
     /**
-     * <p>A blocking method to retrieve a list of servers from the valve master server.</p>
+     * <p>A blocking function to retrieve a list of servers from the valve master server.</p>
      *
      * @param startAddress
      *         The start IP Address. Use 0.0.0.0:0 to get a list from the beggining.

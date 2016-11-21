@@ -100,10 +100,26 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
     public CompletableFuture<Vector<InetSocketAddress>> getServerList(final MasterServerType type, final MasterServerRegion region, final MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
-        return CompletableFuture.supplyAsync(() -> this.listServersFromAddr(startAddress, type, region, filter, callback));
+        return CompletableFuture.supplyAsync(() -> this.getServersFromStartAddress(startAddress, type, region, filter, callback));
     }
 
-    private Vector<InetSocketAddress> listServersFromAddr(InetSocketAddress startAddress, MasterServerType type, MasterServerRegion region, MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
+    /**
+     * <p>A blocking method to retrieve a list of servers from the valve master server.</p>
+     *
+     * @param startAddress
+     *         The start IP Address. Use 0.0.0.0:0 to get a list from the beggining.
+     * @param type
+     *         A {@link MasterServerType} to indicate which type of servers the master server should return
+     * @param region
+     *         A {@link MasterServerRegion} value that specifies which server region the master server should return
+     * @param filter
+     *         A {@link MasterServerFilter} representing a set of filters to be used by the query
+     * @param callback
+     *         A {@link TriConsumer} that will be invoked repeatedly for partial response
+     *
+     * @return A {@link Vector} containing the server addressess retrieved from the master
+     */
+    private Vector<InetSocketAddress> getServersFromStartAddress(InetSocketAddress startAddress, MasterServerType type, MasterServerRegion region, MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
         final InetSocketAddress destination = type.getMasterAddress();
         final AtomicBoolean done = new AtomicBoolean(false);
@@ -145,12 +161,12 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
                 }
                 //Thread.sleep(serverList.size() * 15);
             } catch (InterruptedException | TimeoutException e) {
-                log.error("Timeout/Thread Interruption/ExecutionException Occured during retrieval of server list from master");
+                log.debug("Timeout/Thread Interruption/ExecutionException Occured during retrieval of server list from master");
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
                     callback.accept(null, destination, e);
             } catch (ExecutionException e) {
-                log.error("ExecutionException occured {}", e);
+                log.debug("ExecutionException occured {}", e);
                 if (callback != null)
                     callback.accept(null, destination, e);
                 throw new AsyncGameLibUncheckedException(e.getCause());

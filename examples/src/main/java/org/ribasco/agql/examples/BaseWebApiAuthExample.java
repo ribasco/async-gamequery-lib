@@ -24,32 +24,20 @@
 
 package org.ribasco.agql.examples;
 
-import org.ribasco.agql.protocols.valve.csgo.webapi.CsgoWebApiClient;
-import org.ribasco.agql.protocols.valve.csgo.webapi.interfaces.CsgoServers;
-import org.ribasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonParser;
+import com.google.gson.stream.JsonReader;
 
-public class CsgoWebApiQueryEx extends BaseWebApiAuthExample {
-    private static final Logger log = LoggerFactory.getLogger(CsgoWebApiQueryEx.class);
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 
-    public static void main(String[] args) throws Exception {
-        CsgoWebApiQueryEx app = new CsgoWebApiQueryEx();
-        app.run();
-    }
+abstract class BaseWebApiAuthExample {
 
-    @Override
-    public void run() throws Exception {
-        String authToken = getToken("steam");
-        CsgoWebApiClient apiClient = new CsgoWebApiClient(authToken);
+    abstract public void run() throws Exception;
 
-        CsgoServers servers = new CsgoServers(apiClient);
-
-        try {
-            CsgoGameServerStatus status = servers.getGameServerStatus().get();
-            log.info("Game Server Status : {}", status);
-        } finally {
-            apiClient.close();
-        }
+    String getToken(String key) {
+        JsonParser parser = new JsonParser();
+        JsonElement root = parser.parse(new JsonReader(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/auth.json")))));
+        return root.getAsJsonObject().get(key).getAsString();
     }
 }

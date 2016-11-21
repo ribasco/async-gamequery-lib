@@ -39,11 +39,17 @@ import java.util.Map;
 import java.util.function.Consumer;
 
 @SuppressWarnings("all")
-public class SteamWebApiQueryEx {
+public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiQueryEx.class);
 
-    public static void main(String[] args) {
-        String authToken = "903BC0B13739EF74242523BC3013F076";
+    public static void main(String[] args) throws Exception {
+        SteamWebApiQueryEx app = new SteamWebApiQueryEx();
+        app.run();
+    }
+
+    @Override
+    public void run() throws Exception {
+        String authToken = getToken("steam");
         SteamWebApiClient apiClient = new SteamWebApiClient(authToken);
 
         try {

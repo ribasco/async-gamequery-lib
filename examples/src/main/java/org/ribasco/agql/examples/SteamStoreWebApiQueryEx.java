@@ -37,7 +37,7 @@ public class SteamStoreWebApiQueryEx {
     private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiQueryEx.class);
 
     public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-
+        //This interface does not require a credential
         SteamWebApiClient apiClient = new SteamWebApiClient();
         try {
             //Create the steam store interface

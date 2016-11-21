@@ -32,15 +32,19 @@ import org.ribasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchema;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public class SteamEconItemsQueryEx {
+public class SteamEconItemsQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(SteamEconItemsQueryEx.class);
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-        String authToken = "903BC0B13739EF74242523BC3013F076";
+    public static void main(String[] args) throws Exception {
+        SteamEconItemsQueryEx app = new SteamEconItemsQueryEx();
+        app.run();
+    }
+
+    @Override
+    public void run() throws Exception {
+        String authToken = getToken("steam");
         SteamWebApiClient apiClient = new SteamWebApiClient(authToken);
         try {
             SteamEconItems econItems = new SteamEconItems(apiClient);

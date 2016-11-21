@@ -37,12 +37,16 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
-public class CocWebApiQueryEx {
+public class CocWebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(CocWebApiQueryEx.class);
 
-    public static void main(String[] args) {
-        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiIsImtpZCI6IjI4YTMxOGY3LTAwMDAtYTFlYi03ZmExLTJjNzQzM2M2Y2NhNSJ9.eyJpc3MiOiJzdXBlcmNlbGwiLCJhdWQiOiJzdXBlcmNlbGw6Z2FtZWFwaSIsImp0aSI6ImRlMTUxNDA4LWRkZmItNGNjYy05NmZmLTQ5YTAzNWExYmRlOCIsImlhdCI6MTQ3OTU0MzExOCwic3ViIjoiZGV2ZWxvcGVyLzM3NTAwMGFiLWVkMmUtOTUyNC1hNzhlLTMyMDJlNTc0MGFiMCIsInNjb3BlcyI6WyJjbGFzaCJdLCJsaW1pdHMiOlt7InRpZXIiOiJkZXZlbG9wZXIvc2lsdmVyIiwidHlwZSI6InRocm90dGxpbmcifSx7ImNpZHJzIjpbIjExMi4yMTAuMjQ4LjU4Il0sInR5cGUiOiJjbGllbnQifV19.LYmHP8XU0GOh3HWY1w37vLUM_rpgWALFGEIjBPgUm-uMpo8xbOGKjyrEMe39DnZzxS0zLZVQ73L3_iB685bVtw";
+    public static <T> void displayListResults(List<T> list) {
+        list.forEach(o -> log.info("{}", o.toString()));
+    }
 
+    @Override
+    public void run() {
+        String token = getToken("supercell");
         try (CocWebApiClient client = new CocWebApiClient(token)) {
             //Instantiate api interfaces
             CocClans clans = new CocClans(client);
@@ -77,7 +81,8 @@ public class CocWebApiQueryEx {
         }
     }
 
-    public static <T> void displayListResults(List<T> list) {
-        list.forEach(o -> log.info("{}", o.toString()));
+    public static void main(String[] args) {
+        CocWebApiQueryEx ex = new CocWebApiQueryEx();
+        ex.run();
     }
 }

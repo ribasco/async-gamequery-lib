@@ -31,16 +31,19 @@ import org.ribasco.agql.protocols.valve.dota2.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-public class Dota2WebApiQueryEx {
+public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(Dota2WebApiQueryEx.class);
 
-    public static void main(String[] args) throws ExecutionException, InterruptedException, IOException {
-        String authToken = "903BC0B13739EF74242523BC3013F076";
-        Dota2WebApiClient apiClient = new Dota2WebApiClient(authToken);
+    public static void main(String[] args) throws Exception {
+        Dota2WebApiQueryEx query = new Dota2WebApiQueryEx();
+        query.run();
+    }
+
+    @Override
+    public void run() throws Exception {
+        Dota2WebApiClient apiClient = new Dota2WebApiClient(getToken("steam"));
         try {
             Dota2Econ econInterface = Dota2.createEcon(apiClient);
             Dota2Fantasy fantasyInterface = Dota2.createFantasy(apiClient);
@@ -113,7 +116,7 @@ public class Dota2WebApiQueryEx {
         }
     }
 
-    public static void displayResult(Object result) {
+    private static void displayResult(Object result) {
         log.info("{} = {}", result.getClass().getSimpleName(), result.toString());
     }
 }

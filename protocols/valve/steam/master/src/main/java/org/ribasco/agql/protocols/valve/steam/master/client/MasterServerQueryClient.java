@@ -26,6 +26,7 @@ package org.ribasco.agql.protocols.valve.steam.master.client;
 
 import org.ribasco.agql.core.client.AbstractGameServerClient;
 import org.ribasco.agql.core.enums.RequestPriority;
+import org.ribasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 import org.ribasco.agql.core.functions.TriConsumer;
 import org.ribasco.agql.core.utils.ConcurrentUtils;
 import org.ribasco.agql.protocols.valve.steam.master.MasterServerFilter;
@@ -99,8 +100,10 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
     public CompletableFuture<Vector<InetSocketAddress>> getServerList(final MasterServerType type, final MasterServerRegion region, final MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         //As per protocol specs, this get required as our starting seed address
         InetSocketAddress startAddress = new InetSocketAddress("0.0.0.0", 0);
+        return CompletableFuture.supplyAsync(() -> this.listServersFromAddr(startAddress, type, region, filter, callback));
+    }
 
-        final CompletableFuture<Vector<InetSocketAddress>> masterPromise = new CompletableFuture<>();
+    private Vector<InetSocketAddress> listServersFromAddr(InetSocketAddress startAddress, MasterServerType type, MasterServerRegion region, MasterServerFilter filter, final TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         final Vector<InetSocketAddress> serverMasterList = new Vector<>();
         final InetSocketAddress destination = type.getMasterAddress();
         final AtomicBoolean done = new AtomicBoolean(false);
@@ -146,21 +149,17 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
                 done.set(true); //stop looping if we receive a timeout
                 if (callback != null)
                     callback.accept(null, destination, e);
-                masterPromise.completeExceptionally(e);
             } catch (ExecutionException e) {
                 log.error("ExecutionException occured {}", e);
                 if (callback != null)
                     callback.accept(null, destination, e);
-                masterPromise.completeExceptionally(e);
+                throw new AsyncGameLibUncheckedException(e.getCause());
             }
         } //while
 
         log.debug("Got a total list of {} servers from master", serverMasterList.size());
 
         //Returns the complete server list retrieved from the master server
-        if (!masterPromise.isDone() && !masterPromise.isCompletedExceptionally())
-            masterPromise.complete(serverMasterList);
-
-        return masterPromise;
+        return serverMasterList;
     }
 }

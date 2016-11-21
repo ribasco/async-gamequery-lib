@@ -58,12 +58,13 @@ public class MasterServerQueryEx {
     }
 
     public void listAllServers() {
-        MasterServerFilter filter = MasterServerFilter.create().dedicated(true);
+        MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
         masterServerQueryClient.setSleepTime(8);
-        masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayResult).join();
+        masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+        log.info("Done");
     }
 
-    public void displayResult(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
+    public void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
         log.info("Server : {}", address);
     }
 

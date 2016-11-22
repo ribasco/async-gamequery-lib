@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacket> {
 
-    private Logger log = LoggerFactory.getLogger(SourcePacketBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(SourcePacketBuilder.class);
 
     public SourcePacketBuilder(ByteBufAllocator alloc) {
         super(alloc);
@@ -55,6 +55,10 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
 
     public static <T extends SourceServerPacket> SourceServerPacket createSourcePacketFromHeader(byte header) {
         SourceGameResponse res = SourceGameResponse.get(header);
+        if (res == null) {
+            log.debug("Did not find a matching response class for header : {}", header);
+            return null;
+        }
         switch (res) {
             case CHALLENGE:
                 return new SourceChallengeResponsePacket();
@@ -66,6 +70,10 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
                 return new SourceRulesResponsePacket();
         }
         SourceGameRequest req = SourceGameRequest.get(header);
+        if (req == null) {
+            log.debug("Did not find a matching request class for header : {}", header);
+            return null;
+        }
         switch (req) {
             case CHALLENGE:
                 return new SourceChallengeRequestPacket();

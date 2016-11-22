@@ -65,7 +65,7 @@ public class WebMessenger<Req extends AbstractWebRequest, Res extends AbstractWe
 
     @Override
     public CompletableFuture<Res> send(Req request) {
-        log.info("Sending request with url : {}", request.getMessage().getUri());
+        log.debug("Sending request with url : {}", request.getMessage().getUri());
         CompletableFuture<Response> res = transport.send(request.getMessage());
         //transform the raw Response type to an instance of AbstractWebResponse using the supplied factory method
         return res.thenApply(responseFactory);

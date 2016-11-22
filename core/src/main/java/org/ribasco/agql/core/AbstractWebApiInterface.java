@@ -160,7 +160,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     protected void interceptResponse(Res response, Throwable error) {
         if (error != null)
             throw new WebException(error);
-        log.info("Handling response for {}, with status code = {}", response.getMessage().getUri(), response.getMessage().getStatusCode());
+        log.debug("Handling response for {}, with status code = {}", response.getMessage().getUri(), response.getMessage().getStatusCode());
         if (response.getStatus() == HttpStatusClass.SERVER_ERROR ||
                 response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
             switch (response.getMessage().getStatusCode()) {

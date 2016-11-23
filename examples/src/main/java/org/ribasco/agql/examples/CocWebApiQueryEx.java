@@ -62,18 +62,21 @@ public class CocWebApiQueryEx extends BaseWebApiAuthExample {
             clans.getClanMembers("#PUYJGC2U").thenAccept(cocPlayers -> cocPlayers.forEach(cocPlayer -> log.info("{}", cocPlayer))).join();
             log.info("Get Clan Warlog");
             clans.getClanWarLog("#PUYJGC2U").thenAccept(cocWarLogEntries -> cocWarLogEntries.forEach(cocWarLogEntry -> log.info("War Log Entry: {}", cocWarLogEntry))).join();
+
             log.info("Get Locations");
             locations.getLocations().thenAccept(cocClanLocations -> cocClanLocations.forEach(cocClanLocation -> log.info("Location: {}", cocClanLocation))).join();
             locations.getLocationInfo(32000000).thenAccept(cocLocation -> log.info("Single Location: {}", cocLocation)).join();
             locations.getClanRankingsFromLocation(32000185).thenAccept(cocClanRankInfos -> cocClanRankInfos.forEach(cocClanRankInfo -> log.info("Ranking: {}", cocClanRankInfo))).join();
             log.info("Displaying Player Rankings by Location");
             locations.getPlayerRankingsFromLocation(32000185).thenAccept(CocWebApiQueryEx::displayListResults).join();
+
             log.info("Displaying Leagues");
             leagues.getLeagueList().thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Displaying League Seasons");
             leagues.getLeagueSeasons(29000022).thenAccept(CocWebApiQueryEx::displayListResults).join();
             log.info("Displaying League Season Player Rankings");
             leagues.getLeagueSeasonsPlayerRankings(29000022, "2016-06", 10).thenAccept(CocWebApiQueryEx::displayListResults).join();
+
             log.info("Retrieving Detailed Player Information");
             players.getPlayerInfo("#J0PYGCG").thenAccept(p -> log.info("Player Info: {}", p)).join();
         } catch (IOException e) {

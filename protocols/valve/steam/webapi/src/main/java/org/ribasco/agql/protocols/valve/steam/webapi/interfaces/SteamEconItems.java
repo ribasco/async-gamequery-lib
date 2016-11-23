@@ -107,6 +107,10 @@ public class SteamEconItems extends SteamWebApiInterface {
         return json.thenApply(root -> fromJson(getSteamResult(root), SteamEconItemsStoreMeta.class));
     }
 
+    public CompletableFuture<Integer> getStoreStatus(int appId) {
+        return getStoreStatus(appId, VERSION_1);
+    }
+
     public CompletableFuture<Integer> getStoreStatus(int appId, int version) {
         CompletableFuture<JsonObject> json = sendRequest(new GetStoreStatus(appId, version));
         return json.thenApply(root -> {

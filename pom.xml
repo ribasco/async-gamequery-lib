@@ -23,7 +23,8 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -47,11 +48,11 @@
     <url>http://raffy.ibasco.com/async-gamequery-lib</url>
     <packaging>pom</packaging>
     <description>
-        The Asynchronous Game Query Library (AGQL) aims to be one-stop solution for all type of game queries. It
-        provides implementations covering for a wide variety of protocols by popular game vendors (e.g. Valve,
-        Supercell).
-        The core transport engine is powered by Netty, a powerful NIO client/server framework. That said, ALL game
-        protocol interfaces within this library are asynchronous!
+        The Asynchronous Game Query Library (AGQL) aims to provide a rich implementation for various game queries from
+        popular online titles. Each type of implementation is divided into modules, so you don't have
+        to download the whole thing if you only plan to use one specific implementation. At the core of it, the
+        transport engine is powered by Netty, a high-performance NIO client/server framework. All public
+        operations provided within this library are asynchronous!
     </description>
 
     <scm>
@@ -63,16 +64,16 @@
         <connection>scm:git:git://github.com/ribasco/multi-module-test.git</connection>
         <developerConnection>scm:git:git@github.com:ribasco/multi-module-test.git</developerConnection>-->
     </scm>
-    
-    <mailingLists>
+
+    <!--<mailingLists>
         <mailingList>
             <name>asyncgamequerylib</name>
-            <archive />
-            <subscribe />
-            <unsubscribe />
-            <post />
+            <archive/>
+            <subscribe/>
+            <unsubscribe/>
+            <post/>
         </mailingList>
-    </mailingLists>
+    </mailingLists>-->
 
     <developers>
         <developer>
@@ -208,10 +209,13 @@
         </site>-->
         <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
     </distributionManagement>
+
+    <!-- Continuous Integration -->
     <ciManagement>
         <system>jenkins</system>
         <url>http://ci.ibasco.com/job/async-gamequery-lib/</url>
     </ciManagement>
+
     <!-- Build Settings -->
     <build>
         <!-- Resources -->
@@ -325,7 +329,7 @@
                         <autoVersionSubmodules>true</autoVersionSubmodules>
                         <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
                         <useReleaseProfile>true</useReleaseProfile>
-                        <tagNameFormat>agql-@{project.version}</tagNameFormat>
+                        <tagNameFormat>agql-project-@{project.version}</tagNameFormat>
                         <checkModificationExcludes>
                             <checkModificationExclude>pom.xml</checkModificationExclude>
                         </checkModificationExcludes>
@@ -607,5 +611,4 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
 </project>

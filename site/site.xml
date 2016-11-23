@@ -60,18 +60,19 @@
     </poweredBy>
     <body>
         <menu name="Overview" inherit="top">
+            <item name="Main"/>
             <item name="Features" href="features.html"/>
-            <item name="FAQ" href="faq.html"/>
         </menu>
         <menu name="Usage/Examples" inherit="top">
-            <item name="Steam Master Server Query Example" href="/examples/master_query_example.html"/>
-            <item name="Source Query Example" href="/examples/source_query_example.html"/>
-            <item name="Source RCON Example" href="/examples/source_rcon_example.html"/>
-            <item name="Source Log Listener Example" href="/examples/source_log_example.html"/>
-            <item name="Clash of Clans Web API Example" href="/examples/webapi_coc_example.html"/>
-            <item name="CS:GO Web API Example" href="/examples/webapi_csgo_example.html"/>
-            <item name="Dota 2 Web API Example" href="/examples/webapi_dota2_example.html"/>
-            <item name="Steam Web API Example" href="/examples/webapi_steam_example.html"/>
+            <item name="General Usage" href="/examples/general_usage.html"/>
+            <item name="Steam Master Server Query" href="/examples/master_query_example.html"/>
+            <item name="Source Server Query" href="/examples/source_query_example.html"/>
+            <item name="Source RCON" href="/examples/source_rcon_example.html"/>
+            <item name="Source Log Listener" href="/examples/source_log_example.html"/>
+            <item name="Clash of Clans Web API" href="/examples/webapi_coc_example.html"/>
+            <item name="CS:GO Web API" href="/examples/webapi_csgo_example.html"/>
+            <item name="Dota 2 Web API" href="/examples/webapi_dota2_example.html"/>
+            <item name="Steam Web API" href="/examples/webapi_steam_example.html"/>
         </menu>
         <menu ref="modules" inherit="top"/>
         <menu ref="reports" inherit="top"/>

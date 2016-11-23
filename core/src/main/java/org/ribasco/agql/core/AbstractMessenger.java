@@ -172,7 +172,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 //2) Notify the client that we have successfully received a response from the logger
                 clientPromise.complete(response);
             } else {
-                log.warn("Did not find a session for response {} with message: {}", response, response.getMessage());
+                log.debug("Did not find a session for response {} with message: {}", response, response.getMessage());
             }
         }
     }

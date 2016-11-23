@@ -102,12 +102,15 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
             List<Dota2TopLiveGame> topLiveGames = matchInterface.getTopLiveGame(1).get();
             topLiveGames.forEach(Dota2WebApiQueryEx::displayResult);
 
+            //Stats
             Dota2RealtimeServerStats serverStats = statsInterface.getRealtimeStats(90105101693392898L).get();
             log.info("Server Stats : {}", serverStats);
 
+            //Stream
             Dota2BroadcasterInfo bInfo = streamInterface.getBroadcasterInfo(292948090, -1).get();
             log.info("Broadcaster Info: {}", bInfo);
 
+            //Teams
             List<Dota2TeamDetails> teamDetails = teamInterface.getTeamInfo(4, -1).get();
             teamDetails.forEach(Dota2WebApiQueryEx::displayResult);
         } finally {

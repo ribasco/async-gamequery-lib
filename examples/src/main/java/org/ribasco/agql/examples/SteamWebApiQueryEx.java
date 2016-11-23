@@ -81,6 +81,8 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                     log.info("Success: {}, Message: {}, Required Version: {}", serverUpdateStatus.isSuccess(), serverUpdateStatus.getMessage(), serverUpdateStatus.getRequiredVersion());
                 }
             }).join();
+
+            //Steam News
             steamNews.getNewsForApp(550).thenAccept(new Consumer<List<SteamNewsItem>>() {
                 @Override
                 public void accept(List<SteamNewsItem> steamNewsItems) {
@@ -92,6 +94,8 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                     });
                 }
             }).join();
+
+            //Steam User Stats
             steamUserStats.getGlobalAchievementPercentagesForApp(550).thenAccept(new Consumer<List<SteamGameAchievement>>() {
                 @Override
                 public void accept(List<SteamGameAchievement> steamGameAchievements) {
@@ -146,6 +150,7 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                 }
             }).join();
 
+            //Player Service
             playerService.getRecentlyPlayedGames(76561198010872093L, 500).thenAccept(new Consumer<List<SteamPlayerRecentPlayed>>() {
                 @Override
                 public void accept(List<SteamPlayerRecentPlayed> steamPlayerRecentPlayeds) {
@@ -198,6 +203,7 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                 }
             }).join();
 
+            //Steam User
             steamUser.getFriendList(76561198010872093L, "friend").thenAccept(new Consumer<List<SteamFriend>>() {
                 @Override
                 public void accept(List<SteamFriend> steamFriends) {
@@ -245,6 +251,7 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                 }
             }).join();
 
+            //Steam Economy
             steamEconomy.getAssetPrices(730).thenAccept(new Consumer<List<SteamAssetPriceInfo>>() {
                 @Override
                 public void accept(List<SteamAssetPriceInfo> steamAssetPriceInfos) {
@@ -268,9 +275,37 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
                 }
             }).join();
 
-
+            //Econ Items
             List<SteamEconPlayerItem> playerItems = steamEconItems.getPlayerItems(730, 76561197960761020L, SteamEconItems.VERSION_1).get();
             log.info("Player Items: {}", playerItems);
+
+            SteamEconSchema schema = steamEconItems.getSchema(440).join();
+            log.info("Schema: {}", schema);
+
+            String schemaUrl = steamEconItems.getSchemaUrl(440).join();
+            log.info("Schema URL : {}", schemaUrl);
+
+            SteamEconItemsStoreMeta storeMedaData = steamEconItems.getStoreMetadata(440).join();
+            log.info("Store Meta Data: {}", storeMedaData);
+
+            Integer storeStatus = steamEconItems.getStoreStatus(440).join();
+            log.info("Store Status: {}", storeStatus);
+
+            //Storefront
+            StoreAppDetails storeAppDetails = storeFront.getAppDetails(550).join();
+            log.info("Storefront App Details: {}", storeAppDetails);
+
+            StoreFeaturedApps featuredApps = storeFront.getFeaturedApps().join();
+            log.info("Featured Apps: {}", featuredApps);
+
+            StoreFeaturedCategories featuredCategories = storeFront.getFeaturedCategories().join();
+            log.info("Featured Categories: {}", featuredCategories);
+
+            StorePackageDetails packageDetails = storeFront.getPackageDetails(54029).join();
+            log.info("Package Details: {}", packageDetails);
+
+            StoreSaleDetails storeSaleDetails = storeFront.getSaleDetails(0).join();
+            log.info("Sale Details: {}", storeSaleDetails);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

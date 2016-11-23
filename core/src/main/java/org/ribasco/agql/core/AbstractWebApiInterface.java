@@ -173,7 +173,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
                 case 429:
                     throw new TooManyRequestsException("Request was throttled, because amount of requests was above the threshold defined for the used API token.");
                 case 500:
-                    throw new UnknownWebException("Unknown error happened when handling the request.");
+                    throw new UnknownWebException("An internal error occured in server");
                 case 503:
                     throw new ServiceUnavailableException("Service is temprorarily unavailable. Possible maintenance on-going.");
                 default:

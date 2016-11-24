@@ -36,19 +36,15 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Dota2Fantasy extends Dota2WebApiInterface {
-    /**
-     * {@inheritDoc}
-     *
-     * @param client
-     */
+
     public Dota2Fantasy(SteamWebApiClient client) {
         super(client);
     }
 
-    public CompletableFuture<Object> getFantasyPlayerStats() {
+    /*public CompletableFuture<Object> getFantasyPlayerStats() {
         //TODO: need to obtain a valid fantasy league id to test this properly
         return null;
-    }
+    }*/
 
     public CompletableFuture<Dota2FantasyPlayerInfo> getPlayerOfficialInfo(int accountId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerOfficialInfo(VERSION_1, accountId));

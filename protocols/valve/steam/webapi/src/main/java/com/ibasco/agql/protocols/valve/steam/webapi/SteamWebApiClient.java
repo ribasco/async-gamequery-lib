@@ -40,9 +40,6 @@ public class SteamWebApiClient extends AbstractRestClient<SteamWebApiRequest, St
         super("");
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public SteamWebApiClient(String apiToken) {
         super(apiToken);
     }

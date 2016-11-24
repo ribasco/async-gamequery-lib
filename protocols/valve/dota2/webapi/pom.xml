@@ -37,19 +37,6 @@
     <name>AGQL - Valve - Dota 2 WebAPI</name>
     <description>Implementation for the Dota 2 Specific Web API Interfaces</description>
     <packaging>jar</packaging>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${mvn.compiler.version}</version>
-                <configuration>
-                    <source>${source.version}</source>
-                    <target>${target.version}</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
     <dependencies>
         <dependency>
             <groupId>org.asynchttpclient</groupId>

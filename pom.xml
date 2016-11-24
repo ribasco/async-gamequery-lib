@@ -40,12 +40,12 @@
         <github.site.path>${project.version}</github.site.path>
     </properties>
 
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>0.9.2-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <inceptionYear>2016</inceptionYear>
-    <url>http://raffy.ibasco.com/async-gamequery-lib</url>
+    <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
     <description>
         The Asynchronous Game Query Library (AGQL) aims to provide a rich implementation for various game queries from
@@ -56,24 +56,10 @@
     </description>
 
     <scm>
-        <url>http://dev.ibasco.com/raffy/async-gamequery-lib</url>
-        <connection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</connection>
-        <developerConnection>scm:git:http://dev.ibasco.com/raffy/async-gamequery-lib.git</developerConnection>
-        <tag>master</tag>
-        <!--<url>https://github.com/ribasco/multi-module-test</url>
-        <connection>scm:git:git://github.com/ribasco/multi-module-test.git</connection>
-        <developerConnection>scm:git:git@github.com:ribasco/multi-module-test.git</developerConnection>-->
+        <url>https://github.com/ribasco/async-gamequery-lib</url>
+        <connection>scm:git:git://github.com/ribasco/async-gamequery-lib.git</connection>
+        <developerConnection>scm:git:git@github.com:ribasco/async-gamequery-lib.git</developerConnection>
     </scm>
-
-    <!--<mailingLists>
-        <mailingList>
-            <name>asyncgamequerylib</name>
-            <archive/>
-            <subscribe/>
-            <unsubscribe/>
-            <post/>
-        </mailingList>
-    </mailingLists>-->
 
     <developers>
         <developer>
@@ -205,15 +191,15 @@
         <!--<site>
             <id>github-site</id>
             <name>Github site</name>
-            <url>https://ribasco.github.io/multi-module-test</url>
+            <url>https://ribasco.github.io/async-gamequery-lib</url>
         </site>-->
         <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
     </distributionManagement>
 
     <!-- Continuous Integration -->
     <ciManagement>
-        <system>jenkins</system>
-        <url>http://ci.ibasco.com/job/async-gamequery-lib/</url>
+        <system>Travis CI</system>
+        <url>https://travis-ci.org/ribasco/async-gamequery-lib</url>
     </ciManagement>
 
     <!-- Build Settings -->
@@ -405,7 +391,7 @@
                     </executions>
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
-                        <!--<skipDeploy>true</skipDeploy>-->
+                        <skipDeploy>true</skipDeploy>
                     </configuration>
                     <dependencies>
                         <dependency>
@@ -457,7 +443,7 @@
                     <configuration>
                         <path>${github.site.path}</path>
                         <message>Creating site for ${project.artifactId} - ${project.version}</message>
-                        <repositoryName>multi-module-test</repositoryName>
+                        <repositoryName>async-gamequery-lib</repositoryName>
                         <repositoryOwner>ribasco</repositoryOwner>
                         <merge>true</merge>
                     </configuration>

@@ -44,17 +44,17 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
     <version>LATEST_VERSION</version>
-</dependency>
+7</dependency>
 ```
 
 **Valve Source Query Protocol**
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-source-query</artifactId>
     <version>LATEST_VERSION</version>
 </dependency>
@@ -64,7 +64,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-webapi</artifactId>
     <version>LATEST_VERSION</version>
 </dependency>
@@ -74,7 +74,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
     <version>LATEST_VERSION</version>
 </dependency>
@@ -84,7 +84,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
     <version>LATEST_VERSION</version>
 </dependency>
@@ -94,7 +94,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ```
 <dependency>
-    <groupId>org.ribasco.agql</groupId>
+    <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
     <version>LATEST_VERSION</version>
 </dependency>
@@ -113,7 +113,7 @@ Since this was initially built on top of Java 8. There are no plans on supportin
 Future Integrations
 --------------------
 
-Here are some of my planned integrations for future releases. Don't hesistate to contact me if you have any suggestions.
+Below are some of my planned integrations for future releases. Don't hesistate to contact me if you have any suggestions.
 
 * Riot Games - League of Legends Web API
 * Mojang - Minecraft server query  

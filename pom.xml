@@ -48,11 +48,9 @@
     <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
     <description>
-        The Asynchronous Game Query Library (AGQL) aims to provide a rich implementation for various game queries from
-        popular online titles. Each type of implementation is divided into modules, so you don't have
-        to download the whole thing if you only plan to use one specific implementation. At the core of it, the
-        transport engine is powered by Netty, a high-performance NIO client/server framework. All public
-        operations provided within this library are asynchronous!
+        The Asynchronous Game Query Library (AGQL), as the name suggests is a game query library which provides a
+        convenient way for java clients to execute asynchronous requests to game servers. It's built on top of Netty as
+        it's core transport engine and use AsyncHttpClient for web services.
     </description>
 
     <scm>
@@ -373,7 +371,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.4</version>
+                    <version>3.6</version>
                     <executions>
                         <execution>
                             <id>attach-descriptor</id>
@@ -569,13 +567,13 @@
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-module-junit4</artifactId>
-                <version>1.6.5</version>
+                <version>1.6.6</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.powermock</groupId>
                 <artifactId>powermock-api-easymock</artifactId>
-                <version>1.6.5</version>
+                <version>1.6.6</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

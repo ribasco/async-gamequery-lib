@@ -40,7 +40,7 @@
     <Loggers>
         <Logger name="org.ribasco.agql.protocols" level="info"/>
         <Logger name="org.ribasco.agql.core" level="info"/>
-        <Logger name="org.ribasco.agql.core.client.AbstractRestClient" level="debug"/>
+        <Logger name="com.ibasco.agql.core.client.AbstractRestClient" level="debug"/>
         <Logger name="org.ribasco.agql.protocols.valve.source.query.logger.SourceLogListenService"
                 level="debug"/>
         <Root level="info">

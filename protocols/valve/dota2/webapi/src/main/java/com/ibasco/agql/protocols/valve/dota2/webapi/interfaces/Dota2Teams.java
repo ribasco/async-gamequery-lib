@@ -34,11 +34,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class Dota2Teams extends Dota2WebApiInterface {
-    /**
-     * {@inheritDoc}
-     *
-     * @param client
-     */
+
     public Dota2Teams(SteamWebApiClient client) {
         super(client);
     }

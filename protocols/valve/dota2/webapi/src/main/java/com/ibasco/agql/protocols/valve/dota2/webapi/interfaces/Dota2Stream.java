@@ -33,11 +33,7 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import java.util.concurrent.CompletableFuture;
 
 public class Dota2Stream extends Dota2WebApiInterface {
-    /**
-     * {@inheritDoc}
-     *
-     * @param client
-     */
+
     public Dota2Stream(SteamWebApiClient client) {
         super(client);
     }

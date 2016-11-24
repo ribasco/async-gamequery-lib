@@ -35,9 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract public class Dota2WebApiInterface extends AbstractWebApiInterface<SteamWebApiClient, Dota2WebApiRequest, Dota2WebApiResponse> {
-    /**
-     * {@inheritDoc}
-     */
+
     public Dota2WebApiInterface(SteamWebApiClient client) {
         super(client);
     }

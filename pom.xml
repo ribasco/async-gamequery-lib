@@ -171,7 +171,7 @@
 
     <!-- Distribution Management -->
     <distributionManagement>
-        <repository>
+        <!--<repository>
             <name>Release Repository</name>
             <id>ibasco.repo.release</id>
             <url>http://repo.ibasco.com/repository/ibasco-release/</url>
@@ -180,7 +180,18 @@
             <name>Snapshots Repository</name>
             <id>ibasco.repo.snapshots</id>
             <url>http://repo.ibasco.com/repository/ibasco-snapshots/</url>
-        </snapshotRepository>
+        </snapshotRepository>-->
+        <!--<repository>
+            <id>sonatype-nexus-staging</id>
+            <name>Sonatype Release</name>
+            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2
+            </url>
+        </repository>
+        <snapshotRepository>
+            <id>sonatype-nexus-snapshots</id>
+            <name>Sonatype Snapshots</name>
+            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>-->
         <site>
             <id>github-site</id>
             <name>Asynchronous Game Query Library</name>
@@ -454,17 +465,12 @@
                 <artifactId>versions-maven-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>com.github.github</groupId>
+                <artifactId>site-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>stage-site</id>
-                        <phase>site</phase>
-                        <goals>
-                            <goal>stage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

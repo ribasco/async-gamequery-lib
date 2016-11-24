@@ -28,9 +28,12 @@ Here are the list of what is currently implemented on the library
 Requirements
 ------------
 
-* Java 8 JDK
+* Java 8
 * Netty
+* AsyncHttpClient
 * SLF4J
+* Google Gson
+* Google Guava
  
 Installation
 ------------

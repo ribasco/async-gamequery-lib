@@ -8,9 +8,9 @@ As the name suggests, it's a game query library which provides a convenient way 
 Project Resources
 -------------
 
-* Java Docs
-* GitHub Site Page
-* Continuous Integration
+* [Java Docs](https://ribasco.github.io/async-gamequery-lib/apidocs)
+* [GitHub Site Page](https://ribasco.github.io/async-gamequery-lib/)
+* [Continuous Integration](https://travis-ci.org/ribasco/async-gamequery-lib)
 
 Implementations
 ----------------

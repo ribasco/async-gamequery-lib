@@ -1,16 +1,9 @@
 Features
 ========
 
--   Everything is Asynchronous! Thanks to the powerful [Netty](http://netty.io/) library.
--   Java 8! Takes advantage of the new powerful language features. No longer
-    will you have to deal with the painful `Future` class from the previous versions.
+-   Everything is asynchronous. Thanks to [Netty](http://netty.io/).
+-   Java 8! Takes advantage of the new powerful language features.
 -   Designed to be capable of talking to a wide range of protocols.
-
-
-Supported Games
----------------
--   Clash of Clans
--   All Source/Steam based games
 
 
 Web API Implementations
@@ -29,7 +22,7 @@ A list of supported web service implementations
 Game Server Queries
 -------------------
 
-A list of supported game server protocol implementations
+A list of supported game server query protocols
 
 | **Vendor** | **Description**       |
 |------------|-----------------------|
@@ -44,7 +37,7 @@ Other supported protocols
 
 | **Vendor** | **Description**              |
 |------------|------------------------------|
-| Valve      | Source Log Listener Service  |
+| Valve      | Source Log                   |
 | Valve      | Master Server Query Protocol |
 
 

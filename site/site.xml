@@ -60,7 +60,6 @@
     </poweredBy>
     <body>
         <menu name="Overview" inherit="top">
-            <item name="Main"/>
             <item name="Features" href="features.html"/>
         </menu>
         <menu name="Usage/Examples" inherit="top">

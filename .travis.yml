@@ -3,4 +3,8 @@ jdk:
 - oraclejdk8
 
 after_success:
-- mvn clean site -X
+- scripts/deploy_site.sh
+
+cache:
+  directories:
+    - $HOME/.m2/repository

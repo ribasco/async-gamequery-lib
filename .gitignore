@@ -5,3 +5,4 @@
 logs/
 out/
 *.iml
+/examples/src/main/resources/auth.json

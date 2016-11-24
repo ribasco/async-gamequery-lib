@@ -22,18 +22,18 @@ Here are the list of what is currently implemented on the library
 * Valve Steam Web API
 * Valve Dota 2 Web API
 * Valve CS:GO Web API 
-* Valve Source Log Handler
+* Valve Source Log Handler (a log monitor service)
 * Supercell Clash of Clans Web API
 
 Requirements
 ------------
 
-* Java 8
-* Netty
-* AsyncHttpClient
-* SLF4J
-* Google Gson
-* Google Guava
+* Java JDK 8
+* Netty 4.1.x
+* AsyncHttpClient 2.1.x
+* SLF4J 1.7.x
+* Google Gson 2.8.x
+* Google Guava 20.x
  
 Installation
 ------------
@@ -47,7 +47,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
     <version>LATEST_VERSION</version>
-7</dependency>
+</dependency>
 ```
 
 **Valve Source Query Protocol**
@@ -113,7 +113,7 @@ Since this was initially built on top of Java 8. There are no plans on supportin
 Future Integrations
 --------------------
 
-Below are some of my planned integrations for future releases. Don't hesistate to contact me if you have any suggestions.
+Below are some of my planned integrations for future releases. Don't hesistate to [contact](mailto:raffy@ibasco.com) me if you have any other suggestions.
 
 * Riot Games - League of Legends Web API
 * Mojang - Minecraft server query  

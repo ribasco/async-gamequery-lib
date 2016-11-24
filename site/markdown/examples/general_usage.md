@@ -1,25 +1,33 @@
 General Usage
 =============
 
-All implementations consists of two things, a `client` and an `interface`.
 
 **API Request Example**
 
-Create the client passing the authentication token provided (if applicable)
-
 ~~~
+//API Token
 String token = "<replace with your token here>";
-CocWebApiClient client = new CocWebApiClient(token);
-~~~
 
-Create the interface(s), then pass the client to it's default constructor. For example:
-
-~~~
-//Create client
+//Create and initialize client
 CocWebApiClient client = new CocWebApiClient(token);
 
-//Pass to the CocClans interface
+//Create and initialize the interface, passing the client as argument for the default constructor
 CocClans clans = new CocClans(client);
+
+//Invoke the request
+CompletableFuture<List<CocClanDetailedInfo>> clanDetailsFuture = clans.searchClans(criteria);
+~~~
+
+**Retrieving the result (blocking)**
+
+~~~
+List<CocClanDetailedInfo> clanResults = clanDetailsFuture.get();
+~~~
+
+**Retrieving the result (non-blocking)**
+
+~~~
+clanDetailsFuture.thenAccept(resultList -> resultList.forEach(c -> log.info("Clan Info: {}", c)));
 ~~~
 
 **Things to Remember**

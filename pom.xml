@@ -184,16 +184,10 @@
             <url>http://repo.ibasco.com/repository/ibasco-snapshots/</url>
         </snapshotRepository>
         <site>
-            <id>agql.website</id>
-            <name>Async Game Query Library Site</name>
-            <url>scp://dev.ibasco.com/home/raffy/projects/agql/site</url>
-        </site>
-        <!--<site>
             <id>github-site</id>
-            <name>Github site</name>
+            <name>Asynchronous Game Query Library</name>
             <url>https://ribasco.github.io/async-gamequery-lib</url>
-        </site>-->
-        <downloadUrl>http://dev.ibasco.com/raffy/async-gamequery-lib/releases</downloadUrl>
+        </site>
     </distributionManagement>
 
     <!-- Continuous Integration -->
@@ -427,7 +421,7 @@
                     <version>2.3</version>
                 </plugin>
                 <!-- Github Site Plugin -->
-                <!--<plugin>
+                <plugin>
                     <groupId>com.github.github</groupId>
                     <artifactId>site-maven-plugin</artifactId>
                     <version>0.12</version>
@@ -447,7 +441,7 @@
                         <repositoryOwner>ribasco</repositoryOwner>
                         <merge>true</merge>
                     </configuration>
-                </plugin>-->
+                </plugin>
             </plugins>
         </pluginManagement>
 

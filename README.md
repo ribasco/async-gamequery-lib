@@ -27,7 +27,7 @@ Below are the list of what is currently implemented by the library.
 Installation
 ------------
 
-Depending on which modules you need, just add the following dependencies to your maven pom.xml. 
+Just add the following dependencies to your maven pom.xml. Only include the modules you need. 
 
 **Valve Master Server Query Protocol**
 

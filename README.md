@@ -1,7 +1,7 @@
 Asynchronous Game Query Library
 ===============================
 
-[![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Coverage Status](https://coveralls.io/repos/github/ribasco/async-gamequery-lib/badge.svg)](https://coveralls.io/github/ribasco/async-gamequery-lib)
+[![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Coverage Status](https://coveralls.io/repos/github/ribasco/async-gamequery-lib/badge.svg)](https://coveralls.io/github/ribasco/async-gamequery-lib) [![Dependency Status](https://www.versioneye.com/user/projects/5836caec4ef164003ff453c4/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5836caec4ef164003ff453c4)
 
 As the name suggests, it's a game query library which provides a convenient way for java clients to execute asynchronous requests to game servers. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
 
@@ -15,14 +15,22 @@ Project Resources
 Implementations
 ----------------
  
-Below are the list of what is currently implemented by the library.
+Here are the list of what is currently implemented on the library
 
 * Valve Master Server Query Protocol
 * Valve Source Query Protocol
 * Valve Steam Web API
 * Valve Dota 2 Web API
 * Valve CS:GO Web API 
+* Valve Source Log Handler
 * Supercell Clash of Clans Web API
+
+Requirements
+------------
+
+* Java 8 JDK
+* Netty
+* SLF4J
  
 Installation
 ------------
@@ -92,15 +100,17 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 Usage
 ------------
 
-For usage examples, please refer to the site docs.
+For usage examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
 
 Compatibility
 -------------
 
-Since this was initially built on top of Java 8. There are no plans on supporting previous versions. Time to move on :)
+Since this was initially built on top of Java 8. There are no plans on supporting the previous versions. Time to move on :)
 
 Future Integrations
 --------------------
+
+Here are some of my planned integrations for future releases. Don't hesistate to contact me if you have any suggestions.
 
 * Riot Games - League of Legends Web API
 * Mojang - Minecraft server query  

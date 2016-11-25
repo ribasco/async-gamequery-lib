@@ -23,6 +23,10 @@ git clone -b $TARGET_BRANCH --single-branch https://$GITHUB_USER:$GITUB_TOKEN@gi
 
 # Update Remote Configuration
 echo "Updating Remote Origin Configuration"
+OAUTH_REPO="https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/async-gamequery-lib.git"
+
+echo "Using HTTPS $OAUTH_REPO"
+
 cd gh-pages
 git remote rm origin
 git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git
@@ -51,7 +55,7 @@ fi
 
 echo "Copying site staging files to `pwd`"
 # Start copying (at this point we should still be inside gh-pages)
-cp -vR ../target/staging/ `pwd`
+cp -vR ../target/staging/* `pwd`
 
 echo "Adding to GIT"
 # Git Add
@@ -67,7 +71,7 @@ git commit -m "Travis CI Site Update for Job #$TRAVIS_JOB_NUMBER"
 
 echo "Pushing updates to remote repository"
 # Push to the remote repository
-git push https://$GITHUB_TOKEN@github.com/ribasco/async-gamequery-lib
+git push https://${GITHUB_TOKEN}@github.com/ribasco/async-gamequery-lib
 
 ls -la
 

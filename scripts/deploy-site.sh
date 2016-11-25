@@ -23,12 +23,12 @@ echo "Using Repository URL: $SSH_REPO"
 # Clone Github Pages Branch
 git clone -b gh-pages --single-branch https://ribasco:$GITUB_TOKEN@github.com/ribasco/async-gamequery-lib.git gh-pages
 
-# After cloning
+# Re-add the remote configuration
 cd gh-pages
 git remote rm origin
 git remote add origin https://ribasco:$GITHUB_TOKEN@github.com/ribasco/async-gamequery-lib.git
 
-ls -l
+ls -la
 
 cd ..
 
@@ -37,3 +37,7 @@ ls -l
 echo "Building Site"
 
 scripts/build-site.sh
+
+echo "Site Build Complete!"
+
+ls -l

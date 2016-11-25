@@ -30,12 +30,12 @@
         <relativePath>../../../../pom.xml</relativePath>
         <groupId>com.ibasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.10.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>agql-dota2-webapi</artifactId>
     <name>AGQL - Valve - Dota 2 WebAPI</name>
-    <description>Implementation for the Dota 2 Specific Web API Interfaces</description>
+    <description>Implementation for the Dota 2 Web API Interfaces</description>
     <packaging>jar</packaging>
     <dependencies>
         <dependency>

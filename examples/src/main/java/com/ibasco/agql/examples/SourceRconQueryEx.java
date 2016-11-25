@@ -78,7 +78,7 @@ public class SourceRconQueryEx {
 
         try {
             //Authenticate
-            sourceRconClient.authenticate(address1, "***REMOVED***").whenComplete((success, throwable) -> {
+            sourceRconClient.authenticate(address1, "password").whenComplete((success, throwable) -> {
                 if (success != null) {
                     log.info("Successfully Authenticated for {}", address1);
                 } else

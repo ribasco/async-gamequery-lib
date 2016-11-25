@@ -7,7 +7,7 @@ Examples of sending RCON commands to a Source Server.
 You only need to authenticate once.
 
 ~~~
-boolean success = sourceRconClient.authenticate(address1, "***REMOVED***").whenComplete((success, throwable) -> {
+boolean success = sourceRconClient.authenticate(address1, "rconPassword").whenComplete((success, throwable) -> {
     if (success != null) {
         log.info("Successfully Authenticated for {}", address1);
     } else

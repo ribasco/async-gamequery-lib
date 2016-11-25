@@ -18,6 +18,8 @@ SHA=`git rev-parse --verify HEAD`
 
 ls -l
 
+echo "Using Repository URL: $SSH_REPO"
+
 # Clone Github Pages Branch
 git clone -b gh-pages --single-branch https://ribasco:$GITUB_TOKEN@github.com/ribasco/async-gamequery-lib.git gh-pages
 
@@ -31,3 +33,6 @@ ls -l
 cd ..
 
 ls -l
+
+echo "Building Site"
+./build-site.sh

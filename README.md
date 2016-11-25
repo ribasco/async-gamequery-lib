@@ -104,7 +104,13 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ### Install from Source
 
+Clone from remote repository then `mvn install`. All of the modules will be installed to your local maven repository.
 
+~~~
+git clone https://github.com/ribasco/async-gamequery-lib.git
+cd async-gamequery-lib
+mvn install
+~~~
 
 Usage
 ------------

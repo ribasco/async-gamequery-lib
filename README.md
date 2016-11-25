@@ -38,7 +38,9 @@ Requirements
 Installation
 ------------
 
-Just add the following dependencies to your maven pom.xml. Only include the modules you need. 
+Just add the following dependencies to your maven pom.xml. Only include the modules you need.
+
+### Install from Maven Central
 
 **Valve Master Server Query Protocol**
 
@@ -99,6 +101,10 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
     <version>LATEST_VERSION</version>
 </dependency>
 ```
+
+### Install from Source
+
+
 
 Usage
 ------------

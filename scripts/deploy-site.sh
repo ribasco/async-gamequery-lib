@@ -45,7 +45,7 @@ echo ===========================================
 echo "Copying site staging files to `pwd`"
 echo ===========================================
 # Start copying (at this point we should still be inside gh-pages)
-cp -vR ../target/staging/* `pwd`
+cp -R ../target/staging/* `pwd`
 
 echo ===========================================
 echo "Adding files to Git"

@@ -49,9 +49,11 @@ if [ ! -d "../target/staging" ]; then
     exit 1
 fi
 
+echo "Copying site staging files to `pwd`"
 # Start copying (at this point we should still be inside gh-pages)
 cp -vR ../target/staging/ `pwd`
 
+echo "Adding to GIT"
 # Git Add
 git add .
 
@@ -59,9 +61,11 @@ git config --global user.email "ribasco@gmail.com"
 git config --global user.name "AGQL Travis CI"
 git config --global push.default simple
 
+echo "Committing branch"
 # Commit to the branch
 git commit -m "Travis CI Site Update for Job #$TRAVIS_JOB_NUMBER"
 
+echo "Pushing updates to remote repository"
 # Push to the remote repository
 git push https://$GITHUB_TOKEN@github.com/ribasco/async-gamequery-lib
 

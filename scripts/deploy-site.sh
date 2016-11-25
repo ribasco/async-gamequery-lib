@@ -35,4 +35,5 @@ cd ..
 ls -l
 
 echo "Building Site"
-./build-site.sh
+
+scripts/build-site.sh

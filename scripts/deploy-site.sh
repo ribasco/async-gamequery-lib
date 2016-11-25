@@ -17,3 +17,17 @@ SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
 SHA=`git rev-parse --verify HEAD`
 
 ls -l
+
+# Clone Github Pages Branch
+git clone -b gh-pages --single-branch https://ribasco:$GITUB_TOKEN@github.com/ribasco/async-gamequery-lib.git gh-pages
+
+# After cloning
+cd gh-pages
+git remote rm origin
+git remote add origin https://ribasco:$GITHUB_TOKEN@github.com/ribasco/async-gamequery-lib.git
+
+ls -l
+
+cd ..
+
+ls -l

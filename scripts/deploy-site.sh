@@ -38,6 +38,10 @@ echo "Building Site"
 
 scripts/build-site.sh
 
+cd target
+
+ls -la
+
 echo "Site Build Complete!"
 
 ls -l

@@ -15,7 +15,7 @@ Project Resources
 Implementations
 ----------------
  
-Here are the list of what is currently implemented on the library
+Below is the list of what is currently implemented on the library
 
 * Valve Master Server Query Protocol
 * Valve Source Query Protocol
@@ -125,7 +125,7 @@ Since this was initially built on top of Java 8. There are no plans on supportin
 Future Integrations
 --------------------
 
-Below are some of my planned integrations for future releases. Don't hesistate to [contact](mailto:raffy@ibasco.com) me if you have any other suggestions.
+My planned integrations for future releases. Don't hesitate to [contact](mailto:raffy@ibasco.com) me if you have any other suggestions.
 
 * Riot Games - League of Legends Web API
 * Mojang - Minecraft server query  

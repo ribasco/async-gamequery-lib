@@ -15,33 +15,21 @@ fi
 # Start Building the Site
 scripts/build-site.sh
 
-# Once we are done building, we can start copying the files to the branch
-
 # Clone Github Pages Branch
 echo "Extracting latest gh-pages from remote origin"
 git clone -b $TARGET_BRANCH --single-branch https://$GITHUB_USER:$GITUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git $TARGET_BRANCH
 
 # Update Remote Configuration
-echo "Updating Remote Origin Configuration"
-OAUTH_REPO="https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/${GITHUB_USER}/async-gamequery-lib.git"
-
-echo "Using HTTPS $OAUTH_REPO"
-
 cd gh-pages
-git remote rm origin
-git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git
+# git remote rm origin
+# git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git
 
-REPO=`git config remote.origin.url`
-
-echo "Remote origin updated to : $REPO"
-
-# Save some useful information
-# REPO=`git config remote.origin.url`
-# SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
-# SHA=`git rev-parse --verify HEAD`
+REMOTE_ORIGIN=`git config remote.origin.url`
 
 # Clean gh-pages
+echo ===========================================
 echo "Cleaning gh-pages branch"
+echo ===========================================
 git rm -rf .
 git clean -fxd
 
@@ -53,23 +41,36 @@ if [ ! -d "../target/staging" ]; then
     exit 1
 fi
 
+echo ===========================================
 echo "Copying site staging files to `pwd`"
+echo ===========================================
 # Start copying (at this point we should still be inside gh-pages)
 cp -vR ../target/staging/* `pwd`
 
-echo "Adding to GIT"
+echo ===========================================
+echo "Adding files to Git"
+echo ===========================================
+
 # Git Add
 git add .
 
-git config --global user.email "ribasco@gmail.com"
+echo ===========================================
+echo "Configuring commit author details"
+echo ===========================================
+
+git config --global user.email "raffy@ibasco.com"
 git config --global user.name "AGQL Travis CI"
 git config --global push.default simple
 
+echo ===========================================
 echo "Committing branch"
-# Commit to the branch
+echo ===========================================
 git commit -m "Travis CI Site Update for Job #$TRAVIS_JOB_NUMBER"
 
+echo ===========================================
 echo "Pushing updates to remote repository"
+echo ===========================================
+
 # Push to the remote repository
 git push https://${GITHUB_TOKEN}@github.com/ribasco/async-gamequery-lib
 

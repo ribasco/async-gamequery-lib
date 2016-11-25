@@ -30,18 +30,4 @@ git remote add origin https://ribasco:$GITHUB_TOKEN@github.com/ribasco/async-gam
 
 ls -la
 
-cd ..
-
-ls -l
-
-echo "Building Site"
-
-scripts/build-site.sh
-
-cd target
-
-ls -la
-
-echo "Site Build Complete!"
-
-ls -l
+echo "Site has been deployed!"

@@ -55,6 +55,10 @@ cp -vR ../target/staging/ `pwd`
 # Git Add
 git add .
 
+git config --global user.email "ribasco@gmail.com"
+git config --global user.name "AGQL Travis CI"
+git config --global push.default simple
+
 # Commit to the branch
 git commit -m "Travis CI Site Update for Job #$TRAVIS_JOB_NUMBER"
 

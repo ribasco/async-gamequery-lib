@@ -1,9 +1,11 @@
 Asynchronous Game Query Library
 ===============================
 
+> **NOTE:** This project is still a work in-progress and no stable releases are available at the moment. Most of the features are fully functional and available. If you want to try it out you can download the latest builds from the snapshots repository (See Project Resources section)
+
 [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Coverage Status](https://coveralls.io/repos/github/ribasco/async-gamequery-lib/badge.svg)](https://coveralls.io/github/ribasco/async-gamequery-lib) [![Dependency Status](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d)
 
-As the name suggests, it's a game query library which provides a convenient way for java clients to execute asynchronous requests to game servers. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
+As the name suggests, it's a game query library which provides a convenient way for java clients to execute asynchronous requests to game servers/services. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
 
 Project Resources
 -------------
@@ -11,6 +13,7 @@ Project Resources
 * [Java Docs](https://ribasco.github.io/async-gamequery-lib/apidocs)
 * [GitHub Site Page](https://ribasco.github.io/async-gamequery-lib/)
 * [Continuous Integration](https://travis-ci.org/ribasco/async-gamequery-lib)
+* [Nightly Builds (Snapshots)](https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/)
 
 Implementations
 ----------------
@@ -133,4 +136,4 @@ My planned integrations for future releases. Don't hesitate to [contact](mailto:
 Contributing
 ------------
 
-Feel free to submit pull requests! Any type of contributions are welcome. 
+Fork it and submit a pull request. Any type of contributions are welcome.

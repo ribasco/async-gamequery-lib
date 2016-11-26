@@ -27,7 +27,7 @@ package com.ibasco.agql.core;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
-public abstract class AbstractPacketBuilder<T extends AbstractPacket> implements PacketBuilder<T> {
+abstract public class AbstractPacketBuilder<T extends AbstractPacket> implements PacketBuilder<T> {
     private ByteBufAllocator allocator;
 
     public AbstractPacketBuilder(ByteBufAllocator allocator) {

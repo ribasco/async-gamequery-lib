@@ -29,7 +29,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.net.InetSocketAddress;
 
-public abstract class AbstractGameServerResponse<T extends Decodable<U>, U> extends AbstractResponse<U> {
+abstract public class AbstractGameServerResponse<T extends Decodable<U>, U> extends AbstractResponse<U> {
     private T responsePacket;
 
     public AbstractGameServerResponse(InetSocketAddress sender, T packet) {

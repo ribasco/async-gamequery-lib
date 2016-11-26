@@ -52,7 +52,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("unchecked")
-public abstract class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
+abstract public class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
     private Map<AttributeKey, Object> channelAttributes;

@@ -38,6 +38,16 @@
     <description>Implementation for the Counter Strike Global Offensive Web API Interfaces</description>
     <packaging>jar</packaging>
 
+    <build>
+        <plugins>
+            <!-- JaCoCo Code Coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>com.google.code.gson</groupId>

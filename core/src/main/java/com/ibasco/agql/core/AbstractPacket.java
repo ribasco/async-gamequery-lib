@@ -30,7 +30,7 @@ import io.netty.buffer.Unpooled;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public abstract class AbstractPacket implements Packet {
+abstract public class AbstractPacket implements Packet {
     private byte[] header = new byte[0];
     private byte[] payload = new byte[0];
     private byte[] trailer = new byte[0];

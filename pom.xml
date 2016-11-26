@@ -34,7 +34,6 @@
         <mvn.compiler.version>3.6.0</mvn.compiler.version>
         <source.version>1.8</source.version>
         <target.version>1.8</target.version>
-        <project.scm.id>localdev</project.scm.id>
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
@@ -50,7 +49,7 @@
     <description>
         The Asynchronous Game Query Library (AGQL), as the name suggests is a game query library which provides a
         convenient way for java clients to execute asynchronous requests to game servers. It's built on top of Netty as
-        it's core transport engine and use AsyncHttpClient for web services.
+        it's core transport engine and use AsyncHttpClient as the web transport.
     </description>
 
     <scm>
@@ -122,6 +121,26 @@
                 <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
         </profile>
+        <!-- Project Release Profile: mvn clean deploy -P release -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
     </profiles>
 
     <!-- Reporting -->
@@ -151,12 +170,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>2.10.4</version>
-                <configuration>
-                    <links>
-                        <link>http://commons.apache.org/lang/api</link>
-                        <link>http://java.sun.com/j2se/1.5.0/docs/api</link>
-                    </links>
-                </configuration>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -171,27 +184,16 @@
 
     <!-- Distribution Management -->
     <distributionManagement>
-        <!--<repository>
-            <name>Release Repository</name>
-            <id>ibasco.repo.release</id>
-            <url>http://repo.ibasco.com/repository/ibasco-release/</url>
-        </repository>
-        <snapshotRepository>
-            <name>Snapshots Repository</name>
-            <id>ibasco.repo.snapshots</id>
-            <url>http://repo.ibasco.com/repository/ibasco-snapshots/</url>
-        </snapshotRepository>-->
-        <!--<repository>
-            <id>sonatype-nexus-staging</id>
+        <repository>
+            <id>ossrh</id>
             <name>Sonatype Release</name>
-            <url>http://oss.sonatype.org/service/local/staging/deploy/maven2
-            </url>
+            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
         </repository>
         <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
+            <id>ossrh</id>
             <name>Sonatype Snapshots</name>
-            <url>http://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>-->
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </snapshotRepository>
         <site>
             <id>github-site</id>
             <name>Asynchronous Game Query Library</name>
@@ -254,6 +256,21 @@
         <!-- Plugin configuration shared across all child-modules -->
         <pluginManagement>
             <plugins>
+                <!-- Configuration for signing artifacts -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-gpg-plugin</artifactId>
+                    <version>1.6</version>
+                    <executions>
+                        <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <!-- Compiler Plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -267,7 +284,6 @@
                         <optimize>true</optimize>
                         <showDeprecation>true</showDeprecation>
                         <showWarnings>true</showWarnings>
-                        <!--<compilerArgument>-Xlint:-options</compilerArgument>-->
                     </configuration>
                 </plugin>
                 <!-- Install Plugin -->
@@ -281,6 +297,7 @@
                 </plugin>
                 <!-- Enforcer Plugin (updated to test build) -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
                     <version>1.4.1</version>
                     <executions>
@@ -304,6 +321,7 @@
                 </plugin>
                 <!-- Resource Plugin (Copy resources to the output dir) -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.0.1</version>
                     <configuration>
@@ -312,6 +330,7 @@
                 </plugin>
                 <!-- Release Plugin -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-release-plugin</artifactId>
                     <version>2.5.3</version>
                     <configuration>
@@ -344,6 +363,20 @@
                         <deployAtEnd>true</deployAtEnd>
                     </configuration>
                 </plugin>
+                <!-- Source Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <version>3.0.1</version>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
                 <!-- Javadoc plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -351,6 +384,7 @@
                     <version>2.10.4</version>
                     <executions>
                         <execution>
+                            <id>attach-javadocs</id>
                             <goals>
                                 <goal>jar</goal>
                             </goals>
@@ -429,6 +463,41 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.3</version>
                 </plugin>
+                <!-- Coveralls -->
+                <plugin>
+                    <groupId>org.eluder.coveralls</groupId>
+                    <artifactId>coveralls-maven-plugin</artifactId>
+                    <version>4.3.0</version>
+                    <configuration>
+                        <repoToken>${coverall.token}</repoToken>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>2.19.1</version>
+                </plugin>
+                <!-- JaCoCo Test Code Coverage -->
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>0.7.7.201606060606</version>
+                    <executions>
+                        <execution>
+                            <id>jacoco-initialize</id>
+                            <goals>
+                                <goal>prepare-agent</goal>
+                            </goals>
+                        </execution>
+                        <execution>
+                            <id>jacoco-site</id>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>report</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
             </plugins>
         </pluginManagement>
 
@@ -439,12 +508,25 @@
                 <artifactId>maven-release-plugin</artifactId>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.eluder.coveralls</groupId>
+                <artifactId>coveralls-maven-plugin</artifactId>
+            </plugin>
+            <!-- JaCoCo Code Coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

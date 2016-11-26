@@ -26,7 +26,7 @@ package com.ibasco.agql.core;
 
 import java.net.InetSocketAddress;
 
-public abstract class AbstractGameServerRequest<T extends AbstractPacket> extends AbstractRequest<T> {
+abstract public class AbstractGameServerRequest<T extends AbstractPacket> extends AbstractRequest<T> {
     public AbstractGameServerRequest(InetSocketAddress recipient) {
         super(recipient);
     }

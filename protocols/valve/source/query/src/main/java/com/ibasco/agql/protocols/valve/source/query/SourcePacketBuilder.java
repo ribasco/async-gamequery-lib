@@ -145,7 +145,7 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
      *
      * @param packet
      *
-     * @return
+     * @return Returns the deconstructed packet in byte array form
      */
     @Override
     public byte[] deconstruct(SourceServerPacket packet) {

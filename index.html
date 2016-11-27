@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-dark.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print">
+
+    <title>Asynchronous Game Query Library by ribasco</title>
+  </head>
+
+  <body>
+
+    <header>
+      <div class="container">
+        <h1>Asynchronous Game Query Library</h1>
+        <h2>A Java based Asynchronous Game Query Library built on top of Netty. Supports Steam/Source game protocols and others</h2>
+
+        <section id="downloads">
+          <a href="https://github.com/ribasco/async-gamequery-lib/zipball/master" class="btn">Download as .zip</a>
+          <a href="https://github.com/ribasco/async-gamequery-lib/tarball/master" class="btn">Download as .tar.gz</a>
+          <a href="https://github.com/ribasco/async-gamequery-lib" class="btn btn-github"><span class="icon"></span>View on GitHub</a>
+        </section>
+      </div>
+    </header>
+
+    <div class="container">
+      <section id="main_content">
+        <h1>
+<a id="asynchronous-game-query-library" class="anchor" href="#asynchronous-game-query-library" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Asynchronous Game Query Library</h1>
+
+<blockquote>
+<p><strong>NOTE:</strong> This project is still a work in-progress so there is no stable release available at the moment. Most of the features are already fully functional. If you want to try it out you can download the latest builds from the snapshots repository (See Project Resources section)</p>
+</blockquote>
+
+<p><a href="https://travis-ci.org/ribasco/async-gamequery-lib"><img src="https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master" alt="Build Status"></a> <a href="https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d"><img src="https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d/badge.svg?style=flat-square" alt="Dependency Status"></a></p>
+
+<p>As the name suggests, it's a game query library which provides a convenient way for java programs to execute asynchronous requests to game servers/services. It's built on top of <a href="https://github.com/netty/netty">Netty</a> as it's core transport engine and use <a href="https://github.com/AsyncHttpClient/async-http-client">AsyncHttpClient</a> for web services.</p>
+
+<p><img src="site/resources/images/agql-project-banner-big.png" alt="alt text" title="Games supported by Source Query Protocol"></p>
+
+<h2>
+<a id="project-resources" class="anchor" href="#project-resources" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Project Resources</h2>
+
+<ul>
+<li><a href="https://ribasco.github.io/async-gamequery-lib/apidocs">Java API Docs</a></li>
+<li><a href="https://ribasco.github.io/async-gamequery-lib/">Project Documentation</a></li>
+<li><a href="https://travis-ci.org/ribasco/async-gamequery-lib">Continuous Integration</a></li>
+<li><a href="https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/">Nightly Builds (Snapshots)</a></li>
+</ul>
+
+<h2>
+<a id="implementations" class="anchor" href="#implementations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Implementations</h2>
+
+<p>Below is the list of what is currently implemented on the library</p>
+
+<ul>
+<li>Valve Master Server Query Protocol</li>
+<li>Valve Source Query Protocol</li>
+<li>Valve Steam Web API</li>
+<li>Valve Steam StoreFront Web API</li>
+<li>Valve Dota 2 Web API</li>
+<li>Valve CS:GO Web API </li>
+<li>Valve Source Log Handler (a log monitor service)</li>
+<li>Supercell Clash of Clans Web API</li>
+</ul>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h2>
+
+<ul>
+<li>Java JDK 8</li>
+<li>Apache Commons Lang 3</li>
+<li>Netty 4.1.x</li>
+<li>AsyncHttpClient 2.1.x</li>
+<li>SLF4J 1.7.x</li>
+<li>Google Gson 2.8.x</li>
+<li>Google Guava 20.x</li>
+</ul>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h2>
+
+<p>Just add the following dependencies to your maven pom.xml. Only include the modules you need.</p>
+
+<h3>
+<a id="install-from-maven-central" class="anchor" href="#install-from-maven-central" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install from Maven Central</h3>
+
+<p><strong>Valve Master Server Query Protocol</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-steam-master&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p><strong>Valve Source Query Protocol</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-source-query&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p><strong>Valve Steam Web API</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-steam-webapi&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p><strong>Valve Dota 2 Web API</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-dota2-webapi&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p><strong>Valve CS:GO Web API</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-csgo-webapi&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<p><strong>Supercell Clash of Clans Web API</strong></p>
+
+<pre><code>&lt;dependency&gt;
+    &lt;groupId&gt;com.ibasco.agql&lt;/groupId&gt;
+    &lt;artifactId&gt;agql-coc-webapi&lt;/artifactId&gt;
+    &lt;version&gt;0.1.0-SNAPSHOT&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
+
+<h3>
+<a id="install-from-source" class="anchor" href="#install-from-source" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Install from Source</h3>
+
+<p>Clone from remote repository then <code>mvn install</code>. All of the modules will be installed to your local maven repository.</p>
+
+<pre><code>git clone https://github.com/ribasco/async-gamequery-lib.git
+cd async-gamequery-lib
+mvn install
+</code></pre>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>For usage examples, please refer to the <a href="http://ribasco.github.io/async-gamequery-lib/">site docs</a>.</p>
+
+<h2>
+<a id="compatibility" class="anchor" href="#compatibility" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Compatibility</h2>
+
+<p>Since this was initially built on top of Java 8. There are no plans on supporting the previous versions. Time to move on :)</p>
+
+<h2>
+<a id="protocol-specifications" class="anchor" href="#protocol-specifications" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Protocol Specifications</h2>
+
+<p>References you might find helpful regarding the implementations</p>
+
+<ul>
+<li><a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Valve Source RCON Protocol</a></li>
+<li><a href="https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol">Valve Master Server Query Protocol</a></li>
+<li><a href="https://developer.valvesoftware.com/wiki/Server_queries">Valve Source Query Protocol</a></li>
+<li><a href="https://wiki.teamfortress.com/wiki/WebAPI">Valve TF2 Web API Wiki</a></li>
+<li><a href="https://developer.valvesoftware.com/wiki/Steam_Web_API">Valve Steam Web API</a></li>
+<li><a href="https://wiki.teamfortress.com/wiki/User:RJackson/StorefrontAPI">Valve Steam Storefront API</a></li>
+<li><a href="https://developer.clashofclans.com/#/documentation">Clash of Clans Web API</a></li>
+<li><a href="https://lab.xpaw.me/steam_api_documentation.html">xPaw Steam Web API Documentation</a></li>
+</ul>
+
+<h2>
+<a id="future-integrations" class="anchor" href="#future-integrations" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Future Integrations</h2>
+
+<p>My planned integrations for future releases. Don't hesitate to <a href="mailto:raffy@ibasco.com">contact</a> me if you have any other suggestions.</p>
+
+<ul>
+<li>Riot Games - League of Legends Web API</li>
+<li>Mojang - Minecraft server query</li>
+</ul>
+
+<h2>
+<a id="contributing" class="anchor" href="#contributing" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>Fork it and submit a pull request. Any type of contributions are welcome.</p>
+      </section>
+    </div>
+
+    
+  </body>
+</html>

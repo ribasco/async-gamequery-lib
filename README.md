@@ -1,11 +1,11 @@
 Asynchronous Game Query Library
 ===============================
 
-> **NOTE:** This project is still a work in-progress so there is no stable release available at the moment. Most of the features are already fully functional. If you want to try it out you can download the latest builds from the snapshots repository (See Project Resources section)
-
 [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Dependency Status](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d)
-
+ 
 As the name suggests, it's a game query library which provides a convenient way for java programs to execute asynchronous requests to game servers/services. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
+
+> **NOTE:** This project is still a work in-progress so there is no stable release available at the moment. Most of the features are already fully functional. If you want to try it out you can download the latest builds from the snapshots repository (See Project Resources section)
 
 ![alt text](site/resources/images/agql-project-banner-big.png "Games supported by Source Query Protocol")
 
@@ -15,7 +15,7 @@ Project Resources
 * [Java API Docs](https://ribasco.github.io/async-gamequery-lib/apidocs)
 * [Project Documentation](https://ribasco.github.io/async-gamequery-lib/)
 * [Continuous Integration](https://travis-ci.org/ribasco/async-gamequery-lib)
-* [Nightly Builds (Snapshots)](https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/)
+* [Snapshot Builds](https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/)
 
 Implementations
 ----------------
@@ -156,3 +156,5 @@ Contributing
 ------------
 
 Fork it and submit a pull request. Any type of contributions are welcome.
+
+<script type='text/javascript' src='https://www.openhub.net/p/async-gamequery-lib/widgets/project_users_logo?format=js'></script>

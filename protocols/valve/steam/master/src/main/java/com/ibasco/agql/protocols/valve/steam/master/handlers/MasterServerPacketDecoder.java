@@ -36,9 +36,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.function.BiConsumer;
 
-/**
- * Created by raffy on 10/22/2016.
- */
 public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);

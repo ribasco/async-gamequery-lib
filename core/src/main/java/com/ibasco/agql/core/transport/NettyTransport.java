@@ -33,6 +33,8 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.util.AttributeKey;
@@ -91,6 +93,7 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 
         //Initialize bootstrap
+        log.debug("Using Channel Class : {}", channelType.getChannelClass());
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
     }
 
@@ -123,12 +126,16 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     }
 
     /**
-     * A method to send data over the transport. Since the current netty version does not yet support {@link CompletableFuture},
-     * we need to convert the returned {@link ChannelFuture} to it's {@link CompletableFuture} version.
+     * <p>A method to send data over the transport. Since the current netty version does not yet support {@link
+     * CompletableFuture}, we need to convert the returned {@link ChannelFuture} to it's {@link CompletableFuture}
+     * version.</p>
      *
-     * @param channel          The underlying {@link Channel} to be used for data transport.
-     * @param data             An instance of {@link AbstractMessage} that will be sent through the transport
-     * @param flushImmediately True if transport should immediately flush the message after send.
+     * @param channel
+     *         The underlying {@link Channel} to be used for data transport.
+     * @param data
+     *         An instance of {@link AbstractMessage} that will be sent through the transport
+     * @param flushImmediately
+     *         True if transport should immediately flush the message after send.
      *
      * @return A {@link CompletableFuture} with return type of {@link Channel} (The channel used for the transport)
      */
@@ -149,9 +156,10 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     }
 
     /**
-     * Perform cleanupChannel operations on a channel after calling {@link #send(AbstractRequest, boolean)}
+     * <p>Perform cleanupChannel operations on a channel after calling {@link #send(AbstractRequest, boolean)}</p>
      *
-     * @param c Channel
+     * @param c
+     *         The {@link Channel} to perform clean-up operations on
      */
     public void cleanupChannel(Channel c) {
         //this method is meant to be overriden to perform cleanup operations (optional only)
@@ -164,6 +172,10 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
                 return new OioEventLoopGroup();
             case NIO_TCP:
             case NIO_UDP:
+                if (Epoll.isAvailable()) {
+                    log.debug("Using EpollEventLoopGroup");
+                    return new EpollEventLoopGroup(8, executorService, DefaultSelectStrategyFactory.INSTANCE);
+                }
                 return new NioEventLoopGroup(8, executorService, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE);
         }
         return null;

@@ -71,6 +71,16 @@
         </developer>
     </developers>
 
+    <mailingLists>
+        <mailingList>
+            <name>AGQL Group</name>
+            <archive>http://groups.google.com/group/agql/topics</archive>
+            <subscribe>http://groups.google.com/group/agql/subscribe</subscribe>
+            <unsubscribe>http://groups.google.com/group/agql/subscribe</unsubscribe>
+            <post>agql@googlegroups.com</post>
+        </mailingList>
+    </mailingLists>
+
     <!-- License Information -->
     <licenses>
         <license>

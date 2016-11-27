@@ -16,6 +16,14 @@ env:
     # GPG_PASSPHRASE
     - secure: "Ud9+Autkny2dQXVCkpSKOnX3qxdPKUMzRisC3dRFUfPaC6hRxXmDPYgyFgBjYdU+45F6l5/ZrNzOCvXXuWvzwPEC3bP4VmX7H2Reuy/EGhGjYpIu55Cto0qkbQM2lerxGIYA46D4HQI+Dh7RGXBLxkk/P3uGSwnvSPFK/DR7fOgjAdDeV1E+EjXBwGe1chfZUDQU/yPILWq8RVW6pUmwkI/5ZUqrHZA3kNQzcoqOzphFMcyhAaUvGOO1oSsWX+TzqW0h3oncCdzRFB6tihMXHcLRziWBV8bOuEAKNflqIA4R3z/O8KCJQZha104D7oIz8Z+jPe3z9eg0ulcQI8AQCXz/rrV0fJJWTWeYYxis9wzBuSS1hiAfg+tjmxZpDADm/o4yeAD3Ia7Hg6v8p+Q7xrJY9RbKCtJ5PZe8v+yc2SDy8U2K4IA+BSfIq0henYtRQXdHL6Be9AL+wUEoPa35BWU6TJV+hlEkLSIm07TQz1raGUonTi3WqEfGEBZ/hWm2wqjQeF6D6o89ESC9NpPjC+a2IwjXoqo61ZAkSawL1IA8VI+Y+AlAFwmOIE00Kr/9gpP+d1iLqm/32vLNVcraWdKJusQ+74eufM2pT1KBKlnuIoZjY69sylBZxZzZRxOpvINwM+WgGZh9y/ANSiwlWKHgYA7ipAV1d0LVgs5C7lw="
 
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/c8d9b2dce013e34dca96
+    on_success: change  # options: [always|never|change] default: always
+    on_failure: always  # options: [always|never|change] default: always
+    on_start: never     # options: [always|never|change] default: always
+
 install: true
 
 sudo: false

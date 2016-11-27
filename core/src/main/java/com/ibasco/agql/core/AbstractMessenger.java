@@ -42,10 +42,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 /**
- * <p>The base implementation of the {@link Messenger} interface. Contains an internal queue for the requests and process them based on priority</p>
+ * <p>The base implementation of the {@link Messenger} interface. Contains an internal queue for the requests and
+ * process them based on priority</p>
  *
- * @param <A> {@link AbstractRequest}
- * @param <B> {@link AbstractResponse}
+ * @param <A>
+ *         {@link AbstractRequest}
+ * @param <B>
+ *         {@link AbstractResponse}
  */
 abstract public class AbstractMessenger<A extends AbstractRequest, B extends AbstractResponse> implements Messenger<A, B> {
 
@@ -62,7 +65,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private PriorityBlockingQueue<RequestDetails<A, B>> requestQueue;
     private Consumer<PriorityBlockingQueue<RequestDetails<A, B>>> requestProcessor;
     private ProcessingMode processingMode;
-    private int maxRetries;
 
     /**
      * Comparator class to be used by our priority queue for the natural ordering of requests
@@ -72,10 +74,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
         public int compare(RequestDetails o1, RequestDetails o2) {
             return o2.getPriority().compareTo(o1.getPriority());
         }
-    }
-
-    public AbstractMessenger() {
-        this(DEFAULT_PROCESSING_MODE);
     }
 
     public AbstractMessenger(ProcessingMode processingMode) {
@@ -122,14 +120,16 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * <p>Configure request - response mappings</p>
      *
-     * @param map {@link Map} representing the {@link AbstractRequest} and {@link AbstractResponse} class mappings
+     * @param map
+     *         {@link Map} representing the {@link AbstractRequest} and {@link AbstractResponse} class mappings
      */
     abstract public void configureMappings(Map<Class<? extends A>, Class<? extends B>> map);
 
     /**
      * Send a request using the default priority
      *
-     * @param request An instance of {@link AbstractRequest} to be sent
+     * @param request
+     *         An instance of {@link AbstractRequest} to be sent
      *
      * @return A {@link CompletableFuture} containing a value of {@link AbstractResponse}
      */
@@ -141,8 +141,10 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * Adds the request to the queue then it will be sent through the underlying transport.
      *
-     * @param request  An instance of {@link AbstractRequest}
-     * @param priority The {@link RequestPriority}
+     * @param request
+     *         An instance of {@link AbstractRequest}
+     * @param priority
+     *         The {@link RequestPriority}
      *
      * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the logger if available.
      */
@@ -157,8 +159,10 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * <p>Called by the transport when a response has been received from the server</p>
      *
-     * @param response The response received from the server
-     * @param error    Error thrown by the transport while processing the request. Otherwise null.
+     * @param response
+     *         The response received from the server
+     * @param error
+     *         Error thrown by the transport while processing the request. Otherwise null.
      */
     @Override
     public void accept(B response, Throwable error) {
@@ -180,7 +184,8 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * A Function that process requests synchronously
      *
-     * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
+     * @param requestQueue
+     *         A {@link PriorityBlockingQueue} containing {@link RequestDetails}
      */
     private void processSync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
         //Since we are processing synchronously, we will not remove the head of the queue immediately but rather
@@ -243,7 +248,8 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * A Function that process requests asynchronously
      *
-     * @param requestQueue A {@link PriorityBlockingQueue} containing {@link RequestDetails}
+     * @param requestQueue
+     *         A {@link PriorityBlockingQueue} containing {@link RequestDetails}
      */
     private void processAsync(PriorityBlockingQueue<RequestDetails<A, B>> requestQueue) {
         //Remove the head of the queue immediately and process accordingly
@@ -287,7 +293,8 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * Unregister from the session
      *
-     * @param id The {@link SessionId} to unregister
+     * @param id
+     *         The {@link SessionId} to unregister
      */
     private void performSessionCleanup(SessionId id) {
         final SessionValue session = sessionManager.getSession(id);
@@ -316,7 +323,8 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * Sets the processing mode of the messenger
      *
-     * @param processingMode The {@link ProcessingMode} for the messenger
+     * @param processingMode
+     *         The {@link ProcessingMode} for the messenger
      */
     public void setProcessingMode(ProcessingMode processingMode) {
         this.processingMode = processingMode;
@@ -325,37 +333,17 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     /**
      * Returns the number of remaining requests in the session
      *
-     * @return
+     * @return A {@link Collection} of {@link java.util.Map.Entry}<{@link SessionId},{@link SessionValue}>
      */
     Collection<Map.Entry<SessionId, SessionValue<A, B>>> getRemaining() {
         return sessionManager.getSessionEntries();
     }
 
-    int getPendingRequestSize() {
-        return requestQueue.size();
-    }
-
-    boolean hasPendingRequests() {
-        return requestQueue.size() > 0 && sessionManager.getSessionEntries().size() > 0;
-    }
-
-    /**
-     * Returns the underlying session manager for this instance
-     *
-     * @return A {@link SessionManager} instance
-     */
-    public SessionManager getSessionManager() {
-        return sessionManager;
-    }
-
-    public void setSessionManager(SessionManager sessionManager) {
-        this.sessionManager = sessionManager;
-    }
-
     /**
      * <p>Gracefully close/shutdown all expensive resources this messenger utilizes</p>
      *
-     * @throws IOException Thrown when an attempt to close the resources managed by this Messenger has failed.
+     * @throws IOException
+     *         Thrown when an attempt to close the resources managed by this Messenger has failed.
      */
     @Override
     public void close() throws IOException {

@@ -38,9 +38,11 @@ import java.util.function.Function;
 /**
  * A {@link ChannelPoolMap} implementation that takes an {@link AbstractMessage} as a reference for the key-lookup.
  *
- * @param <M> An {@link AbstractMessage} that will be used as a reference for our key lookup
- * @param <K> The actual key that will be used for the underlying {@link ChannelPoolMap} implementation.
- *            The type of this key should be the same type returned by our key resolver.
+ * @param <M>
+ *         An {@link AbstractMessage} that will be used as a reference for our key lookup
+ * @param <K>
+ *         The actual key that will be used for the underlying {@link ChannelPoolMap} implementation.
+ *         The type of this key should be the same type returned by our key resolver.
  */
 public class MessageChannelPoolMap<M extends AbstractMessage, K>
         implements ChannelPoolMap<M, ChannelPool>, Iterable<Map.Entry<K, ChannelPool>>, Closeable {
@@ -59,11 +61,15 @@ public class MessageChannelPoolMap<M extends AbstractMessage, K>
     };
 
     /**
-     * <p>Accepts two functions that will be used internally for processing the key and creation of the {@link ChannelPool} instance</p>
+     * <p>Accepts two functions that will be used internally for processing the key and creation of the {@link
+     * ChannelPool} instance</p>
      *
-     * @param keyResolver A function that accepts an {@link AbstractMessage} as the input and returns a type of a key (as specified).
-     *                    This will be used to resolve keys based on the {@link AbstractMessage} argument.
-     * @param poolFactory A factory function that returns a {@link ChannelPool} implementation based on the key provided.
+     * @param keyResolver
+     *         A function that accepts an {@link AbstractMessage} as the input and returns a type of a key (as
+     *         specified).
+     *         This will be used to resolve keys based on the {@link AbstractMessage} argument.
+     * @param poolFactory
+     *         A factory function that returns a {@link ChannelPool} implementation based on the key provided.
      */
     public MessageChannelPoolMap(Function<M, K> keyResolver, Function<K, ChannelPool> poolFactory) {
         this.keyResolver = keyResolver;
@@ -71,9 +77,10 @@ public class MessageChannelPoolMap<M extends AbstractMessage, K>
     }
 
     /**
-     * Retrieve a {@link ChannelPool} instance based on the {@link AbstractMessage} provided.
+     * Retrieve a {@link ChannelPool} instance using {@link AbstractMessage} as the search key.
      *
-     * @param message An {@link AbstractMessage} to be used to derive the actual key from
+     * @param message
+     *         An {@link AbstractMessage} to be used to derive the actual key from
      *
      * @return A {@link ChannelPool} instance
      */

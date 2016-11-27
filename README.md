@@ -151,6 +151,7 @@ My planned integrations for future releases. Don't hesitate to [contact](mailto:
 
 * Riot Games - League of Legends Web API
 * Mojang - Minecraft server query
+* Steam Bot/SteamKit support
 
 Contributing
 ------------

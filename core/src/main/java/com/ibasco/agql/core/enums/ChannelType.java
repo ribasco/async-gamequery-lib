@@ -25,6 +25,9 @@
 package com.ibasco.agql.core.enums;
 
 import io.netty.channel.Channel;
+import io.netty.channel.epoll.Epoll;
+import io.netty.channel.epoll.EpollDatagramChannel;
+import io.netty.channel.epoll.EpollSocketChannel;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
@@ -42,7 +45,15 @@ public enum ChannelType {
         this.channelClass = channelType;
     }
 
+    //TODO: Consider merging this and createEventLoopGroup() into one factory class.
     public Class<? extends Channel> getChannelClass() {
+        if (Epoll.isAvailable()) {
+            if (NioSocketChannel.class.equals(channelClass))
+                return EpollSocketChannel.class;
+            else if (NioDatagramChannel.class.equals(channelClass)) {
+                return EpollDatagramChannel.class;
+            }
+        }
         return channelClass;
     }
 }

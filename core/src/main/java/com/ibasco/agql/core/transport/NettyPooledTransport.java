@@ -41,8 +41,10 @@ import java.util.concurrent.CompletableFuture;
 /**
  * <p>A transport that use a pool implementation to create or re-use a {@link Channel}</p>
  *
- * @param <M> A type of {@link AbstractRequest} that will be used as a lookup reference for our key
- * @param <K> A type of the value for the internal {@link io.netty.channel.pool.ChannelPoolMap} implementation
+ * @param <M>
+ *         A type of {@link AbstractRequest} that will be used as a lookup reference for our key
+ * @param <K>
+ *         A type of the value for the internal {@link io.netty.channel.pool.ChannelPoolMap} implementation
  */
 abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends NettyTransport<M> {
     private static final Logger log = LoggerFactory.getLogger(NettyPooledTransport.class);
@@ -74,7 +76,9 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * <p>Acquires a {@link Channel} from the {@link ChannelPool}</p>
      *
-     * @param message An {@link AbstractRequest} that will be used as the lookup reference for the {@link io.netty.channel.pool.ChannelPoolMap} key
+     * @param message
+     *         An {@link AbstractRequest} that will be used as the lookup reference for the {@link
+     *         io.netty.channel.pool.ChannelPoolMap} key
      *
      * @return A {@link CompletableFuture} containing the acquired {@link Channel}
      */
@@ -97,9 +101,11 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     }
 
     /**
-     * <p>A method to perform cleanup operations on a {@link Channel}. This is called after every invocation of {@link #send(AbstractRequest)}.</p>
+     * <p>A method to perform cleanup operations on a {@link Channel}. This is called after every invocation of {@link
+     * #send(AbstractRequest)}.</p>
      *
-     * @param c The {@link Channel} that will need to be cleaned-up/released.
+     * @param c
+     *         The {@link Channel} that will need to be cleaned-up/released.
      */
     @Override
     public void cleanupChannel(Channel c) {
@@ -111,7 +117,8 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * <p>A callback method that gets invoked once a {@link Channel} has been acquired using the {@link ChannelPool}</p>
      *
-     * @param ch The acquired {@link Channel}
+     * @param ch
+     *         The acquired {@link Channel}
      */
     private void onChannelAcquire(Channel ch) {
         //no implementation
@@ -120,7 +127,8 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * <p>A callback method that gets invoked once a {@link Channel} has been released using the {@link ChannelPool}</p>
      *
-     * @param ch The released {@link Channel}
+     * @param ch
+     *         The released {@link Channel}
      */
     private void onChannelRelease(Channel ch) {
         //no implementation
@@ -129,7 +137,8 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * <p>A callback method that gets invoked once a {@link Channel} has been created using the {@link ChannelPool}</p>
      *
-     * @param ch The newly created {@link Channel}
+     * @param ch
+     *         The newly created {@link Channel}
      */
     private void onChannelCreate(Channel ch) {
         getChannelInitializer().initializeChannel(ch, this);
@@ -145,18 +154,20 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     /**
      * Creates a key from the {@link AbstractMessage} provided which will be used in the pool map
      *
-     * @param message An instance of {@link AbstractRequest}
+     * @param message
+     *         An instance of {@link AbstractRequest}
      *
      * @return The resolved key from the message
      */
-    public abstract K createKey(M message);
+    abstract public K createKey(M message);
 
     /**
      * A factory method that creates a {@link ChannelPool} based on the key provided.
      *
-     * @param key The key to be used for {@link ChannelPool} creation
+     * @param key
+     *         The key to be used for {@link ChannelPool} creation
      *
      * @return A {@link ChannelPool} instance
      */
-    public abstract ChannelPool createChannelPool(K key);
+    abstract public ChannelPool createChannelPool(K key);
 }

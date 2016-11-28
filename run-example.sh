@@ -4,6 +4,7 @@ set -e # Exit with nonzero exit code if anything fails
 if [ -z "$1" ]
   then
     echo "No argument supplied. Please specify the key representing the example. (e.g. source-query)"
+    exit 1
 fi
 
 echo "Running example for ${1}"

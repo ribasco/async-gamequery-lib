@@ -37,7 +37,6 @@ import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.oio.OioEventLoopGroup;
-import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +44,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -57,7 +54,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 abstract public class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
     private static EventLoopGroup eventLoopGroup;
-    private Map<AttributeKey, Object> channelAttributes;
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
     private NettyChannelInitializer channelInitializer;
@@ -71,7 +67,6 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     public NettyTransport(ChannelType channelType, ExecutorService executor) {
         executorService = executor;
         bootstrap = new Bootstrap();
-        channelAttributes = new HashMap<>();
         instanceCtr.incrementAndGet();
 
         //Make sure we have a type set
@@ -165,6 +160,16 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
         //this method is meant to be overriden to perform cleanup operations (optional only)
     }
 
+    /**
+     * <p>A factory method that manufactures {@link EventLoopGroup} based on {@link ChannelType}. If the platform
+     * supports
+     * Epoll and the channel type is NIO, it will return {@link EpollEventLoopGroup} instead.</p>
+     *
+     * @param type
+     *         The {@link ChannelType} that will determine which {@link EventLoopGroup} will be returned.
+     *
+     * @return The concrete {@link EventLoopGroup} instance that will be used by the transport.
+     */
     private EventLoopGroup createEventLoopGroup(ChannelType type) {
         switch (type) {
             case OIO_TCP:

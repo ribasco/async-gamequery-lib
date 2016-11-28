@@ -1,6 +1,7 @@
 package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.examples.*;
+import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,10 @@ public class ExampleRunner {
 
     private Map<String, BaseExample> examples = new HashMap<>();
 
+    private Options options = new Options();
+
+    private HelpFormatter formatter = new HelpFormatter();
+
     public ExampleRunner() {
         this.examples.put("source-query", new SourceServerQueryEx());
         this.examples.put("master-query", new MasterServerQueryEx());
@@ -23,6 +28,30 @@ public class ExampleRunner {
         this.examples.put("steam-store-webapi", new SteamStoreWebApiQueryEx());
         this.examples.put("source-logger", new SourceLogMonitorEx());
         this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
+    }
+
+    private void initializeOptions() {
+        options.addOption("name", true, "The name of the example to run");
+    }
+
+    private void processArguments(String[] args) throws Exception {
+        //Initialize Options
+        initializeOptions();
+
+        // create the parser
+        CommandLineParser parser = new DefaultParser();
+
+        try {
+            // parse the command line arguments
+            CommandLine line = parser.parse(options, args);
+            if (line.hasOption("name")) {
+                runExample(line.getOptionValue("name"));
+            } else {
+                log.error("No example specified");
+            }
+        } catch (ParseException exp) {
+            formatter.printHelp("programName", options, true);
+        }
     }
 
     private void runExample(String exampleKey) throws Exception {
@@ -38,10 +67,7 @@ public class ExampleRunner {
     }
 
     public static void main(String[] args) throws Exception {
-        log.info("Examples: {}", args);
         ExampleRunner runner = new ExampleRunner();
-        for (String example : args) {
-            runner.runExample(example);
-        }
+        runner.processArguments(args);
     }
 }

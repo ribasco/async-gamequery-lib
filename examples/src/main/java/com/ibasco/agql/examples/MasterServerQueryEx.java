@@ -41,18 +41,12 @@ public class MasterServerQueryEx implements BaseExample {
 
     private MasterServerQueryClient masterServerQueryClient;
 
-    public MasterServerQueryEx() {
-        masterServerQueryClient = new MasterServerQueryClient();
-    }
-
     @Override
     public void run() throws Exception {
+        masterServerQueryClient = new MasterServerQueryClient();
         this.listAllServers();
     }
 
-    public static void main(String[] args) throws IOException {
-
-    }
 
     public void close() throws IOException {
         masterServerQueryClient.close();

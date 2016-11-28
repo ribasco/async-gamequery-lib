@@ -42,12 +42,9 @@ public class SourceRconQueryEx implements BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
-    public SourceRconQueryEx() {
-        sourceRconClient = new SourceRconClient();
-    }
-
     @Override
     public void run() throws Exception {
+        sourceRconClient = new SourceRconClient();
         this.testRcon();
     }
 

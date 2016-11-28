@@ -6,7 +6,7 @@ if [ -z "$1" ]
     echo "Error: Missing Example Key. Please specify the example key. (e.g. source-query)"
     echo " "
     echo "===================================================================="
-    echo "Below is the list of available examples together with their key"
+    echo "List of available examples"
     echo "===================================================================="
     echo "- Source Server Query Example      (key: source-query)"
     echo "- Master Server Query Example      (key: master-query)"

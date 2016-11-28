@@ -27,15 +27,41 @@ package com.ibasco.agql.examples.base;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.google.gson.stream.JsonReader;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
+import java.io.Console;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 
 abstract public class BaseWebApiAuthExample implements BaseExample {
 
     protected String getToken(String key) {
         JsonParser parser = new JsonParser();
-        JsonElement root = parser.parse(new JsonReader(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/auth.json")))));
-        return root.getAsJsonObject().get(key).getAsString();
+        InputStream authFile = getClass().getResourceAsStream("/auth.json");
+        if (authFile != null) {
+            JsonElement root = parser.parse(new JsonReader(new BufferedReader(new InputStreamReader(authFile))));
+            String token = root.getAsJsonObject().get(key).getAsString();
+            if (!StringUtils.isEmpty(token))
+                return token;
+        }
+
+        Console c = System.console();
+        String token = null;
+        boolean tokenEmpty = true;
+        int retryCounter = 0;
+
+        //Ask the user for the token
+        do {
+            token = c.readLine("Please input your API Token");
+            tokenEmpty = StringUtils.isEmpty(token);
+        } while (tokenEmpty && ++retryCounter < 3);
+
+        //If the token is still empty, throw an error
+        if (tokenEmpty) {
+            throw new RuntimeException("No API Token provided");
+        }
+
+        return token;
     }
 }

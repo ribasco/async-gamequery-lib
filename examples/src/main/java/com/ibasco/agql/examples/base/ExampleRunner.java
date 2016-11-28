@@ -16,6 +16,8 @@ public class ExampleRunner {
 
     private Options options = new Options();
 
+    private Option nameOption = Option.builder("e").hasArg(true).numberOfArgs(1).desc("The name of the example to run").required().build();
+
     private HelpFormatter formatter = new HelpFormatter();
 
     public ExampleRunner() {
@@ -28,24 +30,20 @@ public class ExampleRunner {
         this.examples.put("steam-store-webapi", new SteamStoreWebApiQueryEx());
         this.examples.put("source-logger", new SourceLogMonitorEx());
         this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
-    }
 
-    private void initializeOptions() {
-        options.addOption("name", true, "The name of the example to run");
+        //Add options
+        options.addOption(nameOption);
     }
 
     private void processArguments(String[] args) throws Exception {
-        //Initialize Options
-        initializeOptions();
-
         // create the parser
         CommandLineParser parser = new DefaultParser();
 
         try {
             // parse the command line arguments
             CommandLine line = parser.parse(options, args);
-            if (line.hasOption("name")) {
-                runExample(line.getOptionValue("name"));
+            if (line.hasOption(nameOption.getOpt())) {
+                runExample(line.getOptionValue(nameOption.getOpt()));
             } else {
                 log.error("No example specified");
             }

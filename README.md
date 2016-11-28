@@ -124,6 +124,52 @@ Usage
 
 For usage examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
 
+Examples
+--------
+
+To run the available examples, I have included a convenience script (`run-example.sh`) that will allow you to pick a specific example you want to run. 
+
+The script accepts a "key" that represents an example application. To get a list of keys, simply invoke the script without arguments, for example: 
+
+~~~
+raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh
+Error: Missing Example Key. Please specify the example key. (e.g. source-query)
+
+====================================================================
+Below is the list of available examples together with their key
+====================================================================
+- Source Server Query Example      (key: source-query)
+- Master Server Query Example      (key: master-query)
+- Source Rcon Example              (key: source-rcon)
+- Clash of Clans Web API Example   (key: coc-webapi)
+- CS:GO Web API Example            (key: csgo-webapi)
+- Steam Web API Example            (key: steam-webapi)
+- Steam Storefront Web API Example (key: steam-store-webapi)
+- Source Log Listener Example      (key: source-logger)
+- Steam Econ Web API Example       (key: steam-econ-webapi)
+
+~~~
+
+If you are running a web service type example, you  will be prompted with an API key. Simply copy and paste the key to the console.
+
+~~~
+raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh coc-webapi
+Running example for coc-webapi
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------------------------------------------------------------
+[INFO] Building AGQL - Examples 0.1.0-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO]
+[INFO] --- exec-maven-plugin:1.5.0:java (default-cli) @ agql-lib-examples ---
+19:59:25.659 [com.ibasco.agql.examples.base.ExampleRunner.main()] INFO  com.ibasco.agql.examples.base.ExampleRunner - Running Example : coc-webapi
+Please input your API Token:
+~~~
+
+**Note:**
+* Don't forget to perform a `mvn clean package` or `mvn clean install` before you run the example
+* The output can be reviewed from the `logs` directory under the examples project.
+
 Compatibility
 -------------
 

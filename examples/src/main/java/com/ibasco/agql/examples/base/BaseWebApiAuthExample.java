@@ -53,7 +53,7 @@ abstract public class BaseWebApiAuthExample implements BaseExample {
 
         //Ask the user for the token
         do {
-            token = c.readLine("Please input your API Token");
+            token = c.readLine("Please input your API Token: ");
             tokenEmpty = StringUtils.isEmpty(token);
         } while (tokenEmpty && ++retryCounter < 3);
 

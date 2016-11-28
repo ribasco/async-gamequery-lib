@@ -16,6 +16,7 @@ com.ibasco.agql.core.transport.tcp
 com.ibasco.agql.core.transport.udp
 com.ibasco.agql.core.utils
 com.ibasco.agql.examples
+com.ibasco.agql.examples.base
 com.ibasco.agql.protocols.supercell.coc.webapi
 com.ibasco.agql.protocols.supercell.coc.webapi.adapters
 com.ibasco.agql.protocols.supercell.coc.webapi.enums

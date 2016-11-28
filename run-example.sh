@@ -3,7 +3,21 @@ set -e # Exit with nonzero exit code if anything fails
 
 if [ -z "$1" ]
   then
-    echo "No argument supplied. Please specify the key representing the example. (e.g. source-query)"
+    echo "Error: Missing Example Key. Please specify the example key. (e.g. source-query)"
+    echo " "
+    echo "===================================================================="
+    echo "Below is the list of available examples together with their key"
+    echo "===================================================================="
+    echo "- Source Server Query Example      (key: source-query)"
+    echo "- Master Server Query Example      (key: master-query)"
+    echo "- Source Rcon Example              (key: source-rcon)"
+    echo "- Clash of Clans Web API Example   (key: coc-webapi)"
+    echo "- CS:GO Web API Example            (key: csgo-webapi)"
+    echo "- Steam Web API Example            (key: steam-webapi)"
+    echo "- Steam Storefront Web API Example (key: steam-store-webapi)"
+    echo "- Source Log Listener Example      (key: source-logger)"
+    echo "- Steam Econ Web API Example       (key: steam-econ-webapi)"
+
     exit 1
 fi
 

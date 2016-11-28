@@ -48,7 +48,7 @@ public class ExampleRunner {
                 log.error("No example specified");
             }
         } catch (ParseException exp) {
-            formatter.printHelp("programName", options, true);
+            formatter.printHelp("mvn exec:java -Dexec.args=\"-e <example-key>\"", options, true);
         }
     }
 

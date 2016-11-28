@@ -38,6 +38,19 @@
     <description>Contains example codes demonstrating the basic usage of the client interfaces</description>
     <packaging>jar</packaging>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.5.0</version>
+                <configuration>
+                    <mainClass>com.ibasco.agql.examples.base.ExampleRunner</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

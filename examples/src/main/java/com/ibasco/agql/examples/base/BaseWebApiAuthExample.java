@@ -31,7 +31,7 @@ import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-public abstract class BaseWebApiAuthExample implements BaseExample {
+abstract public class BaseWebApiAuthExample implements BaseExample {
 
     protected String getToken(String key) {
         JsonParser parser = new JsonParser();

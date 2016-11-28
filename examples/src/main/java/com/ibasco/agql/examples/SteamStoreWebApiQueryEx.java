@@ -36,10 +36,11 @@ import java.io.IOException;
 public class SteamStoreWebApiQueryEx implements BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiQueryEx.class);
 
-    private SteamWebApiClient apiClient = new SteamWebApiClient();
+    private SteamWebApiClient apiClient;
 
     @Override
     public void run() throws Exception {
+        apiClient = new SteamWebApiClient();
         //Create the steam store interface
         SteamStorefront steamStore = new SteamStorefront(apiClient);
         StoreAppDetails appDetails = steamStore.getAppDetails(550).get();

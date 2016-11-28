@@ -53,20 +53,6 @@ public class SourceServerQueryEx implements BaseExample {
     private SourceQueryClient sourceQueryClient;
     private MasterServerQueryClient masterServerQueryClient;
 
-    public SourceServerQueryEx() {
-        sourceRconClient = new SourceRconClient();
-        sourceQueryClient = new SourceQueryClient();
-        masterServerQueryClient = new MasterServerQueryClient();
-    }
-
-    @Override
-    public void close() throws IOException {
-        log.info("Closing");
-        sourceRconClient.close();
-        sourceQueryClient.close();
-        masterServerQueryClient.close();
-    }
-
     public void listServers() {
         MasterServerFilter filter = new MasterServerFilter()
                 .appId(550)
@@ -428,13 +414,19 @@ public class SourceServerQueryEx implements BaseExample {
 
     @Override
     public void run() throws Exception {
-        try {
-            SourceServerQueryEx app = new SourceServerQueryEx();
-            app.queryAllServers();
-            //app.listServers();
-            app.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        //Inititalize client
+        sourceRconClient = new SourceRconClient();
+        sourceQueryClient = new SourceQueryClient();
+        masterServerQueryClient = new MasterServerQueryClient();
+
+        this.queryAllServers();
+    }
+
+    @Override
+    public void close() throws IOException {
+        log.info("Closing");
+        sourceRconClient.close();
+        sourceQueryClient.close();
+        masterServerQueryClient.close();
     }
 }

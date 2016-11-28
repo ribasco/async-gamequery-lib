@@ -32,19 +32,17 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.List;
 
 public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(Dota2WebApiQueryEx.class);
 
-    public static void main(String[] args) throws Exception {
-        Dota2WebApiQueryEx query = new Dota2WebApiQueryEx();
-        query.run();
-    }
+    private Dota2WebApiClient apiClient;
 
     @Override
     public void run() throws Exception {
-        Dota2WebApiClient apiClient = new Dota2WebApiClient(getToken("steam"));
+        apiClient = new Dota2WebApiClient(getToken("steam"));
         try {
             Dota2Econ econInterface = Dota2.createEcon(apiClient);
             Dota2Fantasy fantasyInterface = Dota2.createFantasy(apiClient);
@@ -122,5 +120,10 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
 
     private static void displayResult(Object result) {
         log.info("{} = {}", result.getClass().getSimpleName(), result.toString());
+    }
+
+    @Override
+    public void close() throws IOException {
+        apiClient.close();
     }
 }

@@ -32,12 +32,16 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.channel.socket.oio.OioDatagramChannel;
 import io.netty.channel.socket.oio.OioSocketChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public enum ChannelType {
     OIO_TCP(OioSocketChannel.class),
     NIO_TCP(NioSocketChannel.class),
     OIO_UDP(OioDatagramChannel.class),
     NIO_UDP(NioDatagramChannel.class);
+
+    private static final Logger log = LoggerFactory.getLogger(ChannelType.class);
 
     Class<? extends Channel> channelClass;
 
@@ -48,12 +52,16 @@ public enum ChannelType {
     //TODO: Consider merging this and createEventLoopGroup() into one factory class.
     public Class<? extends Channel> getChannelClass() {
         if (Epoll.isAvailable()) {
-            if (NioSocketChannel.class.equals(channelClass))
+            if (NioSocketChannel.class.equals(channelClass)) {
+                log.debug("Using EpollSocketChannel");
                 return EpollSocketChannel.class;
+            }
             else if (NioDatagramChannel.class.equals(channelClass)) {
+                log.debug("Using EpollDatagramChannel");
                 return EpollDatagramChannel.class;
             }
         }
+        log.debug("Epoll not available. Falling back to {}", channelClass);
         return channelClass;
     }
 }

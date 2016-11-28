@@ -37,6 +37,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 /**
  * <p>A transport that use a pool implementation to create or re-use a {@link Channel}</p>
@@ -71,6 +72,10 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
         super(channelType);
         //Initialize our pool map instance
         poolMap = new MessageChannelPoolMap<>(this::createKey, this::createChannelPool);
+    }
+
+    public NettyPooledTransport(ChannelType channelType, ExecutorService executor) {
+        super(channelType, executor);
     }
 
     /**

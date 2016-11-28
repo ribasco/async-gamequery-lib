@@ -136,7 +136,7 @@ raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh
 Error: Missing Example Key. Please specify the example key. (e.g. source-query)
 
 ====================================================================
-Below is the list of available examples together with their key
+List of available examples
 ====================================================================
 - Source Server Query Example      (key: source-query)
 - Master Server Query Example      (key: master-query)

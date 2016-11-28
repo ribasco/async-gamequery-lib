@@ -32,20 +32,14 @@
         <File name="MainFile" fileName="logs/main.log" immediateFlush="false" append="false">
             <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%-22t|%-24C{1}] %-5level - %msg%n"/>
         </File>
-        <File name="ErrorFile" fileName="logs/error.log" immediateFlush="false" append="false">
-            <PatternLayout pattern="%d{yyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </File>
     </Appenders>
 
     <Loggers>
-        <Logger name="org.ribasco.agql.protocols" level="info"/>
-        <Logger name="org.ribasco.agql.core" level="info"/>
         <Logger name="com.ibasco.agql.core.transport.NettyTransport" level="debug"/>
         <Logger name="com.ibasco.agql.examples.SourceServerQueryEx" level="debug"/>
         <Logger name="com.ibasco.agql.core.enums.ChannelType" level="debug"/>
         <Logger name="com.ibasco.agql.core.client.AbstractRestClient" level="debug"/>
         <Logger name="com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService" level="debug"/>
-        <Logger name="org.ribasco.agql.examples" level="debug"/>
         <Root level="info">
             <AppenderRef ref="Console"/>
             <AppenderRef ref="MainFile"/>

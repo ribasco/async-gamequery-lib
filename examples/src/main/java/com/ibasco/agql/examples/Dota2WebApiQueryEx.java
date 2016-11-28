@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiClient;
 import com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType;
 import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.*;

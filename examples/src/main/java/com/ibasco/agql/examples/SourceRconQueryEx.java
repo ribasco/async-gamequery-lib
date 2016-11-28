@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-public class SourceRconQueryEx {
+public class SourceRconQueryEx implements BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
@@ -45,17 +46,13 @@ public class SourceRconQueryEx {
         sourceRconClient = new SourceRconClient();
     }
 
-    public static void main(String[] args) {
-        try {
-            SourceRconQueryEx query = new SourceRconQueryEx();
-            query.testRcon();
-            query.close();
-        } catch (InterruptedException e) {
-            log.error("Error", e);
-        }
+    @Override
+    public void run() throws Exception {
+        this.testRcon();
     }
 
-    private void close() {
+    @Override
+    public void close() {
         try {
             sourceRconClient.close();
         } catch (IOException ignored) {

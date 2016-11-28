@@ -24,22 +24,32 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogEntry;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class SourceLogMonitorEx {
+public class SourceLogMonitorEx implements BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceLogMonitorEx.class);
 
-    public static void main(String[] args) {
-        SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogMonitorEx::processLogData);
-        logListenService.listen();
-    }
+    private SourceLogListenService logListenService;
 
     private static void processLogData(SourceLogEntry message) {
         log.info("Got Data : {}", message);
+    }
+
+    @Override
+    public void run() throws Exception {
+        logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogMonitorEx::processLogData);
+        logListenService.listen();
+    }
+
+    @Override
+    public void close() throws IOException {
+        logListenService.close();
     }
 }

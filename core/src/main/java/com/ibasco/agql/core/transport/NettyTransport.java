@@ -217,7 +217,7 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     @Override
     public void close() throws IOException {
         try {
-            log.debug("Shutting down gracefully");
+            log.debug("Shutting down {} gracefully", this.getClass().getSimpleName());
             eventLoopGroup.shutdownGracefully();
             executorService.awaitTermination(10, TimeUnit.SECONDS);
             executorService.shutdown();

@@ -53,11 +53,11 @@ public enum ChannelType {
     public Class<? extends Channel> getChannelClass() {
         if (Epoll.isAvailable()) {
             if (NioSocketChannel.class.equals(channelClass)) {
-                log.debug("Using EpollSocketChannel");
+                log.info("Using EpollSocketChannel");
                 return EpollSocketChannel.class;
             }
             else if (NioDatagramChannel.class.equals(channelClass)) {
-                log.debug("Using EpollDatagramChannel");
+                log.info("Using EpollDatagramChannel");
                 return EpollDatagramChannel.class;
             }
         }

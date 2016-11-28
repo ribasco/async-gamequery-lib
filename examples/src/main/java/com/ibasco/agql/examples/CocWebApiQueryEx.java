@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiClient;
 import com.ibasco.agql.protocols.supercell.coc.webapi.enums.CocWarFrequency;

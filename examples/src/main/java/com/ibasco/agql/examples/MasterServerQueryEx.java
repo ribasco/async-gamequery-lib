@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
@@ -34,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class MasterServerQueryEx {
+public class MasterServerQueryEx implements BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerQueryEx.class);
 
@@ -44,13 +45,13 @@ public class MasterServerQueryEx {
         masterServerQueryClient = new MasterServerQueryClient();
     }
 
+    @Override
+    public void run() throws Exception {
+        this.listAllServers();
+    }
+
     public static void main(String[] args) throws IOException {
-        MasterServerQueryEx masterQuery = new MasterServerQueryEx();
-        try {
-            masterQuery.listAllServers();
-        } finally {
-            masterQuery.close();
-        }
+
     }
 
     public void close() throws IOException {

@@ -26,6 +26,7 @@ package com.ibasco.agql.examples;
 
 import com.google.common.cache.CacheStats;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
+import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
@@ -38,7 +39,6 @@ import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -46,7 +46,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 
-public class SourceServerQueryEx implements Closeable {
+public class SourceServerQueryEx implements BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceServerQueryEx.class);
     private SourceRconClient sourceRconClient;
@@ -65,17 +65,6 @@ public class SourceServerQueryEx implements Closeable {
         sourceRconClient.close();
         sourceQueryClient.close();
         masterServerQueryClient.close();
-    }
-
-    public static void main(String[] args) {
-        try {
-            SourceServerQueryEx app = new SourceServerQueryEx();
-            app.queryAllServers();
-            //app.listServers();
-            app.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     public void listServers() {
@@ -435,5 +424,17 @@ public class SourceServerQueryEx implements Closeable {
         }
 
         return null;
+    }
+
+    @Override
+    public void run() throws Exception {
+        try {
+            SourceServerQueryEx app = new SourceServerQueryEx();
+            app.queryAllServers();
+            //app.listServers();
+            app.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

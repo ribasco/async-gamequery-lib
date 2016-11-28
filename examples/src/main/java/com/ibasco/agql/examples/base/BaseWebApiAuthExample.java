@@ -22,7 +22,7 @@
  * SOFTWARE.
  */
 
-package com.ibasco.agql.examples;
+package com.ibasco.agql.examples.base;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
@@ -31,11 +31,9 @@ import com.google.gson.stream.JsonReader;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-abstract class BaseWebApiAuthExample {
+public abstract class BaseWebApiAuthExample implements BaseExample {
 
-    abstract public void run() throws Exception;
-
-    String getToken(String key) {
+    protected String getToken(String key) {
         JsonParser parser = new JsonParser();
         JsonElement root = parser.parse(new JsonReader(new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("/auth.json")))));
         return root.getAsJsonObject().get(key).getAsString();

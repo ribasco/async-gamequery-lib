@@ -24,32 +24,34 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.valve.csgo.webapi.CsgoWebApiClient;
 import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.CsgoServers;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+
 public class CsgoWebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(CsgoWebApiQueryEx.class);
 
-    public static void main(String[] args) throws Exception {
-        CsgoWebApiQueryEx app = new CsgoWebApiQueryEx();
-        app.run();
-    }
+    private CsgoWebApiClient client;
 
     @Override
     public void run() throws Exception {
         String authToken = getToken("steam");
-        CsgoWebApiClient apiClient = new CsgoWebApiClient(authToken);
+        client = new CsgoWebApiClient(authToken);
 
-        CsgoServers servers = new CsgoServers(apiClient);
+        CsgoServers servers = new CsgoServers(client);
 
-        try {
-            CsgoGameServerStatus status = servers.getGameServerStatus().get();
-            log.info("Game Server Status : {}", status);
-        } finally {
-            apiClient.close();
-        }
+        CsgoGameServerStatus status = servers.getGameServerStatus().get();
+        log.info("Game Server Status : {}", status);
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (client != null)
+            client.close();
     }
 }

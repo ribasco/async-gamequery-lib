@@ -43,6 +43,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>Responsible for encoding and decoding of source packets</p>
+ *
  * Created by raffy on 9/16/2016.
  */
 public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacket> {
@@ -143,7 +145,7 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
     /**
      * Convert a source packet instance to it's byte representation
      *
-     * @param packet
+     * @param packet The {@link SourceServerPacket} to convert
      *
      * @return Returns the deconstructed packet in byte array form
      */

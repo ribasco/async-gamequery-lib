@@ -27,7 +27,6 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.SplitPacketContainer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.socket.DatagramPacket;
@@ -44,7 +43,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * <p>Responsible for verifying and assembling datagram packets</p>
  */
-@ChannelHandler.Sharable
 public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryPacketAssembler.class);
@@ -100,7 +98,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
                 return;
             }
         } catch (Exception e) {
-            log.error("Error while processing packet for {}", ((DatagramPacket) msg).sender());
+            log.error(String.format("Error while processing packet for %s", ((DatagramPacket) msg).sender()), e);
             throw e;
         } finally {
             //Release the message
@@ -142,15 +140,8 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
         log.debug("Split Packet Received = (AbstractRequest {}, Packet Number {}, Packet Count {}, Is Compressed: {})", requestId, packetNumber, packetCount, isCompressed);
 
         //Try to retrieve the split packet container for this request (if existing)
-        SplitPacketContainer splitPackets = this.requestMap.get(key);
-
         //If request is not yet on the map, create and retrieve
-        if (splitPackets == null) {
-            //Create our new split packet container
-            splitPackets = new SplitPacketContainer(packetCount);
-            //Add it to the map
-            this.requestMap.put(key, splitPackets);
-        }
+        SplitPacketContainer splitPackets = this.requestMap.computeIfAbsent(key, k -> new SplitPacketContainer(packetCount));
 
         //As per protocol specs, the size is only present in the first packet of the response and only if the response is being compressed.
         //split size = Maximum size of packet before packet switching occurs. The default value is 1248 bytes (0x04E0
@@ -200,7 +191,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
     /**
      * Re-assemble's the packets from the container.
      *
-     * @param splitPackets
+     * @param splitPackets The {@link SplitPacketContainer} to be re-assembled
      *
      * @return Returns true if the re-assembly process has completed successfully
      */

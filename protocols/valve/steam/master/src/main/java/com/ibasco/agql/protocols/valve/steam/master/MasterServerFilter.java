@@ -31,7 +31,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class MasterServerFilter {
     private StringBuffer filter;
-    private boolean allServersSet = false;
 
     /**
      * Default constructor
@@ -56,7 +55,6 @@ public final class MasterServerFilter {
      */
     public MasterServerFilter allServers() {
         filter.setLength(0);
-        allServersSet = true;
         return this;
     }
 
@@ -327,9 +325,6 @@ public final class MasterServerFilter {
      * @return Instance of {@link MasterServerFilter}
      */
     private MasterServerFilter create(String key, Object value) {
-        if (allServersSet)
-            throw new RuntimeException("You can not add additional filters in the chain if allServers() property set");
-
         if (StringUtils.isEmpty(key) || value == null) {
             return this;
         }

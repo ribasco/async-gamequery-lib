@@ -198,4 +198,10 @@ Contributing
 
 Fork it and submit a pull request. Any type of contributions are welcome.
 
-<script type='text/javascript' src='https://www.openhub.net/p/async-gamequery-lib/widgets/project_users_logo?format=js'></script>
+
+Sponsors
+---------
+
+* ej Technologies - Developer of the award-winning JProfiler, a full-featured "All-in-one" Java Profiler. Click on the icon below to find out more. 
+
+  [![JProfiler](https://www.ej-technologies.com/images/product_banners/jprofiler_medium.png)](http://www.ej-technologies.com/products/jprofiler/overview.html)

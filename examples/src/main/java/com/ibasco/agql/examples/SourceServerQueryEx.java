@@ -26,7 +26,6 @@ package com.ibasco.agql.examples;
 
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
-import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
@@ -45,19 +44,25 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class SourceServerQueryEx implements BaseExample {
+public class SourceServerQueryEx extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceServerQueryEx.class);
-    private SourceRconClient sourceRconClient;
     private SourceQueryClient sourceQueryClient;
     private MasterServerQueryClient masterServerQueryClient;
 
     public void queryAllServers() {
+        int appId = Integer.valueOf(promptInput("Please enter an App Id (default: 730) : ", false, "-1"));
+
         MasterServerFilter filter = MasterServerFilter.create()
-                .appId(550)
                 .dedicated(true)
                 .isEmpty(false)
                 .isSecure(true);
+
+        if (appId > 0)
+            filter.appId(appId);
+        else
+            filter.appId(730);
+
         double start = System.currentTimeMillis();
         queryAllServers(filter);
         double end = ((System.currentTimeMillis() - start) / 1000) / 60;
@@ -175,7 +180,6 @@ public class SourceServerQueryEx implements BaseExample {
     @Override
     public void run() throws Exception {
         //Inititalize client
-        sourceRconClient = new SourceRconClient();
         sourceQueryClient = new SourceQueryClient();
         masterServerQueryClient = new MasterServerQueryClient();
 
@@ -185,7 +189,6 @@ public class SourceServerQueryEx implements BaseExample {
     @Override
     public void close() throws IOException {
         log.info("Closing");
-        sourceRconClient.close();
         sourceQueryClient.close();
         masterServerQueryClient.close();
     }

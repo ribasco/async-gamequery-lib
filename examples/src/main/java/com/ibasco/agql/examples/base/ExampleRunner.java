@@ -28,7 +28,7 @@ public class ExampleRunner {
         this.examples.put("csgo-webapi", new CsgoWebApiQueryEx());
         this.examples.put("steam-webapi", new SteamWebApiQueryEx());
         this.examples.put("steam-store-webapi", new SteamStoreWebApiQueryEx());
-        this.examples.put("source-logger", new SourceLogMonitorEx());
+        this.examples.put("source-log", new SourceLogMonitorEx());
         this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
 
         //Add options
@@ -59,6 +59,7 @@ public class ExampleRunner {
                 log.info("Running Example : {}", exampleKey);
                 example.run();
             } finally {
+                log.info("Closing Example");
                 example.close();
             }
         }

@@ -15,7 +15,7 @@ if [ -z "$1" ]
     echo "- CS:GO Web API Example            (key: csgo-webapi)"
     echo "- Steam Web API Example            (key: steam-webapi)"
     echo "- Steam Storefront Web API Example (key: steam-store-webapi)"
-    echo "- Source Log Listener Example      (key: source-logger)"
+    echo "- Source Log Listener Example      (key: source-log)"
     echo "- Steam Econ Web API Example       (key: steam-econ-webapi)"
 
     exit 1

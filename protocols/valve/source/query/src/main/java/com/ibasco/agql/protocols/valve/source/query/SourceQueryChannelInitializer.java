@@ -49,10 +49,9 @@ public class SourceQueryChannelInitializer implements NettyChannelInitializer {
     @Override
     public void initializeChannel(Channel channel, NettyTransport transport) {
         SourcePacketBuilder builder = new SourcePacketBuilder(transport.getAllocator());
-        log.debug("Initializing Channel");
-        channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceQueryRequestEncoder(builder));
         channel.pipeline().addLast(new SourceQueryPacketAssembler());
         channel.pipeline().addLast(new SourceQueryPacketDecoder(responseHandler, builder));
+        channel.pipeline().addLast(new ErrorHandler());
     }
 }

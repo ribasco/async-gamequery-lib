@@ -48,7 +48,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @SuppressWarnings("unchecked")
 abstract public class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
@@ -58,16 +57,14 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
     private NettyChannelInitializer channelInitializer;
     private ExecutorService executorService;
-    private static AtomicInteger instanceCtr = new AtomicInteger();
 
     public NettyTransport(ChannelType channelType) {
-        this(channelType, Executors.newFixedThreadPool(32, new ThreadFactoryBuilder().setNameFormat("transport-el-" + instanceCtr.get() + "-%d").setDaemon(true).build()));
+        this(channelType, Executors.newFixedThreadPool(8, new ThreadFactoryBuilder().setNameFormat("transport-el-%d").setDaemon(true).build()));
     }
 
     public NettyTransport(ChannelType channelType, ExecutorService executor) {
         executorService = executor;
         bootstrap = new Bootstrap();
-        instanceCtr.incrementAndGet();
 
         //Make sure we have a type set
         if (channelType == null)
@@ -88,7 +85,6 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 
         //Initialize bootstrap
-        log.debug("Using Channel Class : {}", channelType.getChannelClass());
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
     }
 

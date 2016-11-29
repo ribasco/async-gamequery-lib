@@ -32,13 +32,8 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
-public class SourceRconQueryEx implements BaseExample {
+public class SourceRconQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
@@ -57,44 +52,27 @@ public class SourceRconQueryEx implements BaseExample {
     }
 
     public void testRcon() throws InterruptedException {
-        InetSocketAddress address1 = new InetSocketAddress("192.168.1.14", 27015);
+        String address = promptInput("Please enter the source server address: ", true);
+        int port = Integer.valueOf(promptInput("Please enter the server port (default: 27015): ", false, "27015"));
+        String password = promptInput("Please enter the rcon password: ", true);
 
-        List<String> commands = Arrays.asList(
-                "status",
-                "cvarlist",
-                "sm plugins list",
-                "echo from command 4",
-                "sm version",
-                "sm exts list",
-                "meta version",
-                "meta list",
-                "unknown_cmd");
+        InetSocketAddress serverAddress = new InetSocketAddress(address, port);
 
-        try {
-            //Authenticate
-            sourceRconClient.authenticate(address1, "password").whenComplete((success, throwable) -> {
-                if (success != null) {
-                    log.info("Successfully Authenticated for {}", address1);
-                } else
-                    log.error("Problem authenticating rcon with {}", address1);
-            }).join();
+        log.info("Connecting to server {}:{}, with password = {}", address, port, password);
+        sourceRconClient.authenticate(serverAddress, password).whenComplete((success, throwable) -> {
+            if (success != null) {
+                log.info("Successfully Authenticated for {}", serverAddress);
+            } else
+                log.error("Problem authenticating rcon with {}", serverAddress);
+        }).join();
 
-            List<CompletableFuture> futures = new ArrayList<>();
-
+        while (true) {
             try {
-                for (String command : commands) {
-                    log.info("Executing command '{}'", command);
-                    CompletableFuture<String> resultFuture = sourceRconClient.execute(address1, command).whenComplete(this::handleResponse);
-                    futures.add(resultFuture);
-                }
+                String command = promptInput("Enter rcon command: ", true);
+                sourceRconClient.execute(serverAddress, command).whenComplete(this::handleResponse).join();
             } catch (RconNotYetAuthException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-
-            //Wait
-            CompletableFuture.allOf(futures.toArray(new CompletableFuture[]{})).get();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
     }
 

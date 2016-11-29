@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
-public class SteamStoreWebApiQueryEx implements BaseExample {
+public class SteamStoreWebApiQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiQueryEx.class);
 
     private SteamWebApiClient apiClient;

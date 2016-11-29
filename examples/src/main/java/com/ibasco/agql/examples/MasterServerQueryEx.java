@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class MasterServerQueryEx implements BaseExample {
+public class MasterServerQueryEx extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerQueryEx.class);
 
@@ -53,8 +53,14 @@ public class MasterServerQueryEx implements BaseExample {
     }
 
     public void listAllServers() {
+        int appId = Integer.valueOf(promptInput("Please enter an App ID (optional): ", false, "-1"));
+
         MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
-        masterServerQueryClient.setSleepTime(8);
+
+        if (appId > 0)
+            filter.appId(appId);
+
+        log.info("Displaying Non-Empty servers for App Id: {}", (appId > 0) ? appId : "N/A");
         masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
         log.info("Done");
     }
@@ -62,5 +68,4 @@ public class MasterServerQueryEx implements BaseExample {
     public void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
         log.info("Server : {}", address);
     }
-
 }

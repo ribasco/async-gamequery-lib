@@ -124,8 +124,8 @@ Usage
 
 For usage examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
 
-Examples
---------
+Interactive Examples
+--------------------
 
 To run the available examples, I have included a convenience script (`run-example.sh`) that will allow you to pick a specific example you want to run. 
 
@@ -147,7 +147,6 @@ List of available examples
 - Steam Storefront Web API Example (key: steam-store-webapi)
 - Source Log Listener Example      (key: source-logger)
 - Steam Econ Web API Example       (key: steam-econ-webapi)
-
 ~~~
 
 If you are running a web service type example, you  will be prompted with an API key. Simply copy and paste the key to the console.

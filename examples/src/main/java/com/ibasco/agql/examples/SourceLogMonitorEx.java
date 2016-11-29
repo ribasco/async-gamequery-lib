@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.utils.ConcurrentUtils;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogEntry;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService;
@@ -33,19 +34,23 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 
-public class SourceLogMonitorEx implements BaseExample {
+public class SourceLogMonitorEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceLogMonitorEx.class);
 
     private SourceLogListenService logListenService;
 
     private static void processLogData(SourceLogEntry message) {
-        log.info("Got Data : {}", message);
+        log.info("{}", message);
     }
 
     @Override
     public void run() throws Exception {
-        logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.10", 27500), SourceLogMonitorEx::processLogData);
+        String address = promptInput("Please enter server address to listen on: ", true);
+        int port = Integer.valueOf(promptInput("Please enter the server port (default: 27500) : ", false, "27500"));
+        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogMonitorEx::processLogData);
         logListenService.listen();
+        log.info("Listening to {}:{}", address, port);
+        ConcurrentUtils.sleepUninterrupted(99999999);
     }
 
     @Override

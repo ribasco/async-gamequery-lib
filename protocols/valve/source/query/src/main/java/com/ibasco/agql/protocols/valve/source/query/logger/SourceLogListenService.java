@@ -115,7 +115,7 @@ public class SourceLogListenService implements Closeable {
             @Override
             public void run() {
                 try {
-                    log.info("Interrupt Found. Trying to shutdown gracefully");
+                    log.info("Service Interrupted. Shutting down gracefully.");
                     service.shutdown();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
@@ -154,8 +154,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * Start listening for log messages
      */
-    public void listen() {
-        final ChannelFuture bindFuture = bootstrap.localAddress(listenAddress).bind().syncUninterruptibly();
+    public void listen() throws InterruptedException {
+        final ChannelFuture bindFuture = bootstrap.localAddress(listenAddress).bind().await();
         bindFuture.addListener((ChannelFuture future) -> {
             String hostAddress = ((InetSocketAddress) future.channel().localAddress()).getAddress().getHostAddress();
             int port = ((InetSocketAddress) future.channel().localAddress()).getPort();
@@ -182,6 +182,7 @@ public class SourceLogListenService implements Closeable {
     @Override
     public void close() throws IOException {
         try {
+            log.debug("Closing service");
             shutdown();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);

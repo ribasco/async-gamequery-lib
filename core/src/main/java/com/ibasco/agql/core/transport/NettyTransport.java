@@ -219,7 +219,7 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
         try {
             log.debug("Shutting down {} gracefully", this.getClass().getSimpleName());
             eventLoopGroup.shutdownGracefully();
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
+            executorService.awaitTermination(5, TimeUnit.SECONDS);
             executorService.shutdown();
         } catch (InterruptedException e) {
             log.error("Error while closing transport", e);

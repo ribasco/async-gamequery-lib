@@ -51,7 +51,7 @@ public class SourceServerQueryEx extends BaseExample {
     private MasterServerQueryClient masterServerQueryClient;
 
     public void queryAllServers() {
-        int appId = Integer.valueOf(promptInput("Please enter an App Id (default: 730) : ", false, "-1"));
+        int appId = Integer.valueOf(promptInput("Please enter an App Id (default: 550) : ", false, "-1"));
 
         MasterServerFilter filter = MasterServerFilter.create()
                 .dedicated(true)
@@ -61,7 +61,7 @@ public class SourceServerQueryEx extends BaseExample {
         if (appId > 0)
             filter.appId(appId);
         else
-            filter.appId(730);
+            filter.appId(550);
 
         double start = System.currentTimeMillis();
         queryAllServers(filter);

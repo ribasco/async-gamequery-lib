@@ -167,7 +167,7 @@ Please input your API Token:
 
 **Note:**
 * Don't forget to perform a `mvn clean package` or `mvn clean install` before you run the example
-* The output can be reviewed from the `logs` directory under the examples project.
+* The output can be reviewed from the `logs` directory under the project's directory.
 
 Compatibility
 -------------

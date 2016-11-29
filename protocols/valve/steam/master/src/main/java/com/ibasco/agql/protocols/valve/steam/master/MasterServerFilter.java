@@ -36,7 +36,7 @@ public final class MasterServerFilter {
     /**
      * Default constructor
      */
-    public MasterServerFilter() {
+    private MasterServerFilter() {
         filter = new StringBuffer();
     }
 
@@ -68,8 +68,8 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isSpecProxy(boolean value) {
-        return create("proxy", new Boolean(value));
+    public MasterServerFilter isSpecProxy(Boolean value) {
+        return create("proxy", value);
     }
 
     /**
@@ -80,7 +80,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isFull(boolean value) {
+    public MasterServerFilter isFull(Boolean value) {
         return create("full", value);
     }
 
@@ -91,7 +91,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isEmpty(boolean value) {
+    public MasterServerFilter isEmpty(Boolean value) {
         return create("empty", value);
     }
 
@@ -102,7 +102,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isPasswordProtected(boolean value) {
+    public MasterServerFilter isPasswordProtected(Boolean value) {
         return create("password", value);
     }
 
@@ -113,7 +113,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isLinuxServer(boolean value) {
+    public MasterServerFilter isLinuxServer(Boolean value) {
         return create("linux", value);
     }
 
@@ -146,7 +146,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isSecure(boolean value) {
+    public MasterServerFilter isSecure(Boolean value) {
         return create("secure", value);
     }
 
@@ -157,7 +157,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter dedicated(boolean value) {
+    public MasterServerFilter dedicated(Boolean value) {
         return create("dedicated", value);
     }
 
@@ -190,8 +190,8 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter napp(int appId) {
-        if (appId > 0)
+    public MasterServerFilter napp(Integer appId) {
+        if (appId != null && appId > 0)
             return create("napp", appId);
         return this;
     }
@@ -203,7 +203,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter hasNoPlayers(boolean value) {
+    public MasterServerFilter hasNoPlayers(Boolean value) {
         return create("noplayers", value);
     }
 
@@ -275,8 +275,8 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter onlyOneServerPerUniqueIp(boolean value) {
-        return create("collapse_addr_hash", new Boolean(value));
+    public MasterServerFilter onlyOneServerPerUniqueIp(Boolean value) {
+        return create("collapse_addr_hash", value);
     }
 
     /**
@@ -298,7 +298,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter isWhitelisted(boolean value) {
+    public MasterServerFilter isWhitelisted(Boolean value) {
         return create("white", value);
     }
 
@@ -310,7 +310,7 @@ public final class MasterServerFilter {
      *
      * @return Instance of {@link MasterServerFilter}
      */
-    public MasterServerFilter appId(int appId) {
+    public MasterServerFilter appId(Integer appId) {
         if (appId > 0)
             return create("appId", appId);
         return this;
@@ -330,7 +330,7 @@ public final class MasterServerFilter {
         if (allServersSet)
             throw new RuntimeException("You can not add additional filters in the chain if allServers() property set");
 
-        if (StringUtils.isEmpty(key) && value == null) {
+        if (StringUtils.isEmpty(key) || value == null) {
             return this;
         }
 

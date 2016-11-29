@@ -50,18 +50,27 @@ public class SourceServerQueryEx extends BaseExample {
     private SourceQueryClient sourceQueryClient;
     private MasterServerQueryClient masterServerQueryClient;
 
+    public static void main(String[] args) throws Exception {
+        SourceServerQueryEx q = new SourceServerQueryEx();
+        q.run();
+    }
+
     public void queryAllServers() {
-        int appId = Integer.valueOf(promptInput("Please enter an App Id (default: 550) : ", false, "-1"));
+        int appId = Integer.valueOf(promptInput("List servers only from this app id (int) [none]: ", false, "-1"));
+        Boolean emptyServers = promptInputBool("List only empty servers? (y/n) [none]: ", false, null);
+        Boolean passwordProtected = promptInputBool("List only password protected servers? (y/n) [none]: ", false, null);
+        Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n) [y]: ", false, "y");
 
         MasterServerFilter filter = MasterServerFilter.create()
-                .dedicated(true)
-                .isEmpty(false)
-                .isSecure(true);
+                .dedicated(dedicatedServers)
+                .isPasswordProtected(passwordProtected)
+                .allServers()
+                .isEmpty(emptyServers);
 
         if (appId > 0)
             filter.appId(appId);
-        else
-            filter.appId(550);
+
+        log.info("Using filter: {}", filter.toString());
 
         double start = System.currentTimeMillis();
         queryAllServers(filter);
@@ -86,22 +95,22 @@ public class SourceServerQueryEx extends BaseExample {
                 masterServerQueryClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (serverAddress, masterServerSender, masterServerError) -> {
                     try {
                         if (masterServerError != null) {
-                            log.debug("[MASTER : ERROR] :  From: {} = {}", masterServerSender, masterServerError.getMessage());
+                            log.error("[MASTER : ERROR] :  From: {} = {}", masterServerSender, masterServerError.getMessage());
                             masterError.incrementAndGet();
                             return;
                         }
 
-                        log.debug("[MASTER : INFO] : {}", serverAddress);
+                        log.info("[MASTER : INFO] : {}", serverAddress);
                         masterServerCtr.incrementAndGet();
 
                         CompletableFuture<SourceServer> infoFuture = sourceQueryClient.getServerInfo(serverAddress).whenComplete((sourceServer, serverInfoError) -> {
                             if (serverInfoError != null) {
-                                log.debug("[SERVER : ERROR] : {}", serverInfoError.getMessage());
+                                log.error("[SERVER : ERROR] : {}", serverInfoError.getMessage());
                                 serverInfoErr.incrementAndGet();
                                 return;
                             }
                             serverInfoCtr.incrementAndGet();
-                            log.debug("[SERVER : INFO] : {}", sourceServer);
+                            log.info("[SERVER : INFO] : {}", sourceServer);
                         });
 
                         requestList.add(infoFuture);
@@ -110,35 +119,37 @@ public class SourceServerQueryEx extends BaseExample {
                         CompletableFuture<Integer> challengeFuture = sourceQueryClient.getServerChallenge(SourceChallengeType.PLAYER, serverAddress)
                                 .whenComplete((challenge, serverChallengeError) -> {
                                     if (serverChallengeError != null) {
-                                        log.debug("[CHALLENGE : ERROR] Message: '{}')", serverChallengeError.getMessage());
+                                        log.error("[CHALLENGE : ERROR] Message: '{}')", serverChallengeError.getMessage());
                                         challengeErr.incrementAndGet();
                                         return;
                                     }
-                                    log.debug("[CHALLENGE : INFO] Challenge '{}'", challenge);
+                                    log.info("[CHALLENGE : INFO] Challenge '{}'", challenge);
                                     challengeCtr.incrementAndGet();
 
                                     CompletableFuture<List<SourcePlayer>> playersFuture = sourceQueryClient.getPlayers(challenge, serverAddress);
 
                                     playersFuture.whenComplete((players, playerError) -> {
                                         if (playerError != null) {
-                                            log.debug("[PLAYERS : ERROR] Message: '{}')", playerError.getMessage());
+                                            log.error("[PLAYERS : ERROR] Message: '{}')", playerError.getMessage());
                                             playersErr.incrementAndGet();
                                             return;
                                         }
                                         playersCtr.incrementAndGet();
-                                        log.debug("[PLAYERS : INFO] : PlayerData = {}", players);
+                                        log.info("[PLAYERS : INFO] : Total Players for Server '{}' = {}", serverAddress, players.size());
+                                        players.forEach(player -> log.info("    Index: {}, Name: {}, Duration: {}, Score: {}", player.getIndex(), player.getName(), player.getDuration(), player.getScore()));
                                     });
                                     requestList.add(playersFuture);
 
                                     CompletableFuture<Map<String, String>> rulesFuture = sourceQueryClient.getServerRules(challenge, serverAddress);
                                     rulesFuture.whenComplete((rules, rulesError) -> {
                                         if (rulesError != null) {
-                                            log.debug("[RULES : ERROR] Message: '{}')", rulesError.getMessage());
+                                            log.error("[RULES : ERROR] Message: '{}')", rulesError.getMessage());
                                             rulesErr.incrementAndGet();
                                             return;
                                         }
                                         rulesCtr.incrementAndGet();
-                                        log.debug("[RULES : INFO] Rules = {}", rules);
+                                        log.info("[RULES : INFO] Total # of Rules for Server '{}' = {}", serverAddress, rules.size());
+                                        rules.forEach((key, value) -> log.info("    {} = {}", key, value));
                                     });
                                     requestList.add(rulesFuture);
                                 });
@@ -154,20 +165,20 @@ public class SourceServerQueryEx extends BaseExample {
             } catch (Exception e) {
                 log.error("Error occured during processing", e);
             } finally {
-                log.debug("   Total Master Server Retrieved: {}", masterServerCtr);
-                log.debug("   Total Master Server Error: {}", masterError);
-                log.debug(" ");
-                log.debug("   Total Server Info Retrieved: {}", serverInfoCtr);
-                log.debug("   Total Server Info Error: {}", serverInfoErr);
-                log.debug(" ");
-                log.debug("   Total Challenge Numbers Received: {}", challengeCtr);
-                log.debug("   Total Challenge Error: {}", challengeErr);
-                log.debug(" ");
-                log.debug("   Total Player Records Received: {}", playersCtr);
-                log.debug("   Total Player Error: {}", playersErr);
-                log.debug(" ");
-                log.debug("   Total Rules Records Received: {}", rulesCtr);
-                log.debug("   Total Rules Error: {}", rulesErr);
+                log.info("   Total Master Server Retrieved: {}", masterServerCtr);
+                log.info("   Total Master Server Error: {}", masterError);
+                log.info(" ");
+                log.info("   Total Server Info Retrieved: {}", serverInfoCtr);
+                log.info("   Total Server Info Error: {}", serverInfoErr);
+                log.info(" ");
+                log.info("   Total Challenge Numbers Received: {}", challengeCtr);
+                log.info("   Total Challenge Error: {}", challengeErr);
+                log.info(" ");
+                log.info("   Total Player Records Received: {}", playersCtr);
+                log.info("   Total Player Error: {}", playersErr);
+                log.info(" ");
+                log.info("   Total Rules Records Received: {}", rulesCtr);
+                log.info("   Total Rules Error: {}", rulesErr);
             }
             return resultMap;
         } catch (Exception e) {

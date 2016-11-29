@@ -51,7 +51,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Valve Master Server Query Protocol**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
@@ -61,7 +61,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Valve Source Query Protocol**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-source-query</artifactId>
@@ -71,7 +71,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Valve Steam Web API**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-webapi</artifactId>
@@ -81,7 +81,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Valve Dota 2 Web API**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
@@ -91,7 +91,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Valve CS:GO Web API**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
@@ -101,7 +101,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 **Supercell Clash of Clans Web API**
 
-```
+```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
@@ -113,7 +113,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 Clone from remote repository then `mvn install`. All of the modules will be installed to your local maven repository.
 
-~~~
+~~~bash
 git clone https://github.com/ribasco/async-gamequery-lib.git
 cd async-gamequery-lib
 mvn install
@@ -131,7 +131,7 @@ To run the available examples, I have included a convenience script (`run-exampl
 
 The script accepts a "key" that represents an example application. To get a list of keys, simply invoke the script without arguments, for example: 
 
-~~~
+~~~bash
 raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh
 Error: Missing Example Key. Please specify the example key. (e.g. source-query)
 
@@ -168,11 +168,6 @@ Please input your API Token:
 **Note:**
 * Don't forget to perform a `mvn clean package` or `mvn clean install` before you run the example
 * The output can be reviewed from the `logs` directory under the project's directory.
-
-Compatibility
--------------
-
-Since this was initially built on top of Java 8. There are no plans on supporting the previous versions. Time to move on :)
 
 Protocol Specifications
 -----------------------

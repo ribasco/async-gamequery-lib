@@ -57,6 +57,8 @@
     <poweredBy>
         <logo name="Maven" href="http://maven.apache.org/"
               img="http://maven.apache.org/images/logos/maven-feather.png"/>
+        <logo name="JProfiler" href="http://www.ej-technologies.com/products/jprofiler/overview.html"
+              img="https://www.ej-technologies.com/images/product_banners/jprofiler_small.png"/>
     </poweredBy>
     <body>
         <menu name="Overview" inherit="top">

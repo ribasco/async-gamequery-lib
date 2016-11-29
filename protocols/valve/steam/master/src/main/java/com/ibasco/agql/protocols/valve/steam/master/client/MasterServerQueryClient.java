@@ -46,6 +46,9 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * <p>Queries Valve Master Server to retrieve a list of game servers</p>
+ */
 public class MasterServerQueryClient extends AbstractGameServerClient<MasterServerRequest, MasterServerResponse, MasterServerMessenger> {
     private static final Logger log = LoggerFactory.getLogger(MasterServerQueryClient.class);
 

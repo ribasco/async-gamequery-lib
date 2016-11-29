@@ -1,0 +1,65 @@
+<configuration>
+    <appender name="console-info" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.out</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="console-err" class="ch.qos.logback.core.ConsoleAppender">
+        <target>System.err</target>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="file-info" class="ch.qos.logback.core.FileAppender">
+        <file>./logs/agql-main.log</file>
+        <append>false</append>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="file-error" class="ch.qos.logback.core.FileAppender">
+        <file>./logs/agql-error.log</file>
+        <append>false</append>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n %ex</pattern>
+        </encoder>
+    </appender>
+
+    <root level="DEBUG">
+        <appender-ref ref="console-info"/>
+        <appender-ref ref="console-err"/>
+        <appender-ref ref="file-info"/>
+        <appender-ref ref="file-error"/>
+    </root>
+
+    <logger name="com.ibasco.agql.core" level="warn"/>
+    <logger name="com.ibasco.agql.protocols.valve.source.query" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.steam.master" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.steam.webapi" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.csgo.webapi" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.dota2.webapi" level="info"/>
+</configuration>

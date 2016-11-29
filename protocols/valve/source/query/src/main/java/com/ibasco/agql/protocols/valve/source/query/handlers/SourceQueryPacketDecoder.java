@@ -25,6 +25,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.exceptions.AsyncGameLibCheckedException;
+import com.ibasco.agql.core.exceptions.NoResponseFoundForPacket;
 import com.ibasco.agql.protocols.valve.source.query.SourcePacketBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceResponseFactory;
 import com.ibasco.agql.protocols.valve.source.query.SourceResponsePacket;
@@ -58,7 +59,6 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<DatagramPa
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         //Create our response packet from the datagram we received
         final SourceResponsePacket packet = builder.construct(msg.content());
-
         if (packet != null) {
             try {
                 SourceServerResponse response = SourceResponseFactory.createResponseFrom(packet);
@@ -75,6 +75,6 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<DatagramPa
                 responseHandler.accept(null, new AsyncGameLibCheckedException("Error while decoding source query response", e));
             }
         }
-        throw new IllegalStateException("No response packet found for the incoming datagram");
+        throw new NoResponseFoundForPacket("Could not find a response handler for the received datagram packet", packet);
     }
 }

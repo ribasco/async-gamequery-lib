@@ -37,6 +37,11 @@ public class SourceRconQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
+    public static void main(String[] args) throws Exception {
+        SourceRconQueryEx c = new SourceRconQueryEx();
+        c.run();
+    }
+
     @Override
     public void run() throws Exception {
         sourceRconClient = new SourceRconClient();
@@ -59,19 +64,22 @@ public class SourceRconQueryEx extends BaseExample {
         InetSocketAddress serverAddress = new InetSocketAddress(address, port);
 
         log.info("Connecting to server {}:{}, with password = {}", address, port, password);
-        sourceRconClient.authenticate(serverAddress, password).whenComplete((success, throwable) -> {
-            if (success != null) {
-                log.info("Successfully Authenticated for {}", serverAddress);
-            } else
-                log.error("Problem authenticating rcon with {}", serverAddress);
-        }).join();
+        boolean success = sourceRconClient.authenticate(serverAddress, password).join();
 
+        if (!success) {
+            log.error("Could not authenticate from server.");
+            return;
+        }
+
+        log.info("Successfully authenticated from server : {}", address);
         while (true) {
+            String command = promptInput("Enter rcon command: ", true);
             try {
-                String command = promptInput("Enter rcon command: ", true);
                 sourceRconClient.execute(serverAddress, command).whenComplete(this::handleResponse).join();
             } catch (RconNotYetAuthException e) {
                 throw new RuntimeException(e);
+            } catch (Exception ex) {
+                log.error(ex.getMessage(), ex);
             }
         }
     }

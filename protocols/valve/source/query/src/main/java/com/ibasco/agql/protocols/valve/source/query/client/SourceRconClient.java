@@ -135,7 +135,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @return true if the address specified is already authenticated
      */
-    private boolean isAuthenticated(InetSocketAddress server) {
+    public boolean isAuthenticated(InetSocketAddress server) {
         return authMap.containsKey(server) && (authMap.get(server) != null);
     }
 

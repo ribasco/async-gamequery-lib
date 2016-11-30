@@ -42,9 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.function.BiConsumer;
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketDecoder.class);
 
@@ -59,7 +56,9 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
     @Override
     @SuppressWarnings("unchecked")
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
-        log.debug("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
+        if (log.isDebugEnabled()) {
+            log.debug("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
+        }
 
         //Assemble the completed/assembled packet
         final SourceRconResponsePacket packet = builder.construct(msg);

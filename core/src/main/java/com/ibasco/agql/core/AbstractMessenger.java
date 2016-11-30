@@ -88,6 +88,9 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     public AbstractMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ExecutorService executorService) {
         //Set processing mode
         this.processingMode = processingMode;
+
+        log.debug("Using Processing Mode : {}", processingMode);
+
         //Use the default session manager if not specified
         this.sessionManager = (sessionManager != null) ? sessionManager : new DefaultSessionManager<>(new DefaultSessionIdFactory());
         this.requestQueue = new PriorityBlockingQueue<>(initQueueCapacity, new RequestComparator());

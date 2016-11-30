@@ -64,8 +64,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteBuf> {
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
-    private static final int HEADER_SIZE = 12; //4 bytes * 3
-    private static final int TRAILER_SIZE = 2; //2 null bytes
     private LinkedList<RconSplitPacketBuilder> responseQueue = new LinkedList<>();
     private AtomicBoolean isSplitPacket = new AtomicBoolean(false);
     private AtomicInteger totalBytesRead = new AtomicInteger();
@@ -75,6 +73,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         super.channelActive(ctx);
         if (builder == null) {
+            log.debug("Creating new SourceRconPacketBuilder");
             builder = new SourceRconPacketBuilder(ctx.channel().alloc());
         }
     }
@@ -88,10 +87,11 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
         //Verify that we have enough bytes we could process
         if (msg.readableBytes() < 10) {
             log.warn("Not enough bytes to process. Skipping");
+            msg.discardReadBytes();
             return;
         }
 
-        //Remember the initial reader position before we listen processing
+        //Remember the initial reader position before we start processing
         msg.markReaderIndex();
 
         //Try and read the packet fields
@@ -138,21 +138,23 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     ByteBuf newMsg = ctx.channel().alloc().buffer(pData.length);
                     newMsg.writeBytes(pData);
 
-                    log.debug("Completed Packet: \n{}", ByteBufUtil.prettyHexDump(newMsg));
+                    if (log.isDebugEnabled()) {
+                        log.debug("Completed Packet: \n{}", ByteBufUtil.prettyHexDump(newMsg));
+                    }
 
                     //Pass the message to the next handler
                     ctx.fireChannelRead(newMsg);
                 }
                 //No null terminator so it must be a split-packet response
-                //At this point, we need to mark this as the listen of a split-packet response
+                //At this point, we need to mark this as the start of a split-packet response
                 else {
                     //If we reach this point and the body does not yet have a null terminator and size is > 500.
                     // Then its safe to assume that we might have a split-packet response here.
 
-                    //Mark the listen of a split packet
+                    //Mark the start of a split packet
                     isSplitPacket.set(true);
 
-                    String hexDump = ByteBufUtil.prettyHexDump(msg);
+                    String hexDump = (log.isDebugEnabled()) ? ByteBufUtil.prettyHexDump(msg) : "";
                     log.debug("Partial Body: {}", hexDump);
 
                     //Create our new body container,
@@ -169,7 +171,8 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     //readToOs(msg, body, msg.readableBytes());
                     msg.readBytes(body, msg.readableBytes());
 
-                    log.debug("Writing initial response body to container: \n{}", ByteBufUtil.prettyHexDump(Unpooled.copiedBuffer(body.toByteArray())));
+                    if (log.isDebugEnabled())
+                        log.debug("Writing initial response body to container: \n{}", ByteBufUtil.prettyHexDump(Unpooled.copiedBuffer(body.toByteArray())));
 
                     responseQueue.add(new RconSplitPacketBuilder(requestId, bodySize, responseHeader, sender, body));
 
@@ -178,8 +181,8 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
             }
             //No readable body
             else {
-                //If we reach this point, then we have received an empty response from the game logger.
-                log.debug("Received a valid empty response from the logger. Skipping");
+                //If we reach this point, then we have received an empty response from the game server.
+                log.debug("Received a valid empty response from the server. Skipping {} bytes", msg.readableBytes());
                 msg.skipBytes(msg.readableBytes());
             }
         }
@@ -194,7 +197,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                 msg.resetReaderIndex();
 
                 //Just read everything for now
-                String hexDump = ByteBufUtil.prettyHexDump(msg);
+                String hexDump = (log.isDebugEnabled()) ? ByteBufUtil.prettyHexDump(msg) : "";
 
                 //Keep track of the number of bytes we have read for the response body
                 totalBytesRead.addAndGet(msg.readableBytes());
@@ -216,7 +219,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                     // Remove the container from the head of the queue
                     final RconSplitPacketBuilder container = responseQueue.poll();
 
-                    log.debug("Adding the last response body of the split packet : \n{}", ByteBufUtil.prettyHexDump(msg));
+                    log.debug("Adding the last response body of the split packet : \n{}", hexDump);
 
                     //Read the last partial body to the output stream
                     msg.readBytes(container.body, msg.readableBytes());
@@ -234,7 +237,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                         //Process all packets within the container, make sure we remove all the headers
                         packetBuffer.markReaderIndex();
 
-                        //Now that we have received a complete packet, we can listen the re-assembly process
+                        //Now that we have received a complete packet, we can start the re-assembly process
                         while (packetBuffer.readableBytes() > 0) {
                             //Read the header (12 bytes total)
                             int size = packetBuffer.readIntLE(); //Declared body size

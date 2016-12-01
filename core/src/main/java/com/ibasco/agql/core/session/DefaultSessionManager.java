@@ -48,7 +48,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         implements SessionManager<Req, Res> {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultSessionManager.class);
-    private static final int DEFAULT_READ_TIMEOUT = 15;
+    private static final int DEFAULT_READ_TIMEOUT = 5;
     private HashedWheelTimer sessionTimer;
     private AbstractSessionIdFactory factory;
     private final Multimap<SessionId, SessionValue<Req, Res>> session = Multimaps.synchronizedSortedSetMultimap(TreeMultimap.create(new SessionIdComparator(), new SessionValueComparator()));
@@ -64,7 +64,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         }
     }
 
-    private class SessionValueComparator implements Comparator<SessionValue> {
+    private static class SessionValueComparator implements Comparator<SessionValue> {
         @Override
         public int compare(SessionValue o1, SessionValue o2) {
             return new CompareToBuilder()

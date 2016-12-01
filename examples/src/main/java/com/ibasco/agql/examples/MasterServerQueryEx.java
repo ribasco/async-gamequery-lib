@@ -47,7 +47,6 @@ public class MasterServerQueryEx extends BaseExample {
         this.listAllServers();
     }
 
-
     public void close() throws IOException {
         masterServerQueryClient.close();
     }

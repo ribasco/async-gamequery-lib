@@ -36,7 +36,6 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.oio.OioEventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -168,9 +167,6 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
      */
     private EventLoopGroup createEventLoopGroup(ChannelType type) {
         switch (type) {
-            case OIO_TCP:
-            case OIO_UDP:
-                return new OioEventLoopGroup();
             case NIO_TCP:
             case NIO_UDP:
                 if (Epoll.isAvailable()) {
@@ -196,10 +192,6 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
 
     public void setChannelInitializer(NettyChannelInitializer channelInitializer) {
         this.channelInitializer = channelInitializer;
-    }
-
-    protected void initializeChannel(Channel channel) {
-        getChannelInitializer().initializeChannel(channel, this);
     }
 
     public EventLoopGroup getEventLoopGroup() {

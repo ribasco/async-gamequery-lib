@@ -55,7 +55,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private static final Logger log = LoggerFactory.getLogger(AbstractMessenger.class);
 
     public static final RequestPriority DEFAULT_REQUEST_PRIORITY = RequestPriority.MEDIUM;
-    private static final ProcessingMode DEFAULT_PROCESSING_MODE = ProcessingMode.ASYNCHRONOUS;
     private static final int DEFAULT_REQUEST_QUEUE_CAPACITY = 50;
     private final AtomicBoolean processRequests = new AtomicBoolean(false);
     private ExecutorService messengerService;
@@ -230,8 +229,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                         //Update status to SENT
                         requestDetails.setStatus(RequestStatus.SENT);
 
-                        //Since we process requests synchronously, this request will only be removed
-                        //from the queue when it completes
+                        //Requests will only be removed from the queue when it completes
                         requestDetails.getClientPromise().whenComplete((res, error) -> {
                             requestDetails.setStatus(RequestStatus.DONE);
                             //Only remove from the queue once the task completes

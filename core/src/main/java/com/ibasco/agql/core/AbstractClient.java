@@ -40,16 +40,6 @@ abstract public class AbstractClient<Req extends AbstractRequest,
 
     private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
 
-    public int getSleepTime() {
-        return sleepTime;
-    }
-
-    public void setSleepTime(int sleepTime) {
-        this.sleepTime = sleepTime;
-    }
-
-    private int sleepTime;
-
     public AbstractClient(M messenger) {
         this.messenger = messenger;
     }

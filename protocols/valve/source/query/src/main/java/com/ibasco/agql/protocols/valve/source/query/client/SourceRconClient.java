@@ -116,18 +116,6 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     }
 
     /**
-     * Returns the authentication id (also a request id) associated with the address specified.
-     *
-     * @param server
-     *         An {@link InetSocketAddress} representing the server
-     *
-     * @return an {@link Integer} representing the request id used to authenticate with the server
-     */
-    private Integer getAuthenticationId(InetSocketAddress server) {
-        return authMap.get(server);
-    }
-
-    /**
      * Checks the internal authentication map if the specified address is authenticated by the server or not
      *
      * @param server

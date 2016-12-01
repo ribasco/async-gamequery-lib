@@ -55,7 +55,6 @@
     </root>
 
     <logger name="com.ibasco.agql.core" level="debug"/>
-    <logger name="com.ibasco.agql.core.AbstractMessenger" level="debug"/>
     <logger name="com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconPacketAssembler" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.source.query" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.steam.master" level="info"/>

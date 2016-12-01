@@ -54,6 +54,8 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         transport.setChannelInitializer(new SourceRconChannelInitializer(this));
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 4);
+        transport.addChannelOption(ChannelOption.SO_KEEPALIVE, true);
+        transport.addChannelOption(ChannelOption.TCP_NODELAY, true);
         return transport;
     }
 

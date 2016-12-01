@@ -1,8 +1,7 @@
-General Usage
-=============
+Web API General Usage
+=====================
 
-
-**API Request Example**
+**Web API Request Example**
 
 ~~~
 //API Token

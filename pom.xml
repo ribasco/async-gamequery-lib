@@ -131,22 +131,20 @@
                 <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
         </profile>
-        <!-- Project Release Profile: mvn clean deploy -P release -->
+        <!-- Activated once mvn release:perform is called -->
         <profile>
-            <id>release</id>
+            <id>release-sign-artifacts</id>
+            <activation>
+                <property>
+                    <name>performRelease</name>
+                    <value>true</value>
+                </property>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
                     </plugin>
                 </plugins>
             </build>
@@ -156,11 +154,22 @@
     <!-- Reporting -->
     <reporting>
         <plugins>
+            <!-- Changes -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-changes-plugin</artifactId>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>github-report</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
             <!-- ChangeLog -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-changelog-plugin</artifactId>
-                <version>2.3</version>
                 <reportSets>
                     <reportSet>
                         <id>dual-report</id>
@@ -179,7 +188,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>2.10.4</version>
                 <reportSets>
                     <reportSet>
                         <id>aggregate</id>
@@ -191,6 +199,12 @@
             </plugin>
         </plugins>
     </reporting>
+
+    <!-- Issue Management -->
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/ribasco/async-gamequery-lib/issues</url>
+    </issueManagement>
 
     <!-- Distribution Management -->
     <distributionManagement>
@@ -401,6 +415,21 @@
                         </execution>
                     </executions>
                 </plugin>
+                <!-- ChangeLog -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-changelog-plugin</artifactId>
+                    <version>2.3</version>
+                </plugin>
+                <!-- Changes Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-changes-plugin</artifactId>
+                    <version>2.12.1</version>
+                    <configuration>
+                        <xmlPath>${changes.dir}</xmlPath>
+                    </configuration>
+                </plugin>
                 <!-- JAR Plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -438,29 +467,19 @@
                     </executions>
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
+                        <!-- Do not auto-deploy. CI server will do the deploying -->
                         <skipDeploy>true</skipDeploy>
                     </configuration>
-                    <dependencies>
-                        <dependency>
-                            <groupId>lt.velykis.maven.skins</groupId>
-                            <artifactId>reflow-velocity-tools</artifactId>
-                            <version>1.1.1</version>
-                        </dependency>
-                        <!-- Reflow skin requires Velocity >= 1.7  -->
-                        <dependency>
-                            <groupId>org.apache.velocity</groupId>
-                            <artifactId>velocity</artifactId>
-                            <version>1.7</version>
-                        </dependency>
-                    </dependencies>
                 </plugin>
                 <!-- Dependency Plugin -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
                     <version>2.10</version>
                 </plugin>
                 <!-- Project Info Report -->
                 <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
                     <version>2.9</version>
                     <configuration>

@@ -84,6 +84,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     @Override
     public SessionValue<Req, Res> getSession(AbstractMessage message) {
         final SessionId id = getId(message);
+        log.debug("Retrieving Session for {}", id);
         if (id != null)
             return getSession(id);
         return null;
@@ -103,9 +104,13 @@ public class DefaultSessionManager<Req extends AbstractRequest,
             throw new IllegalStateException("No id factory assigned");
         final SessionId id = factory.createId(message);
         synchronized (this) {
+            log.debug("Checking if the Session Id is registered (id : {})", id);
             if (!session.containsKey(id)) {
+                log.debug("Did not find session id '{}' in the map", id);
+                session.entries().forEach(e -> log.debug(" # {} = {}", e.getKey(), e.getValue()));
                 return null;
             }
+
             return session.keySet().stream()
                     .filter(sessionId -> sessionId.equals(id))
                     .findFirst()
@@ -115,8 +120,8 @@ public class DefaultSessionManager<Req extends AbstractRequest,
 
     @Override
     public SessionId register(RequestDetails<Req, Res> requestDetails) {
-        log.debug("Registering session : {}", requestDetails.getRequest());
         final SessionId id = factory.createId(requestDetails.getRequest());
+        log.debug("Registering session with id '{}'", id);
         //Create our session store object and set it's properties
         SessionValue<Req, Res> sessionValue = new SessionValue<>(id, requestDetails, indexCounter.incrementAndGet());
         sessionValue.setExpectedResponse(findResponseClass(requestDetails.getRequest()));
@@ -124,6 +129,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         //Add to the registry
         synchronized (this) {
             if (session.put(id, sessionValue)) {
+                log.debug("Session ID '{}' successfully registered", id);
                 requestDetails.setStatus(RequestStatus.REGISTERED);
             } else {
                 log.warn("Cancelled timeout for '{}' since the registration failed", id);

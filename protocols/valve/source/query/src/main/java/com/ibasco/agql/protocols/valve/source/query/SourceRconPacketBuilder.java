@@ -63,6 +63,7 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends SourceRconPacket> T construct(ByteBuf data) {
         try {
@@ -84,7 +85,6 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
 
             SourceRconResponsePacket packet = getResponsePacket(type);
 
-            String strBody;
             if (packet != null) {
                 //Ok, we have a valid response packet. Lets keep reading.
                 packet.setId(id);

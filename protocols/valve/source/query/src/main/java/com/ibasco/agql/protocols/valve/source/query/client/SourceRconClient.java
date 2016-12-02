@@ -84,8 +84,15 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
         int id = createRequestId();
         log.debug("Requesting with id: {}", id);
         CompletableFuture<Integer> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
-        return authRequestFuture.thenApply(requestId -> {
+        return authRequestFuture.exceptionally(throwable -> {
+            log.debug(throwable.getMessage(), throwable);
+            if (authMap.containsKey(address)) {
+                authMap.remove(address);
+            }
+            return -1;
+        }).thenApply(requestId -> {
             if (requestId != null && requestId != -1) {
+                log.debug("Authenticated with request id : {}", requestId);
                 authMap.put(address, requestId);
                 return true;
             }

@@ -33,7 +33,6 @@ import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconC
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconAuthResponse;
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconCmdResponse;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -57,7 +56,7 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
     @SuppressWarnings("unchecked")
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf msg) throws Exception {
         if (log.isDebugEnabled()) {
-            log.debug("Processing Assembled Packet (Readable Bytes: {})\n{}", msg.readableBytes(), ByteBufUtil.prettyHexDump(msg));
+            log.debug("Processing Assembled Packet (Readable Bytes: {})", msg.readableBytes());
         }
 
         //Assemble the completed/assembled packet
@@ -67,8 +66,10 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
             SourceRconResponse response = null;
 
             if (packet instanceof SourceRconAuthResponsePacket) {
+                log.debug("Received SourceRconAuthResponsePacket from Assembler");
                 response = new SourceRconAuthResponse();
             } else if (packet instanceof SourceRconCmdResponsePacket) {
+                log.debug("Received SourceRconCmdResponsePacket from Assembler");
                 response = new SourceRconCmdResponse();
             }
 
@@ -77,7 +78,7 @@ public class SourceRconPacketDecoder extends SimpleChannelInboundHandler<ByteBuf
                 response.setRecipient((InetSocketAddress) ctx.channel().localAddress());
                 response.setRequestId(packet.getId());
                 response.setResponsePacket(packet);
-                log.debug("Response Processed. Sending back to the messenger : {}", response);
+                log.debug("Response Processed. Sending back to the messenger : '{}={}'", response.getClass().getSimpleName(), response.sender());
                 responseCallback.accept(response, null);
                 msg.discardReadBytes();
             } else

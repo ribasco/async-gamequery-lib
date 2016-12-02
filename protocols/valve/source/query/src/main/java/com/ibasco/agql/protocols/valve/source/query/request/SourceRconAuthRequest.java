@@ -29,9 +29,6 @@ import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconAu
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public class SourceRconAuthRequest extends SourceRconRequest<SourceRconAuthRequestPacket> {
 
     private String password;

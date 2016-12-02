@@ -39,7 +39,6 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     private Map<String, String> baseUrlParams;
     private StrSubstitutor substitutor;
     private int apiVersion;
-    private String apiToken;
     private String baseUrlFormat;
 
     public AbstractWebApiRequest(int apiVersion) {
@@ -54,21 +53,12 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
         criteraSet.forEach(c -> urlParam(c.getKey(), c.getValue()));
     }
 
-
     public int apiVersion() {
         return apiVersion;
     }
 
     public void apiVersion(int apiVersion) {
         this.apiVersion = apiVersion;
-    }
-
-    String apiToken() {
-        return apiToken;
-    }
-
-    void apiToken(String apiToken) {
-        this.apiToken = apiToken;
     }
 
     protected boolean hasProperty(String property) {

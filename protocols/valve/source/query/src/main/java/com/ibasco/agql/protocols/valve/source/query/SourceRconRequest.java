@@ -28,9 +28,6 @@ import com.ibasco.agql.core.AbstractGameServerRequest;
 
 import java.net.InetSocketAddress;
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public abstract class SourceRconRequest<T extends SourceRconRequestPacket>
         extends AbstractGameServerRequest<T>
         implements SourceRconMessage {

@@ -37,8 +37,10 @@ public class SourceRconSessionIdFactory extends AbstractSessionIdFactory<SourceR
         if (!(message instanceof SourceRconMessage)) {
             throw new IllegalStateException("Message is not an instance of SourceRconMessage");
         }
-        String id = new StringBuffer().append(createIdStringFromMsg(message))
-                .append(":").append(((SourceRconMessage) message).getRequestId()).toString();
+        String id = new StringBuffer().append(createIdStringFromMsg(message)).toString();
+
+        //String id = new StringBuffer().append(createIdStringFromMsg(message))
+        // .append(":").append(((SourceRconMessage) message).getRequestId()).toString();
 
         return new SessionId(id);
     }

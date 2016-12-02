@@ -55,7 +55,7 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     private Map<Class<? extends Req>, Class<? extends Res>> directory = null;
     private final AtomicLong indexCounter = new AtomicLong();
 
-    private class SessionIdComparator implements Comparator<SessionId> {
+    private static class SessionIdComparator implements Comparator<SessionId> {
         @Override
         public int compare(SessionId o1, SessionId o2) {
             return new CompareToBuilder()

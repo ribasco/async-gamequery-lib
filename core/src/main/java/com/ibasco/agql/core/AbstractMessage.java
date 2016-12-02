@@ -100,7 +100,6 @@ abstract public class AbstractMessage<T> implements Message<T>, Comparable<Abstr
     protected final ToStringBuilder toStringBuilder() {
         final ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE);
         builder.append("ClassName", this.getClass().getSimpleName());
-        builder.append("Message", getMessage());
         builder.append("Recipient", recipient());
         builder.append("Sender", sender());
         return builder;

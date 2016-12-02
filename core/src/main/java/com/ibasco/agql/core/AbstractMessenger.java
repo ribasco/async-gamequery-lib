@@ -178,7 +178,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 //2) Notify the client that we have successfully received a response from the logger
                 clientPromise.complete(response);
             } else {
-                log.debug("Did not find a session for response {} with message: {}", response, response.getMessage());
+                log.debug("No associated session is found for Response '{}'", response);
             }
         }
     }
@@ -205,6 +205,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
 
             //Only process new REQUESTS
             if (status == RequestStatus.NEW) {
+                log.debug("Processing NEW request from Queue: {}", requestDetails);
                 requestDetails.setStatus(RequestStatus.ACCEPTED);
 
                 //Register the request to the session manager
@@ -223,9 +224,11 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                         requestDetails.getClientPromise().completeExceptionally(writeError);
                         requestQueue.remove(requestDetails);
                         performSessionCleanup(id);
+                        log.debug("Error sending request : {}", requestDetails.getRequest());
                     }
                     //Write operation successful
                     else {
+                        log.debug("Request Successfully Sent to the Transport : {}", requestDetails.getRequest());
                         //Update status to SENT
                         requestDetails.setStatus(RequestStatus.SENT);
 

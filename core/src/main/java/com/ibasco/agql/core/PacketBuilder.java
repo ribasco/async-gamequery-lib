@@ -31,5 +31,7 @@ public interface PacketBuilder<A extends Packet> {
 
     byte[] deconstruct(A packet);
 
+    ByteBuf deconstructAsBuffer(A packet);
+
     <B> B decodePacket(Decodable<B> packet);
 }

@@ -29,6 +29,7 @@ import org.apache.commons.cli.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,6 +45,8 @@ public class ExampleRunner {
 
     private HelpFormatter formatter = new HelpFormatter();
 
+    private BaseExample activeExample;
+
     public ExampleRunner() {
         this.examples.put("source-query", new SourceServerQueryEx());
         this.examples.put("master-query", new MasterServerQueryEx());
@@ -54,6 +57,19 @@ public class ExampleRunner {
         this.examples.put("steam-store-webapi", new SteamStoreWebApiQueryEx());
         this.examples.put("source-log", new SourceLogMonitorEx());
         this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() ->
+        {
+            try {
+                log.info("Shutting down example");
+                if (this.activeExample != null) {
+                    this.activeExample.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ));
 
         //Add options
         options.addOption(nameOption);
@@ -79,6 +95,7 @@ public class ExampleRunner {
     private void runExample(String exampleKey) throws Exception {
         if (this.examples.containsKey(exampleKey)) {
             BaseExample example = this.examples.get(exampleKey);
+            this.activeExample = example;
             try {
                 log.info("Running Example : {}", exampleKey);
                 example.run();

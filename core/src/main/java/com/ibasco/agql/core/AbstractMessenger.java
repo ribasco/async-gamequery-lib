@@ -65,16 +65,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private Consumer<PriorityBlockingQueue<RequestDetails<A, B>>> requestProcessor;
     private ProcessingMode processingMode;
 
-    /**
-     * Comparator class to be used by our priority queue for the natural ordering of requests
-     */
-    private static class RequestComparator implements Comparator<RequestDetails> {
-        @Override
-        public int compare(RequestDetails o1, RequestDetails o2) {
-            return o2.getPriority().compareTo(o1.getPriority());
-        }
-    }
-
     public AbstractMessenger(ProcessingMode processingMode) {
         this(new DefaultSessionIdFactory(), processingMode);
     }
@@ -339,7 +329,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
      *
      * @return A {@link Collection} of {@link java.util.Map.Entry}<{@link SessionId},{@link SessionValue}>
      */
-    Collection<Map.Entry<SessionId, SessionValue<A, B>>> getRemaining() {
+    public Collection<Map.Entry<SessionId, SessionValue<A, B>>> getRemaining() {
         return sessionManager.getSessionEntries();
     }
 
@@ -364,5 +354,15 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
         }
         sessionManager.close();
         transport.close();
+    }
+
+    /**
+     * Comparator class to be used by our priority queue for the natural ordering of requests
+     */
+    private static class RequestComparator implements Comparator<RequestDetails> {
+        @Override
+        public int compare(RequestDetails o1, RequestDetails o2) {
+            return o2.getPriority().compareTo(o1.getPriority());
+        }
     }
 }

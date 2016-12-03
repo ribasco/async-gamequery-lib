@@ -106,26 +106,27 @@ abstract public class BaseExample implements Closeable {
         String returnValue;
         boolean inputEmpty;
         int retryCounter = 0;
+        String defaultValue = defaultReturnValue;
 
         if (!StringUtils.isEmpty(defaultProperty)) {
-            defaultReturnValue = getProp(defaultProperty);
+            defaultValue = getProp(defaultProperty);
         }
 
         do {
-            if (!StringUtils.isEmpty(defaultReturnValue)) {
-                System.out.printf("%s [%s]: ", message, defaultReturnValue);
+            if (!StringUtils.isEmpty(defaultValue)) {
+                System.out.printf("%s [%s]: ", message, defaultValue);
             } else {
                 System.out.printf("%s: ", message);
             }
             System.out.flush();
-            returnValue = StringUtils.defaultIfEmpty(userInput.nextLine(), defaultReturnValue);
+            returnValue = StringUtils.defaultIfEmpty(userInput.nextLine(), defaultValue);
             inputEmpty = StringUtils.isEmpty(returnValue);
         } while ((inputEmpty && ++retryCounter < 3) && required);
         //If the token is still empty, throw an error
         if (inputEmpty && required) {
             System.err.println("Required parameter is missing");
-        } else if (inputEmpty && !StringUtils.isEmpty(defaultReturnValue)) {
-            returnValue = defaultReturnValue;
+        } else if (inputEmpty && !StringUtils.isEmpty(defaultValue)) {
+            returnValue = defaultValue;
         }
 
         //Save to properties file

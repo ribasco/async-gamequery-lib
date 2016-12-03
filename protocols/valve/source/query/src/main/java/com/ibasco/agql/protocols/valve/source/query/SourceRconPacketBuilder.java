@@ -25,7 +25,6 @@
 package com.ibasco.agql.protocols.valve.source.query;
 
 import com.ibasco.agql.core.AbstractPacketBuilder;
-import com.ibasco.agql.core.Decodable;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconAuthResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconCmdResponsePacket;
@@ -59,6 +58,8 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
                     return new SourceRconAuthResponsePacket();
                 case COMMAND:
                     return new SourceRconCmdResponsePacket();
+                default:
+                    break;
             }
         }
         return null;
@@ -132,8 +133,4 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
         return data;
     }
 
-    @Override
-    public <B> B decodePacket(Decodable<B> packet) {
-        return null;
-    }
 }

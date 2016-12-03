@@ -58,7 +58,7 @@ public abstract class AbstractSessionIdFactory<
     protected String createIdStringFromMsg(AbstractMessage message) {
         //Format: <response class name> : <ip address> : <port>
         if (message == null)
-            throw new NullPointerException("Message not specified");
+            throw new IllegalArgumentException("Message not specified");
 
         InetSocketAddress address;
         Class messageClass;

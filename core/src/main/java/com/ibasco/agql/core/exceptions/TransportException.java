@@ -22,14 +22,25 @@
  * SOFTWARE.
  */
 
-package com.ibasco.agql.core;
+package com.ibasco.agql.core.exceptions;
 
-import io.netty.buffer.ByteBuf;
+public class TransportException extends AsyncGameLibCheckedException {
+    public TransportException() {
+    }
 
-public interface PacketBuilder<A extends Packet> {
-    <T extends A> T construct(ByteBuf data);
+    public TransportException(String message) {
+        super(message);
+    }
 
-    byte[] deconstruct(A packet);
+    public TransportException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
-    ByteBuf deconstructAsBuffer(A packet);
+    public TransportException(Throwable cause) {
+        super(cause);
+    }
+
+    public TransportException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

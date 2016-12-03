@@ -127,19 +127,21 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
         final InetSocketAddress destination = type.getMasterAddress();
         final AtomicBoolean done = new AtomicBoolean(false);
 
+        InetSocketAddress _startAddress = startAddress;
+
         while (!done.get()) {
-            log.debug("Getting from master server with seed : " + startAddress);
+            log.debug("Getting from master server with seed : " + _startAddress);
             try {
-                log.debug("Sending master source with seed: {}:{}, Filter: {}", startAddress.getAddress().getHostAddress(), startAddress.getPort(), filter);
+                log.debug("Sending master source with seed: {}:{}, Filter: {}", _startAddress.getAddress().getHostAddress(), _startAddress.getPort(), filter);
 
                 //Send initial query to the master source
-                final CompletableFuture<Vector<InetSocketAddress>> p = sendRequest(new MasterServerRequest(destination, region, filter, startAddress), RequestPriority.HIGH);
+                final CompletableFuture<Vector<InetSocketAddress>> p = sendRequest(new MasterServerRequest(destination, region, filter, _startAddress), RequestPriority.HIGH);
 
                 //Retrieve the first batch, timeout after 3 seconds
                 final Vector<InetSocketAddress> serverList = p.get(3000, TimeUnit.MILLISECONDS);
 
                 //Iterate through each address and call onComplete responseCallback. Make sure we don't include the last source ip received
-                final InetSocketAddress lastServerIp = startAddress;
+                final InetSocketAddress lastServerIp = _startAddress;
 
                 //Filter the address entries and make sure we do not include the last server ip received
                 serverList.stream().filter(inetSocketAddress -> (!inetSocketAddress.equals(lastServerIp))).forEachOrdered(ip -> {
@@ -152,13 +154,13 @@ public class MasterServerQueryClient extends AbstractGameServerClient<MasterServ
                 });
 
                 //Retrieve the last element of the source list and use it as the next seed for the next query
-                startAddress = serverList.lastElement();
+                _startAddress = serverList.lastElement();
 
-                log.debug("Last Server IP Received: {}:{}", startAddress.getAddress().getHostAddress(), startAddress.getPort());
+                log.debug("Last Server IP Received: {}:{}", _startAddress.getAddress().getHostAddress(), _startAddress.getPort());
 
                 //Did the master send a terminator address?
                 // If so, mark as complete
-                if (isIpTerminator(startAddress)) {
+                if (isIpTerminator(_startAddress)) {
                     log.debug("Reached the end of the server list");
                     done.set(true);
                 }

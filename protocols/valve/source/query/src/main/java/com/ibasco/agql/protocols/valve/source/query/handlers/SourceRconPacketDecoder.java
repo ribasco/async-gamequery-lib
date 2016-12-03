@@ -65,6 +65,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     private AtomicInteger index = new AtomicInteger();
 
+    //TODO: NPath complexity of 16800 as reported by PMD. Consider refactoring this and break it down
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         log.debug("=============================================================");

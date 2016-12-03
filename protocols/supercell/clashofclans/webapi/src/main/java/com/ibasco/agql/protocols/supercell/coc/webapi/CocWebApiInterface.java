@@ -65,6 +65,8 @@ abstract public class CocWebApiInterface
             switch (response.getMessage().getStatusCode()) {
                 case 400:
                     throw new CocIncorrectParametersException("Incorrect parameters provided for request");
+                default:
+                    break;
             }
             //Let the base class handle the rest
             super.interceptResponse(response, error);

@@ -40,6 +40,6 @@ public class SourceRconTerminator extends SourceRconRequest<SourceRconTerminator
 
     @Override
     public SourceRconTerminatorPacket getMessage() {
-        return new SourceRconTerminatorPacket(this.getRequestId());
+        return new SourceRconTerminatorPacket(999);
     }
 }

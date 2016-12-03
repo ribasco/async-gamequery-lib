@@ -31,6 +31,8 @@ import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconPacketAss
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconPacketDecoder;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconRequestEncoder;
 import io.netty.channel.Channel;
+import io.netty.handler.codec.DelimiterBasedFrameDecoder;
+import io.netty.handler.codec.Delimiters;
 
 import java.util.function.BiConsumer;
 
@@ -47,6 +49,7 @@ class SourceRconChannelInitializer implements NettyChannelInitializer {
         SourceRconPacketBuilder rconBuilder = new SourceRconPacketBuilder(transport.getAllocator());
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder));
+        channel.pipeline().addLast(new DelimiterBasedFrameDecoder(4096, Delimiters.nulDelimiter()));
         channel.pipeline().addLast(new SourceRconPacketAssembler());
         channel.pipeline().addLast(new SourceRconPacketDecoder(rconBuilder, responseHandler));
     }

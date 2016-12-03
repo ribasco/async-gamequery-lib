@@ -52,7 +52,7 @@ deploy:
 
 after_success:
 - gpg --import scripts/travis-gpg-key.dec
-- mvn jacoco:prepare-agent jacoco:report coveralls:report
+# - mvn jacoco:prepare-agent jacoco:report coveralls:report
 - scripts/deploy-project.sh
 - scripts/deploy-site.sh
 

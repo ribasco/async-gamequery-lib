@@ -64,11 +64,6 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
                     reassembledPacket = reassemblePackets();
                 }
                 if (reassembledPacket != null) {
-                    log.debug("Re-assembly Complete! Sending to the next handler");
-                    log.debug(" # Size: {}", reassembledPacket.getSize());
-                    log.debug(" # Request Id: {}", reassembledPacket.getId());
-                    log.debug(" # Type: {}", reassembledPacket.getType());
-                    log.debug(" # Body Size: {}", reassembledPacket.getBody().length());
                     //Send to the next handler
                     out.add(reassembledPacket);
                 }
@@ -90,30 +85,63 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
         SourceRconCmdResponsePacket reassembledPacket = new SourceRconCmdResponsePacket();
         StringBuilder responseBody = new StringBuilder();
 
-        int bodySize = 0;
-        int id = -1;
-        int type = -1;
+        int id = -1, type = -1, totalDeclaredPacketSize = 0, totalActualBodySize = 0, totalActualPacketSize = 0;
+
+        int totalSplitPackets = packetContainer.size();
 
         for (int i = 0; packetContainer.size() > 0; i++) {
+
             SourceRconResponsePacket responsePacket = packetContainer.poll();
+
             if (responsePacket == null)
                 continue;
+
+            int packetBodySize = responsePacket.getBody().length();
+
             //Initialize Variables
             if (id == -1)
                 id = responsePacket.getId();
             if (type == -1)
                 type = responsePacket.getType();
+
+            //Add the declared size for verification purposes
+            totalDeclaredPacketSize += responsePacket.getSize();
+
             //Compute total body size
-            bodySize += responsePacket.getBody().length();
+            totalActualBodySize += packetBodySize;
+
+            //Compute the total actual packet size for integrity check
+            totalActualPacketSize += (10 + packetBodySize); //4 bytes (Id) + 4 bytes (Type) + 2 null-terminator bytes (Size field is excluded)
+
             log.debug(" ({}) Re-assembling Packet: {}", i + 1, responsePacket);
             responseBody.append(responsePacket.getBody());
         }
 
         //Merge the details
-        reassembledPacket.setSize(8 + bodySize + 2); //id(4) + type(4) + body + body terminator (1) + packet terminator (1)
+        reassembledPacket.setSize(totalActualPacketSize);
         reassembledPacket.setId(id);
         reassembledPacket.setType(type);
         reassembledPacket.setBody(responseBody.toString());
+
+        if (log.isDebugEnabled()) {
+            String integrityStatus = (totalActualPacketSize == totalDeclaredPacketSize) ? "PASS" : "FAIL";
+            log.debug("========================================================");
+            log.debug(" Report Summary");
+            log.debug("========================================================");
+            log.debug(" # Total Split-Packets processed: {}", totalSplitPackets);
+            log.debug(" # Total Declared Packet Size: {}", totalDeclaredPacketSize);
+            log.debug(" # Total Actual Packet Size: {}", totalActualPacketSize);
+            log.debug(" # Total Actual Body Size: {}", totalActualBodySize);
+            log.debug(" # Integrity Check Status: {}", integrityStatus);
+            log.debug(" # Size: {}", reassembledPacket.getSize());
+            log.debug(" # Request Id: {}", reassembledPacket.getId());
+            log.debug(" # Type: {}", reassembledPacket.getType());
+            log.debug(" # Body Size: {}", reassembledPacket.getBody().length());
+            log.debug("========================================================");
+        }
+
+        if (totalActualPacketSize != totalDeclaredPacketSize)
+            log.warn("Failed packet re-assembly integrity check. Size Mismatch. Expected a total of '{}' byte(s) but got '{}' byte(s)", totalDeclaredPacketSize, totalActualPacketSize);
 
         return reassembledPacket;
     }

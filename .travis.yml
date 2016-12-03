@@ -3,6 +3,11 @@ language: java
 jdk:
 - oraclejdk8
 
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
+
 env:
   global:
     - secure: "qFj/+len1QO67SV/eZ/71dIqAxWymwmA+NsE/XGq0Txwb5qkwJTR7dpYxespAZpRnKvP3IcL6rHjB4afkJ4IVquUq9mc2qZDRQ+KDqTgHbTBcSdLGUrLAsqenjYdPl809O1RxaPaUpfapLWx3Zv7NxcLB2dJ1PZxZHpb+uqz/nGe7VoNNdnWOHDeAqYCWGUP08PebeDVD8NW8RhAncWGTvwDa1TDH74n8/8hSAhqDVbJvLpFWkG2xpuzPrSVS289lBSZ9CGSPerAjLaHFG8I1W9jDgNKD3liojVPXllktP3WS/gDFFjfRxeKSyMc/pot6tEMuk4SIpujThidYzhx7mcpV2bFtApLXiNY//9AJmqeQcEi9vxJWO68VYdNbK1UaAUYt9ZsqUuPqyycjISx1YdLhU4MkrrdbsPBudpERwu0bAudMXh91RvUSXDT1pPdvSkjo9P+LCD6e23nIFBX4tuTKIb9M98rWo7KzWLCjtYjJs12sCZ6PU9GgCM4+Y9yxEa19TMiHR+mymKnHJomitATPQJUnVCA89jUTObiV0C0NltdBRpqfObhBBbUkbS1h6pHaSDCNvE7RzCIZ2jSLKqNRGgr2Cd16WbIX/qLvSjzVKX4QDqU+e9/fLfIXufM8vAcuj5KfG6q/Hw6olD1wcvZR1PwpgI5NZCfDNaDagI="

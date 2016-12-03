@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e # Exit with nonzero exit code if anything fails
+set -ev # Exit with nonzero exit code if anything fails
 
 SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
@@ -24,7 +24,7 @@ git clone -b ${TARGET_BRANCH} --single-branch https://${GITHUB_USER}:${GITUB_TOK
 
 # Update Remote Configuration
 cd ${TARGET_BRANCH}
-echo "Switched to directory `pwd`"
+echo "Switched to directory $(pwd)"
 
 # git remote rm origin
 # git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git

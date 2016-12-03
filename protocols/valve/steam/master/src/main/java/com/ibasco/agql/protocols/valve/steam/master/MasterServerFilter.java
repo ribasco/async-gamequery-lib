@@ -329,14 +329,16 @@ public final class MasterServerFilter {
             return this;
         }
 
-        if (value instanceof Boolean)
-            value = (((Boolean) value).booleanValue()) ? "1" : "0";
+        Object tmpValue = value;
 
-        if (value != null) {
+        if (tmpValue instanceof Boolean)
+            tmpValue = (((Boolean) tmpValue).booleanValue()) ? "1" : "0";
+
+        if (tmpValue != null) {
             if ("and".equals(key) || "or".equals(key) || "nor".equals(key))
                 filter.append("\\").append(key);
             else
-                filter.append("\\").append(key).append("\\").append(value);
+                filter.append("\\").append(key).append("\\").append(tmpValue);
         }
         return this;
     }

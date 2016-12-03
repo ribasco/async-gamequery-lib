@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.logger;
 
+import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -118,7 +119,7 @@ public class SourceLogListenService implements Closeable {
                     log.info("Service Interrupted. Shutting down gracefully.");
                     service.shutdown();
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.error(e.getMessage(), e);
                 }
             }
         });
@@ -185,7 +186,7 @@ public class SourceLogListenService implements Closeable {
             log.debug("Closing service");
             shutdown();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            throw new AsyncGameLibUncheckedException(e);
         }
     }
 }

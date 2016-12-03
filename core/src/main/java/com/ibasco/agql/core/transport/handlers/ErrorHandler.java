@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
+import com.ibasco.agql.core.exceptions.TransportException;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
@@ -36,7 +37,7 @@ public class ErrorHandler extends ChannelDuplexHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (log.isDebugEnabled()) {
             log.error("Unhandled exception caught within the pipeline {} for Channel {}, Id: {}", cause, ctx.channel(), ctx.channel().id());
-            throw new Exception(cause);
+            throw new TransportException(cause);
         }
     }
 }

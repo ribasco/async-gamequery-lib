@@ -51,7 +51,7 @@ import java.util.concurrent.TimeUnit;
 @SuppressWarnings("unchecked")
 abstract public class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
     private Bootstrap bootstrap;
-    private static EventLoopGroup eventLoopGroup;
+    private EventLoopGroup eventLoopGroup;
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
     private NettyChannelInitializer channelInitializer;
@@ -199,7 +199,7 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
     }
 
     public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
-        NettyTransport.eventLoopGroup = eventLoopGroup;
+        this.eventLoopGroup = eventLoopGroup;
     }
 
     @Override

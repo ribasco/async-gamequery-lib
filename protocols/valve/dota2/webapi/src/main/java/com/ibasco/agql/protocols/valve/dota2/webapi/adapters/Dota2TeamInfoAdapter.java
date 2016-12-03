@@ -75,6 +75,8 @@ public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
                     case "admin_account_id":
                         teamInfo.setAdminAccountId(in.nextLong());
                         break;
+                    default:
+                        break;
                 }
             }
         }

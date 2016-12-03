@@ -25,14 +25,8 @@
 package com.ibasco.agql.protocols.valve.source.query;
 
 import com.ibasco.agql.core.AbstractPacketBuilder;
-import com.ibasco.agql.core.Decodable;
 import com.ibasco.agql.core.utils.ByteUtils;
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceGameRequest;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceGameResponse;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceChallengeRequestPacket;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceInfoRequestPacket;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourcePlayerRequestPacket;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRulesRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceChallengeResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceInfoResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourcePlayerResponsePacket;
@@ -55,7 +49,7 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
         super(alloc);
     }
 
-    public static <T extends SourceServerPacket> SourceServerPacket createSourcePacketFromHeader(byte header) {
+    public static <T extends SourceServerPacket> SourceServerPacket createResponsePacketFromHeader(byte header) {
         SourceGameResponse res = SourceGameResponse.get(header);
         if (res == null) {
             log.debug("Did not find a matching response class for header : {}", header);
@@ -70,21 +64,8 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
                 return new SourcePlayerResponsePacket();
             case RULES:
                 return new SourceRulesResponsePacket();
-        }
-        SourceGameRequest req = SourceGameRequest.get(header);
-        if (req == null) {
-            log.debug("Did not find a matching request class for header : {}", header);
-            return null;
-        }
-        switch (req) {
-            case CHALLENGE:
-                return new SourceChallengeRequestPacket();
-            case INFO:
-                return new SourceInfoRequestPacket();
-            case PLAYER:
-                return new SourcePlayerRequestPacket();
-            case RULES:
-                return new SourceRulesRequestPacket();
+            default:
+                break;
         }
         return null;
     }
@@ -121,7 +102,7 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
             data.readBytes(payload);
 
             //Verify if packet header is valid
-            SourceServerPacket packet = createSourcePacketFromHeader(packetHeader);
+            SourceServerPacket packet = createResponsePacketFromHeader(packetHeader);
 
             //If packet is empty, means the supplied packet header is not supported
             if (packet == null)
@@ -135,11 +116,6 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
         } finally {
             data.resetReaderIndex();
         }
-    }
-
-    @Override
-    public <B> B decodePacket(Decodable<B> packet) {
-        return packet.toObject();
     }
 
     /**

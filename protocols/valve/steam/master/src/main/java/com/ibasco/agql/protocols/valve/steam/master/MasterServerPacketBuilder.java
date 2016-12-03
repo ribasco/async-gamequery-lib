@@ -25,7 +25,6 @@
 package com.ibasco.agql.protocols.valve.steam.master;
 
 import com.ibasco.agql.core.AbstractPacketBuilder;
-import com.ibasco.agql.core.Decodable;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -104,8 +103,4 @@ public class MasterServerPacketBuilder extends AbstractPacketBuilder<MasterServe
         return data;
     }
 
-    @Override
-    public <B> B decodePacket(Decodable<B> packet) {
-        return packet.toObject();
-    }
 }

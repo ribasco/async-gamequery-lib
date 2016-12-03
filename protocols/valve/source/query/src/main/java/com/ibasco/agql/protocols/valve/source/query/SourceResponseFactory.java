@@ -36,7 +36,7 @@ import com.ibasco.agql.protocols.valve.source.query.response.SourceRulesResponse
 public class SourceResponseFactory {
     public static SourceServerResponse createResponseFrom(SourceResponsePacket packet) {
         SourceGameResponse type = SourceGameResponse.get(packet.getSingleBytePacketHeader());
-        SourceServerResponse response = null;
+        SourceServerResponse response;
         switch (type) {
             case CHALLENGE:
                 response = new SourceChallengeResponse();
@@ -49,6 +49,9 @@ public class SourceResponseFactory {
                 break;
             case RULES:
                 response = new SourceRulesResponse();
+                break;
+            default:
+                response = null;
                 break;
         }
         return response;

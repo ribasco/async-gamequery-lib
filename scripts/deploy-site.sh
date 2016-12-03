@@ -29,7 +29,7 @@ echo "Switched to directory $(pwd)"
 # git remote rm origin
 # git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git
 
-REMOTE_ORIGIN=`git config remote.origin.url`
+# REMOTE_ORIGIN=`git config remote.origin.url`
 
 # Clean gh-pages
 echo ===========================================

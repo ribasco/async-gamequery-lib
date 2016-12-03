@@ -31,7 +31,6 @@ import com.ibasco.agql.core.messenger.GameServerMessenger;
 import com.ibasco.agql.core.transport.tcp.NettyPooledTcpTransport;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
-import com.ibasco.agql.protocols.valve.source.query.request.SourceRconTerminator;
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconAuthResponse;
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconCmdResponse;
 import io.netty.channel.ChannelOption;
@@ -63,6 +62,5 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
     public void configureMappings(Map<Class<? extends SourceRconRequest>, Class<? extends SourceRconResponse>> map) {
         map.put(SourceRconAuthRequest.class, SourceRconAuthResponse.class);
         map.put(SourceRconCmdRequest.class, SourceRconCmdResponse.class);
-        map.put(SourceRconTerminator.class, SourceRconCmdResponse.class);
     }
 }

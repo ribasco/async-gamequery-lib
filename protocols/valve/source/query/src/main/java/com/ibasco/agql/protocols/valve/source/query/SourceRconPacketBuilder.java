@@ -68,11 +68,10 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
     @Override
     public <T extends SourceRconPacket> T construct(ByteBuf data) {
         try {
-            if (data.readableBytes() < 10) {
+            if (data.readableBytes() < 14) {
                 log.warn("Packet is less than 10 bytes. Unsupported packet.");
-                if (log.isDebugEnabled()) {
+                if (log.isDebugEnabled())
                     log.debug("Unrecognized Packet: \n{}", ByteBufUtil.prettyHexDump(data));
-                }
                 return null;
             }
 

@@ -22,24 +22,18 @@
  * SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.valve.source.query.request;
+package com.ibasco.agql.protocols.valve.source.query.packets.request;
 
-import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTerminatorPacket;
-
-import java.net.InetSocketAddress;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconRequestPacket;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
 
 /**
- * Not for regular usage. This is only used as a terminator
+ * Created by raffy on 9/27/2016.
  */
-public class SourceRconTerminator extends SourceRconRequest<SourceRconTerminatorPacket> {
-
-    public SourceRconTerminator(InetSocketAddress recipient, int requestId) {
-        super(recipient, requestId);
-    }
-
-    @Override
-    public SourceRconTerminatorPacket getMessage() {
-        return new SourceRconTerminatorPacket(999);
+public class SourceRconTermRequestPacket extends SourceRconRequestPacket {
+    public SourceRconTermRequestPacket(int id) {
+        super(id);
+        setType(SourceRconRequestType.RESPONSE);
+        setBody("");
     }
 }

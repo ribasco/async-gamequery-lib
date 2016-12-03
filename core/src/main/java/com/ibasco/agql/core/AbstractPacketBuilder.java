@@ -42,6 +42,12 @@ abstract public class AbstractPacketBuilder<T extends AbstractPacket> implements
         this.allocator = allocator;
     }
 
+    @Override
+    public ByteBuf deconstructAsBuffer(T packet) {
+        byte[] rawPacket = deconstruct(packet);
+        return allocator.buffer(rawPacket.length).writeBytes(rawPacket);
+    }
+
     protected ByteBuf createBuffer(int capacity) {
         return this.allocator.buffer(capacity);
     }

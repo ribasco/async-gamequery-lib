@@ -25,6 +25,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
+import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTermRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconAuthResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconCmdResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconTermResponsePacket;
@@ -69,7 +70,7 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
                 }
             } else {
                 //Ignore empty responses
-                if (StringUtils.isBlank(msg.getBody())) {
+                if (StringUtils.isBlank(msg.getBody()) && msg.getId() == SourceRconTermRequestPacket.TERMINATOR_REQUEST_ID) {
                     log.debug("Ignoring empty response packet : {}", msg);
                     return;
                 }

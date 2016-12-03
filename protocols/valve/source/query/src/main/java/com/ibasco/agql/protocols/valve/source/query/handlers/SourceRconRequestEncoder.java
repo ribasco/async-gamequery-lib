@@ -32,7 +32,6 @@ import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTe
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,20 +51,18 @@ public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconR
 
     @Override
     protected void encode(ChannelHandlerContext ctx, SourceRconRequest msg, List<Object> out) throws Exception {
-        byte[] deconstructedPacket = builder.deconstruct((SourceRconPacket) msg.getMessage());
+        ByteBuf rconRequestPacket = builder.deconstructAsBuffer((SourceRconPacket) msg.getMessage());
+
         if (log.isDebugEnabled()) {
-            log.debug("Encoding Rcon Request: \n{}", ByteBufUtil.prettyHexDump(Unpooled.copiedBuffer(deconstructedPacket)));
+            log.debug("Encoding Rcon Request: \n{}", ByteBufUtil.prettyHexDump(rconRequestPacket));
         }
-        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
-            ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
-            out.add(buffer);
-            if (!(msg instanceof SourceRconAuthRequest)) {
-                log.debug("Sending RCON Terminator");
-                //Send rcon-terminator
-                byte[] rconTermPacket = builder.deconstruct(new SourceRconTermRequestPacket(999));
-                ByteBuf termBuf = ctx.alloc().buffer(rconTermPacket.length).writeBytes(rconTermPacket);
-                out.add(termBuf);
-            }
+
+        out.add(rconRequestPacket);
+
+        //Send rcon-terminator except if it is an authentication request packet
+        if (!(msg instanceof SourceRconAuthRequest)) {
+            log.debug("Sending RCON Terminator");
+            out.add(builder.deconstructAsBuffer(new SourceRconTermRequestPacket()));
         }
     }
 }

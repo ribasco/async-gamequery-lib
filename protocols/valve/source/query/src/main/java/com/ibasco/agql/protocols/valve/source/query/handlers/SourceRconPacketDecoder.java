@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.protocols.valve.source.query.SourceRconPacketBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
+import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTermRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconTermResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -69,8 +70,6 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         log.debug("=============================================================");
         log.debug(" #{}) DECODING INCOMING DATA : Size = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
         log.debug("=============================================================");
-
-        //log.debug("Raw Data : \n{}", ByteBufUtil.prettyHexDump(in));
 
         String desc = StringUtils.rightPad("Minimum allowable size?", 56);
         //Verify we have the minimum allowable size
@@ -130,7 +129,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
         desc = StringUtils.rightPad("Contains TWO null-terminating bytes at the end?", 56);
 
-        //Make sure the last two bytes are NULL bytes
+        //Make sure the last two bytes are NULL bytes (request id: 999 is reserved for split packet responses)
         if ((bodyTerminator != 0 || packetTerminator != 0) && (id == 999)) {
             log.debug("Found a malformed terminator packet. Ignoring");
             in.skipBytes(in.readableBytes());
@@ -154,8 +153,8 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         //Construct the response packet and send to the next handlers
         SourceRconResponsePacket responsePacket;
 
-        //Do we receive a terminator packet?
-        if (id == 999 && StringUtils.isBlank(body)) {
+        //Did we receive a terminator packet?
+        if (id == SourceRconTermRequestPacket.TERMINATOR_REQUEST_ID && StringUtils.isBlank(body)) {
             responsePacket = new SourceRconTermResponsePacket();
         } else {
             responsePacket = SourceRconPacketBuilder.getResponsePacket(type);

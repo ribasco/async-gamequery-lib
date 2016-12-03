@@ -31,8 +31,11 @@ import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
  * Created by raffy on 9/27/2016.
  */
 public class SourceRconTermRequestPacket extends SourceRconRequestPacket {
-    public SourceRconTermRequestPacket(int id) {
-        super(id);
+
+    public static final int TERMINATOR_REQUEST_ID = 999;
+
+    public SourceRconTermRequestPacket() {
+        super(TERMINATOR_REQUEST_ID);
         setType(SourceRconRequestType.RESPONSE);
         setBody("");
     }

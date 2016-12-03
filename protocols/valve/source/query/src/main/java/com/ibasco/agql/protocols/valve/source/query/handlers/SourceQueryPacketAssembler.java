@@ -52,7 +52,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
      * we need to create a map for each type of response to avoid conflicts.
      */
     //FIX: Different servers can return the same request id, so using the request id as the sole key can cause conflicts
-    //TODO: In case we don't recieve a split packet response at a point in time, we need to define some sort of retention policy, perhaps we use CacheBuilder instead of map?
+    //TODO: In case we don't recieve a split packet response at a certain point in time, we need to define some sort of retention policy, perhaps we use CacheBuilder instead of map?
     private Map<SplitPacketKey, SplitPacketContainer> requestMap = new ConcurrentHashMap<>();
 
     @Override
@@ -64,7 +64,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             if (!(msg instanceof DatagramPacket)) {
                 return;
             }
-            //Retrived the packet instance
+
             final DatagramPacket packet = (DatagramPacket) msg;
             final ByteBuf data = ((DatagramPacket) msg).content();
 
@@ -77,7 +77,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             //Try to read protocol header, determine if its a single packet or a split-packet
             int protocolHeader = data.readIntLE();
 
-            //If the packet arrived is single type, we can forward it to the next handler for further processing
+            //If the packet arrived is single type, we can already forward it to the next handler
             if (protocolHeader == 0xFFFFFFFF) {
                 //Pass the message to the succeeding handlers
                 ctx.fireChannelRead(packet.retain());
@@ -208,8 +208,9 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             if (isCompressed)
                 throw new IllegalStateException("Compression is not yet supported at this time sorry");
 
-            //TODO: From Steam Condenser (should we still implement this?)
+            //TODO: Is this still needed?
             /*if(isCompressed) {
+                //From Steam Condenser (thanks Koraktor)
                 try {
                     ByteArrayInputStream stream = new ByteArrayInputStream(packetData);
                     stream.read();

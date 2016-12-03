@@ -87,34 +87,24 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
     private SourceRconResponsePacket reassemblePackets() {
         //We have reached the end...lets start assembling the packet
         log.debug("Received a terminator packet! Re-assembling packets. Size = {}", packetContainer.size());
-
-        int totalPackets = packetContainer.size();
-
         SourceRconCmdResponsePacket reassembledPacket = new SourceRconCmdResponsePacket();
-
         StringBuilder responseBody = new StringBuilder();
 
         int bodySize = 0;
         int id = -1;
         int type = -1;
 
-        for (int i = 0; i < totalPackets; i++) {
+        for (int i = 0; packetContainer.size() > 0; i++) {
             SourceRconResponsePacket responsePacket = packetContainer.poll();
-
             if (responsePacket == null)
                 continue;
-
             //Initialize Variables
-            if (id == -1) {
+            if (id == -1)
                 id = responsePacket.getId();
-            }
-            if (type == -1) {
+            if (type == -1)
                 type = responsePacket.getType();
-            }
-
             //Compute total body size
             bodySize += responsePacket.getBody().length();
-
             log.debug(" ({}) Re-assembling Packet: {}", i + 1, responsePacket);
             responseBody.append(responsePacket.getBody());
         }

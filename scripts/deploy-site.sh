@@ -9,7 +9,7 @@ GITHUB_AUTHOR_EMAIL="raffy@ibasco.com"
 SITE_STAGE_DIRECTORY="../target/staging"
 
 # Do not deploy on pull-requests or commits on other branches
-if [ "$TRAVIS_PULL_REQUEST" != "false" -o "$TRAVIS_BRANCH" != "$SOURCE_BRANCH" ]; then
+if [ "${TRAVIS_PULL_REQUEST}" != "false" -o "${TRAVIS_BRANCH}" != "master" ]; then
     echo "Skipping deploy. Performing site-build only."
     scripts/build-site.sh
     exit 0

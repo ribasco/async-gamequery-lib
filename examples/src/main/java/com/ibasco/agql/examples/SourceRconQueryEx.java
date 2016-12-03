@@ -58,7 +58,7 @@ public class SourceRconQueryEx extends BaseExample {
 
     public void testRcon() throws InterruptedException {
         String address = promptInput("Please enter the source server address", true, "", "sourceRconIp");
-        int port = Integer.valueOf(promptInput("Please enter the server port", false, "27015"));
+        int port = Integer.valueOf(promptInput("Please enter the server port", false, "27015", "sourceRconPort"));
         String password = promptInput("Please enter the rcon password", true);
 
         InetSocketAddress serverAddress = new InetSocketAddress(address, port);

@@ -34,6 +34,6 @@ public class SourceRconTerminatorPacket extends SourceRconRequestPacket {
     public SourceRconTerminatorPacket(int id) {
         super(id);
         setType(SourceRconRequestType.RESPONSE);
-        setBody("PEND");
+        setBody("");
     }
 }

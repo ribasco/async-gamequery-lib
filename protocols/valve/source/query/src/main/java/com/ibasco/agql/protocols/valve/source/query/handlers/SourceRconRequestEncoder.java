@@ -28,6 +28,8 @@ import com.ibasco.agql.core.transport.handlers.AbstractRequestEncoder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconPacket;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconPacketBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
+import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTerminatorPacket;
+import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -57,6 +59,13 @@ public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconR
         if (deconstructedPacket != null && deconstructedPacket.length > 0) {
             ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
             out.add(buffer);
+            if (!(msg instanceof SourceRconAuthRequest)) {
+                log.debug("Sending RCON Terminator");
+                //Send rcon-terminator
+                byte[] rconTermPacket = builder.deconstruct(new SourceRconTerminatorPacket(999));
+                ByteBuf termBuf = ctx.alloc().buffer(rconTermPacket.length).writeBytes(rconTermPacket);
+                out.add(termBuf);
+            }
         }
     }
 }

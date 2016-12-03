@@ -31,6 +31,7 @@ import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconA
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconCmdResponsePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
+import io.netty.buffer.ByteBufUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,9 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
         try {
             if (data.readableBytes() < 10) {
                 log.warn("Packet is less than 10 bytes. Unsupported packet.");
+                if (log.isDebugEnabled()) {
+                    log.debug("Unrecognized Packet: \n{}", ByteBufUtil.prettyHexDump(data));
+                }
                 return null;
             }
 

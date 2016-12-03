@@ -131,6 +131,7 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
 
                 //Do we have a body to process? Readable bytes should be > 2
                 if (msg.readableBytes() > 2) {
+
                     //Do we have a null terminator in the body?
                     if (hasNullTerminator) {
                         //Reconstruct the packet and pass to the next handler
@@ -245,23 +246,28 @@ public class SourceRconPacketAssembler extends SimpleChannelInboundHandler<ByteB
                             //Retrieve the length until the first null terminator
                             int bodyLength = packetBuffer.bytesBefore((byte) 0);
 
-                            //Make sure that the length of the response body is > 0
-                            assert bodyLength > 0;
+                            //Check if we received the null terminator
 
-                            log.debug(" #{} Re-assembling Packet (Length until Null Byte: {}, Size: {}, Id: {}, Type: {})", ++ctr, bodyLength, size, id, type);
+                            if (bodyLength > 0) {
+                                log.debug(" #{} Re-assembling Packet (Length until Null Byte: {}, Size: {}, Id: {}, Type: {})", ++ctr, bodyLength, size, id, type);
 
-                            //Append the partial response to the string buffer
-                            reassembledResponseBody.append(packetBuffer.readCharSequence(bodyLength, StandardCharsets.UTF_8));
+                                //Append the partial response to the string buffer
+                                reassembledResponseBody.append(packetBuffer.readCharSequence(bodyLength, StandardCharsets.UTF_8));
 
-                            //Make sure that the next two bytes are NULL terminators
-                            assert (packetBuffer.getByte(packetBuffer.readerIndex()) == 0) && (packetBuffer.getByte(packetBuffer.readerIndex() + 1) == 0);
-
-                            //Skip the next two bytes
-                            packetBuffer.skipBytes(2);
+                                //Make sure that the next two bytes are NULL terminators
+                                if ((packetBuffer.getByte(packetBuffer.readerIndex()) == 0) && (packetBuffer.getByte(packetBuffer.readerIndex() + 1) == 0)) {
+                                    //Skip the next two bytes
+                                    packetBuffer.skipBytes(2);
+                                }
+                            } else {
+                                log.debug("Done. Remaining Bytes: {}, Size: {}, Id: {}, Type: {}\n{}", packetBuffer.readableBytes(), size, id, type, ByteBufUtil.prettyHexDump(packetBuffer));
+                                packetBuffer.skipBytes(packetBuffer.readableBytes());
+                            }
                         }
 
-                        log.debug("END : Re-assembling Packet");
+                        packetBuffer.release();
 
+                        log.debug("END : Re-assembling Packet");
                         //Process the completed body
                         SourceRconResponsePacket packet = new SourceRconCmdResponsePacket();
                         packet.setSize(reassembledResponseBody.length());

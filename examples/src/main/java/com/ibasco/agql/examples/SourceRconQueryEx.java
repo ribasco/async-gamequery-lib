@@ -73,7 +73,7 @@ public class SourceRconQueryEx extends BaseExample {
 
         log.info("Successfully authenticated from server : {}", address);
         while (true) {
-            String command = promptInput("Enter rcon command: ", true);
+            String command = promptInput("\nEnter rcon command: ", true);
             try {
                 sourceRconClient.execute(serverAddress, command).whenComplete(this::handleResponse).join();
             } catch (RconNotYetAuthException e) {

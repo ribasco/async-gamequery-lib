@@ -65,89 +65,91 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     private AtomicInteger index = new AtomicInteger();
 
-    //TODO: NPath complexity of 16800 as reported by PMD. Consider refactoring this and break it down
+    private final static int PAD_SIZE = 56;
+
+    //TODO: NPath complexity of 16800 as reported by PMD. Consider refactoring this and break it down to smaller bits
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         log.debug("=============================================================");
-        log.debug(" #{}) DECODING INCOMING DATA : Size = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
+        log.debug(" ({}) DECODING INCOMING DATA : Bytes Received = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
         log.debug("=============================================================");
 
-        String desc = StringUtils.rightPad("Minimum allowable size?", 56);
+        String desc = StringUtils.rightPad("Minimum allowable size?", PAD_SIZE);
         //Verify we have the minimum allowable size
         if (in.readableBytes() < 14) {
-            log.debug(" # {} = NO (Actual Readable Bytes: {})", desc, in.readableBytes());
+            log.debug(" [ ] {} = NO (Actual Readable Bytes: {})", desc, in.readableBytes());
             return;
         }
-        log.debug(" # {} = YES (Actual Readable Bytes: {})", desc, in.readableBytes());
+        log.debug(" [x] {} = YES (Actual Readable Bytes: {})", desc, in.readableBytes());
 
         //Reset if this happens to be not a valid source rcon packet
         in.markReaderIndex();
 
         //Read and Verify size
-        desc = StringUtils.rightPad("Header size is at least = or > than the actual size?", 56);
+        desc = StringUtils.rightPad("Header size is at least = or > than the actual size?", PAD_SIZE);
         int size = in.readIntLE();
         if (in.readableBytes() < size) {
-            log.debug(" # {} = NO (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
+            log.debug(" [ ] {} = NO (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
             in.resetReaderIndex();
             return;
         }
-        log.debug(" # {} = YES (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
+        log.debug(" [x] {} = YES (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
 
         //Read and verify request id
-        desc = StringUtils.rightPad("Request Id within the valid range?", 56);
+        desc = StringUtils.rightPad("Request Id within the valid range?", PAD_SIZE);
         int id = in.readIntLE();
         if (!(id == -1 || id == 999 || (id >= 100000000 && id <= 999999999))) {
-            log.debug(" # {} = NO (Actual: {})", desc, id);
+            log.debug(" [ ] {} = NO (Actual: {})", desc, id);
             in.resetReaderIndex();
             return;
         }
-        log.debug(" # {} = YES (Actual: {})", desc, id);
+        log.debug(" [x] {} = YES (Actual: {})", desc, id);
 
         //Read and verify request type
-        desc = StringUtils.rightPad("Valid response type?", 56);
+        desc = StringUtils.rightPad("Valid response type?", PAD_SIZE);
         int type = in.readIntLE();
         if (get(type) == null) {
-            log.debug(" # {} = NO (Actual: {})", desc, type);
+            log.debug(" [ ] {} = NO (Actual: {})", desc, type);
             in.resetReaderIndex();
             return;
         }
-        log.debug(" # {} = YES (Actual: {})", desc, type);
+        log.debug(" [x] {} = YES (Actual: {})", desc, type);
 
         //Read and verify body
-        desc = StringUtils.rightPad("Contains Body?", 56);
+        desc = StringUtils.rightPad("Contains Body?", PAD_SIZE);
         int bodyLength = in.bytesBefore((byte) 0);
         String body = StringUtils.EMPTY;
         if (bodyLength <= 0)
-            log.debug(" # {} = NO", desc);
+            log.debug(" [ ] {} = NO", desc);
         else {
             body = in.readCharSequence(bodyLength, StandardCharsets.UTF_8).toString();
-            log.debug(" # {} = YES (Length: {}, Body: {})", desc, bodyLength, StringUtils.replaceAll(StringUtils.truncate(body, 30), "\n", "\\\\n"));
+            log.debug(" [x] {} = YES (Length: {}, Body: {})", desc, bodyLength, StringUtils.replaceAll(StringUtils.truncate(body, 30), "\n", "\\\\n"));
         }
 
         //Peek at the last two bytes and verify that they are null-bytes
         byte bodyTerminator = in.getByte(in.readerIndex());
         byte packetTerminator = in.getByte(in.readerIndex() + 1);
 
-        desc = StringUtils.rightPad("Contains TWO null-terminating bytes at the end?", 56);
+        desc = StringUtils.rightPad("Contains TWO null-terminating bytes at the end?", PAD_SIZE);
 
         //Make sure the last two bytes are NULL bytes (request id: 999 is reserved for split packet responses)
-        if ((bodyTerminator != 0 || packetTerminator != 0) && (id == 999)) {
-            log.debug("Found a malformed terminator packet. Ignoring");
+        if ((bodyTerminator != 0 || packetTerminator != 0) && (id == SourceRconTermRequestPacket.TERMINATOR_REQUEST_ID)) {
+            log.debug("Found a malformed terminator packet. Skipping the remaining {} bytes", in.readableBytes());
             in.skipBytes(in.readableBytes());
             return;
         } else if (bodyTerminator != 0 || packetTerminator != 0) {
-            log.debug(" # {} = NO (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
+            log.debug(" [ ] {} = NO (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
             in.resetReaderIndex();
             return;
         } else {
-            log.debug(" # {} = YES (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
+            log.debug(" [x] {} = YES (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
             //All is good, skip the last two bytes
             if (in.readableBytes() >= 2)
                 in.skipBytes(2);
         }
 
         //At this point, we can now construct a packet
-        log.debug(" # Status: PASS (Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Body Size = {})", size, id, type, in.readableBytes(), bodyLength);
+        log.debug(" [x] Status: PASS (Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Body Size = {})", size, id, type, in.readableBytes(), bodyLength);
 
         index.set(0);
 
@@ -166,6 +168,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             responsePacket.setId(id);
             responsePacket.setType(type);
             responsePacket.setBody(body);
+            log.debug("Passing response to the next handler");
             out.add(responsePacket);
         }
     }

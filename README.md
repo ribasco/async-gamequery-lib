@@ -166,7 +166,7 @@ Please input your API Token:
 ~~~
 
 **Note:**
-* Don't forget to perform a `mvn clean package` or `mvn clean install` before you run the example
+* Don't forget to perform a `mvn clean install` before running an example
 * The output can be reviewed from the `logs` directory under the project's directory.
 
 Protocol Specifications

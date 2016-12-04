@@ -1,14 +1,13 @@
 #!/bin/bash
 set -ev # Exit with nonzero exit code if anything fails
 
-SOURCE_BRANCH="master"
 TARGET_BRANCH="gh-pages"
 GITHUB_USER="ribasco"
 GITHUB_AUTHOR_NAME="AGQL Travis CI"
 GITHUB_AUTHOR_EMAIL="raffy@ibasco.com"
 SITE_STAGE_DIRECTORY="../target/staging"
 
-# Do not deploy on pull-requests or commits on other branches
+# Do not deploy site on pull-requests or commits on other branches
 if [ "${TRAVIS_PULL_REQUEST}" != "false" -o "${TRAVIS_BRANCH}" != "master" ]; then
     echo "Skipping deploy. Performing site-build only."
     scripts/build-site.sh
@@ -26,11 +25,6 @@ git clone -b ${TARGET_BRANCH} --single-branch https://${GITHUB_USER}:${GITUB_TOK
 cd ${TARGET_BRANCH}
 echo "Switched to directory $(pwd)"
 
-# git remote rm origin
-# git remote add origin https://$GITHUB_USER:$GITHUB_TOKEN@github.com/$GITHUB_USER/async-gamequery-lib.git
-
-# REMOTE_ORIGIN=`git config remote.origin.url`
-
 # Clean gh-pages
 echo ===========================================
 echo "Cleaning ${TARGET_BRANCH} branch"
@@ -47,16 +41,16 @@ if [ ! -d ${SITE_STAGE_DIRECTORY} ]; then
 fi
 
 echo ===========================================
-echo "Copying site staging files to `pwd`"
+echo "Copying site staging files to $(pwd)"
 echo ===========================================
 # Start copying (at this point we should still be inside gh-pages)
-cp -vR ../target/staging/* `pwd`
+cp -vR ../target/staging/* $(pwd)
 
 echo ===========================================
 echo "Adding files to Git"
 echo ===========================================
 
-# Git Add
+# Add all files for versioning
 git add .
 
 echo ===========================================
@@ -79,7 +73,13 @@ echo "Pushing updates to remote repository"
 echo ===========================================
 
 # Push to the remote repository
-git push --quiet https://${GITHUB_TOKEN}@github.com/ribasco/async-gamequery-lib
+git push --quiet https://${GITHUB_USER}:${GITHUB_TOKEN}@github.com/ribasco/async-gamequery-lib
+
+if [ $? -eq 0 ]; then
+    echo "Site updates have been successfully committed to the '${TARGET_BRANCH}' branch"
+else
+    echo "Failed to commit site to remote repository"
+fi
 
 ls -la
 

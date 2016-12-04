@@ -27,8 +27,11 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.enums.ChannelType;
 import com.ibasco.agql.core.enums.ProcessingMode;
+import com.ibasco.agql.core.enums.RequestPriority;
+import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.messenger.GameServerMessenger;
 import com.ibasco.agql.core.transport.tcp.NettyPooledTcpTransport;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconAuthResponse;
@@ -37,11 +40,15 @@ import io.netty.channel.ChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
+
+    private Map<Integer, SourceRconRequestType> requestTypeMap = new HashMap<>();
 
     public SourceRconMessenger() {
         super(new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
@@ -56,6 +63,41 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         transport.addChannelOption(ChannelOption.SO_KEEPALIVE, true);
         transport.addChannelOption(ChannelOption.TCP_NODELAY, true);
         return transport;
+    }
+
+    @Override
+    public CompletableFuture<SourceRconResponse> send(SourceRconRequest request, RequestPriority priority) {
+        final int requestId = request.getRequestId();
+
+        SourceRconRequestType type = getRequestType(request);
+
+        //Make sure we have a request type
+        if (type == null)
+            throw new MessengerException("Unrecognized rcon request");
+
+        //Add the request type to the map
+        requestTypeMap.put(requestId, getRequestType(request));
+
+        final CompletableFuture<SourceRconResponse> futureResponse = super.send(request, priority);
+        //Make sure to remove the requestId once the response future is completed
+        futureResponse.whenComplete((response, error) -> {
+            log.debug("Removing request id '{}' from type map", requestId);
+            requestTypeMap.remove(requestId);
+        });
+        return futureResponse;
+    }
+
+    private SourceRconRequestType getRequestType(SourceRconRequest request) {
+        if (request instanceof SourceRconAuthRequest) {
+            return SourceRconRequestType.AUTH;
+        } else if (request instanceof SourceRconCmdRequest) {
+            return SourceRconRequestType.COMMAND;
+        }
+        return null;
+    }
+
+    public Map<Integer, SourceRconRequestType> getRequestTypeMap() {
+        return requestTypeMap;
     }
 
     @Override

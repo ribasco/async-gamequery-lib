@@ -82,7 +82,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
         if (StringUtils.isEmpty(password) || address == null)
             throw new IllegalArgumentException("Password or Address is empty or null");
         int id = createRequestId();
-        log.debug("Requesting with id: {}", id);
+        log.debug("[AUTH]: Requesting with id: {}", id);
         CompletableFuture<Integer> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
         return authRequestFuture.exceptionally(throwable -> {
             log.debug(throwable.getMessage(), throwable);
@@ -92,7 +92,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
             return -1;
         }).thenApply(requestId -> {
             if (requestId != null && requestId != -1) {
-                log.debug("Authenticated with request id : {}", requestId);
+                log.debug("[AUTH]: Authenticated with request id : {}", requestId);
                 authMap.put(address, requestId);
                 return true;
             }

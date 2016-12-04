@@ -29,6 +29,8 @@ import com.ibasco.agql.core.session.AbstractSessionIdFactory;
 import com.ibasco.agql.core.session.SessionId;
 
 /**
+ * A factory class that generates a unique session id for each client request.
+ *
  * Created by raffy on 9/26/2016.
  */
 public class SourceRconSessionIdFactory extends AbstractSessionIdFactory<SourceRconRequest, SourceRconResponse> {
@@ -37,11 +39,9 @@ public class SourceRconSessionIdFactory extends AbstractSessionIdFactory<SourceR
         if (!(message instanceof SourceRconMessage)) {
             throw new IllegalStateException("Message is not an instance of SourceRconMessage");
         }
-        String id = new StringBuffer().append(createIdStringFromMsg(message)).toString();
-
-        //String id = new StringBuffer().append(createIdStringFromMsg(message))
-        // .append(":").append(((SourceRconMessage) message).getRequestId()).toString();
-
+        /*String id = new StringBuffer().append(createIdStringFromMsg(message)).toString();*/
+        String id = new StringBuffer().append(createIdStringFromMsg(message)).append(":")
+                .append(((SourceRconMessage) message).getRequestId()).toString();
         return new SessionId(id);
     }
 

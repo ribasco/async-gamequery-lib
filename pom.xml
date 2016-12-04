@@ -444,8 +444,6 @@
                                         <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                     </manifest>
                                     <index>true</index>
-                                    <manifestFile>${project.basedir}/src/main/resources/META-INF/MANIFEST.MF
-                                    </manifestFile>
                                 </archive>
                             </configuration>
                         </execution>

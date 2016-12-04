@@ -7,8 +7,7 @@ echo "============================================="
 
 # Do not deploy on pull-requests or commits on other branches
 if [ "${TRAVIS_PULL_REQUEST}" != "false" -o "${TRAVIS_BRANCH}" != "master" ]; then
-    echo "Skipping deploy."
-    scripts/build-project.sh
+    echo "Skipping deploy (Reason: Pull-Request or Non-master branch detected)"
     exit 0
 fi
 

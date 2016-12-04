@@ -5,4 +5,4 @@ echo "============================================="
 echo "Building Project"
 echo "============================================="
 
-mvn clean package # -DskipTests=true
+mvn clean package -DskipTests=true

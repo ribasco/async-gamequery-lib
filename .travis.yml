@@ -24,12 +24,13 @@ notifications:
     on_failure: always  # options: [always|never|change] default: always
     on_start: never     # options: [always|never|change] default: always
 
-install: true
+before_install:
+  - openssl aes-256-cbc -K $encrypted_ed817947015b_key -iv $encrypted_ed817947015b_iv -in scripts/travis-gpg-key.enc -out scripts/travis-gpg-key.dec -d
+
+install:
+  - mvn --settings scripts/travis-maven-settings.xml install -DskipTests=true -Dgpg.skip -Dmaven.javadoc.skip=true -B -V
 
 sudo: false
-
-before_install:
-- openssl aes-256-cbc -K $encrypted_ed817947015b_key -iv $encrypted_ed817947015b_iv -in scripts/travis-gpg-key.enc -out scripts/travis-gpg-key.dec -d
 
 script:
 - scripts/build-project.sh
@@ -38,28 +39,34 @@ before_deploy:
   - cp scripts/travis-maven-settings.xml ~/.m2/settings.xml
 
 deploy:
-  provider: releases
-  api_key: $GITHUB_TOKEN
-  file_glob: true
-  file:
-    - core/target/agql-lib-core-*.jar
-    - examples/target/agql-lib-examples-*.jar
-    - protocols/supercell/clashofclans/webapi/target/agql-coc-webapi-*.jar
-    - protocols/valve/csgo/webapi/target/agql-csgo-webapi-*.jar
-    - protocols/valve/dota2/webapi/target/agql-dota2-webapi-*.jar
-    - protocols/valve/source/query/target/agql-source-query-*.jar
-    - protocols/valve/steam/master/target/agql-steam-master-*.jar
-    - protocols/valve/steam/webapi/target/agql-steam-webapi-*.jar
-  skip_cleanup: true
-  on:
-    tags: true
-    repo: ribasco/async-gamequery-lib
+  - provider: releases
+    api_key: $GITHUB_TOKEN
+    file_glob: true
+    file:
+      - core/target/agql-lib-core-*.jar
+      - examples/target/agql-lib-examples-*.jar
+      - protocols/supercell/clashofclans/webapi/target/agql-coc-webapi-*.jar
+      - protocols/valve/csgo/webapi/target/agql-csgo-webapi-*.jar
+      - protocols/valve/dota2/webapi/target/agql-dota2-webapi-*.jar
+      - protocols/valve/source/query/target/agql-source-query-*.jar
+      - protocols/valve/steam/master/target/agql-steam-master-*.jar
+      - protocols/valve/steam/webapi/target/agql-steam-webapi-*.jar
+    skip_cleanup: true
+    on:
+      tags: true
+      repo: ribasco/async-gamequery-lib
+  - provider: script
+      script: scripts/deploy-project.sh
+      skip_cleanup: true
+      on:
+        tags: false
+        branch: master
+        repo: ribasco/async-gamequery-lib
 
 after_success:
 - gpg --import scripts/travis-gpg-key.dec
-# - mvn jacoco:prepare-agent jacoco:report coveralls:report
-- scripts/deploy-project.sh
 - scripts/deploy-site.sh
+# - mvn jacoco:prepare-agent jacoco:report coveralls:report
 
 cache:
   directories:

@@ -29,7 +29,7 @@
             <level>DEBUG</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-5level %-25logger{0} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -40,7 +40,7 @@
             <level>DEBUG</level>
         </filter>
         <encoder>
-            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n</pattern>
+            <pattern>%-8relative |%-20thread| %-6level | %-25logger{0} | %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -51,7 +51,7 @@
             <level>ERROR</level>
         </filter>
         <encoder>
-            <pattern>%-4relative [%thread] %-5level %logger{35} - %msg%n %ex{full}</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %level %logger - %ex</pattern>
         </encoder>
     </appender>
 

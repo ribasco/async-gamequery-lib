@@ -63,4 +63,9 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         map.put(SourceRconAuthRequest.class, SourceRconAuthResponse.class);
         map.put(SourceRconCmdRequest.class, SourceRconCmdResponse.class);
     }
+
+    @Override
+    public void accept(SourceRconResponse response, Throwable error) {
+        super.accept(response, error);
+    }
 }

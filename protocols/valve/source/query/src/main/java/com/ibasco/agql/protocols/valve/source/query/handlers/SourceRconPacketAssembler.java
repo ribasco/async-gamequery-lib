@@ -62,9 +62,11 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
                 if (packetContainer.size() == 1) {
                     reassembledPacket = packetContainer.poll();
                 } else if (packetContainer.size() > 1) {
+                    log.debug("Found multiple packets in the queue. Re-assembling");
                     reassembledPacket = reassemblePackets();
                 }
                 if (reassembledPacket != null) {
+                    log.debug("Sending Re-assembled packet to the next handler");
                     //Send to the next handler
                     out.add(reassembledPacket);
                 }

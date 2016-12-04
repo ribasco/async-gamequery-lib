@@ -40,12 +40,30 @@
 
     <build>
         <plugins>
+            <!-- Allow users to execute example applications from command line -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>1.5.0</version>
                 <configuration>
                     <mainClass>com.ibasco.agql.examples.base.ExampleRunner</mainClass>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <index>true</index>
+                        <manifest>
+                            <mainClass>com.ibasco.agql.examples.base.ExampleRunner</mainClass>
+                            <addClasspath>true</addClasspath>
+                        </manifest>
+                        <manifestEntries>
+                            <mode>development</mode>
+                            <url>${project.url}</url>
+                        </manifestEntries>
+                    </archive>
                 </configuration>
             </plugin>
         </plugins>

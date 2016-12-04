@@ -22,12 +22,25 @@
  * SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.valve.source.query;
+package com.ibasco.agql.core.exceptions;
 
-import com.ibasco.agql.core.session.DefaultSessionIdFactory;
+public class MessengerException extends AsyncGameLibUncheckedException {
+    public MessengerException() {
+    }
 
-/**
- * Created by raffy on 9/26/2016.
- */
-public class SourceSessionIdFactory extends DefaultSessionIdFactory {
+    public MessengerException(String message) {
+        super(message);
+    }
+
+    public MessengerException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+    public MessengerException(Throwable cause) {
+        super(cause);
+    }
+
+    public MessengerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
 }

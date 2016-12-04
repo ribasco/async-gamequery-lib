@@ -25,6 +25,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
 import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTermRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconAuthResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconCmdResponsePacket;
@@ -37,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class responsible for re-assembling split packet instances into one complete packet.
@@ -47,10 +49,37 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
 
+    private Map<Integer, SourceRconRequestType> requestTypeMap;
+
     private LinkedList<SourceRconResponsePacket> packetContainer = new LinkedList<>();
+
+    public SourceRconPacketAssembler(Map<Integer, SourceRconRequestType> requestTypeMap) {
+        if (requestTypeMap == null)
+            throw new IllegalArgumentException("Request type map cannot be null");
+        this.requestTypeMap = requestTypeMap;
+    }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, SourceRconResponsePacket msg, List<Object> out) throws Exception {
+
+        int requestId = msg.getId();
+
+        log.debug("{} received rcon packet with request id : {}", this.getClass().getSimpleName(), requestId);
+
+        SourceRconRequestType type = requestTypeMap.get(requestId);
+
+        log.debug("Got Request Type {} for Id {}", type, requestId);
+
+        switch (type) {
+            case AUTH:
+                log.debug("Received an AUTH type packet. Packet Class = {}", msg.getClass().getSimpleName());
+                break;
+            case RESPONSE:
+                break;
+            default:
+                break;
+        }
+
         if (msg instanceof SourceRconAuthResponsePacket) {
             //automatically forward all auth responses to the next handler
             log.debug("Forwarding authentication response to next handler");

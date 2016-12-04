@@ -42,7 +42,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType.get;
 
 /**
- * <p>Decodes that decodes Source Rcon Packets</p>
+ * <p>A Class that process incoming UDP datagrams and decodes each frame into {@link SourceRconResponsePacket}
+ * instances</p>
  *
  * <p>
  * Rcon Packet Structure:
@@ -67,9 +68,20 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     private final static int PAD_SIZE = 56;
 
+    private SourceRconPacketBuilder builder;
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        log.debug("Initializing SourceRconPacketBuilder");
+        builder = new SourceRconPacketBuilder(ctx.channel().alloc());
+    }
+
     //TODO: NPath complexity of 16800 as reported by PMD. Consider refactoring this and break it down to smaller bits
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+
+        //TODO: Move all code logic below to SourceRconPacketBuilder
+
         log.debug("=============================================================");
         log.debug(" ({}) DECODING INCOMING DATA : Bytes Received = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
         log.debug("=============================================================");
@@ -150,7 +162,9 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
         //At this point, we can now construct a packet
         log.debug(" [x] Status: PASS (Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Body Size = {})", size, id, type, in.readableBytes(), bodyLength);
+        log.debug("=============================================================");
 
+        //Reset the index
         index.set(0);
 
         //Construct the response packet and send to the next handlers
@@ -168,7 +182,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             responsePacket.setId(id);
             responsePacket.setType(type);
             responsePacket.setBody(body);
-            log.debug("Passing response to the next handler");
+            log.debug("Passing response for request id : '{}' to the next handler", id);
             out.add(responsePacket);
         }
     }

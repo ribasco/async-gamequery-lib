@@ -33,14 +33,12 @@ import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconRequestEn
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconResponseRouter;
 import io.netty.channel.Channel;
 
-import java.util.function.BiConsumer;
-
 class SourceRconChannelInitializer implements NettyChannelInitializer {
 
-    private BiConsumer<SourceRconResponse, Throwable> responseHandler;
+    private SourceRconMessenger rconMessenger;
 
-    SourceRconChannelInitializer(BiConsumer<SourceRconResponse, Throwable> responseHandler) {
-        this.responseHandler = responseHandler;
+    SourceRconChannelInitializer(SourceRconMessenger responseHandler) {
+        this.rconMessenger = responseHandler;
     }
 
     @Override
@@ -49,7 +47,7 @@ class SourceRconChannelInitializer implements NettyChannelInitializer {
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder));
         channel.pipeline().addLast(new SourceRconPacketDecoder());
-        channel.pipeline().addLast(new SourceRconPacketAssembler());
-        channel.pipeline().addLast(new SourceRconResponseRouter(responseHandler));
+        channel.pipeline().addLast(new SourceRconPacketAssembler(rconMessenger.getRequestTypeMap()));
+        channel.pipeline().addLast(new SourceRconResponseRouter(rconMessenger));
     }
 }

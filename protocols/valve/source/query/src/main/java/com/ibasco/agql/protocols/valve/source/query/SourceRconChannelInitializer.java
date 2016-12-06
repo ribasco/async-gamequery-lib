@@ -44,10 +44,10 @@ class SourceRconChannelInitializer implements NettyChannelInitializer {
     @Override
     public void initializeChannel(Channel channel, NettyTransport transport) {
         SourceRconPacketBuilder rconBuilder = new SourceRconPacketBuilder(transport.getAllocator());
-        channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder));
         channel.pipeline().addLast(new SourceRconPacketDecoder());
         channel.pipeline().addLast(new SourceRconPacketAssembler(rconMessenger.getRequestTypeMap()));
         channel.pipeline().addLast(new SourceRconResponseRouter(rconMessenger));
+        channel.pipeline().addLast(new ErrorHandler());
     }
 }

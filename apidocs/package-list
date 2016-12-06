@@ -57,6 +57,7 @@ com.ibasco.agql.protocols.valve.source.query.packets.response
 com.ibasco.agql.protocols.valve.source.query.pojos
 com.ibasco.agql.protocols.valve.source.query.request
 com.ibasco.agql.protocols.valve.source.query.response
+com.ibasco.agql.protocols.valve.source.query.utils
 com.ibasco.agql.protocols.valve.steam.master
 com.ibasco.agql.protocols.valve.steam.master.client
 com.ibasco.agql.protocols.valve.steam.master.enums

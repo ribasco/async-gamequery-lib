@@ -24,13 +24,14 @@
 
 package com.ibasco.agql.protocols.valve.source.query.response;
 
+import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconAuthResponsePacket;
 
 /**
  * Created by raffy on 9/24/2016.
  */
-public class SourceRconAuthResponse extends SourceRconResponse<Integer, SourceRconAuthResponsePacket> {
+public class SourceRconAuthResponse extends SourceRconResponse<SourceRconAuthStatus, SourceRconAuthResponsePacket> {
     public SourceRconAuthResponse() {
         super(null, null, -1);
     }

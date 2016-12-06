@@ -25,8 +25,10 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.examples.base.BaseExample;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,9 @@ public class SourceRconQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
 
+    /**
+     * For internal testing purposes
+     */
     public static void main(String[] args) throws Exception {
         SourceRconQueryEx c = new SourceRconQueryEx();
         c.run();
@@ -59,16 +64,19 @@ public class SourceRconQueryEx extends BaseExample {
     public void testRcon() throws InterruptedException {
         String address = promptInput("Please enter the source server address", true, "", "sourceRconIp");
         int port = Integer.valueOf(promptInput("Please enter the server port", false, "27015", "sourceRconPort"));
-        String password = promptInput("Please enter the rcon password", true);
+
+        boolean authenticated = false;
 
         InetSocketAddress serverAddress = new InetSocketAddress(address, port);
 
-        log.info("Connecting to server {}:{}, with password = {}", address, port, password);
-        boolean success = sourceRconClient.authenticate(serverAddress, password).join();
-
-        if (!success) {
-            log.error("Could not authenticate from server.");
-            return;
+        while (!authenticated) {
+            String password = promptInput("Please enter the rcon password", true, "", "sourceRconPass");
+            log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
+            SourceRconAuthStatus authStatus = sourceRconClient.authenticate(serverAddress, password).join();
+            if (!authStatus.isAuthenticated()) {
+                log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
+            } else
+                authenticated = true;
         }
 
         log.info("Successfully authenticated from server : {}", address);

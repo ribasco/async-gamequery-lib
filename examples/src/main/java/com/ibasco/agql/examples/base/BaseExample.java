@@ -24,17 +24,23 @@
 
 package com.ibasco.agql.examples.base;
 
+import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.Cipher;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
+import java.util.Base64;
 import java.util.Properties;
 import java.util.Scanner;
 
 abstract public class BaseExample implements Closeable {
-
+    private static final String worldsMostSecureUnhackableIvKey = "aGqLsOurc3querYs";
+    private static String worldsMostSecureUnhackableKey = "0123456789abcdef";
     private static final Logger log = LoggerFactory.getLogger(BaseExample.class);
     private static final String EXAMPLE_PROP_FILE = "example.properties";
     private Properties exampleProps = new Properties();
@@ -46,7 +52,7 @@ abstract public class BaseExample implements Closeable {
     }
 
     private void loadProps() {
-        InputStream is = null;
+        InputStream is;
 
         // First try loading from the current directory
         try {
@@ -104,17 +110,32 @@ abstract public class BaseExample implements Closeable {
     protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty) {
         Scanner userInput = new Scanner(System.in);
         String returnValue;
-        boolean inputEmpty;
+        //perform some bit of magic to determine if the prompt is a password type
+        boolean inputEmpty, isPassword = StringUtils.containsIgnoreCase(message, "password");
         int retryCounter = 0;
         String defaultValue = defaultReturnValue;
 
+        //Get value from file (if available)
         if (!StringUtils.isEmpty(defaultProperty)) {
-            defaultValue = getProp(defaultProperty);
+            if (isPassword) {
+                try {
+                    String defaultProp = getProp(defaultProperty);
+                    if (!StringUtils.isEmpty(defaultProp))
+                        defaultValue = decrypt(defaultProp);
+                } catch (Exception e) {
+                    throw new AsyncGameLibUncheckedException(e);
+                }
+            } else {
+                defaultValue = getProp(defaultProperty);
+            }
         }
 
         do {
             if (!StringUtils.isEmpty(defaultValue)) {
-                System.out.printf("%s [%s]: ", message, defaultValue);
+                if (isPassword) {
+                    System.out.printf("%s [%s]: ", message, StringUtils.replaceAll(defaultValue, ".", "*"));
+                } else
+                    System.out.printf("%s [%s]: ", message, defaultValue);
             } else {
                 System.out.printf("%s: ", message);
             }
@@ -122,6 +143,7 @@ abstract public class BaseExample implements Closeable {
             returnValue = StringUtils.defaultIfEmpty(userInput.nextLine(), defaultValue);
             inputEmpty = StringUtils.isEmpty(returnValue);
         } while ((inputEmpty && ++retryCounter < 3) && required);
+
         //If the token is still empty, throw an error
         if (inputEmpty && required) {
             System.err.println("Required parameter is missing");
@@ -131,9 +153,54 @@ abstract public class BaseExample implements Closeable {
 
         //Save to properties file
         if (!StringUtils.isEmpty(defaultProperty)) {
-            saveProp(defaultProperty, returnValue);
+            if (isPassword) {
+                try {
+                    saveProp(defaultProperty, encrypt(returnValue));
+                } catch (Exception e) {
+                    throw new AsyncGameLibUncheckedException(e);
+                }
+            } else {
+                saveProp(defaultProperty, returnValue);
+            }
         }
 
         return returnValue;
+    }
+
+    /**
+     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
+     */
+    public static String encrypt(String plainText) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
+        SecretKeySpec key = new SecretKeySpec(worldsMostSecureUnhackableKey.getBytes("UTF-8"), "AES");
+        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes("UTF-8")));
+        return Base64.getEncoder().encodeToString((cipher.doFinal(padNullBytes(plainText))));
+    }
+
+    /**
+     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
+     */
+    public static String decrypt(String cipherText) throws Exception {
+        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
+        SecretKeySpec key = new SecretKeySpec(worldsMostSecureUnhackableKey.getBytes("UTF-8"), "AES");
+        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes("UTF-8")));
+        byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
+        return new String(cipher.doFinal(cipherBytes), "UTF-8");
+    }
+
+
+    private static byte[] padNullBytes(String text) {
+        if (StringUtils.isEmpty(text))
+            return null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            bos.write(text.getBytes("UTF-8"));
+            while ((bos.size() % 16) != 0) {
+                bos.write(0);
+            }
+        } catch (IOException e) {
+            throw new AsyncGameLibUncheckedException(e);
+        }
+        return bos.toByteArray();
     }
 }

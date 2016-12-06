@@ -7,15 +7,11 @@ Examples of sending RCON commands to a Source Server.
 You only need to authenticate once.
 
 ~~~
-boolean success = sourceRconClient.authenticate(address1, "rconPassword").whenComplete((success, throwable) -> {
-    if (success != null) {
-        log.info("Successfully Authenticated for {}", address1);
-    } else
-        log.error("Problem authenticating rcon with {}", address1);
-}).join();
-
-if (success)
-    //do something...
+SourceRconAuthStatus authStatus = sourceRconClient.authenticate(serverAddress, password).join();
+if (!authStatus.isAuthenticated()) {
+    log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
+} 
+//do something...
 ~~~
 
 ### Sending Commands

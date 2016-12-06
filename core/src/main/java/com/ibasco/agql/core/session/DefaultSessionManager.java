@@ -55,24 +55,6 @@ public class DefaultSessionManager<Req extends AbstractRequest,
     private Map<Class<? extends Req>, Class<? extends Res>> directory = null;
     private final AtomicLong indexCounter = new AtomicLong();
 
-    private static class SessionIdComparator implements Comparator<SessionId> {
-        @Override
-        public int compare(SessionId o1, SessionId o2) {
-            return new CompareToBuilder()
-                    .append(o1.getId(), o2.getId())
-                    .toComparison();
-        }
-    }
-
-    private static class SessionValueComparator implements Comparator<SessionValue> {
-        @Override
-        public int compare(SessionValue o1, SessionValue o2) {
-            return new CompareToBuilder()
-                    .append(o1.getIndex(), o2.getIndex())
-                    .toComparison();
-        }
-    }
-
     @SuppressWarnings("unchecked")
     public DefaultSessionManager(AbstractSessionIdFactory factory) {
         sessionTimer = new HashedWheelTimer(new ThreadFactoryBuilder().setNameFormat("timeout-%d").setDaemon(true).build());
@@ -189,5 +171,23 @@ public class DefaultSessionManager<Req extends AbstractRequest,
         }
         sessionTimer.stop();
         session.clear();
+    }
+
+    private static class SessionIdComparator implements Comparator<SessionId> {
+        @Override
+        public int compare(SessionId o1, SessionId o2) {
+            return new CompareToBuilder()
+                    .append(o1.getId(), o2.getId())
+                    .toComparison();
+        }
+    }
+
+    private static class SessionValueComparator implements Comparator<SessionValue> {
+        @Override
+        public int compare(SessionValue o1, SessionValue o2) {
+            return new CompareToBuilder()
+                    .append(o1.getIndex(), o2.getIndex())
+                    .toComparison();
+        }
     }
 }

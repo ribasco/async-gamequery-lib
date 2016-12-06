@@ -26,13 +26,15 @@ package com.ibasco.agql.protocols.valve.source.query.client;
 
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.enums.RequestPriority;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconMessenger;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
-import org.apache.commons.lang3.RandomUtils;
+import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,26 +80,23 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      * @throws IllegalArgumentException
      *         Thrown when the address or password supplied is empty or null
      */
-    public CompletableFuture<Boolean> authenticate(InetSocketAddress address, String password) {
+    public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address, String password) {
         if (StringUtils.isEmpty(password) || address == null)
             throw new IllegalArgumentException("Password or Address is empty or null");
-        int id = createRequestId();
+        int id = SourceRconUtil.createRequestId();
         log.debug("[AUTH]: Requesting with id: {}", id);
-        CompletableFuture<Integer> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
-        return authRequestFuture.exceptionally(throwable -> {
-            log.debug(throwable.getMessage(), throwable);
-            if (authMap.containsKey(address)) {
-                authMap.remove(address);
+        CompletableFuture<SourceRconAuthStatus> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
+        authRequestFuture.whenComplete((status, error) -> {
+            if (error != null) {
+                if (this.authMap.containsKey(address))
+                    this.authMap.remove(address);
+                throw new SourceRconAuthException(error);
             }
-            return -1;
-        }).thenApply(requestId -> {
-            if (requestId != null && requestId != -1) {
-                log.debug("[AUTH]: Authenticated with request id : {}", requestId);
-                authMap.put(address, requestId);
-                return true;
+            if (status.isAuthenticated()) {
+                this.authMap.put(address, id);
             }
-            return false;
         });
+        return authRequestFuture;
     }
 
     /**
@@ -117,7 +116,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
         if (!isAuthenticated(address))
             throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
-        final Integer id = createRequestId();
+        final Integer id = SourceRconUtil.createRequestId();
         log.debug("Executing command '{}' using request id: {}", command, id);
         return sendRequest(new SourceRconCmdRequest(address, id, command));
     }
@@ -134,12 +133,4 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
         return authMap.containsKey(server) && (authMap.get(server) != null);
     }
 
-    /**
-     * A utility method to generate random request ids
-     *
-     * @return An random integer ranging from 100000000 to 999999999
-     */
-    private int createRequestId() {
-        return RandomUtils.nextInt(100000000, 999999999);
-    }
 }

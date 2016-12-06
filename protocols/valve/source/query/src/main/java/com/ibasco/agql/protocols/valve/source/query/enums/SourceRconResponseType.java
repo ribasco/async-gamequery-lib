@@ -31,7 +31,8 @@ import java.util.Arrays;
  */
 public enum SourceRconResponseType {
     AUTH(2),
-    COMMAND(0);
+    COMMAND(0),
+    TERMINATOR(-1);
 
     private int header;
 

@@ -17,6 +17,7 @@ if [ -z "$1" ]
     echo "- Steam Storefront Web API Example (key: steam-store-webapi)"
     echo "- Source Log Listener Example      (key: source-log)"
     echo "- Steam Econ Web API Example       (key: steam-econ-webapi)"
+    echo "- Minecraft Rcon Example           (key: mc-rcon)"
 
     exit 1
 fi

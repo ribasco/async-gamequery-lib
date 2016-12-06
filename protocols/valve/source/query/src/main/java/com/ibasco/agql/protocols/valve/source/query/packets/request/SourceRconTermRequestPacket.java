@@ -26,17 +26,21 @@ package com.ibasco.agql.protocols.valve.source.query.packets.request;
 
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
+import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
 
 /**
- * Created by raffy on 9/27/2016.
+ * <p>
+ * This packet is sent right after each command request.
+ * </p>
+ *
+ * @see <a href="https://developer.valvesoftware.com/wiki/Talk:Source_RCON_Protocol">How
+ * to handle split packet response</a>
  */
 public class SourceRconTermRequestPacket extends SourceRconRequestPacket {
 
-    public static final int TERMINATOR_REQUEST_ID = 999;
-
     public SourceRconTermRequestPacket() {
-        super(TERMINATOR_REQUEST_ID);
+        super(SourceRconUtil.RCON_TERMINATOR_RID);
         setType(SourceRconRequestType.RESPONSE);
-        setBody("");
+        setBody("T800");
     }
 }

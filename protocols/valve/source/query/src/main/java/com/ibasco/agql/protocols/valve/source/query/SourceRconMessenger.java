@@ -40,7 +40,7 @@ import io.netty.channel.ChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -48,7 +48,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
-    private Map<Integer, SourceRconRequestType> requestTypeMap = new HashMap<>();
+    private Map<Integer, SourceRconRequestType> requestTypeMap = new LinkedHashMap<>();
 
     public SourceRconMessenger() {
         super(new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
@@ -87,7 +87,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         return futureResponse;
     }
 
-    private SourceRconRequestType getRequestType(SourceRconRequest request) {
+    public SourceRconRequestType getRequestType(SourceRconRequest request) {
         if (request instanceof SourceRconAuthRequest) {
             return SourceRconRequestType.AUTH;
         } else if (request instanceof SourceRconCmdRequest) {

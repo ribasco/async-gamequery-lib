@@ -115,14 +115,14 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
         int id = packet.getId();
         int type = packet.getType();
         final String body = StringUtils.defaultString(packet.getBody());
-        int packetSize = 14 + body.length();
+        int packetSize = 10 + body.length();
         final ByteBuf buf = createBuffer(packetSize);
         byte[] data;
         try {
-            buf.writeIntLE(packetSize - 4);
+            buf.writeIntLE(packetSize);
             buf.writeIntLE(id);
             buf.writeIntLE(type);
-            buf.writeBytes(body.getBytes(StandardCharsets.UTF_8));
+            buf.writeBytes(body.getBytes());
             buf.writeByte(0);
             buf.writeByte(0);
             data = new byte[buf.readableBytes()];

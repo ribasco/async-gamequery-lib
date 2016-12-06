@@ -26,9 +26,11 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.protocols.valve.source.query.SourceRconPacketBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.packets.request.SourceRconTermRequestPacket;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType;
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconTermResponsePacket;
+import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.commons.lang3.StringUtils;
@@ -80,11 +82,13 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 
+        final String separator = "=================================================================================================";
+
         //TODO: Move all code logic below to SourceRconPacketBuilder
 
-        log.debug("=============================================================");
+        log.debug(separator);
         log.debug(" ({}) DECODING INCOMING DATA : Bytes Received = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
-        log.debug("=============================================================");
+        log.debug(separator);
 
         String desc = StringUtils.rightPad("Minimum allowable size?", PAD_SIZE);
         //Verify we have the minimum allowable size
@@ -98,19 +102,20 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         in.markReaderIndex();
 
         //Read and Verify size
-        desc = StringUtils.rightPad("Header size is at least = or > than the actual size?", PAD_SIZE);
+        desc = StringUtils.rightPad("Bytes received at least => than the \"declared\" size?", PAD_SIZE);
         int size = in.readIntLE();
-        if (in.readableBytes() < size) {
-            log.debug(" [ ] {} = NO (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
+        int readableBytes = in.readableBytes();
+        if (readableBytes < size) {
+            log.debug(" [ ] {} = NO (Declared Size: {}, Actual Bytes Read: {})", desc, readableBytes, size);
             in.resetReaderIndex();
             return;
         }
-        log.debug(" [x] {} = YES (Declared Size: {}, Actual Size: {})", desc, in.readableBytes(), size);
+        log.debug(" [x] {} = YES (Declared Size: {}, Actual Bytes Read: {})", desc, readableBytes, size);
 
         //Read and verify request id
         desc = StringUtils.rightPad("Request Id within the valid range?", PAD_SIZE);
         int id = in.readIntLE();
-        if (!(id == -1 || id == 999 || (id >= 100000000 && id <= 999999999))) {
+        if (!(id == -1 || id == SourceRconUtil.RCON_TERMINATOR_RID || SourceRconUtil.isValidRequestId(id))) {
             log.debug(" [ ] {} = NO (Actual: {})", desc, id);
             in.resetReaderIndex();
             return;
@@ -125,7 +130,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             in.resetReaderIndex();
             return;
         }
-        log.debug(" [x] {} = YES (Actual: {})", desc, type);
+        log.debug(" [x] {} = YES (Actual: {} = {})", desc, type, SourceRconResponseType.get(type));
 
         //Read and verify body
         desc = StringUtils.rightPad("Contains Body?", PAD_SIZE);
@@ -145,8 +150,9 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         desc = StringUtils.rightPad("Contains TWO null-terminating bytes at the end?", PAD_SIZE);
 
         //Make sure the last two bytes are NULL bytes (request id: 999 is reserved for split packet responses)
-        if ((bodyTerminator != 0 || packetTerminator != 0) && (id == SourceRconTermRequestPacket.TERMINATOR_REQUEST_ID)) {
+        if ((bodyTerminator != 0 || packetTerminator != 0) && (id == SourceRconUtil.RCON_TERMINATOR_RID)) {
             log.debug("Found a malformed terminator packet. Skipping the remaining {} bytes", in.readableBytes());
+            log.debug("Malformed Packet: \n{}", ByteBufUtil.prettyHexDump(in));
             in.skipBytes(in.readableBytes());
             return;
         } else if (bodyTerminator != 0 || packetTerminator != 0) {
@@ -162,7 +168,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
         //At this point, we can now construct a packet
         log.debug(" [x] Status: PASS (Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Body Size = {})", size, id, type, in.readableBytes(), bodyLength);
-        log.debug("=============================================================");
+        log.debug(separator);
 
         //Reset the index
         index.set(0);
@@ -171,7 +177,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         SourceRconResponsePacket responsePacket;
 
         //Did we receive a terminator packet?
-        if (id == SourceRconTermRequestPacket.TERMINATOR_REQUEST_ID && StringUtils.isBlank(body)) {
+        if (id == SourceRconUtil.RCON_TERMINATOR_RID && StringUtils.isBlank(body)) {
             responsePacket = new SourceRconTermResponsePacket();
         } else {
             responsePacket = SourceRconPacketBuilder.getResponsePacket(type);
@@ -182,7 +188,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             responsePacket.setId(id);
             responsePacket.setType(type);
             responsePacket.setBody(body);
-            log.debug("Passing response for request id : '{}' to the next handler", id);
+            log.debug("Decode Complete. Passing response for request id : '{}' to the next handler", id);
             out.add(responsePacket);
         }
     }

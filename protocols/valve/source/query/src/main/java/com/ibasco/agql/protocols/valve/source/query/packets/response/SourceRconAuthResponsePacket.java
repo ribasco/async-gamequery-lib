@@ -24,18 +24,26 @@
 
 package com.ibasco.agql.protocols.valve.source.query.packets.response;
 
+import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
 
 /**
  * Created by raffy on 9/24/2016.
  */
-public class SourceRconAuthResponsePacket extends SourceRconResponsePacket<Integer> {
+public class SourceRconAuthResponsePacket extends SourceRconResponsePacket<SourceRconAuthStatus> {
+
+    private boolean success = false;
+
     public SourceRconAuthResponsePacket() {
         super(-1);
     }
 
+    public void setSuccess(boolean success) {
+        this.success = success;
+    }
+
     @Override
-    public Integer toObject() {
-        return this.getId();
+    public SourceRconAuthStatus toObject() {
+        return new SourceRconAuthStatus(success, this.getBody());
     }
 }

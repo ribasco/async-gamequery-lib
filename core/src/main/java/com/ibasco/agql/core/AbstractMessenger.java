@@ -293,7 +293,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private void performSessionCleanup(SessionId id) {
         final SessionValue session = sessionManager.getSession(id);
         if (session != null) {
-            log.debug("Unregistering from session : {}", session.getId());
             sessionManager.unregister(session);
         }
     }

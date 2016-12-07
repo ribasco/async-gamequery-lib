@@ -67,42 +67,17 @@ public class McRconPacketAssembler extends MessageToMessageDecoder<McRconRespons
     @Override
     protected void decode(ChannelHandlerContext ctx, McRconResponsePacket msg, List<Object> out) throws Exception {
         int requestId = msg.getId();
-
         McRconResponseType responseType = getResponseType(msg);
-
         //Fail fast for unknown response types
         if (responseType == null)
             throw new McRconNoResponseTypeException("Unable to identify response type for rcon packet");
-
         log.debug("Received rcon packet from Request Id : {} (Type = {}, Class = {})", requestId, responseType, msg.getClass().getSimpleName());
-
-        //Check if we receive an auth response type
         if (responseType == McRconResponseType.AUTH) {
             McRconAuthResponsePacket authResponsePacket = processAuthResponsePacket(msg);
             if (authResponsePacket != null)
                 out.add(authResponsePacket);
-        } else if (responseType == McRconResponseType.COMMAND) {
-            //Put to the packet container
-            packetContainer.put(requestId, msg);
         } else {
-            //Process the first key
-            int rId = packetContainer.keys().iterator().next();
-
-            log.debug("Received a terminator packet. Re-assembling packet(s) for request id '{}'", rId);
-            List<McRconResponsePacket> rconPackets = packetContainer.get(rId);
-            McRconResponsePacket reassembledPacket = null;
-
-            if (rconPackets.size() == 1) {
-                reassembledPacket = rconPackets.remove(0);
-            } else if (rconPackets.size() > 1) {
-                log.debug("Found multiple packetContainer in the queue. Re-assembling");
-                reassembledPacket = reassemblePackets(rconPackets);
-            }
-            if (reassembledPacket != null) {
-                log.debug("Sending Re-assembled packet to the next handler");
-                //Send to the next handler
-                out.add(reassembledPacket);
-            }
+            out.add(msg);
         }
     }
 

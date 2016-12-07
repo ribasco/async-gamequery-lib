@@ -186,7 +186,7 @@ public class McRconPacketDecoder extends ByteToMessageDecoder {
             responsePacket.setId(id);
             responsePacket.setType(type);
             responsePacket.setBody(body);
-            log.debug("Decode Complete. Passing response for request id : '{}' to the next handler", id);
+            log.debug("MC RconPacket Decode Complete. Passing response for request id : '{}' to the next handler", id);
             out.add(responsePacket);
         }
     }

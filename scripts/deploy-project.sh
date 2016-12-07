@@ -11,4 +11,4 @@ if [ "${TRAVIS_PULL_REQUEST}" != "false" -o "${TRAVIS_BRANCH}" != "master" ]; th
     exit 0
 fi
 
-mvn deploy --settings scripts/travis-maven-settings.xml -DskipTests=true -B
+mvn deploy --settings scripts/travis-maven-settings.xml -DskipTests=true -B -Pdeploy-snapshots-only

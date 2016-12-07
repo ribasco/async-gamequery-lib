@@ -4,7 +4,7 @@ Similar to the Source Rcon Query example, the only difference is that you need t
 
 ### Disable the terminator flag
 
-Simply pass `false` to the constructor of SourceRconClient.
+Simply pass `false` to the SourceRconClient constructor.
 
 ~~~
 SourceRconClient minecraftRconClient = new SourceRconClient(false);

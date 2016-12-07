@@ -69,6 +69,7 @@
             <item name="Steam Master Server Query" href="/examples/master_query_example.html"/>
             <item name="Source Server Query" href="/examples/source_query_example.html"/>
             <item name="Source RCON" href="/examples/source_rcon_example.html"/>
+            <item name="Minecraft RCON" href="/examples/minecraft_rcon_example.html"/>
             <item name="Source Log Listener" href="/examples/source_log_example.html"/>
             <item name="Clash of Clans Web API" href="/examples/webapi_coc_example.html"/>
             <item name="CS:GO Web API" href="/examples/webapi_csgo_example.html"/>

@@ -58,10 +58,13 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
 
     private Integer lastAuthRequestId = null;
 
-    public SourceRconPacketAssembler(Map<Integer, SourceRconRequestType> requestTypeMap) {
+    private boolean terminatingPacketsEnabled = true;
+
+    public SourceRconPacketAssembler(Map<Integer, SourceRconRequestType> requestTypeMap, boolean terminatingPacketsEnabled) {
         if (requestTypeMap == null)
             throw new IllegalArgumentException("Request type map cannot be null");
         this.requestTypeMap = requestTypeMap;
+        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
     }
 
     @Override
@@ -75,6 +78,11 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
             throw new SourceRconNoResponseTypeException("Unable to identify response type for rcon packet");
 
         log.debug("Received rcon packet from Request Id : {} (Type = {}, Class = {})", requestId, responseType, msg.getClass().getSimpleName());
+
+        if (!terminatingPacketsEnabled && responseType != SourceRconResponseType.AUTH) {
+            out.add(msg);
+            return;
+        }
 
         //Check if we receive an auth response type
         if (responseType == SourceRconResponseType.AUTH) {

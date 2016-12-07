@@ -59,10 +59,22 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     private Map<InetSocketAddress, Integer> authMap;
 
     /**
-     * Default Constructor
+     * Default Constructor. By default, terminating packets are sent for every command
      */
     public SourceRconClient() {
-        super(new SourceRconMessenger());
+        this(true);
+    }
+
+    /**
+     * Some games (e.g. Minecraft) do not properly respond to terminator packets, if this is the case and you get an
+     * error after sending a command, try to disable this feature by setting the <code>sendTerminatingPacket</code> flag
+     * to <code>false</code>.
+     *
+     * @param sendTerminatingPacket
+     *         Set to <code>true</code> to send terminator packets for every command.
+     */
+    public SourceRconClient(boolean sendTerminatingPacket) {
+        super(new SourceRconMessenger(sendTerminatingPacket));
         authMap = new ConcurrentHashMap<>();
     }
 

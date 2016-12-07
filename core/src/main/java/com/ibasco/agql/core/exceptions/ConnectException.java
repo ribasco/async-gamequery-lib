@@ -22,34 +22,25 @@
  *   SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.mojang.minecraft.query;
+package com.ibasco.agql.core.exceptions;
 
-import com.ibasco.agql.core.AbstractGameServerRequest;
-
-import java.net.InetSocketAddress;
-
-abstract public class McRconRequest<T extends McRconRequestPacket>
-        extends AbstractGameServerRequest<T>
-        implements McRconMessage {
-    private int requestId;
-
-    public McRconRequest(InetSocketAddress recipient, int requestId) {
-        super(recipient);
-        this.requestId = requestId;
+public class ConnectException extends TransportException {
+    public ConnectException() {
     }
 
-    @Override
-    public int getRequestId() {
-        return requestId;
+    public ConnectException(String message) {
+        super(message);
     }
 
-    @Override
-    public void setRequestId(int requestId) {
-        this.requestId = requestId;
+    public ConnectException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public String toString() {
-        return toStringBuilder().append("RequestId", this.getRequestId()).toString();
+    public ConnectException(Throwable cause) {
+        super(cause);
+    }
+
+    public ConnectException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

@@ -27,6 +27,7 @@ package com.ibasco.agql.core.transport;
 import com.ibasco.agql.core.AbstractMessage;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.enums.ChannelType;
+import com.ibasco.agql.core.exceptions.ConnectException;
 import com.ibasco.agql.core.transport.pool.MessageChannelPoolMap;
 import io.netty.channel.Channel;
 import io.netty.channel.pool.AbstractChannelPoolHandler;
@@ -99,7 +100,7 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
                 channel.attr(ChannelAttributes.CHANNEL_POOL).set(pool);
                 channelFuture.complete(channel);
             } else {
-                channelFuture.completeExceptionally(future.cause());
+                channelFuture.completeExceptionally(new ConnectException(future.cause()));
             }
         });
         return channelFuture;

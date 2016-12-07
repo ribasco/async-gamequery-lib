@@ -72,6 +72,12 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     private SourceRconPacketBuilder builder;
 
+    private boolean terminatingPacketsEnabled = true;
+
+    public SourceRconPacketDecoder(boolean terminatingPacketsEnabled) {
+        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
+    }
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         log.debug("Initializing SourceRconPacketBuilder");
@@ -177,7 +183,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         SourceRconResponsePacket responsePacket;
 
         //Did we receive a terminator packet?
-        if (id == SourceRconUtil.RCON_TERMINATOR_RID && StringUtils.isBlank(body)) {
+        if (this.terminatingPacketsEnabled && id == SourceRconUtil.RCON_TERMINATOR_RID && StringUtils.isBlank(body)) {
             responsePacket = new SourceRconTermResponsePacket();
         } else {
             responsePacket = SourceRconPacketBuilder.getResponsePacket(type);

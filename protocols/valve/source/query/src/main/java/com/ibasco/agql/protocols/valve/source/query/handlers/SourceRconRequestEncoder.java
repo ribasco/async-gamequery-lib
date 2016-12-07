@@ -39,14 +39,14 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconRequest, SourceRconPacket> {
     private static final Logger log = LoggerFactory.getLogger(SourceRconRequestEncoder.class);
 
-    public SourceRconRequestEncoder(SourceRconPacketBuilder builder) {
+    private boolean sendTerminatorPackets = true;
+
+    public SourceRconRequestEncoder(SourceRconPacketBuilder builder, boolean sendTerminatorPackets) {
         super(builder);
+        this.sendTerminatorPackets = sendTerminatorPackets;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconR
         out.add(rconRequestPacket);
 
         //Send rcon-terminator except if it is an authentication request packet
-        if (!(msg instanceof SourceRconAuthRequest)) {
+        if (this.sendTerminatorPackets && !(msg instanceof SourceRconAuthRequest)) {
             log.debug("Sending RCON Terminator");
             out.add(builder.deconstructAsBuffer(new SourceRconTermRequestPacket()));
         }

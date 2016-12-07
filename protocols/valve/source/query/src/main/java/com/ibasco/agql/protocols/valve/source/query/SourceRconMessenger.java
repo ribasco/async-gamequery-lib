@@ -50,8 +50,11 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
 
     private Map<Integer, SourceRconRequestType> requestTypeMap = new LinkedHashMap<>();
 
-    public SourceRconMessenger() {
+    private boolean terminatingPacketsEnabled = false;
+
+    public SourceRconMessenger(boolean terminatingPacketsEnabled) {
         super(new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
+        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
     }
 
     @Override
@@ -85,6 +88,10 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
             requestTypeMap.remove(requestId);
         });
         return futureResponse;
+    }
+
+    public boolean isTerminatingPacketsEnabled() {
+        return terminatingPacketsEnabled;
     }
 
     public SourceRconRequestType getRequestType(SourceRconRequest request) {

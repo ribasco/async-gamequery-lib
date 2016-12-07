@@ -117,7 +117,6 @@
         <module>protocols/valve/source/query</module>
         <module>protocols/valve/steam/master</module>
         <module>protocols/valve/steam/webapi</module>
-        <module>protocols/mojang/minecraft/query</module>
     </modules>
 
     <!-- Profiles -->

@@ -25,9 +25,9 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.examples.base.BaseExample;
-import com.ibasco.agql.protocols.mojang.minecraft.query.McRconAuthStatus;
-import com.ibasco.agql.protocols.mojang.minecraft.query.client.McRconClient;
-import com.ibasco.agql.protocols.mojang.minecraft.query.exceptions.RconNotYetAuthException;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
+import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ import java.net.InetSocketAddress;
 
 public class McRconQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(McRconQueryEx.class);
-    private McRconClient mcRconClient;
+    private SourceRconClient mcRconClient;
 
     /**
      * For internal testing purposes
@@ -49,7 +49,8 @@ public class McRconQueryEx extends BaseExample {
 
     @Override
     public void run() throws Exception {
-        mcRconClient = new McRconClient();
+        //remember to set the terminator flag to false
+        mcRconClient = new SourceRconClient(false);
         this.testRcon();
     }
 
@@ -72,7 +73,7 @@ public class McRconQueryEx extends BaseExample {
         while (!authenticated) {
             String password = promptInput("Please enter the rcon password", true, "", "msRconPass");
             log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
-            McRconAuthStatus authStatus = mcRconClient.authenticate(serverAddress, password).join();
+            SourceRconAuthStatus authStatus = mcRconClient.authenticate(serverAddress, password).join();
             if (!authStatus.isAuthenticated()) {
                 log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
             } else

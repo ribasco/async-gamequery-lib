@@ -51,6 +51,7 @@ deploy:
       - protocols/valve/source/query/target/agql-source-query-*.jar
       - protocols/valve/steam/master/target/agql-steam-master-*.jar
       - protocols/valve/steam/webapi/target/agql-steam-webapi-*.jar
+      - protocols/mojang/minecraft/query/target/agql-minecraft-query-*.jar
     skip_cleanup: true
     on:
       tags: true

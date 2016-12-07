@@ -62,15 +62,15 @@ public class McRconQueryEx extends BaseExample {
     }
 
     public void testRcon() throws InterruptedException {
-        String address = promptInput("Please enter the source server address", true, "", "sourceRconIp");
-        int port = Integer.valueOf(promptInput("Please enter the server port", false, "27015", "sourceRconPort"));
+        String address = promptInput("Please enter the minecraft server address", true, "", "mcRconIp");
+        int port = Integer.valueOf(promptInput("Please enter the server port", false, "25575", "mcRconPort"));
 
         boolean authenticated = false;
 
         InetSocketAddress serverAddress = new InetSocketAddress(address, port);
 
         while (!authenticated) {
-            String password = promptInput("Please enter the rcon password", true, "", "sourceRconPass");
+            String password = promptInput("Please enter the rcon password", true, "", "msRconPass");
             log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
             McRconAuthStatus authStatus = mcRconClient.authenticate(serverAddress, password).join();
             if (!authStatus.isAuthenticated()) {

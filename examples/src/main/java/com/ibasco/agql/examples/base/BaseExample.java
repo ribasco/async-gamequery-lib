@@ -80,7 +80,8 @@ abstract public class BaseExample implements Closeable {
 
     public void saveProp(String property, String value) {
         try {
-            exampleProps.setProperty(property, value);
+            String tmpValue = value == null ? "null" : value;
+            exampleProps.setProperty(property, tmpValue);
             File f = new File(EXAMPLE_PROP_FILE);
             OutputStream out = new FileOutputStream(f);
             exampleProps.store(out, String.format("From '%s'", this.getClass().getSimpleName()));
@@ -90,7 +91,8 @@ abstract public class BaseExample implements Closeable {
     }
 
     protected String getProp(String propertyName) {
-        return exampleProps.getProperty(propertyName);
+        String tmp = exampleProps.getProperty(propertyName);
+        return "null".equalsIgnoreCase(tmp) ? null : tmp;
     }
 
     protected String promptInput(String message, boolean required) {
@@ -98,7 +100,11 @@ abstract public class BaseExample implements Closeable {
     }
 
     protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue) {
-        String tmpVal = promptInput(message, required, defaultReturnValue);
+        return promptInputBool(message, required, defaultReturnValue, null);
+    }
+
+    protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty);
         return tmpVal != null ? BooleanUtils.toBoolean(tmpVal) : null;
     }
 

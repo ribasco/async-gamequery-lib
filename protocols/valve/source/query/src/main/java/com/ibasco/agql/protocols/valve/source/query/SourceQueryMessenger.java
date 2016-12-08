@@ -61,8 +61,8 @@ public class SourceQueryMessenger extends GameServerMessenger<SourceServerReques
         NettyPooledUdpTransport<SourceServerRequest> transport = new NettyPooledUdpTransport<>(ChannelType.NIO_UDP);
         transport.setChannelInitializer(new SourceQueryChannelInitializer(this));
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
-        transport.addChannelOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(8192));
+        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576);
+        transport.addChannelOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1400));
         return transport;
     }
 

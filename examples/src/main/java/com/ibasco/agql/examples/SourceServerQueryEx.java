@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.utils.ConcurrentUtils;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
@@ -56,10 +57,10 @@ public class SourceServerQueryEx extends BaseExample {
     }
 
     public void queryAllServers() {
-        int appId = Integer.valueOf(promptInput("List servers only from this app id (int) [none]: ", false, "-1"));
-        Boolean emptyServers = promptInputBool("List only empty servers? (y/n) [none]: ", false, null);
-        Boolean passwordProtected = promptInputBool("List only password protected servers? (y/n) [none]: ", false, null);
-        Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n) [y]: ", false, "y");
+        int appId = Integer.valueOf(promptInput("List servers only from this app id (int)", false, null, "srcQryAppId"));
+        Boolean emptyServers = promptInputBool("List only empty servers? (y/n)", false, null, "srcQryEmptySvrs");
+        Boolean passwordProtected = promptInputBool("List only passwd protected servers? (y/n)", false, null, "srcQryPassProtect");
+        Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n)", false, "y", "srcQryDedicated");
 
         MasterServerFilter filter = MasterServerFilter.create()
                 .dedicated(dedicatedServers)
@@ -193,6 +194,10 @@ public class SourceServerQueryEx extends BaseExample {
         //Inititalize client
         sourceQueryClient = new SourceQueryClient();
         masterServerQueryClient = new MasterServerQueryClient();
+
+        log.info("NOTE: Depending on your selected criteria, the application may time some time to complete. You can review the log file(s) once the program exits.");
+
+        ConcurrentUtils.sleepUninterrupted(5000);
 
         this.queryAllServers();
     }

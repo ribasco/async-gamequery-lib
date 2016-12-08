@@ -59,8 +59,8 @@ echo ===========================================
 
 echo "Using GitHub Details = ${GITHUB_AUTHOR_EMAIL} and ${GITHUB_AUTHOR_NAME}"
 
-git config --global user.email "raffy@ibasco.com"
-git config --global user.name "Travis CI"
+git config --global user.email "${GITHUB_AUTHOR_EMAIL}"
+git config --global user.name "${GITHUB_AUTHOR_NAME}"
 git config --global push.default simple
 
 echo ===========================================

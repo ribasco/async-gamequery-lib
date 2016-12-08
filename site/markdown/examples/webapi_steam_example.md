@@ -3,8 +3,7 @@ Steam Web API Example
 
 Usage examples for Steam Web API Interfaces 
 
-Available Interfaces
---------------------
+### Available Interfaces
 
 | **Interface Name** | **Description**                                                 |
 |--------------------|-----------------------------------------------------------------|
@@ -17,8 +16,7 @@ Available Interfaces
 | SteamUser          | Contains methods provide information about Steam users.         |
 | SteamUserStats     | Contains methods to fetch global stat information by game.      |
 
-Steam Apps
------------------
+### Steam Apps
 
 **Get a list of available Steam Apps**
 
@@ -52,8 +50,7 @@ steamApps.getServerUpdateStatus(2146, 550).thenAccept(new Consumer<ServerUpdateS
 }).join();
 ~~~
 
-Steam Econ Items
------------------
+### Steam Econ Items
 
 **Get Player Items**
 
@@ -90,8 +87,7 @@ Integer storeStatus = steamEconItems.getStoreStatus(440).join();
 log.info("Store Status: {}", storeStatus);
 ~~~
 
-Steam Economy
--------------
+### Steam Economy
 
 **Get Asset Prices**
 
@@ -124,8 +120,7 @@ steamEconomy.getAssetClassInfo(730, "en", 186150629L, 506856209L, 506856210L, 90
 }).join();
 ~~~
 
-Steam News
-----------
+### Steam News
 
 **Get News for App**
 
@@ -143,8 +138,7 @@ steamNews.getNewsForApp(550).thenAccept(new Consumer<List<SteamNewsItem>>() {
 }).join();
 ~~~
 
-Steam Player Service
---------------------
+### Steam Player Service
 
 **Get Recently Played Games**
 
@@ -218,8 +212,7 @@ playerService.getSteamGameLenderId(76561198010872093L, 550).thenAccept(new Consu
 }).join();
 ~~~
 
-Steam Storefront
------------------
+### Steam Storefront
 
 **Get Store App Details**
 
@@ -256,8 +249,7 @@ StoreSaleDetails storeSaleDetails = storeFront.getSaleDetails(0).join();
 log.info("Sale Details: {}", storeSaleDetails);
 ~~~
 
-Steam User
-----------
+### Steam User
 
 **Get Friend List**
 
@@ -326,8 +318,7 @@ steamUser.getSteamIdFromVanityUrl("zenmast3r", VanityUrlType.DEFAULT).thenAccept
 }).join();
 ~~~
 
-Steam User Stats
------------------
+### Steam User Stats
 
 **Get Global Achievement Percentage for App**
 

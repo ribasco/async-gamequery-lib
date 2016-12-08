@@ -5,6 +5,6 @@ echo "============================================="
 echo "Building Project Site"
 echo "============================================="
 
-mvn site:site site:stage
+mvn site site:stage
 
 echo "Site Built!"

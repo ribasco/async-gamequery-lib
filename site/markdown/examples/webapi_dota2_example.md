@@ -3,8 +3,7 @@ Dota 2 Web API Examples
 
 Usage examples of Dota 2 Web API Interfaces 
 
-Available Interfaces
---------------------
+### Available Interfaces
 
 | **Interface Name** | **Description**                                                                 |
 |--------------------|---------------------------------------------------------------------------------|
@@ -16,8 +15,7 @@ Available Interfaces
 | Dota2Teams         | Contains methods relating to Dota 2 teams                                       |
 
 
-Econ Interface
---------------
+### Econ Interface
 
 **Get Game Items**
 
@@ -62,8 +60,7 @@ Dota2EventStats stats = econInterface.getEventStatsForAccount(205557093, 4122).g
 log.info("Event Stats: {}", stats); 
 ~~~
 
-Fantasy Interface
------------------
+### Fantasy Interface
 
 **Get a fantasy player's info**
 
@@ -79,8 +76,7 @@ List<Dota2FantasyProPlayerInfo> proPlayerInfos = fantasyInterface.getProPlayerLi
 proPlayerInfos.forEach(Dota2WebApiQueryEx::displayResult);
 ~~~
 
-Match Interface
----------------
+### Match Interface
 
 **Get a List of Live League Games**
 
@@ -133,8 +129,7 @@ List<Dota2TopLiveGame> topLiveGames = matchInterface.getTopLiveGame(1).get();
 topLiveGames.forEach(this::displayResult);
 ~~~
 
-Stats Interface
----------------
+### Stats Interface
 
 **Get realtime server stats**
 
@@ -143,8 +138,7 @@ Dota2RealtimeServerStats serverStats = statsInterface.getRealtimeStats(901051016
 log.info("Server Stats : {}", serverStats);
 ~~~
 
-Stream Interface
-----------------
+### Stream Interface
 
 **Get Broadcaster Info**
 
@@ -153,8 +147,7 @@ Dota2BroadcasterInfo bInfo = streamInterface.getBroadcasterInfo(292948090, -1).g
 log.info("Broadcaster Info: {}", bInfo);
 ~~~
 
-Teams Interface
----------------
+### Teams Interface
 
 **Get Dota 2 Team Information**
 

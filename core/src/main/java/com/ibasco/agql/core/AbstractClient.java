@@ -52,7 +52,7 @@ abstract public class AbstractClient<Req extends AbstractRequest,
     public <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
         log.debug("Client '{}' Sending request : {}", this.getClass().getSimpleName(), message);
         //Send the request then transform the result once a response is received
-        ConcurrentUtils.sleepUninterrupted(5);
+        ConcurrentUtils.sleepUninterrupted(10);
         return messenger.send(message, priority).thenApply(this::convertToResultType);
     }
 

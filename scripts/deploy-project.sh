@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ev # Exit with nonzero exit code if anything fails
+set -e # Exit with nonzero exit code if anything fails
 
 echo "============================================="
 echo "Deploying Project to OSS Sonatype"

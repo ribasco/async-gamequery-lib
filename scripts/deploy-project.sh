@@ -11,4 +11,15 @@ if [ "${TRAVIS_PULL_REQUEST}" != "false" -o "${TRAVIS_BRANCH}" != "master" ]; th
     exit 0
 fi
 
-mvn deploy --settings scripts/travis-maven-settings.xml -DskipTests=true -B -Pdeploy-snapshots-only
+# Only deploy snapshot versions
+PROJECT_VERSION=$(cat core/target/classes/version.txt)
+
+if [[ "${PROJECT_VERSION}" =~ "-SNAPSHOT" ]]; then
+    echo "[DEPLOY] Deploying Snapshot Version: ${PROJECT_VERSION}"
+    mvn deploy --settings scripts/travis-maven-settings.xml -DskipTests=true -B -Pdeploy-snapshots-only
+else
+    echo "[DEPLOY] Skipping Deploy. Only snapshot versions are deployed automatically. Current Version: ${PROJECT_VERSION}"
+fi
+
+
+

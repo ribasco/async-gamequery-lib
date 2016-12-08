@@ -1,6 +1,6 @@
 # Counter Strike : Global Offensive Web API
 
-## Available Interfaces
+### Available Interfaces
 
 | **Interface Name** | **Description**             |
 |--------------------|-----------------------------|

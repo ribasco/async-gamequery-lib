@@ -1,6 +1,6 @@
 # Clash of Clans
 
-## Available Interfaces
+### Available Interfaces
 
 | **Interface Name** | **Description**             |
 |--------------------|-----------------------------|
@@ -10,7 +10,7 @@
 | CocPlayers         | Player Specific Information |
 
 
-## Clans
+### Clans
 
 **Search clans**
 
@@ -40,7 +40,7 @@ String clanTag = "#ABCDEFGH";
 clans.getClanWarLog(clanTag).thenAccept(cocWarLogEntries -> cocWarLogEntries.forEach(cocWarLogEntry -> log.info("War Log Entry: {}", cocWarLogEntry))).join();
 ~~~
 
-## Locations
+### Locations
 
 **Get Locations**
 
@@ -70,7 +70,7 @@ locations.getPlayerRankingsFromLocation(32000185).thenAccept(this::displayListRe
 }
 ~~~
 
-## Leagues
+### Leagues
 
 **Get League List**
 
@@ -90,7 +90,7 @@ leagues.getLeagueSeasons(29000022).thenAccept(CocWebApiQueryEx::displayListResul
 leagues.getLeagueSeasonsPlayerRankings(29000022, "2016-06", 10).thenAccept(CocWebApiQueryEx::displayListResults).join();
 ~~~
 
-## Player
+### Player
 
 **Get Player Info**
 

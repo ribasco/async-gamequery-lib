@@ -267,17 +267,34 @@
 
     <!-- Build Settings -->
     <build>
+        <!-- Default Goal -->
+        <defaultGoal>install</defaultGoal>
+
         <!-- Resources -->
         <resources>
             <resource>
+                <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <directory>src/main/resources/</directory>
+                <includes>
+                    <include>**/version.txt</include>
+                </includes>
             </resource>
             <resource>
-                <filtering>true</filtering>
-                <directory>src/test/resources/</directory>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/version.txt</exclude>
+                </excludes>
             </resource>
         </resources>
+
+        <!-- Test Resources -->
+        <testResources>
+            <testResource>
+                <filtering>true</filtering>
+                <directory>src/test/resources/</directory>
+            </testResource>
+        </testResources>
 
         <!-- Maven Extensions -->
         <extensions>
@@ -307,9 +324,6 @@
                 <version>2.10</version>
             </extension>
         </extensions>
-
-        <!-- Default Goal -->
-        <defaultGoal>install</defaultGoal>
 
         <!-- Plugin configuration shared across all child-modules -->
         <pluginManagement>
@@ -495,7 +509,7 @@
                     </executions>
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
-                        <!-- Do not auto-deploy. CI server will do the deploying -->
+                        <!-- Do not auto-deploy. CI server will perform the site deployment -->
                         <skipDeploy>true</skipDeploy>
                     </configuration>
                 </plugin>

@@ -1,12 +1,16 @@
 ## Minecraft RCON Example
 
-Similar to the Source Rcon Query example, the only difference is that you need to disable the packet terminator flag. 
+Similar to the Source Rcon Query example, the only difference is that you need to set the send packet terminator flag to `false`. 
 
-### Disable the terminator flag
+### Disabling packet terminators
 
-Simply pass `false` to the SourceRconClient constructor.
+Simply pass the argument to the SourceRconClient constructor.
 
 ~~~
 SourceRconClient minecraftRconClient = new SourceRconClient(false);
+
+//authenticate...
+
+//send commands...
 ~~~
 

@@ -33,7 +33,7 @@
     </skin>
     <bannerLeft>
         <name>Asynchronous Game Query Library</name>
-        <src>/images/agql-banner-left.png</src>
+        <src>/images/agql-banner-left-simple.png</src>
         <href>http://raffy.ibasco.com/async-gamequery-lib/</href>
     </bannerLeft>
     <bannerRight>
@@ -91,5 +91,8 @@
         </menu>
         <menu ref="modules" inherit="top"/>
         <menu ref="reports" inherit="top"/>
+        <footer>
+            <![CDATA[<p>Site Chain Logo - By Mdowdell (Own work) [CC BY-SA 3.0 (http://creativecommons.org/licenses/by-sa/3.0)], via Wikimedia Commons</p>]]>
+        </footer>
     </body>
 </project>

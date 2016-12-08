@@ -24,27 +24,9 @@
 
 package com.ibasco.agql.examples.base;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-import com.google.gson.stream.JsonReader;
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 abstract public class BaseWebApiAuthExample extends BaseExample {
 
     protected String getToken(String key) {
-        JsonParser parser = new JsonParser();
-        InputStream authFile = getClass().getResourceAsStream("/auth.json");
-        if (authFile != null) {
-            JsonElement root = parser.parse(new JsonReader(new BufferedReader(new InputStreamReader(authFile))));
-            String token = root.getAsJsonObject().get(key).getAsString();
-            if (!StringUtils.isEmpty(token))
-                return token;
-        }
-
-        return promptInput("Please input your API Token: ", true);
+        return promptInput("Please input your API Token: ", true, null, key);
     }
 }

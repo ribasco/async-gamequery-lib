@@ -34,7 +34,7 @@
     <bannerLeft>
         <name>Asynchronous Game Query Library</name>
         <src>/images/agql-banner-left-simple.png</src>
-        <href>http://raffy.ibasco.com/async-gamequery-lib/</href>
+        <href>https://ribasco.github.io/async-gamequery-lib/</href>
     </bannerLeft>
     <bannerRight>
         <src>/images/agql-banner-right.png</src>
@@ -76,6 +76,7 @@
         </head>
         <menu name="Overview" inherit="top">
             <item name="Features" href="features.html"/>
+            <item name="Java Docs" href="https://ribasco.github.io/async-gamequery-lib/apidocs/"/>
         </menu>
         <menu name="Usage/Examples" inherit="top">
             <item name="General Web API Usage" href="/examples/general_usage.html"/>

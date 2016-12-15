@@ -24,8 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
-public class SourceRconAuthStatus {
-
+public final class SourceRconAuthStatus {
     private boolean isAuthenticated;
     private String reason;
 
@@ -38,15 +37,7 @@ public class SourceRconAuthStatus {
         return isAuthenticated;
     }
 
-    public void setAuthenticated(boolean authenticated) {
-        isAuthenticated = authenticated;
-    }
-
     public String getReason() {
         return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
     }
 }

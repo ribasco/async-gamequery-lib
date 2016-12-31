@@ -34,6 +34,7 @@ Requirements
 
 * Java JDK 8
 * Apache Commons Lang 3
+* Apache Commons Math 3
 * Netty 4.1.x
 * AsyncHttpClient 2.0.x
 * SLF4J 1.7.x

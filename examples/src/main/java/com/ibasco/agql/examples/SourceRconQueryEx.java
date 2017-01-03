@@ -38,6 +38,8 @@ import java.net.InetSocketAddress;
 public class SourceRconQueryEx extends BaseExample {
     private static final Logger log = LoggerFactory.getLogger(SourceRconQueryEx.class);
     private SourceRconClient sourceRconClient;
+    private String password;
+    private InetSocketAddress serverAddress;
 
     /**
      * For internal testing purposes
@@ -67,27 +69,31 @@ public class SourceRconQueryEx extends BaseExample {
 
         boolean authenticated = false;
 
-        InetSocketAddress serverAddress = new InetSocketAddress(address, port);
-
         while (!authenticated) {
-            String password = promptInput("Please enter the rcon password", true, "", "sourceRconPass");
-            log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
-            SourceRconAuthStatus authStatus = sourceRconClient.authenticate(serverAddress, password).join();
-            if (!authStatus.isAuthenticated()) {
-                log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
-            } else
-                authenticated = true;
-        }
 
-        log.info("Successfully authenticated from server : {}", address);
-        while (true) {
-            String command = promptInput("\nEnter rcon command: ", true);
-            try {
-                sourceRconClient.execute(serverAddress, command).whenComplete(this::handleResponse).join();
-            } catch (RconNotYetAuthException e) {
-                throw new RuntimeException(e);
-            } catch (Exception ex) {
-                log.error(ex.getMessage(), ex);
+            serverAddress = new InetSocketAddress(address, port);
+            if (!authenticated) {
+                password = promptInput("Please enter the rcon password", true, "", "sourceRconPass");
+                log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
+                SourceRconAuthStatus authStatus = sourceRconClient.authenticate(serverAddress, password).join();
+                if (!authStatus.isAuthenticated()) {
+                    log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
+                } else {
+                    log.debug("Successfully authenticated from server : {}", address);
+                    authenticated = true;
+                }
+            }
+
+            while (authenticated) {
+                String command = promptInput("\nEnter rcon command: ", true);
+                try {
+                    sourceRconClient.execute(serverAddress, command).whenComplete(this::handleResponse).join();
+                } catch (RconNotYetAuthException e) {
+                    authenticated = false;
+                    break;
+                } catch (Exception ex) {
+                    log.error(ex.getMessage(), ex);
+                }
             }
         }
     }
@@ -97,6 +103,6 @@ public class SourceRconQueryEx extends BaseExample {
             log.error("Error occured while executing command: {}", error.getMessage());
             return;
         }
-        log.info("Received Reply: \n{}", response);
+        log.info("Received Reply ({} bytes): \n{}", response.length(), response);
     }
 }

@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
+import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconExecutionException;
@@ -39,7 +40,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.function.BiConsumer;
 
-public class SourceRconResponseRouter extends SimpleChannelInboundHandler<SourceRconResponsePacket> {
+public class SourceRconResponseRouter extends SimpleChannelInboundHandler<Object> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconResponseRouter.class);
 
@@ -51,17 +52,21 @@ public class SourceRconResponseRouter extends SimpleChannelInboundHandler<Source
 
     @SuppressWarnings("unchecked")
     @Override
-    protected void channelRead0(ChannelHandlerContext ctx, SourceRconResponsePacket packet) throws Exception {
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         SourceRconResponse response = null;
 
-        //Create a response object compliant to the messenger
-        if (packet instanceof SourceRconAuthResponsePacket) {
+        if (msg instanceof SourceRconAuthResponsePacket) {
             response = new SourceRconAuthResponse();
-        } else if (packet instanceof SourceRconCmdResponsePacket) {
+        } else if (msg instanceof SourceRconCmdResponsePacket) {
             response = new SourceRconCmdResponse();
+        } else if (msg instanceof ResponseException) {
+            log.debug("Received response exception. Passing to messenger");
+            responseCallback.accept(null, (ResponseException) msg);
+            return;
         }
 
         if (response != null) {
+            SourceRconResponsePacket packet = (SourceRconResponsePacket) msg;
             response.setSender((InetSocketAddress) ctx.channel().remoteAddress());
             response.setRecipient((InetSocketAddress) ctx.channel().localAddress());
             response.setRequestId(packet.getId());

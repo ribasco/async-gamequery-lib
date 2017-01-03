@@ -27,9 +27,6 @@ package com.ibasco.agql.protocols.valve.source.query.packets.response;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
 
-/**
- * Created by raffy on 9/24/2016.
- */
 public class SourceRconAuthResponsePacket extends SourceRconResponsePacket<SourceRconAuthStatus> {
 
     private boolean success = false;

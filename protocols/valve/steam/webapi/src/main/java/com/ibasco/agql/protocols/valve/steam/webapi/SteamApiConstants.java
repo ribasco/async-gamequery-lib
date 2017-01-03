@@ -54,6 +54,7 @@ public class SteamApiConstants {
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
     public static final String STEAM_ECON_SERVICE = "IEconService";
     public static final String STEAM_ECON_ITEMS = "IEconItems_${appId}";
+    public static final String STEAM_CHEATREPORT_SERVICE = "ICheatReportingService";
 
     //Steam URL Params
     public static final String STEAM_URLPARAM_STEAMID = "steamid";
@@ -73,6 +74,8 @@ public class SteamApiConstants {
     public static final String STEAM_METHOD_ECONITEMS_GETSCHEMAURL = "GetSchemaURL";
     public static final String STEAM_METHOD_ECONITEMS_GETSTOREMETA = "GetStoreMetaData";
     public static final String STEAM_METHOD_ECONITEMS_GETSTORESTATUS = "GetStoreStatus";
+
+    public static final String STEAM_METHOD_CHEATREPORTSVC_REPORTCHEATDATA = "ReportCheatData";
 
     //Steam URL Properties
     public static final String STEAM_PROP_APPID = "appId";

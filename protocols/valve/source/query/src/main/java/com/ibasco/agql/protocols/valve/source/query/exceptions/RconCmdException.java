@@ -22,30 +22,27 @@
  *   SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.valve.source.query;
+package com.ibasco.agql.protocols.valve.source.query.exceptions;
 
-public final class SourceRconAuthStatus {
-    private boolean authenticated;
-    private String reason;
+import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 
-    public SourceRconAuthStatus(boolean authenticated, String reason) {
-        this.authenticated = authenticated;
-        this.reason = reason;
+public class RconCmdException extends AsyncGameLibUncheckedException {
+    public RconCmdException() {
     }
 
-    public boolean isAuthenticated() {
-        return authenticated;
+    public RconCmdException(String message) {
+        super(message);
     }
 
-    public String getReason() {
-        return reason;
+    public RconCmdException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public String toString() {
-        return "SourceRconAuthStatus{" +
-                "authenticated=" + authenticated +
-                ", reason='" + reason + '\'' +
-                '}';
+    public RconCmdException(Throwable cause) {
+        super(cause);
+    }
+
+    public RconCmdException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

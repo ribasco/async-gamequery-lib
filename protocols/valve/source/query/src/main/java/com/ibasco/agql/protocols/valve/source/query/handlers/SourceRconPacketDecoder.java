@@ -30,7 +30,6 @@ import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType
 import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconTermResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.apache.commons.lang3.StringUtils;
@@ -157,8 +156,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
         //Make sure the last two bytes are NULL bytes (request id: 999 is reserved for split packet responses)
         if ((bodyTerminator != 0 || packetTerminator != 0) && (id == SourceRconUtil.RCON_TERMINATOR_RID)) {
-            log.debug("Found a malformed terminator packet. Skipping the remaining {} bytes", in.readableBytes());
-            log.debug("Malformed Packet: \n{}", ByteBufUtil.prettyHexDump(in));
+            log.debug("Skipping {} bytes", in.readableBytes());
             in.skipBytes(in.readableBytes());
             return;
         } else if (bodyTerminator != 0 || packetTerminator != 0) {
@@ -194,7 +192,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             responsePacket.setId(id);
             responsePacket.setType(type);
             responsePacket.setBody(body);
-            log.debug("Decode Complete. Passing response for request id : '{}' to the next handler", id);
+            log.debug("Decode Complete. Passing response for request id : '{}' to the next handler. Remaining bytes ({})", id, in.readableBytes());
             out.add(responsePacket);
         }
     }

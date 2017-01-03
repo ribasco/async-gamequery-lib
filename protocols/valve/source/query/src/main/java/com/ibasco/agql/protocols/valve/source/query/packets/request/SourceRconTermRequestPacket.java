@@ -27,6 +27,7 @@ package com.ibasco.agql.protocols.valve.source.query.packets.request;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
 import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * <p>
@@ -40,7 +41,8 @@ public class SourceRconTermRequestPacket extends SourceRconRequestPacket {
 
     public SourceRconTermRequestPacket() {
         super(SourceRconUtil.RCON_TERMINATOR_RID);
+        setSize(0);
         setType(SourceRconRequestType.RESPONSE);
-        setBody("T800");
+        setBody(StringUtils.EMPTY);
     }
 }

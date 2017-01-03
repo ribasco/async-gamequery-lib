@@ -63,7 +63,8 @@
 
     <logger name="io.netty" level="error"/>
     <logger name="org.asynchttpclient" level="error"/>
-    <logger name="com.ibasco.agql.core" level="error"/>
+    <logger name="com.ibasco.agql.core" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.source.query.handlers" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.source.query" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.steam.master" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.steam.webapi" level="info"/>

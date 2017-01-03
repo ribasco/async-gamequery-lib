@@ -60,11 +60,13 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
 
         @Override
         public void channelAcquired(Channel ch) throws Exception {
+            log.debug("Channel Acquired: {}", ch);
             onChannelAcquire(ch);
         }
 
         @Override
         public void channelReleased(Channel ch) throws Exception {
+            log.debug("Channel Released : {}", ch);
             onChannelRelease(ch);
         }
     };
@@ -93,13 +95,18 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
         final CompletableFuture<Channel> channelFuture = new CompletableFuture<>();
         //Retrieve our channel pool based on the message
         final ChannelPool pool = poolMap.get(message);
+
+        log.debug("Acquiring channel from pool '{}' for message : {}", pool, message);
+
         //Acquire a channel from the pool and listen for completion
         pool.acquire().addListener((Future<Channel> future) -> {
             if (future.isSuccess()) {
-                Channel channel = future.getNow();
+                log.debug("Successfully acquired Channel from pool");
+                Channel channel = future.get();
                 channel.attr(ChannelAttributes.CHANNEL_POOL).set(pool);
                 channelFuture.complete(channel);
             } else {
+                log.debug("Failed to acquire Channel from Pool");
                 channelFuture.completeExceptionally(new ConnectException(future.cause()));
             }
         });
@@ -121,22 +128,22 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
     }
 
     /**
-     * <p>A callback method that gets invoked once a {@link Channel} has been acquired using the {@link ChannelPool}</p>
+     * <p>A callback method that gets invoked once a {@link Channel} has been acquired from the {@link ChannelPool}</p>
      *
      * @param ch
      *         The acquired {@link Channel}
      */
-    private void onChannelAcquire(Channel ch) {
+    protected void onChannelAcquire(Channel ch) {
         //no implementation
     }
 
     /**
-     * <p>A callback method that gets invoked once a {@link Channel} has been released using the {@link ChannelPool}</p>
+     * <p>A callback method that gets invoked once a {@link Channel} has been released from the {@link ChannelPool}</p>
      *
      * @param ch
      *         The released {@link Channel}
      */
-    private void onChannelRelease(Channel ch) {
+    protected void onChannelRelease(Channel ch) {
         //no implementation
     }
 
@@ -146,7 +153,7 @@ abstract public class NettyPooledTransport<M extends AbstractRequest, K> extends
      * @param ch
      *         The newly created {@link Channel}
      */
-    private void onChannelCreate(Channel ch) {
+    protected void onChannelCreate(Channel ch) {
         getChannelInitializer().initializeChannel(ch, this);
     }
 

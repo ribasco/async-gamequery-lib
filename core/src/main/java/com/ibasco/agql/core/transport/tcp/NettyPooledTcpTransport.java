@@ -26,11 +26,16 @@ package com.ibasco.agql.core.transport.tcp;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.enums.ChannelType;
+import com.ibasco.agql.core.transport.ChannelAttributes;
 import com.ibasco.agql.core.transport.NettyPooledTransport;
+import io.netty.channel.Channel;
 import io.netty.channel.pool.ChannelPool;
 import io.netty.channel.pool.SimpleChannelPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>A Pooled TCP Transport implementation which creates and reuse channels stored within a pool map.
@@ -39,6 +44,9 @@ import java.net.InetSocketAddress;
  * @param <M> A type of {@link AbstractRequest} that will be used as a lookup reference for our key
  */
 public class NettyPooledTcpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, InetSocketAddress> {
+
+    private static final Logger log = LoggerFactory.getLogger(NettyPooledTcpTransport.class);
+
     public NettyPooledTcpTransport(ChannelType channelType) {
         super(channelType);
     }
@@ -51,5 +59,13 @@ public class NettyPooledTcpTransport<M extends AbstractRequest> extends NettyPoo
     @Override
     public ChannelPool createChannelPool(InetSocketAddress key) {
         return new SimpleChannelPool(getBootstrap().remoteAddress(key), channelPoolHandler);
+    }
+
+    @Override
+    public CompletableFuture<Channel> getChannel(M message) {
+        return super.getChannel(message).thenApply(c -> {
+            c.attr(ChannelAttributes.LAST_REQUEST_SENT).set(message);
+            return c;
+        });
     }
 }

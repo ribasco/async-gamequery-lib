@@ -28,6 +28,7 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ibasco.agql.core.enums.ProcessingMode;
 import com.ibasco.agql.core.enums.RequestPriority;
 import com.ibasco.agql.core.enums.RequestStatus;
+import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.session.*;
 import com.ibasco.agql.core.utils.ConcurrentUtils;
 import org.slf4j.Logger;
@@ -138,7 +139,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
      * @param priority
      *         The {@link RequestPriority}
      *
-     * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the logger if available.
+     * @return A {@link CompletableFuture} containing a {@link AbstractResponse} from the server if available.
      */
     public CompletableFuture<B> send(A request, RequestPriority priority) {
         log.debug("Adding request '{}' to queue", request.getClass().getSimpleName());
@@ -158,15 +159,33 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
      */
     @Override
     public void accept(B response, Throwable error) {
-        log.debug("Receiving '{}' from {}", response.getClass().getSimpleName(), response.sender());
+        log.debug("Receiving response '{}'", response, error);
+
         synchronized (this) {
+            if (error != null && error instanceof ResponseException) {
+                ResponseException ex = (ResponseException) error;
+                if (ex.getOriginatingRequest() != null) {
+                    SessionId id = sessionManager.getId(ex.getOriginatingRequest());
+                    SessionValue<A, B> session = sessionManager.getSession(id);
+                    if (session != null) {
+                        final CompletableFuture<B> clientPromise = session.getClientPromise();
+                        clientPromise.completeExceptionally(ex);
+                    }
+                }
+                return;
+            }
+
             //Retrieve the existing session for this response
             final SessionValue<A, B> session = sessionManager.getSession(response);
             if (session != null) {
                 //1) Retrieve our client promise from the session
                 final CompletableFuture<B> clientPromise = session.getClientPromise();
-                //2) Notify the client that we have successfully received a response from the logger
-                clientPromise.complete(response);
+
+                //2) Notify the client that we have successfully received a response from the server
+                if (clientPromise.complete(response)) {
+                    log.debug("Notified client of completion event : {}", session.getId());
+                } else
+                    log.debug("Unable to transition session to completion state : {}", session.getId());
             } else {
                 log.debug("No associated session is found for Response '{}'", response);
             }
@@ -205,7 +224,6 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 requestDetails.setStatus(RequestStatus.REGISTERED);
 
                 final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
-
                 //Perform actions upon write completion
                 writeFuture.whenComplete((aVoid, writeError) -> {
                     //If we encounter a write error, notify the listeners then immediately remove it from the queue

@@ -1,10 +1,8 @@
 Features
 ========
 
--   Everything is asynchronous. Thanks to [Netty](http://netty.io/).
--   Java 8! Takes advantage of the new powerful language features.
+-   All operations are asynchronous (non-blocking)
 -   Designed to be capable of talking to a wide range of protocols.
-
 
 Web API Implementations
 -----------------------
@@ -47,4 +45,3 @@ Upcoming Implementations
 | **Game**          | **Type**             |
 |-------------------|----------------------|
 | League of Legends | Web API              |
-| Minecraft         | Game Server Protocol |

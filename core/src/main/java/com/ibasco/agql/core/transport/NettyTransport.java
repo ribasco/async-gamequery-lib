@@ -112,7 +112,11 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
 
     public final CompletableFuture<Void> send(Msg message, boolean flushImmediately) {
         //Obtain a channel then write to it once acquired
-        return getChannel(message).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
+        return getChannel(message).thenApply(this::applyDefaultChannelAttributes).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
+    }
+
+    private Channel applyDefaultChannelAttributes(Channel channel) {
+        return channel;
     }
 
     /**
@@ -131,6 +135,7 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
      */
     private CompletableFuture<Void> writeToChannel(Channel channel, Msg data, boolean flushImmediately) {
         final CompletableFuture<Void> writeResultFuture = new CompletableFuture<>();
+        log.debug("Writing data '{}' to channel : {}", data, channel);
         final ChannelFuture writeFuture = (flushImmediately) ? channel.writeAndFlush(data) : channel.write(data);
         writeFuture.addListener((ChannelFuture future) -> {
             try {
@@ -178,6 +183,9 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
         return null;
     }
 
+    /**
+     * @return The {@link ByteBufAllocator} used by this transport.
+     */
     public ByteBufAllocator getAllocator() {
         return allocator;
     }

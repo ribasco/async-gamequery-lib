@@ -43,9 +43,14 @@ public class SourceLogMonitorEx extends BaseExample {
         log.info("{}", message);
     }
 
+    public static void main(String[] args) throws Exception {
+        SourceLogMonitorEx app = new SourceLogMonitorEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
-        String address = promptInput("Please enter server address to listen on: ", true);
+        String address = promptInput("Please enter server address to listen on: ", true, null, "listenAddress");
         int port = Integer.valueOf(promptInput("Please enter the server port (default: 27500) : ", false, "27500"));
         logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogMonitorEx::processLogData);
         logListenService.listen();

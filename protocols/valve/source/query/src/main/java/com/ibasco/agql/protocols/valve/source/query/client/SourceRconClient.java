@@ -30,6 +30,7 @@ import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconMessenger;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.RconCmdException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
@@ -53,10 +54,16 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
+    private Boolean _reauth = null;
+
+    private boolean reauthenticate = true;
+
+    private SourceRconCmdRequest lastRequestSent = null;
+
     /**
      * Contains a map of authenticated request ids with the server address as the key
      */
-    private Map<InetSocketAddress, Integer> authMap;
+    private Map<InetSocketAddress, String> credentialsMap;
 
     /**
      * Default Constructor. By default, terminating packets are sent for every command
@@ -66,7 +73,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     }
 
     /**
-     * Some games (e.g. Minecraft) do not properly respond to terminator packets, if this is the case and you get an
+     * Some games (e.g. Minecraft) do not support terminator packets, if this is the case and you get an
      * error after sending a command, try to disable this feature by setting the <code>sendTerminatingPacket</code> flag
      * to <code>false</code>.
      *
@@ -75,40 +82,69 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      */
     public SourceRconClient(boolean sendTerminatingPacket) {
         super(new SourceRconMessenger(sendTerminatingPacket));
-        authMap = new ConcurrentHashMap<>();
+        credentialsMap = new ConcurrentHashMap<>();
     }
 
     /**
-     * <p>Establish an authentication request to the Server.</p>
+     * <p>Send an authentication request to the Server. Password credentials are stored into memory and can later be
+     * re-used in case a re-authentication is needed.</p>
      *
      * @param address
      *         The {@link InetSocketAddress} of the source server
      * @param password
      *         A non-empty password {@link String}
      *
-     * @return A {@link CompletableFuture} which contains a {@link Boolean} value indicating whether the authentication
-     * succeeded or not.
+     * @return A {@link CompletableFuture} which returns a {@link SourceRconAuthStatus} that holds the status of the
+     * authentication request.
      *
      * @throws IllegalArgumentException
      *         Thrown when the address or password supplied is empty or null
      */
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address, String password) {
-        if (StringUtils.isEmpty(password) || address == null)
+        if (StringUtils.isBlank(password) || address == null)
             throw new IllegalArgumentException("Password or Address is empty or null");
+
+        //Remove existing meta if exists
+        if (this.credentialsMap.containsKey(address)) {
+            log.debug("Existing auth meta found. Removing");
+            this.credentialsMap.remove(address);
+        }
+
         int id = SourceRconUtil.createRequestId();
-        log.debug("[AUTH]: Requesting with id: {}", id);
+        log.debug("[AUTH]: Request with id: {}", id);
         CompletableFuture<SourceRconAuthStatus> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
         authRequestFuture.whenComplete((status, error) -> {
+            log.debug("[AUTH] Response : Status: {}, Error: {}", status, (error != null) ? error.getMessage() : "N/A");
             if (error != null) {
-                if (this.authMap.containsKey(address))
-                    this.authMap.remove(address);
                 throw new SourceRconAuthException(error);
             }
-            if (status.isAuthenticated()) {
-                this.authMap.put(address, id);
+            if (status != null && status.isAuthenticated()) {
+                String oldPassword = this.credentialsMap.put(address, password);
+                if (!StringUtils.isBlank(oldPassword)) {
+                    log.debug("Replaced existing auth password from '{}' to '{}'", oldPassword, password);
+                }
             }
         });
         return authRequestFuture;
+    }
+
+    /**
+     * <p>Send a re-authentication request to the Server. This will only work if the client has been previously
+     * authenticated.</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     *
+     * @return A {@link CompletableFuture} which returns a {@link SourceRconAuthStatus} that holds the status of the
+     * authentication request.
+     *
+     * @see #authenticate(InetSocketAddress, String)
+     */
+    public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) {
+        if (isAuthenticated(address)) {
+            return this.authenticate(address, this.credentialsMap.get(address));
+        }
+        return CompletableFuture.completedFuture(new SourceRconAuthStatus(false, String.format("Not yet authenticated from server %s.", address)));
     }
 
     /**
@@ -128,9 +164,44 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
         if (!isAuthenticated(address))
             throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
+
         final Integer id = SourceRconUtil.createRequestId();
-        log.debug("Executing command '{}' using request id: {}", command, id);
-        return sendRequest(new SourceRconCmdRequest(address, id, command));
+
+        CompletableFuture<String> response;
+
+        SourceRconCmdRequest request = new SourceRconCmdRequest(address, id, command);
+
+        if (reauthenticate && (_reauth != null && _reauth)) {
+            log.debug("Re-authenticating from server");
+            response = this.authenticate(address).thenCompose(status -> {
+                if (status.isAuthenticated())
+                    return sendRequest(request);
+                else
+                    return CompletableFuture.completedFuture("Unable to re-authenticate from server");
+            });
+        } else {
+            log.debug("Executing command '{}' using request id: {}", command, id);
+            response = sendRequest(request);
+        }
+
+        if (response != null)
+            response.whenComplete(this::reauthOnError);
+
+        return response;
+    }
+
+    /**
+     * Sets the _reauth flag to true on error
+     *
+     * @param response
+     *         The rcon response {@link String}
+     * @param err
+     *         The error returned by the response
+     */
+    private void reauthOnError(String response, Throwable err) {
+        if (err != null)
+            throw new RconCmdException(err.getMessage(), err);
+        _reauth = reauthenticate && (response != null && StringUtils.isBlank(response));
     }
 
     /**
@@ -142,7 +213,23 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      * @return true if the address specified is already authenticated
      */
     public boolean isAuthenticated(InetSocketAddress server) {
-        return authMap.containsKey(server) && (authMap.get(server) != null);
+        return credentialsMap.containsKey(server) && (credentialsMap.get(server) != null);
     }
 
+    /**
+     * @return <code>true</code> if the client should re-authenticate on error
+     */
+    public boolean isReauthenticate() {
+        return reauthenticate;
+    }
+
+    /**
+     * Re-authenticate from server on error
+     *
+     * @param reauthenticate
+     *         Set to <code>true</code> to re-authenticate from server on error
+     */
+    public void setReauthenticate(boolean reauthenticate) {
+        this.reauthenticate = reauthenticate;
+    }
 }

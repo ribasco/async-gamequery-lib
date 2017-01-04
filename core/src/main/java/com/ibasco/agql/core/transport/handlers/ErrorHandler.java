@@ -24,9 +24,14 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.exceptions.TransportException;
+import com.ibasco.agql.core.transport.ChannelAttributes;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.socket.SocketChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +42,15 @@ public class ErrorHandler extends ChannelDuplexHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (log.isDebugEnabled()) {
             log.error("Unhandled exception caught within the pipeline {} for Channel {}, Id: {}", cause, ctx.channel(), ctx.channel().id());
+            if (ctx.channel().hasAttr(ChannelAttributes.LAST_REQUEST_SENT)) {
+                AbstractRequest request = ctx.channel().attr(ChannelAttributes.LAST_REQUEST_SENT).get();
+                if (request != null && SocketChannel.class.isAssignableFrom(ctx.channel().getClass())) {
+                    Throwable ex = new ResponseException(request, cause);
+                    SimpleChannelInboundHandler responseRouter = ctx.pipeline().get(SimpleChannelInboundHandler.class);
+                    responseRouter.channelRead(ctx, ex);
+                    return;
+                }
+            }
             throw new TransportException(cause);
         }
     }

@@ -116,7 +116,7 @@ public class SourceLogListenService implements Closeable {
             @Override
             public void run() {
                 try {
-                    log.info("Service Interrupted. Shutting down gracefully.");
+                    log.debug("Service Interrupted. Shutting down gracefully.");
                     service.shutdown();
                 } catch (InterruptedException e) {
                     log.error(e.getMessage(), e);

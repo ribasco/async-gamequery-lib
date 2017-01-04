@@ -61,8 +61,9 @@ public class SourceRconRequestEncoder extends AbstractRequestEncoder<SourceRconR
 
         //Send rcon-terminator except if it is an authentication request packet
         if (this.sendTerminatorPackets && !(msg instanceof SourceRconAuthRequest)) {
-            log.debug("Sending RCON Terminator");
-            out.add(builder.deconstructAsBuffer(new SourceRconTermRequestPacket()));
+            ByteBuf terminatorPacket = builder.deconstructAsBuffer(new SourceRconTermRequestPacket());
+            log.debug("Sending RCON Terminator ({} bytes): \n{}", terminatorPacket.readableBytes(), ByteBufUtil.prettyHexDump(terminatorPacket));
+            out.add(terminatorPacket);
         }
     }
 }

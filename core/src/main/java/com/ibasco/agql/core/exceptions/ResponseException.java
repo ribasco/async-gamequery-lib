@@ -22,30 +22,43 @@
  *   SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.valve.source.query;
+package com.ibasco.agql.core.exceptions;
 
-public final class SourceRconAuthStatus {
-    private boolean authenticated;
-    private String reason;
+import com.ibasco.agql.core.AbstractRequest;
 
-    public SourceRconAuthStatus(boolean authenticated, String reason) {
-        this.authenticated = authenticated;
-        this.reason = reason;
+public class ResponseException extends AsyncGameLibCheckedException {
+    private AbstractRequest originatingRequest;
+
+    public ResponseException() {
+        super();
     }
 
-    public boolean isAuthenticated() {
-        return authenticated;
+    public ResponseException(String message) {
+        super(message);
     }
 
-    public String getReason() {
-        return reason;
+    public ResponseException(String message, Throwable cause) {
+        super(message, cause);
     }
 
-    @Override
-    public String toString() {
-        return "SourceRconAuthStatus{" +
-                "authenticated=" + authenticated +
-                ", reason='" + reason + '\'' +
-                '}';
+    public ResponseException(AbstractRequest originatingRequest, Throwable cause) {
+        this(cause);
+        this.originatingRequest = originatingRequest;
+    }
+
+    public ResponseException(Throwable cause) {
+        super(cause);
+    }
+
+    public ResponseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+        super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public AbstractRequest getOriginatingRequest() {
+        return originatingRequest;
+    }
+
+    public void setOriginatingRequest(AbstractRequest originatingRequest) {
+        this.originatingRequest = originatingRequest;
     }
 }

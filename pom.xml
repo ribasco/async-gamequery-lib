@@ -400,7 +400,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.0.2</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
@@ -454,10 +454,13 @@
                         <execution>
                             <id>attach-javadocs</id>
                             <goals>
-                                <goal>jar</goal>
+                                <goal>javadoc-no-fork</goal>
                             </goals>
                         </execution>
                     </executions>
+                    <configuration>
+                        <aggregate>true</aggregate>
+                    </configuration>
                 </plugin>
                 <!-- ChangeLog -->
                 <plugin>

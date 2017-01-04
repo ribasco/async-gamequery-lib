@@ -22,30 +22,13 @@
  *   SOFTWARE.
  */
 
-package com.ibasco.agql.protocols.valve.source.query;
+package com.ibasco.agql.protocols.valve.steam.webapi.requests;
 
-public final class SourceRconAuthStatus {
-    private boolean authenticated;
-    private String reason;
+import com.ibasco.agql.protocols.valve.steam.webapi.SteamApiConstants;
+import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
 
-    public SourceRconAuthStatus(boolean authenticated, String reason) {
-        this.authenticated = authenticated;
-        this.reason = reason;
-    }
-
-    public boolean isAuthenticated() {
-        return authenticated;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    @Override
-    public String toString() {
-        return "SourceRconAuthStatus{" +
-                "authenticated=" + authenticated +
-                ", reason='" + reason + '\'' +
-                '}';
+public class SteamReportCheatRequest extends SteamWebApiRequest {
+    public SteamReportCheatRequest(String apiMethod, int apiVersion) {
+        super(SteamApiConstants.STEAM_CHEATREPORT_SERVICE, apiMethod, apiVersion);
     }
 }

@@ -69,6 +69,7 @@ com.ibasco.agql.protocols.valve.steam.webapi.enums
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.apps
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.cheat
+com.ibasco.agql.protocols.valve.steam.webapi.interfaces.cheatreport
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.economy
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news

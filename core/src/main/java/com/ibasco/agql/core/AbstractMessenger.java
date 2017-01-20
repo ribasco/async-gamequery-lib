@@ -58,7 +58,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     public static final RequestPriority DEFAULT_REQUEST_PRIORITY = RequestPriority.MEDIUM;
     private static final int DEFAULT_REQUEST_QUEUE_CAPACITY = 50;
     private final AtomicBoolean processRequests = new AtomicBoolean(false);
-    private ExecutorService messengerService;
+    private ScheduledExecutorService messengerService;
 
     private SessionManager<A, B> sessionManager;
     private Transport<A> transport;
@@ -75,7 +75,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 new ScheduledThreadPoolExecutor(1, new ThreadFactoryBuilder().setNameFormat("messenger-%d").build()));
     }
 
-    public AbstractMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ExecutorService executorService) {
+    public AbstractMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ScheduledExecutorService executorService) {
         //Set processing mode
         this.processingMode = processingMode;
 
@@ -96,10 +96,11 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
     private void start() {
         if (!processRequests.get() && !messengerService.isShutdown()) {
             processRequests.set(true);
-            messengerService.execute(() -> {
-                while (processRequests.get())
+            messengerService.scheduleAtFixedRate(() -> {
+                if (processRequests.get()) {
                     requestProcessor.accept(requestQueue);
-            });
+                }
+            }, 0, 10, TimeUnit.MILLISECONDS);
         }
     }
 

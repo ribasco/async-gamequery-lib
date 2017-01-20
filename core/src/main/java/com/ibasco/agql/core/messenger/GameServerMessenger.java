@@ -31,7 +31,7 @@ import com.ibasco.agql.core.enums.ProcessingMode;
 import com.ibasco.agql.core.session.AbstractSessionIdFactory;
 import com.ibasco.agql.core.session.SessionManager;
 
-import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * Messenger using the UDP Transport protocol
@@ -47,7 +47,7 @@ abstract public class GameServerMessenger<A extends AbstractGameServerRequest, B
         super(keyFactory, processingMode);
     }
 
-    public GameServerMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ExecutorService executorService) {
+    public GameServerMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ScheduledExecutorService executorService) {
         super(sessionManager, processingMode, initQueueCapacity, executorService);
     }
 }

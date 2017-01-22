@@ -31,7 +31,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <mvn.compiler.version>3.6.0</mvn.compiler.version>
+        <mvn.compiler.version>3.6.1</mvn.compiler.version>
         <source.version>1.8</source.version>
         <target.version>1.8</target.version>
         <github.global.server>github</github.global.server>

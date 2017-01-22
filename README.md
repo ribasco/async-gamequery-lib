@@ -39,7 +39,7 @@ Requirements
 * AsyncHttpClient 2.0.x
 * SLF4J 1.7.x
 * Google Gson 2.8.x
-* Google Guava 20.x
+* Google Guava 21.x
  
 Installation
 ------------

@@ -12,7 +12,7 @@ goto done
     echo Error: Missing Example Key. Please specify the example key. (e.g. source-query)
     echo
     echo ====================================================================
-    echo List of available examples"
+    echo List of available examples
     echo ====================================================================
     echo - Source Server Query Example      (key: source-query)
     echo - Master Server Query Example      (key: master-query)

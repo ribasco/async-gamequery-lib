@@ -1,7 +1,7 @@
 Asynchronous Game Query Library
 ===============================
 
-[![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Dependency Status](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f5f445a366a4692ab8aa49b0cf4f477)](https://www.codacy.com/app/raffy/async-gamequery-lib?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribasco/async-gamequery-lib&amp;utm_campaign=Badge_Grade)
+[![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Dependency Status](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d/badge.svg?style=flat-square)](https://www.versioneye.com/user/projects/5837c911e7cea00029198c9d) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f5f445a366a4692ab8aa49b0cf4f477)](https://www.codacy.com/app/raffy/async-gamequery-lib?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribasco/async-gamequery-lib&amp;utm_campaign=Badge_Grade) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
  
 It's a game query library which provides a convenient way for java programs to execute asynchronous requests to game servers/services. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
 
@@ -54,7 +54,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -64,7 +64,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-source-query</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -74,7 +74,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-webapi</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -84,7 +84,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -94,7 +94,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -104,7 +104,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
-    <version>0.1.1</version>
+    <version>0.1.2</version>
 </dependency>
 ```
 
@@ -189,7 +189,6 @@ Future Integrations
 My planned integrations for future releases. Don't hesitate to [contact](mailto:raffy@ibasco.com) me if you have any other suggestions.
 
 * Riot Games - League of Legends Web API
-* Mojang - Minecraft server query
 
 Contributing
 ------------

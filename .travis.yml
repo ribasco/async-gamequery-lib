@@ -42,15 +42,15 @@ deploy:
   - provider: releases
     api_key: ${GITHUB_TOKEN}
     file_glob: true
-    file:
-      - core/target/agql-lib-core-*.jar
-      - examples/target/agql-lib-examples-*.jar
-      - protocols/supercell/clashofclans/webapi/target/agql-coc-webapi-*.jar
-      - protocols/valve/csgo/webapi/target/agql-csgo-webapi-*.jar
-      - protocols/valve/dota2/webapi/target/agql-dota2-webapi-*.jar
-      - protocols/valve/source/query/target/agql-source-query-*.jar
-      - protocols/valve/steam/master/target/agql-steam-master-*.jar
-      - protocols/valve/steam/webapi/target/agql-steam-webapi-*.jar
+    #file:
+    #  - core/target/agql-lib-core-*.jar
+    #  - examples/target/agql-lib-examples-*.jar
+    #  - protocols/supercell/clashofclans/webapi/target/agql-coc-webapi-*.jar
+    #  - protocols/valve/csgo/webapi/target/agql-csgo-webapi-*.jar
+    #  - protocols/valve/dota2/webapi/target/agql-dota2-webapi-*.jar
+    #  - protocols/valve/source/query/target/agql-source-query-*.jar
+    #  - protocols/valve/steam/master/target/agql-steam-master-*.jar
+    #  - protocols/valve/steam/webapi/target/agql-steam-webapi-*.jar
     skip_cleanup: true
     on:
       tags: true

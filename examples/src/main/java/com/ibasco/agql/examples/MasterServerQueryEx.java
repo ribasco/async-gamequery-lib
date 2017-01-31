@@ -41,6 +41,11 @@ public class MasterServerQueryEx extends BaseExample {
 
     private MasterServerQueryClient masterServerQueryClient;
 
+    public static void main(String[] args) throws Exception {
+        MasterServerQueryEx app = new MasterServerQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         masterServerQueryClient = new MasterServerQueryClient();

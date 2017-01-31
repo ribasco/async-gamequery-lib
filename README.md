@@ -8,7 +8,9 @@ Asynchronous Game Query Library
  
 It's a game query library which provides a convenient way for java programs to execute asynchronous requests to game servers/services. It's built on top of [Netty](https://github.com/netty/netty) as it's core transport engine and use [AsyncHttpClient](https://github.com/AsyncHttpClient/async-http-client) for web services.
 
-![alt text](site/resources/images/agql-project-banner-big.png "Games supported by Source Query Protocol")
+![Supported Games](site/resources/images/agql-project-banner-big.png "Games supported by Source Query Protocol")
+
+![Master Browser Example](site/resources/images/master-browser-example.gif)
 
 Project Resources
 -------------
@@ -199,9 +201,13 @@ Contributing
 Fork it and submit a pull request. Any type of contributions are welcome.
 
 
-Sponsors
----------
+Special Thanks/Sponsors
+------------------------
 
 * ej Technologies - Developer of the award-winning JProfiler, a full-featured "All-in-one" Java Profiler. Click on the icon below to find out more. 
 
   [![JProfiler](https://www.ej-technologies.com/images/product_banners/jprofiler_medium.png)](http://www.ej-technologies.com/products/jprofiler/overview.html)
+  
+* JetBrains - For providing the open-source license for their awesome Java IDE. 
+ 
+  [![IntelliJ IDEA](site/resources/images/intellij-icon.png)](https://www.jetbrains.com/idea)

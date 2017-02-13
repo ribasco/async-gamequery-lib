@@ -47,6 +47,11 @@ public class CocWebApiQueryEx extends BaseWebApiAuthExample {
         list.forEach(o -> log.info("{}", o.toString()));
     }
 
+    public static void main(String[] args) {
+        CocWebApiQueryEx app = new CocWebApiQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() {
         String token = getToken("supercell");

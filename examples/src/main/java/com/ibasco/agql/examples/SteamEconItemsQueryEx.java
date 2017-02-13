@@ -41,6 +41,11 @@ public class SteamEconItemsQueryEx extends BaseWebApiAuthExample {
 
     private SteamWebApiClient apiClient;
 
+    public static void main(String[] args) throws Exception {
+        SteamEconItemsQueryEx app = new SteamEconItemsQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         String authToken = getToken("steam");

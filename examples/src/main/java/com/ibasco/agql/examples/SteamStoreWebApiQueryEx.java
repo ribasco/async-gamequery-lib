@@ -38,6 +38,11 @@ public class SteamStoreWebApiQueryEx extends BaseExample {
 
     private SteamWebApiClient apiClient;
 
+    public static void main(String[] args) throws Exception {
+        SteamStoreWebApiQueryEx app = new SteamStoreWebApiQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         apiClient = new SteamWebApiClient();

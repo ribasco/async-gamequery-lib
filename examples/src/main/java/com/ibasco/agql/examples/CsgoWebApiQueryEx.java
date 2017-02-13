@@ -38,6 +38,11 @@ public class CsgoWebApiQueryEx extends BaseWebApiAuthExample {
 
     private CsgoWebApiClient client;
 
+    public static void main(String[] args) throws Exception {
+        CsgoWebApiQueryEx app = new CsgoWebApiQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         String authToken = getToken("steam");

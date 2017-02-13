@@ -40,6 +40,11 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
 
     private Dota2WebApiClient apiClient;
 
+    public static void main(String[] args) throws Exception {
+        Dota2WebApiQueryEx app = new Dota2WebApiQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         apiClient = new Dota2WebApiClient(getToken("steam"));

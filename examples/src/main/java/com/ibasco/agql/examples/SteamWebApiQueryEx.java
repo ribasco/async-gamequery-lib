@@ -45,6 +45,11 @@ public class SteamWebApiQueryEx extends BaseWebApiAuthExample {
 
     private SteamWebApiClient apiClient;
 
+    public static void main(String[] args) throws Exception {
+        SteamWebApiQueryEx app = new SteamWebApiQueryEx();
+        app.run();
+    }
+
     @Override
     public void run() throws Exception {
         String authToken = getToken("steam");

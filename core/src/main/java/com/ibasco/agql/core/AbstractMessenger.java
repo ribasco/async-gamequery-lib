@@ -225,6 +225,9 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                 requestDetails.setStatus(RequestStatus.REGISTERED);
 
                 final CompletableFuture<Void> writeFuture = transport.send(requestDetails.getRequest());
+
+                requestDetails.setStatus(RequestStatus.AWAIT);
+
                 //Perform actions upon write completion
                 writeFuture.whenComplete((aVoid, writeError) -> {
                     //If we encounter a write error, notify the listeners then immediately remove it from the queue
@@ -294,7 +297,7 @@ abstract public class AbstractMessenger<A extends AbstractRequest, B extends Abs
                         requestDetails.setStatus(RequestStatus.SENT);
                     }
                 });
-                requestDetails.setStatus(RequestStatus.SENDING);
+                requestDetails.setStatus(RequestStatus.AWAIT);
             } catch (Exception e) {
                 requestDetails.getClientPromise().completeExceptionally(e);
             }

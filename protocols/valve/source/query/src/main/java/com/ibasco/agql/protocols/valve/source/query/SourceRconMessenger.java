@@ -37,7 +37,6 @@ import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconAuthResponse;
 import com.ibasco.agql.protocols.valve.source.query.response.SourceRconCmdResponse;
 import io.netty.channel.ChannelOption;
-import io.netty.channel.epoll.EpollChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -65,9 +64,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576 * 4);
         transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 4);
         transport.addChannelOption(ChannelOption.SO_KEEPALIVE, true);
-        transport.addChannelOption(ChannelOption.SO_REUSEADDR, true);
         transport.addChannelOption(ChannelOption.TCP_NODELAY, true);
-        transport.addChannelOption(EpollChannelOption.SO_REUSEPORT, true);
         return transport;
     }
 

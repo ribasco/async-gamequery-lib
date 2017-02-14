@@ -48,7 +48,7 @@ public enum RequestStatus {
     /**
      * A request has been issued to the underlying transport but is currently awaiting for completion
      */
-    SENDING,
+    AWAIT,
     /**
      * Request has been sent through the underlying transport and is awaiting for response
      */

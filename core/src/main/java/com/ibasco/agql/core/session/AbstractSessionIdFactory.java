@@ -31,7 +31,7 @@ import com.ibasco.agql.core.AbstractResponse;
 import java.net.InetSocketAddress;
 import java.util.Map;
 
-public abstract class AbstractSessionIdFactory<
+abstract public class AbstractSessionIdFactory<
         Req extends AbstractRequest,
         Res extends AbstractResponse>
         implements SessionIdFactory {

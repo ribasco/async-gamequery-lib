@@ -41,7 +41,7 @@ Requirements
 * Apache Commons Lang 3
 * Apache Commons Math 3
 * Netty 4.1.x
-* AsyncHttpClient 2.0.x
+* AsyncHttpClient 2.1.x
 * SLF4J 1.7.x
 * Google Gson 2.8.x
 * Google Guava 21.x
@@ -59,7 +59,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
@@ -69,7 +69,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-source-query</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
@@ -79,7 +79,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-webapi</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
@@ -89,7 +89,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
@@ -99,7 +99,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 
@@ -109,7 +109,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
-    <version>0.1.2</version>
+    <version>0.1.3</version>
 </dependency>
 ```
 

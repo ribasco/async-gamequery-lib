@@ -115,7 +115,7 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      *
      * @return A {@link Collection} containing the type specified by collectionClass argument
      */
-    public <A extends Collection> A asCollectionOf(Class itemType, String searchKey, JsonObject searchElement, Class<? extends Collection> collectionClass, boolean strict) {
+    protected <A extends Collection> A asCollectionOf(Class itemType, String searchKey, JsonObject searchElement, Class<? extends Collection> collectionClass, boolean strict) {
         if (searchElement.has(searchKey) && searchElement.get(searchKey).isJsonArray()) {
             return fromJson(searchElement.getAsJsonArray(searchKey), new CollectionParameterizedType(itemType, collectionClass));
         }

@@ -30,7 +30,7 @@
         <relativePath>../../../../pom.xml</relativePath>
         <groupId>com.ibasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>0.1.3-SNAPSHOT</version>
+        <version>0.1.3</version>
     </parent>
 
     <artifactId>agql-source-query</artifactId>

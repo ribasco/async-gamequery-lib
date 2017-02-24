@@ -9,12 +9,12 @@ Web API Implementations
 
 A list of supported web service implementations
 
-| **Vendor** | **Game/Platform** | **Supported Interfaces**                                         |
-|------------|-------------------|------------------------------------------------------------------|
-| Supercell  | Clash of Clans    | Clans, Leagues, Locations, Players                               |
-| Valve      | Steam             | Apps, Community, Econ, Economy, Player Service, User, User Stats |
-| Valve      | Dota 2            | Econ, Fantasy, Match, Stats, Stream, Teams                       |
-| Valve      | CS:GO             | Servers                                                          |
+| **Vendor** | **Game/Platform** | **Supported Interfaces**                                                      |
+|------------|-------------------|-------------------------------------------------------------------------------|
+| Supercell  | Clash of Clans    | Clans, Leagues, Locations, Players                                            |
+| Valve      | Steam             | Apps, Community, Econ, Economy, Player Service, User, User Stats, Store Front |
+| Valve      | Dota 2            | Econ, Fantasy, Match, Stats, Stream, Teams                                    |
+| Valve      | CS:GO             | Servers                                                                       |
 
 
 Game Server Queries

@@ -24,12 +24,14 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.interfaces;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.ibasco.agql.core.AbstractWebApiInterface;
 import com.ibasco.agql.core.client.AbstractRestClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamStoreApiRequest;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiResponse;
+import com.ibasco.agql.protocols.valve.steam.webapi.adapters.StoreAppPcRequirementsDeserializer;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.*;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
 
@@ -45,6 +47,11 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
      */
     public SteamStorefront(SteamWebApiClient client) {
         super(client);
+    }
+
+    @Override
+    protected void configureBuilder(GsonBuilder builder) {
+        builder.registerTypeAdapter(StoreAppPcRequirements.class, new StoreAppPcRequirementsDeserializer());
     }
 
     public CompletableFuture<StoreFeaturedApps> getFeaturedApps() {
@@ -73,8 +80,12 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
         CompletableFuture<JsonObject> json = sendRequest(new GetAppDetails(VERSION_1, appId, countryCode, language));
         return json.thenApply(root -> {
             JsonObject appObject = root.getAsJsonObject(String.valueOf(appId));
-            JsonObject appData = appObject.getAsJsonObject("data");
-            return fromJson(appData, StoreAppDetails.class);
+            boolean isSuccess = appObject.getAsJsonPrimitive("success").getAsBoolean();
+            if (isSuccess) {
+                JsonObject appData = appObject.getAsJsonObject("data");
+                return fromJson(appData, StoreAppDetails.class);
+            }
+            return null;
         });
     }
 

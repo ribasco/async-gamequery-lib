@@ -32,8 +32,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.Properties;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class SteamStorefrontIT {
 
@@ -46,6 +45,12 @@ public class SteamStorefrontIT {
         testProps.load(getClass().getClassLoader().getResource("test.properties").openStream());
         apiClient = new SteamWebApiClient(testProps.getProperty("web.token"));
         storeFront = new SteamStorefront(apiClient);
+    }
+
+    @Test
+    public void testEmptyAppDetails() {
+        StoreAppDetails details = storeFront.getAppDetails(1).join();
+        assertNull(details);
     }
 
     @Test

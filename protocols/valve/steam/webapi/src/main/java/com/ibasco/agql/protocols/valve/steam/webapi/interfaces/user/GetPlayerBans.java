@@ -26,14 +26,10 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class GetPlayerBans extends SteamUserRequest {
-
-    private static final Logger log = LoggerFactory.getLogger(GetPlayerBans.class);
 
     public GetPlayerBans(int apiVersion, List<Long> steamIds) {
         this(apiVersion, steamIds.toArray(new Long[0]));

@@ -23,8 +23,7 @@
   ~ SOFTWARE.
   -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Properties -->
@@ -43,7 +42,7 @@
     <groupId>com.ibasco.agql</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.4</version>
     <inceptionYear>2016</inceptionYear>
     <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
@@ -57,7 +56,7 @@
         <url>https://github.com/ribasco/async-gamequery-lib</url>
         <connection>scm:git:git://github.com/ribasco/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:git@github.com:ribasco/async-gamequery-lib.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>agql-project-0.1.4</tag>
     </scm>
 
     <developers>
@@ -384,7 +383,7 @@
                             <id>enforce</id>
                             <configuration>
                                 <rules>
-                                    <dependencyConvergence/>
+                                    <dependencyConvergence />
                                 </rules>
                             </configuration>
                             <goals>

@@ -45,7 +45,6 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Contains the methods for the ISteamApps interface
@@ -76,19 +75,16 @@ public class SteamApps extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(InetAddress address) {
         final CompletableFuture<JsonObject> json = sendRequest(new GetServersAtAddress(1, address.getHostAddress()));
-        return json.thenApply(new Function<JsonObject, List<SteamGameServer>>() {
-            @Override
-            public List<SteamGameServer> apply(JsonObject root) {
-                JsonObject response = root.getAsJsonObject("response");
-                Boolean success = response.getAsJsonPrimitive("success").getAsBoolean();
-                JsonArray serverList = response.getAsJsonArray("servers");
-                if (success) {
-                    Type serverListType = new TypeToken<List<SteamGameServer>>() {
-                    }.getType();
-                    return builder().fromJson(serverList, serverListType);
-                }
-                throw new AsyncGameLibUncheckedException("Server returned an invalid response");
+        return json.thenApply(root -> {
+            JsonObject response = root.getAsJsonObject("response");
+            Boolean success = response.getAsJsonPrimitive("success").getAsBoolean();
+            JsonArray serverList = response.getAsJsonArray("servers");
+            if (success) {
+                Type serverListType = new TypeToken<List<SteamGameServer>>() {
+                }.getType();
+                return builder().fromJson(serverList, serverListType);
             }
+            throw new AsyncGameLibUncheckedException("Server returned an invalid response");
         });
     }
 

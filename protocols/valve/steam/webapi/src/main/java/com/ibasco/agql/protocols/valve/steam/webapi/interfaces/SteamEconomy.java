@@ -43,7 +43,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Created by raffy on 10/26/2016.
@@ -85,14 +84,11 @@ public class SteamEconomy extends SteamWebApiInterface {
 
     public CompletableFuture<Map<String, SteamAssetClassInfo>> getAssetClassInfo(int appId, String language, Long... classIds) {
         CompletableFuture<JsonObject> json = sendRequest(new GetAssetClassInfo(VERSION_1, appId, language, classIds));
-        return json.thenApply(new Function<JsonObject, Map<String, SteamAssetClassInfo>>() {
-            @Override
-            public Map<String, SteamAssetClassInfo> apply(JsonObject root) {
-                JsonObject result = root.getAsJsonObject("result");
-                Type type = new TypeToken<Map<String, SteamAssetClassInfo>>() {
-                }.getType();
-                return builder().fromJson(result, type);
-            }
+        return json.thenApply(root -> {
+            JsonObject result = root.getAsJsonObject("result");
+            Type type = new TypeToken<Map<String, SteamAssetClassInfo>>() {
+            }.getType();
+            return builder().fromJson(result, type);
         });
     }
 }

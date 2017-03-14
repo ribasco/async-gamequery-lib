@@ -37,7 +37,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchema;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Methods relating to in-game items for supported games.
@@ -59,16 +58,13 @@ public class SteamEconItems extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamEconPlayerItem>> getPlayerItems(int appId, long steamId, int apiVersion) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerItems(appId, steamId, apiVersion));
-        return json.thenApply(new Function<JsonObject, List<SteamEconPlayerItem>>() {
-            @Override
-            public List<SteamEconPlayerItem> apply(JsonObject root) {
-                JsonObject result = root.getAsJsonObject("result");
-                int status = result.getAsJsonPrimitive("status").getAsInt();
-                JsonArray items = result.getAsJsonArray("items");
-                Type type = new TypeToken<List<SteamEconPlayerItem>>() {
-                }.getType();
-                return fromJson(items, type);
-            }
+        return json.thenApply(root -> {
+            JsonObject result = root.getAsJsonObject("result");
+            int status = result.getAsJsonPrimitive("status").getAsInt();
+            JsonArray items = result.getAsJsonArray("items");
+            Type type = new TypeToken<List<SteamEconPlayerItem>>() {
+            }.getType();
+            return fromJson(items, type);
         });
     }
 

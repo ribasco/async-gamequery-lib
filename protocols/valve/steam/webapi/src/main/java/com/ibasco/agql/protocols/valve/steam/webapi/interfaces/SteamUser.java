@@ -40,7 +40,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Created by raffy on 10/27/2016.
@@ -56,14 +55,11 @@ public class SteamUser extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamFriend>> getFriendList(long steamId, String relationship) {
         CompletableFuture<JsonObject> json = sendRequest(new GetFriendList(VERSION_1, steamId, relationship));
-        return json.thenApply(new Function<JsonObject, List<SteamFriend>>() {
-            @Override
-            public List<SteamFriend> apply(JsonObject root) {
-                JsonArray friendsList = root.getAsJsonObject("friendslist").getAsJsonArray("friends");
-                Type type = new TypeToken<List<SteamFriend>>() {
-                }.getType();
-                return builder().fromJson(friendsList, type);
-            }
+        return json.thenApply(root -> {
+            JsonArray friendsList = root.getAsJsonObject("friendslist").getAsJsonArray("friends");
+            Type type = new TypeToken<List<SteamFriend>>() {
+            }.getType();
+            return builder().fromJson(friendsList, type);
         });
     }
 
@@ -73,14 +69,11 @@ public class SteamUser extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamBanStatus>> getPlayerBans(Long... steamIds) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerBans(VERSION_1, steamIds));
-        return json.thenApply(new Function<JsonObject, List<SteamBanStatus>>() {
-            @Override
-            public List<SteamBanStatus> apply(JsonObject root) {
-                JsonArray players = root.getAsJsonArray("players");
-                Type type = new TypeToken<List<SteamBanStatus>>() {
-                }.getType();
-                return builder().fromJson(players, type);
-            }
+        return json.thenApply(root -> {
+            JsonArray players = root.getAsJsonArray("players");
+            Type type = new TypeToken<List<SteamBanStatus>>() {
+            }.getType();
+            return builder().fromJson(players, type);
         });
     }
 
@@ -94,17 +87,14 @@ public class SteamUser extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamPlayerProfile>> getPlayerProfiles(Long... steamIds) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerSummaries(VERSION_2, steamIds));
-        return json.thenApply(new Function<JsonObject, List<SteamPlayerProfile>>() {
-            @Override
-            public List<SteamPlayerProfile> apply(JsonObject root) {
-                JsonArray players = root.getAsJsonObject("response").getAsJsonArray("players");
-                Type type = new TypeToken<List<SteamPlayerProfile>>() {
-                }.getType();
-                if (players != null) {
-                    return builder().fromJson(players, type);
-                }
-                return null;
+        return json.thenApply(root -> {
+            JsonArray players = root.getAsJsonObject("response").getAsJsonArray("players");
+            Type type = new TypeToken<List<SteamPlayerProfile>>() {
+            }.getType();
+            if (players != null) {
+                return builder().fromJson(players, type);
             }
+            return null;
         });
     }
 

@@ -32,7 +32,7 @@ import java.lang.reflect.Type;
 /**
  * Special handler for properties that can either be an object or array.
  *
- * @see https://github.com/ribasco/async-gamequery-lib/issues/12
+ * @see <a href="https://github.com/ribasco/async-gamequery-lib/issues/12">Issue #12</a>
  */
 public class StoreAppPcRequirementsDeserializer implements JsonDeserializer<StoreAppPcRequirements> {
 

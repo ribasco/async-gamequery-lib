@@ -333,7 +333,7 @@ public class StoreAppDetails {
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+        return new ToStringBuilder(this, ToStringStyle.SIMPLE_STYLE)
                 .append("type", getType())
                 .append("name", getName())
                 .append("appid", getAppId())

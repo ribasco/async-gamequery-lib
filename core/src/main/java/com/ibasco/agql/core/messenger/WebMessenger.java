@@ -33,6 +33,7 @@ import io.netty.channel.EventLoopGroup;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.Response;
+import org.asynchttpclient.filter.ThrottleRequestFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,8 @@ public class WebMessenger<Req extends AbstractWebRequest, Res extends AbstractWe
 
     public WebMessenger(Function<Response, Res> responseFactory, EventLoopGroup eventLoopGroup) {
         DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
+        configBuilder.setKeepAlive(true);
+        configBuilder.addRequestFilter(new ThrottleRequestFilter(40));
         if (eventLoopGroup != null) {
             configBuilder.setEventLoopGroup(eventLoopGroup);
         }

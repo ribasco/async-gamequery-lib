@@ -49,7 +49,7 @@ abstract public class AbstractClient<Req extends AbstractRequest,
         return sendRequest(message, AbstractMessenger.DEFAULT_REQUEST_PRIORITY);
     }
 
-    public <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
+    protected <V> CompletableFuture<V> sendRequest(Req message, RequestPriority priority) {
         log.debug("Client '{}' Sending request : {}", this.getClass().getSimpleName(), message);
         //Send the request then transform the result once a response is received
         ConcurrentUtils.sleepUninterrupted(10);
@@ -61,11 +61,11 @@ abstract public class AbstractClient<Req extends AbstractRequest,
         return (V) message.getMessage();
     }
 
-    public M getMessenger() {
+    protected M getMessenger() {
         return messenger;
     }
 
-    public void setMessenger(M messenger) {
+    protected void setMessenger(M messenger) {
         this.messenger = messenger;
     }
 

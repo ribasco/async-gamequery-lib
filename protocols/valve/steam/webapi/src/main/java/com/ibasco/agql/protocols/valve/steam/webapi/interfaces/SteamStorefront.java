@@ -80,8 +80,7 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
         CompletableFuture<JsonObject> json = sendRequest(new GetAppDetails(VERSION_1, appId, countryCode, language));
         return json.thenApply(root -> {
             JsonObject appObject = root.getAsJsonObject(String.valueOf(appId));
-            boolean isSuccess = appObject.getAsJsonPrimitive("success").getAsBoolean();
-            if (isSuccess) {
+            if (appObject.getAsJsonPrimitive("success").getAsBoolean()) {
                 JsonObject appData = appObject.getAsJsonObject("data");
                 return fromJson(appData, StoreAppDetails.class);
             }

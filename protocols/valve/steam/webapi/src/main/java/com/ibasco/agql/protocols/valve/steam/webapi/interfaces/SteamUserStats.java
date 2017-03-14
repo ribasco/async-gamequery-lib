@@ -36,7 +36,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Created by raffy on 10/26/2016.
@@ -48,27 +47,19 @@ public class SteamUserStats extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamGameAchievement>> getGlobalAchievementPercentagesForApp(int appId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetGlobalAchievementPercentagesForApp(VERSION_2, appId));
-        return json.thenApply(new Function<JsonObject, List<SteamGameAchievement>>() {
-            @Override
-            public List<SteamGameAchievement> apply(JsonObject root) {
-                JsonObject achievementPct = root.getAsJsonObject("achievementpercentages");
-                JsonArray achievements = achievementPct.getAsJsonArray("achievements");
-                Type type = new TypeToken<List<SteamGameAchievement>>() {
-                }.getType();
-                return builder().fromJson(achievements, type);
-            }
+        return json.thenApply(root -> {
+            JsonObject achievementPct = root.getAsJsonObject("achievementpercentages");
+            JsonArray achievements = achievementPct.getAsJsonArray("achievements");
+            Type type = new TypeToken<List<SteamGameAchievement>>() {
+            }.getType();
+            return builder().fromJson(achievements, type);
         });
     }
 
     //TODO: Figure out what that damn name[0] parameter should be
     public CompletableFuture<List<Object>> getGlobalStatsForGame(int appId, int count, String name) {
         CompletableFuture<JsonObject> json = sendRequest(new GetGlobalStatsForGame(VERSION_2, appId, count, name));
-        return json.thenApply(new Function<JsonObject, List<Object>>() {
-            @Override
-            public List<Object> apply(JsonObject root) {
-                return null;
-            }
-        });
+        return json.thenApply(root -> null);
     }
 
     public CompletableFuture<SteamGameStatsSchemaInfo> getSchemaForGame(int appId) {

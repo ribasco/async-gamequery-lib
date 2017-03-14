@@ -35,7 +35,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamNewsItem;
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 public class SteamNews extends SteamWebApiInterface {
     public SteamNews(SteamWebApiClient client) {
@@ -49,15 +48,12 @@ public class SteamNews extends SteamWebApiInterface {
     public CompletableFuture<List<SteamNewsItem>> getNewsForApp(int appId, int maxLength, int endDate, int count, String feeds) {
         GetNewsForApp request = new GetNewsForApp(2, appId).maxLength(maxLength).endDate(endDate).count(count).feeds(feeds);
         CompletableFuture<JsonObject> newsItems = sendRequest(request);
-        return newsItems.thenApply(new Function<JsonObject, List<SteamNewsItem>>() {
-            @Override
-            public List<SteamNewsItem> apply(JsonObject root) {
-                JsonObject appNews = root.getAsJsonObject("appnews");
-                JsonArray newsItems = appNews.getAsJsonArray("newsitems");
-                Type newsListType = new TypeToken<List<SteamNewsItem>>() {
-                }.getType();
-                return builder().fromJson(newsItems, newsListType);
-            }
+        return newsItems.thenApply(root -> {
+            JsonObject appNews = root.getAsJsonObject("appnews");
+            JsonArray newsItems1 = appNews.getAsJsonArray("newsitems");
+            Type newsListType = new TypeToken<List<SteamNewsItem>>() {
+            }.getType();
+            return builder().fromJson(newsItems1, newsListType);
         });
     }
 }

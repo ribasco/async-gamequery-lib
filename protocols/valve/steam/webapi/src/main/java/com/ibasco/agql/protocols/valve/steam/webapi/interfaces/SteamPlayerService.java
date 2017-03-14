@@ -40,7 +40,6 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Function;
 
 /**
  * Created by raffy on 10/26/2016.
@@ -52,27 +51,21 @@ public class SteamPlayerService extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamPlayerRecentPlayed>> getRecentlyPlayedGames(long steamId, int count) {
         CompletableFuture<JsonObject> json = sendRequest(new GetRecentlyPlayedGames(VERSION_1, steamId, count));
-        return json.thenApply(new Function<JsonObject, List<SteamPlayerRecentPlayed>>() {
-            @Override
-            public List<SteamPlayerRecentPlayed> apply(JsonObject root) {
-                JsonArray games = root.getAsJsonObject("response").getAsJsonArray("games");
-                Type type = new TypeToken<List<SteamPlayerRecentPlayed>>() {
-                }.getType();
-                return builder().fromJson(games, type);
-            }
+        return json.thenApply(root -> {
+            JsonArray games = root.getAsJsonObject("response").getAsJsonArray("games");
+            Type type = new TypeToken<List<SteamPlayerRecentPlayed>>() {
+            }.getType();
+            return builder().fromJson(games, type);
         });
     }
 
     public CompletableFuture<List<SteamPlayerOwnedGame>> getOwnedGames(long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
         CompletableFuture<JsonObject> json = sendRequest(new GetOwnedGames(VERSION_1, steamId, includeAppInfo, includePlayedFreeGames));
-        return json.thenApply(new Function<JsonObject, List<SteamPlayerOwnedGame>>() {
-            @Override
-            public List<SteamPlayerOwnedGame> apply(JsonObject root) {
-                JsonArray games = root.getAsJsonObject("response").getAsJsonArray("games");
-                Type type = new TypeToken<List<SteamPlayerOwnedGame>>() {
-                }.getType();
-                return builder().fromJson(games, type);
-            }
+        return json.thenApply(root -> {
+            JsonArray games = root.getAsJsonObject("response").getAsJsonArray("games");
+            Type type = new TypeToken<List<SteamPlayerOwnedGame>>() {
+            }.getType();
+            return builder().fromJson(games, type);
         });
     }
 
@@ -90,17 +83,14 @@ public class SteamPlayerService extends SteamWebApiInterface {
 
     public CompletableFuture<List<SteamQuestStatus>> getCommunityBadgeProgress(long steamId, int badgeId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetCommunityBadgeProgress(VERSION_1, steamId, badgeId));
-        return json.thenApply(new Function<JsonObject, List<SteamQuestStatus>>() {
-            @Override
-            public List<SteamQuestStatus> apply(JsonObject root) {
-                JsonArray quests = root.getAsJsonObject("response").getAsJsonArray("quests");
-                if (quests != null) {
-                    Type type = new TypeToken<List<SteamQuestStatus>>() {
-                    }.getType();
-                    return builder().fromJson(quests, type);
-                }
-                return new ArrayList<>();
+        return json.thenApply(root -> {
+            JsonArray quests = root.getAsJsonObject("response").getAsJsonArray("quests");
+            if (quests != null) {
+                Type type = new TypeToken<List<SteamQuestStatus>>() {
+                }.getType();
+                return builder().fromJson(quests, type);
             }
+            return new ArrayList<>();
         });
     }
 

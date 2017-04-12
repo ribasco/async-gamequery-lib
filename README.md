@@ -20,6 +20,14 @@ Project Resources
 * [Continuous Integration](https://travis-ci.org/ribasco/async-gamequery-lib)
 * [Snapshot Builds](https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/)
 
+Discussion Platforms
+-----------------
+
+If you have any inquiries,concerns or suggestions please use one of the official communication channels for this project
+
+* [AGQL Google Group](https://groups.google.com/forum/#!forum/agql)
+* [Gitter IM](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
+
 Implementations
 ----------------
  
@@ -191,7 +199,7 @@ References you might find helpful regarding the implementations
 Future Integrations
 --------------------
 
-My planned integrations for future releases. Don't hesitate to [contact](mailto:raffy@ibasco.com) me if you have any other suggestions.
+My planned integrations for future releases.
 
 * Riot Games - League of Legends Web API
 
@@ -199,7 +207,6 @@ Contributing
 ------------
 
 Fork it and submit a pull request. Any type of contributions are welcome.
-
 
 Special Thanks/Sponsors
 ------------------------

@@ -24,11 +24,13 @@
 
 package com.ibasco.agql.protocols.valve.source.query.pojos;
 
-import com.ibasco.agql.core.pojos.GameServer;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-public class SourceServer extends GameServer {
+import java.net.InetSocketAddress;
+
+public class SourceServer {
+    private String name;
     private byte networkVersion;
     private String mapName;
     private String gameDirectory;
@@ -47,6 +49,7 @@ public class SourceServer extends GameServer {
     private String tvName;
     private String serverTags;
     private long gameId;
+    private InetSocketAddress address;
 
     public byte getNetworkVersion() {
         return networkVersion;
@@ -190,6 +193,30 @@ public class SourceServer extends GameServer {
 
     public void setGameId(long gameId) {
         this.gameId = gameId;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public InetSocketAddress getAddress() {
+        return address;
+    }
+
+    public String getHostAddress() {
+        return address.getAddress().getHostAddress();
+    }
+
+    public int getPort() {
+        return address.getPort();
+    }
+
+    public void setAddress(InetSocketAddress address) {
+        this.address = address;
     }
 
     @Override

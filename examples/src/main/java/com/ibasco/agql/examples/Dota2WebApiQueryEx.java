@@ -93,13 +93,9 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
             List<Dota2League> leagues = matchInterface.getLeagueListing().get();
             leagues.forEach(Dota2WebApiQueryEx::displayResult);
 
-            Dota2MatchDetails matchDetails = matchInterface.getMatchDetails(2753811554L).get();
-            log.info("Match Details: {}", matchDetails);
-            matchDetails.getPlayers().forEach(Dota2WebApiQueryEx::displayResult);
-
             Dota2MatchHistory matchHistory = matchInterface.getMatchHistory().get();
 
-            log.info("Match History : {}", matchHistory);
+            log.info("Match History Details: {}", matchHistory);
             for (Dota2MatchHistoryInfo historyInfo : matchHistory.getMatches()) {
                 CompletableFuture<Dota2MatchDetails> matchHistoryDetails = matchInterface.getMatchDetails(historyInfo.getMatchId());
                 matchHistoryDetails.thenAccept(dota2MatchDetails -> log.debug("\t\tMatch: {}", dota2MatchDetails));

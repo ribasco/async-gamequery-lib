@@ -29,11 +29,9 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.annotation.Generated;
 import java.util.ArrayList;
 import java.util.List;
 
-@Generated("org.jsonschema2pojo")
 public class Dota2MatchHistory {
     @SerializedName("status")
     @Expose
@@ -49,7 +47,7 @@ public class Dota2MatchHistory {
     private int resultsRemaining;
     @SerializedName("matches")
     @Expose
-    private List<Dota2MatchHistoryInfo> matches = new ArrayList<Dota2MatchHistoryInfo>();
+    private List<Dota2MatchHistoryInfo> matches = new ArrayList<>();
 
     /**
      * @return The status

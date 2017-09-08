@@ -29,9 +29,6 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.annotation.Generated;
-
-@Generated("org.jsonschema2pojo")
 public class Dota2MatchHistoryPlayer {
 
     @SerializedName("account_id")

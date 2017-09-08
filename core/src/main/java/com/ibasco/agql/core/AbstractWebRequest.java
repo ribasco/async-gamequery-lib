@@ -68,11 +68,11 @@ abstract public class AbstractWebRequest extends AbstractRequest<Request> {
         builder.addQueryParam(name, String.valueOf(value));
     }
 
-    protected static String encode(String element) {
+    protected String encode(String element) {
         return encode(element, "UTF-8");
     }
 
-    protected static String encode(String element, String encoding) {
+    protected String encode(String element, String encoding) {
         try {
             return URLEncoder.encode(element, encoding);
         } catch (UnsupportedEncodingException ignored) {

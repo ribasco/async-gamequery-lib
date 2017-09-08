@@ -18,6 +18,7 @@ if [ -z "$1" ]
     echo "- Source Log Listener Example      (key: source-log)"
     echo "- Steam Econ Web API Example       (key: steam-econ-webapi)"
     echo "- Minecraft Rcon Example           (key: mc-rcon)"
+    echo "- Dota2 Web API Example            (key: dota2-webapi)"
 
     exit 1
 fi

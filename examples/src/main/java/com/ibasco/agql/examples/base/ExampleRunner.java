@@ -58,6 +58,7 @@ public class ExampleRunner {
         this.examples.put("source-log", new SourceLogMonitorEx());
         this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
         this.examples.put("mc-rcon", new McRconQueryEx());
+        this.examples.put("dota2-webapi", new Dota2WebApiQueryEx());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {

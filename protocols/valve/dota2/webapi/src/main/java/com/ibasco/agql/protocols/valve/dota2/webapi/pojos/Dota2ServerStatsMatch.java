@@ -30,18 +30,14 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Dota2ServerStatsMatch {
 
-    //TODO: Use a typeadapter to convert this to long type
     @SerializedName("server_steam_id")
-    private String serverSteamId;
-    //TODO: Use a typeadapter to convert this to long type
-    @SerializedName("matchid")
-    private String matchid;
-    //TODO: Use a typeadapter to convert this to long type
+    private long serverSteamId;
+    @SerializedName("matchId")
+    private long matchId;
     @SerializedName("timestamp")
-    private int timestamp;
-    //TODO: Use a typeadapter to convert this to long type
+    private long timestamp;
     @SerializedName("game_time")
-    private int gameTime;
+    private long gameTime;
     @SerializedName("game_mode")
     private int gameMode;
     @SerializedName("league_id")
@@ -50,7 +46,7 @@ public class Dota2ServerStatsMatch {
     /**
      * @return The serverSteamId
      */
-    public String getServerSteamId() {
+    public long getServerSteamId() {
         return serverSteamId;
     }
 
@@ -58,29 +54,29 @@ public class Dota2ServerStatsMatch {
      * @param serverSteamId
      *         The server_steam_id
      */
-    public void setServerSteamId(String serverSteamId) {
+    public void setServerSteamId(long serverSteamId) {
         this.serverSteamId = serverSteamId;
     }
 
     /**
-     * @return The matchid
+     * @return The matchId
      */
-    public String getMatchid() {
-        return matchid;
+    public long getMatchId() {
+        return matchId;
     }
 
     /**
-     * @param matchid
-     *         The matchid
+     * @param matchId
+     *         The matchId
      */
-    public void setMatchid(String matchid) {
-        this.matchid = matchid;
+    public void setMatchId(long matchId) {
+        this.matchId = matchId;
     }
 
     /**
      * @return The timestamp
      */
-    public int getTimestamp() {
+    public long getTimestamp() {
         return timestamp;
     }
 
@@ -88,14 +84,14 @@ public class Dota2ServerStatsMatch {
      * @param timestamp
      *         The timestamp
      */
-    public void setTimestamp(int timestamp) {
+    public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
 
     /**
      * @return The gameTime
      */
-    public int getGameTime() {
+    public long getGameTime() {
         return gameTime;
     }
 
@@ -103,7 +99,7 @@ public class Dota2ServerStatsMatch {
      * @param gameTime
      *         The game_time
      */
-    public void setGameTime(int gameTime) {
+    public void setGameTime(long gameTime) {
         this.gameTime = gameTime;
     }
 

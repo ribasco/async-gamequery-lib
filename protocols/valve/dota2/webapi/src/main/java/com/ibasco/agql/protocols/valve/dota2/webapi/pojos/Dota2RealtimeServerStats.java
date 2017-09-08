@@ -45,7 +45,7 @@ public class Dota2RealtimeServerStats {
     private boolean deltaFrame;
 
     /**
-     * @return The match
+     * @return A {@link Dota2ServerStatsMatch} instance
      */
     public Dota2ServerStatsMatch getMatch() {
         return match;

@@ -38,9 +38,9 @@ public class Dota2TopLiveGame {
     @SerializedName("deactivate_time")
     private int deactivateTime;
     @SerializedName("server_steam_id")
-    private String serverSteamId;
+    private long serverSteamId;
     @SerializedName("lobby_id")
-    private String lobbyId;
+    private long lobbyId;
     @SerializedName("league_id")
     private int leagueId;
     @SerializedName("lobby_type")
@@ -103,7 +103,7 @@ public class Dota2TopLiveGame {
     /**
      * @return The serverSteamId
      */
-    public String getServerSteamId() {
+    public long getServerSteamId() {
         return serverSteamId;
     }
 
@@ -111,14 +111,14 @@ public class Dota2TopLiveGame {
      * @param serverSteamId
      *         The server_steam_id
      */
-    public void setServerSteamId(String serverSteamId) {
+    public void setServerSteamId(long serverSteamId) {
         this.serverSteamId = serverSteamId;
     }
 
     /**
      * @return The lobbyId
      */
-    public String getLobbyId() {
+    public long getLobbyId() {
         return lobbyId;
     }
 
@@ -126,7 +126,7 @@ public class Dota2TopLiveGame {
      * @param lobbyId
      *         The lobby_id
      */
-    public void setLobbyId(String lobbyId) {
+    public void setLobbyId(long lobbyId) {
         this.lobbyId = lobbyId;
     }
 

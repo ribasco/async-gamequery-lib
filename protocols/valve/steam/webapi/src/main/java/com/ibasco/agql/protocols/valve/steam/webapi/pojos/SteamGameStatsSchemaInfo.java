@@ -24,14 +24,15 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by raffy on 10/27/2016.
  */
 public class SteamGameStatsSchemaInfo {
-    private List<SteamGameAchievementSchema> achievementSchemaList;
-    private List<SteamGameStatsSchema> statsSchemaList;
+    private List<SteamGameAchievementSchema> achievementSchemaList = new ArrayList<>();
+    private List<SteamGameStatsSchema> statsSchemaList = new ArrayList<>();
 
     public List<SteamGameAchievementSchema> getAchievementSchemaList() {
         return achievementSchemaList;

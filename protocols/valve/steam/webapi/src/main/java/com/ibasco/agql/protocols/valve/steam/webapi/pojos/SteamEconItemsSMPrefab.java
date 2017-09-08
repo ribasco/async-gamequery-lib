@@ -28,13 +28,14 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMPrefab {
     private long id;
     private String name;
     @SerializedName("config")
-    private List<SteamEconItemsSMPrefabConfig> configs;
+    private List<SteamEconItemsSMPrefabConfig> configs = new ArrayList<>();
 
     public long getId() {
         return id;

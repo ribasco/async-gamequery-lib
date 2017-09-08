@@ -26,12 +26,13 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreAppAchievements {
     private int total;
     @SerializedName("highlighted")
-    private List<StoreAppAchievementHighlight> achievementHighlights;
+    private List<StoreAppAchievementHighlight> achievementHighlights = new ArrayList<>();
 
     public int getTotal() {
         return total;

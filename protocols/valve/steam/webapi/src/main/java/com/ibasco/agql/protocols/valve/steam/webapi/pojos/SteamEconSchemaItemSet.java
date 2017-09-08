@@ -28,14 +28,15 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconSchemaItemSet {
     @SerializedName("item_set")
     private String itemSet;
     private String name;
-    private List<String> items;
-    private List<SteamEconSchemaItemAttribute> attributes;
+    private List<String> items = new ArrayList<>();
+    private List<SteamEconSchemaItemAttribute> attributes = new ArrayList<>();
     @SerializedName("store_bundle ")
     private String storeBundle;
 

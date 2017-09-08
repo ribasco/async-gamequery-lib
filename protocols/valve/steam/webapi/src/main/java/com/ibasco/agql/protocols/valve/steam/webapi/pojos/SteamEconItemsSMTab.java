@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMTab {
@@ -39,7 +40,7 @@ public class SteamEconItemsSMTab {
     private boolean useLargeCells;
     @SerializedName("default")
     private boolean defaultTab;
-    private List<SteamEconItemsSMTabChild> children;
+    private List<SteamEconItemsSMTabChild> children = new ArrayList<>();
     private boolean home;
     @SerializedName("dropdown_prefab_id")
     private long dropdownPrefabId;

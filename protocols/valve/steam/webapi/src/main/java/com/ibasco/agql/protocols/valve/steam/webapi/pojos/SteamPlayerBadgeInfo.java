@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,7 +34,7 @@ import java.util.List;
  */
 public class SteamPlayerBadgeInfo {
     @SerializedName("badges")
-    private List<SteamPlayerBadge> playerBadges;
+    private List<SteamPlayerBadge> playerBadges = new ArrayList<>();
 
     @SerializedName("player_xp")
     private int playerXp;

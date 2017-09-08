@@ -27,11 +27,12 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconSchemaItemLevel {
     private String name;
-    private List<SteamEconSchemaItemLevelInfo> levels;
+    private List<SteamEconSchemaItemLevelInfo> levels = new ArrayList<>();
 
     public String getName() {
         return name;

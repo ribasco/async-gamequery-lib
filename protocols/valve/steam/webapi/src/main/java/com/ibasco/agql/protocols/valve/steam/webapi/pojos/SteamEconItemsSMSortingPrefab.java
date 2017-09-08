@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMSortingPrefab {
@@ -36,7 +37,7 @@ public class SteamEconItemsSMSortingPrefab {
     @SerializedName("url_history_param_name")
     private String urlHistoryParamName;
     @SerializedName("sorter_ids")
-    private List<SteamEconItemsSMSorterId> sorterIds;
+    private List<SteamEconItemsSMSorterId> sorterIds = new ArrayList<>();
 
     public long getId() {
         return id;

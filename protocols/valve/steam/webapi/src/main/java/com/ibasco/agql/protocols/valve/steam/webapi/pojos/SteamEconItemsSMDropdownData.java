@@ -27,11 +27,12 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMDropdownData {
-    private List<SteamEconItemsSMDropdown> dropdowns;
-    private List<SteamEconItemsSMPrefab> prefabs;
+    private List<SteamEconItemsSMDropdown> dropdowns = new ArrayList<>();
+    private List<SteamEconItemsSMPrefab> prefabs = new ArrayList<>();
 
     public List<SteamEconItemsSMDropdown> getDropdowns() {
         return dropdowns;

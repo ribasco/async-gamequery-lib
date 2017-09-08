@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreSaleDetails {
@@ -35,7 +36,7 @@ public class StoreSaleDetails {
     @SerializedName("available")
     private String availableDate;
     @SerializedName("items")
-    private List<StoreSaleApp> appsOnSale;
+    private List<StoreSaleApp> appsOnSale = new ArrayList<>();
 
     public int getStatus() {
         return status;

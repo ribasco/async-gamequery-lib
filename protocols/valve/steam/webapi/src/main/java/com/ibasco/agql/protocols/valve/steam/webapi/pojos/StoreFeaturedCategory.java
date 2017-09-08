@@ -35,7 +35,7 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 public class StoreFeaturedCategory<I> {
     private String id;
     private String name;
-    private List<I> items;
+    private List<I> items = new ArrayList<>();
 
     public String getId() {
         return id;

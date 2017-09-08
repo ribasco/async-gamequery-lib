@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreAppDetails {
@@ -59,21 +60,21 @@ public class StoreAppDetails {
     private StoreAppPcRequirements macRequirements;
     @SerializedName("linux_requirements")
     private StoreAppPcRequirements linuxRequirements;
-    private List<String> developers;
-    private List<String> publishers;
+    private List<String> developers = new ArrayList<>();
+    private List<String> publishers = new ArrayList<>();
     @SerializedName("price_overview")
     private StoreAppPriceInfo priceOverview;
     @SerializedName("packages")
-    private List<Integer> packageIds;
+    private List<Integer> packageIds = new ArrayList<>();
     @SerializedName("package_groups")
-    private List<StoreAppPackageGroup> packageGroups;
+    private List<StoreAppPackageGroup> packageGroups = new ArrayList<>();
     @SerializedName("platforms")
     private StoreAppPlatform platform;
     private StoreAppMetacritic metacritic;
-    private List<StoreAppCategory> categories;
-    private List<StoreAppGenre> genres;
-    private List<StoreAppScreenshots> screenshots;
-    private List<StoreAppMovie> movies;
+    private List<StoreAppCategory> categories = new ArrayList<>();
+    private List<StoreAppGenre> genres = new ArrayList<>();
+    private List<StoreAppScreenshots> screenshots = new ArrayList<>();
+    private List<StoreAppMovie> movies = new ArrayList<>();
     private StoreAppRecommendations recommendations;
     private StoreAppAchievements achievements;
     @SerializedName("release_date")

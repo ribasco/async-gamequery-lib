@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreAppPackageGroup {
@@ -41,7 +42,7 @@ public class StoreAppPackageGroup {
     @SerializedName("is_recurring_subscription")
     private String recurringSubscription;
     @SerializedName("subs")
-    private List<StoreAppSubPackage> subPackages;
+    private List<StoreAppSubPackage> subPackages = new ArrayList<>();
 
     public String getName() {
         return name;

@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StorePackageDetails {
@@ -36,7 +37,7 @@ public class StorePackageDetails {
     private String pageImageUrl;
     @SerializedName("small_logo")
     private String smallLogoUrl;
-    private List<StorePackageAppInfo> apps;
+    private List<StorePackageAppInfo> apps = new ArrayList<>();
     @SerializedName("price")
     private StorePackagePriceInfo priceInfo;
     private StoreAppPlatform platforms;

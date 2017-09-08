@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,8 +33,8 @@ import java.util.List;
 public class SteamPlayerStats {
     private String steamId;
     private String gameName;
-    private List<SteamPlayerAchievement> achievements;
-    private List<SteamKeyValuePair<String, Integer>> stats;
+    private List<SteamPlayerAchievement> achievements = new ArrayList<>();
+    private List<SteamKeyValuePair<String, Integer>> stats = new ArrayList<>();
 
     public String getSteamId() {
         return steamId;

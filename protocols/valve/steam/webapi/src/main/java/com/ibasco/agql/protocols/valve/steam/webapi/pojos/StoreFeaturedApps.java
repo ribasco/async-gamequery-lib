@@ -28,17 +28,18 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class StoreFeaturedApps {
     @SerializedName("large_capsules")
-    private List<StoreFeaturedAppInfo> largeCapsulesGames;
+    private List<StoreFeaturedAppInfo> largeCapsulesGames = new ArrayList<>();
     @SerializedName("featured_win")
-    private List<StoreFeaturedAppInfo> windowsFeaturedGames;
+    private List<StoreFeaturedAppInfo> windowsFeaturedGames = new ArrayList<>();
     @SerializedName("featured_mac")
-    private List<StoreFeaturedAppInfo> macFeaturedGames;
+    private List<StoreFeaturedAppInfo> macFeaturedGames = new ArrayList<>();
     @SerializedName("featured_linux")
-    private List<StoreFeaturedAppInfo> linuxFeaturedGames;
+    private List<StoreFeaturedAppInfo> linuxFeaturedGames = new ArrayList<>();
     private String layout;
     private int status;
 

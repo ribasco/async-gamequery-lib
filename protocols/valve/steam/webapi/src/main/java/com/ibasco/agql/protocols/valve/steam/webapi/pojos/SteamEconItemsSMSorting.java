@@ -28,12 +28,13 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMSorting {
-    private List<SteamEconItemsSMSorter> sorters;
+    private List<SteamEconItemsSMSorter> sorters = new ArrayList<>();
     @SerializedName("sorting_prefabs")
-    private List<SteamEconItemsSMSortingPrefab> sortingPrefabs;
+    private List<SteamEconItemsSMSortingPrefab> sortingPrefabs = new ArrayList<>();
 
     public List<SteamEconItemsSMSorter> getSorters() {
         return sorters;

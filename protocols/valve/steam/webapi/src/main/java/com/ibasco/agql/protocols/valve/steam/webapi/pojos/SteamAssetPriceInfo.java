@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class SteamAssetPriceInfo {
     @SerializedName("date")
     private String date;
     @SerializedName("class")
-    private List<SteamKeyValuePair<String, String>> classList;
+    private List<SteamKeyValuePair<String, String>> classList = new ArrayList<>();
     @SerializedName("classid")
     private String classId;
 
@@ -59,6 +60,7 @@ public class SteamAssetPriceInfo {
         this.name = name;
     }
 
+    //TODO: Return a LocalDateTime instance instead of Date string
     public String getDate() {
         return date;
     }

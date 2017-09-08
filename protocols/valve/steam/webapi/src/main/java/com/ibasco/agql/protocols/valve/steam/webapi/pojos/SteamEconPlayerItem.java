@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconPlayerItem {
@@ -44,8 +45,8 @@ public class SteamEconPlayerItem {
     @SerializedName("flag_cannot_trade")
     private boolean cannotTrade;
     @SerializedName("attributes")
-    private List<SteamEconPlayerItemAttribute> itemAttributes;
-    private List<SteamEconPlayerItemEquipInfo> equipInfos;
+    private List<SteamEconPlayerItemAttribute> itemAttributes = new ArrayList<>();
+    private List<SteamEconPlayerItemEquipInfo> equipInfos = new ArrayList<>();
     @SerializedName("flag_cannot_craft")
     private boolean cannotCraft; //tf2 specific
     @SerializedName("custom_name")

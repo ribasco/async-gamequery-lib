@@ -28,14 +28,15 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dota2LiveLeagueGame {
-    private List<Dota2GamePlayer> players;
+    private List<Dota2GamePlayer> players = new ArrayList<>();
     @SerializedName("radiant_team")
-    private Dota2LiveLeagueTeamInfo radiantTeam;
+    private Dota2LiveLeagueTeamInfo radiantTeam = new Dota2LiveLeagueTeamInfo();
     @SerializedName("dire_team")
-    private Dota2LiveLeagueTeamInfo direTeam;
+    private Dota2LiveLeagueTeamInfo direTeam = new Dota2LiveLeagueTeamInfo();
     @SerializedName("lobby_id")
     private long lobbyId;
     @SerializedName("match_id")
@@ -65,7 +66,7 @@ public class Dota2LiveLeagueGame {
     @SerializedName("league_tier")
     private int leagueTier;
     @SerializedName("scoreboard")
-    private Dota2ScoreboardStats scoreboard;
+    private Dota2ScoreboardStats scoreboard = new Dota2ScoreboardStats();
 
     public Dota2ScoreboardStats getScoreboard() {
         return scoreboard;

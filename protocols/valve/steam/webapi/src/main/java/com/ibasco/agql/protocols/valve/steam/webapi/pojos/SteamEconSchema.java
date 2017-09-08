@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,39 +51,39 @@ public class SteamEconSchema {
     /**
      * A list of objects describing an item's origin.
      */
-    private List<SteamEconSchemaOriginName> originNames;
+    private List<SteamEconSchemaOriginName> originNames = new ArrayList<>();
     /**
      * A list of item objects.
      */
-    private List<SteamEconSchemaItem> items;
+    private List<SteamEconSchemaItem> items = new ArrayList<>();
     /**
      * An object containing an array of Schema Attributes
      */
-    private List<SteamEconSchemaAttribute> attributes;
+    private List<SteamEconSchemaAttribute> attributes = new ArrayList<>();
     /**
      * A list of objects containing item set definitions.
      */
     @SerializedName("item_sets")
-    private List<SteamEconSchemaItemSet> itemSets;
+    private List<SteamEconSchemaItemSet> itemSets = new ArrayList<>();
     /**
      * An object containing a list of objects that describe the defined particle effects.
      */
     @SerializedName("attribute_controlled_attached_particles")
-    private List<SteamEconSchemaAcap> attributeControlledAttachedParticles;
+    private List<SteamEconSchemaAcap> attributeControlledAttachedParticles = new ArrayList<>();
     /**
      * A list of objects that describe ranks for kill eater items.
      */
     @SerializedName("item_levels")
-    private List<SteamEconSchemaItemLevel> itemLevels;
+    private List<SteamEconSchemaItemLevel> itemLevels = new ArrayList<>();
     /**
      * An object containing a list of objects describing suffixes
      * to use after a kill eater value in an attribute display line.
      */
     @SerializedName("kill_eater_score_types")
-    private List<SteamEconSchemaKest> killEaterScoreTypes;
+    private List<SteamEconSchemaKest> killEaterScoreTypes = new ArrayList<>();
 
     @SerializedName("kill_eater_ranks")
-    private List<SteamEconKillEaterRanks> killEaterRanks;
+    private List<SteamEconKillEaterRanks> killEaterRanks = new ArrayList<>();
 
     public int getStatus() {
         return status;

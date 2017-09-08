@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class SteamEconItemsSMFilter {
@@ -39,7 +40,7 @@ public class SteamEconItemsSMFilter {
     /**
      * A list of elements within the filter.
      */
-    private List<SteamEconItemsSMFilterElement> elements;
+    private List<SteamEconItemsSMFilterElement> elements = new ArrayList<>();
     private int count;
 
     public long getId() {

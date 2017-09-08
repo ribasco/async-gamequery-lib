@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -73,8 +74,8 @@ public class SteamEconSchemaItem {
     private String craftMaterialType;
     private SteamEconSchemaCapabilities capabilities;
     @SerializedName("used_by_classes")
-    private List<String> usedByClasses;
-    private List<SteamEconSchemaItemAttribute> attributes;
+    private List<String> usedByClasses = new ArrayList<>();
+    private List<SteamEconSchemaItemAttribute> attributes = new ArrayList<>();
     /**
      * An object that describes class specific loadout slots for the item if applicable.
      */

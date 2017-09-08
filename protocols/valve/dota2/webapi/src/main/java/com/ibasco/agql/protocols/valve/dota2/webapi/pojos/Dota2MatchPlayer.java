@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dota2MatchPlayer {
@@ -85,7 +86,7 @@ public class Dota2MatchPlayer {
     @SerializedName("scaled_hero_healing")
     private int scaledHeroHealing;
     @SerializedName("ability_upgrades")
-    private List<Dota2MatchAbilityUpgrade> abilityUpgrades;
+    private List<Dota2MatchAbilityUpgrade> abilityUpgrades = new ArrayList<>();
 
     /**
      * @return The accountId

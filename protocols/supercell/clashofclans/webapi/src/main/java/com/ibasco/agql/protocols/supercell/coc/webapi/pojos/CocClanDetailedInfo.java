@@ -52,7 +52,7 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     @SerializedName("members")
     private int totalMembers;
     @SerializedName("memberList")
-    private List<CocPlayerBasicInfo> clanMembers;
+    private List<CocPlayerBasicInfo> clanMembers = new ArrayList<>();
 
     public String getDescription() {
         return description;

@@ -28,6 +28,7 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CsgoGameServerStatus {
@@ -36,7 +37,7 @@ public class CsgoGameServerStatus {
     @SerializedName("services")
     private CsgoAppServicesStatus appServicesStatus;
     @SerializedName("datacenters")
-    private List<CsgoDatacenterStatus> datacenterStatus;
+    private List<CsgoDatacenterStatus> datacenterStatus = new ArrayList<>();
     @SerializedName("matchmaking")
     private CsgoMatchmakingStatus matchmakingStatus;
 

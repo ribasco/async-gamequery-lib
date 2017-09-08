@@ -28,12 +28,13 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Dota2MatchDetails {
 
     @SerializedName("players")
-    private List<Dota2MatchPlayer> players;
+    private List<Dota2MatchPlayer> players = new ArrayList<>();
 
     @SerializedName("radiant_win")
     private boolean radiantWin;

@@ -28,10 +28,8 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.annotation.Generated;
 import java.util.List;
 
-@Generated("org.jsonschema2pojo")
 public class Dota2MatchDetails {
 
     @SerializedName("players")
@@ -50,7 +48,7 @@ public class Dota2MatchDetails {
     private int startTime;
 
     @SerializedName("match_id")
-    private int matchId;
+    private long matchId;
 
     @SerializedName("match_seq_num")
     private int matchSeqNum;
@@ -79,8 +77,8 @@ public class Dota2MatchDetails {
     @SerializedName("human_players")
     private int humanPlayers;
 
-    @SerializedName("leagueid")
-    private int leagueid;
+    @SerializedName("leagueId")
+    private int leagueId;
 
     @SerializedName("positive_votes")
     private int positiveVotes;
@@ -181,7 +179,7 @@ public class Dota2MatchDetails {
     /**
      * @return The matchId
      */
-    public int getMatchId() {
+    public long getMatchId() {
         return matchId;
     }
 
@@ -189,7 +187,7 @@ public class Dota2MatchDetails {
      * @param matchId
      *         The match_id
      */
-    public void setMatchId(int matchId) {
+    public void setMatchId(long matchId) {
         this.matchId = matchId;
     }
 
@@ -329,18 +327,18 @@ public class Dota2MatchDetails {
     }
 
     /**
-     * @return The leagueid
+     * @return The leagueId
      */
-    public int getLeagueid() {
-        return leagueid;
+    public int getLeagueId() {
+        return leagueId;
     }
 
     /**
-     * @param leagueid
-     *         The leagueid
+     * @param leagueId
+     *         The leagueId
      */
-    public void setLeagueid(int leagueid) {
-        this.leagueid = leagueid;
+    public void setLeagueId(int leagueId) {
+        this.leagueId = leagueId;
     }
 
     /**

@@ -29,16 +29,14 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
-import javax.annotation.Generated;
 import java.util.ArrayList;
 import java.util.List;
 
-@Generated("org.jsonschema2pojo")
 public class Dota2MatchHistoryInfo {
 
     @SerializedName("match_id")
     @Expose
-    private int matchId;
+    private long matchId;
     @SerializedName("match_seq_num")
     @Expose
     private int matchSeqNum;
@@ -61,7 +59,7 @@ public class Dota2MatchHistoryInfo {
     /**
      * @return The matchId
      */
-    public int getMatchId() {
+    public long getMatchId() {
         return matchId;
     }
 
@@ -69,7 +67,7 @@ public class Dota2MatchHistoryInfo {
      * @param matchId
      *         The match_id
      */
-    public void setMatchId(int matchId) {
+    public void setMatchId(long matchId) {
         this.matchId = matchId;
     }
 

@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
@@ -35,10 +36,10 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     private int warStars;
     private int townHallLevel;
     private CocLegendStatistics legendStatistics;
-    private List<CocAchievements> achievements;
-    private List<CocTroop> troops;
-    private List<CocTroop> heroes;
-    private List<CocTroop> spells;
+    private List<CocAchievements> achievements = new ArrayList<>();
+    private List<CocTroop> troops = new ArrayList<>();
+    private List<CocTroop> heroes = new ArrayList<>();
+    private List<CocTroop> spells = new ArrayList<>();
 
     public int getAttackWins() {
         return attackWins;

@@ -34,9 +34,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
     private static final Logger log = LoggerFactory.getLogger(Dota2WebApiQueryEx.class);
+
+    private long serverSteamId = -1;
 
     private Dota2WebApiClient apiClient;
 
@@ -95,7 +98,12 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
             matchDetails.getPlayers().forEach(Dota2WebApiQueryEx::displayResult);
 
             Dota2MatchHistory matchHistory = matchInterface.getMatchHistory().get();
+
             log.info("Match History : {}", matchHistory);
+            for (Dota2MatchHistoryInfo historyInfo : matchHistory.getMatches()) {
+                CompletableFuture<Dota2MatchDetails> matchHistoryDetails = matchInterface.getMatchDetails(historyInfo.getMatchId());
+                matchHistoryDetails.thenAccept(dota2MatchDetails -> log.debug("\t\tMatch: {}", dota2MatchDetails));
+            }
 
             List<Dota2MatchDetails> matchDetailsBySeq = matchInterface.getMatchHistoryBySequenceNum(1, 10).get();
             matchDetailsBySeq.forEach(Dota2WebApiQueryEx::displayResult);
@@ -104,10 +112,14 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
             teams.forEach(Dota2WebApiQueryEx::displayResult);
 
             List<Dota2TopLiveGame> topLiveGames = matchInterface.getTopLiveGame(1).get();
-            topLiveGames.forEach(Dota2WebApiQueryEx::displayResult);
+            topLiveGames.forEach(dota2TopLiveGame -> {
+                if (serverSteamId == -1)
+                    serverSteamId = dota2TopLiveGame.getServerSteamId();
+                log.info("{} = {}", dota2TopLiveGame.getClass().getSimpleName(), dota2TopLiveGame.toString());
+            });
 
             //Stats
-            Dota2RealtimeServerStats serverStats = statsInterface.getRealtimeStats(90105101693392898L).get();
+            Dota2RealtimeServerStats serverStats = statsInterface.getRealtimeStats(serverSteamId).get();
             log.info("Server Stats : {}", serverStats);
 
             //Stream

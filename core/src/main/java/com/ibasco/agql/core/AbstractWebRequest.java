@@ -25,7 +25,6 @@
 package com.ibasco.agql.core;
 
 import io.netty.handler.codec.http.HttpMethod;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
 import org.slf4j.Logger;
@@ -66,13 +65,6 @@ abstract public class AbstractWebRequest extends AbstractRequest<Request> {
         RequestBuilder builder = request();
         if (value == null)
             return;
-        String strValue = String.valueOf(value);
-        if (NumberUtils.isNumber(strValue)) {
-            Double nVal = Double.valueOf(strValue);
-            if (nVal > 0)
-                builder.addQueryParam(name, String.valueOf(value));
-            return;
-        }
         builder.addQueryParam(name, String.valueOf(value));
     }
 

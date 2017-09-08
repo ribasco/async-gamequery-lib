@@ -158,6 +158,7 @@ List of available examples
 - Steam Storefront Web API Example (key: steam-store-webapi)
 - Source Log Listener Example      (key: source-logger)
 - Steam Econ Web API Example       (key: steam-econ-webapi)
+- Dota2 Web API Example            (key: dota2-webapi)
 ~~~
 
 If you are running a web service type example, you  will be prompted with an API key. Simply copy and paste the key to the console.

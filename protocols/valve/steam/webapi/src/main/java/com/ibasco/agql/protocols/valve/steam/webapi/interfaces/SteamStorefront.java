@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces;
 
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.ibasco.agql.core.AbstractWebApiInterface;
 import com.ibasco.agql.core.client.AbstractRestClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamStoreApiRequest;
@@ -80,7 +81,8 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
         CompletableFuture<JsonObject> json = sendRequest(new GetAppDetails(VERSION_1, appId, countryCode, language));
         return json.thenApply(root -> {
             JsonObject appObject = root.getAsJsonObject(String.valueOf(appId));
-            if (appObject.getAsJsonPrimitive("success").getAsBoolean()) {
+            JsonPrimitive success = appObject.getAsJsonPrimitive("success");
+            if (success != null && success.getAsBoolean()) {
                 JsonObject appData = appObject.getAsJsonObject("data");
                 return fromJson(appData, StoreAppDetails.class);
             }

@@ -39,7 +39,7 @@ public class Dota2MatchHistoryInfo {
     private long matchId;
     @SerializedName("match_seq_num")
     @Expose
-    private int matchSeqNum;
+    private long matchSeqNum;
     @SerializedName("start_time")
     @Expose
     private int startTime;
@@ -74,7 +74,7 @@ public class Dota2MatchHistoryInfo {
     /**
      * @return The matchSeqNum
      */
-    public int getMatchSeqNum() {
+    public long getMatchSeqNum() {
         return matchSeqNum;
     }
 
@@ -82,7 +82,7 @@ public class Dota2MatchHistoryInfo {
      * @param matchSeqNum
      *         The match_seq_num
      */
-    public void setMatchSeqNum(int matchSeqNum) {
+    public void setMatchSeqNum(long matchSeqNum) {
         this.matchSeqNum = matchSeqNum;
     }
 

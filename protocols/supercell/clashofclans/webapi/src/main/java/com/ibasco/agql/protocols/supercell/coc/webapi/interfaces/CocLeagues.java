@@ -68,6 +68,7 @@ public class CocLeagues extends CocWebApiInterface {
     @Override
     protected void configureBuilder(GsonBuilder builder) {
         super.configureBuilder(builder);
+        builder.serializeNulls();
         builder.registerTypeAdapter(CocLeagueSeason.class, new CocLeagueSeasonDeserializer());
     }
 
@@ -257,4 +258,5 @@ public class CocLeagues extends CocWebApiInterface {
             }
         });
     }
+
 }

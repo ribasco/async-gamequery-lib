@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces;
 
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
@@ -36,6 +37,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.locations.GetPl
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
+import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.paging.Paging;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +67,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<List<CocLocation>> getLocations() {
+    public CompletableFuture<Paging<List<CocLocation>>> getLocations() {
         return getLocations(Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -77,7 +79,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<List<CocLocation>> getLocations(int limit) {
+    public CompletableFuture<Paging<List<CocLocation>>> getLocations(int limit) {
         return getLocations(Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -97,11 +99,11 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<List<CocLocation>> getLocations(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<Paging<List<CocLocation>>> getLocations(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLocations(VERSION_1, limit, before, after));
-        return json.thenApply(new Function<JsonObject, List<CocLocation>>() {
+        return json.thenApply(new Function<JsonObject, Paging<List<CocLocation>>>() {
             @Override
-            public List<CocLocation> apply(JsonObject root) {
+            public Paging<List<CocLocation>> apply(JsonObject root) {
                 JsonArray items = root.getAsJsonArray("items");
                 return builder().fromJson(items, new TypeToken<List<CocLocation>>() {
                 }.getType());
@@ -132,7 +134,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId) {
+    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId) {
         return getClanRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -146,7 +148,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, int limit) {
+    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, int limit) {
         return getClanRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -168,13 +170,12 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanRankingsForLoc(VERSION_1, locationId, limit, before, after));
-        return json.thenApply(new Function<JsonObject, List<CocClanRankInfo>>() {
+        return json.thenApply(new Function<JsonObject, Paging<List<CocClanRankInfo>>>() {
             @Override
-            public List<CocClanRankInfo> apply(JsonObject root) {
-                JsonArray items = root.getAsJsonArray("items");
-                return builder().fromJson(items, new TypeToken<List<CocClanRankInfo>>() {
+            public Paging<List<CocClanRankInfo>> apply(JsonObject root) {
+                return builder().fromJson(root, new TypeToken<Paging<List<CocClanRankInfo>>>() {
                 }.getType());
             }
         });
@@ -188,7 +189,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId) {
+    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId) {
         return getPlayerRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -202,7 +203,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, int limit) {
+    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, int limit) {
         return getPlayerRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -224,16 +225,20 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerRankingsForLoc(VERSION_1, locationId, limit, before, after));
-        return json.thenApply(new Function<JsonObject, List<CocPlayerRankInfo>>() {
+        return json.thenApply(new Function<JsonObject, Paging<List<CocPlayerRankInfo>>>() {
             @Override
-            public List<CocPlayerRankInfo> apply(JsonObject root) {
-                JsonArray items = root.getAsJsonArray("items");
-                return builder().fromJson(items, new TypeToken<List<CocPlayerRankInfo>>() {
+            public Paging<List<CocPlayerRankInfo>> apply(JsonObject root) {
+                return builder().fromJson(root, new TypeToken<Paging<List<CocPlayerRankInfo>>>() {
                 }.getType());
             }
         });
     }
 
+    @Override
+    protected void configureBuilder(GsonBuilder builder) {
+        super.configureBuilder(builder);
+        builder.serializeNulls();
+    }
 }

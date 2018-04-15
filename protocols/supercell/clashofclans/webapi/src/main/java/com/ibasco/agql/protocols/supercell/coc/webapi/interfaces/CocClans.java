@@ -40,6 +40,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
 
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -113,7 +114,7 @@ public class CocClans extends CocWebApiInterface {
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
     public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag) {
-        return getClanMembers(clanTag, -1, -1, -1);
+        return getClanMembers(clanTag, Optional.empty(),Optional.empty(),Optional.empty());
     }
 
     /**
@@ -127,7 +128,7 @@ public class CocClans extends CocWebApiInterface {
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
     public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit) {
-        return getClanMembers(clanTag, limit, -1, -1);
+        return getClanMembers(clanTag, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -138,20 +139,20 @@ public class CocClans extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After
      *         marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response,
      *         inside the 'paging' property. Note that only after or before can be specified for a request, not
-     *         both. Otherwise use -1 to disregard.
+     *         both.
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit, int after, int before) {
-        CompletableFuture<JsonObject> json = sendRequest(new GetClanMembers(VERSION_1, clanTag, limit, after, before));
+    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+        CompletableFuture<JsonObject> json = sendRequest(new GetClanMembers(VERSION_1, clanTag, limit  , after, before));
         return json.thenApply(new Function<JsonObject, List<CocPlayerBasicInfo>>() {
             @Override
             public List<CocPlayerBasicInfo> apply(JsonObject root) {
@@ -172,7 +173,7 @@ public class CocClans extends CocWebApiInterface {
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
      */
     public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag) {
-        return getClanWarLog(clanTag, -1, -1, -1);
+        return getClanWarLog(clanTag,Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -183,19 +184,18 @@ public class CocClans extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note
-     *         that only after or before can be specified for a request, not both. Otherwise use
-     *         -1 to disregard.
+     *         that only after or before can be specified for a request, not both.
+     *
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both.
-     *         Otherwise use -1 to disregard.
      *
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
      */
-    public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag, int limit, int after, int before) {
+    public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanWarLog(VERSION_1, clanTag, limit, after, before));
         return json.thenApply(new Function<JsonObject, List<CocWarLogEntry>>() {
             @Override

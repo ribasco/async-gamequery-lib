@@ -27,8 +27,10 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.locations;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 public class GetLocations extends CocWebApiRequest {
-    public GetLocations(int apiVersion, int limit, int before, int after) {
+    public GetLocations(int apiVersion, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATIONS, limit, before, after);
     }
 }

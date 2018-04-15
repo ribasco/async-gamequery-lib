@@ -27,15 +27,14 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.clans;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 /**
  * Created by raffy on 10/27/2016.
  */
 public class GetClanMembers extends CocWebApiRequest {
-    public GetClanMembers(int apiVersion, String clanTag, int limit, int after, int before) {
-        super(apiVersion, CocApiConstants.UF_COC_CLAN_MEMBERS);
+    public GetClanMembers(int apiVersion, String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+        super(apiVersion, CocApiConstants.UF_COC_CLAN_MEMBERS,limit, before,  after);
         property(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
-        limit(limit);
-        before(before);
-        after(after);
     }
 }

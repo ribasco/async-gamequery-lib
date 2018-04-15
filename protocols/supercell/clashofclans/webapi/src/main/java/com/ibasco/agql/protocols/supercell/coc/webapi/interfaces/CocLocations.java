@@ -38,6 +38,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -65,7 +66,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
     public CompletableFuture<List<CocLocation>> getLocations() {
-        return getLocations(-1, -1, -1);
+        return getLocations(Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -77,7 +78,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
     public CompletableFuture<List<CocLocation>> getLocations(int limit) {
-        return getLocations(limit, -1, -1);
+        return getLocations(Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -86,17 +87,17 @@ public class CocLocations extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<List<CocLocation>> getLocations(int limit, int before, int after) {
+    public CompletableFuture<List<CocLocation>> getLocations(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLocations(VERSION_1, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocLocation>>() {
             @Override
@@ -132,7 +133,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
     public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId) {
-        return getClanRankingsFromLocation(locationId, -1);
+        return getClanRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -146,7 +147,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocClanRankInfo}
      */
     public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, int limit) {
-        return getClanRankingsFromLocation(locationId, limit, -1, -1);
+        return getClanRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -157,17 +158,17 @@ public class CocLocations extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, int limit, int before, int after) {
+    public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanRankingsForLoc(VERSION_1, locationId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocClanRankInfo>>() {
             @Override
@@ -188,7 +189,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId) {
-        return getPlayerRankingsFromLocation(locationId, -1);
+        return getPlayerRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -202,7 +203,7 @@ public class CocLocations extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, int limit) {
-        return getPlayerRankingsFromLocation(locationId, limit, -1, -1);
+        return getPlayerRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -213,17 +214,17 @@ public class CocLocations extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, int limit, int before, int after) {
+    public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerRankingsForLoc(VERSION_1, locationId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocPlayerRankInfo>>() {
             @Override

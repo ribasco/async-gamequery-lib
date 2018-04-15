@@ -41,6 +41,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
@@ -76,7 +77,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList() {
-        return getLeagueList(-1);
+        return getLeagueList(Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -88,7 +89,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit) {
-        return getLeagueList(limit, -1, -1);
+        return getLeagueList(Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -97,19 +98,18 @@ public class CocLeagues extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both.
-     *         Otherwise use -1 to disregard.
+     *
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note
-     *         that only after or before can be specified for a request, not both. Otherwise use
-     *         -1 to disregard.
+     *         that only after or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
      */
-    public CompletableFuture<List<CocLeague>> getLeagueList(int limit, int before, int after) {
+    public CompletableFuture<List<CocLeague>> getLeagueList(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagues(VERSION_1, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocLeague>>() {
             @Override
@@ -141,7 +141,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId) {
-        return getLeagueSeasons(leagueId, -1);
+        return getLeagueSeasons(leagueId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -155,7 +155,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit) {
-        return getLeagueSeasons(leagueId, limit, -1, -1);
+        return getLeagueSeasons(leagueId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -166,17 +166,17 @@ public class CocLeagues extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note
-     *         that only after or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         that only after or before can be specified for a request, not both.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
      */
-    public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
+    public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasons(VERSION_1, leagueId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocLeagueSeason>>() {
             @Override
@@ -202,7 +202,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId) {
-        return getLeagueSeasonsPlayerRankings(leagueId, seasonId, -1);
+        return getLeagueSeasonsPlayerRankings(leagueId, seasonId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -221,7 +221,7 @@ public class CocLeagues extends CocWebApiInterface {
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit) {
-        return getLeagueSeasonsPlayerRankings(leagueId, seasonId, limit, -1, -1);
+        return getLeagueSeasonsPlayerRankings(leagueId, seasonId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
     /**
@@ -235,19 +235,19 @@ public class CocLeagues extends CocWebApiInterface {
      * @param limit
      *         An {@link Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
-     *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
      *
      * @see CocLeagues#getLeagueSeasons(int)
      */
-    public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit, int before, int after) {
+    public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasonRankings(VERSION_1, leagueId, seasonId, limit, before, after));
         return json.thenApply(new Function<JsonObject, List<CocPlayerRankInfo>>() {
             @Override

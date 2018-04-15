@@ -26,35 +26,70 @@ package com.ibasco.agql.protocols.supercell.coc.webapi;
 
 import com.ibasco.agql.core.AbstractWebApiRequest;
 
+import java.util.Optional;
+
 abstract public class CocWebApiRequest extends AbstractWebApiRequest {
 
     public CocWebApiRequest(int apiVersion, String urlFormat) {
-        this(apiVersion, urlFormat, -1);
+        this(apiVersion, urlFormat, Optional.empty(),Optional.empty(),Optional.empty());
     }
 
     public CocWebApiRequest(int apiVersion, String urlFormat, int limit) {
-        this(apiVersion, urlFormat, limit, -1, -1);
+        this(apiVersion, urlFormat, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
+    /**
+     * <i>Do not use this method,because :</i>
+     * <ul>
+     *     <li>The type of parameter {@code before} and {@code after} should be {@code String}</li>
+     *     <li>{@code limit},{@code before} and {@code after} are optional, Should not pass to server with a default value(if you don't need them)</li>
+     * </ul>
+     * @deprecated  Use {@code CocWebApiRequest(int, String, Optional, Optional, Optional)}  instead
+     * @param apiVersion
+     * @param urlFormat
+     * @param limit
+     * @param before
+     * @param after
+     * @see CocWebApiRequest#CocWebApiRequest(int, String, Optional, Optional, Optional)
+     *
+     */
     public CocWebApiRequest(int apiVersion, String urlFormat, int limit, int before, int after) {
         super(apiVersion);
         baseUrlFormat(urlFormat);
         property(CocApiConstants.UF_PROP_VERSION, apiVersion);
         property(CocApiConstants.UF_PROP_BASEURL, CocApiConstants.UF_COC_BASE);
         limit(limit);
-        before(before);
-        after(after);
+        before(Integer.toString(before));
+        after(Integer.toString(after));
     }
 
+    /**
+     * CocWebApiRequest Constructor
+     *
+     * @param apiVersion
+     * @param urlFormat
+     * @param limit Limit the number of items returned from server.
+     * @param before Return only items that occur after this marker. After marker can be found from the response, inside the 'paging' property.
+     * @param after Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
+     */
+    public CocWebApiRequest(int apiVersion, String urlFormat, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+        super(apiVersion);
+        baseUrlFormat(urlFormat);
+        property(CocApiConstants.UF_PROP_VERSION, apiVersion);
+        property(CocApiConstants.UF_PROP_BASEURL, CocApiConstants.UF_COC_BASE);
+        limit.ifPresent( o -> limit(o));
+        before.ifPresent( o -> before(o));
+        after.ifPresent( o -> after(o));
+    }
     public void limit(int limit) {
         urlParam("limit", limit);
     }
 
-    public void before(int before) {
+    public void before(String before) {
         urlParam("before", before);
     }
 
-    public void after(int after) {
+    public void after(String after) {
         urlParam("after", after);
     }
 }

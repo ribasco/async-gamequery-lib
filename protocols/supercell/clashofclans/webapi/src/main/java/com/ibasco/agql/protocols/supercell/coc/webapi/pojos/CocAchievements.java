@@ -32,7 +32,9 @@ public class CocAchievements {
     private int stars;
     private int value;
     private int target;
+    private String info;
     private String completionInfo;
+    private String village;
 
     public String getName() {
         return name;
@@ -66,12 +68,28 @@ public class CocAchievements {
         this.target = target;
     }
 
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
+
     public String getCompletionInfo() {
         return completionInfo;
     }
 
     public void setCompletionInfo(String completionInfo) {
         this.completionInfo = completionInfo;
+    }
+
+    public String getVillage() {
+        return village;
+    }
+
+    public void setVillage(String village) {
+        this.village = village;
     }
 
     @Override
@@ -81,7 +99,9 @@ public class CocAchievements {
                 .append("stars", getStars())
                 .append("value", getValue())
                 .append("target", getTarget())
+                .append("info", getInfo())
                 .append("completionInfo", getCompletionInfo())
+                .append("village", getValue())
                 .toString();
     }
 }

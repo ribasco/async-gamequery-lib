@@ -38,6 +38,7 @@ public class CocPlayerBasicInfo {
     private int expLevel;
     private CocLeague league;
     private int trophies;
+    private int versusTrophies;
     private int clanRank;
     private int previousClanRank;
     @SerializedName("donations")
@@ -93,6 +94,14 @@ public class CocPlayerBasicInfo {
         this.trophies = trophies;
     }
 
+    public int getVersusTrophies() {
+        return versusTrophies;
+    }
+
+    public void setVersusTrophies(int versusTrophies) {
+        this.versusTrophies = versusTrophies;
+    }
+
     public int getClanRank() {
         return clanRank;
     }
@@ -131,6 +140,7 @@ public class CocPlayerBasicInfo {
                 .append("tag", getTag())
                 .append("role", getRole())
                 .append("trophies", getTrophies())
+                .append("versusTrophies", getVersusTrophies())
                 .append("expLevel", getExpLevel());
     }
 

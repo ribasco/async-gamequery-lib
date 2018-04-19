@@ -31,6 +31,7 @@ public class CocTroop {
     private String name;
     private int level;
     private int maxLevel;
+    private String village;
 
     public String getName() {
         return name;
@@ -56,12 +57,20 @@ public class CocTroop {
         this.maxLevel = maxLevel;
     }
 
+    public String getVillage() {
+        return village;
+    }
+
+    public void setVillage(String village) {
+        this.village = village;
+    }
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
                 .append("name", getName())
                 .append("level", getLevel())
                 .append("maxlevel", getMaxLevel())
+                .append("village", getVillage())
                 .toString();
     }
 }

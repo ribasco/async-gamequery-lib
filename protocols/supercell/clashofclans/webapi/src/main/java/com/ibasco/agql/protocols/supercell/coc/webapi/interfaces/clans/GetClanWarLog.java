@@ -27,12 +27,14 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.clans;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 public class GetClanWarLog extends CocWebApiRequest {
     public GetClanWarLog(int apiVersion, String clanTag) {
-        this(apiVersion, clanTag, -1, -1, -1);
+        this(apiVersion, clanTag, Optional.empty(),Optional.empty(),Optional.empty());
     }
 
-    public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
+    public GetClanWarLog(int apiVersion, String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_WARLOG, limit, after, before);
         property(CocApiConstants.UF_PROP_CLANTAG, encode(clanTag));
     }

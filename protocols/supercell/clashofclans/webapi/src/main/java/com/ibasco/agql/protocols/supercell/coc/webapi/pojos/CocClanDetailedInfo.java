@@ -41,6 +41,7 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     private String description;
     private CocLocation location;
     private int clanPoints;
+    private int clanVersusPoints;
     private int requiredTrophies;
     private String warFrequency;
     private int warWinStreak;
@@ -92,6 +93,14 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
 
     public void setClanPoints(int clanPoints) {
         this.clanPoints = clanPoints;
+    }
+
+    public int getClanVersusPoints() {
+        return clanVersusPoints;
+    }
+
+    public void setClanVersusPoints(int clanVersusPoints) {
+        this.clanVersusPoints = clanVersusPoints;
     }
 
     public int getRequiredTrophies() {

@@ -27,11 +27,13 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.leagues;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 /**
  * Created by raffy on 10/27/2016.
  */
 public class GetLeagueSeasons extends CocWebApiRequest {
-    public GetLeagueSeasons(int apiVersion, int leagueId, int limit, int before, int after) {
+    public GetLeagueSeasons(int apiVersion, int leagueId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASONS, limit, before, after);
         property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
     }

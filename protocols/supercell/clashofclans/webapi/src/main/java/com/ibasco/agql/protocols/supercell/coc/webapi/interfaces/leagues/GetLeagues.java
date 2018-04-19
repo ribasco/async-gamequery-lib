@@ -27,8 +27,10 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.leagues;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 public class GetLeagues extends CocWebApiRequest {
-    public GetLeagues(int apiVersion, int limit, int before, int after) {
+    public GetLeagues(int apiVersion, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUES, limit, before, after);
     }
 }

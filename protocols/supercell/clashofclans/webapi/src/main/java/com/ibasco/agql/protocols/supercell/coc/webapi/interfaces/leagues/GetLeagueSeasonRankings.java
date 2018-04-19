@@ -27,8 +27,10 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.leagues;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 public class GetLeagueSeasonRankings extends CocWebApiRequest {
-    public GetLeagueSeasonRankings(int apiVersion, int leagueId, String seasonId, int limit, int before, int after) {
+    public GetLeagueSeasonRankings(int apiVersion, int leagueId, String seasonId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASON_RANKINGS, limit, before, after);
         property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);
         property(CocApiConstants.UF_PROP_SEASON_ID, seasonId);

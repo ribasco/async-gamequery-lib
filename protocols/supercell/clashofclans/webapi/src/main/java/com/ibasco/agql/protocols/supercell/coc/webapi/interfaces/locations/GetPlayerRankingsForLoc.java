@@ -27,17 +27,19 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.locations;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 
+import java.util.Optional;
+
 public class GetPlayerRankingsForLoc extends CocWebApiRequest {
 
     public GetPlayerRankingsForLoc(int apiVersion, int locationId) {
-        this(apiVersion, locationId, -1, -1, -1);
+        this(apiVersion, locationId, Optional.empty(),Optional.empty(),Optional.empty());
     }
 
     public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit) {
-        this(apiVersion, locationId, limit, -1, -1);
+        this(apiVersion, locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
-    public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
+    public GetPlayerRankingsForLoc(int apiVersion, int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATION_PLAYER_RANK, limit, before, after);
         property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
     }

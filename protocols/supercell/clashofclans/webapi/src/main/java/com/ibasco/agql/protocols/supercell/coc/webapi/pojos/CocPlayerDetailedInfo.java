@@ -35,6 +35,9 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     private int bestTrophies;
     private int warStars;
     private int townHallLevel;
+    private int builderHallLevel;
+    private int bestVersusTrophies;
+    private int versusBattleWins;
     private CocLegendStatistics legendStatistics;
     private List<CocAchievements> achievements = new ArrayList<>();
     private List<CocTroop> troops = new ArrayList<>();
@@ -89,6 +92,30 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
         this.townHallLevel = townHallLevel;
     }
 
+    public int getBuilderHallLevel() {
+        return builderHallLevel;
+    }
+
+    public void setBuilderHallLevel(int builderHallLevel) {
+        this.builderHallLevel = builderHallLevel;
+    }
+
+    public int getBestVersusTrophies() {
+        return bestVersusTrophies;
+    }
+
+    public void setBestVersusTrophies(int bestVersusTrophies) {
+        this.bestVersusTrophies = bestVersusTrophies;
+    }
+
+    public int getVersusBattleWins() {
+        return versusBattleWins;
+    }
+
+    public void setVersusBattleWins(int versusBattleWins) {
+        this.versusBattleWins = versusBattleWins;
+    }
+
     public CocLegendStatistics getLegendStatistics() {
         return legendStatistics;
     }
@@ -137,6 +164,9 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
                 .append("bestTrophies", bestTrophies)
                 .append("warStars", warStars)
                 .append("townHallLevel", townHallLevel)
+                .append("builderHallLevel", builderHallLevel)
+                .append("bestVersusTrophies", bestVersusTrophies)
+                .append("versusBattleWins", versusBattleWins)
                 .append("legendStatistics", legendStatistics)
                 .append("achievements", achievements)
                 .append("troops", troops)

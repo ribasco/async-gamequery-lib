@@ -37,7 +37,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.clans.SearchCla
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
-import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.paging.Paging;
+import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.page.PageResult;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -76,12 +76,12 @@ public class CocClans extends CocWebApiInterface {
      * @return A {@link CompletableFuture} containing a {@link List} of clans matching the criteria. Empty if no match
      * found.
      */
-    public CompletableFuture<Paging<List<CocClanDetailedInfo>>> searchClans(CocSearchCriteria criteria) {
+    public CompletableFuture<PageResult<List<CocClanDetailedInfo>>> searchClans(CocSearchCriteria criteria) {
         CompletableFuture<JsonObject> json = sendRequest(new SearchClan(VERSION_1, criteria));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocClanDetailedInfo>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocClanDetailedInfo>>>() {
             @Override
-            public Paging<List<CocClanDetailedInfo>> apply(JsonObject root) {
-                Type type = new TypeToken<Paging<List<CocClanDetailedInfo>>>() {
+            public PageResult<List<CocClanDetailedInfo>> apply(JsonObject root) {
+                Type type = new TypeToken<PageResult<List<CocClanDetailedInfo>>>() {
                 }.getType();
                 return builder().fromJson(root, type);
             }
@@ -113,7 +113,7 @@ public class CocClans extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag) {
+    public CompletableFuture<PageResult<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag) {
         return getClanMembers(clanTag, Optional.empty(),Optional.empty(),Optional.empty());
     }
 
@@ -127,7 +127,7 @@ public class CocClans extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag, int limit) {
+    public CompletableFuture<PageResult<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag, int limit) {
         return getClanMembers(clanTag, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -141,22 +141,22 @@ public class CocClans extends CocWebApiInterface {
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
      *         After
-     *         marker can be found from the response, inside the 'paging' property. Note that only after
+     *         marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response,
-     *         inside the 'paging' property. Note that only after or before can be specified for a request, not
+     *         inside the 'page' property. Note that only after or before can be specified for a request, not
      *         both.
      *
      * @return A {@link CompletableFuture} returning an instance of {@link List} of type {@link CocPlayerBasicInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<PageResult<List<CocPlayerBasicInfo>>> getClanMembers(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanMembers(VERSION_1, clanTag, limit  , after, before));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocPlayerBasicInfo>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocPlayerBasicInfo>>>() {
             @Override
-            public Paging<List<CocPlayerBasicInfo>> apply(JsonObject root) {
-                Type type = new TypeToken<Paging<List<CocPlayerBasicInfo>>>() {
+            public PageResult<List<CocPlayerBasicInfo>> apply(JsonObject root) {
+                Type type = new TypeToken<PageResult<List<CocPlayerBasicInfo>>>() {
                 }.getType();
                 return builder().fromJson(root, type);
             }
@@ -171,7 +171,7 @@ public class CocClans extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
      */
-    public CompletableFuture<Paging<List<CocWarLogEntry>>> getClanWarLog(String clanTag) {
+    public CompletableFuture<PageResult<List<CocWarLogEntry>>> getClanWarLog(String clanTag) {
         return getClanWarLog(clanTag,Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -184,22 +184,22 @@ public class CocClans extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note
+     *         After marker can be found from the response, inside the 'page' property. Note
      *         that only after or before can be specified for a request, not both.
      *
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocWarLogEntry}
      */
-    public CompletableFuture<Paging<List<CocWarLogEntry>>> getClanWarLog(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<PageResult<List<CocWarLogEntry>>> getClanWarLog(String clanTag, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanWarLog(VERSION_1, clanTag, limit, after, before));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocWarLogEntry>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocWarLogEntry>>>() {
             @Override
-            public Paging<List<CocWarLogEntry>> apply(JsonObject root) {
-                Type type = new TypeToken<Paging<List<CocWarLogEntry>>>() {
+            public PageResult<List<CocWarLogEntry>> apply(JsonObject root) {
+                Type type = new TypeToken<PageResult<List<CocWarLogEntry>>>() {
                 }.getType();
                 return builder().fromJson(root, type);
             }

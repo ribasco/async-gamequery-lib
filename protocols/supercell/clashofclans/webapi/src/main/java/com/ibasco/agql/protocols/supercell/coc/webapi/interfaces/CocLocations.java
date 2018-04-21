@@ -37,7 +37,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.locations.GetPl
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
-import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.paging.Paging;
+import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.page.PageResult;
 
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +67,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<Paging<List<CocLocation>>> getLocations() {
+    public CompletableFuture<PageResult<List<CocLocation>>> getLocations() {
         return getLocations(Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -79,7 +79,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<Paging<List<CocLocation>>> getLocations(int limit) {
+    public CompletableFuture<PageResult<List<CocLocation>>> getLocations(int limit) {
         return getLocations(Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -90,20 +90,20 @@ public class CocLocations extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note         that only after
      *         or before can be specified for a request, not both.
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         After marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLocation}
      */
-    public CompletableFuture<Paging<List<CocLocation>>> getLocations(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<PageResult<List<CocLocation>>> getLocations(Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLocations(VERSION_1, limit, before, after));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocLocation>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocLocation>>>() {
             @Override
-            public Paging<List<CocLocation>> apply(JsonObject root) {
+            public PageResult<List<CocLocation>> apply(JsonObject root) {
                 JsonArray items = root.getAsJsonArray("items");
                 return builder().fromJson(items, new TypeToken<List<CocLocation>>() {
                 }.getType());
@@ -134,7 +134,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId) {
+    public CompletableFuture<PageResult<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId) {
         return getClanRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -148,7 +148,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, int limit) {
+    public CompletableFuture<PageResult<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, int limit) {
         return getClanRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -161,21 +161,21 @@ public class CocLocations extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note         that only after
      *         or before can be specified for a request, not both.
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         After marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocClanRankInfo}
      */
-    public CompletableFuture<Paging<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<PageResult<List<CocClanRankInfo>>> getClanRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetClanRankingsForLoc(VERSION_1, locationId, limit, before, after));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocClanRankInfo>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocClanRankInfo>>>() {
             @Override
-            public Paging<List<CocClanRankInfo>> apply(JsonObject root) {
-                return builder().fromJson(root, new TypeToken<Paging<List<CocClanRankInfo>>>() {
+            public PageResult<List<CocClanRankInfo>> apply(JsonObject root) {
+                return builder().fromJson(root, new TypeToken<PageResult<List<CocClanRankInfo>>>() {
                 }.getType());
             }
         });
@@ -189,7 +189,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId) {
+    public CompletableFuture<PageResult<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId) {
         return getPlayerRankingsFromLocation(locationId, Optional.empty(), Optional.empty(),Optional.empty());
     }
 
@@ -203,7 +203,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, int limit) {
+    public CompletableFuture<PageResult<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, int limit) {
         return getPlayerRankingsFromLocation(locationId, Optional.of(limit), Optional.empty(),Optional.empty());
     }
 
@@ -216,21 +216,21 @@ public class CocLocations extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note         that only after
      *         or before can be specified for a request, not both.
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         After marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result of a {@link List} of {@link CocPlayerRankInfo}
      */
-    public CompletableFuture<Paging<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
+    public CompletableFuture<PageResult<List<CocPlayerRankInfo>>> getPlayerRankingsFromLocation(int locationId, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerRankingsForLoc(VERSION_1, locationId, limit, before, after));
-        return json.thenApply(new Function<JsonObject, Paging<List<CocPlayerRankInfo>>>() {
+        return json.thenApply(new Function<JsonObject, PageResult<List<CocPlayerRankInfo>>>() {
             @Override
-            public Paging<List<CocPlayerRankInfo>> apply(JsonObject root) {
-                return builder().fromJson(root, new TypeToken<Paging<List<CocPlayerRankInfo>>>() {
+            public PageResult<List<CocPlayerRankInfo>> apply(JsonObject root) {
+                return builder().fromJson(root, new TypeToken<PageResult<List<CocPlayerRankInfo>>>() {
                 }.getType());
             }
         });

@@ -69,8 +69,8 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
      * @param apiVersion
      * @param urlFormat
      * @param limit Limit the number of items returned from server.
-     * @param before Return only items that occur after this marker. After marker can be found from the response, inside the 'paging' property.
-     * @param after Return only items that occur before this marker. Before marker can be found from the response, inside the 'paging' property.
+     * @param before Return only items that occur after this marker. After marker can be found from the response, inside the 'page' property.
+     * @param after Return only items that occur before this marker. Before marker can be found from the response, inside the 'page' property.
      */
     public CocWebApiRequest(int apiVersion, String urlFormat, Optional<Integer> limit, Optional<String> before, Optional<String> after) {
         super(apiVersion);

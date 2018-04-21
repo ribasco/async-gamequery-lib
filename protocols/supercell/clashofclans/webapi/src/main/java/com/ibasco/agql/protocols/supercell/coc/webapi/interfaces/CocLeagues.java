@@ -100,12 +100,12 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note
+     *         After marker can be found from the response, inside the 'page' property. Note
      *         that only after or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
@@ -168,11 +168,11 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note
+     *         Before marker can be found from the response, inside the 'page' property. Note
      *         that only after or before can be specified for a request, not both.
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         After marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
@@ -237,11 +237,11 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link String} that indicates to return only items that occur before this marker.
-     *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
+     *         Before marker can be found from the response, inside the 'page' property. Note         that only after
      *         or before can be specified for a request, not both.
      * @param after
      *         (optional) An {@link String} that indicates to return only items that occur after this marker.
-     *         After marker can be found from the response, inside the 'paging' property. Note that only after
+     *         After marker can be found from the response, inside the 'page' property. Note that only after
      *         or before can be specified for a request, not both.
      *
      * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}

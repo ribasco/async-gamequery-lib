@@ -1,4 +1,4 @@
-package com.ibasco.agql.protocols.supercell.coc.webapi.pojos.paging;
+package com.ibasco.agql.protocols.supercell.coc.webapi.pojos.page;
 
 public class Cursor {
     private String before;

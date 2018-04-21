@@ -37,7 +37,7 @@ public class CocWarLogEntryClan {
     private int clanLevel;
     private int attacks;
     private int stars;
-    private int destructionPercentage;
+    private double destructionPercentage;
     private int expEarned;
 
     public String getTag() {
@@ -88,11 +88,11 @@ public class CocWarLogEntryClan {
         this.stars = stars;
     }
 
-    public int getDestructionPercentage() {
+    public double getDestructionPercentage() {
         return destructionPercentage;
     }
 
-    public void setDestructionPercentage(int destructionPercentage) {
+    public void setDestructionPercentage(double destructionPercentage) {
         this.destructionPercentage = destructionPercentage;
     }
 

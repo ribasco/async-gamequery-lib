@@ -87,7 +87,7 @@ public class SteamApiConstants {
     public static final String SF_PROP_BASEURL = "baseUrl";
 
     //Store Front Constants
-    public static final String SF_BASE_URL_FORMAT = "http://store.steampowered.com/api";
+    public static final String SF_BASE_URL_FORMAT = "https://store.steampowered.com/api";
     public static final String SF_METHOD_APPDETAILS = "${baseUrl}/appdetails";
     public static final String SF_METHOD_FEATURED = "${baseUrl}/featured";
     public static final String SF_METHOD_FEATURED_CATEGORIES = "${baseUrl}/featuredcategories";

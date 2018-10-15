@@ -628,10 +628,6 @@
         </plugins>
     </build>
 
-    <prerequisites>
-        <maven>3.0.0</maven>
-    </prerequisites>
-
     <dependencyManagement>
         <dependencies>
             <!-- Project Modules -->

@@ -24,15 +24,12 @@
 
 package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 
-import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 public class Dota2Heroes {
     private int id;
     private String name;
-    @SerializedName("localized_name")
-    private String localizedName;
 
     public int getId() {
         return id;
@@ -48,14 +45,6 @@ public class Dota2Heroes {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getLocalizedName() {
-        return localizedName;
-    }
-
-    public void setLocalizedName(String localizedName) {
-        this.localizedName = localizedName;
     }
 
     @Override

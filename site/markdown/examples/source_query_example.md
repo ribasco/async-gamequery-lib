@@ -77,7 +77,7 @@ challenge number from the server. This is a required step as stated in the offic
 Keep in mind that a same challenge number is returned for every succeeding invocation of the request, but they do get renewed after a given time. 
 So if you were to make periodic requests to a server, it only makes sense to store it's challenge number to an internal cache and reuse it, avoiding the need to make redundant challenge requests to the server. 
 
-Fortunately, the library provides it's own default caching mechanism. To take advantage of this feature, use `getPlayersCached()` or `getServerRulesCached()` instead.
+The library provides it's own default caching mechanism. To take advantage of this feature, use `getPlayersCached()` or `getServerRulesCached()` instead.
   
 In this example, we create a PlayerMonitor class to periodically check a server for players. It simply outputs all active players within the server.  
   

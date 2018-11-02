@@ -37,10 +37,6 @@
     <description>The core library. Required for all game protocol modules.</description>
     <packaging>jar</packaging>
 
-    <prerequisites>
-        <maven>3.0.0</maven>
-    </prerequisites>
-
     <dependencies>
         <dependency>
             <groupId>com.google.guava</groupId>

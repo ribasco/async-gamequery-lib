@@ -42,7 +42,7 @@
     <groupId>com.ibasco.agql</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>0.1.7</version>
+    <version>0.1.8-SNAPSHOT</version>
     <inceptionYear>2016</inceptionYear>
     <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
@@ -56,7 +56,7 @@
         <url>https://github.com/ribasco/async-gamequery-lib</url>
         <connection>scm:git:git://github.com/ribasco/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:git@github.com:ribasco/async-gamequery-lib.git</developerConnection>
-        <tag>agql-project-0.1.7</tag>
+        <tag>agql-project-0.1.5</tag>
     </scm>
 
     <developers>

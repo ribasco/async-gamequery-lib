@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ public class ByteBufUtils {
     private static final Logger log = LoggerFactory.getLogger(ByteBufUtils.class);
 
     public static String readString(ByteBuf buffer) {
-        return readString(buffer, CharsetUtil.ISO_8859_1, false, null);
+        return readString(buffer, CharsetUtil.UTF_8, false, null);
     }
 
     public static String readString(ByteBuf buffer, Charset encoding) {

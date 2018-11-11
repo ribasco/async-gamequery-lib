@@ -4,7 +4,7 @@ set -ev # Exit with nonzero exit code if anything fails
 TARGET_BRANCH="gh-pages"
 GITHUB_USER="ribasco"
 GITHUB_AUTHOR_NAME="AGQL Travis CI"
-GITHUB_AUTHOR_EMAIL="raffy@ibasco.com"
+GITHUB_AUTHOR_EMAIL="ribasco@gmail.com"
 SITE_STAGE_DIRECTORY="../target/staging"
 
 # Do not deploy site on pull-requests or commits on other branches

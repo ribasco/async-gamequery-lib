@@ -29,7 +29,7 @@
     <parent>
         <groupId>com.ibasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>0.1.7</version>
+        <version>0.1.7-SNAPSHOT</version>
     </parent>
 
     <artifactId>agql-lib-core</artifactId>

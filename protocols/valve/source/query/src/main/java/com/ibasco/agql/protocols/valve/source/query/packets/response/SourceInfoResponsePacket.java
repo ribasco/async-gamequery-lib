@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,11 +24,10 @@
 
 package com.ibasco.agql.protocols.valve.source.query.packets.response;
 
+import static com.ibasco.agql.core.utils.ByteBufUtils.readString;
 import com.ibasco.agql.protocols.valve.source.query.SourceResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
 import io.netty.buffer.ByteBuf;
-
-import static com.ibasco.agql.core.utils.ByteBufUtils.readString;
 
 /**
  * Created by raffy on 9/5/2016.

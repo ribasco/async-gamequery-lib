@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -25,13 +25,12 @@
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by raffy on 10/28/2016.

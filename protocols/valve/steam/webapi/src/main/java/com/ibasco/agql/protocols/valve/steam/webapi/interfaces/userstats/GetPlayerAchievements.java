@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamApiConstants;
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsRequest;
-
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**

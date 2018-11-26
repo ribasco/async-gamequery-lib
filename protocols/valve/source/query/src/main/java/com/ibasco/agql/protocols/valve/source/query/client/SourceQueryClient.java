@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -79,15 +79,15 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     }
 
     /**
-     * <p>Retrieves a Server Challenge number from the logger. This is used for some requests (such as PLAYERS and
+     * <p>Retrieves a Server Challenge number from the server. This is used for some requests (such as PLAYERS and
      * RULES) that requires a challenge number.</p>
      *
      * @param type
      *         A {@link SourceChallengeType}
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
-     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the logger challenge number
+     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address) {
         return sendRequest(new SourceChallengeRequest(type, address), RequestPriority.HIGH);
@@ -96,12 +96,12 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     /**
      * <p>Retrieves a challenge number from the internal cache if available.  If the challenge number does not yet exist
      * in the cache then a
-     * request (using: {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}) will be issued to the logger
+     * request (using: {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}) will be issued to the server
      * to obtain the latest challenge number.</p>
      * <p>This is considered to be thread-safe.</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return A {@link CompletableFuture} containing the resulting challenge {@link Integer}
      *
@@ -118,16 +118,16 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     }
 
     /**
-     * <p>Retrieve source logger rules information. Please note that this method sends an initial challenge request
-     * (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
+     * <p>Retrieve source server rules information. Please note that this method sends an initial challenge request
+     * (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType, InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link
      * #getServerRulesCached(InetSocketAddress)} instead.
      * </p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      */
     public CompletableFuture<Map<String, String>> getServerRules(InetSocketAddress address) {
         return getServerChallenge(SourceChallengeType.RULES, address)
@@ -136,15 +136,15 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
 
     /**
      * <p>
-     * Retrieve source logger rules information. You NEED to obtain a valid challenge number from the logger first.
+     * Retrieve source server rules information. You NEED to obtain a valid challenge number from the server first.
      * </p>
      *
      * @param challenge
      *         The challenge number to be used for the request
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -154,13 +154,13 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     }
 
     /**
-     * <p>Retrieve source logger rules information. Uses the internal cache to retrieve the challenge number (if
+     * <p>Retrieve source server rules information. Uses the internal cache to retrieve the challenge number (if
      * available).</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
-     * @return A {@link CompletableFuture} that contains a {@link Map} of logger rules
+     * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      *
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
@@ -171,18 +171,18 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
 
     /**
      * <p>
-     * Retrieve a list of active players in the logger. Please note that this method sends an initial
-     * challenge request (Total of 5 bytes) to the logger using {@link #getServerChallenge(SourceChallengeType,
+     * Retrieve a list of active players in the server. Please note that this method sends an initial
+     * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType,
      * InetSocketAddress)}.
      * If you plan to use this method more than once for the same address, please consider using {@link
      * #getPlayersCached(InetSocketAddress)} instead.
      * </p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
-     * the logger
+     * the server
      *
      * @see #getPlayers(int, InetSocketAddress)
      */
@@ -192,16 +192,16 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     }
 
     /**
-     * <p>Retrieve a list of active players in the logger. You NEED to obtain a valid challenge number from the logger
+     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server
      * first.</p>
      *
      * @param challenge
      *         The challenge number to be used for the request
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
-     * the logger
+     * the server
      *
      * @see #getPlayers(InetSocketAddress)
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
@@ -212,14 +212,14 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     }
 
     /**
-     * <p>Retrieve a list of active players in the logger. This uses the internal cache to retrieve the challenge number
+     * <p>Retrieve a list of active players in the server. This uses the internal cache to retrieve the challenge number
      * (if available).</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
-     * the logger
+     * the server
      *
      * @see #getPlayers(int, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
@@ -233,7 +233,7 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      * <p>Retrieves information of the Source Server</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source logger
+     *         The {@link InetSocketAddress} of the source server
      *
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
      */

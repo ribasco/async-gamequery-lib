@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -221,7 +221,7 @@ public final class MasterServerFilter {
      * Servers with ALL of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
      * @param tags
-     *         Array of String game logger tags
+     *         Array of String game server tags
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -233,7 +233,7 @@ public final class MasterServerFilter {
      * Servers with ANY of the given tag(s) in their 'hidden' tags (e.g. L4D2)
      *
      * @param tags
-     *         Array of String game logger tags
+     *         Array of String game server tags
      *
      * @return Instance of {@link MasterServerFilter}
      */
@@ -266,10 +266,10 @@ public final class MasterServerFilter {
     }
 
     /**
-     * Return only one logger for each unique IP address matched
+     * Return only one server for each unique IP address matched
      *
      * @param value
-     *         Set to True to return only one logger for each unique IP
+     *         Set to True to return only one server for each unique IP
      *
      * @return Instance of {@link MasterServerFilter}
      */

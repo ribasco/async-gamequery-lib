@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2016 Asynchronous Game Query Library
+ * Copyright (c) 2018 Asynchronous Game Query Library
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ public enum RequestStatus {
      */
     SENT,
     /**
-     * Response from the logger has been received
+     * Response from the server has been received
      */
     DONE
 }

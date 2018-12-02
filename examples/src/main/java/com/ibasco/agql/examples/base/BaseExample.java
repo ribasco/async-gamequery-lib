@@ -25,22 +25,17 @@
 package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.utils.EncryptUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.*;
-import java.util.Base64;
 import java.util.Properties;
 import java.util.Scanner;
 
 abstract public class BaseExample implements Closeable {
-    private static final String worldsMostSecureUnhackableIvKey = "aGqLsOurc3querYs";
-    private static String worldsMostSecureUnhackableKey = "0123456789abcdef";
     private static final Logger log = LoggerFactory.getLogger(BaseExample.class);
     private static final String EXAMPLE_PROP_FILE = "example.properties";
     private Properties exampleProps = new Properties();
@@ -127,7 +122,7 @@ abstract public class BaseExample implements Closeable {
                 try {
                     String defaultProp = getProp(defaultProperty);
                     if (!StringUtils.isEmpty(defaultProp))
-                        defaultValue = decrypt(defaultProp);
+                        defaultValue = EncryptUtils.decrypt(defaultProp);
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }
@@ -161,7 +156,7 @@ abstract public class BaseExample implements Closeable {
         if (!StringUtils.isEmpty(defaultProperty)) {
             if (isPassword) {
                 try {
-                    saveProp(defaultProperty, encrypt(returnValue));
+                    saveProp(defaultProperty, EncryptUtils.encrypt(returnValue));
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }
@@ -173,40 +168,5 @@ abstract public class BaseExample implements Closeable {
         return returnValue;
     }
 
-    /**
-     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
-     */
-    public static String encrypt(String plainText) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
-        SecretKeySpec key = new SecretKeySpec(worldsMostSecureUnhackableKey.getBytes("UTF-8"), "AES");
-        cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes("UTF-8")));
-        return Base64.getEncoder().encodeToString((cipher.doFinal(padNullBytes(plainText))));
-    }
 
-    /**
-     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
-     */
-    public static String decrypt(String cipherText) throws Exception {
-        Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
-        SecretKeySpec key = new SecretKeySpec(worldsMostSecureUnhackableKey.getBytes("UTF-8"), "AES");
-        cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes("UTF-8")));
-        byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
-        return new String(cipher.doFinal(cipherBytes), "UTF-8");
-    }
-
-
-    private static byte[] padNullBytes(String text) {
-        if (StringUtils.isEmpty(text))
-            return null;
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        try {
-            bos.write(text.getBytes("UTF-8"));
-            while ((bos.size() % 16) != 0) {
-                bos.write(0);
-            }
-        } catch (IOException e) {
-            throw new AsyncGameLibUncheckedException(e);
-        }
-        return bos.toByteArray();
-    }
 }

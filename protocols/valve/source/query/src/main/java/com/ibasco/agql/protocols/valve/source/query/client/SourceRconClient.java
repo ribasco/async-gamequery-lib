@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.source.query.client;
 
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.enums.RequestPriority;
+import com.ibasco.agql.core.utils.EncryptUtils;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconMessenger;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
@@ -57,8 +58,6 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     private Boolean _reauth = null;
 
     private boolean reauthenticate = true;
-
-    private SourceRconCmdRequest lastRequestSent = null;
 
     /**
      * Contains a map of authenticated request ids with the server address as the key
@@ -119,10 +118,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
                 throw new SourceRconAuthException(error);
             }
             if (status != null && status.isAuthenticated()) {
-                String oldPassword = this.credentialsMap.put(address, password);
-                if (!StringUtils.isBlank(oldPassword)) {
-                    log.debug("Replaced existing auth password from '{}' to '{}'", oldPassword, password);
-                }
+                this.credentialsMap.put(address, EncryptUtils.encrypt(password, EncryptUtils.retrieveKey()));
             }
         });
         return authRequestFuture;
@@ -142,7 +138,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      */
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) {
         if (isAuthenticated(address)) {
-            return this.authenticate(address, this.credentialsMap.get(address));
+            return this.authenticate(address, EncryptUtils.decrypt(this.credentialsMap.get(address), EncryptUtils.retrieveKey()));
         }
         return CompletableFuture.completedFuture(new SourceRconAuthStatus(false, String.format("Not yet authenticated from server %s.", address)));
     }

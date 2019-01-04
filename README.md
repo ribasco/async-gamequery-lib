@@ -197,14 +197,6 @@ References you might find helpful regarding the implementations
 * [Clash of Clans Web API](https://developer.clashofclans.com/#/documentation)
 * [xPaw Steam Web API Documentation](https://lab.xpaw.me/steam_api_documentation.html)
 
-
-Future Integrations
---------------------
-
-My planned integrations for future releases.
-
-* Riot Games - League of Legends Web API
-
 Contributing
 ------------
 

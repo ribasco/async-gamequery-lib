@@ -1,8 +1,6 @@
 Asynchronous Game Query Library
 ===============================
 
-> Note: If you have forked/cloned the project on or before Oct 31, 2018, please re-fork/clone the project as the git histories have been re-written.
-
 [mavenImg]: https://img.shields.io/maven-central/v/com.ibasco.agql/async-gamequery-lib.svg
 [mavenLink]: https://search.maven.org/search?q=com.ibasco.agql
 

@@ -24,7 +24,6 @@ Discussion Platforms
 If you have any inquiries,concerns or suggestions please use one of the official communication channels for this project
 
 * [Project Issue Tracker](https://github.com/ribasco/async-gamequery-lib/issues/new) (For bug reports/issues please use this)
-* [AGQL Google Group](https://groups.google.com/forum/#!forum/agql)
 * [Gitter IM](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 
 Implementations

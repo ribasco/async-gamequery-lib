@@ -34,7 +34,7 @@ public enum SourceRconRequestType {
     COMMAND((byte) 2),
     RESPONSE((byte) 0); //used for special circumstances
 
-    private byte header;
+    private final byte header;
 
     SourceRconRequestType(byte header) {
         this.header = header;

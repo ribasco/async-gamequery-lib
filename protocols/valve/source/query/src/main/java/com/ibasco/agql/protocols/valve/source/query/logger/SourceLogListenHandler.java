@@ -37,7 +37,7 @@ import java.util.function.Consumer;
  */
 public class SourceLogListenHandler extends SimpleChannelInboundHandler<DatagramPacket> {
 
-    private Consumer<SourceLogEntry> logEventCallback;
+    private final Consumer<SourceLogEntry> logEventCallback;
 
     public SourceLogListenHandler(Consumer<SourceLogEntry> logEventCallback) {
         this.logEventCallback = logEventCallback;

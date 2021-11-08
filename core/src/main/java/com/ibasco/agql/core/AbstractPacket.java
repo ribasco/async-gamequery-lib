@@ -78,7 +78,7 @@ abstract public class AbstractPacket implements Packet {
     public ToStringBuilder toStringBuilder() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
                 .append("class", this.getClass().getSimpleName())
-                .append("header", ByteUtils.bytesToHex(getPacketHeader()));
+                .append("header", ByteUtils.toFormattedHex(getPacketHeader()));
     }
 
     @Override

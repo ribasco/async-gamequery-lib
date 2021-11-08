@@ -30,7 +30,7 @@ public enum VanityUrlType {
     GROUP(2),
     OFFICIAL_GAME_GROUP(3);
 
-    private int type;
+    private final int type;
 
     VanityUrlType(int type) {
         this.type = type;

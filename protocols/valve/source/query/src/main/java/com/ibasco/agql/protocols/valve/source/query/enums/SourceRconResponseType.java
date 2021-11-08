@@ -34,7 +34,7 @@ public enum SourceRconResponseType {
     COMMAND(0),
     TERMINATOR(-1);
 
-    private int header;
+    private final int header;
 
     SourceRconResponseType(int header) {
         this.header = header;

@@ -34,12 +34,30 @@ import java.net.InetSocketAddress;
  */
 public class SourceInfoRequest extends SourceServerRequest<SourceInfoRequestPacket> {
 
-    public SourceInfoRequest(InetSocketAddress recipient) {
+    private final Integer challenge;
+
+    private final boolean override;
+
+    public SourceInfoRequest(Integer challenge, InetSocketAddress recipient) {
+        this(challenge, recipient, false);
+    }
+
+    public SourceInfoRequest(InetSocketAddress recipient, boolean override) {
+        this(null, recipient, override);
+    }
+
+    public SourceInfoRequest(Integer challenge, InetSocketAddress recipient, boolean override) {
         super(recipient);
+        this.override = override;
+        this.challenge = challenge;
+    }
+
+    public final Integer getChallenge() {
+        return challenge;
     }
 
     @Override
     public SourceInfoRequestPacket getMessage() {
-        return new SourceInfoRequestPacket();
+        return new SourceInfoRequestPacket(challenge, override);
     }
 }

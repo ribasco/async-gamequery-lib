@@ -25,13 +25,20 @@
 package com.ibasco.agql.core;
 
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 public interface Message<T> {
     T getMessage();
 
+    UUID id();
+
+    String transactionId();
+
     InetSocketAddress sender();
 
     InetSocketAddress recipient();
+
+    void setTransactionId(String id);
 
     void setRecipient(InetSocketAddress recipient);
 

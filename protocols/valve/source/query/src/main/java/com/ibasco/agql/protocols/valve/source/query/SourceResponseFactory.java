@@ -34,7 +34,15 @@ import com.ibasco.agql.protocols.valve.source.query.response.SourceRulesResponse
  * Created by raffy on 9/19/2016.
  */
 public class SourceResponseFactory {
-    public static SourceServerResponse createResponseFrom(SourceResponsePacket packet) {
+
+    /**
+     * Creates a new instance of {@link SourceServerResponse} from {@link SourceResponsePacket}
+     *
+     * @param packet A {@link SourceResponsePacket} instance
+     *
+     * @return A new {@link SourceServerResponse} instance
+     */
+    public static SourceServerResponse createResponse(SourceResponsePacket packet) {
         SourceGameResponse type = SourceGameResponse.get(packet.getSingleBytePacketHeader());
         SourceServerResponse response;
         switch (type) {

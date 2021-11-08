@@ -25,8 +25,8 @@
 package com.ibasco.agql.protocols.valve.source.query;
 
 public final class SourceRconAuthStatus {
-    private boolean authenticated;
-    private String reason;
+    private final boolean authenticated;
+    private final String reason;
 
     public SourceRconAuthStatus(boolean authenticated, String reason) {
         this.authenticated = authenticated;

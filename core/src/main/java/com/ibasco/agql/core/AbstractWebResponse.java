@@ -31,7 +31,7 @@ import java.net.InetSocketAddress;
 
 abstract public class AbstractWebResponse extends AbstractResponse<Response> {
 
-    private Response response;
+    private final Response response;
 
     public AbstractWebResponse(Response response) {
         super((InetSocketAddress) response.getRemoteAddress(), (InetSocketAddress) response.getLocalAddress());

@@ -28,6 +28,8 @@ import com.ibasco.agql.protocols.valve.source.query.SourceRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceGameRequest;
 
+import java.nio.charset.StandardCharsets;
+
 /**
  * Created by raffy on 9/5/2016.
  */
@@ -38,6 +40,12 @@ public class SourceChallengeRequestPacket extends SourceRequestPacket {
 
     public SourceChallengeRequestPacket(SourceChallengeType requestHeaderType) {
         setHeader(requestHeaderType.getRequest().getHeader());
-        setPayload(new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        if (SourceChallengeType.INFO.equals(requestHeaderType)) {
+            byte[] payload = new byte[24];
+            System.arraycopy("Source Engine Query\0" .getBytes(), 0, payload, 0, 20);
+            setPayload(payload);
+        } else {
+            setPayload(new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF});
+        }
     }
 }

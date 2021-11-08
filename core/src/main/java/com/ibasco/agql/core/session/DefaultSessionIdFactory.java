@@ -28,10 +28,10 @@ import com.ibasco.agql.core.AbstractMessage;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 
-public class DefaultSessionIdFactory extends AbstractSessionIdFactory<AbstractRequest, AbstractResponse> {
+public class DefaultSessionIdFactory implements SessionIdFactory {
     @Override
     public SessionId createId(AbstractMessage message) {
-        return new SessionId(createIdStringFromMsg(message));
+        return new SessionId(message.id().toString());
     }
 
     @Override

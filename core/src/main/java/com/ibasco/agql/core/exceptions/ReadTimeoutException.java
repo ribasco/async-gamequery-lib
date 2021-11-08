@@ -28,7 +28,7 @@ import com.ibasco.agql.core.session.SessionId;
 
 public class ReadTimeoutException extends TimeoutException {
 
-    private SessionId key;
+    private final SessionId key;
 
     public ReadTimeoutException(SessionId key, String message) {
         super(message);

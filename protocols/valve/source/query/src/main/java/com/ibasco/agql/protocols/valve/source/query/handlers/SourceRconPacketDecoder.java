@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class SourceRconPacketDecoder extends ByteToMessageDecoder {
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketDecoder.class);
 
-    private AtomicInteger index = new AtomicInteger();
+    private final AtomicInteger index = new AtomicInteger();
 
     private final static int PAD_SIZE = 56;
 
@@ -82,7 +82,6 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         builder = new SourceRconPacketBuilder(ctx.channel().alloc());
     }
 
-    //TODO: NPath complexity of 16800 as reported by PMD. Consider refactoring this and break it down to smaller bits
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
 

@@ -32,5 +32,5 @@ abstract public class AbstractGameServerRequest<T extends AbstractPacket> extend
     }
 
     @Override
-    public abstract T getMessage();
+    abstract public T getMessage();
 }

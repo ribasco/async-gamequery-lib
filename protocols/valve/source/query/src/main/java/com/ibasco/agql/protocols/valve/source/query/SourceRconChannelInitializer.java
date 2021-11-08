@@ -35,7 +35,7 @@ import io.netty.channel.Channel;
 
 class SourceRconChannelInitializer implements NettyChannelInitializer {
 
-    private SourceRconMessenger rconMessenger;
+    private final SourceRconMessenger rconMessenger;
 
     SourceRconChannelInitializer(SourceRconMessenger responseHandler) {
         this.rconMessenger = responseHandler;
@@ -44,10 +44,10 @@ class SourceRconChannelInitializer implements NettyChannelInitializer {
     @Override
     public void initializeChannel(Channel channel, NettyTransport transport) {
         SourceRconPacketBuilder rconBuilder = new SourceRconPacketBuilder(transport.getAllocator());
-        channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder, rconMessenger.isTerminatingPacketsEnabled()));
         channel.pipeline().addLast(new SourceRconPacketDecoder(rconMessenger.isTerminatingPacketsEnabled()));
         channel.pipeline().addLast(new SourceRconPacketAssembler(rconMessenger.getRequestTypeMap(), rconMessenger.isTerminatingPacketsEnabled()));
         channel.pipeline().addLast(new SourceRconResponseRouter(rconMessenger));
         channel.pipeline().addLast(new ErrorHandler());
+        channel.pipeline().addLast(new SourceRconRequestEncoder(rconBuilder, rconMessenger.isTerminatingPacketsEnabled()));
     }
 }

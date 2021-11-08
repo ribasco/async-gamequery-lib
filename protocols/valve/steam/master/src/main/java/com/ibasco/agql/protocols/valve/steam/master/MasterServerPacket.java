@@ -29,10 +29,10 @@ import com.ibasco.agql.core.utils.ByteUtils;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public abstract class MasterServerPacket extends AbstractPacket {
-    private byte[] protocolHeader = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+    private final byte[] protocolHeader = new byte[]{(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
 
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("protocol_header", ByteUtils.bytesToHex(this.protocolHeader));
+        return super.toStringBuilder().append("protocol_header", ByteUtils.toFormattedHex(this.protocolHeader));
     }
 }

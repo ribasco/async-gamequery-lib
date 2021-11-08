@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.steam.master;
 
+import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.core.transport.NettyChannelInitializer;
 import com.ibasco.agql.core.transport.NettyTransport;
 import com.ibasco.agql.core.transport.handlers.ErrorHandler;
@@ -35,10 +36,10 @@ import java.util.function.BiConsumer;
 
 public class MasterServerChannelInitializer implements NettyChannelInitializer {
 
-    private BiConsumer<MasterServerResponse, Throwable> responseHandler;
+    private final Messenger<MasterServerRequest, MasterServerResponse> messenger;
 
-    public MasterServerChannelInitializer(BiConsumer<MasterServerResponse, Throwable> responseHandler) {
-        this.responseHandler = responseHandler;
+    public MasterServerChannelInitializer(Messenger<MasterServerRequest, MasterServerResponse> messenger) {
+        this.messenger = messenger;
     }
 
     @Override
@@ -46,6 +47,6 @@ public class MasterServerChannelInitializer implements NettyChannelInitializer {
         MasterServerPacketBuilder builder = new MasterServerPacketBuilder(transport.getAllocator());
         channel.pipeline().addLast(new ErrorHandler());
         channel.pipeline().addLast(new MasterServerRequestEncoder(builder));
-        channel.pipeline().addLast(new MasterServerPacketDecoder(responseHandler, builder));
+        channel.pipeline().addLast(new MasterServerPacketDecoder(messenger, builder));
     }
 }

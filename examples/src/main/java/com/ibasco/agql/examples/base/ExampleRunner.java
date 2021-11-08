@@ -37,13 +37,13 @@ public class ExampleRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ExampleRunner.class);
 
-    private Map<String, BaseExample> examples = new HashMap<>();
+    private final Map<String, BaseExample> examples = new HashMap<>();
 
-    private Options options = new Options();
+    private final Options options = new Options();
 
-    private Option nameOption = Option.builder("e").hasArg(true).numberOfArgs(1).desc("The name of the example to run").required().build();
+    private final Option nameOption = Option.builder("e").hasArg(true).numberOfArgs(1).desc("The name of the example to run").required().build();
 
-    private HelpFormatter formatter = new HelpFormatter();
+    private final HelpFormatter formatter = new HelpFormatter();
 
     private BaseExample activeExample;
 

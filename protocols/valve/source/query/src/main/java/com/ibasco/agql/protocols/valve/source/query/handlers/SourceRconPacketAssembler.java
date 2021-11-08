@@ -52,9 +52,9 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
 
-    private Map<Integer, SourceRconRequestType> requestTypeMap;
+    private final Map<Integer, SourceRconRequestType> requestTypeMap;
 
-    private LinkedListMultimap<Integer, SourceRconResponsePacket> packetContainer = LinkedListMultimap.create();
+    private final LinkedListMultimap<Integer, SourceRconResponsePacket> packetContainer = LinkedListMultimap.create();
 
     private Integer lastAuthRequestId = null;
 
@@ -175,14 +175,11 @@ public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRco
     }
 
     private Integer findLatestAuthId() {
-        if (requestTypeMap != null) {
-            return requestTypeMap.entrySet().stream()
-                    .filter(e -> e.getValue() == SourceRconRequestType.AUTH)
-                    .map(Map.Entry::getKey)
-                    .findFirst()
-                    .orElse(null);
-        }
-        return null;
+        return requestTypeMap.entrySet().stream()
+                .filter(e -> e.getValue() == SourceRconRequestType.AUTH)
+                .map(Map.Entry::getKey)
+                .findFirst()
+                .orElse(null);
     }
 
     /**

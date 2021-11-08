@@ -36,7 +36,7 @@ public enum SourceGameRequest {
     PLAYER((byte) 0x55),
     RULES((byte) 0x56);
 
-    private byte header;
+    private final byte header;
 
     SourceGameRequest(byte header) {
         this.header = header;

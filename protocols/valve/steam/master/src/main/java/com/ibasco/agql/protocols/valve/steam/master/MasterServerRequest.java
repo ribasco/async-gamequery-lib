@@ -35,9 +35,9 @@ import java.net.InetSocketAddress;
  */
 public class MasterServerRequest<T> extends AbstractGameServerRequest<MasterServerRequestPacket> {
 
-    private MasterServerRegion region;
-    private MasterServerFilter filter;
-    private InetSocketAddress startIp;
+    private final MasterServerRegion region;
+    private final MasterServerFilter filter;
+    private final InetSocketAddress startIp;
 
     public MasterServerRequest(InetSocketAddress recipient, MasterServerRegion region, MasterServerFilter filter, InetSocketAddress startIp) {
         super(recipient);

@@ -30,7 +30,7 @@ public enum Dota2TeamType {
     BROADCASTER(2),
     UNASSIGNED(4);
 
-    private int typeCode;
+    private final int typeCode;
 
     Dota2TeamType(int typeCode) {
         this.typeCode = typeCode;

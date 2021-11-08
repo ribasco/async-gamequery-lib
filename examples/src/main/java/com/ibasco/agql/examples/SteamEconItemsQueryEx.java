@@ -88,7 +88,7 @@ public class SteamEconItemsQueryEx extends BaseWebApiAuthExample {
     }
 
     public static void displayResult(Object item) {
-        log.info("{} = {}", item.getClass().getSimpleName(), item.toString());
+        log.info("{} = {}", item.getClass().getSimpleName(), item);
     }
 
     @Override

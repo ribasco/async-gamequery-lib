@@ -66,7 +66,7 @@ public enum MasterServerRegion {
      */
     REGION_ALL(0xFF);
 
-    private byte header;
+    private final byte header;
 
     MasterServerRegion(int header) {
         this.header = (byte) header;

@@ -35,23 +35,23 @@ import java.util.concurrent.CompletableFuture;
 /**
  * A generic Http Client base
  *
- * @param <Req> Type of {@link AbstractWebRequest}
- * @param <Res> Type of {@link AbstractWebResponse}
+ * @param <R> Type of {@link AbstractWebRequest}
+ * @param <S> Type of {@link AbstractWebResponse}
  */
-abstract class AbstractWebClient<Req extends AbstractWebRequest, Res extends AbstractWebResponse>
-        implements Client<Req, Res> {
+abstract class AbstractWebClient<R extends AbstractWebRequest, S extends AbstractWebResponse>
+        implements Client<R, S> {
 
-    private WebMessenger<Req, Res> messenger;
+    private final WebMessenger<R, S> messenger;
 
     AbstractWebClient() {
         this.messenger = createWebMessenger();
     }
 
-    abstract public WebMessenger<Req, Res> createWebMessenger();
+    abstract public WebMessenger<R, S> createWebMessenger();
 
     @Override
     @SuppressWarnings("unchecked")
-    public <V> CompletableFuture<V> sendRequest(Req message) {
+    public <V> CompletableFuture<V> sendRequest(R message) {
         return (CompletableFuture<V>) messenger.send(message);
     }
 

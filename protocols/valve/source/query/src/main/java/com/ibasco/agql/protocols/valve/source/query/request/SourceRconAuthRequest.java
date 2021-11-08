@@ -31,7 +31,7 @@ import java.net.InetSocketAddress;
 
 public class SourceRconAuthRequest extends SourceRconRequest<SourceRconAuthRequestPacket> {
 
-    private String password;
+    private final String password;
 
     public SourceRconAuthRequest(InetSocketAddress recipient, int requestId, String password) {
         super(recipient, requestId);

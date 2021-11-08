@@ -27,21 +27,34 @@ package com.ibasco.agql.core.transport.pool;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.pool.*;
 
+import java.net.SocketAddress;
+
 /**
- * A default {@link ChannelPoolMap} implementation that use a {@link SimpleChannelPool}
+ * The default {@link ChannelPoolMap} implementation using a {@link FixedChannelPool}. A new channel is acquired/created for each remote address.
+ *
+ * @author Rafael Luis Ibasco
  */
-public class DefaultChannelPoolMap<K, P extends ChannelPool> extends AbstractChannelPoolMap<K, P> {
+public class DefaultChannelPoolMap extends AbstractChannelPoolMap<SocketAddress, ChannelPool> {
 
-    private Bootstrap bootstrap;
-    private ChannelPoolHandler handler;
+    private final Bootstrap bootstrap;
 
-    public DefaultChannelPoolMap(Bootstrap bootstrap, ChannelPoolHandler handler) {
+    private final ChannelPoolHandler channelPoolHandler;
+
+    public DefaultChannelPoolMap(Bootstrap bootstrap, ChannelPoolHandler channelPoolHandler) {
         this.bootstrap = bootstrap;
-        this.handler = handler;
+        this.channelPoolHandler = channelPoolHandler;
     }
 
     @Override
-    protected P newPool(K key) {
-        return (P) new SimpleChannelPool(bootstrap, handler);
+    protected ChannelPool newPool(SocketAddress key) {
+        return new FixedChannelPool(
+                bootstrap.remoteAddress(key),
+                channelPoolHandler,
+                ChannelHealthChecker.ACTIVE,
+                FixedChannelPool.AcquireTimeoutAction.NEW,
+                1000,
+                100, //per my test, source capped the max number of queries to 100
+                Integer.MAX_VALUE,
+                true);
     }
 }

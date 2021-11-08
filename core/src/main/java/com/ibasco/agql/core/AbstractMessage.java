@@ -24,22 +24,54 @@
 
 package com.ibasco.agql.core;
 
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import org.apache.commons.lang3.builder.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.UUID;
 
 abstract public class AbstractMessage<T> implements Message<T>, Comparable<AbstractMessage<T>> {
     private InetSocketAddress sender;
+
     private InetSocketAddress recipient;
+
+    private final UUID id;
+
+    private String transactionId;
 
     private static final Logger log = LoggerFactory.getLogger(AbstractMessage.class);
 
     public AbstractMessage(InetSocketAddress sender, InetSocketAddress recipient) {
         this.sender = sender;
         this.recipient = recipient;
+        this.id = createUUID();
+    }
+
+    private UUID createUUID() {
+        String tmp = getClass().getName() + getHostString(sender) + getHostString(recipient) + System.currentTimeMillis();
+        return UUID.nameUUIDFromBytes(tmp.getBytes());
+    }
+
+    private static String getHostString(InetSocketAddress address) {
+        if (address == null)
+            return "";
+        return address.getHostString();
+    }
+
+    @Override
+    public final UUID id() {
+        return id;
+    }
+
+    @Override
+    public final String transactionId() {
+        return this.transactionId;
+    }
+
+    @Override
+    public final void setTransactionId(String id) {
+        this.transactionId = id;
     }
 
     @Override
@@ -66,25 +98,27 @@ abstract public class AbstractMessage<T> implements Message<T>, Comparable<Abstr
     public abstract T getMessage();
 
     protected final EqualsBuilder equalsBuilder(Object rhs) {
-        final EqualsBuilder builder = new EqualsBuilder();
+        EqualsBuilder builder = new EqualsBuilder();
         AbstractMessage r = (AbstractMessage) rhs;
+        builder.append(id(), r.id());
         builder.append(recipient(), r.recipient());
         builder.append(sender(), r.sender());
-        builder.append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), 1).getClass());
+        //builder.append(defaultIfNull(getMessage(), "").getClass(), defaultIfNull(r.getMessage(), 1).getClass());
         return builder;
     }
 
     protected final HashCodeBuilder hashCodeBuilder(int primeX, int primeY) {
-        final HashCodeBuilder builder = new HashCodeBuilder(primeX, primeY);
+        HashCodeBuilder builder = new HashCodeBuilder(primeX, primeY);
+        builder.append(id());
         builder.append(sender());
         builder.append(recipient());
-        builder.append(getMessage());
+        //builder.append(getMessage());
         return builder;
     }
 
     protected final CompareToBuilder compareToBuilder(AbstractMessage<T> rhs) {
-        final CompareToBuilder builder = new CompareToBuilder();
-        InetSocketAddress lhsSender = defaultIfNull(sender(), new InetSocketAddress(0));
+        CompareToBuilder builder = new CompareToBuilder();
+        /*InetSocketAddress lhsSender = defaultIfNull(sender(), new InetSocketAddress(0));
         InetSocketAddress rhsSender = defaultIfNull(rhs.sender(), new InetSocketAddress(0));
         InetSocketAddress lhsReciepient = defaultIfNull(recipient(), new InetSocketAddress(0));
         InetSocketAddress rhsReciepient = defaultIfNull(rhs.recipient(), new InetSocketAddress(0));
@@ -92,13 +126,16 @@ abstract public class AbstractMessage<T> implements Message<T>, Comparable<Abstr
         builder.append(lhsSender.getPort(), rhsSender.getPort());
         builder.append(lhsReciepient.getAddress().getHostAddress(), rhsReciepient.getAddress().getHostAddress());
         builder.append(lhsReciepient.getPort(), rhsReciepient.getPort());
-        builder.append(getClass().getSimpleName(), rhs.getClass().getSimpleName());
+        builder.append(getClass().getSimpleName(), rhs.getClass().getSimpleName());*/
+        builder.append(id(), rhs.id());
         return builder;
     }
 
     protected final ToStringBuilder toStringBuilder() {
-        final ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE);
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE);
         builder.append("ClassName", this.getClass().getSimpleName());
+        builder.append("Id", id());
+        builder.append("Transaction Id", transactionId());
         builder.append("Recipient", recipient());
         builder.append("Sender", sender());
         return builder;

@@ -55,19 +55,34 @@
         </encoder>
     </appender>
 
-    <root level="DEBUG">
+    <root level="error">
         <appender-ref ref="console"/>
         <appender-ref ref="file-info"/>
         <appender-ref ref="file-error"/>
     </root>
 
     <logger name="io.netty" level="error"/>
+    <!--<logger name="com.ibasco.agql.core.transport" level="debug" />
+    <logger name="com.ibasco.agql.protocols.valve.source.query.handlers" level="debug"/>
+    <logger name="com.ibasco.agql.core.transport.udp" level="info" />
+    <logger name="com.ibasco.agql.core.AbstractMessenger" level="debug"/>-->
+
+    <logger name="com.ibasco.agql.examples" level="debug" />
+    <logger name="com.ibasco.agql.core.AbstractMessenger" level="debug"/>
+    <logger name="com.ibasco.agql.core.session" level="debug"/>
+    <!--<logger name="com.ibasco.agql.core.transport" level="debug" />
+    <logger name="com.ibasco.agql.protocols.valve.source.query.handlers" level="debug" />
+    -->
+
+    <!--
+    <logger name="com.ibasco.agql.core.session" level="debug" />
+    <logger name="com.ibasco.agql.core.AbstractMessenger" level="debug" />
     <logger name="org.asynchttpclient" level="error"/>
+    <logger name="com.ibasco.agql.examples" level="info" />
     <logger name="com.ibasco.agql.core" level="info"/>
-    <logger name="com.ibasco.agql.protocols.valve.source.query.handlers" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.source.query" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.steam.master" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.steam.webapi" level="info"/>
     <logger name="com.ibasco.agql.protocols.valve.csgo.webapi" level="info"/>
-    <logger name="com.ibasco.agql.protocols.valve.dota2.webapi" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.dota2.webapi" level="info"/>-->
 </configuration>

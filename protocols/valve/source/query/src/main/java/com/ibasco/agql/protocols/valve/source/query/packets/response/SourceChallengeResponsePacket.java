@@ -33,10 +33,6 @@ import io.netty.buffer.ByteBuf;
 public class SourceChallengeResponsePacket extends SourceResponsePacket<Integer> {
     @Override
     public Integer toObject() {
-        ByteBuf data = getPayloadBuffer();
-        Integer challengeNumber;
-        //Read the 32bit challenge number
-        challengeNumber = data.readIntLE();
-        return challengeNumber;
+        return getPayloadBuffer().readIntLE();
     }
 }

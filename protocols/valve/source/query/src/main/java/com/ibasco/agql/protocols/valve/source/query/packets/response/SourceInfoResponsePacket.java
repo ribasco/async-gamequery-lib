@@ -37,11 +37,11 @@ public class SourceInfoResponsePacket extends SourceResponsePacket<SourceServer>
     /**
      * This is for internal use only and no need to expose to the public API
      */
-    private static byte EDF_GAME_ID = (byte) 0x01;
-    private static byte EDF_GAME_PORT = (byte) 0x80;
-    private static byte EDF_SERVER_ID = (byte) 0x10;
-    private static byte EDF_SERVER_TAGS = (byte) 0x20;
-    private static byte EDF_SOURCE_TV = (byte) 0x40;
+    private static final byte EDF_GAME_ID = (byte) 0x01;
+    private static final byte EDF_GAME_PORT = (byte) 0x80;
+    private static final byte EDF_SERVER_ID = (byte) 0x10;
+    private static final byte EDF_SERVER_TAGS = (byte) 0x20;
+    private static final byte EDF_SOURCE_TV = (byte) 0x40;
 
     @Override
     public SourceServer toObject() {
@@ -56,7 +56,7 @@ public class SourceInfoResponsePacket extends SourceResponsePacket<SourceServer>
         server.setGameDirectory(readString(data));
         server.setGameDescription(readString(data));
         server.setAppId(data.readShortLE());
-        server.setNumOfPlayers(data.readByte());
+        server.setNumOfPlayers(data.readByte());    
         server.setMaxPlayers(data.readByte());
         server.setNumOfBots(data.readByte());
         server.setDedicated(data.readByte() == 1);

@@ -35,7 +35,7 @@ import java.net.InetSocketAddress;
  */
 public class SourceChallengeRequest extends SourceServerRequest<SourceChallengeRequestPacket> {
 
-    private SourceChallengeType type;
+    private final SourceChallengeType type;
 
     public SourceChallengeRequest(SourceChallengeType type, InetSocketAddress recipient) {
         super(recipient);

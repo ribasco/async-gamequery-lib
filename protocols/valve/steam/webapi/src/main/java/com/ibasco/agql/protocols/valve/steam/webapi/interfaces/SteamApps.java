@@ -58,7 +58,7 @@ public class SteamApps extends SteamWebApiInterface {
     }
 
     public CompletableFuture<List<SteamApp>> getAppList() {
-        final CompletableFuture<JsonObject> json = sendRequest(new GetAppList(VERSION_2));
+        CompletableFuture<JsonObject> json = sendRequest(new GetAppList(VERSION_2));
         return json.thenApply((JsonObject element) -> {
             JsonElement jsonApps = element.get("applist")
                     .getAsJsonObject()
@@ -74,7 +74,7 @@ public class SteamApps extends SteamWebApiInterface {
     }
 
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(InetAddress address) {
-        final CompletableFuture<JsonObject> json = sendRequest(new GetServersAtAddress(1, address.getHostAddress()));
+        CompletableFuture<JsonObject> json = sendRequest(new GetServersAtAddress(1, address.getHostAddress()));
         return json.thenApply(root -> {
             JsonObject response = root.getAsJsonObject("response");
             Boolean success = response.getAsJsonPrimitive("success").getAsBoolean();

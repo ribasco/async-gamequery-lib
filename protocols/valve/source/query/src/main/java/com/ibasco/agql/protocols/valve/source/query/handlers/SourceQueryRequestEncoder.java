@@ -26,6 +26,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.AbstractPacketBuilder;
 import com.ibasco.agql.core.transport.handlers.AbstractRequestEncoder;
+import com.ibasco.agql.core.utils.ByteUtils;
 import com.ibasco.agql.protocols.valve.source.query.SourceRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.SourceServerPacket;
 import com.ibasco.agql.protocols.valve.source.query.SourceServerRequest;
@@ -51,7 +52,8 @@ public class SourceQueryRequestEncoder extends AbstractRequestEncoder<SourceServ
     protected void encode(ChannelHandlerContext ctx, SourceServerRequest request, List<Object> out) throws Exception {
         SourceRequestPacket packet = request.getMessage();
         byte[] deconstructedPacket = builder.deconstruct(packet);
-        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
+        log.debug("Sending request packet (Type: {}, Size: {}): {}", packet.getClass().getSimpleName(), deconstructedPacket.length, ByteUtils.toFormattedHex(deconstructedPacket));
+        if (deconstructedPacket.length > 0) {
             ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
             out.add(new DatagramPacket(buffer, request.recipient()));
         }

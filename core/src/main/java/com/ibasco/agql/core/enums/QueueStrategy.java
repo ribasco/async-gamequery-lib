@@ -27,7 +27,7 @@ package com.ibasco.agql.core.enums;
 /**
  * Indicates how a request should be processed.
  */
-public enum ProcessingMode {
+public enum QueueStrategy {
     /**
      * Wait for the head of the queue to complete before processing the next
      */

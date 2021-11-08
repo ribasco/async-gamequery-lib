@@ -27,7 +27,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.session.SessionId;
 import com.ibasco.agql.core.session.SessionManager;
-import com.ibasco.agql.core.session.SessionValue;
+import com.ibasco.agql.core.session.SessionEntry;
 import io.netty.util.Timeout;
 import io.netty.util.TimerTask;
 import org.slf4j.Logger;
@@ -35,10 +35,11 @@ import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 
+@Deprecated
 public class ReadRequestTimeoutTimerTask implements TimerTask {
     private static final Logger log = LoggerFactory.getLogger(ReadRequestTimeoutTimerTask.class);
-    private SessionId id;
-    private SessionManager sessionManager;
+    private final SessionId id;
+    private final SessionManager sessionManager;
 
     public ReadRequestTimeoutTimerTask(SessionId sessionId, SessionManager sessionManager) {
         this.id = sessionId;
@@ -49,11 +50,11 @@ public class ReadRequestTimeoutTimerTask implements TimerTask {
     public void run(Timeout timeout) throws Exception {
         log.debug("Timeout occured for Session {}", id);
         //Notify the listener that timeout has occured
-        final SessionValue session = sessionManager.getSession(id);
+        SessionEntry session = sessionManager.getSession(id);
 
         //Do not proceed if the session is null
         if (session == null) {
-            log.error("could not find session value for id {}. Registry Size : {}", id, sessionManager.getSessionEntries().size());
+            log.error("could not find session value for id {}. Registry Size : {}", id, sessionManager.getEntries().size());
             return;
         }
 

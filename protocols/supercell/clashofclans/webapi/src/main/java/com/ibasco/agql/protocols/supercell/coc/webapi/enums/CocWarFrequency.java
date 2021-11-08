@@ -36,7 +36,7 @@ public enum CocWarFrequency {
     NEVER("never"),
     UNKNOWN("unknown");
 
-    private String code;
+    private final String code;
 
     CocWarFrequency(String code) {
         this.code = code;

@@ -24,7 +24,9 @@
 
 package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
+import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerPacketBuilder;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerResponse;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerResponsePacket;
 import io.netty.channel.ChannelHandlerContext;
@@ -39,11 +41,13 @@ import java.util.function.BiConsumer;
 public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramPacket> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);
-    private BiConsumer<MasterServerResponse, Throwable> responseCallback;
-    private MasterServerPacketBuilder builder;
 
-    public MasterServerPacketDecoder(BiConsumer<MasterServerResponse, Throwable> responseCallback, MasterServerPacketBuilder builder) {
-        this.responseCallback = responseCallback;
+    private final Messenger<MasterServerRequest, MasterServerResponse> messenger;
+
+    private final MasterServerPacketBuilder builder;
+
+    public MasterServerPacketDecoder(Messenger<MasterServerRequest, MasterServerResponse> messenger, MasterServerPacketBuilder builder) {
+        this.messenger = messenger;
         this.builder = builder;
     }
 
@@ -51,18 +55,17 @@ public class MasterServerPacketDecoder extends MessageToMessageDecoder<DatagramP
     @Override
     protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
         //Create our response packet from the datagram we received
-        final MasterServerResponsePacket packet = builder.construct(msg.content());
+        MasterServerResponsePacket packet = builder.construct(msg.content());
         if (packet != null) {
-            final MasterServerResponse response = new MasterServerResponse();
-            if (response != null) {
-                response.setSender(msg.sender());
-                response.setRecipient(msg.recipient());
-                response.setResponsePacket(packet);
-                log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
-                //Pass the message back to the messenger
-                responseCallback.accept(response, null);
-                return;
-            }
+            MasterServerResponse response = new MasterServerResponse();
+            response.setTransactionId(ctx.channel().id().asShortText());
+            response.setSender(msg.sender());
+            response.setRecipient(msg.recipient());
+            response.setResponsePacket(packet);
+            log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
+            //Pass the message back to the messenger
+            messenger.receive(response, null);
+            return;
         }
         throw new IllegalStateException("No response packet found for the incoming datagram");
     }

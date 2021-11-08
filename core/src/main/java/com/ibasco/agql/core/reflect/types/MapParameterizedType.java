@@ -32,8 +32,8 @@ import java.util.Map;
 
 public class MapParameterizedType implements ParameterizedType {
 
-    private Type type;
-    private Class<? extends Map> classType;
+    private final Type type;
+    private final Class<? extends Map> classType;
 
     public MapParameterizedType(Type type, Class<? extends Map> classType) {
         this.type = type;

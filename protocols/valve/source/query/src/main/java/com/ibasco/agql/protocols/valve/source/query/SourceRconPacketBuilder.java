@@ -79,12 +79,11 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
             //Remember the reader index
             data.markReaderIndex();
 
-            //Read from the listen
+            //Read from the server
             data.readerIndex(0);
             int size = data.readIntLE();
             int id = data.readIntLE();
             int type = data.readIntLE();
-
             String body = data.readCharSequence(data.readableBytes() - 2, StandardCharsets.UTF_8).toString();
 
             SourceRconResponsePacket packet = getResponsePacket(type);
@@ -114,9 +113,9 @@ public class SourceRconPacketBuilder extends AbstractPacketBuilder<SourceRconPac
 
         int id = packet.getId();
         int type = packet.getType();
-        final String body = StringUtils.defaultString(packet.getBody());
+        String body = StringUtils.defaultString(packet.getBody());
         int packetSize = 10 + body.length();
-        final ByteBuf buf = createBuffer(packetSize);
+        ByteBuf buf = createBuffer(packetSize);
         byte[] data;
         try {
             buf.writeIntLE(packetSize);

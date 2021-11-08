@@ -33,7 +33,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class SourceRconCmdRequestPacket extends SourceRconRequestPacket {
 
-    private String command;
+    private final String command;
 
     public SourceRconCmdRequestPacket(int id, String command) {
         super(id);

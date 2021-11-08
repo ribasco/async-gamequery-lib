@@ -28,21 +28,22 @@
 
     <!-- Properties -->
     <properties>
+        <revision>0.2.0${changelist}</revision>
+        <changelist>-SNAPSHOT</changelist>
+        <sha1/>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <mvn.compiler.version>3.6.2</mvn.compiler.version>
         <source.version>1.8</source.version>
         <target.version>1.8</target.version>
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <!--<netty.version>4.1.8.Final</netty.version>-->
     </properties>
 
     <groupId>com.ibasco.agql</groupId>
     <artifactId>async-gamequery-lib</artifactId>
     <name>Asynchronous Game Query Library</name>
-    <version>0.1.8-SNAPSHOT</version>
+    <version>${revision}</version>
     <inceptionYear>2016</inceptionYear>
     <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
@@ -56,8 +57,8 @@
         <url>https://github.com/ribasco/async-gamequery-lib</url>
         <connection>scm:git:git://github.com/ribasco/async-gamequery-lib.git</connection>
         <developerConnection>scm:git:git@github.com:ribasco/async-gamequery-lib.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <developers>
         <developer>
@@ -114,6 +115,22 @@
             <properties>
                 <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
+        </profile>
+        <!-- Deploy to Sonatype -->
+        <profile>
+            <id>deploy-sonatype</id>
+            <distributionManagement>
+                <repository>
+                    <id>ossrh</id>
+                    <name>Sonatype Release Repository</name>
+                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <name>Sonatype Snapshots Repository</name>
+                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+            </distributionManagement>
         </profile>
         <!-- Activated once mvn release:perform is called -->
         <profile>
@@ -177,18 +194,6 @@
     <!-- Reporting -->
     <reporting>
         <plugins>
-            <!-- Changes -->
-            <!--            <plugin>
-                            <groupId>org.apache.maven.plugins</groupId>
-                            <artifactId>maven-changes-plugin</artifactId>
-                            <reportSets>
-                                <reportSet>
-                                    <reports>
-                                        <report>github-report</report>
-                                    </reports>
-                                </reportSet>
-                            </reportSets>
-                        </plugin>-->
             <!-- ChangeLog -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -249,8 +254,9 @@
     </distributionManagement>
 
     <!-- Continuous Integration -->
+    <!-- TODO: Update to github actions -->
     <ciManagement>
-        <system>Travis CI</system>
+        <system>Github Actions</system>
         <url>https://travis-ci.org/ribasco/async-gamequery-lib</url>
     </ciManagement>
 
@@ -271,9 +277,9 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <excludes>
-                    <exclude>**/version.txt</exclude>
-                </excludes>
+                <includes>
+                    <include>**/logback.xml</include>
+                </includes>
             </resource>
         </resources>
 
@@ -320,13 +326,13 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.0.0</version>
+                    <version>3.2.0</version>
                 </plugin>
                 <!-- Configuration for signing artifacts -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-gpg-plugin</artifactId>
-                    <version>1.6</version>
+                    <version>3.0.1</version>
                     <configuration>
                         <!-- This is necessary for gpg to not try to use the pinentry programs -->
                         <gpgArguments>
@@ -339,7 +345,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>${mvn.compiler.version}</version>
+                    <version>3.8.1</version>
                     <configuration>
                         <source>${source.version}</source>
                         <target>${target.version}</target>
@@ -354,7 +360,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>2.5.2</version>
+                    <version>3.0.0-M1</version>
                     <configuration>
                         <installAtEnd>true</installAtEnd>
                     </configuration>
@@ -363,13 +369,13 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-enforcer-plugin</artifactId>
-                    <version>1.4.1</version>
+                    <version>3.0.0-M3</version>
                     <executions>
                         <execution>
                             <id>enforce</id>
                             <configuration>
                                 <rules>
-                                    <dependencyConvergence />
+                                    <dependencyConvergence/>
                                 </rules>
                             </configuration>
                             <goals>
@@ -398,43 +404,27 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-resources-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.2.0</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
-                    </configuration>
-                </plugin>
-                <!-- Release Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.5.3</version>
-                    <configuration>
-                        <autoVersionSubmodules>true</autoVersionSubmodules>
-                        <allowTimestampedSnapshots>false</allowTimestampedSnapshots>
-                        <useReleaseProfile>false</useReleaseProfile>
-                        <releaseProfiles>release</releaseProfiles>
-                        <tagNameFormat>agql-project-@{project.version}</tagNameFormat>
-                        <preparationGoals>clean install</preparationGoals>
-                        <checkModificationExcludes>
-                            <checkModificationExclude>pom.xml</checkModificationExclude>
-                        </checkModificationExcludes>
                     </configuration>
                 </plugin>
                 <!-- Deploy Plugin -->
                 <plugin>
                     <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
+                    <version>3.0.0-M1</version>
                     <configuration>
+                        <!--suppress MavenModelInspection -->
                         <skip>${skip.deploy}</skip>
                         <deployAtEnd>true</deployAtEnd>
-                        <updateReleaseInfo>true</updateReleaseInfo>
+                        <!--<updateReleaseInfo>true</updateReleaseInfo>-->
                     </configuration>
                 </plugin>
                 <!-- Source Plugin -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-source-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.0</version>
                     <executions>
                         <execution>
                             <id>attach-sources</id>
@@ -448,7 +438,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
-                    <version>2.10.4</version>
+                    <version>3.2.0</version>
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
@@ -458,7 +448,8 @@
                         </execution>
                     </executions>
                     <configuration>
-                        <aggregate>true</aggregate>
+                        <failOnError>false</failOnError>
+                        <failOnWarnings>false</failOnWarnings>
                     </configuration>
                 </plugin>
                 <!-- ChangeLog -->
@@ -473,6 +464,7 @@
                     <artifactId>maven-changes-plugin</artifactId>
                     <version>2.12.1</version>
                     <configuration>
+                        <!--suppress MavenModelInspection -->
                         <xmlPath>${changes.dir}</xmlPath>
                     </configuration>
                 </plugin>
@@ -480,7 +472,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
-                    <version>3.0.2</version>
+                    <version>3.2.0</version>
                     <executions>
                         <execution>
                             <id>default-jar</id>
@@ -499,7 +491,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.7.1</version>
+                    <version>3.8.2</version>
                     <executions>
                         <execution>
                             <id>attach-descriptor</id>
@@ -519,15 +511,15 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-dependency-plugin</artifactId>
-                    <version>3.0.1</version>
+                    <version>3.1.2</version>
                 </plugin>
                 <!-- Project Info Report -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>2.9</version>
+                    <version>3.1.2</version>
                     <configuration>
-                        <dependencyLocationsEnabled>false</dependencyLocationsEnabled>
+                        <!--<dependencyLocationsEnabled>false</dependencyLocationsEnabled>-->
                     </configuration>
                 </plugin>
                 <!-- Versions Plugin -->
@@ -536,25 +528,16 @@
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.4</version>
                 </plugin>
-                <!-- Coveralls -->
-                <plugin>
-                    <groupId>org.eluder.coveralls</groupId>
-                    <artifactId>coveralls-maven-plugin</artifactId>
-                    <version>4.3.0</version>
-                    <configuration>
-                        <repoToken>${coverall.token}</repoToken>
-                    </configuration>
-                </plugin>
                 <!-- Surefire -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>3.0.0-M5</version>
                 </plugin>
                 <!-- Failsafe -->
                 <plugin>
                     <artifactId>maven-failsafe-plugin</artifactId>
-                    <version>2.20</version>
+                    <version>3.0.0-M5</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -576,10 +559,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.eluder.coveralls</groupId>
-                <artifactId>coveralls-maven-plugin</artifactId>
             </plugin>
         </plugins>
     </build>
@@ -624,6 +603,11 @@
             </dependency>
             <!-- Third Party Dependencies -->
             <dependency>
+                <groupId>com.github.rholder</groupId>
+                <artifactId>guava-retrying</artifactId>
+                <version>2.0.0</version>
+            </dependency>
+            <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.25</version>
@@ -632,7 +616,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>23.0</version>
+                <version>[30.0-jre,)</version>
             </dependency>
             <dependency>
                 <groupId>com.google.code.gson</groupId>
@@ -645,9 +629,9 @@
                 <version>2.5.4</version>
             </dependency>
             <dependency>
-                <groupId>junit</groupId>
-                <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>5.7.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

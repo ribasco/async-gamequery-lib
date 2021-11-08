@@ -164,6 +164,7 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      *
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
+    @Deprecated
     public CompletableFuture<Map<String, String>> getServerRulesCached(InetSocketAddress address) {
         return getServerChallengeFromCache(address)
                 .thenCompose(challengeFromCache -> getServerRules(challengeFromCache, address));

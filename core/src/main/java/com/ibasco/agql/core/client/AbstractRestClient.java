@@ -45,7 +45,7 @@ abstract public class AbstractRestClient<Req extends AbstractWebApiRequest, Res 
         extends AbstractWebClient<Req, Res> {
     private static final Logger log = LoggerFactory.getLogger(AbstractRestClient.class);
 
-    private Map<String, ContentTypeProcessor> contentProcessorMap = new HashMap<>();
+    private final Map<String, ContentTypeProcessor> contentProcessorMap = new HashMap<>();
     private String authToken;
 
     /**

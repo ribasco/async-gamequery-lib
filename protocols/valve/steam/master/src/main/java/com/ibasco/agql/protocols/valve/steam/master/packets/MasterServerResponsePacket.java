@@ -32,8 +32,8 @@ import java.net.InetSocketAddress;
 import java.util.Vector;
 
 public class MasterServerResponsePacket extends MasterServerPacket implements Decodable<Vector<InetSocketAddress>> {
-    private Vector<InetSocketAddress> servers;
-    private StringBuffer ip;
+    private final Vector<InetSocketAddress> servers;
+    private final StringBuffer ip;
 
     public MasterServerResponsePacket() {
         servers = new Vector<>();

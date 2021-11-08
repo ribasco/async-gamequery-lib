@@ -48,6 +48,6 @@ public abstract class SourceServerPacket extends AbstractPacket {
 
     @Override
     public ToStringBuilder toStringBuilder() {
-        return super.toStringBuilder().append("protocol_header", ByteUtils.bytesToHex(this.protocolHeader));
+        return super.toStringBuilder().append("protocol_header", ByteUtils.toFormattedHex(this.protocolHeader));
     }
 }

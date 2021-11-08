@@ -29,10 +29,10 @@ import com.ibasco.agql.core.AbstractGameServerRequest;
 import com.ibasco.agql.core.AbstractGameServerResponse;
 import com.ibasco.agql.core.messenger.GameServerMessenger;
 
-abstract public class AbstractGameServerClient<Req extends AbstractGameServerRequest,
-        Res extends AbstractGameServerResponse,
-        M extends GameServerMessenger<Req, Res>>
-        extends AbstractClient<Req, Res, M> {
+abstract public class AbstractGameServerClient<R extends AbstractGameServerRequest,
+        S extends AbstractGameServerResponse,
+        M extends GameServerMessenger<R, S>>
+        extends AbstractClient<R, S, M> {
     public AbstractGameServerClient(M messenger) {
         super(messenger);
     }

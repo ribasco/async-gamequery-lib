@@ -31,6 +31,7 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 import java.io.Serializable;
 
 public final class SessionId implements Serializable, Comparable<SessionId> {
+
     private String id;
 
     public SessionId(SessionId id) {
@@ -41,16 +42,16 @@ public final class SessionId implements Serializable, Comparable<SessionId> {
         this.id = id;
     }
 
-    public final String getId() {
+    public String getId() {
         return id;
     }
 
-    public final void setId(String id) {
+    public void setId(String id) {
         this.id = id;
     }
 
     @Override
-    public final boolean equals(Object o) {
+    public boolean equals(Object o) {
         if (!(o instanceof SessionId || o instanceof String))
             return false;
         if (o == this)
@@ -62,8 +63,13 @@ public final class SessionId implements Serializable, Comparable<SessionId> {
     }
 
     @Override
-    public final int hashCode() {
+    public int hashCode() {
         return new HashCodeBuilder(61, 235).append(getId()).hashCode();
+    }
+
+    @Override
+    public int compareTo(SessionId o) {
+        return new CompareToBuilder().append(getId(), o.getId()).toComparison();
     }
 
     @Override
@@ -71,10 +77,5 @@ public final class SessionId implements Serializable, Comparable<SessionId> {
         return "SessionId{" +
                 "id='" + id + '\'' +
                 '}';
-    }
-
-    @Override
-    public int compareTo(SessionId o) {
-        return new CompareToBuilder().append(getId(), o.getId()).toComparison();
     }
 }

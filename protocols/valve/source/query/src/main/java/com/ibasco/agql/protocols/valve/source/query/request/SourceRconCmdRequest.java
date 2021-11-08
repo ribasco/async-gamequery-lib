@@ -33,7 +33,7 @@ import java.net.InetSocketAddress;
  * Created by raffy on 9/24/2016.
  */
 public class SourceRconCmdRequest extends SourceRconRequest<SourceRconCmdRequestPacket> {
-    private String command;
+    private final String command;
 
     public SourceRconCmdRequest(InetSocketAddress recipient, int requestId, String command) {
         super(recipient, requestId);

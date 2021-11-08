@@ -25,30 +25,57 @@
 package com.ibasco.agql.core.utils;
 
 public class ByteUtils {
+
     /**
-     * <p>Convert an integer to a primitive byte array type</p>
+     * <p>Convert an integer to a primitive byte array type in Big-Endian</p>
      *
-     * @param integer The integer to be converted
+     * @param integer
+     *         The integer to be converted
      *
      * @return A byte array representation of the integer specified
      */
-    public static byte[] byteArrayFromInteger(int integer) {
-        return new byte[]{
-                (byte) (integer >> 24),
-                (byte) (integer >> 16),
-                (byte) (integer >> 8),
-                (byte) integer
+    public static byte[] toByteArrayBE(int integer) {
+        return new byte[] {
+                (byte) ((integer >> 24) & 0xFF),
+                (byte) ((integer >> 16) & 0xFF),
+                (byte) ((integer >> 8) & 0xFF),
+                (byte) (integer & 0xFF)
+        };
+    }
+
+    /**
+     * <p>Convert an integer to a primitive byte array type in Little-Endian</p>
+     *
+     * @param integer
+     *         The integer to be converted
+     *
+     * @return A byte array representation of the integer specified
+     */
+    public static byte[] toByteArrayLE(int integer) {
+        return new byte[] {
+                (byte) (integer & 0xFF),
+                (byte) ((integer >> 8) & 0xFF),
+                (byte) ((integer >> 16) & 0xFF),
+                (byte) ((integer >> 24) & 0xFF)
         };
     }
 
     /**
      * <p>Convert an array of bytes to it's Hex-String representation</p>
      *
-     * @param bytes The array of bytes to be converted
+     * @param data
+     *         The array of bytes to be converted
      *
      * @return A Hex {@link String} representation of the byte array
      */
-    public static String bytesToHex(byte[] bytes) {
-        return javax.xml.bind.DatatypeConverter.printHexBinary(bytes);
+    public static String toFormattedHex(byte[] data) {
+        StringBuilder res = new StringBuilder();
+        for (int i = 0; i < data.length; i++) {
+            res.append("0x");
+            res.append(String.format("%02x", data[i]).toUpperCase());
+            if (i < data.length - 1)
+                res.append(" ");
+        }
+        return res.toString();
     }
 }

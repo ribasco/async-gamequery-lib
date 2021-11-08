@@ -28,11 +28,12 @@ package com.ibasco.agql.protocols.valve.source.query.enums;
  * Created by raffy on 9/11/2016.
  */
 public enum SourceChallengeType {
+    INFO(SourceGameRequest.INFO),
     PLAYER(SourceGameRequest.PLAYER),
     RULES(SourceGameRequest.RULES),
     ANY(SourceGameRequest.RULES);
 
-    private SourceGameRequest request;
+    private final SourceGameRequest request;
 
     SourceChallengeType(SourceGameRequest request) {
         this.request = request;

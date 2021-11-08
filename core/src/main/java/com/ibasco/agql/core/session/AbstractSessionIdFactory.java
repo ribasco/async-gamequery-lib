@@ -24,27 +24,31 @@
 
 package com.ibasco.agql.core.session;
 
+import com.google.common.collect.Multimap;
 import com.ibasco.agql.core.AbstractMessage;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 
 import java.net.InetSocketAddress;
-import java.util.Map;
+import java.util.Collection;
 
 abstract public class AbstractSessionIdFactory<
-        Req extends AbstractRequest,
-        Res extends AbstractResponse>
+        R extends AbstractRequest,
+        S extends AbstractResponse>
         implements SessionIdFactory {
 
     protected static final String DEFAULT_ID_FORMAT = "%s:%s:%s";
 
-    private Map<Class<? extends Req>, Class<? extends Res>> lookup;
+    private Multimap<Class<? extends R>, Class<? extends S>> lookup;
 
-    protected Class<? extends Res> getResponseClass(Req request) {
+    protected Class<? extends S> getResponseClass(R request) {
         if (lookup == null)
             throw new IllegalStateException("Lookup map has not been initialized");
-        if (request != null)
-            return lookup.get(request.getClass());
+        if (request != null) {
+            //noinspection unchecked
+            Collection<Class<? extends S>> s = lookup.get((Class<? extends R>) request.getClass());
+            return s.stream().findFirst().get();
+        }
         return null;
     }
 
@@ -64,7 +68,7 @@ abstract public class AbstractSessionIdFactory<
         Class messageClass;
 
         if (message instanceof AbstractRequest) {
-            messageClass = getResponseClass((Req) message);
+            messageClass = getResponseClass((R) message);
             address = message.recipient();
         } else {
             messageClass = message.getClass();
@@ -74,14 +78,14 @@ abstract public class AbstractSessionIdFactory<
         return String.format(DEFAULT_ID_FORMAT,
                 messageClass.getSimpleName(),
                 address.getAddress().getHostAddress(),
-                String.valueOf(address.getPort()));
+                             address.getPort());
     }
 
-    public Map<Class<? extends Req>, Class<? extends Res>> getLookup() {
+    public Multimap<Class<? extends R>, Class<? extends S>> getLookup() {
         return lookup;
     }
 
-    public void setLookup(Map<Class<? extends Req>, Class<? extends Res>> lookup) {
+    public void setLookup(Multimap<Class<? extends R>, Class<? extends S>> lookup) {
         this.lookup = lookup;
     }
 }

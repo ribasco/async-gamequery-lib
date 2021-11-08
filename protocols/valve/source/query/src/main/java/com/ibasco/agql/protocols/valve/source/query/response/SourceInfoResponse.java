@@ -40,4 +40,9 @@ public class SourceInfoResponse extends SourceServerResponse<SourceServer, Sourc
     public SourceInfoResponse(InetSocketAddress sender, SourceInfoResponsePacket packet) {
         super(sender, packet);
     }
+
+    @Override
+    public String toString() {
+        return toStringBuilder().append("info", getResponsePacket().toString()).toString();
+    }
 }

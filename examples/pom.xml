@@ -29,7 +29,8 @@
     <parent>
         <groupId>com.ibasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>0.1.8-SNAPSHOT</version>
+        <version>${revision}</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>agql-lib-examples</artifactId>
@@ -38,6 +39,16 @@
     <packaging>jar</packaging>
 
     <build>
+        <!-- Resources -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/**.xml</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <!-- Allow users to execute example applications from command line -->
             <plugin>

@@ -28,7 +28,7 @@ public enum Dota2IconType {
     NORMAL(0),
     LARGE(1),
     INGAME(2);
-    private int type;
+    private final int type;
 
     Dota2IconType(int type) {
         this.type = type;

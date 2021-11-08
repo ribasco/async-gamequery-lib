@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
  * <p>A Master Server Filter Utility class</p>
  */
 public final class MasterServerFilter {
-    private StringBuffer filter;
+    private final StringBuffer filter;
 
     /**
      * Default constructor

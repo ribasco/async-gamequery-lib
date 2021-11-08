@@ -33,7 +33,7 @@ import java.net.InetSocketAddress;
  * Created by raffy on 9/15/2016.
  */
 public class SourcePlayerRequest extends SourceServerRequest<SourcePlayerRequestPacket> {
-    private int challengeNumber;
+    private final int challengeNumber;
 
     public SourcePlayerRequest(int challenge, InetSocketAddress recipient) {
         super(recipient);

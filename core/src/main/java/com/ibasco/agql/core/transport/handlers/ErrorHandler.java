@@ -42,8 +42,8 @@ public class ErrorHandler extends ChannelDuplexHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         if (log.isDebugEnabled()) {
             log.error("Unhandled exception caught within the pipeline {} for Channel {}, Id: {}", cause, ctx.channel(), ctx.channel().id());
-            if (ctx.channel().hasAttr(ChannelAttributes.LAST_REQUEST_SENT)) {
-                AbstractRequest request = ctx.channel().attr(ChannelAttributes.LAST_REQUEST_SENT).get();
+            if (ctx.channel().hasAttr(ChannelAttributes.REQUEST)) {
+                AbstractRequest request = ctx.channel().attr(ChannelAttributes.REQUEST).get();
                 if (request != null && SocketChannel.class.isAssignableFrom(ctx.channel().getClass())) {
                     Throwable ex = new ResponseException(request, cause);
                     SimpleChannelInboundHandler responseRouter = ctx.pipeline().get(SimpleChannelInboundHandler.class);

@@ -36,8 +36,8 @@ import java.util.Set;
 
 abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     public static final Logger log = LoggerFactory.getLogger(AbstractWebApiRequest.class);
-    private Map<String, String> baseUrlParams;
-    private StrSubstitutor substitutor;
+    private final Map<String, String> baseUrlParams;
+    private final StrSubstitutor substitutor;
     private int apiVersion;
     private String baseUrlFormat;
 

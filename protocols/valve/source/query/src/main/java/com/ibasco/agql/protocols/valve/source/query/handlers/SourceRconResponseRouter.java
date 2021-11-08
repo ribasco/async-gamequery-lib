@@ -24,7 +24,9 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
+import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.core.exceptions.ResponseException;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconExecutionException;
@@ -44,10 +46,10 @@ public class SourceRconResponseRouter extends SimpleChannelInboundHandler<Object
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconResponseRouter.class);
 
-    private BiConsumer<SourceRconResponse, Throwable> responseCallback;
+    private final Messenger<SourceRconRequest, SourceRconResponse> messenger;
 
-    public SourceRconResponseRouter(BiConsumer<SourceRconResponse, Throwable> responseCallback) {
-        this.responseCallback = responseCallback;
+    public SourceRconResponseRouter(Messenger<SourceRconRequest, SourceRconResponse> responseCallback) {
+        this.messenger = responseCallback;
     }
 
     @SuppressWarnings("unchecked")
@@ -61,19 +63,20 @@ public class SourceRconResponseRouter extends SimpleChannelInboundHandler<Object
             response = new SourceRconCmdResponse();
         } else if (msg instanceof ResponseException) {
             log.debug("Received response exception. Passing to messenger");
-            responseCallback.accept(null, (ResponseException) msg);
+            messenger.receive(null, (ResponseException) msg);
             return;
         }
 
         if (response != null) {
             SourceRconResponsePacket packet = (SourceRconResponsePacket) msg;
+            response.setTransactionId(ctx.channel().id().asShortText());
             response.setSender((InetSocketAddress) ctx.channel().remoteAddress());
             response.setRecipient((InetSocketAddress) ctx.channel().localAddress());
             response.setRequestId(packet.getId());
             response.setResponsePacket(packet);
             log.debug("Response Processed. Sending back to the messenger : '{}={}'", response.getClass().getSimpleName(), response.sender());
-            responseCallback.accept(response, null);
+            messenger.receive(response, null);
         } else
-            responseCallback.accept(null, new SourceRconExecutionException("Invalid response received"));
+            messenger.receive(null, new SourceRconExecutionException("Invalid response received"));
     }
 }

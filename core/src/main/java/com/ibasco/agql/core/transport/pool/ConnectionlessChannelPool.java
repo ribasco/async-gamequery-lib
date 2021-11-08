@@ -26,28 +26,25 @@ package com.ibasco.agql.core.transport.pool;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
-import io.netty.channel.pool.ChannelHealthChecker;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.channel.pool.SimpleChannelPool;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A channel pool that creates connection less {@link io.netty.channel.Channel} instances
  */
 public class ConnectionlessChannelPool extends SimpleChannelPool {
+
+    private static final Logger log = LoggerFactory.getLogger(ConnectionlessChannelPool.class);
+
     public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler) {
         super(bootstrap, handler);
     }
 
-    public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
-        super(bootstrap, handler, healthCheck);
-    }
-
-    public ConnectionlessChannelPool(Bootstrap bootstrap, ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck) {
-        super(bootstrap, handler, healthCheck, releaseHealthCheck);
-    }
-
     @Override
     protected ChannelFuture connectChannel(Bootstrap bs) {
+        log.debug("Creating a connection");
         return bs.localAddress(0).bind();
     }
 }

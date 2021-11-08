@@ -38,7 +38,7 @@ import java.util.Scanner;
 abstract public class BaseExample implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(BaseExample.class);
     private static final String EXAMPLE_PROP_FILE = "example.properties";
-    private Properties exampleProps = new Properties();
+    private final Properties exampleProps = new Properties();
 
     abstract public void run() throws Exception;
 

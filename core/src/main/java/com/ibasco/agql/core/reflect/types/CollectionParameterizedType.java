@@ -32,8 +32,8 @@ import java.util.Collection;
 
 public class CollectionParameterizedType implements ParameterizedType {
 
-    private Type type;
-    private Class<? extends Collection> classListType;
+    private final Type type;
+    private final Class<? extends Collection> classListType;
 
     public CollectionParameterizedType(Type type, Class<? extends Collection> classListType) {
         this.type = type;

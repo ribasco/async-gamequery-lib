@@ -111,7 +111,7 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
             topLiveGames.forEach(dota2TopLiveGame -> {
                 if (serverSteamId == -1)
                     serverSteamId = dota2TopLiveGame.getServerSteamId();
-                log.info("{} = {}", dota2TopLiveGame.getClass().getSimpleName(), dota2TopLiveGame.toString());
+                log.info("{} = {}", dota2TopLiveGame.getClass().getSimpleName(), dota2TopLiveGame);
             });
 
             //Stats
@@ -132,7 +132,7 @@ public class Dota2WebApiQueryEx extends BaseWebApiAuthExample {
     }
 
     private static void displayResult(Object result) {
-        log.info("{} = {}", result.getClass().getSimpleName(), result.toString());
+        log.info("{} = {}", result.getClass().getSimpleName(), result);
     }
 
     @Override

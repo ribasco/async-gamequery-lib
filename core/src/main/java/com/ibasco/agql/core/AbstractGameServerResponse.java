@@ -24,9 +24,6 @@
 
 package com.ibasco.agql.core;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.net.InetSocketAddress;
 
 abstract public class AbstractGameServerResponse<T extends Decodable<U>, U> extends AbstractResponse<U> {
@@ -52,7 +49,7 @@ abstract public class AbstractGameServerResponse<T extends Decodable<U>, U> exte
 
     @Override
     public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+        return toStringBuilder()
                 .append("type", this.getClass().getSimpleName())
                 .append("sender", sender())
                 .append("responsePacket", responsePacket)

@@ -48,8 +48,8 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
         Req extends AbstractWebApiRequest,
         Res extends AbstractWebApiResponse<JsonElement>> {
     private static final Logger log = LoggerFactory.getLogger(AbstractWebApiInterface.class);
-    private T client;
-    private GsonBuilder gsonBuilder = new GsonBuilder();
+    private final T client;
+    private final GsonBuilder gsonBuilder = new GsonBuilder();
     private Gson jsonBuilder;
 
     /**

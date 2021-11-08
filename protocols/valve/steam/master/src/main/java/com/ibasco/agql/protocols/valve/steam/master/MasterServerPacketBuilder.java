@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 public class MasterServerPacketBuilder extends AbstractPacketBuilder<MasterServerPacket> {
 
-    private static Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);
+    private static final Logger log = LoggerFactory.getLogger(MasterServerPacketBuilder.class);
 
     public MasterServerPacketBuilder(ByteBufAllocator allocator) {
         super(allocator);
@@ -78,7 +78,7 @@ public class MasterServerPacketBuilder extends AbstractPacketBuilder<MasterServe
         int packetSize = packetHeaderSize + payloadSize;
 
         //Allocate our buffer
-        final ByteBuf buf = createBuffer(packetSize);
+        ByteBuf buf = createBuffer(packetSize);
         byte[] data;
 
         try {

@@ -25,17 +25,14 @@
 package com.ibasco.agql.protocols.valve.source.query;
 
 import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.enums.ChannelType;
-import com.ibasco.agql.core.enums.ProcessingMode;
-import com.ibasco.agql.core.enums.RequestPriority;
+import com.ibasco.agql.core.enums.QueueStrategy;
 import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.messenger.GameServerMessenger;
+import com.ibasco.agql.core.session.DefaultSessionIdFactory;
 import com.ibasco.agql.core.transport.tcp.NettyPooledTcpTransport;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
-import com.ibasco.agql.protocols.valve.source.query.response.SourceRconAuthResponse;
-import com.ibasco.agql.protocols.valve.source.query.response.SourceRconCmdResponse;
 import io.netty.channel.ChannelOption;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,34 +40,35 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 
 public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
-    private Map<Integer, SourceRconRequestType> requestTypeMap = new LinkedHashMap<>();
+    private final Map<Integer, SourceRconRequestType> requestTypeMap = new LinkedHashMap<>();
 
-    private boolean terminatingPacketsEnabled = false;
+    private final boolean terminatingPacketsEnabled;
 
-    public SourceRconMessenger(boolean terminatingPacketsEnabled) {
-        super(new SourceRconSessionIdFactory(), ProcessingMode.SYNCHRONOUS);
+    private final ExecutorService executorService;
+
+    public SourceRconMessenger(boolean terminatingPacketsEnabled, ExecutorService executorService) {
+        super(new DefaultSessionIdFactory(), QueueStrategy.SYNCHRONOUS, executorService);
         this.terminatingPacketsEnabled = terminatingPacketsEnabled;
+        this.executorService = executorService;
     }
 
     @Override
-    protected Transport<SourceRconRequest> createTransportService() {
-        NettyPooledTcpTransport<SourceRconRequest> transport = new NettyPooledTcpTransport<>(ChannelType.NIO_TCP);
+    protected Transport<SourceRconRequest> createTransport() {
+        NettyPooledTcpTransport<SourceRconRequest> transport = new NettyPooledTcpTransport<>(executorService);
         transport.setChannelInitializer(new SourceRconChannelInitializer(this));
-        transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576 * 4);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 4);
         transport.addChannelOption(ChannelOption.SO_KEEPALIVE, true);
-        transport.addChannelOption(ChannelOption.TCP_NODELAY, true);
         return transport;
     }
 
     @Override
-    public CompletableFuture<SourceRconResponse> send(SourceRconRequest request, RequestPriority priority) {
-        final int requestId = request.getRequestId();
+    public CompletableFuture<SourceRconResponse> send(SourceRconRequest request) {
+        int requestId = request.getRequestId();
 
         SourceRconRequestType type = getRequestType(request);
 
@@ -81,7 +79,7 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
         //Add the request type to the map
         requestTypeMap.put(requestId, getRequestType(request));
 
-        final CompletableFuture<SourceRconResponse> futureResponse = super.send(request, priority);
+        CompletableFuture<SourceRconResponse> futureResponse = super.send(request);
         //Make sure to remove the requestId once the response future is completed
         futureResponse.whenComplete((response, error) -> {
             log.debug("Removing request id '{}' from type map", requestId);
@@ -105,16 +103,5 @@ public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, 
 
     public Map<Integer, SourceRconRequestType> getRequestTypeMap() {
         return requestTypeMap;
-    }
-
-    @Override
-    public void configureMappings(Map<Class<? extends SourceRconRequest>, Class<? extends SourceRconResponse>> map) {
-        map.put(SourceRconAuthRequest.class, SourceRconAuthResponse.class);
-        map.put(SourceRconCmdRequest.class, SourceRconCmdResponse.class);
-    }
-
-    @Override
-    public void accept(SourceRconResponse response, Throwable error) {
-        super.accept(response, error);
     }
 }

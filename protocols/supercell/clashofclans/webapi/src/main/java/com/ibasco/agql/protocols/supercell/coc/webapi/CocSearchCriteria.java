@@ -34,7 +34,7 @@ import java.util.Set;
  * A Builder class for Clan Search Criteria
  */
 public class CocSearchCriteria {
-    private Map<String, Object> criteria = new HashMap<>();
+    private final Map<String, Object> criteria = new HashMap<>();
 
     /**
      * <p>A factory method to create a {@link CocSearchCriteria} instance</p>

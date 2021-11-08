@@ -30,7 +30,7 @@ public enum MasterServerType {
     SOURCE(new InetSocketAddress("hl2master.steampowered.com", 27011)),
     GOLDSRC(new InetSocketAddress("hl1master.steampowered.com", 27010));
 
-    private InetSocketAddress masterAddress;
+    private final InetSocketAddress masterAddress;
 
     MasterServerType(InetSocketAddress address) {
         this.masterAddress = address;

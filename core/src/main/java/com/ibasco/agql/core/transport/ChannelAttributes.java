@@ -30,5 +30,5 @@ import io.netty.util.AttributeKey;
 
 public class ChannelAttributes {
     public static final AttributeKey<ChannelPool> CHANNEL_POOL = AttributeKey.valueOf("channelPool");
-    public static final AttributeKey<AbstractRequest> LAST_REQUEST_SENT = AttributeKey.valueOf("lastRequestSent");
+    public static final AttributeKey<AbstractRequest> REQUEST = AttributeKey.valueOf("request");
 }

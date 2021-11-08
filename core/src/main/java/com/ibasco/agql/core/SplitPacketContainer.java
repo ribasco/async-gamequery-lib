@@ -38,8 +38,8 @@ import java.util.function.Consumer;
  */
 public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>> {
     private static final Logger log = LoggerFactory.getLogger(SplitPacketContainer.class);
-    private TreeMap<Integer, byte[]> container = new TreeMap<>();
-    private int maxSplitPackets;
+    private final TreeMap<Integer, byte[]> container = new TreeMap<>();
+    private final int maxSplitPackets;
 
     /**
      * Primary Constructor
@@ -77,7 +77,7 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
      * @param action A {@link Consumer} callback
      */
     public void forEachEntry(Consumer<? super Map.Entry<Integer, byte[]>> action) {
-        container.entrySet().stream().forEachOrdered(action);
+        container.entrySet().forEach(action);
     }
 
     /**
@@ -95,9 +95,9 @@ public class SplitPacketContainer implements Iterable<Map.Entry<Integer, byte[]>
      * @return The total number of packets within this container
      */
     public int getPacketSize() {
-        return container.entrySet()
+        return container.values()
                 .stream()
-                .mapToInt(packetEntry -> packetEntry.getValue().length)
+                .mapToInt(bytes -> bytes.length)
                 .sum();
     }
 

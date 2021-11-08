@@ -37,6 +37,6 @@ public class SourcePlayerRequestPacket extends SourceRequestPacket {
 
     public SourcePlayerRequestPacket(int challenge) {
         setHeader(SourceGameRequest.PLAYER);
-        setPayload(ByteUtils.byteArrayFromInteger(Integer.reverseBytes(challenge)));
+        setPayload(ByteUtils.toByteArrayBE(Integer.reverseBytes(challenge)));
     }
 }

@@ -92,7 +92,7 @@ public class MasterServerRequestPacket extends MasterServerPacket {
     public byte[] getPayload() {
         String filterString = this.filter.toString();
         int payloadSize = (3 + filterString.length() + (this.startIp.length()));
-        final ByteBuf payload = PooledByteBufAllocator.DEFAULT.buffer(payloadSize);
+        ByteBuf payload = PooledByteBufAllocator.DEFAULT.buffer(payloadSize);
         try {
             payload.writeByte(getRegion());
             payload.writeBytes(getStartIp().getBytes());

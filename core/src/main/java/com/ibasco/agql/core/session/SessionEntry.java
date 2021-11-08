@@ -41,17 +41,16 @@ import java.util.concurrent.CompletableFuture;
 /**
  * Contains the details of the given Session
  */
-public class SessionValue<Req extends AbstractRequest, Res extends AbstractResponse> {
-    private static final Logger log = LoggerFactory.getLogger(SessionValue.class);
+public class SessionEntry<R extends AbstractRequest, S extends AbstractResponse> {
+    private static final Logger log = LoggerFactory.getLogger(SessionEntry.class);
 
     private Timeout timeout;
     private SessionId id;
-    private RequestDetails<Req, Res> requestDetails;
+    private RequestDetails<R, S> requestDetails;
     private final long timeRegistered = System.currentTimeMillis();
-    private Class<? extends AbstractResponse> expectedResponse;
     private long index = -1;
 
-    public SessionValue(SessionId id, RequestDetails<Req, Res> requestDetails, long index) {
+    public SessionEntry(SessionId id, RequestDetails<R, S> requestDetails, long index) {
         this.id = id;
         this.requestDetails = requestDetails;
         this.index = index;
@@ -77,32 +76,24 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
         return timeRegistered;
     }
 
-    public CompletableFuture<Res> getClientPromise() {
-        return this.requestDetails.getClientPromise();
+    public CompletableFuture<S> getClientPromise() {
+        return this.requestDetails.getPromise();
     }
 
-    public Req getRequest() {
+    public R getRequest() {
         return this.requestDetails.getRequest();
     }
 
-    public Transport<Req> getRequestTransport() {
+    public Transport<R> getRequestTransport() {
         return this.requestDetails.getTransport();
     }
 
-    public RequestDetails<Req, Res> getRequestDetails() {
+    public RequestDetails<R, S> getRequestDetails() {
         return requestDetails;
     }
 
-    public void setRequestDetails(RequestDetails<Req, Res> requestDetails) {
+    public void setRequestDetails(RequestDetails<R, S> requestDetails) {
         this.requestDetails = requestDetails;
-    }
-
-    public Class<? extends AbstractResponse> getExpectedResponse() {
-        return expectedResponse;
-    }
-
-    public void setExpectedResponse(Class<? extends AbstractResponse> expectedResponse) {
-        this.expectedResponse = expectedResponse;
     }
 
     public long getIndex() {
@@ -115,7 +106,7 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        final SessionValue<?, ?> that = (SessionValue<?, ?>) o;
+        SessionEntry<?, ?> that = (SessionEntry<?, ?>) o;
 
         return new EqualsBuilder()
                 .append(getId(), that.getId())
@@ -139,7 +130,6 @@ public class SessionValue<Req extends AbstractRequest, Res extends AbstractRespo
                 .append("Id", this.getId())
                 .append("Index", this.getIndex())
                 .append("Request", this.getRequestDetails().getRequest().getClass().getSimpleName())
-                .append("Priority", this.getRequestDetails().getPriority())
                 .append("Created", this.getTimeRegistered())
                 .toString();
     }

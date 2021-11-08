@@ -24,7 +24,6 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.enums.RequestPriority;
 import com.ibasco.agql.core.enums.RequestStatus;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
@@ -38,23 +37,22 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Contains all the properties associated with this request
+ *
+ * @deprecated
  */
-public class RequestDetails<Req extends AbstractRequest, Res extends AbstractResponse> implements Comparable<RequestDetails> {
+public class RequestDetails<R extends AbstractRequest, S extends AbstractResponse> {
     private static final Logger log = LoggerFactory.getLogger(RequestDetails.class);
-    private Req request;
-    private CompletableFuture<Res> clientPromise;
+    private R request;
+    private CompletableFuture<S> promise;
     private RequestStatus status;
-    private RequestPriority priority;
-    private Transport<Req> transport;
-    private Class<Res> expectedResponseClass;
+    private Transport<R> transport;
     private AtomicInteger retries = new AtomicInteger(0);
     private long timeCreated;
 
-    public RequestDetails(Req request, CompletableFuture<Res> clientPromise, RequestPriority priority, Transport<Req> transport) {
+    public RequestDetails(R request, CompletableFuture<S> promise, Transport<R> transport) {
         this.status = RequestStatus.NEW;
         this.request = request;
-        this.clientPromise = clientPromise;
-        this.priority = priority;
+        this.promise = promise;
         this.transport = transport;
         this.timeCreated = System.currentTimeMillis();
     }
@@ -64,48 +62,32 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
      *
      * @param requestDetails An {@link RequestDetails} that will be used as reference for the copy
      */
-    public RequestDetails(RequestDetails<Req, Res> requestDetails) {
+    public RequestDetails(RequestDetails<R, S> requestDetails) {
         this.request = requestDetails.getRequest();
-        this.clientPromise = requestDetails.getClientPromise();
+        this.promise = requestDetails.getPromise();
         this.status = requestDetails.getStatus();
-        this.priority = requestDetails.getPriority();
+        this.transport = requestDetails.getTransport();
+        this.timeCreated = System.currentTimeMillis();
         this.retries = new AtomicInteger(requestDetails.getRetries());
-        this.expectedResponseClass = requestDetails.getExpectedResponseClass();
     }
 
-    public Class<Res> getExpectedResponseClass() {
-        return expectedResponseClass;
+    public synchronized CompletableFuture<S> getPromise() {
+        return promise;
     }
 
-    public void setExpectedResponseClass(Class<Res> expectedResponseClass) {
-        this.expectedResponseClass = expectedResponseClass;
-    }
-
-    public synchronized CompletableFuture<Res> getClientPromise() {
-        return clientPromise;
-    }
-
-    public synchronized void setClientPromise(CompletableFuture<Res> clientPromise) {
-        this.clientPromise = clientPromise;
-    }
-
-    public synchronized RequestPriority getPriority() {
-        return priority;
-    }
-
-    public synchronized void setPriority(RequestPriority priority) {
-        this.priority = priority;
+    public synchronized void setPromise(CompletableFuture<S> promise) {
+        this.promise = promise;
     }
 
     public int getRetries() {
         return retries.get();
     }
 
-    public synchronized void setRequest(Req request) {
+    public synchronized void setRequest(R request) {
         this.request = request;
     }
 
-    public synchronized Req getRequest() {
+    public synchronized R getRequest() {
         return request;
     }
 
@@ -121,7 +103,7 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
         return this.retries.getAndAdd(1);
     }
 
-    public Transport<Req> getTransport() {
+    public Transport<R> getTransport() {
         return transport;
     }
 
@@ -143,7 +125,7 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
             return false;
         if (!(o instanceof RequestDetails))
             return false;
-        final RequestDetails rhs = (RequestDetails) o;
+        RequestDetails rhs = (RequestDetails) o;
         return new EqualsBuilder()
                 .append(this.getClass(), rhs.getClass())
                 .append(this.getRequest(), rhs.getRequest())
@@ -161,16 +143,10 @@ public class RequestDetails<Req extends AbstractRequest, Res extends AbstractRes
     }
 
     @Override
-    public int compareTo(RequestDetails o) {
-        return this.priority.compareTo(o.getPriority());
-    }
-
-    @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
                 .append("Request", this.getRequest().getClass().getSimpleName())
                 .append("Created", this.getTimeCreated())
-                .append("Priority", this.getPriority())
                 .append("Status", this.getStatus())
                 .toString();
     }

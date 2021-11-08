@@ -27,11 +27,10 @@ package com.ibasco.agql.core.messenger;
 import com.ibasco.agql.core.AbstractGameServerRequest;
 import com.ibasco.agql.core.AbstractGameServerResponse;
 import com.ibasco.agql.core.AbstractMessenger;
-import com.ibasco.agql.core.enums.ProcessingMode;
-import com.ibasco.agql.core.session.AbstractSessionIdFactory;
-import com.ibasco.agql.core.session.SessionManager;
+import com.ibasco.agql.core.enums.QueueStrategy;
+import com.ibasco.agql.core.session.SessionIdFactory;
 
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Messenger using the UDP Transport protocol
@@ -39,15 +38,15 @@ import java.util.concurrent.ScheduledExecutorService;
 abstract public class GameServerMessenger<A extends AbstractGameServerRequest, B extends AbstractGameServerResponse>
         extends AbstractMessenger<A, B> {
 
-    public GameServerMessenger(ProcessingMode processingMode) {
-        super(processingMode);
+    public GameServerMessenger(QueueStrategy queueStrategy, ExecutorService executorService) {
+        this(null, queueStrategy, executorService);
     }
 
-    public GameServerMessenger(AbstractSessionIdFactory keyFactory, ProcessingMode processingMode) {
-        super(keyFactory, processingMode);
+    public GameServerMessenger(SessionIdFactory idFactory, QueueStrategy queueStrategy) {
+        this(idFactory, queueStrategy, null);
     }
 
-    public GameServerMessenger(SessionManager sessionManager, ProcessingMode processingMode, int initQueueCapacity, ScheduledExecutorService executorService) {
-        super(sessionManager, processingMode, initQueueCapacity, executorService);
+    public GameServerMessenger(SessionIdFactory idFactory, QueueStrategy queueStrategy, ExecutorService executorService) {
+        super(idFactory, queueStrategy, executorService);
     }
 }

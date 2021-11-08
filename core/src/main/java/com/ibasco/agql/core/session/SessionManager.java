@@ -33,26 +33,26 @@ import java.io.Closeable;
 import java.util.Collection;
 import java.util.Map;
 
-public interface SessionManager<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
+public interface SessionManager<R extends AbstractRequest, S extends AbstractResponse> extends Closeable {
     /**
-     * Returns the {@link SessionValue} based on the {@link SessionId} provided.
-     * If multiple values exists for the same key, only the head {@link SessionValue} element will be retrieved.
-     * This is somehow similar to peek() in Queue based implementations. The ordering is guaranteed by the {@link SessionValue} index.
+     * Returns the {@link SessionEntry} based on the {@link SessionId} provided.
+     * If multiple values exists for the same key, only the head {@link SessionEntry} element will be retrieved.
+     * This is somehow similar to peek() in Queue based implementations. The ordering is guaranteed by the {@link SessionEntry} index.
      *
      * @param id The {@link SessionId} instance to be used as the lookup key.
      *
-     * @return A {@link SessionValue} or NULL if no session found for the specified id
+     * @return A {@link SessionEntry} or NULL if no session found for the specified id
      */
-    SessionValue<Req, Res> getSession(SessionId id);
+    SessionEntry<R, S> getSession(SessionId id);
 
     /**
      * Get session based on the {@link AbstractMessage} instance
      *
      * @param message The {@link AbstractMessage} instance to use for the lookup reference
      *
-     * @return A {@link SessionValue} instance if found. Null if a session does not exists for the specified {@link AbstractMessage}
+     * @return A {@link SessionEntry} instance if found. Null if a session does not exists for the specified {@link AbstractMessage}
      */
-    SessionValue<Req, Res> getSession(AbstractMessage message);
+    SessionEntry<R, S> getSession(AbstractMessage message);
 
     /**
      * Returns the session id from the registry.
@@ -71,27 +71,27 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
      *
      * @return A {@link SessionId} if the request has been successfully registered.
      */
-    SessionId register(RequestDetails<Req, Res> requestDetails);
+    SessionId create(RequestDetails<R, S> requestDetails);
 
     /**
      * Removes the associated session from the registry (if available) using a {@link SessionId} instance.
-     * This will try to retrieve the existing {@link SessionValue} from the registry using the id provided.
-     * If multiple sessions exists for this id, then only the top {@link SessionValue} will be removed.
+     * This will try to retrieve the existing {@link SessionEntry} from the registry using the id provided.
+     * If multiple sessions exists for this id, then only the top {@link SessionEntry} will be removed.
      *
      * @param id The {@link SessionId} instance to be used as the lookup reference for the session.
      *
      * @return <code>true</code> if the operation has been successful.
      */
-    boolean unregister(SessionId id);
+    boolean delete(SessionId id);
 
     /**
-     * Removes the associated session from the registry (if available) using the {@link SessionValue} provided.
+     * Removes the associated session from the registry (if available) using the {@link SessionEntry} provided.
      *
-     * @param value The {@link SessionValue} instance to be used as the lookup reference for the session.
+     * @param value The {@link SessionEntry} instance to be used as the lookup reference for the session.
      *
      * @return <code>true</code> if the operation has been successful.
      */
-    boolean unregister(SessionValue value);
+    boolean delete(SessionEntry value);
 
     /**
      * This lookups the session registry map and indicates whether or not the message is in the registry or not
@@ -105,13 +105,13 @@ public interface SessionManager<Req extends AbstractRequest, Res extends Abstrac
     /**
      * <p>Returns a flat representation of the existing entries in the session registry</p>
      *
-     * @return a collection containing entries of {@link SessionId} and {@link SessionValue} pair.
+     * @return a collection containing entries of {@link SessionId} and {@link SessionEntry} pair.
      */
-    Collection<Map.Entry<SessionId, SessionValue<Req, Res>>> getSessionEntries();
-
-    Class<? extends Res> findResponseClass(Req request);
-
-    Map<Class<? extends Req>, Class<? extends Res>> getLookupMap();
+    Collection<Map.Entry<SessionId, SessionEntry<R, S>>> getEntries();
 
     SessionIdFactory getSessionIdFactory();
+
+    void startSession(SessionId id);
+
+    void cancelSession(SessionId id);
 }

@@ -32,12 +32,13 @@ import com.google.common.util.concurrent.ListeningExecutorService;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.ibasco.agql.core.client.AbstractGameServerClient;
-import com.ibasco.agql.core.enums.RequestPriority;
+import com.ibasco.agql.core.enums.QueueStrategy;
 import com.ibasco.agql.core.exceptions.CacheTimeoutException;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryMessenger;
 import com.ibasco.agql.protocols.valve.source.query.SourceServerRequest;
 import com.ibasco.agql.protocols.valve.source.query.SourceServerResponse;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceChallengeRequest;
@@ -50,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -63,19 +65,36 @@ import java.util.concurrent.*;
 public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequest, SourceServerResponse, SourceQueryMessenger> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
+
     private static final int MAX_CHALLENGE_CACHE_SIZE = 32000;
+
     private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("cache-pool-%d").setDaemon(true).build();
-    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(64, threadFactory));
+
+    private final ListeningExecutorService executorService = MoreExecutors.listeningDecorator(Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1, threadFactory));
+
     private LoadingCache<InetSocketAddress, Integer> challengeCache;
+
     private int maxCacheSize = MAX_CHALLENGE_CACHE_SIZE;
+
     private Duration cacheExpiration = Duration.ofMinutes(15);
+
     private Duration cacheRefreshInterval = Duration.ofMinutes(10);
 
     /**
      * Default Constructor using the {@link SourceQueryMessenger}
      */
     public SourceQueryClient() {
-        super(new SourceQueryMessenger());
+        this(Executors.newCachedThreadPool());
+    }
+
+    /**
+     * Create a new {@link SourceQueryClient} with a custom {@link ExecutorService}
+     *
+     * @param executorService
+     *         The {@link ExecutorService} to be used by the underlying network transport service
+     */
+    public SourceQueryClient(ExecutorService executorService) {
+        super(new SourceQueryMessenger(QueueStrategy.ASYNCHRONOUS, executorService));
     }
 
     /**
@@ -90,7 +109,7 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address) {
-        return sendRequest(new SourceChallengeRequest(type, address), RequestPriority.HIGH);
+        return sendRequest(new SourceChallengeRequest(type, address));
     }
 
     /**
@@ -106,7 +125,9 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      * @return A {@link CompletableFuture} containing the resulting challenge {@link Integer}
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
+     * @deprecated This will be removed in the next major version
      */
+    @Deprecated
     public synchronized CompletableFuture<Integer> getServerChallengeFromCache(InetSocketAddress address) {
         return CompletableFuture.supplyAsync(() -> {
             try {
@@ -224,6 +245,7 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      *
      * @see #getPlayers(int, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
+     * @deprecated This will be removed in the future.
      */
     public CompletableFuture<List<SourcePlayer>> getPlayersCached(InetSocketAddress address) {
         return getServerChallengeFromCache(address)
@@ -239,12 +261,50 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
      */
     public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address) {
-        return sendRequest(new SourceInfoRequest(address));
+        return getServerInfo(null, address);
+    }
+
+    /**
+     * <p>Retrieves information of the Source Server</p>
+     *
+     * @param challenge
+     *         The challenge number to be used for the request
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     *
+     * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
+     */
+    public CompletableFuture<SourceServer> getServerInfo(Integer challenge, InetSocketAddress address) {
+        return sendRequest(new SourceInfoRequest(challenge, address)).handle((result, error) -> {
+            if (error != null)
+                throw new CompletionException(error);
+            if (result != null && !(result instanceof SourceServer))
+                throw new CompletionException(new SourceChallengeException((Integer) result));
+            return (SourceServer) result;
+        });
+    }
+
+    /**
+     * <p>Retrieves information of the Source Server</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     *
+     * @param override
+     *          Set to {@code true} to attempt to query server regardless if a challenge number is required or not
+     *
+     * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
+     */
+    public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address, boolean override) {
+        return sendRequest(new SourceInfoRequest(address, override));
     }
 
     /**
      * @return The maxmimum size allowable for the internal challenge cache
+     *
+     * @deprecated
      */
+    @Deprecated
     public int getMaxCacheSize() {
         return maxCacheSize;
     }
@@ -254,14 +314,20 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      *
      * @param maxCacheSize
      *         An int representing the cache size
+     *
+     * @deprecated
      */
+    @Deprecated
     public void setMaxCacheSize(int maxCacheSize) {
         this.maxCacheSize = maxCacheSize;
     }
 
     /**
      * @return Returns the duration (in minutes) used by the internal cache service to expire entries.
+     *
+     * @deprecated
      */
+    @Deprecated
     public long getCacheExpiration() {
         return cacheExpiration.toMinutes();
     }
@@ -269,7 +335,10 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     /**
      * @param cacheExpiration
      *         A {@link Duration} instance representing the time it will take to expire cached entries
+     *
+     * @deprecated
      */
+    @Deprecated
     public void setCacheExpiration(Duration cacheExpiration) {
         this.cacheExpiration = cacheExpiration;
     }
@@ -277,14 +346,18 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
     /**
      * @param cacheExpiration
      *         A number representing the duration (in minutes) to expire cached entries
+     * @deprecated
      */
+    @Deprecated
     public void setCacheExpiration(long cacheExpiration) {
         setCacheExpiration(Duration.ofMinutes(cacheExpiration));
     }
 
     /**
      * @return A {@link Duration} representing the time it will take to refersh a challenge in the internal cache
+     * @deprecated
      */
+    @Deprecated
     public Duration getCacheRefreshInterval() {
         return cacheRefreshInterval;
     }
@@ -294,7 +367,9 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      *
      * @param cacheRefreshInterval
      *         The {@link Duration} representing the refresh interval for each cached entry
+     * @deprecated
      */
+    @Deprecated
     public void setCacheRefreshInterval(Duration cacheRefreshInterval) {
         this.cacheRefreshInterval = cacheRefreshInterval;
     }
@@ -303,36 +378,85 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
      * Retrieve the internal challenge cache of this instance
      *
      * @return A {@link LoadingCache} containing a map of {@link InetSocketAddress} keys and {@link Integer} values.
+     *
+     * @deprecated
      */
+    @Deprecated
     public synchronized LoadingCache<InetSocketAddress, Integer> getChallengeCache() {
         //lazy-loaded
         if (challengeCache == null) {
             log.debug("Building new cache...");
             challengeCache = CacheBuilder.newBuilder()
-                    .maximumSize(maxCacheSize)
-                    .expireAfterWrite(cacheExpiration.toMillis(), TimeUnit.MILLISECONDS)
-                    .refreshAfterWrite(cacheRefreshInterval.toMillis(), TimeUnit.MILLISECONDS)
-                    .recordStats()
-                    .build(new CacheLoader<InetSocketAddress, Integer>() {
-                        @Override
-                        public Integer load(InetSocketAddress key) throws Exception {
-                            return getServerChallenge(SourceChallengeType.ANY, key).get();
-                        }
+                                         .maximumSize(maxCacheSize)
+                                         .expireAfterWrite(cacheExpiration.toMillis(), TimeUnit.MILLISECONDS)
+                                         .refreshAfterWrite(cacheRefreshInterval.toMillis(), TimeUnit.MILLISECONDS)
+                                         //.recordStats()
+                                         .build(new CacheLoader<InetSocketAddress, Integer>() {
+                                             @Override
+                                             public Integer load(InetSocketAddress key) throws Exception {
+                                                 return getServerChallenge(SourceChallengeType.ANY, key).get();
+                                             }
 
-                        @Override
-                        public ListenableFuture<Integer> reload(InetSocketAddress key, Integer oldValue) throws Exception {
-                            log.debug("Refreshing challenge number for : {}, Old Value = {}", key, oldValue);
-                            return executorService.submit(() -> load(key));
-                        }
-                    });
+                                             @Override
+                                             public ListenableFuture<Integer> reload(InetSocketAddress key, Integer oldValue) throws Exception {
+                                                 log.debug("Refreshing challenge number for : {}, Old Value = {}", key, oldValue);
+
+                                                 CompletableFuture<Integer> cf = getServerChallenge(SourceChallengeType.ANY, key);
+
+                                                 //noinspection NullableProblems
+                                                 return new ListenableFuture() {
+                                                     private final Map<Runnable, Executor> listeners = new HashMap<>();
+
+                                                     {
+                                                         cf.whenComplete((integer, ex) -> {
+                                                             if (ex != null) {
+
+                                                                 return;
+                                                             }
+                                                             for (Map.Entry<Runnable, Executor> e : listeners.entrySet()) {
+                                                                 e.getValue().execute(e.getKey());
+                                                             }
+                                                         });
+                                                     }
+
+                                                     @Override
+                                                     public void addListener(Runnable listener, Executor executor) {
+                                                         listeners.put(listener, executor);
+                                                     }
+
+                                                     @Override
+                                                     public boolean cancel(boolean mayInterruptIfRunning) {
+                                                         return cf.cancel(mayInterruptIfRunning);
+                                                     }
+
+                                                     @Override
+                                                     public boolean isCancelled() {
+                                                         return cf.isCancelled();
+                                                     }
+
+                                                     @Override
+                                                     public boolean isDone() {
+                                                         return cf.isDone();
+                                                     }
+
+                                                     @Override
+                                                     public Integer get() throws InterruptedException, ExecutionException {
+                                                         return cf.get();
+                                                     }
+
+                                                     @Override
+                                                     public Integer get(long timeout, TimeUnit unit) throws InterruptedException, ExecutionException, TimeoutException {
+                                                         return cf.get(timeout, unit);
+                                                     }
+                                                 };//executorService.submit(() -> load(key));
+                                             }
+                                         });
         }
         return challengeCache;
     }
 
     /**
      * Method that tries to perform a graceful shutdown of the client
-     *
-     * @throws IOException
      */
     @Override
     public void close() throws IOException {
@@ -340,7 +464,9 @@ public class SourceQueryClient extends AbstractGameServerClient<SourceServerRequ
         getChallengeCache().cleanUp();
         try {
             executorService.shutdown();
-            executorService.awaitTermination(10, TimeUnit.SECONDS);
+            if (!executorService.awaitTermination(10, TimeUnit.SECONDS)) {
+                log.debug("Timeout elapsed while shutting down source query client");
+            }
         } catch (InterruptedException e) {
             log.error("Interrupted Shutdown", e);
         }

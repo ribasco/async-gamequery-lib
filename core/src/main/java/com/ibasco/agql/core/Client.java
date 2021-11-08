@@ -27,6 +27,6 @@ package com.ibasco.agql.core;
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
-public interface Client<Req extends AbstractRequest, Res extends AbstractResponse> extends Closeable {
-    <V> CompletableFuture<V> sendRequest(Req message);
+public interface Client<R extends AbstractRequest, S extends AbstractResponse> extends Closeable {
+    <V> CompletableFuture<V> sendRequest(R message);
 }

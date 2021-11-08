@@ -24,12 +24,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
+import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.core.exceptions.AsyncGameLibCheckedException;
 import com.ibasco.agql.core.exceptions.NoResponseFoundForPacket;
-import com.ibasco.agql.protocols.valve.source.query.SourcePacketBuilder;
-import com.ibasco.agql.protocols.valve.source.query.SourceResponseFactory;
-import com.ibasco.agql.protocols.valve.source.query.SourceResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.SourceServerResponse;
+import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.utils.ByteUtils;
+import com.ibasco.agql.protocols.valve.source.query.*;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
 import io.netty.handler.codec.MessageToMessageDecoder;
@@ -46,35 +46,50 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<DatagramPa
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryPacketDecoder.class);
 
-    private SourcePacketBuilder builder;
-    private BiConsumer<SourceServerResponse, Throwable> responseHandler;
+    private final SourcePacketBuilder builder;
 
-    public SourceQueryPacketDecoder(BiConsumer<SourceServerResponse, Throwable> responseHandler, SourcePacketBuilder builder) {
+    private final Messenger<SourceServerRequest, SourceServerResponse> messenger;
+
+    public SourceQueryPacketDecoder(Messenger<SourceServerRequest, SourceServerResponse> messenger, SourcePacketBuilder builder) {
         this.builder = builder;
-        this.responseHandler = responseHandler;
+        this.messenger = messenger;
     }
 
     @Override
     @SuppressWarnings("unchecked")
-    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, DatagramPacket msg, List<Object> out) {
         //Create our response packet from the datagram we received
-        final SourceResponsePacket packet = builder.construct(msg.content());
+        SourceResponsePacket packet = builder.construct(msg.content());
+
         if (packet != null) {
+            SourceServerResponse response = null;
+            Throwable error = null;
             try {
-                SourceServerResponse response = SourceResponseFactory.createResponseFrom(packet);
-                if (response != null) {
-                    response.setSender(msg.sender());
-                    response.setRecipient(msg.recipient());
-                    response.setResponsePacket(packet);
-                    log.debug("Receiving Data '{}' from '{}' using Channel Id: {}", response.getClass().getSimpleName(), ctx.channel().remoteAddress(), ctx.channel().id());
-                    //Pass the message back to the messenger
-                    responseHandler.accept(response, null);
-                    return;
+                response = SourceResponseFactory.createResponse(packet);
+                if (response == null)
+                    throw new NoResponseFoundForPacket("Could not find a response handler for the received datagram packet", packet);
+                response.setTransactionId(ctx.channel().id().asShortText());
+                response.setSender(msg.sender());
+                response.setRecipient(msg.recipient());
+                response.setResponsePacket(packet);
+                //for debugging
+                if (log.isDebugEnabled()) {
+                    msg.content().markReaderIndex();
+                    byte[] data = new byte[msg.content().readableBytes()];
+                    msg.content().readBytes(data);
+                    msg.content().resetReaderIndex();
+                    log.debug("Decoded response '{}' from '{}' (Id: {}, Size: {}, Data: {})", response.getClass().getSimpleName(), msg.sender(), response.id(), data.length, ByteUtils.toFormattedHex(data));
                 }
-            } catch (Exception e) {
-                responseHandler.accept(null, new AsyncGameLibCheckedException("Error while decoding source query response", e));
+
+            } catch (Throwable e) {
+                error = new AsyncGameLibCheckedException("Error while decoding source query response", e);
+            } finally {
+                //Pass the message back to the messenger
+                messenger.receive(response, error);
             }
+        } else {
+            log.error("Response packet is null for request: {}", ctx.channel().attr(ChannelAttributes.REQUEST));
         }
-        throw new NoResponseFoundForPacket("Could not find a response handler for the received datagram packet", packet);
+
     }
 }

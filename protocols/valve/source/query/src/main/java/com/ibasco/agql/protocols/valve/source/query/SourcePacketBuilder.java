@@ -74,7 +74,6 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
     public <T extends SourceServerPacket> T construct(ByteBuf data) {
         //Mark Index
         data.markReaderIndex();
-
         try {
             //Reset the index
             data.readerIndex(0);
@@ -108,10 +107,11 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
             if (packet == null)
                 return null;
 
-            packet.setProtocolHeader(ByteUtils.byteArrayFromInteger(protocolHeader));
+            packet.setProtocolHeader(ByteUtils.toByteArrayLE(protocolHeader));
             packet.setHeader(packetHeader);
             packet.setPayload(payload);
 
+            //noinspection unchecked
             return (T) packet;
         } finally {
             data.resetReaderIndex();
@@ -140,7 +140,7 @@ public class SourcePacketBuilder extends AbstractPacketBuilder<SourceServerPacke
         int packetSize = protocolHeaderSize + packetHeaderSize + payloadSize;
 
         //Allocate our buffer
-        final ByteBuf buf = createBuffer(packetSize);
+        ByteBuf buf = createBuffer(packetSize);
         byte[] data;
 
         try {

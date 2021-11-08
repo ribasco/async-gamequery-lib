@@ -26,8 +26,8 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppDetails;
-import static org.junit.Assert.*;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -35,9 +35,9 @@ import java.util.Properties;
 
 public class SteamStorefrontIT {
 
-    private SteamWebApiClient apiClient;
+    private final SteamWebApiClient apiClient;
 
-    private SteamStorefront storeFront;
+    private final SteamStorefront storeFront;
 
     public SteamStorefrontIT() throws IOException, URISyntaxException {
         Properties testProps = new Properties();

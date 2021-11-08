@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -52,21 +53,21 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
      * we need to create a map for each type of response to avoid conflicts.
      */
     //FIX: Different servers can return the same request id, so using the request id as the sole key can cause conflicts
-    //TODO: In case we don't recieve a split packet response at a certain point in time, we need to define some sort of retention policy, perhaps we use CacheBuilder instead of map?
-    private Map<SplitPacketKey, SplitPacketContainer> requestMap = new ConcurrentHashMap<>();
+    private final Map<SplitPacketKey, SplitPacketContainer> requestMap = new ConcurrentHashMap<>();
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        log.trace("SourcePacketHandler.channelRead() : START");
+        log.trace("channelRead() : START");
 
         try {
             //Make sure we are only receiving an instance of DatagramPacket
             if (!(msg instanceof DatagramPacket)) {
+                ctx.fireChannelRead(msg);
                 return;
             }
 
-            final DatagramPacket packet = (DatagramPacket) msg;
-            final ByteBuf data = ((DatagramPacket) msg).content();
+            DatagramPacket packet = (DatagramPacket) msg;
+            ByteBuf data = packet.content();
 
             //Verify size
             if (data.readableBytes() <= 5) {
@@ -85,7 +86,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             }
             //If the packet is a split type...we need to process each succeeding read until we have a complete packet
             else if (protocolHeader == 0xFFFFFFFE) {
-                final ByteBuf reassembledPacket = processSplitPackets(data, ctx.channel().alloc(), packet.sender());
+                ByteBuf reassembledPacket = processSplitPackets(data, ctx.channel().alloc(), packet.sender());
                 //Check if we already have a reassembled packet
                 if (reassembledPacket != null) {
                     ctx.fireChannelRead(packet.replace(reassembledPacket));
@@ -95,16 +96,14 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             //Packet is not being handled by any of our processors, discard
             else {
                 log.debug("Not a valid protocol header. Discarding. (Header Received: Dec = {}, Hex = {})", protocolHeader, Integer.toHexString(protocolHeader));
+                ctx.fireChannelRead(msg);
                 return;
             }
-        } catch (Exception e) {
-            log.error(String.format("Error while processing packet for %s", ((DatagramPacket) msg).sender()), e);
-            throw e;
-        } finally {
+        }  finally {
             //Release the message
             ReferenceCountUtil.release(msg);
         }
-        log.trace("SourcePacketHandler.channelRead() : END");
+        log.trace("channelRead() : END");
     }
 
     /**
@@ -115,9 +114,8 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
      * @param allocator
      *         The {@link ByteBufAllocator} used to create/allocate pooled buffers
      *
-     * @return Returns a non-null {@link ByteBuf} if the split-packets have been assembled. Null if the
+     * @return Returns a non-null {@link ByteBuf} if the split-packets have been assembled. Null indicating that we still don't have a complete packet.
      *
-     * @throws Exception
      */
     private ByteBuf processSplitPackets(ByteBuf data, ByteBufAllocator allocator, InetSocketAddress senderAddress) throws Exception {
         int packetCount, packetNumber, requestId, splitSize, packetChecksum = 0;
@@ -133,7 +131,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
         packetNumber = data.readByte();
 
         //Create our key for this request (request id + sender ip)
-        final SplitPacketKey key = new SplitPacketKey(requestId, senderAddress);
+        SplitPacketKey key = new SplitPacketKey(requestId, senderAddress);
 
         log.debug("Processing split packet {}", key);
 
@@ -167,7 +165,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
             //Retrieve total split packets received based on their length
             int packetSize = splitPackets.getPacketSize();
             //Allocate a new buffer to store the re-assembled packets
-            final ByteBuf packetBuffer = allocator.buffer(packetSize);
+            ByteBuf packetBuffer = allocator.buffer(packetSize);
             boolean done = false;
             try {
                 //Start re-assembling split-packets from the container
@@ -180,7 +178,6 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
                 if (done)
                     requestMap.remove(key);
             }
-
             return packetBuffer;
         }
 
@@ -242,12 +239,12 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
     }
 
     public static final class SplitPacketKey {
-        private Integer requestId;
-        private InetSocketAddress address;
+        private final Integer requestId;
+        private final InetSocketAddress address;
 
         public SplitPacketKey(Integer requestId, InetSocketAddress address) {
-            this.requestId = requestId;
-            this.address = address;
+            this.requestId = Objects.requireNonNull(requestId, "Missing request id");
+            this.address = Objects.requireNonNull(address, "Missing address");
         }
 
         @Override
@@ -256,14 +253,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
                 return false;
             if (o == this)
                 return true;
-
-            final SplitPacketKey rhs = (SplitPacketKey) o;
-
-            if (requestId == null && rhs.requestId != null)
-                return false;
-            if (address == null && rhs.address != null)
-                return false;
-
+            SplitPacketKey rhs = (SplitPacketKey) o;
             return new EqualsBuilder()
                     .append(requestId, rhs.requestId)
                     .append(address.getAddress().getHostAddress(), rhs.address.getAddress().getHostAddress())
@@ -281,10 +271,7 @@ public class SourceQueryPacketAssembler extends ChannelInboundHandlerAdapter {
 
         @Override
         public String toString() {
-            return "RconSplitPacketBuilder{" +
-                    "requestId='" + requestId + '\'' +
-                    ", address=" + address +
-                    '}';
+            return String.format("[SplitPacketKey]: Request ID = %s, Address = %s", requestId, address);
         }
     }
 }

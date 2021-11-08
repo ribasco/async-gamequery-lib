@@ -45,6 +45,8 @@ import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * A client used for executing commands to the Source Server using the Valve RCON Protocol
@@ -62,7 +64,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
     /**
      * Contains a map of authenticated request ids with the server address as the key
      */
-    private Map<InetSocketAddress, String> credentialsMap;
+    private final Map<InetSocketAddress, String> credentialsMap;
 
     /**
      * Default Constructor. By default, terminating packets are sent for every command
@@ -80,7 +82,21 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *         Set to <code>true</code> to send terminator packets for every command.
      */
     public SourceRconClient(boolean sendTerminatingPacket) {
-        super(new SourceRconMessenger(sendTerminatingPacket));
+        this(sendTerminatingPacket, Executors.newSingleThreadExecutor());
+    }
+
+    /**
+     * Some games (e.g. Minecraft) do not support terminator packets, if this is the case and you get an
+     * error after sending a command, try to disable this feature by setting the <code>sendTerminatingPacket</code> flag
+     * to <code>false</code>.
+     *
+     * @param sendTerminatingPacket
+     *         Set to <code>true</code> to send terminator packets for every command.
+     * @param executorService
+     *         The executor service to be used
+     */
+    public SourceRconClient(boolean sendTerminatingPacket, ExecutorService executorService) {
+        super(new SourceRconMessenger(sendTerminatingPacket, executorService));
         credentialsMap = new ConcurrentHashMap<>();
     }
 
@@ -111,7 +127,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
 
         int id = SourceRconUtil.createRequestId();
         log.debug("[AUTH]: Request with id: {}", id);
-        CompletableFuture<SourceRconAuthStatus> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password), RequestPriority.HIGH);
+        CompletableFuture<SourceRconAuthStatus> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password));
         authRequestFuture.whenComplete((status, error) -> {
             log.debug("[AUTH] Response : Status: {}, Error: {}", status, (error != null) ? error.getMessage() : "N/A");
             if (error != null) {
@@ -161,7 +177,7 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
         if (!isAuthenticated(address))
             throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
 
-        final Integer id = SourceRconUtil.createRequestId();
+        Integer id = SourceRconUtil.createRequestId();
 
         CompletableFuture<String> response;
 

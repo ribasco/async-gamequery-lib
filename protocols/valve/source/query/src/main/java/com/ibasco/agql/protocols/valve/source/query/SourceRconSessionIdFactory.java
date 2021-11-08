@@ -36,13 +36,9 @@ import com.ibasco.agql.core.session.SessionId;
 public class SourceRconSessionIdFactory extends AbstractSessionIdFactory<SourceRconRequest, SourceRconResponse> {
     @Override
     public SessionId createId(AbstractMessage message) {
-        if (!(message instanceof SourceRconMessage)) {
+        if (!(message instanceof SourceRconMessage))
             throw new IllegalStateException("Message is not an instance of SourceRconMessage");
-        }
-        /*String id = new StringBuffer().append(createIdStringFromMsg(message)).toString();*/
-        String id = new StringBuffer().append(createIdStringFromMsg(message)).append(":")
-                .append(((SourceRconMessage) message).getRequestId()).toString();
-        return new SessionId(id);
+        return new SessionId(createIdStringFromMsg(message) + ":" + ((SourceRconMessage) message).getRequestId());
     }
 
     @Override

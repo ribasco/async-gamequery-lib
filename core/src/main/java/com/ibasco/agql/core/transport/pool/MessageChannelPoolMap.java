@@ -47,13 +47,13 @@ import java.util.function.Function;
 public class MessageChannelPoolMap<M extends AbstractMessage, K>
         implements ChannelPoolMap<M, ChannelPool>, Iterable<Map.Entry<K, ChannelPool>>, Closeable {
 
-    private Function<M, K> keyResolver;
-    private Function<K, ChannelPool> poolFactory;
+    private final Function<M, K> keyResolver;
+    private final Function<K, ChannelPool> poolFactory;
 
     /**
      * The internal {@link ChannelPoolMap} implementation that use the actual key type for the map
      */
-    private AbstractChannelPoolMap<K, ChannelPool> internalPoolMap = new AbstractChannelPoolMap<K, ChannelPool>() {
+    private final AbstractChannelPoolMap<K, ChannelPool> internalPoolMap = new AbstractChannelPoolMap<K, ChannelPool>() {
         @Override
         protected ChannelPool newPool(K key) {
             return poolFactory.apply(key);

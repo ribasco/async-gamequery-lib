@@ -24,14 +24,14 @@
 
 package com.ibasco.agql.protocols.valve.steam.master;
 
+import com.google.common.collect.Multimap;
 import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.enums.ChannelType;
-import com.ibasco.agql.core.enums.ProcessingMode;
+import com.ibasco.agql.core.enums.QueueStrategy;
 import com.ibasco.agql.core.messenger.GameServerMessenger;
 import com.ibasco.agql.core.transport.udp.NettyPooledUdpTransport;
 import io.netty.channel.ChannelOption;
 
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by raffy on 10/22/2016.
@@ -39,22 +39,18 @@ import java.util.Map;
 public class MasterServerMessenger extends GameServerMessenger<MasterServerRequest, MasterServerResponse> {
 
     public MasterServerMessenger() {
-        super(ProcessingMode.ASYNCHRONOUS);
+        this(null);
+    }
+
+    public MasterServerMessenger(ExecutorService executorService) {
+        super(QueueStrategy.ASYNCHRONOUS, executorService);
     }
 
     @Override
-    protected Transport<MasterServerRequest> createTransportService() {
-        NettyPooledUdpTransport<MasterServerRequest> transport = new NettyPooledUdpTransport<>(ChannelType.NIO_UDP);
+    protected Transport<MasterServerRequest> createTransport() {
+        NettyPooledUdpTransport<MasterServerRequest> transport = new NettyPooledUdpTransport<>(getExecutorService());
         //Set our channel initializer
         transport.setChannelInitializer(new MasterServerChannelInitializer(this));
-        //Channel Options
-        transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576 * 8);
         return transport;
-    }
-
-    @Override
-    public void configureMappings(Map<Class<? extends MasterServerRequest>, Class<? extends MasterServerResponse>> map) {
-        map.put(MasterServerRequest.class, MasterServerResponse.class);
     }
 }

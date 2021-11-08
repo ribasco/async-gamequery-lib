@@ -32,6 +32,8 @@ import io.netty.channel.pool.ChannelPool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * A pooled udp transport implementation
  *
@@ -40,18 +42,7 @@ import org.slf4j.LoggerFactory;
 public class NettyPooledUdpTransport<M extends AbstractRequest> extends NettyPooledTransport<M, Class<?>> {
     private static final Logger log = LoggerFactory.getLogger(NettyPooledUdpTransport.class);
 
-    public NettyPooledUdpTransport(ChannelType channelType) {
-        super(channelType);
-    }
-
-    @Override
-    public Class<?> createKey(M message) {
-        return message.getClass();
-    }
-
-    @Override
-    public ChannelPool createChannelPool(Class<?> key) {
-        log.debug("Creating Channel Pool For : {}", key.getSimpleName());
-        return new ConnectionlessChannelPool(getBootstrap(), channelPoolHandler);
+    public NettyPooledUdpTransport(ExecutorService executor) {
+        super(ChannelType.NIO_UDP, executor);
     }
 }

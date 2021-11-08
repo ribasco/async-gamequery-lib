@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.packets.request;
 
+import com.ibasco.agql.core.utils.ByteUtils;
 import com.ibasco.agql.protocols.valve.source.query.SourceRequestPacket;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceGameRequest;
 
@@ -32,8 +33,45 @@ import com.ibasco.agql.protocols.valve.source.query.enums.SourceGameRequest;
  */
 public class SourceInfoRequestPacket extends SourceRequestPacket {
 
+    private static final byte[] INFO_PAYLOAD = "Source Engine Query\0".getBytes();
+
+    /**
+     * Creates a new source info request packet (no challenge)
+     */
     public SourceInfoRequestPacket() {
+        this(null);
+    }
+
+    public SourceInfoRequestPacket(Integer challenge) {
+        this(challenge, false);
+    }
+
+    public SourceInfoRequestPacket(Integer challenge, boolean override) {
         setHeader(SourceGameRequest.INFO);
-        setPayload("Source Engine Query\0".getBytes());
+        byte[] payload;
+        if (override) {
+            payload = new byte[1395];
+            System.arraycopy(INFO_PAYLOAD, 0, payload, 0, INFO_PAYLOAD.length);
+            if (challenge != null) {
+                byte[] challengeBytes = ByteUtils.toByteArrayLE(challenge);
+                System.arraycopy(challengeBytes, 0, payload, INFO_PAYLOAD.length, challengeBytes.length);
+            }
+        } else {
+            if (challenge != null) {
+                payload = new byte[24];
+                System.arraycopy(INFO_PAYLOAD, 0, payload, 0, INFO_PAYLOAD.length);
+                byte[] challengeBytes = ByteUtils.toByteArrayLE(challenge);
+                System.arraycopy(challengeBytes, 0, payload, INFO_PAYLOAD.length, challengeBytes.length);
+            } else {
+                payload = new byte[20];
+                System.arraycopy(INFO_PAYLOAD, 0, payload, 0, INFO_PAYLOAD.length);
+            }
+        }
+        setPayload(payload);
+    }
+
+    @Override
+    public String toString() {
+        return "SourceInfoRequestPacket{}";
     }
 }

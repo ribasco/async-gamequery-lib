@@ -24,10 +24,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.google.common.collect.Multimap;
 import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.enums.ChannelType;
-import com.ibasco.agql.core.enums.ProcessingMode;
+import com.ibasco.agql.core.enums.QueueStrategy;
 import com.ibasco.agql.core.messenger.GameServerMessenger;
+import com.ibasco.agql.core.session.SessionManager;
+import com.ibasco.agql.core.session.SessionEntry;
 import com.ibasco.agql.core.transport.udp.NettyPooledUdpTransport;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceChallengeRequest;
 import com.ibasco.agql.protocols.valve.source.query.request.SourceInfoRequest;
@@ -42,7 +44,7 @@ import io.netty.channel.FixedRecvByteBufAllocator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by raffy on 9/14/2016.
@@ -53,24 +55,20 @@ public class SourceQueryMessenger extends GameServerMessenger<SourceServerReques
 
     public SourceQueryMessenger() {
         //Use the default session manager
-        super(ProcessingMode.ASYNCHRONOUS);
+        this(QueueStrategy.ASYNCHRONOUS, null);
+    }
+
+    public SourceQueryMessenger(QueueStrategy queueStrategy, ExecutorService executorService) {
+        //Use the default session manager
+        super(queueStrategy, executorService);
     }
 
     @Override
-    protected Transport<SourceServerRequest> createTransportService() {
-        NettyPooledUdpTransport<SourceServerRequest> transport = new NettyPooledUdpTransport<>(ChannelType.NIO_UDP);
+    protected Transport<SourceServerRequest> createTransport() {
+        log.debug("Creating UDP Pooled Transport for '{}'", getClass().getSimpleName());
+        NettyPooledUdpTransport<SourceServerRequest> transport = new NettyPooledUdpTransport<>(getExecutorService());
         transport.setChannelInitializer(new SourceQueryChannelInitializer(this));
-        transport.addChannelOption(ChannelOption.SO_SNDBUF, 1048576);
-        transport.addChannelOption(ChannelOption.SO_RCVBUF, 1048576);
         transport.addChannelOption(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(1400));
         return transport;
-    }
-
-    @Override
-    public void configureMappings(Map<Class<? extends SourceServerRequest>, Class<? extends SourceServerResponse>> map) {
-        map.put(SourceInfoRequest.class, SourceInfoResponse.class);
-        map.put(SourceChallengeRequest.class, SourceChallengeResponse.class);
-        map.put(SourcePlayerRequest.class, SourcePlayerResponse.class);
-        map.put(SourceRulesRequest.class, SourceRulesResponse.class);
     }
 }

@@ -67,7 +67,7 @@ public class SourceLogListenService implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenService.class);
     private static final NioEventLoopGroup listenWorkGroup = new NioEventLoopGroup();
     private InetSocketAddress listenAddress;
-    private Bootstrap bootstrap;
+    private final Bootstrap bootstrap;
     private Consumer<SourceLogEntry> logEventCallback;
 
     /**
@@ -112,17 +112,14 @@ public class SourceLogListenService implements Closeable {
 
         SourceLogListenService service = this;
         //Add shutdown hook
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                try {
-                    log.debug("Service Interrupted. Shutting down gracefully.");
-                    service.shutdown();
-                } catch (InterruptedException e) {
-                    log.error(e.getMessage(), e);
-                }
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            try {
+                log.debug("Service Interrupted. Shutting down gracefully.");
+                service.shutdown();
+            } catch (InterruptedException e) {
+                log.error(e.getMessage(), e);
             }
-        });
+        }));
     }
 
     /**
@@ -154,9 +151,11 @@ public class SourceLogListenService implements Closeable {
 
     /**
      * Start listening for log messages
+     *
+     * @throws InterruptedException When the service is interrupted
      */
     public void listen() throws InterruptedException {
-        final ChannelFuture bindFuture = bootstrap.localAddress(listenAddress).bind().await();
+        ChannelFuture bindFuture = bootstrap.localAddress(listenAddress).bind().await();
         bindFuture.addListener((ChannelFuture future) -> {
             String hostAddress = ((InetSocketAddress) future.channel().localAddress()).getAddress().getHostAddress();
             int port = ((InetSocketAddress) future.channel().localAddress()).getPort();
@@ -167,12 +166,9 @@ public class SourceLogListenService implements Closeable {
 
     /**
      * <p>Tries to shutdown the listener gracefully</p>
-     *
-     * @throws InterruptedException
      */
     public void shutdown() throws InterruptedException {
-        listenWorkGroup.shutdownGracefully();
-        listenWorkGroup.awaitTermination(10, TimeUnit.SECONDS);
+        listenWorkGroup.shutdownGracefully(10, 10, TimeUnit.SECONDS);
     }
 
     /**

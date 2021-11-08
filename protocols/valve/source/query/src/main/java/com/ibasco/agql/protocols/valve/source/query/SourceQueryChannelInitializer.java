@@ -24,6 +24,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.core.transport.NettyChannelInitializer;
 import com.ibasco.agql.core.transport.NettyTransport;
 import com.ibasco.agql.core.transport.handlers.ErrorHandler;
@@ -40,18 +41,19 @@ public class SourceQueryChannelInitializer implements NettyChannelInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryChannelInitializer.class);
 
-    private BiConsumer<SourceServerResponse, Throwable> responseHandler;
+    private final Messenger<SourceServerRequest, SourceServerResponse> messenger;
 
-    public SourceQueryChannelInitializer(BiConsumer<SourceServerResponse, Throwable> responseHandler) {
-        this.responseHandler = responseHandler;
+    public SourceQueryChannelInitializer(Messenger<SourceServerRequest, SourceServerResponse> messenger) {
+        this.messenger = messenger;
     }
 
     @Override
     public void initializeChannel(Channel channel, NettyTransport transport) {
         SourcePacketBuilder builder = new SourcePacketBuilder(transport.getAllocator());
+        log.debug("Initializing channel '{}' for sourc query", channel);
         channel.pipeline().addLast(new SourceQueryRequestEncoder(builder));
         channel.pipeline().addLast(new SourceQueryPacketAssembler());
-        channel.pipeline().addLast(new SourceQueryPacketDecoder(responseHandler, builder));
+        channel.pipeline().addLast(new SourceQueryPacketDecoder(messenger, builder));
         channel.pipeline().addLast(new ErrorHandler());
     }
 }

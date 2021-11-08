@@ -25,7 +25,6 @@
 package com.ibasco.agql.core.transport;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import com.ibasco.agql.core.AbstractMessage;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.enums.ChannelType;
@@ -36,6 +35,8 @@ import io.netty.channel.*;
 import io.netty.channel.epoll.Epoll;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.handler.timeout.ReadTimeoutHandler;
+import io.netty.handler.timeout.WriteTimeoutHandler;
 import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,48 +44,58 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.spi.SelectorProvider;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
-@SuppressWarnings("unchecked")
-abstract public class NettyTransport<Msg extends AbstractRequest> implements Transport<Msg> {
-    private Bootstrap bootstrap;
-    private EventLoopGroup eventLoopGroup;
+@SuppressWarnings({"unchecked", "SameParameterValue"})
+abstract public class NettyTransport<M extends AbstractRequest> implements Transport<M> {
+
+    private final Bootstrap bootstrap;
+
+    private final EventLoopGroup eventLoopGroup;
+
     private final ByteBufAllocator allocator = PooledByteBufAllocator.DEFAULT;
+
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
+
     private NettyChannelInitializer channelInitializer;
-    private ExecutorService executorService;
+
+    private final ExecutorService executorService;
 
     public NettyTransport(ChannelType channelType) {
         this(channelType, Executors.newFixedThreadPool(8, new ThreadFactoryBuilder().setNameFormat("transport-el-%d").setDaemon(true).build()));
     }
 
     public NettyTransport(ChannelType channelType, ExecutorService executor) {
-        executorService = executor;
-        bootstrap = new Bootstrap();
-
         //Make sure we have a type set
         if (channelType == null)
             throw new IllegalStateException("No channel type has been specified");
-
-        //Pick the proper event loop group
-        if (eventLoopGroup == null) {
-            eventLoopGroup = createEventLoopGroup(channelType);
-        }
-
-        //Default Channel Options
-        addChannelOption(ChannelOption.ALLOCATOR, allocator);
-        addChannelOption(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
-        addChannelOption(ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000);
 
         //Set resource leak detection if debugging is enabled
         if (log.isDebugEnabled())
             ResourceLeakDetector.setLevel(ResourceLeakDetector.Level.ADVANCED);
 
         //Initialize bootstrap
+        Bootstrap bootstrap = new Bootstrap();
+
+        //Create event loop group
+        EventLoopGroup eventLoopGroup = createEventLoopGroup(executor, channelType);
+
+        //Default channel options
+        bootstrap.option(ChannelOption.ALLOCATOR, allocator);
+        bootstrap.option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT);
+        bootstrap.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000);
+        bootstrap.handler(new ChannelInitializer<Channel>() {
+            @Override
+            protected void initChannel(Channel ch) throws Exception {
+                ch.pipeline().addLast(new WriteTimeoutHandler(5, TimeUnit.SECONDS));
+                ch.pipeline().addLast(new ReadTimeoutHandler(5, TimeUnit.SECONDS));
+            }
+        });
         bootstrap.group(eventLoopGroup).channel(channelType.getChannelClass());
+
+        this.eventLoopGroup = eventLoopGroup;
+        this.bootstrap = bootstrap;
+        this.executorService = executor;
     }
 
     protected ChannelFuture bind() {
@@ -105,17 +116,26 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
 
     @Override
     @SuppressWarnings("unchecked")
-    public <V> CompletableFuture<V> send(Msg message) {
+    public <V> CompletableFuture<V> send(M message) {
         message.setSender((InetSocketAddress) bootstrap.config().localAddress());
         return (CompletableFuture<V>) send(message, true);
     }
 
-    public final CompletableFuture<Void> send(Msg message, boolean flushImmediately) {
+    public final CompletableFuture<Void> send(M message, boolean flushImmediately) {
+        if (message == null)
+            throw new IllegalStateException("Message cannot be null");
         //Obtain a channel then write to it once acquired
-        return getChannel(message).thenApply(this::applyDefaultChannelAttributes).thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
+        return getChannel(message)
+                //once a channel has been acquired, apply default operations
+                .thenApply(channel -> applyProperties(channel, message))
+                .thenCompose(channel -> writeToChannel(channel, message, flushImmediately));
     }
 
-    private Channel applyDefaultChannelAttributes(Channel channel) {
+    protected Channel applyProperties(Channel channel, M message) {
+        //update message transaction id
+        message.setTransactionId(channel.id().asShortText());
+        //associate the message/request to the channel
+        channel.attr(ChannelAttributes.REQUEST).set(message);
         return channel;
     }
 
@@ -126,17 +146,17 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
      *
      * @param channel
      *         The underlying {@link Channel} to be used for data transport.
-     * @param data
-     *         An instance of {@link AbstractMessage} that will be sent through the transport
+     * @param request
+     *         An instance of {@link AbstractRequest} that will be sent through the transport
      * @param flushImmediately
      *         True if transport should immediately flush the message after send.
      *
      * @return A {@link CompletableFuture} with return type of {@link Channel} (The channel used for the transport)
      */
-    private CompletableFuture<Void> writeToChannel(Channel channel, Msg data, boolean flushImmediately) {
-        final CompletableFuture<Void> writeResultFuture = new CompletableFuture<>();
-        log.debug("Writing data '{}' to channel : {}", data, channel);
-        final ChannelFuture writeFuture = (flushImmediately) ? channel.writeAndFlush(data) : channel.write(data);
+    private CompletableFuture<Void> writeToChannel(Channel channel, M request, boolean flushImmediately) {
+        CompletableFuture<Void> writeResultFuture = new CompletableFuture<>();
+        log.debug("writeToChannel() : Writing data '{}' to channel : {} (id: {})", request, channel, channel.id());
+        ChannelFuture writeFuture = (flushImmediately) ? channel.writeAndFlush(request) : channel.write(request);
         writeFuture.addListener((ChannelFuture future) -> {
             try {
                 if (future.isSuccess())
@@ -170,15 +190,15 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
      *
      * @return The concrete {@link EventLoopGroup} instance that will be used by the transport.
      */
-    private EventLoopGroup createEventLoopGroup(ChannelType type) {
+    private EventLoopGroup createEventLoopGroup(Executor executor, ChannelType type) {
         switch (type) {
             case NIO_TCP:
             case NIO_UDP:
                 if (Epoll.isAvailable()) {
                     log.debug("Using EpollEventLoopGroup");
-                    return new EpollEventLoopGroup(8, executorService, DefaultSelectStrategyFactory.INSTANCE);
+                    return new EpollEventLoopGroup(0, executor, DefaultSelectStrategyFactory.INSTANCE);
                 }
-                return new NioEventLoopGroup(8, executorService, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE);
+                return new NioEventLoopGroup(0, executor, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE);
         }
         return null;
     }
@@ -206,21 +226,21 @@ abstract public class NettyTransport<Msg extends AbstractRequest> implements Tra
         return eventLoopGroup;
     }
 
-    public void setEventLoopGroup(EventLoopGroup eventLoopGroup) {
-        this.eventLoopGroup = eventLoopGroup;
-    }
-
     @Override
     public void close() throws IOException {
         try {
-            log.debug("Shutting down {} gracefully", this.getClass().getSimpleName());
-            eventLoopGroup.shutdownGracefully();
-            executorService.awaitTermination(5, TimeUnit.SECONDS);
-            executorService.shutdown();
+            log.debug("Attempting to shutdown '{}' gracefully", this.getClass().getSimpleName());
+            eventLoopGroup.shutdownGracefully().awaitUninterruptibly(5000);
+            if (executorService != null) {
+                executorService.shutdown();
+                if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {
+                    executorService.shutdownNow();
+                }
+            }
         } catch (InterruptedException e) {
-            log.error("Error while closing transport", e);
+            throw new IOException(e);
         }
     }
 
-    abstract public CompletableFuture<Channel> getChannel(Msg message);
+    abstract public CompletableFuture<Channel> getChannel(M message);
 }

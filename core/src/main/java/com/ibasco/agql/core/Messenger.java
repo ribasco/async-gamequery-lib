@@ -31,7 +31,8 @@ import java.util.function.BiConsumer;
 /**
  * {@link Messenger} is responsible for sending and receiving messages from clients.
  */
-public interface Messenger<Req extends AbstractRequest, Response extends AbstractResponse>
-        extends BiConsumer<Response, Throwable>, Closeable {
-    CompletableFuture<Response> send(Req request);
+public interface Messenger<R extends AbstractRequest, S extends AbstractResponse> extends Closeable {
+    CompletableFuture<S> send(R request);
+
+    void receive(S response, Throwable error);
 }

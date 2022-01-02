@@ -1,106 +1,124 @@
 /*
- * MIT License
+ * Copyright (c) 2021-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.AbstractMessage;
-import io.netty.channel.pool.AbstractChannelPoolMap;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.Envelope;
 import io.netty.channel.pool.ChannelPool;
 import io.netty.channel.pool.ChannelPoolMap;
+import io.netty.channel.pool.SimpleChannelPool;
+import io.netty.util.concurrent.Future;
+import io.netty.util.concurrent.GlobalEventExecutor;
+import io.netty.util.concurrent.Promise;
+import static io.netty.util.internal.ObjectUtil.checkNotNull;
+import io.netty.util.internal.ReadOnlyIterator;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
- * A {@link ChannelPoolMap} implementation that takes an {@link AbstractMessage} as a reference for the key-lookup.
+ * A custom {@link ChannelPoolMap} implementation using {@link Envelope} as the key for obtaining a {@link ChannelPool} instance.
  *
- * @param <M>
- *         An {@link AbstractMessage} that will be used as a reference for our key lookup
- * @param <K>
- *         The actual key that will be used for the underlying {@link ChannelPoolMap} implementation.
- *         The type of this key should be the same type returned by our key resolver.
+ * @author Rafael Luis Ibasco
  */
-public class MessageChannelPoolMap<M extends AbstractMessage, K>
-        implements ChannelPoolMap<M, ChannelPool>, Iterable<Map.Entry<K, ChannelPool>>, Closeable {
+public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? extends AbstractRequest>, NettyChannelPool>, Iterable<Map.Entry<Object, NettyChannelPool>>, Closeable {
 
-    private final Function<M, K> keyResolver;
-    private final Function<K, ChannelPool> poolFactory;
+    private final ConcurrentMap<Object, NettyChannelPool> map = new ConcurrentHashMap<>();
 
-    /**
-     * The internal {@link ChannelPoolMap} implementation that use the actual key type for the map
-     */
-    private final AbstractChannelPoolMap<K, ChannelPool> internalPoolMap = new AbstractChannelPoolMap<K, ChannelPool>() {
-        @Override
-        protected ChannelPool newPool(K key) {
-            return poolFactory.apply(key);
+    private final NettyChannelPoolFactory channelPoolFactory;
+
+    private final NettyPoolingStrategy poolStrategy;
+
+    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory, final NettyPoolingStrategy poolStrategy) {
+        this.channelPoolFactory = Objects.requireNonNull(channelPoolFactory, "Channel pool factory is not provided");
+        this.poolStrategy = Objects.requireNonNull(poolStrategy, "Pool strategy is not provided");
+    }
+
+    @Override
+    public NettyChannelPool get(Envelope<? extends AbstractRequest> envelope) {
+        Objects.requireNonNull(envelope, "Envelope must not be null");
+        Objects.requireNonNull(envelope.sender(), "Receipient address is null");
+        Objects.requireNonNull(envelope.recipient(), "Destination address is null");
+
+        Object key = poolStrategy.extractKey(envelope);
+        NettyChannelPool pool = map.get(key);
+        if (pool == null) {
+            pool = channelPoolFactory.create(envelope.sender(), envelope.recipient());
+            NettyChannelPool old = map.putIfAbsent(key, pool);
+            if (old != null) {
+                // We need to destroy the newly created pool as we not use it.
+                poolCloseAsyncIfSupported(pool);
+                pool = old;
+            }
         }
-    };
-
-    /**
-     * <p>Accepts two functions that will be used internally for processing the key and creation of the {@link
-     * ChannelPool} instance</p>
-     *
-     * @param keyResolver
-     *         A function that accepts an {@link AbstractMessage} as the input and returns a type of a key (as
-     *         specified).
-     *         This will be used to resolve keys based on the {@link AbstractMessage} argument.
-     * @param poolFactory
-     *         A factory function that returns a {@link ChannelPool} implementation based on the key provided.
-     */
-    public MessageChannelPoolMap(Function<M, K> keyResolver, Function<K, ChannelPool> poolFactory) {
-        this.keyResolver = keyResolver;
-        this.poolFactory = poolFactory;
-    }
-
-    /**
-     * Retrieve a {@link ChannelPool} instance using {@link AbstractMessage} as the search key.
-     *
-     * @param message
-     *         An {@link AbstractMessage} to be used to derive the actual key from
-     *
-     * @return A {@link ChannelPool} instance
-     */
-    @Override
-    public ChannelPool get(M message) {
-        return internalPoolMap.get(keyResolver.apply(message));
+        return pool;
     }
 
     @Override
-    public boolean contains(M message) {
-        return internalPoolMap.contains(keyResolver.apply(message));
+    public boolean contains(Envelope<? extends AbstractRequest> key) {
+        return map.containsKey(poolStrategy.extractKey(key));
     }
 
     @Override
     public void close() throws IOException {
-        internalPoolMap.close();
+        for (Object key : map.keySet()) {
+            // Wait for remove to finish to ensure that resources are released before returning from close
+            removeAsyncIfSupported(key).syncUninterruptibly();
+        }
     }
 
+    @NotNull
     @Override
-    public Iterator<Map.Entry<K, ChannelPool>> iterator() {
-        return internalPoolMap.iterator();
+    public Iterator<Map.Entry<Object, NettyChannelPool>> iterator() {
+        return new ReadOnlyIterator<>(map.entrySet().iterator());
+    }
+
+    private synchronized Future<Boolean> removeAsyncIfSupported(Object key) {
+        NettyChannelPool pool = map.remove(checkNotNull(key, "key"));
+        if (pool != null) {
+            final Promise<Boolean> removePromise = GlobalEventExecutor.INSTANCE.newPromise();
+            poolCloseAsyncIfSupported(pool).addListener(future -> {
+                if (future.isSuccess()) {
+                    removePromise.setSuccess(Boolean.TRUE);
+                } else {
+                    removePromise.setFailure(future.cause());
+                }
+            });
+            return removePromise;
+        }
+        return GlobalEventExecutor.INSTANCE.newSucceededFuture(Boolean.FALSE);
+    }
+
+    private synchronized static Future<Void> poolCloseAsyncIfSupported(NettyChannelPool pool) {
+        if (pool instanceof SimpleChannelPool) {
+            return ((SimpleChannelPool) pool).closeAsync();
+        } else {
+            try {
+                pool.close();
+                return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+            } catch (Exception e) {
+                return GlobalEventExecutor.INSTANCE.newFailedFuture(e);
+            }
+        }
     }
 }

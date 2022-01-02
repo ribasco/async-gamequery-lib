@@ -1,76 +1,63 @@
 /*
- * MIT License
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.source.query.client;
 
-import com.ibasco.agql.core.AbstractClient;
-import com.ibasco.agql.core.enums.RequestPriority;
-import com.ibasco.agql.core.utils.EncryptUtils;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconMessenger;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconRequest;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconResponse;
-import com.ibasco.agql.protocols.valve.source.query.exceptions.RconCmdException;
+import com.ibasco.agql.core.NettyClient;
+import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.protocols.valve.source.query.*;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
-import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconAuthException;
-import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
-import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
-import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
-import org.apache.commons.lang3.StringUtils;
+import com.ibasco.agql.protocols.valve.source.query.message.*;
+import io.netty.channel.Channel;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
- * A client used for executing commands to the Source Server using the Valve RCON Protocol
+ * An RCON client based on Valve's Source RCON Protocol.
  *
+ * @author Rafael Luis Ibasco
  * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol Specifications</a>
  */
-public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRconResponse, SourceRconMessenger> {
+public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
-    private Boolean _reauth = null;
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    private Executor executor;
 
-    private boolean reauthenticate = true;
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    private Boolean sendTerminatingPacket;
 
     /**
-     * Contains a map of authenticated request ids with the server address as the key
-     */
-    private final Map<InetSocketAddress, String> credentialsMap;
-
-    /**
-     * Default Constructor. By default, terminating packets are sent for every command
+     * Create a new rcon client instance. By default, terminating packets are sent after every command
      */
     public SourceRconClient() {
-        this(true);
+        this(null);
     }
 
     /**
@@ -80,9 +67,13 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @param sendTerminatingPacket
      *         Set to <code>true</code> to send terminator packets for every command.
+     *
+     * @deprecated Use {@link #SourceRconClient(OptionMap)}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public SourceRconClient(boolean sendTerminatingPacket) {
-        this(sendTerminatingPacket, Executors.newSingleThreadExecutor());
+        this(sendTerminatingPacket, null);
     }
 
     /**
@@ -92,75 +83,103 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @param sendTerminatingPacket
      *         Set to <code>true</code> to send terminator packets for every command.
-     * @param executorService
-     *         The executor service to be used
+     * @param executor
+     *         The {@link Executor} to be used by the underlying transport
+     *
+     * @deprecated Use {@link #SourceRconClient(OptionMap)}
      */
-    public SourceRconClient(boolean sendTerminatingPacket, ExecutorService executorService) {
-        super(new SourceRconMessenger(sendTerminatingPacket, executorService));
-        credentialsMap = new ConcurrentHashMap<>();
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
+    public SourceRconClient(boolean sendTerminatingPacket, Executor executor) {
+        this(null);
+        this.executor = executor;
+        this.sendTerminatingPacket = sendTerminatingPacket;
     }
 
     /**
-     * <p>Send an authentication request to the Server. Password credentials are stored into memory and can later be
-     * re-used in case a re-authentication is needed.</p>
+     * Create a new {@link SourceRconClient} using the provided configuration options.
+     *
+     * @param options
+     *         The {@link OptionMap} containing the configuration settings specific for this instance
+     *
+     * @see OptionBuilder
+     */
+    public SourceRconClient(OptionMap options) {
+        super(options);
+    }
+
+    @Override
+    protected NettyMessenger<InetSocketAddress, SourceRconRequest, SourceRconResponse> createMessenger(OptionMap options) {
+        //apply default options
+        if (this.executor != null)
+            options.add(TransportOptions.THREAD_POOL_EXECUTOR, this.executor);
+        if (this.sendTerminatingPacket != null)
+            options.add(SourceRconOptions.USE_TERMINATOR_PACKET, this.sendTerminatingPacket);
+        return new SourceRconMessenger(options);
+    }
+
+    /**
+     * <p>Send an authentication request to the Server for the specified address. Upon successful authentication, the credentials for the specified address will be registered and stored in-memory.
+     * New connections will automatically be authenticated, so there is no need to call this method for every command request unless the credentials have been invalidated</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The address of the source server
      * @param password
      *         A non-empty password {@link String}
      *
-     * @return A {@link CompletableFuture} which returns a {@link SourceRconAuthStatus} that holds the status of the
+     * @return A {@link CompletableFuture} when completed, returns a {@link SourceRconAuthStatus} that holds the status of the
      * authentication request.
      *
      * @throws IllegalArgumentException
      *         Thrown when the address or password supplied is empty or null
      */
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address, String password) {
-        if (StringUtils.isBlank(password) || address == null)
-            throw new IllegalArgumentException("Password or Address is empty or null");
-
-        //Remove existing meta if exists
-        if (this.credentialsMap.containsKey(address)) {
-            log.debug("Existing auth meta found. Removing");
-            this.credentialsMap.remove(address);
-        }
-
-        int id = SourceRconUtil.createRequestId();
-        log.debug("[AUTH]: Request with id: {}", id);
-        CompletableFuture<SourceRconAuthStatus> authRequestFuture = sendRequest(new SourceRconAuthRequest(address, id, password));
-        authRequestFuture.whenComplete((status, error) -> {
-            log.debug("[AUTH] Response : Status: {}, Error: {}", status, (error != null) ? error.getMessage() : "N/A");
-            if (error != null) {
-                throw new SourceRconAuthException(error);
-            }
-            if (status != null && status.isAuthenticated()) {
-                this.credentialsMap.put(address, EncryptUtils.encrypt(password, EncryptUtils.retrieveKey()));
-            }
-        });
-        return authRequestFuture;
+        return authenticate(address, password.getBytes(StandardCharsets.US_ASCII));
     }
 
     /**
-     * <p>Send a re-authentication request to the Server. This will only work if the client has been previously
-     * authenticated.</p>
+     * <p>Send an authentication request to the Server for the specified address. Upon successful authentication, the credentials for the specified address will be registered and stored in-memory.
+     * New connections will automatically be authenticated, so there is no need to call this method for every command request unless the credentials have been invalidated</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The address of the source server
+     * @param password
+     *         A passphrase in byte array form
      *
-     * @return A {@link CompletableFuture} which returns a {@link SourceRconAuthStatus} that holds the status of the
+     * @return A {@link CompletableFuture} when completed, returns a {@link SourceRconAuthStatus} that holds the status of the
      * authentication request.
      *
-     * @see #authenticate(InetSocketAddress, String)
+     * @throws IllegalArgumentException
+     *         Thrown when the address or password supplied is empty or null
      */
-    public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) {
-        if (isAuthenticated(address)) {
-            return this.authenticate(address, EncryptUtils.decrypt(this.credentialsMap.get(address), EncryptUtils.retrieveKey()));
-        }
-        return CompletableFuture.completedFuture(new SourceRconAuthStatus(false, String.format("Not yet authenticated from server %s.", address)));
+    public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address, byte[] password) {
+        if (password == null || password.length == 0)
+            throw new IllegalArgumentException("Password is empty");
+        return send(address, new SourceRconAuthRequest(password), SourceRconAuthResponse.class).thenApply(SourceRconAuthResponse::toAuthStatus);
     }
 
     /**
-     * <p>Sends a command to the Source server. Authentication is REQUIRED</p>
+     * <p>Re-send and authentication request for the specified address.
+     *
+     * @param address
+     *         The address of the source server
+     *
+     * @return A {@link CompletableFuture} when completed, returns a {@link SourceRconAuthStatus} which holds the status of the authentication request.
+     *
+     * @throws RconNotYetAuthException
+     *         If the specified address has not yet been authenticated by the remote server. Please authenticate by {@link #authenticate(InetSocketAddress, byte[])}
+     * @see #authenticate(InetSocketAddress, byte[])
+     * @see #authenticate(InetSocketAddress, String)
+     */
+    public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) throws RconNotYetAuthException {
+        if (!getAuthenticationProxy().isAuthenticated(address))
+            throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED);
+        //getAuthenticationProxy().send()
+        return null;//CompletableFuture.completedFuture(new SourceRconAuthStatus(address, 0, false, String.format("Not yet authenticated from server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED));
+    }
+
+    /**
+     * <p>Sends a command to the Source server</p>
      *
      * @param address
      *         The {@link InetSocketAddress} of the source server
@@ -174,65 +193,79 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      * @see #authenticate(InetSocketAddress, String)
      */
     public CompletableFuture<String> execute(InetSocketAddress address, String command) throws RconNotYetAuthException {
-        if (!isAuthenticated(address))
-            throw new RconNotYetAuthException("You are not yet authorized to access the server's rcon interface. Please authenticate first.");
-
-        Integer id = SourceRconUtil.createRequestId();
-
-        CompletableFuture<String> response;
-
-        SourceRconCmdRequest request = new SourceRconCmdRequest(address, id, command);
-
-        if (reauthenticate && (_reauth != null && _reauth)) {
-            log.debug("Re-authenticating from server");
-            response = this.authenticate(address).thenCompose(status -> {
-                if (status.isAuthenticated())
-                    return sendRequest(request);
-                else
-                    return CompletableFuture.completedFuture("Unable to re-authenticate from server");
-            });
-        } else {
-            log.debug("Executing command '{}' using request id: {}", command, id);
-            response = sendRequest(request);
-        }
-
-        if (response != null)
-            response.whenComplete(this::reauthOnError);
-
-        return response;
+        return exec(address, command).thenApply(SourceRconCmdResponse::getResult);
     }
 
     /**
-     * Sets the _reauth flag to true on error
+     * <p>Sends a command to the Source server</p>
      *
-     * @param response
-     *         The rcon response {@link String}
-     * @param err
-     *         The error returned by the response
+     * @param address
+     *         The {@link InetSocketAddress} of the source server
+     * @param command
+     *         The {@link String} containing the command to be issued on the server
+     *
+     * @return A {@link CompletableFuture} which returns a {@link SourceRconCmdResponse} on completion
+     *
+     * @see #authenticate(InetSocketAddress, String)
+     * @since 0.2.0
      */
-    private void reauthOnError(String response, Throwable err) {
-        if (err != null)
-            throw new RconCmdException(err.getMessage(), err);
-        _reauth = reauthenticate && (response != null && StringUtils.isBlank(response));
+    @ApiStatus.Experimental
+    public CompletableFuture<SourceRconCmdResponse> exec(InetSocketAddress address, String command) {
+        if (!getAuthenticationProxy().isAuthenticated(address))
+            ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address)));
+        return send(address, new SourceRconCmdRequest(command), SourceRconCmdResponse.class);
     }
 
     /**
-     * Checks the internal authentication map if the specified address is authenticated by the server or not
+     * <p>Invalidates the connections for all registered addresses (registered via {@link #authenticate(InetSocketAddress, byte[])})</p>
      *
-     * @param server
+     * <p>
+     * Once invalidated, the existing connections will be re-authenticated (assuming the credentials remain valid). If the credentials have changed, then you will need to explicitly call {@link #authenticate(InetSocketAddress, byte[])}.
+     * </p>
+     *
+     * @see #authenticate(InetSocketAddress, byte[])
+     * @see #authenticate(InetSocketAddress, String)
+     * @since 0.2.0
+     */
+    public void invalidate() {
+        getAuthenticationProxy().invalidate(true);
+    }
+
+    /**
+     * Invalidates the specified address along with the previously authenticated connections associated with it. Once invalidated, the credentials stored in-memory for
+     * the specified address will be cleared so you will have to call {@link #authenticate(InetSocketAddress, byte[])} again.
+     *
+     * @param address
+     *         The {@link InetSocketAddress} to invalidate.
+     *
+     * @see #authenticate(InetSocketAddress, byte[])
+     * @see #authenticate(InetSocketAddress, String)
+     * @since 0.2.0
+     */
+    public void invalidate(InetSocketAddress address) {
+        getAuthenticationProxy().invalidate(address);
+    }
+
+    /**
+     * Checks if the specified address is authenticated
+     *
+     * @param address
      *         An {@link InetSocketAddress} representing the server
      *
-     * @return true if the address specified is already authenticated
+     * @return {@code true} if the address has been successfully been authenticated by the remote server
+     *
+     * @see #authenticate(InetSocketAddress, byte[])
+     * @see #authenticate(InetSocketAddress, String)
      */
-    public boolean isAuthenticated(InetSocketAddress server) {
-        return credentialsMap.containsKey(server) && (credentialsMap.get(server) != null);
+    public boolean isAuthenticated(InetSocketAddress address) {
+        return getAuthenticationProxy().isAuthenticated(address);
     }
 
     /**
      * @return <code>true</code> if the client should re-authenticate on error
      */
     public boolean isReauthenticate() {
-        return reauthenticate;
+        return getMessenger().getOrDefault(SourceRconOptions.REAUTH);
     }
 
     /**
@@ -240,8 +273,52 @@ public class SourceRconClient extends AbstractClient<SourceRconRequest, SourceRc
      *
      * @param reauthenticate
      *         Set to <code>true</code> to re-authenticate from server on error
+     *
+     * @see SourceRconOptions#REAUTH
+     * @deprecated Use {@link #SourceRconClient(OptionMap)}
      */
+    @Deprecated
     public void setReauthenticate(boolean reauthenticate) {
-        this.reauthenticate = reauthenticate;
+        getMessenger().set(SourceRconOptions.REAUTH, reauthenticate);
+    }
+
+    @Override
+    protected <V extends SourceRconResponse> CompletableFuture<V> send(InetSocketAddress address, SourceRconRequest request, Class<V> expectedResponse) {
+        //generate a new rcon request id
+        request.setRequestId(SourceRcon.createRequestId());
+        log.debug("{} SEND => Creating new RCON request id '{}' ({})", NettyUtil.id(request), request.getRequestId(), Math.abs(UUID.create().nextInteger()));
+        return super.send(address, request).thenApply(expectedResponse::cast);
+    }
+
+    @ApiStatus.Experimental
+    @ApiStatus.Internal
+    public void cleanup() {
+        getAuthenticationProxy().cleanup();
+    }
+
+    @ApiStatus.Experimental
+    @ApiStatus.Internal
+    public void printStatistics() {
+        getAuthenticationProxy().printStatistics();
+    }
+
+    @ApiStatus.Experimental
+    @ApiStatus.Internal
+    public void printStatistics(Consumer<String> output) {
+        getAuthenticationProxy().printStatistics(output);
+    }
+
+    @ApiStatus.Experimental
+    public Map<Channel, SourceRconAuthProxy.ChannelMetadata> getChannelStatistics() {
+        return getAuthenticationProxy().getStatistics();
+    }
+
+    private SourceRconAuthProxy getAuthenticationProxy() {
+        return getMessenger().getAuthenticationProxy();
+    }
+
+    @Override
+    protected SourceRconMessenger getMessenger() {
+        return (SourceRconMessenger) super.getMessenger();
     }
 }

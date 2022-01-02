@@ -1,107 +1,90 @@
 /*
- * MIT License
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.source.query;
 
-import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.enums.QueueStrategy;
-import com.ibasco.agql.core.exceptions.MessengerException;
-import com.ibasco.agql.core.messenger.GameServerMessenger;
-import com.ibasco.agql.core.session.DefaultSessionIdFactory;
-import com.ibasco.agql.core.transport.tcp.NettyPooledTcpTransport;
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
-import com.ibasco.agql.protocols.valve.source.query.request.SourceRconAuthRequest;
-import com.ibasco.agql.protocols.valve.source.query.request.SourceRconCmdRequest;
-import io.netty.channel.ChannelOption;
+import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.transport.enums.ChannelPoolType;
+import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
+import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
+import com.ibasco.agql.core.transport.tcp.TcpTransportFactory;
+import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.TransportOptions;
+import com.ibasco.agql.protocols.valve.source.query.handlers.*;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconRequest;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconResponse;
+import io.netty.channel.ChannelInboundHandler;
+import io.netty.channel.ChannelOutboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.LinkedList;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
 
-public class SourceRconMessenger extends GameServerMessenger<SourceRconRequest, SourceRconResponse> {
+public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress, SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
-    private final Map<Integer, SourceRconRequestType> requestTypeMap = new LinkedHashMap<>();
+    private final SourceRconAuthProxy proxy;
 
-    private final boolean terminatingPacketsEnabled;
-
-    private final ExecutorService executorService;
-
-    public SourceRconMessenger(boolean terminatingPacketsEnabled, ExecutorService executorService) {
-        super(new DefaultSessionIdFactory(), QueueStrategy.SYNCHRONOUS, executorService);
-        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
-        this.executorService = executorService;
+    public SourceRconMessenger(OptionMap options) {
+        super(options, new TcpTransportFactory());
+        this.proxy = new SourceRconAuthProxy(this, options.get(SourceRconOptions.CREDENTIALS_MANAGER, new RconCredentialsManager()));
     }
 
     @Override
-    protected Transport<SourceRconRequest> createTransport() {
-        NettyPooledTcpTransport<SourceRconRequest> transport = new NettyPooledTcpTransport<>(executorService);
-        transport.setChannelInitializer(new SourceRconChannelInitializer(this));
-        transport.addChannelOption(ChannelOption.SO_KEEPALIVE, true);
-        return transport;
+    protected void configure(final OptionMap options) {
+        //connection pooling
+        options.add(TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS, true); //do not allow to be modified by the client
+        defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
+        defaultOption(options, TransportOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
     }
 
     @Override
-    public CompletableFuture<SourceRconResponse> send(SourceRconRequest request) {
-        int requestId = request.getRequestId();
-
-        SourceRconRequestType type = getRequestType(request);
-
-        //Make sure we have a request type
-        if (type == null)
-            throw new MessengerException("Unrecognized rcon request");
-
-        //Add the request type to the map
-        requestTypeMap.put(requestId, getRequestType(request));
-
-        CompletableFuture<SourceRconResponse> futureResponse = super.send(request);
-        //Make sure to remove the requestId once the response future is completed
-        futureResponse.whenComplete((response, error) -> {
-            log.debug("Removing request id '{}' from type map", requestId);
-            requestTypeMap.remove(requestId);
-        });
-        return futureResponse;
+    public CompletableFuture<SourceRconResponse> send(InetSocketAddress address, SourceRconRequest request) {
+        return proxy.send(address, request);
     }
 
-    public boolean isTerminatingPacketsEnabled() {
-        return terminatingPacketsEnabled;
+    @Override
+    public void registerInboundHandlers(LinkedList<ChannelInboundHandler> handlers) {
+        handlers.addLast(new SourceRconPacketDecoder());
+        handlers.addLast(new SourceRconPacketAssembler());
+        handlers.addLast(new SourceRconAuthDecoder());
+        handlers.addLast(new SourceRconCmdDecoder());
     }
 
-    public SourceRconRequestType getRequestType(SourceRconRequest request) {
-        if (request instanceof SourceRconAuthRequest) {
-            return SourceRconRequestType.AUTH;
-        } else if (request instanceof SourceRconCmdRequest) {
-            return SourceRconRequestType.COMMAND;
+    @Override
+    public void registerOutboundHandlers(LinkedList<ChannelOutboundHandler> handlers) {
+        handlers.addLast(new SourceRconAuthEncoder());
+        handlers.addLast(new SourceRconCmdEncoder());
+        handlers.addLast(new SourceRconPacketEncoder());
+    }
+
+    public SourceRconAuthProxy getAuthenticationProxy() {
+        return proxy;
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            proxy.close();
         }
-        return null;
-    }
-
-    public Map<Integer, SourceRconRequestType> getRequestTypeMap() {
-        return requestTypeMap;
     }
 }

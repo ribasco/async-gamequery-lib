@@ -1,55 +1,73 @@
 /*
- * MIT License
+ * Copyright (c) 2021-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.source.query.pojos;
-
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.net.InetSocketAddress;
 
 public class SourceServer {
     private String name;
+
     private byte networkVersion;
+
     private String mapName;
+
     private String gameDirectory;
+
     private String gameDescription;
-    private short appId;
-    private byte numOfPlayers;
-    private byte maxPlayers;
-    private byte numOfBots;
+
+    private int appId;
+
+    private int numOfPlayers;
+
+    private int maxPlayers;
+
+    private int numOfBots;
+
     private boolean dedicated;
-    private char operatingSystem;
+
+    private String operatingSystem;
+
     private boolean passwordProtected;
+
     private boolean secure;
+
     private String gameVersion;
+
     private long serverId;
-    private short tvPort;
+
+    private int tvPort;
+
     private String tvName;
+
     private String serverTags;
+
     private long gameId;
+
     private InetSocketAddress address;
+
+    private boolean privateServer;
+
+    public boolean isPrivateServer() {
+        return privateServer;
+    }
+
+    public void setPrivateServer(boolean privateServer) {
+        this.privateServer = privateServer;
+    }
 
     public byte getNetworkVersion() {
         return networkVersion;
@@ -83,35 +101,35 @@ public class SourceServer {
         this.gameDescription = gameDescription;
     }
 
-    public short getAppId() {
+    public int getAppId() {
         return appId;
     }
 
-    public void setAppId(short appId) {
+    public void setAppId(int appId) {
         this.appId = appId;
     }
 
-    public byte getNumOfPlayers() {
+    public int getNumOfPlayers() {
         return numOfPlayers;
     }
 
-    public void setNumOfPlayers(byte numOfPlayers) {
+    public void setNumOfPlayers(int numOfPlayers) {
         this.numOfPlayers = numOfPlayers;
     }
 
-    public byte getMaxPlayers() {
+    public int getMaxPlayers() {
         return maxPlayers;
     }
 
-    public void setMaxPlayers(byte maxPlayers) {
+    public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
     }
 
-    public byte getNumOfBots() {
+    public int getNumOfBots() {
         return numOfBots;
     }
 
-    public void setNumOfBots(byte numOfBots) {
+    public void setNumOfBots(int numOfBots) {
         this.numOfBots = numOfBots;
     }
 
@@ -123,11 +141,11 @@ public class SourceServer {
         this.dedicated = dedicated;
     }
 
-    public char getOperatingSystem() {
+    public String getOperatingSystem() {
         return operatingSystem;
     }
 
-    public void setOperatingSystem(char operatingSystem) {
+    public void setOperatingSystem(String operatingSystem) {
         this.operatingSystem = operatingSystem;
     }
 
@@ -163,11 +181,11 @@ public class SourceServer {
         this.serverId = serverId;
     }
 
-    public short getTvPort() {
+    public int getTvPort() {
         return tvPort;
     }
 
-    public void setTvPort(short tvPort) {
+    public void setTvPort(int tvPort) {
         this.tvPort = tvPort;
     }
 
@@ -217,22 +235,5 @@ public class SourceServer {
 
     public void setAddress(InetSocketAddress address) {
         this.address = address;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE).append("name", this.getName())
-                .append("map", getMapName())
-                .append("description", gameDescription)
-                .append("numOfPlayers", getNumOfPlayers())
-                .append("maxPlayers", getMaxPlayers())
-                .append("numOfBots", getNumOfBots())
-                .append("operatingSystem", getOperatingSystem())
-                .append("appId", getAppId())
-                .append("isDedicated", isDedicated())
-                .append("isSecure", isSecure())
-                .append("serverId", getServerId())
-                .append("tags", getServerTags())
-                .toString();
     }
 }

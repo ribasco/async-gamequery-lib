@@ -1,56 +1,65 @@
 /*
- * MIT License
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
-import com.ibasco.agql.core.transport.handlers.AbstractRequestEncoder;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerPacket;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerPacketBuilder;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerRequest;
-import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerRequestPacket;
-import io.netty.buffer.ByteBuf;
+import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.handlers.MessageOutboundEncoder;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
+import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
+import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
+import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerQueryPacket;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.socket.DatagramPacket;
 
 import java.util.List;
 
-/**
- * Created by raffy on 10/22/2016.
- */
-public class MasterServerRequestEncoder extends AbstractRequestEncoder<MasterServerRequest, MasterServerPacket> {
+public class MasterServerRequestEncoder extends MessageOutboundEncoder<MasterServerRequest> {
 
-    public MasterServerRequestEncoder(MasterServerPacketBuilder builder) {
-        super(builder);
+    @Override
+    protected boolean acceptMessage(Class<MasterServerRequest> requestClass, Envelope<MasterServerRequest> envelope) throws Exception {
+        return MasterServerRequest.class.equals(requestClass);
     }
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, MasterServerRequest request, List<Object> out) throws Exception {
-        MasterServerRequestPacket packet = request.getMessage();
-        byte[] deconstructedPacket = builder.deconstruct(packet);
-        if (deconstructedPacket != null && deconstructedPacket.length > 0) {
-            ByteBuf buffer = ctx.alloc().buffer(deconstructedPacket.length).writeBytes(deconstructedPacket);
-            out.add(new DatagramPacket(buffer, request.recipient()));
+    protected void encodeMessage(ChannelHandlerContext ctx, Envelope<MasterServerRequest> msg, List<Object> out) throws Exception {
+        MasterServerRequest request = msg.content();
+        MasterServerQueryPacket packet = new MasterServerQueryPacket();
+
+        if (request.getRegion() == null)
+            request.setRegion(MasterServerRegion.REGION_ALL);
+
+        if (request.getRequestInterval() == null) {
+            if (MasterServerRegion.REGION_ALL.equals(request.getRegion())) {
+                MasterServerOptions.REQUEST_INTERVAL.attr(ctx, 3000);
+            } else {
+                MasterServerOptions.REQUEST_INTERVAL.attr(ctx, 200);
+            }
+        } else {
+            MasterServerOptions.REQUEST_INTERVAL.attr(ctx, request.getRequestInterval());
         }
+
+        debug("Using request interval of {} ms", MasterServerOptions.REQUEST_INTERVAL.attr(ctx));
+
+        String address = request.getAddress() == null ? MasterServer.INITIAL_IP : request.getAddress();
+        debug("Sending MASTER REQUEST with address '{}'", address);
+        packet.setType(MasterServer.SOURCE_MASTER_TYPE);
+        packet.setRegion(request.getRegion().getHeader());
+        packet.setAddress(address);
+        packet.setFilter(request.getFilter().toString());
+        out.add(packet);
     }
 }

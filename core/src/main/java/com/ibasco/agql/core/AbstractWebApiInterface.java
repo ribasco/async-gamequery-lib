@@ -1,31 +1,22 @@
 /*
- * MIT License
+ * Copyright (c) 2018-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.core;
 
 import com.google.gson.*;
-import com.ibasco.agql.core.client.AbstractRestClient;
 import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.reflect.types.CollectionParameterizedType;
 import io.netty.handler.codec.http.HttpStatusClass;
@@ -41,15 +32,19 @@ import java.util.concurrent.CompletableFuture;
 /**
  * <p>An API Interface containing a set/group of methods that are usually defined by the publisher</p>
  *
- * @param <T>   Any class extending {@link AbstractRestClient}
- * @param <Req> Any class extending {@link AbstractWebRequest}
+ * @param <C>
+ *         Any class extending {@link AbstractRestClient}
+ * @param <R>
+ *         Any class extending {@link AbstractWebRequest}
  */
-abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
-        Req extends AbstractWebApiRequest,
-        Res extends AbstractWebApiResponse<JsonElement>> {
+abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R extends AbstractWebApiRequest, S extends AbstractWebApiResponse<JsonElement>> {
+
     private static final Logger log = LoggerFactory.getLogger(AbstractWebApiInterface.class);
-    private final T client;
+
+    private final C client;
+
     private final GsonBuilder gsonBuilder = new GsonBuilder();
+
     private Gson jsonBuilder;
 
     /**
@@ -60,9 +55,10 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * <p>Default Constructor</p>
      *
-     * @param client A {@link AbstractRestClient} instance
+     * @param client
+     *         A {@link AbstractRestClient} instance
      */
-    public AbstractWebApiInterface(T client) {
+    public AbstractWebApiInterface(C client) {
         this.client = client;
     }
 
@@ -90,12 +86,17 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * <p>Similar to {@link #asCollectionOf(Class, String, JsonObject, Class, boolean)}  minus the Collection class argument. This also returns a {@link List} collection type instead.</p>
      *
-     * @param itemType      The {@link Class} type of the item in the {@link Collection}
-     * @param searchKey     The name of the {@link JsonArray} element that we will convert
-     * @param searchElement The {@link JsonObject} that will be used to search for the {@link JsonArray} element
-     * @param strict        If <code>true</code> an exception will be thrown if the listName is not found within the search element specified.
-     *                      Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
-     * @param <A>           The type of the List to be returned
+     * @param itemType
+     *         The {@link Class} type of the item in the {@link Collection}
+     * @param searchKey
+     *         The name of the {@link JsonArray} element that we will convert
+     * @param searchElement
+     *         The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     * @param strict
+     *         If <code>true</code> an exception will be thrown if the listName is not found within the search element specified.
+     *         Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     * @param <A>
+     *         The type of the List to be returned
      *
      * @return A {@link List} containing the parsed json entities
      */
@@ -106,12 +107,18 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * <p>A Utility function that retrieves the specified json element and converts it to a Parameterized {@link java.util.Collection} instance.</p>
      *
-     * @param itemType        The {@link Class} type of the item in the {@link Collection}
-     * @param searchKey       The name of the {@link JsonArray} element that we will convert
-     * @param searchElement   The {@link JsonObject} that will be used to search for the {@link JsonArray} element
-     * @param collectionClass A {@link Class} representing the concrete implementation of the {@link Collection}
-     * @param strict          If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
-     * @param <A>             The internal type of the {@link Collection} to be returned
+     * @param itemType
+     *         The {@link Class} type of the item in the {@link Collection}
+     * @param searchKey
+     *         The name of the {@link JsonArray} element that we will convert
+     * @param searchElement
+     *         The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     * @param collectionClass
+     *         A {@link Class} representing the concrete implementation of the {@link Collection}
+     * @param strict
+     *         If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     * @param <A>
+     *         The internal type of the {@link Collection} to be returned
      *
      * @return A {@link Collection} containing the type specified by collectionClass argument
      */
@@ -129,21 +136,20 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * <p>Sends a requests to the internal client.</p>
      *
-     * @param request An instance of {@link AbstractWebRequest}
-     * @param <A>     The return type
+     * @param request
+     *         An instance of {@link AbstractWebRequest}
      *
      * @return A {@link CompletableFuture} that will hold the expected value once a response has been received by the server
      */
-    @SuppressWarnings("unchecked")
-    protected <A> CompletableFuture<A> sendRequest(Req request) {
-        CompletableFuture<Res> responseFuture = client.sendRequest(request);
-        return responseFuture.whenComplete(this::interceptResponse).thenApply(this::postProcessConversion);
+    protected <A> CompletableFuture<A> sendRequest(R request) {
+        return client.send(request).whenComplete(this::handleError).thenApply(this::convertToJson);
     }
 
     /**
      * <p>Override this method if you need to perform additional configurations against the builder (e.g. Register custom deserializers)</p>
      *
-     * @param builder A {@link GsonBuilder} instance that will be accessed and configured by a concrete {@link AbstractWebApiInterface} implementation
+     * @param builder
+     *         A {@link GsonBuilder} instance that will be accessed and configured by a concrete {@link AbstractWebApiInterface} implementation
      */
     protected void configureBuilder(GsonBuilder builder) {
         //no implementation
@@ -152,17 +158,29 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
     /**
      * The default error handler. Override this if needed.
      *
-     * @param response An instance of {@link AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
-     * @param error    A {@link Throwable} instance or <code>null</code> if no error has occured.
+     * @param response
+     *         An instance of {@link AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
+     * @param error
+     *         A {@link Throwable} instance or <code>null</code> if no error has occured.
      *
-     * @throws WebException thrown if a server/client error occurs
+     * @throws WebException
+     *         thrown if a server/client error occurs
      */
-    protected void interceptResponse(Res response, Throwable error) {
+    protected void handleError(AbstractWebResponse response, Throwable error) {
         if (error != null)
             throw new WebException(error);
         log.debug("Handling response for {}, with status code = {}", response.getMessage().getUri(), response.getMessage().getStatusCode());
-        if (response.getStatus() == HttpStatusClass.SERVER_ERROR ||
-                response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
+        if (response.getStatus() == HttpStatusClass.SERVER_ERROR || response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
+            JsonElement jsonElement = toJsonElement(response);
+            if (response.getMessage().getStatusCode() == 403) {
+                if (jsonElement != null && jsonElement.isJsonObject()) {
+                    JsonObject obj = (JsonObject) jsonElement;
+                    log.info("OBJ: {}", obj.getAsJsonObject());
+                    if (obj.has("error")) {
+                        log.info("GOT ERROR: {}", obj.get("error"));
+                    }
+                }
+            }
             switch (response.getMessage().getStatusCode()) {
                 case 400:
                     throw new BadRequestException("Incorrect parameters provided for request");
@@ -177,8 +195,17 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
                 case 503:
                     throw new ServiceUnavailableException("Service is temprorarily unavailable. Possible maintenance on-going.");
                 default:
-                    throw new WebException("Unknown error occured on request send");
+                    throw new WebException(String.format("An unknown error occured during request (Status Code: %d)", response.getMessage().getStatusCode()));
             }
+        }
+    }
+
+    private JsonElement toJsonElement(AbstractWebResponse response) {
+        try {
+            return convertToJson(response);
+        } catch (Exception e) {
+            log.debug("Error converting response to json element", e);
+            return null;
         }
     }
 
@@ -186,9 +213,12 @@ abstract public class AbstractWebApiInterface<T extends AbstractRestClient,
      * Converts the underlying processed content to a {@link com.google.gson.JsonObject} instance
      */
     @SuppressWarnings("unchecked")
-    private <A> A postProcessConversion(Res response) {
+    private <A> A convertToJson(AbstractWebResponse res) {
+        if (!(res instanceof AbstractWebApiResponse))
+            return null;
+        AbstractWebApiResponse<?> response = (AbstractWebApiResponse<?>) res;
         log.debug("ConvertToJson for Response = {}, {}", response.getMessage().getStatusCode(), response.getMessage().getHeaders());
-        JsonElement processedElement = response.getProcessedContent();
+        JsonElement processedElement = (JsonElement) response.getProcessedContent();
         if (processedElement != null) {
             if (processedElement.isJsonObject())
                 return (A) processedElement.getAsJsonObject();

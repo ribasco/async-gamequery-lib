@@ -1,30 +1,25 @@
 /*
- * MIT License
+ * Copyright (c) 2018-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.supercell.coc.webapi;
 
+import com.google.gson.JsonElement;
 import com.ibasco.agql.core.AbstractWebApiInterface;
+import com.ibasco.agql.core.AbstractWebApiResponse;
+import com.ibasco.agql.core.AbstractWebResponse;
 import com.ibasco.agql.protocols.supercell.coc.webapi.exceptions.CocIncorrectParametersException;
 import com.ibasco.agql.protocols.supercell.coc.webapi.exceptions.CocWebApiException;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocErrorResponse;
@@ -50,17 +45,23 @@ abstract public class CocWebApiInterface
     /**
      * Handle Error Events
      *
-     * @param response
+     * @param res
      * @param error
      */
     @Override
-    protected void interceptResponse(CocWebApiResponse response, Throwable error) {
+    protected void handleError(AbstractWebResponse res, Throwable error) {
+        if (!(res instanceof AbstractWebApiResponse)) {
+            super.handleError(res, error);
+            return;
+        }
+        //noinspection unchecked
+        AbstractWebApiResponse<JsonElement> response = (AbstractWebApiResponse<JsonElement>) res;
         if (error != null)
             throw new CocWebApiException(error);
         if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
             if (response.getProcessedContent() != null) {
                 CocErrorResponse err = builder().fromJson(response.getProcessedContent(), CocErrorResponse.class);
-                log.error("[ERROR FROM {}]: Reason: {}, Message: {}", response.sender(), err.getReason(), err.getMessage());
+                log.error("[ERROR]: Reason: {}, Message: {}", err.getReason(), err.getMessage());
             }
             switch (response.getMessage().getStatusCode()) {
                 case 400:
@@ -69,7 +70,7 @@ abstract public class CocWebApiInterface
                     break;
             }
             //Let the base class handle the rest
-            super.interceptResponse(response, error);
+            super.handleError(response, error);
         }
     }
 }

@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.examples.base;
@@ -48,17 +40,17 @@ public class ExampleRunner {
     private BaseExample activeExample;
 
     public ExampleRunner() {
-        this.examples.put("source-query", new SourceServerQueryEx());
-        this.examples.put("master-query", new MasterServerQueryEx());
-        this.examples.put("source-rcon", new SourceRconQueryEx());
-        this.examples.put("coc-webapi", new CocWebApiQueryEx());
-        this.examples.put("csgo-webapi", new CsgoWebApiQueryEx());
-        this.examples.put("steam-webapi", new SteamWebApiQueryEx());
-        this.examples.put("steam-store-webapi", new SteamStoreWebApiQueryEx());
-        this.examples.put("source-log", new SourceLogMonitorEx());
-        this.examples.put("steam-econ-webapi", new SteamEconItemsQueryEx());
-        this.examples.put("mc-rcon", new McRconQueryEx());
-        this.examples.put("dota2-webapi", new Dota2WebApiQueryEx());
+        this.examples.put("source-query", new SourceQueryExample());
+        this.examples.put("master-query", new MasterQueryExample());
+        this.examples.put("source-rcon", new SourceRconExample());
+        this.examples.put("coc-webapi", new CocWebApiExample());
+        this.examples.put("csgo-webapi", new CsgoWebApiExample());
+        this.examples.put("steam-webapi", new SteamWebApiExample());
+        this.examples.put("steam-store-webapi", new SteamStoreWebApiExample());
+        this.examples.put("source-log", new SourceLogListenerExample());
+        this.examples.put("steam-econ-webapi", new SteamEconItemsExample());
+        this.examples.put("mc-rcon", new MinecraftRconExample());
+        this.examples.put("dota2-webapi", new Dota2WebApiExample());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
         {
@@ -85,7 +77,7 @@ public class ExampleRunner {
             // parse the command line arguments
             CommandLine line = parser.parse(options, args);
             if (line.hasOption(nameOption.getOpt())) {
-                runExample(line.getOptionValue(nameOption.getOpt()));
+                runExample(args, line.getOptionValue(nameOption.getOpt()));
             } else {
                 log.error("No example specified");
             }
@@ -94,13 +86,13 @@ public class ExampleRunner {
         }
     }
 
-    private void runExample(String exampleKey) throws Exception {
+    private void runExample(String[] args, String exampleKey) throws Exception {
         if (this.examples.containsKey(exampleKey)) {
             BaseExample example = this.examples.get(exampleKey);
             this.activeExample = example;
             try {
                 log.info("Running Example : {}", exampleKey);
-                example.run();
+                example.run(args);
             } finally {
                 log.info("Closing Example");
                 example.close();

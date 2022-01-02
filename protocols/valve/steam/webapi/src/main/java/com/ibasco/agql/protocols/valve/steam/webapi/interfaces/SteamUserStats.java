@@ -1,25 +1,17 @@
 /*
- * MIT License
+ * Copyright (c) 2018-2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.steam.webapi.interfaces;
@@ -41,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
  * Created by raffy on 10/26/2016.
  */
 public class SteamUserStats extends SteamWebApiInterface {
+
     public SteamUserStats(SteamWebApiClient client) {
         super(client);
     }
@@ -56,7 +49,6 @@ public class SteamUserStats extends SteamWebApiInterface {
         });
     }
 
-    //TODO: Figure out what that damn name[0] parameter should be
     public CompletableFuture<List<Object>> getGlobalStatsForGame(int appId, int count, String name) {
         CompletableFuture<JsonObject> json = sendRequest(new GetGlobalStatsForGame(VERSION_2, appId, count, name));
         return json.thenApply(root -> null);
@@ -67,10 +59,8 @@ public class SteamUserStats extends SteamWebApiInterface {
         return json.thenApply(root -> {
             SteamGameStatsSchemaInfo info = new SteamGameStatsSchemaInfo();
             JsonObject availableGameStats = root.getAsJsonObject("game").getAsJsonObject("availableGameStats");
-            Type achievementsSchemaType = new TypeToken<List<SteamGameAchievementSchema>>() {
-            }.getType();
-            Type statsSchemaType = new TypeToken<List<SteamGameStatsSchema>>() {
-            }.getType();
+            Type achievementsSchemaType = new TypeToken<List<SteamGameAchievementSchema>>() {}.getType();
+            Type statsSchemaType = new TypeToken<List<SteamGameStatsSchema>>() {}.getType();
             info.setAchievementSchemaList(fromJson(availableGameStats.getAsJsonArray("achievements"), achievementsSchemaType));
             info.setStatsSchemaList(fromJson(availableGameStats.getAsJsonArray("stats"), statsSchemaType));
             return info;

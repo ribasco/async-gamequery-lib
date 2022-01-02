@@ -1,197 +1,323 @@
 /*
- * MIT License
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
-import com.ibasco.agql.protocols.valve.source.query.SourceRconPacketBuilder;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType;
-import static com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType.get;
-import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconTermResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.PacketDecoder;
+import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.enums.ChannelEvent;
+import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconRequest;
+import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacket;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.DefaultByteBufHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
- * <p>A Class that process incoming UDP datagrams and decodes each frame into {@link SourceRconResponsePacket}
- * instances</p>
+ * Decodes a raw {@link ByteBuf} message into a {@link SourceRconPacket} type. This decoder will read and collect decoded packets until everything has been received from the server.
  *
- * <p>
- * Rcon Packet Structure:
- * <pre>
- * ----------------------------------------------------------------------------
- * Field           Type                                    Value
- * ----------------------------------------------------------------------------
- * Size            32-bit little-endian Signed Integer     Varies, see below.
- * ID              32-bit little-endian Signed Integer     Varies, see below.
- * Type            32-bit little-endian Signed Integer     Varies, see below.
- * Body            Null-terminated ASCII String            Varies, see below.
- * Empty String    Null-terminated ASCII String            0x00
- * ----------------------------------------------------------------------------
- * </pre>
- *
- * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol</a>
+ * @author Rafael Luis Ibasco
+ * @apiNote When the server receives an auth request, it will respond with an empty {@code SERVERDATA_RESPONSE_VALUE}, followed immediately by a {@code SERVERDATA_AUTH_RESPONSE} indicating whether authentication succeeded or failed.
+ * Note that the status code is returned in the packet id field, so when pairing the response with the original auth request, you may need to look at the packet id of the preceeding {@code SERVERDATA_RESPONSE_VALUE}.
+ * <p/>
  */
 public class SourceRconPacketDecoder extends ByteToMessageDecoder {
+
     private static final Logger log = LoggerFactory.getLogger(SourceRconPacketDecoder.class);
 
-    private final AtomicInteger index = new AtomicInteger();
+    //minimum number of bytes for a Source Rcon Packet (Inclusive of the packet size field)
+    private static final int MINIMUM_PACKET_SIZE = 14;
 
-    private final static int PAD_SIZE = 56;
+    private static final int PACKET_SIZE_LENGTH = 4;
 
-    private SourceRconPacketBuilder builder;
+    private static final int MAX_PACKET_SIZE = 4096;
 
-    private boolean terminatingPacketsEnabled = true;
+    private PacketDecoder<SourceRconPacket> decoder;
 
-    public SourceRconPacketDecoder(boolean terminatingPacketsEnabled) {
-        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
-    }
+    private ArrayList<SourceRconPacket> packets;
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        log.debug("Initializing SourceRconPacketBuilder");
-        builder = new SourceRconPacketBuilder(ctx.channel().alloc());
+    private boolean terminatorPacketsEnabled;
+
+    public SourceRconPacketDecoder() {
+        setSingleDecode(false);
     }
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+        Envelope<AbstractRequest> envelope = ctx.channel().attr(ChannelAttributes.REQUEST).get();
+        if (envelope == null)
+            throw new IllegalStateException("Missing request envelope");
+        if (!(envelope.content() instanceof SourceRconRequest))
+            throw new IllegalStateException("Expected an instance of SourceRconRequest");
 
-        final String separator = "=================================================================================================";
+        boolean readMoreBytes = false;
+        final SourceRconRequest request = (SourceRconRequest) envelope.content();
+        //Initialize packet container
+        if (packets == null)
+            packets = new ArrayList<>();
 
-        //TODO: Move all code logic below to SourceRconPacketBuilder
-
-        log.debug(separator);
-        log.debug(" ({}) DECODING INCOMING DATA : Bytes Received = {} {}", index.incrementAndGet(), in.readableBytes(), index.get() > 1 ? "[Continuation]" : "");
-        log.debug(separator);
-
-        String desc = StringUtils.rightPad("Minimum allowable size?", PAD_SIZE);
-        //Verify we have the minimum allowable size
-        if (in.readableBytes() < 14) {
-            log.debug(" [ ] {} = NO (Actual Readable Bytes: {})", desc, in.readableBytes());
+        if (in.readableBytes() < PACKET_SIZE_LENGTH) {
+            debug(ctx, "Readable bytes less than the packet size length. Skipping.");
             return;
         }
-        log.debug(" [x] {} = YES (Actual Readable Bytes: {})", desc, in.readableBytes());
 
-        //Reset if this happens to be not a valid source rcon packet
-        in.markReaderIndex();
+        //Peek the packet size value, do not increase the reader index yet
+        //since our decoder will require the packet size
+        int packetSize = in.getIntLE(in.readerIndex());
 
-        //Read and Verify size
-        desc = StringUtils.rightPad("Bytes received at least => than the \"declared\" size?", PAD_SIZE);
-        int size = in.readIntLE();
-        int readableBytes = in.readableBytes();
-        if (readableBytes < size) {
-            log.debug(" [ ] {} = NO (Declared Size: {}, Actual Bytes Read: {})", desc, readableBytes, size);
-            in.resetReaderIndex();
+        //Apply some heuristics (if terminator packets are not enabled).
+        //This is a dirty workaround for determining if we still have more bytes to read (only applies when terminator packets are disabled)
+        if (!terminatorPacketsEnabled) {
+            int pSize = packetSize + 4;
+            if (packetSize >= MAX_PACKET_SIZE) {
+                readMoreBytes = true;
+            } else if ((pSize >= in.readableBytes()) && (pSize >= 4000)) {
+                readMoreBytes = true;
+                log.debug("Packet Size: {}", pSize);
+            }
+        }
+
+        //Do we have more packets to process?
+        if (packetSize == 0) {
+            debug(ctx, "Packet size is 0. (Remaining Bytes: {})", in.readableBytes());
+
+            //skip 4 bytes (packet size field)
+            in.skipBytes(PACKET_SIZE_LENGTH);
+
+            debug(ctx, "Skipped 4 bytes for packet size field. (Remaining bytes: {})", in.readableBytes());
+            //Do we have more packets to process?
+            if (in.readableBytes() >= MINIMUM_PACKET_SIZE) {
+                debug(ctx, "There are more packets to be processed. Continuing. (Remaining Bytes: {}, Collected Packets: {})", in.readableBytes(), packets.size());
+                return;
+            }
+
+            //Do we have packets to flush?
+            if (!packets.isEmpty()) {
+                debug(ctx, "Flushing {} packet(s) to the out buffer (Packet Size: {}, Minimum Required Packet Size: {}, Remaining Bytes: {})", packets.size(), packetSize, MINIMUM_PACKET_SIZE, in.readableBytes());
+                //start flushing
+                flush(ctx, out);
+            } else {
+                debug(ctx, "No packets to flush");
+            }
             return;
         }
-        log.debug(" [x] {} = YES (Declared Size: {}, Actual Bytes Read: {})", desc, readableBytes, size);
 
-        //Read and verify request id
-        desc = StringUtils.rightPad("Request Id within the valid range?", PAD_SIZE);
-        int id = in.readIntLE();
-        if (!(id == -1 || id == SourceRconUtil.RCON_TERMINATOR_RID || SourceRconUtil.isValidRequestId(id))) {
-            log.debug(" [ ] {} = NO (Actual: {})", desc, id);
-            in.resetReaderIndex();
+        debug(ctx, "Packet size is {} (Remaining bytes: {})", packetSize, in.readableBytes());
+
+        //Do we have the required number of bytes to process one complete packet? (packet size included)
+        if (in.readableBytes() < (packetSize + PACKET_SIZE_LENGTH)) {
+            debug(ctx, "Not enough readable bytes available to process this packet (Readable Bytes: {}, Expected packet size: {}, Collected packets: {})", in.readableBytes(), packetSize, packets.size());
+            //log.info("Not enough readable bytes available to process this packet (Readable Bytes: {}, Expected packet size: {}, Collected packets: {})", in.readableBytes(), packetSize + PACKET_SIZE_LENGTH, packets.size());
             return;
         }
-        log.debug(" [x] {} = YES (Actual: {})", desc, id);
 
-        //Read and verify request type
-        desc = StringUtils.rightPad("Valid response type?", PAD_SIZE);
-        int type = in.readIntLE();
-        if (get(type) == null) {
-            log.debug(" [ ] {} = NO (Actual: {})", desc, type);
-            in.resetReaderIndex();
+        //log.info("Got enough readable bytes. Start Decoding. (Readable Bytes: {}, Packet Size: {})", in.readableBytes(), packetSize);
+        debug(ctx, "Got enough readable bytes. Start Decoding. (Readable Bytes: {}, Packet Size: {})", in.readableBytes(), packetSize);
+
+        try {
+            //Start decoding
+            SourceRconPacket decoded = decoder.decode(in);
+            if (decoded == null) {
+                debug(ctx, "Decoder returned null");
+                return;
+            }
+
+            //make sure we don't have a mismatch
+            checkValidPacket(request, decoded);
+
+            if (decoded.getId() == 0) {
+                out.add(decoded);
+                return;
+            }
+
+            //Ok, no idea what packet id 0 supposed to mean, but we need to flush this and move on to the next.
+            /*if (packets.size() == 1 && packets.stream().anyMatch(p -> p.getId() == 0)) {
+                debug(ctx, "Found packet with id = 0. Flushing");
+                flush(ctx, out);
+                return;
+            }*/
+
+            //Decoded packet is in a valid state
+            debug(ctx, "Collecting decoded packet '{}' (Size: {})", decoded, packets.size());
+
+            if (terminatorPacketsEnabled) {
+                //Ignore secondary terminator packets
+                if (!SourceRcon.isSecondaryTerminatorPacket(decoded)) {
+                    //Decoded packet is in a valid state
+                    debug(ctx, "Collecting decoded packet '{}' (Size: {})", decoded, packets.size());
+                    packets.add(decoded);
+
+                    //Do we have more bytes to read?
+                    if (readMoreBytes || in.readableBytes() > 0) {
+                        debug(ctx, "Continue reading. Found {} more bytes to read from the channel.", in.readableBytes());
+                        return;
+                    }
+
+                    debug(ctx, "Done. No more bytes to read ({}). Collected a total of {} packet(s) from the server. Passing to the next handler", in.readableBytes(), packets.size());
+                    flush(ctx, out);
+                } else {
+                    debug(ctx, "Discarding secondary terminator packets");
+                    if (decoded.release()) {
+                        debug(ctx, "Successfully released second terminator packet");
+                    }
+                }
+            } else {
+                flushExcept(decoded, out);
+
+                packets.add(decoded);
+                //Do we have more bytes to read?
+                if (readMoreBytes || in.readableBytes() > 0) {
+                    debug(ctx, "Continue reading. Found {} more bytes to read from the channel.", in.readableBytes());
+                    return;
+                }
+                debug(ctx, "Done. No more bytes to read ({}). Collected a total of {} packet(s) from the server. Passing to the next handler", in.readableBytes(), packets.size());
+                flush(ctx, out);
+            }
+        } catch (Exception ex) {
+            log.error("Error occured while decoding packet", ex);
+            reset(ctx, true);
+            in.discardReadBytes();
+            throw ex;
+        }
+    }
+
+    private void flushExcept(SourceRconPacket packet, List<Object> out) {
+        List<Integer> ids = packets.stream().map(SourceRconPacket::getId).filter(id -> id != -1 && id != packet.getId()).distinct().collect(Collectors.toList());
+        if (ids.isEmpty())
+            return;
+        Iterator<SourceRconPacket> it = packets.iterator();
+        while (it.hasNext()) {
+            SourceRconPacket pending = it.next();
+            if (pending.getId() != packet.getId()) {
+                log.debug("Flushing '{}' except '{}'", pending, packet);
+                out.add(pending);
+                it.remove();
+            }
+        }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        try {
+            reset(ctx, true);
+        } finally {
+            ctx.fireExceptionCaught(cause);
+        }
+    }
+
+    private void reset(ChannelHandlerContext ctx, boolean release) {
+        if (packets == null)
+            return;
+        if (!packets.isEmpty()) {
+            debug(ctx, "Resetting/Releasing decoded packet(s) (Size: {})", packets.size());
+            if (release)
+                packets.forEach(DefaultByteBufHolder::release);
+        }
+        packets = null;
+    }
+
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        ChannelEvent cEvent = (ChannelEvent) evt;
+        if (cEvent == ChannelEvent.RELEASED) {
+            if (packets == null)
+                return;
+            debug(ctx, "Channel was released. Resetting packet container (Container size: {})", packets.size());
+            reset(ctx, true);
+        }
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        debug(ctx, "DECODER: START");
+        super.channelRead(ctx, msg);
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        debug(ctx, "DECODER: END");
+        super.channelReadComplete(ctx);
+    }
+
+    @Override
+    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        this.decoder = new com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacketDecoder(ctx, SourceRconOptions.STRICT_MODE.attr(ctx));
+        this.terminatorPacketsEnabled = SourceRcon.terminatorPacketEnabled(ctx);
+        super.channelActive(ctx);
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        reset(ctx, true);
+        decoder = null;
+        super.channelInactive(ctx);
+    }
+
+    private boolean allMatch(SourceRconPacket packet) {
+        for (int i = 0; i < packets.size(); i++) {
+            SourceRconPacket p = packets.get(i);
+            if (p.getId() != packet.getId())
+                return false;
+        }
+        return true;
+    }
+
+    private void checkValidPacket(SourceRconRequest request, SourceRconPacket packet) {
+        if (packets.isEmpty())
+            return;
+        if (SourceRcon.isTerminatorPacket(packet))
+            return;
+        /*if (packets.stream().allMatch(p -> p.getId() == packet.getId()))
+            return;*/
+        if (allMatch(packet))
+            return;
+        if (packet.getId() == 0)
+            return;
+        if (request.getRequestId() != packet.getId())
+            throw new IllegalStateException(String.format("Packet id mismatch. Expected packet id of '%d' but got '%d' (Request: %s)", request.getRequestId(), packet.getId(), request));
+        List<Integer> ids = packets.stream().map(SourceRconPacket::getId).filter(id -> id != -1).distinct().collect(Collectors.toList());
+        int distinctIds = ids.size();
+        if (distinctIds > 1) {
+            throw new IllegalStateException(String.format("Packet id mismatch. Expected only 1 distinct packet id in the container but have %d (Ids: [%s], Packet Id: %s, Request: %s)", distinctIds, ids.stream().map(String::valueOf).collect(Collectors.joining(", ")), packet.getId(), request));
+        }
+    }
+
+    private void flush(ChannelHandlerContext ctx, List<Object> out) {
+        if (packets.isEmpty()) {
+            debug(ctx, "Nothing to flush");
             return;
         }
-        log.debug(" [x] {} = YES (Actual: {} = {})", desc, type, SourceRconResponseType.get(type));
+        out.addAll(packets);
+        reset(ctx, false);
+    }
 
-        //Read and verify body
-        desc = StringUtils.rightPad("Contains Body?", PAD_SIZE);
-        int bodyLength = in.bytesBefore((byte) 0);
-        String body = StringUtils.EMPTY;
-        if (bodyLength <= 0)
-            log.debug(" [ ] {} = NO", desc);
-        else {
-            body = in.readCharSequence(bodyLength, StandardCharsets.UTF_8).toString();
-            log.debug(" [x] {} = YES (Length: {}, Body: {})", desc, bodyLength, StringUtils.replaceAll(StringUtils.truncate(body, 30), "\n", "\\\\n"));
-        }
-
-        //Peek at the last two bytes and verify that they are null-bytes
-        byte bodyTerminator = in.getByte(in.readerIndex());
-        byte packetTerminator = in.getByte(in.readerIndex() + 1);
-
-        desc = StringUtils.rightPad("Contains TWO null-terminating bytes at the end?", PAD_SIZE);
-
-        //Make sure the last two bytes are NULL bytes (request id: 999 is reserved for split packet responses)
-        if ((bodyTerminator != 0 || packetTerminator != 0) && (id == SourceRconUtil.RCON_TERMINATOR_RID)) {
-            log.debug("Skipping {} bytes", in.readableBytes());
-            in.skipBytes(in.readableBytes());
-            return;
-        } else if (bodyTerminator != 0 || packetTerminator != 0) {
-            log.debug(" [ ] {} = NO (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
-            in.resetReaderIndex();
-            return;
-        } else {
-            log.debug(" [x] {} = YES (Actual: Body Terminator = {}, Packet Terminator = {})", desc, bodyTerminator, packetTerminator);
-            //All is good, skip the last two bytes
-            if (in.readableBytes() >= 2)
-                in.skipBytes(2);
-        }
-
-        //At this point, we can now construct a packet
-        log.debug(" [x] Status: PASS (Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Body Size = {})", size, id, type, in.readableBytes(), bodyLength);
-        log.debug(separator);
-
-        //Reset the index
-        index.set(0);
-
-        //Construct the response packet and send to the next handlers
-        SourceRconResponsePacket responsePacket;
-
-        //Did we receive a terminator packet?
-        if (this.terminatingPacketsEnabled && id == SourceRconUtil.RCON_TERMINATOR_RID && StringUtils.isBlank(body)) {
-            responsePacket = new SourceRconTermResponsePacket();
-        } else {
-            responsePacket = SourceRconPacketBuilder.getResponsePacket(type);
-        }
-
-        if (responsePacket != null) {
-            responsePacket.setSize(size);
-            responsePacket.setId(id);
-            responsePacket.setType(type);
-            responsePacket.setBody(body);
-            log.debug("Decode Complete. Passing response for request id : '{}' to the next handler. Remaining bytes ({})", id, in.readableBytes());
-            out.add(responsePacket);
-        }
+    private static void debug(ChannelHandlerContext ctx, String msg, Object... args) {
+        log.debug(String.format("%s INB => %s", NettyUtil.id(ctx), msg), args);
     }
 }

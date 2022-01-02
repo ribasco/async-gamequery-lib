@@ -1,278 +1,282 @@
 /*
- * MIT License
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
- * Copyright (c) 2018 Asynchronous Game Query Library
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
- * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- * copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
- * SOFTWARE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconRequestType;
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconResponseType;
-import com.ibasco.agql.protocols.valve.source.query.exceptions.InvalidRconRequestIdException;
-import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceRconNoResponseTypeException;
-import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconAuthResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.packets.response.SourceRconCmdResponsePacket;
-import com.ibasco.agql.protocols.valve.source.query.utils.SourceRconUtil;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.handlers.MessageInboundDecoder;
+import com.ibasco.agql.core.transport.enums.ChannelEvent;
+import com.ibasco.agql.core.util.ByteUtil;
+import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdRequest;
+import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacket;
+import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacketFactory;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.MessageToMessageDecoder;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.netty.util.ReferenceCountUtil;
+import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * Class responsible for re-assembling split packet instances into one complete packet.
+ * Re-assembles all {@link SourceRconPacket} split-packet back into a single {@link SourceRconPacket} instance.
  *
- * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses">Multiple-packet_Responses</a>
+ * @author Rafael Luis Ibasco
+ * @implNote When terminator packets are enabled, we expect to receive two terminator packets with request id of -1 and with terminator byte of 0 then 1.
+ * This implementation expects only to receive a SINGLE terminator packet, because there are cases when an unauthenticated request is sent, then the server will only send a single terminator packet (with terminator value of 0) instead of two.
+ * @see SourceRconOptions#USE_TERMINATOR_PACKET
  */
-public class SourceRconPacketAssembler extends MessageToMessageDecoder<SourceRconResponsePacket> {
+public class SourceRconPacketAssembler extends MessageInboundDecoder {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceRconPacketAssembler.class);
+    private Deque<SourceRconPacket> splitPackets = new ArrayDeque<>();
 
-    private final Map<Integer, SourceRconRequestType> requestTypeMap;
+    private boolean markedForConsolidation;
 
-    private final LinkedListMultimap<Integer, SourceRconResponsePacket> packetContainer = LinkedListMultimap.create();
+    @Override
+    protected boolean acceptMessage(AbstractRequest request, Object msg) {
+        //make sure the originating request is a 'Execute Command' request
+        if (!(request instanceof SourceRconCmdRequest))
+            return false;
+        if (!(msg instanceof SourceRconPacket))
+            return false;
+        final SourceRconPacket packet = (SourceRconPacket) msg;
+        //setSuppressLog(true);
+        //make sure to only accept terminator or response value packets
+        return SourceRcon.isTerminatorPacket(packet) || SourceRcon.isResponseValuePacket(packet);
+    }
 
-    private Integer lastAuthRequestId = null;
+    private int counter;
 
-    private boolean terminatingPacketsEnabled = true;
+    @Override
+    protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
+        assert msg instanceof SourceRconPacket;
+        final SourceRconPacket packet = (SourceRconPacket) msg;
+        debug("ASSEMBLER: START");
+        if (markedForConsolidation) {
+            debug("Marked for consolidation. Returning : {}", msg);
+            return null;
+        }
 
-    public SourceRconPacketAssembler(Map<Integer, SourceRconRequestType> requestTypeMap, boolean terminatingPacketsEnabled) {
-        if (requestTypeMap == null)
-            throw new IllegalArgumentException("Request type map cannot be null");
-        this.requestTypeMap = requestTypeMap;
-        this.terminatingPacketsEnabled = terminatingPacketsEnabled;
+        //discard terminator packets (should be released automatically)
+        if (SourceRcon.terminatorPacketEnabled(ctx) && SourceRcon.isTerminatorPacket(packet)) {
+            assert SourceRcon.isInitialTerminatorPacket(packet);
+            //should we mark for consolidation?
+            debug("Received initial terminator packet '{}' ({}). Marked for consolidation.", packet.getTerminator(), ByteUtil.toHexString(packet.getTerminator()));
+            markedForConsolidation = true;
+            return null;
+        } else {
+            //only collect response value packets with id > 0
+            if (packet.getId() > 0) {
+                //make sure to call retain so the decoder does not automatically release on return
+                container().addLast(ReferenceCountUtil.retain(packet));
+                debug("{}) Added Packet to container: '{}'", ++counter, msg);
+            } else {
+                debug("Skipping packet '{}'", packet);
+            }
+        }
+        return null;
     }
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, SourceRconResponsePacket msg, List<Object> out) throws Exception {
-        int requestId = msg.getId();
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        //if terminator packets are enabled, check terminate flag,
+        // if set then we should start consolidating
+        try {
+            debug("ASSEMBLER: END (Checking if there are packets that needs to be assembled)");
+            SourceRconPacket decoded;
+            if (SourceRcon.terminatorPacketEnabled(ctx)) {
+                if (markedForConsolidation) {
+                    try {
+                        debug("Terminate flag set. Attemping to decode/assemble packet(s)");
+                        decoded = decodePacket(ctx);
+                    } finally {
+                        debug("Terminate flag reset");
+                        markedForConsolidation = false;
+                    }
+                } else {
+                    debug("Terminate flag not set. Do not decode/assemble.");
+                    decoded = null;
+                }
+            } else {
+                debug("Terminator packets disabled by configuration. Attempting to decode/assemble packet(s)");
+                decoded = decodePacket(ctx);
+            }
+            //did we decode something?
+            if (decoded != null) {
+                debug("Decoded/Re-assembled packet '{}'. Passing to next handler", decoded);
+                ctx.fireChannelRead(decoded);
+            } else
+                debug("Nothing to decode/assemble. Skipping");
+        } finally {
+            ctx.fireChannelReadComplete();
+        }
+    }
 
-        SourceRconResponseType responseType = getResponseType(msg);
+    private SourceRconPacket decodePacket(ChannelHandlerContext ctx) {
+        final Deque<SourceRconPacket> container = container();
 
-        //Fail fast for unknown response types
-        if (responseType == null)
-            throw new SourceRconNoResponseTypeException("Unable to identify response type for rcon packet");
+        //Is the container empty? Reset and return immediately
+        if (container.isEmpty()) {
+            debug("decodePacket(1) : Resetting container");
+            reset();
+            counter = 0;
+            return null;
+        }
 
-        log.debug("Received rcon packet from Request Id : {} (Type = {}, Class = {})", requestId, responseType, msg.getClass().getSimpleName());
+        try {
+            //make sure we have more than 1 packets to re-assemble, otherwise just pass the packet to the next handler
+            int packetCount = container.size();
+            if (packetCount == 1) {
+                SourceRconPacket singlePacket = container.removeFirst();
+                debug("Received only a single-packet ({}). Passing to the next handler(s)", singlePacket);
+                return singlePacket;
+            } else {
+                final SourceRconPacket reassembledPacket = reassemble(ctx);
+                debug("Passing rcon packet '{}' to the next handler(s)", reassembledPacket);
+                return reassembledPacket;
+            }
+        } finally {
+            debug("decodePacket(2) : Resetting container");
+            reset();
+            counter = 0;
+        }
+    }
 
-        if (!terminatingPacketsEnabled && responseType != SourceRconResponseType.AUTH) {
-            out.add(msg);
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (!(evt instanceof ChannelEvent)) {
+            ctx.fireUserEventTriggered(evt);
             return;
         }
-
-        //Check if we receive an auth response type
-        if (responseType == SourceRconResponseType.AUTH) {
-            SourceRconAuthResponsePacket authResponsePacket = processAuthResponsePacket(msg);
-            if (authResponsePacket != null)
-                out.add(authResponsePacket);
-        } else if (responseType == SourceRconResponseType.COMMAND) {
-            //Put to the packet container
-            packetContainer.put(requestId, msg);
-        } else {
-            //Process the first key
-            int rId = packetContainer.keys().iterator().next();
-
-            log.debug("Received a terminator packet. Re-assembling packet(s) for request id '{}'", rId);
-            List<SourceRconResponsePacket> rconPackets = packetContainer.get(rId);
-            SourceRconResponsePacket reassembledPacket = null;
-
-            if (rconPackets.size() == 1) {
-                reassembledPacket = rconPackets.remove(0);
-            } else if (rconPackets.size() > 1) {
-                log.debug("Found multiple packetContainer in the queue. Re-assembling");
-                reassembledPacket = reassemblePackets(rconPackets);
-            }
-            if (reassembledPacket != null) {
-                log.debug("Sending Re-assembled packet to the next handler");
-                //Send to the next handler
-                out.add(reassembledPacket);
-            }
-        }
+        ChannelEvent event = (ChannelEvent) evt;
+        if (ChannelEvent.RELEASED.equals(event) || ChannelEvent.CLOSED.equals(event))
+            reset();
+        markedForConsolidation = false;
     }
 
-    private SourceRconAuthResponsePacket processAuthResponsePacket(SourceRconResponsePacket msg) {
-        int requestId = msg.getId();
-
-        //We received a new auth cmd response, so create a new SourceRconAuthResponsePacket and merge with it
-        if ((msg instanceof SourceRconCmdResponsePacket) && !this.packetContainer.containsKey(requestId)) {
-            if (!SourceRconUtil.isValidRequestId(requestId))
-                throw new IllegalStateException(String.format("Expecting a valid request id. Received : %d", requestId));
-
-            //Create a new auth response container
-            SourceRconAuthResponsePacket authPacket = new SourceRconAuthResponsePacket();
-            authPacket.setId(requestId);
-            authPacket.setBody(StringUtils.strip(msg.getBody(), "\r\n "));
-
-            //Place it into the multimap container
-            this.packetContainer.put(requestId, authPacket);
-
-            //Store the request id to lastAuthRequestId. If the authentication fails,
-            // we will only receive a request id value of -1 from the auth response packet.
-            this.lastAuthRequestId = requestId;
-            log.debug("Saving the auth request id : {}", lastAuthRequestId);
-        } else {
-            log.debug("Received AUTH response packet. Current Request Id = {}, Last Request Id = {}", requestId, lastAuthRequestId);
-            if (lastAuthRequestId == null && msg instanceof SourceRconAuthResponsePacket) {
-                //some games only respond with the AUTH packet, immediately return for processing.
-
-                //if id is -1, look for the latest entry in the map
-                if (msg.getId() == -1) {
-                    Integer id = findLatestAuthId();
-                    log.debug("Updating id from -1 to '{}'", id);
-                    msg.setId(id != null ? id : -1);
-                    ((SourceRconAuthResponsePacket) msg).setSuccess(false);
-                } else {
-                    ((SourceRconAuthResponsePacket) msg).setSuccess(true);
-                }
-
-                log.debug("Returning authentication packet response for processing");
-                return (SourceRconAuthResponsePacket) msg;
-            } else if (lastAuthRequestId != null && SourceRconUtil.isValidRequestId(lastAuthRequestId)) {
-                List<SourceRconResponsePacket> authPacketContainer = this.packetContainer.get(lastAuthRequestId);
-                Iterator<SourceRconResponsePacket> it = authPacketContainer.iterator();
-                try {
-                    //Update the auth response instance with the actual request id
-                    SourceRconAuthResponsePacket authResponsePacket = (SourceRconAuthResponsePacket) it.next();
-                    if (!SourceRconUtil.isValidRequestId(requestId)) {
-                        log.debug("Updating request id to : {}", lastAuthRequestId);
-                        authResponsePacket.setId(lastAuthRequestId); //update the request id
-                    }
-                    authResponsePacket.setSuccess(requestId != -1);
-                    return authResponsePacket;
-                } finally {
-                    //send to the next handler
-                    it.remove(); //remove from the container
-                    lastAuthRequestId = null; //reset id
-                }
-            } else
-                throw new InvalidRconRequestIdException("Unable to retrieve the authentication request id. Expected a valid request id but received: " + lastAuthRequestId);
-        }
-        return null;
+    @Override
+    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        debug("channelActive() : Resetting container");
+        reset();
+        ctx.fireChannelActive();
     }
 
-    private Integer findLatestAuthId() {
-        return requestTypeMap.entrySet().stream()
-                .filter(e -> e.getValue() == SourceRconRequestType.AUTH)
-                .map(Map.Entry::getKey)
-                .findFirst()
-                .orElse(null);
+    @Override
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        debug("channelInactive() : Resetting container");
+        reset();
+        ctx.fireChannelInactive();
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        debug("exceptionCaught() : Resetting container");
+        reset();
+        ctx.fireExceptionCaught(cause);
     }
 
     /**
-     * <p>Determine the response type of the message.</p>
+     * Consolidate multiple {@link SourceRconPacket} instances into one {@link SourceRconPacket}
      *
-     * @param response
-     *         The {@link SourceRconResponsePacket} message to check
+     * @param ctx
+     *         The {@link ChannelHandlerContext} currently associated with this handler
      *
-     * @return A {@link SourceRconResponseType} enum
+     * @return A {@link SourceRconPacket} containing the consolidated payload
      */
-    private SourceRconResponseType getResponseType(SourceRconResponsePacket response) {
-        SourceRconRequestType requestType = requestTypeMap.get(response.getId());
-        if (requestType == null && SourceRconUtil.isTerminator(response.getId())) {
-            return SourceRconResponseType.TERMINATOR;
-        } else if ((response.getId() == -1 && response instanceof SourceRconAuthResponsePacket)
-                || requestType == SourceRconRequestType.AUTH) {
-            return SourceRconResponseType.AUTH;
-        } else if (requestType == SourceRconRequestType.COMMAND) {
-            return SourceRconResponseType.COMMAND;
+    private SourceRconPacket reassemble(ChannelHandlerContext ctx) {
+        try {
+            final Deque<SourceRconPacket> container = container();
+
+            //validate packets
+            ensureValidState(container);
+            debug("Re-assembling {} split-packet(s)", container.size());
+
+            int totalPayloadSize = 0;
+            int packetCtr = 0;
+            Integer id = null;
+
+            //thank the netty gods for CompositeByteBuf
+            CompositeByteBuf payload = ctx.alloc().compositeDirectBuffer(container.size());
+
+            //start assembling
+            SourceRconPacket packet;
+            while ((packet = container.pollFirst()) != null) {
+                //Get the id of the first packet
+                if (id == null)
+                    id = packet.getId();
+
+                //we shouldn't include the null terminating byte during consolidation, so we slice it
+                int length = container.peekFirst() != null ? packet.content().capacity() - 1 : packet.content().capacity();
+                ByteBuf data = packet.content().slice(0, length);
+                totalPayloadSize += data.capacity();
+
+                debug("({}) Id: {}, Type: {}, Packet Size: {}, Payload Size: {}, Payload Capacity: {}", String.format("%03d", ++packetCtr), packet.getId(), packet.getType(), packet.getSize(), packet.content().readableBytes(), packet.content().capacity());
+                payload.addComponent(true, data);
+            }
+
+            assert container.isEmpty();
+            assert payload.readableBytes() == totalPayloadSize;
+
+            debug("Successfully re-assembled {} packet(s) with a total of {} bytes", packetCtr, payload.readableBytes());
+            if (id == null)
+                throw new IllegalStateException("No id is present");
+
+            return SourceRconPacketFactory.createResponseValue(id, payload.consolidate().clear());
+        } finally {
+            debug("reassemble() : Resetting container");
+            reset();
         }
-        return null;
     }
 
-    private SourceRconResponsePacket reassemblePackets(List<SourceRconResponsePacket> packets) {
-        //We have reached the end...lets start assembling the packet
-        log.debug("Received a terminator packet! Re-assembling packetContainer. Size = {}", packets.size());
-        SourceRconCmdResponsePacket reassembledPacket = new SourceRconCmdResponsePacket();
-        StringBuilder responseBody = new StringBuilder();
+    private void ensureValidState(Deque<SourceRconPacket> packets) {
+        if (packets == null || packets.isEmpty())
+            throw new IllegalStateException("Split packet container is null or empty");
+        int firstId = packets.peekFirst().getId();
+        List<Integer> ids = packets.stream().mapToInt(SourceRconPacket::getId).distinct().boxed().collect(Collectors.toList());
+        if (ids.size() > 1) {
+            throw new IllegalStateException(String.format("Not all split-packets share the same id (Expected: %d, Actual: %s)", firstId, ids.stream().map(String::valueOf).collect(Collectors.joining(", "))));
+        }
+    }
 
-        int id = -1, type = -1, totalDeclaredPacketSize = 0, totalActualBodySize = 0, totalActualPacketSize = 0;
+    private Deque<SourceRconPacket> container() {
+        if (this.splitPackets == null) {
+            this.splitPackets = new ArrayDeque<>();
+            debug("Initialized split-packet container");
+        }
+        return this.splitPackets;
+    }
 
-        int totalSplitPackets = packets.size();
-
-        Iterator<SourceRconResponsePacket> it = packets.iterator();
-
-        for (int i = 0; packets.size() > 0; i++) {
-
-            SourceRconResponsePacket responsePacket = it.next();
-
-            try {
-                if (responsePacket == null)
-                    continue;
-
-                int packetBodySize = responsePacket.getBody().length();
-
-                //Initialize Variables
-                if (id == -1)
-                    id = responsePacket.getId();
-                if (type == -1)
-                    type = responsePacket.getType();
-
-                //Add the declared size for verification purposes
-                totalDeclaredPacketSize += responsePacket.getSize();
-
-                //Compute total body size
-                totalActualBodySize += packetBodySize;
-
-                //Compute the total actual packet size for integrity check
-                totalActualPacketSize += (10 + packetBodySize); //4 bytes (Id) + 4 bytes (Type) + 2 null-terminator bytes (Size field is excluded)
-
-                log.debug(" ({}) Re-assembling Packet: {}", i + 1, responsePacket);
-                responseBody.append(responsePacket.getBody());
-            } finally {
-                it.remove();
+    private void reset() {
+        try {
+            if (splitPackets == null)
+                return;
+            //release
+            SourceRconPacket packet;
+            while ((packet = splitPackets.pollFirst()) != null) {
+                packet.release();
             }
+            splitPackets = null;
+            debug("Split packet container has been reset");
+        } catch (Throwable e) {
+            debug("Failed to reset split packet container", e);
         }
-
-        //Merge the details
-        reassembledPacket.setSize(totalActualPacketSize);
-        reassembledPacket.setId(id);
-        reassembledPacket.setType(type);
-        reassembledPacket.setBody(responseBody.toString());
-
-        if (log.isDebugEnabled()) {
-            String integrityStatus = (totalActualPacketSize == totalDeclaredPacketSize) ? "PASS" : "FAIL";
-            log.debug("========================================================");
-            log.debug(" Report Summary");
-            log.debug("========================================================");
-            log.debug(" # Total Split-Packets processed: {}", totalSplitPackets);
-            log.debug(" # Total Declared Packet Size: {}", totalDeclaredPacketSize);
-            log.debug(" # Total Actual Packet Size: {}", totalActualPacketSize);
-            log.debug(" # Total Actual Body Size: {}", totalActualBodySize);
-            log.debug(" # Integrity Check Status: {}", integrityStatus);
-            log.debug(" # Size: {}", reassembledPacket.getSize());
-            log.debug(" # Request Id: {}", reassembledPacket.getId());
-            log.debug(" # Type: {}", reassembledPacket.getType());
-            log.debug(" # Body Size: {}", reassembledPacket.getBody().length());
-            log.debug("========================================================");
-        }
-
-        if (totalActualPacketSize != totalDeclaredPacketSize)
-            log.warn("Failed packet re-assembly integrity check. Size Mismatch. Expected a total of '{}' byte(s) but got '{}' byte(s)", totalDeclaredPacketSize, totalActualPacketSize);
-
-        return reassembledPacket;
     }
 }

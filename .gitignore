@@ -6,6 +6,6 @@ logs/
 out/
 *.iml
 /examples/src/main/resources/auth.json
-/example.properties
+example.properties
 /gh-pages/
 .flattened-pom.xml

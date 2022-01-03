@@ -1,0 +1,160 @@
+[192.168.1.34:27017]: [192.168.1.34:27017]: : /batch 500000
+Executing random commands
+==============================================================================================================================================================
+Executing 500000 'random' command(s)
+==============================================================================================================================================================
+[192.168.1.34:270171]:2:09:32.056 [ForkJoinPool.commonPool-worker-2] INFO   SourceRconExample         - Waiting for all futures to complete
+[COMMAND]: 001) Processed a total of   5000 queries (Progress:    1%, Success: 05000, Fail: 00000, Batch Size: 5000, Elapsed: 00:00:41, Last Thread: agql-el-1-5)
+[COMMAND]: 002) Processed a total of  10000 queries (Progress:    2%, Success: 10000, Fail: 00000, Batch Size: 5000, Elapsed: 00:01:23, Last Thread: agql-el-1-9)
+[COMMAND]: 003) Processed a total of  15000 queries (Progress:    3%, Success: 15000, Fail: 00000, Batch Size: 5000, Elapsed: 00:02:04, Last Thread: agql-el-1-9)
+[COMMAND]: 004) Processed a total of  20000 queries (Progress:    4%, Success: 20000, Fail: 00000, Batch Size: 5000, Elapsed: 00:02:46, Last Thread: agql-el-1-3)
+[COMMAND]: 005) Processed a total of  25000 queries (Progress:    5%, Success: 25000, Fail: 00000, Batch Size: 5000, Elapsed: 00:03:25, Last Thread: agql-el-1-5)
+[COMMAND]: 006) Processed a total of  30000 queries (Progress:    6%, Success: 30000, Fail: 00000, Batch Size: 5000, Elapsed: 00:04:09, Last Thread: agql-el-1-1)
+[COMMAND]: 007) Processed a total of  35000 queries (Progress:    7%, Success: 35000, Fail: 00000, Batch Size: 5000, Elapsed: 00:04:48, Last Thread: agql-el-1-1)
+[COMMAND]: 008) Processed a total of  40000 queries (Progress:    8%, Success: 40000, Fail: 00000, Batch Size: 5000, Elapsed: 00:05:26, Last Thread: agql-el-1-9)
+[COMMAND]: 009) Processed a total of  45000 queries (Progress:    9%, Success: 45000, Fail: 00000, Batch Size: 5000, Elapsed: 00:06:05, Last Thread: agql-el-1-1)
+[COMMAND]: 010) Processed a total of  50000 queries (Progress:   10%, Success: 50000, Fail: 00000, Batch Size: 5000, Elapsed: 00:06:43, Last Thread: agql-el-1-6)
+[COMMAND]: 011) Processed a total of  55000 queries (Progress:   11%, Success: 55000, Fail: 00000, Batch Size: 5000, Elapsed: 00:07:21, Last Thread: agql-el-1-9)
+[COMMAND]: 012) Processed a total of  60000 queries (Progress:   12%, Success: 60000, Fail: 00000, Batch Size: 5000, Elapsed: 00:07:59, Last Thread: agql-el-1-9)
+[COMMAND]: 013) Processed a total of  65000 queries (Progress:   13%, Success: 65000, Fail: 00000, Batch Size: 5000, Elapsed: 00:08:46, Last Thread: agql-el-1-1)
+[COMMAND]: 014) Processed a total of  70000 queries (Progress:   14%, Success: 70000, Fail: 00000, Batch Size: 5000, Elapsed: 00:09:22, Last Thread: agql-el-1-6)
+[COMMAND]: 015) Processed a total of  75000 queries (Progress:   15%, Success: 75000, Fail: 00000, Batch Size: 5000, Elapsed: 00:10:00, Last Thread: agql-el-1-6)
+[COMMAND]: 016) Processed a total of  80000 queries (Progress:   16%, Success: 80000, Fail: 00000, Batch Size: 5000, Elapsed: 00:10:38, Last Thread: agql-el-1-4)
+[COMMAND]: 017) Processed a total of  85000 queries (Progress:   17%, Success: 85000, Fail: 00000, Batch Size: 5000, Elapsed: 00:11:14, Last Thread: agql-el-1-3)
+[COMMAND]: 018) Processed a total of  90000 queries (Progress:   18%, Success: 90000, Fail: 00000, Batch Size: 5000, Elapsed: 00:11:50, Last Thread: agql-el-1-9)
+[COMMAND]: 019) Processed a total of  95000 queries (Progress:   19%, Success: 95000, Fail: 00000, Batch Size: 5000, Elapsed: 00:12:27, Last Thread: agql-el-1-2)
+[COMMAND]: 020) Processed a total of  100000 queries (Progress:   20%, Success: 100000, Fail: 00000, Batch Size: 5000, Elapsed: 00:13:03, Last Thread: agql-el-1-9)
+[COMMAND]: 021) Processed a total of  105000 queries (Progress:   21%, Success: 105000, Fail: 00000, Batch Size: 5000, Elapsed: 00:13:41, Last Thread: agql-el-1-5)
+[COMMAND]: 022) Processed a total of  110000 queries (Progress:   22%, Success: 110000, Fail: 00000, Batch Size: 5000, Elapsed: 00:14:15, Last Thread: agql-el-1-3)
+[COMMAND]: 023) Processed a total of  115000 queries (Progress:   23%, Success: 115000, Fail: 00000, Batch Size: 5000, Elapsed: 00:14:53, Last Thread: agql-el-1-9)
+[COMMAND]: 024) Processed a total of  120000 queries (Progress:   24%, Success: 120000, Fail: 00000, Batch Size: 5000, Elapsed: 00:15:31, Last Thread: agql-el-1-6)
+[COMMAND]: 025) Processed a total of  125000 queries (Progress:   25%, Success: 125000, Fail: 00000, Batch Size: 5000, Elapsed: 00:16:09, Last Thread: agql-el-1-3)
+[COMMAND]: 026) Processed a total of  130000 queries (Progress:   26%, Success: 130000, Fail: 00000, Batch Size: 5000, Elapsed: 00:16:47, Last Thread: agql-el-1-2)
+[COMMAND]: 027) Processed a total of  135000 queries (Progress:   27%, Success: 135000, Fail: 00000, Batch Size: 5000, Elapsed: 00:17:25, Last Thread: agql-el-1-6)
+[COMMAND]: 028) Processed a total of  140000 queries (Progress:   28%, Success: 140000, Fail: 00000, Batch Size: 5000, Elapsed: 00:18:00, Last Thread: agql-el-1-1)
+[COMMAND]: 029) Processed a total of  145000 queries (Progress:   29%, Success: 144998, Fail: 00002, Batch Size: 5000, Elapsed: 00:19:16, Last Thread: agql-el-1-3)
+[COMMAND]: 030) Processed a total of  150000 queries (Progress:   30%, Success: 149998, Fail: 00002, Batch Size: 5000, Elapsed: 00:19:53, Last Thread: agql-el-1-3)
+[COMMAND]: 031) Processed a total of  155000 queries (Progress:   31%, Success: 154998, Fail: 00002, Batch Size: 5000, Elapsed: 00:20:29, Last Thread: agql-el-1-6)
+[COMMAND]: 032) Processed a total of  160000 queries (Progress:   32%, Success: 159998, Fail: 00002, Batch Size: 5000, Elapsed: 00:21:07, Last Thread: agql-el-1-2)
+[COMMAND]: 033) Processed a total of  165000 queries (Progress:   33%, Success: 164998, Fail: 00002, Batch Size: 5000, Elapsed: 00:21:42, Last Thread: agql-el-1-1)
+[COMMAND]: 034) Processed a total of  170000 queries (Progress:   34%, Success: 169998, Fail: 00002, Batch Size: 5000, Elapsed: 00:22:20, Last Thread: agql-el-1-2)
+[COMMAND]: 035) Processed a total of  175000 queries (Progress:   35%, Success: 174998, Fail: 00002, Batch Size: 5000, Elapsed: 00:22:56, Last Thread: agql-el-1-1)
+[COMMAND]: 036) Processed a total of  180000 queries (Progress:   36%, Success: 179998, Fail: 00002, Batch Size: 5000, Elapsed: 00:23:32, Last Thread: agql-el-1-3)
+[COMMAND]: 037) Processed a total of  185000 queries (Progress:   37%, Success: 184998, Fail: 00002, Batch Size: 5000, Elapsed: 00:24:09, Last Thread: agql-el-1-1)
+[COMMAND]: 038) Processed a total of  190000 queries (Progress:   38%, Success: 189998, Fail: 00002, Batch Size: 5000, Elapsed: 00:24:46, Last Thread: agql-el-1-5)
+[COMMAND]: 039) Processed a total of  195000 queries (Progress:   39%, Success: 194998, Fail: 00002, Batch Size: 5000, Elapsed: 00:25:24, Last Thread: agql-el-1-1)
+[COMMAND]: 040) Processed a total of  200000 queries (Progress:   40%, Success: 199998, Fail: 00002, Batch Size: 5000, Elapsed: 00:26:02, Last Thread: agql-el-1-4)
+[COMMAND]: 041) Processed a total of  205000 queries (Progress:   41%, Success: 204998, Fail: 00002, Batch Size: 5000, Elapsed: 00:26:37, Last Thread: agql-el-1-3)
+[COMMAND]: 042) Processed a total of  210000 queries (Progress:   42%, Success: 209998, Fail: 00002, Batch Size: 5000, Elapsed: 00:27:15, Last Thread: agql-el-1-3)
+[COMMAND]: 043) Processed a total of  215000 queries (Progress:   43%, Success: 214998, Fail: 00002, Batch Size: 5000, Elapsed: 00:27:51, Last Thread: agql-el-1-6)
+[COMMAND]: 044) Processed a total of  220000 queries (Progress:   44%, Success: 219998, Fail: 00002, Batch Size: 5000, Elapsed: 00:28:26, Last Thread: agql-el-1-6)
+[COMMAND]: 045) Processed a total of  225000 queries (Progress:   45%, Success: 224998, Fail: 00002, Batch Size: 5000, Elapsed: 00:29:02, Last Thread: agql-el-1-9)
+[COMMAND]: 046) Processed a total of  230000 queries (Progress:   46%, Success: 229998, Fail: 00002, Batch Size: 5000, Elapsed: 00:29:37, Last Thread: agql-el-1-9)
+[COMMAND]: 047) Processed a total of  235000 queries (Progress:   47%, Success: 234998, Fail: 00002, Batch Size: 5000, Elapsed: 00:30:16, Last Thread: agql-el-1-5)
+[COMMAND]: 048) Processed a total of  240000 queries (Progress:   48%, Success: 239998, Fail: 00002, Batch Size: 5000, Elapsed: 00:30:53, Last Thread: agql-el-1-6)
+[COMMAND]: 049) Processed a total of  245000 queries (Progress:   49%, Success: 244998, Fail: 00002, Batch Size: 5000, Elapsed: 00:31:29, Last Thread: agql-el-1-6)
+[COMMAND]: 050) Processed a total of  250000 queries (Progress:   50%, Success: 249998, Fail: 00002, Batch Size: 5000, Elapsed: 00:32:06, Last Thread: agql-el-1-9)
+[COMMAND]: 051) Processed a total of  255000 queries (Progress:   51%, Success: 254998, Fail: 00002, Batch Size: 5000, Elapsed: 00:32:40, Last Thread: agql-el-1-4)
+[COMMAND]: 052) Processed a total of  260000 queries (Progress:   52%, Success: 259998, Fail: 00002, Batch Size: 5000, Elapsed: 00:33:17, Last Thread: agql-el-1-6)
+[COMMAND]: 053) Processed a total of  265000 queries (Progress:   53%, Success: 264998, Fail: 00002, Batch Size: 5000, Elapsed: 00:33:56, Last Thread: agql-el-1-1)
+[COMMAND]: 054) Processed a total of  270000 queries (Progress:   54%, Success: 269998, Fail: 00002, Batch Size: 5000, Elapsed: 00:34:31, Last Thread: agql-el-1-4)
+[COMMAND]: 055) Processed a total of  275000 queries (Progress:   55%, Success: 274998, Fail: 00002, Batch Size: 5000, Elapsed: 00:35:08, Last Thread: agql-el-1-3)
+[COMMAND]: 056) Processed a total of  280000 queries (Progress:   56%, Success: 279998, Fail: 00002, Batch Size: 5000, Elapsed: 00:35:44, Last Thread: agql-el-1-4)
+[COMMAND]: 057) Processed a total of  285000 queries (Progress:   57%, Success: 284998, Fail: 00002, Batch Size: 5000, Elapsed: 00:36:20, Last Thread: agql-el-1-3)
+[COMMAND]: 058) Processed a total of  290000 queries (Progress:   58%, Success: 289998, Fail: 00002, Batch Size: 5000, Elapsed: 00:36:57, Last Thread: agql-el-1-5)
+[COMMAND]: 059) Processed a total of  295000 queries (Progress:   59%, Success: 294998, Fail: 00002, Batch Size: 5000, Elapsed: 00:37:33, Last Thread: agql-el-1-2)
+[COMMAND]: 060) Processed a total of  300000 queries (Progress:   60%, Success: 299998, Fail: 00002, Batch Size: 5000, Elapsed: 00:38:10, Last Thread: agql-el-1-6)
+[COMMAND]: 061) Processed a total of  305000 queries (Progress:   61%, Success: 304998, Fail: 00002, Batch Size: 5000, Elapsed: 00:38:47, Last Thread: agql-el-1-5)
+[COMMAND]: 062) Processed a total of  310000 queries (Progress:   62%, Success: 309998, Fail: 00002, Batch Size: 5000, Elapsed: 00:39:24, Last Thread: agql-el-1-2)
+[COMMAND]: 063) Processed a total of  315000 queries (Progress:   63%, Success: 314998, Fail: 00002, Batch Size: 5000, Elapsed: 00:39:59, Last Thread: agql-el-1-3)
+[COMMAND]: 064) Processed a total of  320000 queries (Progress:   64%, Success: 319998, Fail: 00002, Batch Size: 5000, Elapsed: 00:40:36, Last Thread: agql-el-1-2)
+[COMMAND]: 065) Processed a total of  325000 queries (Progress:   65%, Success: 324998, Fail: 00002, Batch Size: 5000, Elapsed: 00:41:13, Last Thread: agql-el-1-5)
+[COMMAND]: 066) Processed a total of  330000 queries (Progress:   66%, Success: 329998, Fail: 00002, Batch Size: 5000, Elapsed: 00:41:49, Last Thread: agql-el-1-3)
+[COMMAND]: 067) Processed a total of  335000 queries (Progress:   67%, Success: 334998, Fail: 00002, Batch Size: 5000, Elapsed: 00:42:26, Last Thread: agql-el-1-2)
+[COMMAND]: 068) Processed a total of  340000 queries (Progress:   68%, Success: 339998, Fail: 00002, Batch Size: 5000, Elapsed: 00:43:02, Last Thread: agql-el-1-6)
+[COMMAND]: 069) Processed a total of  345000 queries (Progress:   69%, Success: 344998, Fail: 00002, Batch Size: 5000, Elapsed: 00:43:37, Last Thread: agql-el-1-6)
+[COMMAND]: 070) Processed a total of  350000 queries (Progress:   70%, Success: 349998, Fail: 00002, Batch Size: 5000, Elapsed: 00:44:13, Last Thread: agql-el-1-2)
+[COMMAND]: 071) Processed a total of  355000 queries (Progress:   71%, Success: 354998, Fail: 00002, Batch Size: 5000, Elapsed: 00:44:49, Last Thread: agql-el-1-2)
+[COMMAND]: 072) Processed a total of  360000 queries (Progress:   72%, Success: 359998, Fail: 00002, Batch Size: 5000, Elapsed: 00:45:24, Last Thread: agql-el-1-1)
+[COMMAND]: 073) Processed a total of  365000 queries (Progress:   73%, Success: 364998, Fail: 00002, Batch Size: 5000, Elapsed: 00:46:01, Last Thread: agql-el-1-1)
+[COMMAND]: 074) Processed a total of  370000 queries (Progress:   74%, Success: 369998, Fail: 00002, Batch Size: 5000, Elapsed: 00:46:36, Last Thread: agql-el-1-9)
+[COMMAND]: 075) Processed a total of  375000 queries (Progress:   75%, Success: 374998, Fail: 00002, Batch Size: 5000, Elapsed: 00:47:13, Last Thread: agql-el-1-9)
+[COMMAND]: 076) Processed a total of  380000 queries (Progress:   76%, Success: 379998, Fail: 00002, Batch Size: 5000, Elapsed: 00:47:49, Last Thread: agql-el-1-1)
+[COMMAND]: 077) Processed a total of  385000 queries (Progress:   77%, Success: 384998, Fail: 00002, Batch Size: 5000, Elapsed: 00:48:24, Last Thread: agql-el-1-9)
+[COMMAND]: 078) Processed a total of  390000 queries (Progress:   78%, Success: 389998, Fail: 00002, Batch Size: 5000, Elapsed: 00:48:59, Last Thread: agql-el-1-6)
+[COMMAND]: 079) Processed a total of  395000 queries (Progress:   79%, Success: 394998, Fail: 00002, Batch Size: 5000, Elapsed: 00:49:36, Last Thread: agql-el-1-6)
+[COMMAND]: 080) Processed a total of  400000 queries (Progress:   80%, Success: 399998, Fail: 00002, Batch Size: 5000, Elapsed: 00:50:12, Last Thread: agql-el-1-2)
+[COMMAND]: 081) Processed a total of  405000 queries (Progress:   81%, Success: 404998, Fail: 00002, Batch Size: 5000, Elapsed: 00:50:48, Last Thread: agql-el-1-1)
+[COMMAND]: 082) Processed a total of  410000 queries (Progress:   82%, Success: 409998, Fail: 00002, Batch Size: 5000, Elapsed: 00:51:25, Last Thread: agql-el-1-6)
+[COMMAND]: 083) Processed a total of  415000 queries (Progress:   83%, Success: 414998, Fail: 00002, Batch Size: 5000, Elapsed: 00:52:00, Last Thread: agql-el-1-5)
+[COMMAND]: 084) Processed a total of  420000 queries (Progress:   84%, Success: 419998, Fail: 00002, Batch Size: 5000, Elapsed: 00:52:35, Last Thread: agql-el-1-4)
+[COMMAND]: 085) Processed a total of  425000 queries (Progress:   85%, Success: 424998, Fail: 00002, Batch Size: 5000, Elapsed: 00:53:11, Last Thread: agql-el-1-6)
+[COMMAND]: 086) Processed a total of  430000 queries (Progress:   86%, Success: 429998, Fail: 00002, Batch Size: 5000, Elapsed: 00:53:46, Last Thread: agql-el-1-1)
+[COMMAND]: 087) Processed a total of  435000 queries (Progress:   87%, Success: 434998, Fail: 00002, Batch Size: 5000, Elapsed: 00:54:23, Last Thread: agql-el-1-2)
+[COMMAND]: 088) Processed a total of  440000 queries (Progress:   88%, Success: 439998, Fail: 00002, Batch Size: 5000, Elapsed: 00:54:59, Last Thread: agql-el-1-4)
+[COMMAND]: 089) Processed a total of  445000 queries (Progress:   89%, Success: 444998, Fail: 00002, Batch Size: 5000, Elapsed: 00:55:36, Last Thread: agql-el-1-6)
+[COMMAND]: 090) Processed a total of  450000 queries (Progress:   90%, Success: 449998, Fail: 00002, Batch Size: 5000, Elapsed: 00:56:13, Last Thread: agql-el-1-3)
+[COMMAND]: 091) Processed a total of  455000 queries (Progress:   91%, Success: 454998, Fail: 00002, Batch Size: 5000, Elapsed: 00:56:49, Last Thread: agql-el-1-1)
+[COMMAND]: 092) Processed a total of  460000 queries (Progress:   92%, Success: 459998, Fail: 00002, Batch Size: 5000, Elapsed: 00:57:24, Last Thread: agql-el-1-5)
+[COMMAND]: 093) Processed a total of  465000 queries (Progress:   93%, Success: 464998, Fail: 00002, Batch Size: 5000, Elapsed: 00:58:02, Last Thread: agql-el-1-1)
+[COMMAND]: 094) Processed a total of  470000 queries (Progress:   94%, Success: 469998, Fail: 00002, Batch Size: 5000, Elapsed: 00:58:37, Last Thread: agql-el-1-6)
+[COMMAND]: 095) Processed a total of  475000 queries (Progress:   95%, Success: 474998, Fail: 00002, Batch Size: 5000, Elapsed: 00:59:12, Last Thread: agql-el-1-2)
+[COMMAND]: 096) Processed a total of  480000 queries (Progress:   96%, Success: 479998, Fail: 00002, Batch Size: 5000, Elapsed: 00:59:49, Last Thread: agql-el-1-6)
+[COMMAND]: 097) Processed a total of  485000 queries (Progress:   97%, Success: 484998, Fail: 00002, Batch Size: 5000, Elapsed: 01:00:26, Last Thread: agql-el-1-9)
+[COMMAND]: 098) Processed a total of  490000 queries (Progress:   98%, Success: 489998, Fail: 00002, Batch Size: 5000, Elapsed: 01:01:02, Last Thread: agql-el-1-9)
+[COMMAND]: 099) Processed a total of  495000 queries (Progress:   99%, Success: 494998, Fail: 00002, Batch Size: 5000, Elapsed: 01:01:38, Last Thread: agql-el-1-3)
+[COMMAND]: 100) Processed a total of  500000 queries (Progress:  100%, Success: 499998, Fail: 00002, Batch Size: 5000, Elapsed: 01:02:13, Last Thread: agql-el-1-2)
+==============================================================================================================================================================
+[COMMAND]: Total records succesfully retrieved: 499998
+[COMMAND]: Total records in error: 2
+[COMMAND]: Total bytes received: 15.8 GB (Duration: 01:02:13)
+[COMMAND]: Total successful 'cvarlist': 55624
+[COMMAND]: Total successful 'meta list': 55488
+[COMMAND]: Total successful 'help sv_cheats': 55216
+[COMMAND]: Total successful 'sm exts list': 55678
+[COMMAND]: Total successful 'sm version': 55408
+[COMMAND]: Total successful 'maps *': 55473
+[COMMAND]: Total successful 'sm plugins list': 55779
+[COMMAND]: Total successful 'find sv': 55682
+[COMMAND]: Total successful 'status': 55650
+==============================================================================================================================================================
+
+DONE: Executed a total of 500000 command(s) to /192.168.1.34:27017
+[192.168.1.34:27017]: /stats
+========================================================================================================================================================================================================
+Channel Statistics
+========================================================================================================================================================================================================
+Connection pooling enabled: true
+Max Pooled Connections: 8
+Max Core Pool Size: 9
+Max Pending Acquires: 2147483647
+Pool strategy: ADDRESS
+Tasks in queue: 0
+Executor Service: io.netty.channel.epoll.EpollEventLoopGroup@755c44aa (Default executor: YES)
+========================================================================================================================================================================================================
+Event Loop Group: (Group: io.netty.channel.epoll.EpollEventLoopGroup@755c44aa)
+========================================================================================================================================================================================================
+01) EpollEventLoop-1973186337 [agql-el-1-1] (Pending Tasks: 0, Thread Id: 18)
+02) EpollEventLoop-1380669182 [agql-el-1-2] (Pending Tasks: 0, Thread Id: 19)
+03) EpollEventLoop-892327686 [agql-el-1-3] (Pending Tasks: 0, Thread Id: 20)
+04) EpollEventLoop-466538550 [agql-el-1-4] (Pending Tasks: 0, Thread Id: 22)
+05) EpollEventLoop-222118153 [agql-el-1-5] (Pending Tasks: 0, Thread Id: 23)
+06) EpollEventLoop-88673014 [agql-el-1-6] (Pending Tasks: 0, Thread Id: 24)
+07) EpollEventLoop-1318419134 [agql-el-1-7] (Pending Tasks: 0, Thread Id: 25)
+08) EpollEventLoop-590830650 [agql-el-1-8] (Pending Tasks: 0, Thread Id: 26)
+09) EpollEventLoop-1147499612 [agql-el-1-9] (Pending Tasks: 0, Thread Id: 27)
+========================================================================================================================================================================================================
+1) Address: 192.168.1.34/192.168.1.34:27017 (Successful Acquires: 500109, Failed Acquires: 0, Active Channels: 8, Authenticated: YES)
+	1) Channel: [id: 0x25eeecef, L:/192.168.1.24:54129 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 57458, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-6
+	2) Channel: [id: 0xb72c6443, L:/192.168.1.24:56853 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 60435, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-9
+	3) Channel: [id: 0xbfde8b75, L:/192.168.1.24:34481 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 61307, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-1
+	4) Channel: [id: 0x5b4c6d70, L:/192.168.1.24:49655 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 66204, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-2
+	5) Channel: [id: 0x57f8e943, L:/192.168.1.24:43791 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 65229, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-3
+	6) Channel: [id: 0x63f22ec1, L:/192.168.1.24:48123 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 61722, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-4
+	7) Channel: [id: 0x022f673c, L:/192.168.1.24:36043 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 67937, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-5
+	8) Channel: [id: 0x319fbc09, L:/192.168.1.24:36095 - R:192.168.1.34/192.168.1.34:27017], Acquire: [Success: 59817, Fail: 0], Active: true, Authenticated: true, Acquired: NO, Last Acquired: 00:00:03, Thread: agql-el-1-6
+========================================================================================================================================================================================================
+[192.168.1.34:27017]: [192.168.1.34:27017]: : /quit
+Shutting down example program
+13:12:12.782 [com.ibasco.agql.examples.base.ExampleRunner.main()] INFO   ExampleRunner             - Closing Example
+

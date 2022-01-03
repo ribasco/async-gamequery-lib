@@ -5,46 +5,50 @@ Asynchronous Game Query Library
 
 [mavenLink]: https://search.maven.org/search?q=com.ibasco.agql
 
-[![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Codacy Badge](https://api.codacy.com/project/badge/Grade/2f5f445a366a4692ab8aa49b0cf4f477)](https://www.codacy.com/app/raffy/async-gamequery-lib?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ribasco/async-gamequery-lib&amp;utm_campaign=Badge_Grade) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
+[![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
 
-A high-performance asynchronous game query library based on Valve's protocols (RCON, Query, Web APIs). Built on top of [Netty](https://github.com/netty/netty).
+An asynchronous java based game query library for Valve's source query, rcon and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
 
 Changelog
 -------------
 
 0.2.0 - BIG UPDATE. In-preparation for the next major release.
 
-- General Enhancement/Fixes
-    - Re-licensed project to Apache-2.0 
-    - Completely re-worked on the core implementation from the ground up with improved performance and reliability. 
-    - Client configuration support. Clients can now be tweaked depending on the requirements of the developer (e.g. providing custom executor service, set max active connections)
-    - Failsafe Integration. Queries throwing a ReadTimeoutException or WriteTimeoutException will be re-attempted (max of 3 attempts by default)
-    - Deprecated client constructors. Use the new configuration feature of the client.
-    - Now using off-heap pooled direct buffers by default for the majority of the queries. 
-    - Cleaned up and standardized log statements for better readability.
-    - Removed custom request/response state management facilities in the core module. Now using netty's channel attributes for managing each channel/connection state. 
-    - A default global EventLoopGroup (a special netty executor service) is now shared for all clients. A custom executor/EventLoopGroup can still be provided via configuration. (See TransportOptions.THREAD_EL_GROUP)
-    - Updated/Enhanced interactive examples
-- Source RCON
-    - Improved support for connection pooling
-        - Connection Pooling is now enabled by default
-        - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see TransportOptions.POOL_MAX_CONNECTIONS)
-    - Authentication management
-      - An internal authentication manager is now utilized by the library to manage all existing connection and ensures that each connection remains in a valid state (connection is active and authenticated by the remote server). Dropped connections will automatically be re-authenticated assuming that the credentials remain valid.
-    - Addressed a few special cases
-      - **Case #1**: An update of the rcon password (via rcon_password), cause the remote server to close the connection. An exception is now thrown requiring the application to re-authenticate itself by calling authenticate()      
-      - **Case #2**: Some commands such as 'changelevel' cause the remote server to drop the connection (e.g. changelevel). Previously the client will throw a closed channeel exception  
-- Source Master Query
-    - Improved/re-worked implementation
-    - Failsafe integration
-        - Implemented retry and fallback policies. If the primary master server address fails, the client will attempt to connect using an alternative IP address until a connection is established. A maximum of 3 connection attempts will be made.
-        - Requests can optionally be rate limited, waiting a specific amount of time before sending a new request for a batch of new addresses.
-- Source Query
-    - Source info query now compatible with the new implementation (challenge based) (See [RFC: Changes to the A2S_INFO protocol ](https://steamcommunity.com/discussions/forum/14/2989789048633291344/))
-    - Queries that require a challenge number are now handled automatically by the library, this means that the developer no longer needs to obtain a challenge number manually.  
-    - **DEPRECATED** challenge caching facilities. This will be removed in the next major update.
-- Clash of Clans (Web API)
-    - Markeed as deprecated and will no longer be supported in the future. This module will be removed in the next major version.
+- **General Updates**
+  - Re-licensed project to Apache-2.0
+  - Completely re-worked on the core implementation from the ground up with improved performance and reliability.
+  - Added configuration support. Clients can now be tweaked depending on the requirements of the developer (e.g. providing custom executor service, set max active connections, modify read/write timeout settings etc)
+  - Failsafe Integration. Queries throwing a ReadTimeoutException or WriteTimeoutException will be re-attempted (max of 3 attempts by default)
+  - Deprecated client constructors. Use the new configuration feature of the client.
+  - Now using off-heap pooled direct buffers by default for the majority of the queries.
+  - Cleaned up and standardized log statements for better readability.
+  - Removed custom request/response state management facilities in the core module. Now using netty's channel attributes for managing each channel/connection state.
+  - A default global EventLoopGroup (a special netty executor service) is now shared for all clients. A custom executor/EventLoopGroup can still be provided via configuration. (See TransportOptions.THREAD_EL_GROUP)
+  - Updated/Enhanced interactive examples
+
+- **Source RCON**
+  - Improved support for connection pooling
+    - Connection Pooling is now enabled by default
+    - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see TransportOptions.POOL_MAX_CONNECTIONS)
+  - Authentication management
+    - An internal authentication manager is now utilized by the library to manage all existing connection and ensures that each connection remains in a valid state (connection is active and authenticated by the remote server). Dropped connections will automatically be re-authenticated assuming that the credentials remain valid.
+  - Addressed a few special cases
+    - **Case #1**: An update of the rcon password (via rcon_password), cause the remote server to close the connection. An exception is now thrown requiring the application to re-authenticate itself by calling authenticate()
+    - **Case #2**: Some commands such as 'changelevel' cause the remote server to drop the connection (e.g. changelevel). Previously the client will throw a closed channel exception
+
+- **Source Master Query**
+  - Improved/re-worked implementation
+  - Failsafe integration
+    - Implemented retry and fallback policies. If the primary master server address fails, the client will attempt to connect using an alternative IP address until a connection is established. A maximum of 3 connection attempts will be made.
+    - Requests can optionally be rate limited, waiting a specific amount of time before sending a new request for a batch of new addresses.
+
+- **Source Query**
+  - Source info query now compatible with the new implementation (challenge based) (See [RFC: Changes to the A2S_INFO protocol ](https://steamcommunity.com/discussions/forum/14/2989789048633291344/))
+  - Queries that require a challenge number are now handled automatically by the library, this means that the developer no longer needs to obtain a challenge number manually.
+  - **DEPRECATED** challenge caching facilities. This will be removed in the next major update.
+
+- **Clash of Clans (Web API)**
+  - Marked as deprecated and will be removed in the next major version. This module will be removed in the next major version.
   
 Project Resources
 -------------

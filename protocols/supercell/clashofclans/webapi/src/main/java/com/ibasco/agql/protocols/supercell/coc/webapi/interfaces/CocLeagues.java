@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.leagues.GetLeag
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +43,8 @@ import java.util.function.Function;
  * @author Rafael Luis Ibasco
  * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/leagues">Clash of Clans API - Leagues</a>
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocLeagues extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>

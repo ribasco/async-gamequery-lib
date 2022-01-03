@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,14 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.clans;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.Map;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class SearchClan extends CocWebApiRequest {
+
     public SearchClan(int apiVersion, CocSearchCriteria criteria) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_SEARCH);
         for (Map.Entry<String, Object> searchCriteria : criteria.getCriteriaSet()) {

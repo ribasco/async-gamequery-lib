@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,13 +24,17 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocClans;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocLeagues;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocLocations;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocPlayers;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocWebApiExample extends BaseWebApiAuthExample {
+
     private static final Logger log = LoggerFactory.getLogger(CocWebApiExample.class);
 
     private CocWebApiClient client;

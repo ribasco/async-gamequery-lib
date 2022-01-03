@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,12 +16,19 @@
 
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * Created by raffy on 10/28/2016.
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocLocationInfo {
+
     private int id;
+
     private String name;
+
     private boolean isCountry;
 
     public int getId() {

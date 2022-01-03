@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,15 @@ package com.ibasco.agql.protocols.supercell.coc.webapi;
 import com.ibasco.agql.core.AbstractRestClient;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * An API Client for Clash of Clans
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocWebApiClient extends AbstractRestClient {
     private static final Logger log = LoggerFactory.getLogger(CocWebApiClient.class);
 

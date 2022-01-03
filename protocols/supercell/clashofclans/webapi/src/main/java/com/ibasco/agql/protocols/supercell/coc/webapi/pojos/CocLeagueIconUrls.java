@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,10 +18,16 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.ApiStatus;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocLeagueIconUrls {
+
     private String small;
+
     private String tiny;
+
     private String medium;
 
     public String getSmall() {

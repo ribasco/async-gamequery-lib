@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ import com.google.gson.annotations.SerializedName;
 import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,8 @@ import java.util.List;
 /**
  * Created by raffy on 10/28/2016.
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocClanDetailedInfo extends CocClanBasicInfo {
     private String type;
     private String description;

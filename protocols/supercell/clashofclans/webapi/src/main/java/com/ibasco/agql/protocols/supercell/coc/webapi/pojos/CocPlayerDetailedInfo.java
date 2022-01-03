@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,21 +16,35 @@
 
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
 
     private int attackWins;
+
     private int defenseWins;
+
     private CocClanBasicInfo clan;
+
     private int bestTrophies;
+
     private int warStars;
+
     private int townHallLevel;
+
     private CocLegendStatistics legendStatistics;
+
     private List<CocAchievements> achievements = new ArrayList<>();
+
     private List<CocTroop> troops = new ArrayList<>();
+
     private List<CocTroop> heroes = new ArrayList<>();
+
     private List<CocTroop> spells = new ArrayList<>();
 
     public int getAttackWins() {
@@ -124,16 +138,16 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     @Override
     public String toString() {
         return superStringBuilder().append("attackWins", attackWins)
-                .append("defenseWins", defenseWins)
-                .append("clan", clan)
-                .append("bestTrophies", bestTrophies)
-                .append("warStars", warStars)
-                .append("townHallLevel", townHallLevel)
-                .append("legendStatistics", legendStatistics)
-                .append("achievements", achievements)
-                .append("troops", troops)
-                .append("heroes", heroes)
-                .append("spells", spells)
-                .toString();
+                                   .append("defenseWins", defenseWins)
+                                   .append("clan", clan)
+                                   .append("bestTrophies", bestTrophies)
+                                   .append("warStars", warStars)
+                                   .append("townHallLevel", townHallLevel)
+                                   .append("legendStatistics", legendStatistics)
+                                   .append("achievements", achievements)
+                                   .append("troops", troops)
+                                   .append("heroes", heroes)
+                                   .append("spells", spells)
+                                   .toString();
     }
 }

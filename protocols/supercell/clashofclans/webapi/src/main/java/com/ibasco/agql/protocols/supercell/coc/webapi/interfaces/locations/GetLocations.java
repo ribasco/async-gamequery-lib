@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,12 @@ package com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.locations;
 
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
+import org.jetbrains.annotations.ApiStatus;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class GetLocations extends CocWebApiRequest {
+
     public GetLocations(int apiVersion, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATIONS, limit, before, after);
     }

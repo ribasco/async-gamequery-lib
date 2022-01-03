@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,6 +29,7 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.clans.SearchCla
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.lang.reflect.Type;
 import java.util.List;
@@ -41,6 +42,8 @@ import java.util.function.Function;
  * @author Rafael Luis Ibasco
  * @see <a href="https://developer.clashofclans.com/api-docs/index.html#!/clans">Clash of Clans API - Clans</a>
  */
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 public class CocClans extends CocWebApiInterface {
     /**
      * <p>Default Constructor</p>

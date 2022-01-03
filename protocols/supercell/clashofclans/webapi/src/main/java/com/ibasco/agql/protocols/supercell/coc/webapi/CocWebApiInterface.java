@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,12 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.exceptions.CocIncorrectPar
 import com.ibasco.agql.protocols.supercell.coc.webapi.exceptions.CocWebApiException;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocErrorResponse;
 import io.netty.handler.codec.http.HttpStatusClass;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
+@ApiStatus.ScheduledForRemoval
 abstract public class CocWebApiInterface
         extends AbstractWebApiInterface<CocWebApiClient, CocWebApiRequest, CocWebApiResponse> {
 

@@ -1,11 +1,11 @@
 ## Source Log Listen Service
 
-###Configuration
+### Configuration
 
 To start receiving log messages, you need to make sure you register the `<ip:port>` on the game server. 
 Do this either by directly issuing the rcon command `logaddress_add <ip:port>` on the server or add it to your server configuration files (e.g. server.cfg).
 
-###Usage
+### Usage
 
 To start listening to log messages immediately, just pass a callback that will process the log statements. Its as simple as that.
 

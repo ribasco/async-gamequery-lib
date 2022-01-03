@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,16 +53,16 @@ public class ExampleRunner {
         this.examples.put("dota2-webapi", new Dota2WebApiExample());
 
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
-        {
-            try {
-                log.info("Shutting down example");
-                if (this.activeExample != null) {
-                    this.activeExample.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+                                                        {
+                                                            try {
+                                                                log.info("Shutting down example");
+                                                                if (this.activeExample != null) {
+                                                                    this.activeExample.close();
+                                                                }
+                                                            } catch (IOException e) {
+                                                                e.printStackTrace();
+                                                            }
+                                                        }
         ));
 
         //Add options
@@ -90,13 +90,10 @@ public class ExampleRunner {
         if (this.examples.containsKey(exampleKey)) {
             BaseExample example = this.examples.get(exampleKey);
             this.activeExample = example;
-            try {
-                log.info("Running Example : {}", exampleKey);
-                example.run(args);
-            } finally {
-                log.info("Closing Example");
-                example.close();
-            }
+
+            log.info("Running Example : {}", exampleKey);
+            example.run(args);
+            log.info("Closing Example");
         }
     }
 

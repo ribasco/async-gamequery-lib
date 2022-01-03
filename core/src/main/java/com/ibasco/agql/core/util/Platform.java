@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.*;
 
@@ -181,6 +182,20 @@ public final class Platform {
             elg = new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
         log.debug("Created default event loop group with: {} threads", nThreads);
         return elg;
+    }
+
+    public static Class<? extends Channel> getChannelClass(TransportType type, EventLoopGroup group) {
+        Objects.requireNonNull(type, "Transport type not specified");
+        Objects.requireNonNull(group, "Event Loop Group must not be null");
+        if (group instanceof NioEventLoopGroup) {
+            return TransportType.TCP.equals(type) ? NioSocketChannel.class : NioDatagramChannel.class;
+        } else if (group instanceof EpollEventLoopGroup) {
+            return TransportType.TCP.equals(type) ? EpollSocketChannel.class : EpollDatagramChannel.class;
+        } else if (group instanceof KQueueEventLoopGroup) {
+            return TransportType.TCP.equals(type) ? KQueueSocketChannel.class : KQueueDatagramChannel.class;
+        } else {
+            throw new IllegalStateException("Unsupported event loop group type: " + group);
+        }
     }
 
     public static Class<? extends Channel> getChannelClass(TransportType type, boolean useNativeTransport) {

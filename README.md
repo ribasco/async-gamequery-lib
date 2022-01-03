@@ -47,6 +47,10 @@ Changelog
   - Queries that require a challenge number are now handled automatically by the library, this means that the developer no longer needs to obtain a challenge number manually.
   - **DEPRECATED** challenge caching facilities. This will be removed in the next major update.
 
+- **Source Log Service**
+  - Fixed: Callback set via setter method is not applied (Issue #44)
+  - Introduced new constructor arguments that accepts a custom ExecutorService
+  - listen() now returns a CompletableFuture which is notified once the underlying connection of the service has been closd.
 - **Clash of Clans (Web API)**
   - Marked as deprecated and will be removed in the next major version. This module will be removed in the next major version.
   
@@ -84,13 +88,6 @@ Requirements
 ------------
 
 * Java JDK 8
-* Apache Commons Lang 3.x
-* Apache Commons Math 3.x
-* Netty 4.1.x
-* AsyncHttpClient 2.5.x
-* SLF4J 1.7.x
-* Google Gson 2.8.x
-* Google Guava 23.x
 
 Installation
 ------------
@@ -148,20 +145,22 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 
 <dependency>
-    <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-csgo-webapi</artifactId>
-    <version>0.2.0</version>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-csgo-webapi</artifactId>
+  <version>0.2.0</version>
 </dependency>
 ```
 
 **Supercell Clash of Clans Web API (Deprecated)**
 
+> **NOTE**: As of 0.2.0, this has been marked as deprecated and will be removed in the next major release
+
 ```xml
 
 <dependency>
-    <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-coc-webapi</artifactId>
-    <version>0.2.0</version>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-coc-webapi</artifactId>
+  <version>0.2.0</version>
 </dependency>
 ```
 

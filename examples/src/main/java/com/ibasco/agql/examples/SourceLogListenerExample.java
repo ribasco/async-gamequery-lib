@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.examples;
 
-import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogEntry;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService;
@@ -25,8 +24,12 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class SourceLogListenerExample extends BaseExample {
+
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenerExample.class);
 
     private SourceLogListenService logListenService;
@@ -43,10 +46,11 @@ public class SourceLogListenerExample extends BaseExample {
     public void run(String[] args) throws Exception {
         String address = promptInput("Please enter server address to listen on: ", true, null, "listenAddress");
         int port = Integer.parseInt(promptInput("Please enter the server port (default: 27500) : ", false, "27500"));
-        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
-        logListenService.listen();
+        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
+        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData, executorService, 0, true);
         log.info("Listening to {}:{}", address, port);
-        ConcurrentUtil.sleepUninterrupted(99999999);
+        CompletableFuture<Void> f = logListenService.listen();
+        f.join();
     }
 
     @Override

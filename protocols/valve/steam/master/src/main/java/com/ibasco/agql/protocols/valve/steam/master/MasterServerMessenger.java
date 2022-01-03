@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,9 +41,9 @@ public class MasterServerMessenger extends NettyMessenger<InetSocketAddress, Mas
 
     @Override
     protected void configure(OptionMap options) {
-        options.add(TransportOptions.CONNECTION_POOLING, false, true);
-        options.add(TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS);
-        options.add(TransportOptions.READ_TIMEOUT, 8000, true);
+        defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
+        defaultOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS);
+        defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);
     }
 
     @Override

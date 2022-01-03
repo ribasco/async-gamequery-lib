@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.utils;
+package com.ibasco.agql.core.util;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -23,7 +23,7 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class NetUtils {
+public class NetUtil {
 
     private static final Pattern PATTERN_IP = Pattern.compile("(?<ip>\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b)|\\:(?<port>\\d*)");
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.utils;
+package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 import org.apache.commons.lang3.StringUtils;
@@ -35,9 +35,10 @@ import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.Objects;
 
-@Deprecated
-public class EncryptUtils {
+public class EncryptUtil {
+
     private static final String worldsMostSecureUnhackableIvKey = "aGqLsOurc3querYs";
+
     private static final String worldsMostSecureUnhackableKey = "4EUv4wuTdnKEpwn3k5EYJU7Qha3mBGDx";
 
     public static String encrypt(String plainText) {
@@ -88,7 +89,7 @@ public class EncryptUtils {
     }
 
     public static String retrieveKey() {
-        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), EncryptUtils.worldsMostSecureUnhackableKey);
+        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), EncryptUtil.worldsMostSecureUnhackableKey);
         return key;
     }
 

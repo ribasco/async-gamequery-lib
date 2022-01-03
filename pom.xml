@@ -373,7 +373,7 @@
                         <fork>true</fork>
                         <debug>true</debug>
                         <optimize>true</optimize>
-                        <showDeprecation>true</showDeprecation>
+                        <showDeprecation>false</showDeprecation>
                         <showWarnings>true</showWarnings>
                     </configuration>
                 </plugin>
@@ -427,6 +427,7 @@
                     <artifactId>maven-resources-plugin</artifactId>
                     <version>3.2.0</version>
                     <configuration>
+                        <propertiesEncoding>UTF-8</propertiesEncoding>
                         <encoding>UTF-8</encoding>
                     </configuration>
                 </plugin>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
-import com.ibasco.agql.core.utils.EncryptUtils;
+import com.ibasco.agql.core.util.EncryptUtil;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -114,7 +114,7 @@ abstract public class BaseExample implements Closeable {
                 try {
                     String defaultProp = getProp(defaultProperty);
                     if (!StringUtils.isEmpty(defaultProp))
-                        defaultValue = EncryptUtils.decrypt(defaultProp);
+                        defaultValue = EncryptUtil.decrypt(defaultProp);
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }
@@ -148,7 +148,7 @@ abstract public class BaseExample implements Closeable {
         if (!StringUtils.isEmpty(defaultProperty)) {
             if (isPassword) {
                 try {
-                    saveProp(defaultProperty, EncryptUtils.encrypt(returnValue));
+                    saveProp(defaultProperty, EncryptUtil.encrypt(returnValue));
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.examples;
 
-import com.ibasco.agql.core.utils.ConcurrentUtils;
+import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogEntry;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService;
@@ -46,7 +46,7 @@ public class SourceLogListenerExample extends BaseExample {
         logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
         logListenService.listen();
         log.info("Listening to {}:{}", address, port);
-        ConcurrentUtils.sleepUninterrupted(99999999);
+        ConcurrentUtil.sleepUninterrupted(99999999);
     }
 
     @Override

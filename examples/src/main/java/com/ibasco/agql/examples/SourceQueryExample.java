@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.functions.TriConsumer;
 import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.utils.NetUtils;
+import com.ibasco.agql.core.util.NetUtil;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.PlayersHandler;
 import com.ibasco.agql.examples.query.ResponseHandler;
@@ -105,7 +105,7 @@ public class SourceQueryExample extends BaseExample {
         } else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, "192.168.1.34:27017"); //127.0.0.1:27015
             int requestCount = Integer.parseInt(promptInput("How many requests should we run?", false, "1", "requestCount"));
-            InetSocketAddress address = NetUtils.parseAddress(addressString, 27015);
+            InetSocketAddress address = NetUtil.parseAddress(addressString, 27015);
             log.info("Waiting for the queries to complete");
             start = System.currentTimeMillis();
             //phaser.register();

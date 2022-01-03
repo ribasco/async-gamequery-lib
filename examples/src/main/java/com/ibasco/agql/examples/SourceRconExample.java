@@ -57,7 +57,7 @@ public class SourceRconExample extends BaseExample {
 
     private InetSocketAddress serverAddress;
 
-    private static boolean interactive;
+    private static boolean nonInteractive;
 
     private static final String[] COMMANDS = new String[] {"status", "sm plugins list", "cvarlist", "maps *", "meta list", "sm exts list", "sm version", "find sv", "help sv_cheats"};
 
@@ -73,7 +73,7 @@ public class SourceRconExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         if (args != null && args.length > 0 && args[0] != null && !args[0].isEmpty()) {
-            interactive = "i".equalsIgnoreCase(args[0]);
+            nonInteractive = "ni".equalsIgnoreCase(args[0]);
         }
 
         final OptionMap rconOptions = OptionBuilder.newBuilder()
@@ -89,10 +89,10 @@ public class SourceRconExample extends BaseExample {
         try {
             rconClient = new SourceRconClient(rconOptions);
             printConsoleBanner();
-            if (interactive)
-                this.runRconConsole();
-            else
+            if (nonInteractive)
                 this.runBenchmark();
+            else
+                this.runRconConsole();
         } finally {
             close();
         }

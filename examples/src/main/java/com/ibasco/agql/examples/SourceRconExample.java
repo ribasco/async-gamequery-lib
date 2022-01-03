@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -73,11 +73,7 @@ public class SourceRconExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         if (args != null && args.length > 0 && args[0] != null && !args[0].isEmpty()) {
-            if ("i".equalsIgnoreCase(args[0])) {
-                interactive = true;
-            } else {
-                interactive = false;
-            }
+            interactive = "i".equalsIgnoreCase(args[0]);
         }
 
         final OptionMap rconOptions = OptionBuilder.newBuilder()

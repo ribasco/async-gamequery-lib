@@ -8,3 +8,4 @@ out/
 /examples/src/main/resources/auth.json
 /example.properties
 /gh-pages/
+.flattened-pom.xml

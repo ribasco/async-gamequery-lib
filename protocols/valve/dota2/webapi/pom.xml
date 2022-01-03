@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2018-2022 Asynchronous Game Query Library
+  ~ Copyright 2022 Asynchronous Game Query Library
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@
     <parent>
         <groupId>com.ibasco.agql</groupId>
         <artifactId>async-gamequery-lib</artifactId>
-        <version>${revision}</version>
+        <version>${revision}${sha1}${changelist}</version>
         <relativePath>../../../../pom.xml</relativePath>
     </parent>
 
@@ -38,7 +38,6 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>agql-steam-webapi</artifactId>
-            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,14 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import org.jetbrains.annotations.ApiStatus;
+
+/**
+ * Default implementation for {@link Credentials}
+ *
+ * @author Rafael Luis Ibasco
+ */
+@ApiStatus.Internal
 public final class RconCredentials implements Credentials {
 
     private final byte[] passphrase;

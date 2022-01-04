@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,14 @@ import com.ibasco.agql.protocols.valve.source.query.protocols.challenge.SourceQu
 import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryInfoRequest;
 import com.ibasco.agql.protocols.valve.source.query.protocols.players.SourceQueryPlayerRequest;
 import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesRequest;
+import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * Utility class for Source Query module
+ *
+ * @author Rafael Luis Ibasco
+ */
+@ApiStatus.Internal
 public final class SourceQuery {
 
     public static final Option<Boolean> TEST_QUERY_OPTION = Option.createOption("testQueryOptin", true, true, true);

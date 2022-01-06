@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
-import com.ibasco.agql.core.transport.udp.UdpTransportFactory;
+import com.ibasco.agql.core.transport.udp.UdpNettyChannelFactoryProvider;
 import com.ibasco.agql.core.util.OptionMap;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
@@ -53,7 +53,7 @@ public final class SourceQueryMessenger extends NettyMessenger<InetSocketAddress
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
     public SourceQueryMessenger(OptionMap options) {
-        super(options, new UdpTransportFactory(true));
+        super(options, new UdpNettyChannelFactoryProvider());
     }
 
     @Override

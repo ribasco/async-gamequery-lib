@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.PacketDecoder;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
@@ -70,7 +70,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        Envelope<AbstractRequest> envelope = ctx.channel().attr(ChannelAttributes.REQUEST).get();
+        Envelope<AbstractRequest> envelope = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
         if (envelope == null)
             throw new IllegalStateException("Missing request envelope");
         if (!(envelope.content() instanceof SourceRconRequest))
@@ -155,13 +155,6 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
                 out.add(decoded);
                 return;
             }
-
-            //Ok, no idea what packet id 0 supposed to mean, but we need to flush this and move on to the next.
-            /*if (packets.size() == 1 && packets.stream().anyMatch(p -> p.getId() == 0)) {
-                debug(ctx, "Found packet with id = 0. Flushing");
-                flush(ctx, out);
-                return;
-            }*/
 
             //Decoded packet is in a valid state
             debug(ctx, "Collecting decoded packet '{}' (Size: {})", decoded, packets.size());

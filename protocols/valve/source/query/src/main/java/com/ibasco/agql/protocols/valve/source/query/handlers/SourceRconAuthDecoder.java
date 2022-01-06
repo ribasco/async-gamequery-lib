@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.handlers.MessageInboundDecoder;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
@@ -53,7 +53,7 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
 
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
-        final Envelope<AbstractRequest> envelope = ctx.channel().attr(ChannelAttributes.REQUEST).get();
+        final Envelope<AbstractRequest> envelope = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
         final SourceRconRequest rconRequest = (SourceRconRequest) request;
         final SourceRconPacket packet = (SourceRconPacket) msg;
         assert envelope != null;

@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.PacketDecoder;
 import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.handlers.MessageInboundHandler;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
@@ -56,7 +56,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         //did we receive a timeout while we are still processing packets?
         if (cause instanceof ReadTimeoutException && (this.assembler != null && this.assembler.isProcessing())) {
-            debug("A read timeout was fired but we are still receiving incoming packets from the server (Packets received: {}, Packets expected: {}, Request: {})", assembler.received(), assembler.count(), ctx.channel().attr(ChannelAttributes.REQUEST));
+            debug("A read timeout was fired but we are still receiving incoming packets from the server (Packets received: {}, Packets expected: {}, Request: {})", assembler.received(), assembler.count(), ctx.channel().attr(NettyChannelAttributes.REQUEST));
         }
         ctx.fireExceptionCaught(cause);
     }

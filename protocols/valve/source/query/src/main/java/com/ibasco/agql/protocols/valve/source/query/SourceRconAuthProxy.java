@@ -22,7 +22,7 @@ import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -150,7 +151,7 @@ public final class SourceRconAuthProxy implements Closeable {
             if (channels.put(address, channel)) {
                 startInactivityCheck();
                 //Disable auto release of channel, we will release/close it manually
-                channel.attr(ChannelAttributes.AUTO_RELEASE).set(false);
+                channel.attr(NettyChannelAttributes.AUTO_RELEASE).set(false);
                 //Initialize channel attribute
                 channel.attr(SourceRcon.AUTHENTICATED).set(false);
                 if (log.isDebugEnabled())
@@ -179,7 +180,7 @@ public final class SourceRconAuthProxy implements Closeable {
         final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         //we might have an existing entry for this address, if so, then we overwrite it
         if (request == null) {
-            Envelope<AbstractRequest> envelope = channel.attr(ChannelAttributes.REQUEST).get();
+            Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
             request = (SourceRconAuthRequest) envelope.content();
         }
         assert request != null;
@@ -403,7 +404,8 @@ public final class SourceRconAuthProxy implements Closeable {
      */
     private CompletableFuture<Channel> acquire(final Envelope<SourceRconRequest> envelope) {
         log.debug("AUTH => Acquiring channel for enqueue '{}'", envelope);
-        return acquireExecutor.getStageAsync(channelSupplier.enqueue(envelope)).thenCompose(this::register).handle(channelStatistics);
+        //channelSupplier.enqueue(envelope)
+        return acquireExecutor.getStageAsync(new ChannelSupplierEx(envelope)).thenCompose(this::register).handle(channelStatistics);
     }
 
     @ApiStatus.Experimental
@@ -909,6 +911,22 @@ public final class SourceRconAuthProxy implements Closeable {
         }
     }
 
+    private class ChannelSupplierEx implements ContextualSupplier<Channel, CompletableFuture<Channel>> {
+
+        private final WeakReference<Envelope<SourceRconRequest>> envelopeRef;
+
+        private ChannelSupplierEx(Envelope<SourceRconRequest> envelope) {
+            this.envelopeRef = new WeakReference<>(envelope);
+        }
+
+        @Override
+        public CompletableFuture<Channel> get(ExecutionContext<Channel> context) throws Throwable {
+            if (envelopeRef.get() == null)
+                throw new IllegalStateException("Envelope is null");
+            return messenger.getTransport().getChannelFactory().create(envelopeRef.get());
+        }
+    }
+
     private class ChannelSupplier implements ContextualSupplier<Channel, CompletableFuture<Channel>> {
 
         private final Deque<Envelope<SourceRconRequest>> requestQueue = new ConcurrentLinkedDeque<>();
@@ -952,7 +970,7 @@ public final class SourceRconAuthProxy implements Closeable {
         public void validate(Channel channel) {
             if (channel.remoteAddress() == null)
                 throw new IllegalStateException("No remote address present");
-            if (!channel.hasAttr(ChannelAttributes.REQUEST) || channel.attr(ChannelAttributes.REQUEST).get() == null || !(channel.attr(ChannelAttributes.REQUEST).get().content() instanceof SourceRconAuthRequest))
+            if (!channel.hasAttr(NettyChannelAttributes.REQUEST) || channel.attr(NettyChannelAttributes.REQUEST).get() == null || !(channel.attr(NettyChannelAttributes.REQUEST).get().content() instanceof SourceRconAuthRequest))
                 throw new IllegalStateException("No request attribute");
             if (!channel.hasAttr(SourceRcon.AUTHENTICATED) || !channel.attr(SourceRcon.AUTHENTICATED).get())
                 throw new IllegalStateException("Channel not marked as authenticated");

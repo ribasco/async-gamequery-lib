@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.logger;
 
-import com.ibasco.agql.core.transport.TransportType;
+import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;

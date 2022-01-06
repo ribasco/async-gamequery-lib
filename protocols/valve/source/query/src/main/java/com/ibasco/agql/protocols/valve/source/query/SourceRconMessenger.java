@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
-import com.ibasco.agql.core.transport.tcp.TcpTransportFactory;
+import com.ibasco.agql.core.transport.tcp.TcpNettyChannelFactoryProvider;
 import com.ibasco.agql.core.util.OptionMap;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.handlers.*;
@@ -43,7 +43,7 @@ public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress,
     private final SourceRconAuthProxy proxy;
 
     public SourceRconMessenger(OptionMap options) {
-        super(options, new TcpTransportFactory());
+        super(options, new TcpNettyChannelFactoryProvider());
         this.proxy = new SourceRconAuthProxy(this, options.get(SourceRconOptions.CREDENTIALS_MANAGER, new RconCredentialsManager()));
     }
 

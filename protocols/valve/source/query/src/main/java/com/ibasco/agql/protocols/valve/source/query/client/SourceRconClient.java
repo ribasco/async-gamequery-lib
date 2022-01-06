@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -159,7 +159,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     /**
-     * <p>Re-send and authentication request for the specified address.
+     * <p>Re-send an authentication request to the remote server. This assumes that th address has been previously authenticated.
      *
      * @param address
      *         The address of the source server
@@ -174,8 +174,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) throws RconNotYetAuthException {
         if (!getAuthenticationProxy().isAuthenticated(address))
             throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED);
-        //getAuthenticationProxy().send()
-        return null;//CompletableFuture.completedFuture(new SourceRconAuthStatus(address, 0, false, String.format("Not yet authenticated from server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED));
+        return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class).thenApply(SourceRconAuthResponse::toAuthStatus);
     }
 
     /**
@@ -212,7 +211,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     @ApiStatus.Experimental
     public CompletableFuture<SourceRconCmdResponse> exec(InetSocketAddress address, String command) {
         if (!getAuthenticationProxy().isAuthenticated(address))
-            ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address)));
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address)));
         return send(address, new SourceRconCmdRequest(command), SourceRconCmdResponse.class);
     }
 

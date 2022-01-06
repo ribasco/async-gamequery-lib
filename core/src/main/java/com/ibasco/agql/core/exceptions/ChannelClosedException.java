@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,23 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport.tcp;
-
-import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
-import com.ibasco.agql.core.transport.pool.PooledNettyChannelFactory;
+package com.ibasco.agql.core.exceptions;
 
 /**
- * A Netty based TCP channel factory with connection pooling support
+ * Thrown when the channel/connction was closed before the request is marked as oompleted
  *
  * @author Rafael Luis Ibasco
  */
-public class TcpPooledNettyChannelFactory extends PooledNettyChannelFactory {
+public class ChannelClosedException extends AsyncGameLibCheckedException {
 
-    public TcpPooledNettyChannelFactory(NettyChannelPoolFactory channelPoolFactory) {
-        super(channelPoolFactory);
+    public ChannelClosedException() {
+    }
+
+    public ChannelClosedException(String message) {
+        super(message);
+    }
+
+    public ChannelClosedException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

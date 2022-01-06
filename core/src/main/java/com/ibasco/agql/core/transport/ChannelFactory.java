@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import io.netty.channel.EventLoop;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -25,4 +26,8 @@ import java.util.concurrent.CompletableFuture;
 public interface ChannelFactory<T> {
 
     CompletableFuture<T> create(final Envelope<? extends AbstractRequest> envelope);
+
+    default CompletableFuture<T> create(final Envelope<? extends AbstractRequest> envelope, EventLoop eventLoop) {
+        return null;
+    }
 }

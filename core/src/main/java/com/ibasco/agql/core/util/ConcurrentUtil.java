@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,6 +32,8 @@ public final class ConcurrentUtil {
     }
 
     public static Throwable unwrap(Throwable error) {
+        if (error == null)
+            return null;
         if (error instanceof CompletionException || error instanceof ExecutionException) {
             return error.getCause();
         } else {

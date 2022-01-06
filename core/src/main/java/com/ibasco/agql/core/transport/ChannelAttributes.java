@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @author Rafael Luis Ibasco
  */
 @ApiStatus.Internal
-public class ChannelAttributes {
+public final class ChannelAttributes {
 
     public static final AttributeKey<Envelope<AbstractRequest>> REQUEST = AttributeKey.valueOf("request");
 
@@ -40,7 +40,4 @@ public class ChannelAttributes {
     public static final AttributeKey<Integer> WRITE_TIMEOUT = AttributeKey.valueOf("writeTimeout");
 
     public static final AttributeKey<Boolean> AUTO_RELEASE = AttributeKey.valueOf("autoRelease");
-
-    //TODO: Move to TransportOptions
-    public static final AttributeKey<Boolean> REPORT_INCOMPLETE_PACKET = AttributeKey.valueOf("throwOnIncompletePacket");
 }

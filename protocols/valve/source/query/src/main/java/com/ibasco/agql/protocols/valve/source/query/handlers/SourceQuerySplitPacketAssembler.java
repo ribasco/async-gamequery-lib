@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,6 +21,7 @@ import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.handlers.MessageInboundHandler;
 import com.ibasco.agql.core.transport.ChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
+import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySplitPacket;
@@ -76,7 +77,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     }
 
     private void checkAssemblerState(ChannelHandlerContext ctx) throws IncompletePacketException {
-        Boolean throwOnIncomplete = ctx.channel().attr(ChannelAttributes.REPORT_INCOMPLETE_PACKET).get();
+        Boolean throwOnIncomplete = TransportOptions.REPORT_INCOMPLETE_PACKET.attr(ctx);
         //if the channel was pre-maturely closed while we are still processing packets, make sure we reset it.
         if (this.assembler != null && this.assembler.isProcessing()) {
             debug("Channel has been pre-maturely released/closed and we have not received and processed the entire response from the server. " +

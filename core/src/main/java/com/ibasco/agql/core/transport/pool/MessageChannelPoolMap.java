@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import io.netty.channel.pool.ChannelPool;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.util.concurrent.Future;
@@ -37,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A custom {@link ChannelPoolMap} implementation using {@link Envelope} as the key for obtaining a {@link ChannelPool} instance.
+ * A custom {@link ChannelPoolMap} implementation using {@link Envelope} as the key for obtaining a {@link NettyChannelPool} instance.
  *
  * @author Rafael Luis Ibasco
  */
@@ -82,7 +81,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? ext
     @Override
     public void close() throws IOException {
         for (Object key : map.keySet()) {
-            // Wait for remove to finish to ensure that resources are released before returning from close
+            // Wait for remove to finish ensuring that resources are released before returning from close
             removeAsyncIfSupported(key).syncUninterruptibly();
         }
     }

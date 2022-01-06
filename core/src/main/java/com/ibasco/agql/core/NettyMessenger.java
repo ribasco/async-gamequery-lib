@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.core;
 
+import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.transport.ChannelAttributes;
 import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -67,7 +67,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         //configuration parameters
         configure(options);
 
-        //create a new transport instance
+        //create new transport instance
         final NettyTransport transport = (NettyTransport) factory.create(options, this);
 
         //initialize transport
@@ -105,7 +105,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     }
 
     /**
-     * Called after a transport has been initialized
+     * Called after transport has been initialized
      *
      * @param transport
      *         The {@link NettyTransport} that has been initialized
@@ -138,16 +138,17 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     public CompletableFuture<S> send(Envelope<R> envelope, CompletableFuture<Channel> channelFuture) {
         Objects.requireNonNull(envelope, "Envelope cannot be null");
         Objects.requireNonNull(envelope.promise(), "Promise is null");
-        final CompletableFuture<S> promise = envelope.promise();
-        try {
-            log.debug("{} SEND => Preparing request '{}' for transport (destination: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope.recipient());
-            CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
-            failOnClose(writeFuture);
-            return writeFuture.thenCompose(c -> promise);
-        } catch (Throwable e) {
-            promise.completeExceptionally(e);
-            return promise;
-        }
+        log.debug("{} SEND => Preparing request '{}' for transport (destination: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope.recipient());
+        CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
+        failOnClose(writeFuture);
+        return writeFuture.thenCompose(this::toResponse);
+    }
+
+    private CompletableFuture<S> toResponse(Channel channel) {
+        Envelope<AbstractRequest> envelope = channel.attr(ChannelAttributes.REQUEST).get();
+        if (envelope == null)
+            throw new IllegalStateException("No envelope was found in channel: " + channel);
+        return envelope.promise();
     }
 
     @Override
@@ -170,6 +171,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //</editor-fold>
 
     //<editor-fold desc="Private/Protected Methods">
+
     /**
      * Packs the raw request into an envelope containing all the required details of the underlying {@link Transport}
      *
@@ -238,6 +240,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             map.add(option, value);
     }
 
+    //If the channel was closed before we receive any response from the server, then mark the
     private void failOnClose(CompletableFuture<Channel> future) {
         if (future.isDone()) {
             try {
@@ -255,16 +258,15 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     private void failOnClose(Channel channel) {
         CompletableFuture<S> promise = channel.attr(PROMISE).get();
-        if (promise.isDone()) {
-            channel.attr(PROMISE).set(null);
-            return;
-        }
         ChannelFuture closeFuture = channel.closeFuture();
         if (closeFuture.isDone()) {
             try {
-                promise.completeExceptionally(new ClosedChannelException());
-                if (!closeFuture.isSuccess()) {
-                    log.debug("Failed to close channel '{}' due to error", channel, closeFuture.cause());
+                if (promise.isDone())
+                    return;
+                if (closeFuture.isSuccess()) {
+                    promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server"));
+                } else {
+                    promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", closeFuture.cause()));
                 }
             } finally {
                 channel.attr(PROMISE).set(null);
@@ -277,9 +279,9 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
                     if (p.isDone())
                         return;
                     if (future.isSuccess()) {
-                        p.completeExceptionally(new ClosedChannelException());
+                        p.completeExceptionally(new ChannelClosedException("Connection was dropped by the remote server"));
                     } else {
-                        p.completeExceptionally(new Exception("Connection was closed by th remote server", new ClosedChannelException()));
+                        p.completeExceptionally(new ChannelClosedException("Connection was dropped by the remote server", future.cause()));
                     }
                 } finally {
                     ch.attr(PROMISE).set(null);

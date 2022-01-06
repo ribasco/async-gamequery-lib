@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,8 +32,8 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 /**
  * Base class for all classee who would like to utilize the netty framework
@@ -56,22 +56,18 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
     private final Bootstrap bootstrap = new Bootstrap();
 
     private ChannelFactory<Channel> channelFactory;
-
-    private Executor executor;
     //</editor-fold>
 
-    //TODO: Move all bootstrap code to NettyChannelFactory
+    //TODO: All bootstrapping should be done in the channel factory.
     //<editor-fold desc="Default Constructor">
     protected NettyTransport(final Class<? extends Channel> channelClass, final NettyChannelHandlerInitializer channelHandlerInitializer, final OptionMap options) {
         Objects.requireNonNull(channelHandlerInitializer, "Default channel handler cannot be null");
-
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         this.channelClass = Objects.requireNonNull(channelClass, "[INIT] TRANSPORT => Missing channel class");
         this.defaultChannelHandler = new DefaultNettyChannelInitializer<>(channelHandlerInitializer);
         //Set resource leak detection if debugging is enabled
         if (log.isDebugEnabled())
             ResourceLeakDetector.setLevel(getOrDefault(TransportOptions.RESOURCE_LEAK_DETECTOR_LEVEL));
-
         this.eventLoopGroup = initializeEventLoopGroup();
         initializeBootstrap();
     }
@@ -127,7 +123,6 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
                  .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT)
                  .option(ChannelOption.AUTO_READ, true)
                  .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getOrDefault(TransportOptions.SOCKET_CONNECT_TIMEOUT));
-        //.option(ChannelOption.SO_REUSEADDR, true);
 
         if (log.isDebugEnabled()) {
             int ctr = 0;
@@ -142,7 +137,6 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
 
     private void configureDefaultAttributes(Bootstrap bootstrap) {
         //Global default attributes
-        bootstrap.attr(ChannelAttributes.REPORT_INCOMPLETE_PACKET, getOrDefault(TransportOptions.REPORT_INCOMPLETE_PACKET));
         bootstrap.attr(ChannelAttributes.READ_TIMEOUT, getOrDefault(TransportOptions.READ_TIMEOUT));
         bootstrap.attr(ChannelAttributes.WRITE_TIMEOUT, getOrDefault(TransportOptions.WRITE_TIMEOUT));
         bootstrap.attr(ChannelAttributes.AUTO_RELEASE, true);
@@ -199,7 +193,7 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
         if (envelope.content() == null)
             throw new IllegalStateException("Request is null");
         channelFuture = channelFuture == null ? newChannel(envelope) : channelFuture;
-        return prepare(envelope, channelFuture).thenCompose(this::write).handle(this::finalize);
+        return prepare(envelope, channelFuture).thenCompose(this::write).handle(this::cleanup);
     }
 
     /**
@@ -227,7 +221,7 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
 
     /**
      * Send the parcel's message to the pipeline. The returned {@link CompletableFuture} will never complete exceptionally.
-     * Use {@link Parcel#hasError()} to check if the write operation failed.
+     * Use {@link Parcel#hasError()} to check if the writeAndNotify operation failed.
      *
      * @param parcel
      *         The {@link Parcel} to send
@@ -238,7 +232,7 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
         log.debug("{} TRANSPORT => Writing parcel to channel", NettyUtil.id(parcel.channel));
 
         Objects.requireNonNull(parcel, "Parcel is null");
-        //Fail fast
+        //ensure we have a channel attached to this parcel
         if (!parcel.hasChannel())
             throw new IllegalStateException("No channel is attached to the parcel");
 
@@ -248,64 +242,62 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
             return CompletableFuture.completedFuture(parcel);
         }
 
-        CompletableFuture<Parcel> promise = new CompletableFuture<>();
+        final CompletableFuture<Parcel> promise = new CompletableFuture<>();
         if (parcel.channel().eventLoop().inEventLoop()) {
-            write0(parcel, promise);
+            writeAndNotify(parcel, promise);
         } else {
-            parcel.channel().eventLoop().execute(() -> write0(parcel, promise));
+            parcel.channel().eventLoop().execute(() -> writeAndNotify(parcel, promise));
         }
+
         return promise.exceptionally(parcel::error);
     }
 
-    private void write0(final Parcel parcel, CompletableFuture<Parcel> promise) {
+    private void writeAndNotify(final Parcel parcel, CompletableFuture<Parcel> promise) {
         checkParcel(parcel);
         assert parcel.channel().eventLoop().inEventLoop();
-
         try {
             Channel channel = parcel.channel();
             ChannelFuture writeFuture = channel.writeAndFlush(parcel.envelope());
-            if (writeFuture.isDone()) {
-                if (!writeFuture.isSuccess()) {
-                    parcel.error(writeFuture.cause());
-                    log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", NettyUtil.id(channel), parcel.error());
+            runWhenComplate(writeFuture, future -> {
+                Channel ch = parcel.channel();
+                if (!future.isSuccess()) {
+                    parcel.error(future.cause());
+                    log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", NettyUtil.id(ch), parcel.error());
                 } else
-                    log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", NettyUtil.id(channel));
+                    log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", NettyUtil.id(ch));
                 if (!promise.complete(parcel))
-                    log.warn("{} TRANSPORT => Failed to mark write promise as completed (Reason: Already completed, Promise: {})", NettyUtil.id(channel), promise);
-            } else {
-                writeFuture.addListener((ChannelFutureListener) future -> {
-                    if (future.isSuccess())
-                        log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline ({})", NettyUtil.id(channel), channel.pipeline().names().size());
-                    else {
-                        //catch any error(s) that occured during processing of an outbound request from the channel's pipeline
-                        parcel.error(future.cause());
-                        log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", NettyUtil.id(channel), future.cause());
-                    }
-                    promise.complete(parcel); //don't complete exceptionally
-                });
-            }
+                    log.warn("{} TRANSPORT => Failed to mark writeAndNotify promise as completed (Reason: Already completed, Promise: {})", NettyUtil.id(ch), promise);
+            });
         } catch (Throwable e) {
-            log.debug("{} TRANSPORT => Error occured during write operation", NettyUtil.id(parcel.channel()), e);
+            log.debug("{} TRANSPORT => Error occured during writeAndNotify operation", NettyUtil.id(parcel.channel()), e);
             if (!promise.isDone()) {
                 promise.complete(parcel.error(e));
             }
         }
     }
 
+    private <V> void runWhenComplate(ChannelFuture future, Consumer<ChannelFuture> consumer) {
+        if (future.isDone()) {
+            consumer.accept(future);
+        } else {
+            future.addListener((ChannelFutureListener) consumer::accept);
+        }
+    }
+
     /**
-     * Perform clean-up operations after write. If a parcel was in-error, the exception will be propagated down the chain.
+     * Perform clean-up operations after writeAndNotify. If a parcel was in-error, the exception will be propagated down the chain.
      *
      * @param parcel
      *         The {@link Parcel} containing transport data
      * @param error
      *         Error that occured during send. {@code null} if no error occured.
      *
-     * @return Thee {@link Channel} that was used for the write operation
+     * @return Thee {@link Channel} that was used for the writeAndNotify operation
      */
-    private Channel finalize(Parcel parcel, Throwable error) {
+    private Channel cleanup(Parcel parcel, Throwable error) {
         try {
             //check error
-            Throwable cError = (parcel != null && parcel.hasError()) ? parcel.error() : error;
+            Throwable cError = ConcurrentUtil.unwrap((parcel != null && parcel.hasError()) ? parcel.error() : error);
             log.debug("TRANSPORT (FINALIZE) => Parcel (Has error: {})", cError != null);
             if (cError != null)
                 throw new TransportWriteException(String.format("An error occured while trying to send parcel over transport (Parcel: %s)", parcel), cError);
@@ -428,11 +420,6 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
 
         Parcel(Envelope<? extends AbstractRequest> envelope) {
             this.envelope = envelope;
-        }
-
-        Parcel(Channel channel, Envelope<AbstractRequest> envelope) {
-            this.envelope = envelope;
-            attach(channel);
         }
 
         //<editor-fold desc="Convenience methods">

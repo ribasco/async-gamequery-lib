@@ -280,8 +280,9 @@ public class SourceRconExample extends BaseExample {
                 return commandAuthenticate(args);
             } else if (command.startsWith("/cleanup")) {
                 return commandCleanup(args);
-            }
-            else {
+            } else if (command.startsWith("/reauth")) {
+                return commandReauth(args);
+            } else {
                 return error(String.format("Unknown command '%s' (type /help for the commands available)", command));
             }
             return CompletableFuture.completedFuture(null);
@@ -289,6 +290,15 @@ public class SourceRconExample extends BaseExample {
 
         //System.out.printf("Command '%s' sent\n", command);
         return rconClient.exec(serverAddress, command);
+    }
+
+    private CompletableFuture<SourceRconCmdResponse> commandReauth(String[] args) {
+        try {
+            return rconClient.authenticate(serverAddress).thenCompose(s -> success("done", args[0]));
+        } catch (RconNotYetAuthException e) {
+            return error(e.getMessage());
+        }
+        //return success("done", args[0]);
     }
 
     private CompletableFuture<SourceRconCmdResponse> commandCleanup(String[] args) {

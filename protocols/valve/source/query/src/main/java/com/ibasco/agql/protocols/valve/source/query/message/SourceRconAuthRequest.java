@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,10 @@ public class SourceRconAuthRequest extends SourceRconRequest {
 
     private final byte[] password;
 
+    public SourceRconAuthRequest() {
+        this((byte[]) null);
+    }
+
     public SourceRconAuthRequest(byte[] password) {
         this.password = password;
     }
@@ -30,6 +34,11 @@ public class SourceRconAuthRequest extends SourceRconRequest {
     public SourceRconAuthRequest(SourceRconAuthRequest request) {
         setRequestId(SourceRcon.createRequestId());
         this.password = request.password;
+    }
+
+    public SourceRconAuthRequest(SourceRconAuthRequest request, byte[] password) {
+        setRequestId(request.getRequestId());
+        this.password = password;
     }
 
     public byte[] getPassword() {

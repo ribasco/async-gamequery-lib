@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,17 +20,14 @@ import com.ibasco.agql.core.transport.*;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactoryProvider;
+import com.ibasco.agql.core.transport.pool.PooledNettyChannelFactory;
 import com.ibasco.agql.core.util.OptionMap;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public final class TcpTransport extends NettyTransport {
-
-    private static final Logger log = LoggerFactory.getLogger(TcpTransport.class);
 
     private final boolean keepAlive;
 
@@ -47,13 +44,12 @@ public final class TcpTransport extends NettyTransport {
 
     @Override
     protected ChannelFactory<Channel> newChannelFactory(Bootstrap bootstrap, boolean pooled) {
+        final NettyChannelFactory channelFactory = new TcpNettyChannelFactory(bootstrap.clone(), getOptions());
         if (pooled) {
-            bootstrap = bootstrap.clone();
-            final NettyChannelFactory channelFactory = new TcpNettyChannelFactory(bootstrap, getOptions());
             final ChannelPoolType type = getOptions().getOrDefault(TransportOptions.POOL_TYPE);
             final NettyChannelPoolFactory channelPoolFactory = NettyChannelPoolFactoryProvider.DEFAULT.getFactory(type, channelFactory);
-            return new TcpPooledNettyChannelFactory(channelPoolFactory);
+            return new PooledNettyChannelFactory(channelPoolFactory);
         }
-        return new TcpNettyChannelFactory(bootstrap, getOptions());
+        return channelFactory;
     }
 }

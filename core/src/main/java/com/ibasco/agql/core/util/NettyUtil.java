@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -400,23 +400,15 @@ public class NettyUtil {
         });
     }
 
-    private static AttributeKey<NettyChannelPool> getChannelPoolKey() {
-        /*if (CHANNEL_POOL_KEY == null) {
-            if (!AttributeKey.exists(CHANNEL_POOL_KEY_NAME)) {
-                try {
-                    //ensure that the attribute key from simple channel pool is initialized first
-                    Field field = SimpleNettyChannelPool.class.getDeclaredField("POOL_KEY");
-                    field.setAccessible(true);
-                    //noinspection ResultOfMethodCallIgnored
-                    field.get(null);
-                } catch (NoSuchFieldException | IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-            assert SimpleNettyChannelPool.getChannelPoolKey() != null;
-            CHANNEL_POOL_KEY = AttributeKey.valueOf(CHANNEL_POOL_KEY_NAME);
+    public static <V> void runWhenComplate(ChannelFuture future, Consumer<ChannelFuture> consumer) {
+        if (future.isDone()) {
+            consumer.accept(future);
+        } else {
+            future.addListener((ChannelFutureListener) consumer::accept);
         }
-        return CHANNEL_POOL_KEY;*/
+    }
+
+    private static AttributeKey<NettyChannelPool> getChannelPoolKey() {
         return SimpleNettyChannelPool.getChannelPoolKey();
     }
 }

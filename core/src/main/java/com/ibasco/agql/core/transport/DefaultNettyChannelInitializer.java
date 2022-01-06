@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,10 +30,10 @@ public class DefaultNettyChannelInitializer<C extends Channel> extends ChannelIn
 
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelInitializer.class);
 
-    private final NettyChannelHandlerInitializer channelHandlerInitializer;
+    private final NettyChannelHandlerInitializer initializer;
 
-    public DefaultNettyChannelInitializer(final NettyChannelHandlerInitializer channelHandlerInitializer) {
-        this.channelHandlerInitializer = channelHandlerInitializer;
+    public DefaultNettyChannelInitializer(final NettyChannelHandlerInitializer initializer) {
+        this.initializer = initializer;
     }
 
     private static final ChannelFutureListener CLOSE_LISTENER = new ChannelFutureListener() {
@@ -71,18 +71,19 @@ public class DefaultNettyChannelInitializer<C extends Channel> extends ChannelIn
     private void initializeChannelHandlers(final Channel ch) {
         final ChannelPipeline pipe = ch.pipeline();
 
-        pipe.addLast(MessageDecoder.NAME, new MessageDecoder());
-        synchronized (channelHandlerInitializer) {
+        synchronized (initializer) {
+            pipe.addLast(MessageDecoder.NAME, new MessageDecoder());
+
             //register messenger specific inbound handlers
-            NettyUtil.registerHandlers(pipe, channelHandlerInitializer::registerInboundHandlers, NettyUtil.INBOUND);
+            NettyUtil.registerHandlers(pipe, initializer::registerInboundHandlers, NettyUtil.INBOUND);
 
             //terminating handler
             pipe.addLast(MessageRouter.NAME, new MessageRouter());
 
             //register messenger specific outbound handlers
-            NettyUtil.registerHandlers(pipe, channelHandlerInitializer::registerOutboundHandlers, NettyUtil.OUTBOUND);
+            NettyUtil.registerHandlers(pipe, initializer::registerOutboundHandlers, NettyUtil.OUTBOUND);
+            pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
         }
-        pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
 
         if (!NettyUtil.isPooled(ch)) {
             log.debug("{} HANDLER => Channel is not pooled. Registering timeout handlers", NettyUtil.id(ch));

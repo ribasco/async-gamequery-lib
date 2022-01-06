@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,16 +20,13 @@ import com.ibasco.agql.core.transport.*;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactoryProvider;
+import com.ibasco.agql.core.transport.pool.PooledNettyChannelFactory;
 import com.ibasco.agql.core.util.OptionMap;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class UdpTransport extends NettyTransport {
-
-    private static final Logger log = LoggerFactory.getLogger(UdpTransport.class);
 
     private final boolean connectionLess;
 
@@ -40,14 +37,12 @@ public class UdpTransport extends NettyTransport {
 
     @Override
     protected ChannelFactory<Channel> newChannelFactory(Bootstrap bootstrap, boolean pooled) {
+        final NettyChannelFactory channelFactory = new UdpNettyChannelFactory(bootstrap.clone(), getOptions(), connectionLess);
         if (pooled) {
-            bootstrap = bootstrap.clone();
-            final NettyChannelFactory channelFactory = new UdpNettyChannelFactory(bootstrap, getOptions(), connectionLess);
             final ChannelPoolType type = getOptions().getOrDefault(TransportOptions.POOL_TYPE);
             final NettyChannelPoolFactory channelPoolFactory = NettyChannelPoolFactoryProvider.DEFAULT.getFactory(type, channelFactory);
-            //TODO: Remove connectionless parameter
-            return new UdpPooledNettyChannelFactory(channelPoolFactory, connectionLess);
+            return new PooledNettyChannelFactory(channelPoolFactory);
         }
-        return new UdpNettyChannelFactory(bootstrap, getOptions(), connectionLess);
+        return channelFactory;
     }
 }

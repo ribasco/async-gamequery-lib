@@ -1,6 +1,6 @@
 
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,11 +31,11 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A special {@link NettyChannelFactory} which cache's {@link Channel} instances in a {@link NettyChannelPool}
+ * A special decorator for {@link NettyChannelFactory} which cache's {@link Channel} instances in a {@link NettyChannelPool}
  *
  * @author Rafael Luis Ibasco
  */
-abstract public class PooledNettyChannelFactory extends NettyChannelFactory {
+public class PooledNettyChannelFactory extends NettyChannelFactory {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 

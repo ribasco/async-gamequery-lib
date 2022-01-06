@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 
 package com.ibasco.agql.core.transport.pool;
 
+import static com.ibasco.agql.core.transport.pool.NettyChannelPool.isPooled;
 import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.util.Attribute;
@@ -30,12 +30,15 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
- * A special class that wraps an existing netty based {@link Channel}. This represents a channel that has been acquired from a {@link NettyChannelPool}
+ * <p>
+ * A class that wraps an existing netty based {@link Channel} representing a channel that has been acquired from a {@link NettyChannelPool}.
+ * </p>
+ * <p>
+ * Note that using {@link ChannelFuture#channel()} does not return the actual {@link PooledChannel} type but the underlying {@link Channel} instance.
+ * This can be a problem when accessing a {@link PooledChannel} instance from a {@link java.util.Collection}
+ * </p>
  *
  * @author Rafael Luis Ibasco
- *
- * @implNote Note that using {@link ChannelFuture#channel()} does not return the actual {@link PooledChannel} type but the underlying {@link Channel} instance.
- * This can be a problem when accessing a {@link PooledChannel} instance from a {@link java.util.Collection}
  */
 public class DefaultPooledChannel extends PooledChannel {
 
@@ -281,9 +284,9 @@ public class DefaultPooledChannel extends PooledChannel {
     public CompletableFuture<Channel> release() {
         if (channel.eventLoop().isShutdown())
             return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
-        if (!NettyUtil.isPooled(channel))
+        if (!isPooled(channel))
             return CompletableFuture.completedFuture(channel);
-        final NettyChannelPool pool = NettyUtil.getChannelPool(channel);
+        final NettyChannelPool pool = NettyChannelPool.getPool(channel);
         return pool.release(channel).handle((unused, error) -> {
             if (error != null)
                 throw new CompletionException("Failed to release channel from pool: " + pool, error);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,7 +61,7 @@ public final class TransportOptions {
     /**
      * When {@code true}, the transport will throw an {@link IncompletePacketException} if the split-packets received from the game server are in incomplete state.
      */
-    public static final Option<Boolean> REPORT_INCOMPLETE_PACKET = Option.createOption("reportIncompletePacket", false);
+    public static final Option<Boolean> REPORT_INCOMPLETE_PACKET = Option.createOption("reportIncompletePacket", false, true);
 
     /**
      * The maximum number of milliseconds to wait before timing out on close channel operation
@@ -182,5 +182,6 @@ public final class TransportOptions {
      * The connection timeout value
      */
     public static final Option<Integer> SOCKET_CONNECT_TIMEOUT = Option.createOption("connectTimeoutMillis", 3000);
+
     //</editor-fold>
 }

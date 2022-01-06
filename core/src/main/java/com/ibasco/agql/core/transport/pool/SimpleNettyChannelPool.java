@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,8 +42,6 @@ import java.util.function.Consumer;
 public class SimpleNettyChannelPool implements NettyChannelPool {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleNettyChannelPool.class);
-
-    private static final AttributeKey<NettyChannelPool> POOL_KEY = NettyChannelPool.CHANNEL_POOL;//AttributeKey.newInstance("com.ibasco.agql.core.transport.pool.SimpleNettyChannelPool");
 
     private final Deque<Channel> deque = new ConcurrentLinkedDeque<>();
 
@@ -134,7 +132,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     public static AttributeKey<NettyChannelPool> getChannelPoolKey() {
-        return POOL_KEY;
+        return CHANNEL_POOL;
     }
 
     /**
@@ -184,9 +182,9 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         try {
             final Channel ch = pollChannel();
             if (ch == null) {
+                CompletableFuture<Channel> channelFuture = channelFactory.create(envelope).thenApply(DefaultPooledChannel::new).thenApply(this::updateAttribute).whenComplete(this::notifyConnect);
                 //create a new conncted channel
-                //.thenApply(DefaultPooledChannel::new)
-                notifyOnComplete(promise, channelFactory.create(envelope).thenApply(DefaultPooledChannel::new).thenApply(this::updateAttribute).whenComplete(this::notifyConnect));
+                notifyOnComplete(promise, channelFuture);
             } else {
                 //Channel is not null, ensure that health checker is run in the channel's event loop
                 runInEventLoop(ch.eventLoop(), (v) -> doHealthCheck(ch, envelope, promise));
@@ -250,7 +248,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     private Channel updateAttribute(Channel channel) {
-        channel.attr(POOL_KEY).set(this);
+        channel.attr(CHANNEL_POOL).set(this);
         return channel;
     }
 
@@ -268,7 +266,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         assert channel.eventLoop().inEventLoop();
         //if the channel is healthy, mark the promise as completed
         if (isHealthy) {
-            channel.attr(POOL_KEY).set(this);
+            channel.attr(CHANNEL_POOL).set(this);
             if (channel instanceof PooledChannel) {
                  ((PooledChannel) channel).releaseFuture().reset();
             }
@@ -304,7 +302,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
             assert channel.eventLoop().inEventLoop();
 
             // Remove the POOL_KEY attribute from the Channel and check if it was acquired from this pool, if not fail.
-            if (channel.attr(POOL_KEY).getAndSet(null) != this) {
+            if (channel.attr(CHANNEL_POOL).getAndSet(null) != this) {
                 closeAndFail(channel, new IllegalArgumentException("Channel " + channel + " was not acquired from this ChannelPool"), promise);
             } else {
                 if (releaseHealthCheck) {
@@ -336,9 +334,6 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *         offer operation promise.
      * @param future
      *         the future that contains information fif channel is healthy or not.
-     *
-     * @throws Exception
-     *         in case when failed to notify handler about release operation.
      */
     private void releaseAndOfferIfHealthy(Channel channel, CompletableFuture<Void> promise, CompletableFuture<Boolean> future) {
         try {
@@ -380,7 +375,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     private void closeChannel(Channel channel) {
         if (channel == null)
             return;
-        channel.attr(POOL_KEY).getAndSet(null);
+        channel.attr(CHANNEL_POOL).getAndSet(null);
         channel.close();
     }
 
@@ -410,7 +405,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Poll a {@link Channel} out of the internal storage to reuse it. This will return {@code null} if no
      * {@link Channel} is ready to be reused.
      * <p>
-     * Sub-classes may override {@link #pollChannel()} and {@link #offerChannel(Channel)}. Be aware that
+     * Subclasses may override {@link #pollChannel()} and {@link #offerChannel(Channel)}. Be aware that
      * implementations of these methods needs to be thread-safe!
      */
     protected Channel pollChannel() {
@@ -430,11 +425,8 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
 
     @Override
     public void close() {
-        for (; ; ) {
-            Channel channel = pollChannel();
-            if (channel == null) {
-                break;
-            }
+        Channel channel;
+        while ((channel = pollChannel()) != null) {
             // Just ignore any errors that are reported back from close().
             channel.close().awaitUninterruptibly();
         }

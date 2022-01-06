@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,10 +19,13 @@ package com.ibasco.agql.core.transport.tcp;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
+import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.OptionMap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -33,8 +36,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public class TcpNettyChannelFactory extends NettyChannelFactory {
 
-    public TcpNettyChannelFactory(Bootstrap bootstrap, OptionMap options) {
-        super(bootstrap, options);
+    public TcpNettyChannelFactory(NettyChannelHandlerInitializer initializer, OptionMap options) {
+        super(TransportType.TCP, initializer, options);
+    }
+
+    @Override
+    protected void configureBootstrap(Bootstrap bootstrap) {
+        bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 
     @Override

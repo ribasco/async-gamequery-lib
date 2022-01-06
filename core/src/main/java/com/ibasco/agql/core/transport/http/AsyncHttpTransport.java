@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 /**
  * A wrapper class for the {@link AsyncHttpClient}
@@ -68,19 +67,9 @@ public class AsyncHttpTransport implements Transport<Response, Request> {
     }
 
     @Override
-    public void initialize() {
-
-    }
-
-    @Override
     public CompletableFuture<Response> send(Request data) {
         log.debug("Sending via transport : {}", data);
         return httpTransport.prepareRequest(data).execute().toCompletableFuture();
-    }
-
-    @Override
-    public Executor getExecutor() {
-        return null;
     }
 
     @Override

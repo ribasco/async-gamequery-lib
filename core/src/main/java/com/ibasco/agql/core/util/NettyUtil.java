@@ -22,7 +22,7 @@ import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Message;
 import com.ibasco.agql.core.handlers.MessageEncoder;
 import com.ibasco.agql.core.handlers.WriteTimeoutHandler;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.transport.pool.SimpleNettyChannelPool;
 import io.netty.buffer.ByteBuf;
@@ -160,8 +160,8 @@ public class NettyUtil {
     public static String id(Channel ch) {
         if (ch == null)
             return "[N/A]";
-        if (ch.hasAttr(ChannelAttributes.REQUEST) && ch.attr(ChannelAttributes.REQUEST).get() != null) {
-            Envelope<AbstractRequest> request = ch.attr(ChannelAttributes.REQUEST).get();
+        if (ch.hasAttr(NettyChannelAttributes.REQUEST) && ch.attr(NettyChannelAttributes.REQUEST).get() != null) {
+            Envelope<AbstractRequest> request = ch.attr(NettyChannelAttributes.REQUEST).get();
             if (request.content() != null) {
                 return "[" + ch.id().asShortText() + " : " + request.content().id() + "]";//String.format("[%s : %s]", ch.id().asShortText(), request.content().id());
             }
@@ -222,11 +222,11 @@ public class NettyUtil {
 
     public static void registerTimeoutHandlers(Channel ch) {
         //assert ch.hasAttr(ChannelAttributes.READ_TIMEOUT);
-        assert ch.hasAttr(ChannelAttributes.WRITE_TIMEOUT);
+        assert ch.hasAttr(NettyChannelAttributes.WRITE_TIMEOUT);
 
         //read default channel attributes
         //int readTimeout = ch.attr(ChannelAttributes.READ_TIMEOUT).get();
-        int writeTimeout = ch.attr(ChannelAttributes.WRITE_TIMEOUT).get();
+        int writeTimeout = ch.attr(NettyChannelAttributes.WRITE_TIMEOUT).get();
 
         try {
             //ensure they are not existing within the current pipeline

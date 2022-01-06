@@ -20,14 +20,17 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import io.netty.channel.EventLoop;
 
+import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 
-@FunctionalInterface
-public interface ChannelFactory<T> {
+public interface ChannelFactory<T> extends Closeable {
 
     CompletableFuture<T> create(final Envelope<? extends AbstractRequest> envelope);
 
     default CompletableFuture<T> create(final Envelope<? extends AbstractRequest> envelope, EventLoop eventLoop) {
         return null;
     }
+
+    Executor getExecutor();
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Messenger;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
@@ -88,7 +88,7 @@ public class MessageRouter extends ChannelDuplexHandler {
             if (ReferenceCountUtil.release(msg)) {
                 log.debug("{} ROUTER (INBOUND) => Released reference counted message", NettyUtil.id(channel));
             }
-            if (channel.attr(ChannelAttributes.AUTO_RELEASE).get()) {
+            if (channel.attr(NettyChannelAttributes.AUTO_RELEASE).get()) {
                 log.debug("{} ROUTER (INBOUND) => Auto Release Channel", NettyUtil.id(channel));
                 NettyUtil.releaseOrClose(ctx.channel());
 
@@ -103,7 +103,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         Channel channel = ctx.channel();
         assert channel != null;
 
-        Envelope<AbstractResponse> response = channel.attr(ChannelAttributes.RESPONSE).get();
+        Envelope<AbstractResponse> response = channel.attr(NettyChannelAttributes.RESPONSE).get();
 
         assert response != null;
         assert response.promise() != null;
@@ -118,7 +118,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                                     NettyUtil.isPooled(channel)), error);
             response.messenger().receive(response, error);
         } finally {
-            if (channel.attr(ChannelAttributes.AUTO_RELEASE).get()) {
+            if (channel.attr(NettyChannelAttributes.AUTO_RELEASE).get()) {
                 log.debug("{} ROUTER (ERROR) => Auto Release Channel", NettyUtil.id(channel));
                 NettyUtil.releaseOrClose(ctx.channel());
             } else {
@@ -148,7 +148,7 @@ public class MessageRouter extends ChannelDuplexHandler {
             channel.pipeline().remove(ReadTimeoutHandler.class);
         } catch (NoSuchElementException ignored) {
         }
-        int readTimeout = channel.attr(ChannelAttributes.READ_TIMEOUT).get();
+        int readTimeout = channel.attr(NettyChannelAttributes.READ_TIMEOUT).get();
         channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
         log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", NettyUtil.id(channel), readTimeout);
     }
@@ -164,11 +164,11 @@ public class MessageRouter extends ChannelDuplexHandler {
     }
 
     private Envelope<AbstractRequest> getRequest(Channel channel) {
-        return channel.attr(ChannelAttributes.REQUEST).get();
+        return channel.attr(NettyChannelAttributes.REQUEST).get();
     }
 
     private Envelope<AbstractResponse> getResponse(Channel channel) {
-        return channel.attr(ChannelAttributes.RESPONSE).get();
+        return channel.attr(NettyChannelAttributes.RESPONSE).get();
     }
 
     private void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {

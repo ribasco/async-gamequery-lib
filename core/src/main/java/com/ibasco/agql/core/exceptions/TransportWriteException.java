@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,14 +14,17 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport;
+package com.ibasco.agql.core.exceptions;
 
-/**
- * Enumeration for the transport types supported by this library
- *
- * @author Rafael Luis Ibasco
- */
-public enum TransportType {
-    TCP,
-    UDP
+import java.util.concurrent.CompletionException;
+
+public class TransportWriteException extends CompletionException {
+
+    public TransportWriteException(String message) {
+        this(message, null);
+    }
+
+    public TransportWriteException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

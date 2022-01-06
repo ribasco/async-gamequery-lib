@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.core.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.MessageEnvelope;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
@@ -58,9 +58,9 @@ public class MessageEncoder extends MessageToMessageEncoder<Object> {
 
         //update channel attribute request
         if (envelope instanceof MessageEnvelope<?>) {
-            if (!ctx.channel().hasAttr(ChannelAttributes.REQUEST) || ctx.channel().attr(ChannelAttributes.REQUEST) == null) {
+            if (!ctx.channel().hasAttr(NettyChannelAttributes.REQUEST) || ctx.channel().attr(NettyChannelAttributes.REQUEST) == null) {
                 //noinspection unchecked
-                ctx.channel().attr(ChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
+                ctx.channel().attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
                 log.debug("{} OUT => Updated request attribute to '{}'", NettyUtil.id(ctx.channel()), envelope);
             }
         }

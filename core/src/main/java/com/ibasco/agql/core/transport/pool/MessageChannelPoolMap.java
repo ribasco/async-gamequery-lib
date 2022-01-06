@@ -18,6 +18,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.util.concurrent.Future;
@@ -26,6 +27,8 @@ import io.netty.util.concurrent.Promise;
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 import io.netty.util.internal.ReadOnlyIterator;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -42,15 +45,18 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? extends AbstractRequest>, NettyChannelPool>, Iterable<Map.Entry<Object, NettyChannelPool>>, Closeable {
 
+    private static final Logger log = LoggerFactory.getLogger(MessageChannelPoolMap.class);
+
     private final ConcurrentMap<Object, NettyChannelPool> map = new ConcurrentHashMap<>();
 
     private final NettyChannelPoolFactory channelPoolFactory;
 
     private final NettyPoolingStrategy poolStrategy;
 
-    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory, final NettyPoolingStrategy poolStrategy) {
+    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory) {
         this.channelPoolFactory = Objects.requireNonNull(channelPoolFactory, "Channel pool factory is not provided");
-        this.poolStrategy = Objects.requireNonNull(poolStrategy, "Pool strategy is not provided");
+        this.poolStrategy = channelPoolFactory.getChannelFactory().getOptions().getOrDefault(TransportOptions.POOL_STRATEGY);
+        log.debug("[INIT] POOL => Using pool strategy '{}'", poolStrategy.getName());
     }
 
     @Override
@@ -84,6 +90,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? ext
             // Wait for remove to finish ensuring that resources are released before returning from close
             removeAsyncIfSupported(key).syncUninterruptibly();
         }
+        this.channelPoolFactory.getChannelFactory().close();
     }
 
     @NotNull

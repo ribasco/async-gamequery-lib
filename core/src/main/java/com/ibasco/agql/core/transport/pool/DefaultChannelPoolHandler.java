@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.handlers.ReadTimeoutHandler;
 import com.ibasco.agql.core.handlers.WriteTimeoutHandler;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -96,8 +96,8 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
                 log.warn(String.format("%s HANDLER => Failed to remove timeout handler(s)", NettyUtil.id(ch)));
         } finally {
             ch.pipeline().fireUserEventTriggered(ChannelEvent.RELEASED);
-            NettyUtil.clearAttribute(ch, ChannelAttributes.REQUEST);
-            NettyUtil.clearAttribute(ch, ChannelAttributes.RESPONSE);
+            NettyUtil.clearAttribute(ch, NettyChannelAttributes.REQUEST);
+            NettyUtil.clearAttribute(ch, NettyChannelAttributes.RESPONSE);
         }
     }
 

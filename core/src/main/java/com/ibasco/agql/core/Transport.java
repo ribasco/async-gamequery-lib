@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,6 @@ import com.ibasco.agql.core.util.Configurable;
 
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 
 /**
  * @param <S>
@@ -30,9 +29,5 @@ import java.util.concurrent.Executor;
  */
 public interface Transport<S, R> extends Closeable, Configurable {
 
-    void initialize();
-
     CompletableFuture<S> send(R data);
-
-    Executor getExecutor();
 }

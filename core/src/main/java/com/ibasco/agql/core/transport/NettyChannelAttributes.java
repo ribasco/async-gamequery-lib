@@ -28,7 +28,7 @@ import org.jetbrains.annotations.ApiStatus;
  * @author Rafael Luis Ibasco
  */
 @ApiStatus.Internal
-public final class ChannelAttributes {
+public final class NettyChannelAttributes {
 
     public static final AttributeKey<Envelope<AbstractRequest>> REQUEST = AttributeKey.valueOf("request");
 

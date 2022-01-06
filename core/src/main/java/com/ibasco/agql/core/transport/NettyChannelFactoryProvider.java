@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,11 @@
 
 package com.ibasco.agql.core.transport;
 
-import java.util.concurrent.CompletionException;
+import com.ibasco.agql.core.util.OptionMap;
+import io.netty.channel.Channel;
 
-public class TransportWriteException extends CompletionException {
+@FunctionalInterface
+public interface NettyChannelFactoryProvider {
 
-    public TransportWriteException(String message) {
-        this(message, null);
-    }
-
-    public TransportWriteException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    ChannelFactory<Channel> getFactory(OptionMap options, NettyChannelHandlerInitializer initializer);
 }

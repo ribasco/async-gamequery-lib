@@ -18,10 +18,8 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ResponseException;
-import com.ibasco.agql.core.transport.ChannelAttributes;
-import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
-import com.ibasco.agql.core.transport.NettyTransport;
-import com.ibasco.agql.core.transport.TransportFactory;
+import com.ibasco.agql.core.transport.ChannelFactory;
+import com.ibasco.agql.core.transport.*;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Option;
@@ -57,29 +55,17 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     private final Transport<Channel, Envelope<AbstractRequest>> transport;
 
+    private final ChannelFactory<Channel> channelFactory;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
-    protected NettyMessenger(final OptionMap options, final TransportFactory<Envelope<AbstractRequest>> factory) {
-        Objects.requireNonNull(factory, "Transport factory is missing");
-
-        //Apply messenger specific
-        //configuration parameters
+    protected NettyMessenger(final OptionMap options, final NettyChannelFactoryProvider factoryProvider) {
+        Objects.requireNonNull(factoryProvider, "Transport factory provider is missing");
+        //Apply messenger specific configuration parameters
         configure(options);
-
-        //create new transport instance
-        final NettyTransport transport = (NettyTransport) factory.create(options, this);
-
-        //initialize transport
-        initialize(transport);
-
-        //Initialize the transport (e.g. bootstrap, executors etc)
-        transport.initialize();
-
-        onInitialized(transport);
-
+        this.channelFactory = factoryProvider.getFactory(options, this);
         this.options = options == null ? new OptionMap(getClass()) : options;
-        this.transport = transport;
+        this.transport = new NettyTransport(channelFactory, options);
     }
     //</editor-fold>
 
@@ -96,21 +82,6 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
      *         The {@link OptionMap} instance holding the configuration data
      */
     protected void configure(final OptionMap options) {}
-
-    /**
-     * Called before the {@link Transport} is initialized. All necessary configuration operations should be performed in this method
-     */
-    protected void initialize(NettyTransport transport) {
-        //no-op. should be overriden by subclass
-    }
-
-    /**
-     * Called after transport has been initialized
-     *
-     * @param transport
-     *         The {@link NettyTransport} that has been initialized
-     */
-    protected void onInitialized(NettyTransport transport) {}
 
     //<editor-fold desc="Public methods">
     @Override
@@ -141,11 +112,11 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         log.debug("{} SEND => Preparing request '{}' for transport (destination: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope.recipient());
         CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
         failOnClose(writeFuture);
-        return writeFuture.thenCompose(this::toResponse);
+        return writeFuture.thenCompose(c -> envelope.promise());
     }
 
     private CompletableFuture<S> toResponse(Channel channel) {
-        Envelope<AbstractRequest> envelope = channel.attr(ChannelAttributes.REQUEST).get();
+        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
         if (envelope == null)
             throw new IllegalStateException("No envelope was found in channel: " + channel);
         return envelope.promise();
@@ -225,7 +196,8 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     @Override
     public final EventLoopGroup getExecutor() {
-        return (EventLoopGroup) transport.getExecutor();
+        //return (EventLoopGroup) transport.getExecutor();
+        return (EventLoopGroup) channelFactory.getExecutor();
     }
 
     @Override
@@ -291,7 +263,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     }
 
     private Channel updateAttributes(Channel channel) {
-        Envelope<AbstractRequest> envelope1 = channel.attr(ChannelAttributes.REQUEST).get();
+        Envelope<AbstractRequest> envelope1 = channel.attr(NettyChannelAttributes.REQUEST).get();
         channel.attr(PROMISE).set(envelope1.promise());
         return channel;
     }

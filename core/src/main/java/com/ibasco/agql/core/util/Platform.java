@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.transport.TransportType;
+import com.ibasco.agql.core.transport.enums.TransportType;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultSelectStrategyFactory;
 import io.netty.channel.EventLoopGroup;

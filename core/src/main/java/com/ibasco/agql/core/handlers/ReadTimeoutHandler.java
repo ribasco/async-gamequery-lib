@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.ibasco.agql.core.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
@@ -44,11 +44,11 @@ public class ReadTimeoutHandler extends IdleStateHandler {
     protected final void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
         assert evt.state() == IdleState.READER_IDLE;
         //do not throw timeout exceptions for channels with no request associated
-        if (ctx.channel().hasAttr(ChannelAttributes.REQUEST) && ctx.channel().attr(ChannelAttributes.REQUEST).get() == null) {
+        if (ctx.channel().hasAttr(NettyChannelAttributes.REQUEST) && ctx.channel().attr(NettyChannelAttributes.REQUEST).get() == null) {
             log.debug("{} INB => No request associated with channel. Not firing timeout", NettyUtil.id(ctx.channel()));
             return;
         }
-        readTimedOut(ctx, ctx.channel().attr(ChannelAttributes.REQUEST).get());
+        readTimedOut(ctx, ctx.channel().attr(NettyChannelAttributes.REQUEST).get());
     }
 
     protected void readTimedOut(ChannelHandlerContext ctx, Envelope<AbstractRequest> request) throws Exception {

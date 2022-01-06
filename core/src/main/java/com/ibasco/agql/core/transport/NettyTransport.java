@@ -19,20 +19,22 @@ package com.ibasco.agql.core.transport;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Transport;
+import com.ibasco.agql.core.exceptions.TransportWriteException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
-import com.ibasco.agql.core.util.*;
-import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.*;
-import io.netty.util.AttributeKey;
+import com.ibasco.agql.core.util.ConcurrentUtil;
+import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.TransportOptions;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -40,146 +42,25 @@ import java.util.function.Consumer;
  *
  * @author Rafael Luis Ibasco
  */
-abstract public class NettyTransport implements Transport<Channel, Envelope<AbstractRequest>> {
+public class NettyTransport implements Transport<Channel, Envelope<AbstractRequest>> {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     //<editor-fold desc="Private Members">
-    private final ChannelHandler defaultChannelHandler;
-
     private final OptionMap options;
 
-    private final Class<? extends Channel> channelClass;
-
-    private final EventLoopGroup eventLoopGroup;
-
-    private final Bootstrap bootstrap = new Bootstrap();
-
-    private ChannelFactory<Channel> channelFactory;
+    private final ChannelFactory<Channel> channelFactory;
     //</editor-fold>
 
-    //TODO: All bootstrapping should be done in the channel factory.
     //<editor-fold desc="Default Constructor">
-    protected NettyTransport(final Class<? extends Channel> channelClass, final NettyChannelHandlerInitializer channelHandlerInitializer, final OptionMap options) {
-        Objects.requireNonNull(channelHandlerInitializer, "Default channel handler cannot be null");
+    public NettyTransport(final ChannelFactory<Channel> channelFactory, final OptionMap options) {
+        this.channelFactory = Objects.requireNonNull(channelFactory, "Channel factory must not be null");
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
-        this.channelClass = Objects.requireNonNull(channelClass, "[INIT] TRANSPORT => Missing channel class");
-        this.defaultChannelHandler = new DefaultNettyChannelInitializer<>(channelHandlerInitializer);
         //Set resource leak detection if debugging is enabled
         if (log.isDebugEnabled())
             ResourceLeakDetector.setLevel(getOrDefault(TransportOptions.RESOURCE_LEAK_DETECTOR_LEVEL));
-        this.eventLoopGroup = initializeEventLoopGroup();
-        initializeBootstrap();
     }
     //</editor-fold>
-
-    @Override
-    public final void initialize() {
-        log.debug("[INIT] TRANSPORT => Initialize");
-        this.channelFactory = initializeChannelFactory();
-    }
-
-    private ChannelFactory<Channel> initializeChannelFactory() {
-        boolean pooled = getOrDefault(TransportOptions.CONNECTION_POOLING);
-        log.debug("[INIT] TRANSPORT => Initializing Channel Factory (Pooling enabled: {})", pooled);
-        ChannelFactory<Channel> factory = newChannelFactory(this.bootstrap, pooled);
-        log.debug("[INIT] TRANSPORT => Using channel factory '{}' (Pooling enabled: {})", factory.getClass().getSimpleName(), pooled);
-        return Objects.requireNonNull(factory, "Channel factory is null");
-    }
-
-    private EventLoopGroup initializeEventLoopGroup() {
-        //final int elThreadSize = getOrDefault(TransportOptions.THREAD_EL_SIZE);
-        EventLoopGroup eventLoopGroup = getOrDefault(TransportOptions.THREAD_EL_GROUP);
-        Integer elThreadSize = null;
-        //use a shared instance of event loop group by default
-        if (eventLoopGroup == null) {
-            eventLoopGroup = Platform.getDefaultEventLoopGroup();
-            elThreadSize = Platform.getDefaultPoolSize();
-            log.debug("[INIT] TRANSPORT => Using default global event loop group with a a limit of '{}' thread(s) (Instance: '{}')", elThreadSize, eventLoopGroup);
-        }
-        log.debug("[INIT] TRANSPORT => Event Loop Group '{}' (Max Threads: {}, Instance: {})", eventLoopGroup, elThreadSize == null ? "N/A" : elThreadSize, eventLoopGroup.hashCode());
-        return eventLoopGroup;
-    }
-
-    private void initializeBootstrap() {
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Initializing Bootstrap");
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Channel Class '{}'", channelClass.getSimpleName());
-        bootstrap.channel(this.channelClass);
-        bootstrap.group(this.eventLoopGroup);
-        bootstrap.handler(this.defaultChannelHandler);
-
-        configureDefaultOptions(bootstrap);
-        configureDefaultAttributes(bootstrap);
-        configureBootstrap(bootstrap);
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName());
-    }
-
-    private void configureDefaultOptions(Bootstrap bootstrap) {
-        //Default channel options
-        bootstrap.option(ChannelOption.SO_SNDBUF, getOrDefault(TransportOptions.SOCKET_SNDBUF))
-                 .option(ChannelOption.SO_RCVBUF, getOrDefault(TransportOptions.SOCKET_RECVBUF))
-                 .option(ChannelOption.RCVBUF_ALLOCATOR, new FixedRecvByteBufAllocator(9216))
-                 .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                 .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT)
-                 .option(ChannelOption.AUTO_READ, true)
-                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getOrDefault(TransportOptions.SOCKET_CONNECT_TIMEOUT));
-
-        if (log.isDebugEnabled()) {
-            int ctr = 0;
-            log.debug("===================================================================================================================");
-            log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Default Channel Options");
-            log.debug("===================================================================================================================");
-            for (Map.Entry<ChannelOption<?>, ?> option : bootstrap.config().options().entrySet()) {
-                log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Channel Option: '{}' (Value: {})", ++ctr, option.getKey().name(), option.getValue());
-            }
-        }
-    }
-
-    private void configureDefaultAttributes(Bootstrap bootstrap) {
-        //Global default attributes
-        bootstrap.attr(ChannelAttributes.READ_TIMEOUT, getOrDefault(TransportOptions.READ_TIMEOUT));
-        bootstrap.attr(ChannelAttributes.WRITE_TIMEOUT, getOrDefault(TransportOptions.WRITE_TIMEOUT));
-        bootstrap.attr(ChannelAttributes.AUTO_RELEASE, true);
-
-        int ctr = 0;
-        log.debug("===================================================================================================================");
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Auto initializing channel attributes whose autoCreate flag is set");
-        log.debug("===================================================================================================================");
-        if (Option.getOptions().size() > 0) {
-            for (Option<?> option : Option.getOptions()) {
-                if (option.isChannelAttribute() && option.isAutoCreate()) {
-                    log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Attribute: '{}' (Default Value: {})", ++ctr, option.getKey(), option.getDefaultValue());
-                    //noinspection unchecked
-                    bootstrap.attr((AttributeKey<Object>) option.toAttributeKey(), option.getDefaultValue());
-                }
-            }
-        } else {
-            log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Automatic channel attributes available");
-        }
-
-        ctr = 0;
-        log.debug("===================================================================================================================");
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Populating default channel attributes (explicitly set by client/messenger)");
-        log.debug("===================================================================================================================");
-        if (getOptions().size() > 0) {
-            for (Map.Entry<Option<?>, Object> entry : getOptions()) {
-                Option<?> option = entry.getKey();
-                Object value = entry.getValue();
-                if (option.isChannelAttribute()) {
-                    log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Attribute: '{}' = '{}' (Default: {})", ++ctr, option.getKey(), value, option.getDefaultValue());
-                    //noinspection unchecked
-                    bootstrap.attr((AttributeKey<Object>) option.toAttributeKey(), value);
-                }
-            }
-        } else {
-            log.debug("[INIT] TRANSPORT (BOOTSTRAP) => No default channel attributes available");
-        }
-        log.debug("===================================================================================================================");
-    }
-
-    protected void configureBootstrap(final Bootstrap bootstrap) {
-        //no-operation
-    }
 
     @Override
     public final CompletableFuture<Channel> send(final Envelope<AbstractRequest> envelope) {
@@ -351,16 +232,8 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
     }
 
     @Override
-    public void close() {
-        if (ConcurrentUtil.shutdown(eventLoopGroup, getOrDefault(TransportOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
-            log.debug("TRANSPORT (CLOSE) => Transport closed gracefully");
-        } else {
-            log.debug("TRANSPORT (CLOSE) => Shutdown interrupted");
-        }
-    }
-
-    public final ChannelHandler getDefaultChannelHandler() {
-        return defaultChannelHandler;
+    public void close() throws IOException {
+        channelFactory.close();
     }
 
     @Override
@@ -373,27 +246,6 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
      */
     public ChannelFactory<Channel> getChannelFactory() {
         return this.channelFactory;
-    }
-
-    abstract protected ChannelFactory<Channel> newChannelFactory(Bootstrap bootstrap, boolean pooled);
-
-    //<editor-fold desc="Threading">
-    @Override
-    public EventLoopGroup getExecutor() {
-        return this.eventLoopGroup;
-    }
-
-    public final Bootstrap getBootstrap() {
-        return bootstrap;
-    }
-    //</editor-fold>
-
-    public Class<? extends Channel> getChannelClass() {
-        return this.channelClass;
-    }
-
-    protected static Class<? extends Channel> getChannelClass(TransportType transportType, boolean useNative) {
-        return Platform.getChannelClass(transportType, useNative);
     }
 
     protected CompletableFuture<Channel> newChannel(final Envelope<? extends AbstractRequest> envelope) {
@@ -461,7 +313,7 @@ abstract public class NettyTransport implements Transport<Channel, Envelope<Abst
 
             //update request channel attribute
             //noinspection unchecked
-            channel.attr(ChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
+            channel.attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
 
             //update sender address
             this.envelope.sender(channel.localAddress());

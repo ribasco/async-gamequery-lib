@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,6 +19,8 @@ package com.ibasco.agql.core.transport.udp;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
+import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.OptionMap;
 import io.netty.bootstrap.Bootstrap;
@@ -35,8 +37,8 @@ public class UdpNettyChannelFactory extends NettyChannelFactory {
 
     private final boolean connectionless;
 
-    public UdpNettyChannelFactory(Bootstrap bootstrap, OptionMap options, boolean connectionless) {
-        super(bootstrap, options);
+    public UdpNettyChannelFactory(NettyChannelHandlerInitializer initializer, OptionMap options, boolean connectionless) {
+        super(TransportType.UDP, initializer, options);
         this.connectionless = connectionless;
     }
 

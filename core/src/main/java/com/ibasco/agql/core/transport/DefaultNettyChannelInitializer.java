@@ -63,8 +63,8 @@ public class DefaultNettyChannelInitializer<C extends Channel> extends ChannelIn
         try {
             ch.pipeline().fireUserEventTriggered(ChannelEvent.CLOSED);
         } finally {
-            NettyUtil.clearAttribute(ch, ChannelAttributes.REQUEST);
-            NettyUtil.clearAttribute(ch, ChannelAttributes.RESPONSE);
+            NettyUtil.clearAttribute(ch, NettyChannelAttributes.REQUEST);
+            NettyUtil.clearAttribute(ch, NettyChannelAttributes.RESPONSE);
         }
     }
 

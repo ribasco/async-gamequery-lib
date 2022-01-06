@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,9 @@ import com.google.gson.JsonParser;
 import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
 
 public class JsonContentTypeProcessor extends ContentTypeProcessor<JsonElement> {
-    private final JsonParser parser = new JsonParser();
 
     @Override
     protected JsonElement processContent(String body) {
-        return parser.parse(body);
+        return JsonParser.parseString(body);
     }
 }

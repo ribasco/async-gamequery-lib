@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.core.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.ChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.buffer.ByteBuf;
@@ -58,7 +58,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
         //Make sure we have a request associated, otherwise do not propagate
         if (hasInvalidRequest(channel)) {
-            log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", id, msg, channel.attr(ChannelAttributes.REQUEST).get());
+            log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", id, msg, channel.attr(NettyChannelAttributes.REQUEST).get());
             if (msg instanceof ByteBuf && log.isDebugEnabled()) {
                 ByteBuf b = (ByteBuf) msg;
                 NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", NettyUtil.id(ctx), b.readableBytes()), b, 32);
@@ -69,11 +69,11 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
         try {
             log.debug("{} INB => Received incoming data from server of type: {} (Length: {} bytes)", id, String.format("%s (%d)", msg.getClass().getSimpleName(), msg.hashCode()), getResponseLength(msg));
-            Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(ChannelAttributes.RESPONSE);
+            Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(NettyChannelAttributes.RESPONSE);
 
             //if already initialized, dont overwrite, just skip
             if (responseAttr.get() != null) {
-                Envelope<AbstractRequest> request = ctx.channel().attr(ChannelAttributes.REQUEST).get();
+                Envelope<AbstractRequest> request = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
                 Envelope<AbstractResponse> response = responseAttr.get();
                 assert request != null;
                 assert response != null;
@@ -81,7 +81,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
                 //TODO: Dirty workaround, re-evaluate
                 boolean updateResponse = response.promise() != request.promise();
                 if (!updateResponse) {
-                    log.debug("{} INB => Response already initialized. Skipping. (Request: {}, Response: {})", id, ctx.channel().attr(ChannelAttributes.REQUEST).get(), ctx.channel().attr(ChannelAttributes.RESPONSE).get());
+                    log.debug("{} INB => Response already initialized. Skipping. (Request: {}, Response: {})", id, ctx.channel().attr(NettyChannelAttributes.REQUEST).get(), ctx.channel().attr(NettyChannelAttributes.RESPONSE).get());
                     return;
                 } else {
                     log.debug("{} INB => Response neeeds to be updated (Reason: Promise does not match, Request: {}, Response: {})", id, request, response);
@@ -119,7 +119,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
             return;
         }
 
-        Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(ChannelAttributes.RESPONSE);
+        Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(NettyChannelAttributes.RESPONSE);
         //make sure we still have a response instance in case we encounter any errors during read operation
         if (responseAttr.getAndSet(newResponse(channel)) == null) {
             log.debug("{} INB => Exception caught and response envelope is missing. Creating response '{}'", id, responseAttr.get());
@@ -130,7 +130,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
     }
 
     private boolean hasInvalidRequest(Channel channel) {
-        return !channel.hasAttr(ChannelAttributes.REQUEST) || channel.attr(ChannelAttributes.REQUEST).get() == null || channel.attr(ChannelAttributes.REQUEST).get().isCompleted();
+        return !channel.hasAttr(NettyChannelAttributes.REQUEST) || channel.attr(NettyChannelAttributes.REQUEST).get() == null || channel.attr(NettyChannelAttributes.REQUEST).get().isCompleted();
     }
 
     private Envelope<AbstractResponse> newResponse(Channel channel) {
@@ -139,10 +139,10 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
     private Envelope<AbstractResponse> newResponse(Channel channel, Object msg) {
         assert channel != null;
-        assert channel.hasAttr(ChannelAttributes.REQUEST);
+        assert channel.hasAttr(NettyChannelAttributes.REQUEST);
 
         SocketAddress sender, recipient;
-        Envelope<AbstractRequest> request = channel.attr(ChannelAttributes.REQUEST).get();
+        Envelope<AbstractRequest> request = channel.attr(NettyChannelAttributes.REQUEST).get();
         log.debug("{} INB => Initializing response envelope for request '{}'", NettyUtil.id(channel), request);
         assert request != null;
 

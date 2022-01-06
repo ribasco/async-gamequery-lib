@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolF
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelPoolFactoryProvider.class);
 
     @Override
-    public synchronized NettyChannelPoolFactory getFactory(final ChannelPoolType type, NettyChannelFactory channelFactory) {
+    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, NettyChannelFactory channelFactory) {
         NettyChannelPoolFactory poolFactory;
         switch (type) {
             case ADAPTIVE: {
@@ -40,6 +40,7 @@ public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolF
             default:
                 throw new IllegalStateException("Invalid pool type");
         }
+        log.debug("POOL_FACTORY_PROVIDER => Created channel pool factory: {} (Pool Type: {})", poolFactory, type);
         return poolFactory;
     }
 }

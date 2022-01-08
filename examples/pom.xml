@@ -72,8 +72,12 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ibasco.agql</groupId>
             <artifactId>agql-source-query</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-steam-master</artifactId>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
@@ -90,19 +94,15 @@
             <artifactId>commons-cli</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>agql-steam-master</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ibasco.agql</groupId>
             <artifactId>agql-dota2-webapi</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ibasco.agql</groupId>
             <artifactId>agql-coc-webapi</artifactId>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ibasco.agql</groupId>
             <artifactId>agql-csgo-webapi</artifactId>
         </dependency>
     </dependencies>

@@ -32,7 +32,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>${project.groupId}</groupId>
+            <groupId>com.ibasco.agql</groupId>
             <artifactId>agql-lib-core</artifactId>
         </dependency>
         <dependency>

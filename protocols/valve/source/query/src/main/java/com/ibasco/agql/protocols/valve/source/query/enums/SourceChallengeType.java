@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,14 +16,20 @@
 
 package com.ibasco.agql.protocols.valve.source.query.enums;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
- * Created by raffy on 9/11/2016.
+ * Enumeration for type of challenge
+ *
+ * @author Rafael Luis Ibasco
  */
 public enum SourceChallengeType {
     INFO((byte) 0x54),
     PLAYER((byte) 0x55),
     RULES((byte) 0x56),
     CHALLENGE((byte) 0x57),
+    @ApiStatus.ScheduledForRemoval
+    @Deprecated
     ANY((byte) 0x56);
 
     private final byte header;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -68,6 +69,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
     protected final RetryPolicy<S> DEFAULT_RETRY_POLICY = RetryPolicy.<S>builder()
                                                                      .handle(ReadTimeoutException.class, WriteTimeoutException.class)
                                                                      .withMaxAttempts(3)
+                                                                     .withBackoff(Duration.ofSeconds(3), Duration.ofSeconds(6))
                                                                      .abortOn(ConnectTimeoutException.class)
                                                                      .onFailure(statsCollector.onFailure)
                                                                      .onSuccess(statsCollector.onSuccess)
@@ -111,7 +113,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
 
     protected <V extends S> CompletableFuture<V> send(A address, R request, Class<V> expectedResponse) {
         log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
-        return messenger().send(address, request).thenApply(expectedResponse::cast);
+        return failSafeSend(address, request).thenApply(expectedResponse::cast);
     }
 
     protected CompletableFuture<S> failSafeSend(A address, R request) {

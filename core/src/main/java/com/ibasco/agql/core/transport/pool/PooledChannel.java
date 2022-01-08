@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ abstract public class PooledChannel implements Channel {
 
     abstract public CompletableFuture<Channel> release();
 
-    public ReleaseFuture releaseFuture() {
+    public CompletableFuture<Channel> releaseFuture() {
         return releaseFuture;
     }
 

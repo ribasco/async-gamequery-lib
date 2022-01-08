@@ -268,7 +268,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         if (isHealthy) {
             channel.attr(CHANNEL_POOL).set(this);
             if (channel instanceof PooledChannel) {
-                 ((PooledChannel) channel).releaseFuture().reset();
+                ((PooledChannel.ReleaseFuture) ((PooledChannel) channel).releaseFuture()).reset();
             }
             handler.channelAcquired(channel);
             if (promise.complete(channel)) {
@@ -358,7 +358,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         if (offerChannel(channel)) {
             if (channel instanceof PooledChannel) {
                 PooledChannel pooledChannel = (PooledChannel) channel;
-                pooledChannel.releaseFuture().success();
+                ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).success();
             }
             handler.channelReleased(channel);
             applyReleaseStrategy(channel);
@@ -366,7 +366,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         } else {
             if (channel instanceof PooledChannel) {
                 PooledChannel pooledChannel = (PooledChannel) channel;
-                pooledChannel.releaseFuture().fail(new ChannelPoolFullException());
+                ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).fail(new ChannelPoolFullException());
             }
             closeAndFail(channel, new ChannelPoolFullException(), promise);
         }

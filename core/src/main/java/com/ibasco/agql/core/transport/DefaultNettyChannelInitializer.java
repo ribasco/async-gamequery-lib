@@ -71,9 +71,8 @@ public class DefaultNettyChannelInitializer<C extends Channel> extends ChannelIn
     private void initializeChannelHandlers(final Channel ch) {
         final ChannelPipeline pipe = ch.pipeline();
 
+        pipe.addLast(MessageDecoder.NAME, new MessageDecoder());
         synchronized (initializer) {
-            pipe.addLast(MessageDecoder.NAME, new MessageDecoder());
-
             //register messenger specific inbound handlers
             NettyUtil.registerHandlers(pipe, initializer::registerInboundHandlers, NettyUtil.INBOUND);
 
@@ -82,8 +81,8 @@ public class DefaultNettyChannelInitializer<C extends Channel> extends ChannelIn
 
             //register messenger specific outbound handlers
             NettyUtil.registerHandlers(pipe, initializer::registerOutboundHandlers, NettyUtil.OUTBOUND);
-            pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
         }
+        pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
 
         if (!NettyUtil.isPooled(ch)) {
             log.debug("{} HANDLER => Channel is not pooled. Registering timeout handlers", NettyUtil.id(ch));

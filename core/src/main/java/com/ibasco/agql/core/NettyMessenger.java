@@ -59,12 +59,14 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
-    protected NettyMessenger(final OptionMap options, final NettyChannelFactoryProvider factoryProvider) {
+    protected NettyMessenger(OptionMap options, final NettyChannelFactoryProvider factoryProvider) {
         Objects.requireNonNull(factoryProvider, "Transport factory provider is missing");
+        if (options == null)
+            options = new OptionMap(getClass());
         //Apply messenger specific configuration parameters
         configure(options);
+        this.options = options;
         this.channelFactory = factoryProvider.getFactory(options, this);
-        this.options = options == null ? new OptionMap(getClass()) : options;
         this.transport = new NettyTransport(channelFactory, options);
     }
     //</editor-fold>
@@ -113,13 +115,6 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
         failOnClose(writeFuture);
         return writeFuture.thenCompose(c -> envelope.promise());
-    }
-
-    private CompletableFuture<S> toResponse(Channel channel) {
-        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
-        if (envelope == null)
-            throw new IllegalStateException("No envelope was found in channel: " + channel);
-        return envelope.promise();
     }
 
     @Override
@@ -230,6 +225,10 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     private void failOnClose(Channel channel) {
         CompletableFuture<S> promise = channel.attr(PROMISE).get();
+        if (promise == null) {
+            log.debug("Promise for channel {} is null", channel);
+            return;
+        }
         ChannelFuture closeFuture = channel.closeFuture();
         if (closeFuture.isDone()) {
             try {
@@ -248,6 +247,8 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
                 Channel ch = future.channel();
                 try {
                     CompletableFuture<S> p = ch.attr(PROMISE).get();
+                    if (p == null)
+                        return;
                     if (p.isDone())
                         return;
                     if (future.isSuccess()) {

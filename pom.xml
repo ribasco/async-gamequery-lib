@@ -93,6 +93,7 @@
         <module>protocols/valve/source/query</module>
         <module>protocols/valve/steam/master</module>
         <module>protocols/valve/steam/webapi</module>
+        <module>assembly</module>
     </modules>
 
     <!-- Profiles -->
@@ -298,6 +299,12 @@
         <!-- Plugin configuration shared across all child-modules -->
         <pluginManagement>
             <plugins>
+                <!-- Assembly Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>3.3.0</version>
+                </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>exec-maven-plugin</artifactId>

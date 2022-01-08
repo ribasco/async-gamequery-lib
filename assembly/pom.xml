@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2022 Asynchronous Game Query Library
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>async-gamequery-lib</artifactId>
+        <groupId>com.ibasco.agql</groupId>
+        <version>${revision}${sha1}${changelist}</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>agql-lib</artifactId>
+    <packaging>jar</packaging>
+    <name>AGQL - Assembly (Aggregatee)</name>
+    <dependencies>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-dota2-webapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-steam-webapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-steam-master</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-source-query</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-coc-webapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-csgo-webapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.ibasco.agql</groupId>
+            <artifactId>agql-lib-core</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- JAR Plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <!-- A little workaround to disable the jar warning -->
+                    <classesDirectory>src</classesDirectory>
+                    <excludes>
+                        <exclude>**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <!-- Javadoc -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>aggregate-javadocs</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>aggregate-jar</goal>
+                        </goals>
+                        <configuration>
+                            <includeDependencySources>true</includeDependencySources>
+                            <source>8</source>
+                            <dependencySourceExcludes>
+                                <dependencySourceExclude>com.ibasco.agql:agql-lib-examples</dependencySourceExclude>
+                                <dependencySourceExclude>org.slf4j:*</dependencySourceExclude>
+                            </dependencySourceExcludes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Shade plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <createSourcesJar>true</createSourcesJar>
+                            <shadedArtifactAttached>false</shadedArtifactAttached>
+                            <createDependencyReducedPom>true</createDependencyReducedPom>
+                            <!-- Make sure the transitive dependencies are written to the generated pom under <dependencies> -->
+                            <promoteTransitiveDependencies>true</promoteTransitiveDependencies>
+                            <artifactSet>
+                                <includes>
+                                    <include>com.ibasco.agql:agql-lib-core</include>
+                                    <include>com.ibasco.agql:agql-source-query</include>
+                                    <include>com.ibasco.agql:agql-csgo-webapi</include>
+                                    <include>com.ibasco.agql:agql-dota2-webapi</include>
+                                    <include>com.ibasco.agql:agql-steam-master</include>
+                                    <include>com.ibasco.agql:agql-steam-webapi</include>
+                                    <include>com.ibasco.agql:agql-coc-webapi</include>
+                                </includes>
+                            </artifactSet>
+                            <!-- Add manifest entries -->
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <manifestEntries>
+                                        <Automatic-Module-Name>${project.groupId}</Automatic-Module-Name>
+                                    </manifestEntries>
+                                </transformer>
+                            </transformers>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- Flatten -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>flatten-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>

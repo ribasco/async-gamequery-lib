@@ -51,6 +51,7 @@ Changelog
   - Fixed: Callback set via setter method is not applied (Issue #44)
   - Introduced new constructor arguments that accepts a custom ExecutorService
   - listen() now returns a CompletableFuture which is notified once the underlying connection of the service has been closd.
+
 - **Clash of Clans (Web API)**
   - Marked as deprecated and will be removed in the next major version. This module will be removed in the next major version.
   

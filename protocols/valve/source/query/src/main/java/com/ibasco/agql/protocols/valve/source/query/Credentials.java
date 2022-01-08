@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,13 +17,13 @@
 package com.ibasco.agql.protocols.valve.source.query;
 
 /**
- * An immutable holder for rcon credentials
+ * An immutable class for storing rcon credentials
  *
  * @author Rafael Luis Ibasco
  */
 public interface Credentials {
 
-    boolean invalidate();
+    void invalidate();
 
     boolean isValid();
 

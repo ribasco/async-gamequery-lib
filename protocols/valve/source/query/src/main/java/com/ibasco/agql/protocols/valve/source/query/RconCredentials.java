@@ -45,12 +45,10 @@ public final class RconCredentials implements Credentials {
     }
 
     @Override
-    public boolean invalidate() {
+    public void invalidate() {
         if (this.valid) {
             this.valid = false;
-            return true;
         }
-        return false;
     }
 
     @Override

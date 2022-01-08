@@ -64,7 +64,9 @@ public class SourceQueryExample extends BaseExample {
     public SourceQueryExample() {}
 
     public static void main(String[] args) throws Exception {
-        new SourceQueryExample().run(args);
+        SourceQueryExample example = new SourceQueryExample();
+        example.run(args);
+        example.close();
     }
 
     private ScheduledFuture<?> requester;
@@ -87,6 +89,7 @@ public class SourceQueryExample extends BaseExample {
         long start, end;
 
         final Phaser phaser = new Phaser();
+        //noinspection rawtypes
         final Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries = new HashMap<>();
         queries.put(queryClient::getServerInfo, new ServerInfoHandler(phaser));
         queries.put(queryClient::getPlayers, new PlayersHandler(phaser));
@@ -124,6 +127,7 @@ public class SourceQueryExample extends BaseExample {
         log.info("=================================================================================================================================");
         log.info("Test Results (Total address fetched: {})", total);
         log.info("=================================================================================================================================");
+        //noinspection rawtypes
         for (Map.Entry<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> entry : queries.entrySet()) {
             ResponseHandler<?> handler = entry.getValue();
             //assert handler.getTotalCount() == total;
@@ -159,7 +163,6 @@ public class SourceQueryExample extends BaseExample {
                 this.requester = null;
             }
         }
-
     }
 
     private MasterServerFilter buildServerFilter() {
@@ -176,7 +179,9 @@ public class SourceQueryExample extends BaseExample {
     private static class DelayedQueryTask implements Runnable {
 
         private final InetSocketAddress address;
+
         private final Function<InetSocketAddress, CompletableFuture> query;
+
         private final ResponseHandler<?> handler;
 
         private DelayedQueryTask(InetSocketAddress address, Function<InetSocketAddress, CompletableFuture> query, ResponseHandler<?> handler) {

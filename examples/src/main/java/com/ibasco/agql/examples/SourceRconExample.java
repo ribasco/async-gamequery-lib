@@ -188,7 +188,7 @@ public class SourceRconExample extends BaseExample {
         sendCommandBatch(size, servers.keySet(), handler, phaser);
         Duration duration = Duration.ofNanos(System.nanoTime() - start);
         log.info("Done. (Total Commands: {}, Duration: {} ms, Count: {}, Success: {}, Fail: {})", size, duration.toMillis(), phaser.getArrivedParties(), success.get(), fail.get());
-        rconClient.printStatistics();
+        rconClient.getStatistics().print();
     }
 
     private void printConsoleBanner() {
@@ -269,7 +269,7 @@ public class SourceRconExample extends BaseExample {
             if (command.startsWith("/help") || command.startsWith("/?") || command.startsWith("/h")) {
                 commandUsage();
             } else if (command.startsWith("/stats")) {
-                rconClient.printStatistics(System.out::println);
+                rconClient.getStatistics().print(System.out::println);
             } else if (command.startsWith("/batch")) {
                 return commandBatch(args);
             } else if (command.startsWith("/quit")) {

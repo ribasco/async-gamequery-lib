@@ -94,6 +94,7 @@ public class ExampleRunner {
             log.info("Running Example : {}", exampleKey);
             example.run(args);
             log.info("Closing Example");
+            example.close();
         }
     }
 

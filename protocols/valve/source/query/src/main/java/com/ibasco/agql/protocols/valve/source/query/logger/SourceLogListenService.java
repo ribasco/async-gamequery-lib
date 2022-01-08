@@ -203,12 +203,10 @@ public class SourceLogListenService implements Closeable {
      *
      * @return A {@link CompletableFuture} that is notified once the underlying connection of the service closes. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      *
-     * @throws InterruptedException
-     *         When the service is interrupted
      * @see #setListenAddress(InetSocketAddress)
      * @see #close()
      */
-    public CompletableFuture<Void> listen() throws InterruptedException {
+    public CompletableFuture<Void> listen() {
         Objects.requireNonNull(this.listenAddress, "No listen address provided");
         return listen(this.listenAddress);
     }
@@ -221,11 +219,9 @@ public class SourceLogListenService implements Closeable {
      *
      * @return A {@link CompletableFuture} that is notified once the underlying connection of the service closes. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      *
-     * @throws InterruptedException
-     *         When the service is interrupted
      * @see #close()
      */
-    public CompletableFuture<Void> listen(InetSocketAddress address) throws InterruptedException {
+    public CompletableFuture<Void> listen(InetSocketAddress address) {
         Objects.requireNonNull(listenAddress, "Listen address cannot bee null");
         if (bindInProgress)
             throw new IllegalStateException("A bind is already in progreess for address: " + listenAddress);

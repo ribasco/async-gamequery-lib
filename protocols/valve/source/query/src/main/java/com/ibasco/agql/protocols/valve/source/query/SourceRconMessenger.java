@@ -52,6 +52,8 @@ public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress,
         //connection pooling
         options.add(TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS, true); //do not allow to be modified by the client
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
+        defaultOption(options, SourceRconOptions.USE_TERMINATOR_PACKET, true);
+        defaultOption(options, SourceRconOptions.STRICT_MODE, false);
         defaultOption(options, TransportOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
     }
 

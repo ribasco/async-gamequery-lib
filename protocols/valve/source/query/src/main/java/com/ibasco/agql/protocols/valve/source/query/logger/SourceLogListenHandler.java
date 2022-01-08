@@ -27,6 +27,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
+ * Default handler for parsing incoming source log messages
+ * <p>
  * Created by raffy on 10/25/2016.
  *
  * @author Rafael Luis Ibasco
@@ -46,8 +48,6 @@ public class SourceLogListenHandler extends SimpleChannelInboundHandler<Datagram
             AtomicReference<Consumer<SourceLogEntry>> callbackRef = ctx.channel().attr(CALLBACK).get();
             if (callbackRef != null && callbackRef.get() != null) {
                 callbackRef.get().accept(new SourceLogEntry(new String(raw, Charsets.UTF_8), msg.sender()));
-            } else {
-                System.out.println("NO CALLBACK PRESENT");
             }
         }
     }

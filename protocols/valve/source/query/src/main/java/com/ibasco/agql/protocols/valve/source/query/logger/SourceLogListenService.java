@@ -20,6 +20,7 @@ import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import org.jetbrains.annotations.ApiStatus;
@@ -147,6 +148,7 @@ public class SourceLogListenService implements Closeable {
         bootstrap = new Bootstrap()
                 .localAddress(listenAddress)
                 .channel(channelClass)
+                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                 .attr(SourceLogListenHandler.CALLBACK, callbackRef)
                 .group(group)
                 .handler(new ChannelInitializer<DatagramChannel>() {

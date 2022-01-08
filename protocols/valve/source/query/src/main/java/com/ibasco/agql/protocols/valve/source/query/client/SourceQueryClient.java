@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,7 +23,6 @@ import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.OptionMap;
-import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryMessenger;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
@@ -50,7 +49,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A client used for querying information on Source servers. Based on the Valve Source Query Protocol.
@@ -94,27 +96,10 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
     private Duration cacheRefreshInterval = Duration.ofMinutes(10);
 
     /**
-     * @deprecated To be removed in the next major release
-     */
-    @Deprecated
-    private Executor executor;
-
-    /**
      * Create a new {@link SourceQueryClient} instance
      */
     public SourceQueryClient() {
-        this((Executor) null);
-    }
-
-    /**
-     * Create a new {@link SourceQueryClient} using a custom {@link Executor}
-     *
-     * @param executor
-     *         The {@link Executor} to be used by the underlying network transport service
-     */
-    public SourceQueryClient(Executor executor) {
-        this((OptionMap) null);
-        this.executor = executor;
+        this(null);
     }
 
     /**
@@ -141,8 +126,7 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
      * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
      */
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address) {
-        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class)
-                .thenApply(SourceQueryChallengeResponse::getChallenge);
+        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class).thenApply(SourceQueryChallengeResponse::getChallenge);
     }
 
     /**
@@ -464,7 +448,6 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
 
     @Override
     protected NettyMessenger<InetSocketAddress, SourceQueryRequest, SourceQueryResponse> createMessenger(OptionMap options) {
-        options.add(TransportOptions.THREAD_POOL_EXECUTOR, this.executor);
         return new SourceQueryMessenger(options);
     }
 

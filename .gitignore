@@ -9,3 +9,4 @@ out/
 example.properties
 /gh-pages/
 .flattened-pom.xml
+/assembly/dependency-reduced-pom.xml

@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -88,6 +88,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         the number of maximal active connections, once this is reached new tries to acquire
      *         a {@link Channel} will be delayed until a connection is returned to the pool again.
      */
+    @SuppressWarnings("unused")
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler, int maxConnections) {
         this(channelFactory, handler, maxConnections, Integer.MAX_VALUE);
@@ -221,9 +222,9 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         if (action == null && acquireTimeoutMillis == -1) {
             timeoutTask = null;
             acquireTimeoutNanos = -1;
-        } else if (action == null && acquireTimeoutMillis != -1) {
+        } else if (action == null) {
             throw new NullPointerException("action");
-        } else if (action != null && acquireTimeoutMillis < 0) {
+        } else if (acquireTimeoutMillis < 0) {
             throw new IllegalArgumentException("acquireTimeoutMillis: " + acquireTimeoutMillis + " (expected: >= 0)");
         } else {
             acquireTimeoutNanos = TimeUnit.MILLISECONDS.toNanos(acquireTimeoutMillis);
@@ -260,6 +261,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     }
 
     /** Returns the number of acquired channels that this pool thinks it has. */
+    @SuppressWarnings("unused")
     public int getTotalAcquiredChannels() {
         return acquiredChannelCount.get();
     }
@@ -534,12 +536,9 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
             // Ensure we dispatch this on another Thread as close0 will be called from the EventExecutor and we need
             // to ensure we will not block in a EventExecutor.
-            return NettyUtil.makeCompletable(GlobalEventExecutor.INSTANCE.submit(new Callable<Void>() {
-                @Override
-                public Void call() throws Exception {
-                    FixedNettyChannelPool.super.close();
-                    return null;
-                }
+            return NettyUtil.makeCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
+                FixedNettyChannelPool.super.close();
+                return null;
             }));
         }
 

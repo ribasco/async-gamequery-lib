@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
@@ -110,7 +111,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
      * @return A {@link CompletableFuture} which will be notified once the parcel's message has been successfully delivered through its channel's pipeline
      */
     private CompletableFuture<Parcel> write(final Parcel parcel) {
-        log.debug("{} TRANSPORT => Writing parcel to channel", NettyUtil.id(parcel.channel));
+        log.debug("{} TRANSPORT => Writing parcel to channel", NettyUtil.id(parcel.channel()));
 
         Objects.requireNonNull(parcel, "Parcel is null");
         //ensure we have a channel attached to this parcel
@@ -119,7 +120,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
 
         //if parcel is in error, return immediately
         if (parcel.hasError()) {
-            log.debug("{} Parcel is currently in-error. Returning completed future (Error: {}).", NettyUtil.id(parcel.channel), parcel.error.getMessage());
+            log.debug("{} Parcel is currently in-error. Returning completed future (Error: {}).", NettyUtil.id(parcel.channel()), parcel.error.getMessage());
             return CompletableFuture.completedFuture(parcel);
         }
 
@@ -133,6 +134,14 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         return promise.exceptionally(parcel::error);
     }
 
+    /**
+     * Writes the parcel to it's attached channel
+     *
+     * @param parcel
+     *         The {@link Parcel} to be sent
+     * @param promise
+     *         The {@link CompletableFuture} to notify on write completion or failure
+     */
     private void writeAndNotify(final Parcel parcel, CompletableFuture<Parcel> promise) {
         checkParcel(parcel);
         assert parcel.channel().eventLoop().inEventLoop();
@@ -157,6 +166,16 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         }
     }
 
+    /**
+     * Convenience utility method which runs the callback once the provided future has transitioned to a completed state
+     *
+     * @param future
+     *         The {@link ChannelFuture} to track
+     * @param consumer
+     *         The callback to be notified oncee the future has been marked as completed
+     * @param <V>
+     *         The type passed to the callback
+     */
     private <V> void runWhenComplate(ChannelFuture future, Consumer<ChannelFuture> consumer) {
         if (future.isDone()) {
             consumer.accept(future);
@@ -191,6 +210,12 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         }
     }
 
+    /**
+     * Perform cleanup operations after write
+     *
+     * @param parcel
+     *         The parcel to clean up
+     */
     private void cleanup(Parcel parcel) {
         if (parcel == null)
             return;
@@ -263,28 +288,30 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     class Parcel {
 
         //<editor-fold desc="Members">
-        private Envelope<? extends AbstractRequest> envelope;
+        private final WeakReference<Envelope<? extends AbstractRequest>> envelopeRef;
 
-        private Channel channel;
+        private WeakReference<Channel> channelRef;
 
         private Throwable error;
         //</editor-fold>
 
         Parcel(Envelope<? extends AbstractRequest> envelope) {
-            this.envelope = envelope;
+            this.envelopeRef = new WeakReference<>(envelope);
         }
 
         //<editor-fold desc="Convenience methods">
         boolean hasChannel() {
-            return channel != null;
+            return channelRef != null && channelRef.get() != null;
         }
 
         Channel channel() {
-            return this.channel;
+            if (this.channelRef == null)
+                return null;
+            return this.channelRef.get();
         }
 
         Envelope<? extends AbstractRequest> envelope() {
-            return envelope;
+            return envelopeRef.get();
         }
 
         Throwable error() {
@@ -292,7 +319,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         }
 
         Parcel error(Throwable error) {
-            log.debug(String.format("%s Capturing error into parcel (%s)", NettyUtil.id(channel), error == null ? "N/A" : error.getClass().getSimpleName()), error);
+            log.debug(String.format("%s Capturing error into parcel (%s)", NettyUtil.id(channel()), error == null ? "N/A" : error.getClass().getSimpleName()), error);
             if (error != null && log.isDebugEnabled())
                 error.printStackTrace();
             this.error = ConcurrentUtil.unwrap(error);
@@ -306,32 +333,35 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         //attach the request envelope to the channel
         //update the sender field of the envelope
         Parcel attach(Channel channel) {
-            if (this.channel != null)
+            if (hasChannel())
                 throw new IllegalStateException("A channel is already attached to this parcel");
 
-            this.channel = Objects.requireNonNull(channel, "Channel must not be null");
+            this.channelRef = new WeakReference<>(Objects.requireNonNull(channel, "Channel must not be null"));
 
             //update request channel attribute
             //noinspection unchecked
-            channel.attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
+            channel.attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope());
 
             //update sender address
-            this.envelope.sender(channel.localAddress());
+            envelope().sender(channel.localAddress());
 
             log.debug("{} TRANSPORT => Successfully attached channel '{}' to parcel '{}'", NettyUtil.id(channel()), this, channel());
             return this;
         }
 
         void release() {
-            this.channel = null;
+            if (hasChannel()) {
+                this.channelRef.clear();
+            }
+            this.channelRef = null;
             this.error = null;
-            this.envelope = null;
+            this.envelopeRef.clear();
         }
         //</editor-fold>
 
         @Override
         public String toString() {
-            return String.format("[PARCEL] %s", envelope);
+            return String.format("[PARCEL] %s", envelope());
         }
 
         private Parcel attach(Channel channel, Parcel parcel) {

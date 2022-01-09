@@ -27,6 +27,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -47,6 +48,7 @@ public class TcpNettyChannelFactory extends NettyChannelFactory {
 
     @Override
     public CompletableFuture<Channel> create(Envelope<? extends AbstractRequest> envelope) {
+        Objects.requireNonNull(envelope, "Envelope is null");
         return NettyUtil.makeCompletable(getBootstrap().clone().connect(envelope.recipient(), envelope.sender()));
     }
 }

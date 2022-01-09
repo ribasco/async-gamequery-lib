@@ -26,6 +26,7 @@ import com.ibasco.agql.core.util.OptionMap;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -44,6 +45,7 @@ public class UdpNettyChannelFactory extends NettyChannelFactory {
 
     @Override
     public CompletableFuture<Channel> create(Envelope<? extends AbstractRequest> envelope) {
+        Objects.requireNonNull(envelope, "Envelope is null");
         Bootstrap bootstrap = getBootstrap().clone().localAddress(envelope.sender()).remoteAddress(envelope.recipient());
         return NettyUtil.makeCompletable((connectionless) ? bootstrap.bind() : bootstrap.connect());
     }

@@ -16,33 +16,26 @@
 
 package com.ibasco.agql.protocols.valve.source.query.message;
 
-import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 public class SourceRconAuthRequest extends SourceRconRequest {
 
-    private final byte[] password;
+    private byte[] password;
 
     public SourceRconAuthRequest() {
-        this((byte[]) null);
+        this(null);
     }
 
     public SourceRconAuthRequest(byte[] password) {
         this.password = password;
     }
 
-    public SourceRconAuthRequest(SourceRconAuthRequest request) {
-        setRequestId(SourceRcon.createRequestId());
-        this.password = request.password;
-    }
-
-    public SourceRconAuthRequest(SourceRconAuthRequest request, byte[] password) {
-        setRequestId(request.getRequestId());
-        this.password = password;
-    }
-
     public byte[] getPassword() {
         return password;
+    }
+
+    public void setPassword(byte[] password) {
+        this.password = password;
     }
 
     @Override

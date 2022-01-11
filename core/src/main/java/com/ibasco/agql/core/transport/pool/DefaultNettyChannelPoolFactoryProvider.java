@@ -26,7 +26,7 @@ public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolF
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelPoolFactoryProvider.class);
 
     @Override
-    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, NettyChannelFactory channelFactory) {
+    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final NettyChannelFactory channelFactory) {
         NettyChannelPoolFactory poolFactory;
         switch (type) {
             case ADAPTIVE: {

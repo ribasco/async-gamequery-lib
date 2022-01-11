@@ -29,15 +29,9 @@ import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdRequest
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacket;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 
-import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-
 public class SourceRconAuthDecoder extends MessageInboundDecoder {
-
-    private static final ConcurrentHashMap<InetSocketAddress, SourceRconRequest> lastAuthRequest = new ConcurrentHashMap<>();
 
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
@@ -62,7 +56,7 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         if (SourceRcon.isResponseValuePacket(packet)) {
             ByteBuf content = packet.content();
             String body = NettyUtil.readString(content);
-            debug("Ignoring auth response packet (Packet Id: {}, Body: {})", packet.getId(), body);
+            info("Ignoring auth response packet (Packet Id: {}, Body: {})", packet.getId(), body);
             return null;
         }
 
@@ -74,41 +68,18 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         final boolean authenticated = packet.getId() != -1 && packet.getId() == requestId;
 
         //Update channel attribute and mark this channel as authenticated
-        updateAuthFlag(ctx.channel(), authenticated);
+        ctx.channel().attr(SourceRcon.AUTHENTICATED).set(authenticated);
 
         debug("Updated authentication flag to '{}' (Packet Id [{}] == Request Id [{}])", authenticated, packet.getId(), rconRequest.getRequestId());
-
-        if (authenticated)
-            lastAuthRequest.put((InetSocketAddress) ctx.channel().remoteAddress(), rconRequest);
-
         //Ensure we are responding to the right request
         if (request instanceof SourceRconAuthRequest) {
-            SourceRconAuthResponse response = new SourceRconAuthResponse(requestId, authenticated, !authenticated ? "Bad Password" : null, true, null, !authenticated ? SourceRconAuthReason.BAD_PASSWORD : null);
-            response.setAddress((InetSocketAddress) ctx.channel().remoteAddress());
-            return response;
+            if (authenticated) {
+                return new SourceRconAuthResponse(requestId, true);
+            } else {
+                return new SourceRconAuthResponse(requestId, false, "Bad Password", true, null, SourceRconAuthReason.BAD_PASSWORD);
+            }
         } else {
             return null;
-        }
-    }
-
-    private void updateAuthFlag(Channel channel, boolean value) {
-        //Update channel attribute and mark this channel as authenticated
-        channel.attr(SourceRcon.AUTHENTICATED).set(value);
-    }
-
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
-        //ctx.channel().attr(SourceRcon.AUTHENTICATED).set(false);
-    }
-
-    //TODO: Handle cases when rcon_password has been updated
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
-        if (ctx.channel().hasAttr(SourceRcon.AUTHENTICATED) && ctx.channel().attr(SourceRcon.AUTHENTICATED).compareAndSet(true, false)) {
-            SourceRconRequest request = lastAuthRequest.get((InetSocketAddress) ctx.channel().remoteAddress());
-            debug("Previously authenticated but channel is now inactive. Resetting authentication flag ({})", request);
         }
     }
 }

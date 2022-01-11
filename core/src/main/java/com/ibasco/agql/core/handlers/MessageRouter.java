@@ -70,7 +70,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                 envelope.messenger().receive(envelope, null);
             } else {
                 if (msg instanceof ReferenceCounted && ReferenceCountUtil.refCnt(msg) == 0) {
-                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", NettyUtil.id(channel), msg.getClass().getSimpleName());
+                    log.warn("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", NettyUtil.id(channel), msg.getClass().getSimpleName());
                 } else {
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", NettyUtil.id(channel), msg.getClass().getSimpleName(), msg.hashCode(), msg);
                 }

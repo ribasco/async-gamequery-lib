@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -55,7 +55,7 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
         //Make sure we are still authenticated.
         if (!ctx.channel().hasAttr(SourceRcon.AUTHENTICATED) || !ctx.channel().attr(SourceRcon.AUTHENTICATED).get()) {
             debug("NOT_AUTH: Authentication flag is not set (Address: {})", ctx.channel().remoteAddress());
-            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.REAUTH);
+            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.REAUTHENTICATE);
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, false, error);
         } else if (result != null && (result.contains("Bad Password"))) {
             debug("NOT_AUTH: Found empty or not authenticated response");

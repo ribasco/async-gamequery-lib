@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.enums;
 
 public enum SourceRconAuthReason {
-    REAUTH,
+    REAUTHENTICATE,
     BAD_PASSWORD,
     CONNECTION_DROPPED,
     NOT_AUTHENTICATED,

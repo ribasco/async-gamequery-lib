@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,8 +27,8 @@ public final class SourceRconAuthResponse extends SourceRconResponse {
 
     private final SourceRconAuthReason reasonCode;
 
-    public SourceRconAuthResponse(int requestId, boolean authenticated, String reason, boolean success) {
-        this(requestId, authenticated, reason, success, null, null);
+    public SourceRconAuthResponse(int requestId, boolean authenticated) {
+        this(requestId, authenticated, null, true, null, null);
     }
 
     public SourceRconAuthResponse(int requestId, boolean authenticated, String reason, boolean success, Throwable error, SourceRconAuthReason reasonCode) {

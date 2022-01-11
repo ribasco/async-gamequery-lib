@@ -97,6 +97,8 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param releaseHealthCheck
      *         will check channel health before offering back if this parameter set to {@code true};
      *         otherwise, channel health is only checked at acquisition time
+     * @param releaseStrategy
+     *         Default strategy to apply during release
      */
     public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, ReleaseStrategy releaseStrategy) {
         this(channelFactory, handler, healthCheck, releaseHealthCheck, true, releaseStrategy);
@@ -117,6 +119,8 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *         otherwise, channel health is only checked at acquisition time
      * @param lastRecentUsed
      *         {@code true} {@link Channel} selection will be LIFO, if {@code false} FIFO.
+     * @param releaseStrategy
+     *         Default strategy to apply during release
      */
     public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, boolean lastRecentUsed, ReleaseStrategy releaseStrategy) {
         this.handler = checkNotNull(handler, "handler");
@@ -124,7 +128,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         this.releaseHealthCheck = releaseHealthCheck;
         this.channelFactory = channelFactory;
         this.lastRecentUsed = lastRecentUsed;
-        this.releaseStrategy = releaseStrategy;
+        this.releaseStrategy = releaseStrategy == null ? NONE : releaseStrategy;
     }
 
     public NettyChannelFactory getChannelFactory() {

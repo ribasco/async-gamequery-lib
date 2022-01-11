@@ -376,7 +376,7 @@
                     <artifactId>maven-compiler-plugin</artifactId>
                     <version>3.8.1</version>
                     <configuration>
-                        <verbose>true</verbose>
+                        <verbose>false</verbose>
                         <optimize>true</optimize>
                         <showDeprecation>false</showDeprecation>
                         <showWarnings>true</showWarnings>

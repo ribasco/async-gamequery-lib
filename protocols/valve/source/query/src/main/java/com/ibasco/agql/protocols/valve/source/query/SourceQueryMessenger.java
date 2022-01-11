@@ -20,7 +20,7 @@ import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
 import com.ibasco.agql.core.transport.udp.UdpNettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryPacketDecoder;
@@ -52,12 +52,12 @@ public final class SourceQueryMessenger extends NettyMessenger<InetSocketAddress
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
-    public SourceQueryMessenger(OptionMap options) {
+    public SourceQueryMessenger(Options options) {
         super(options, new UdpNettyChannelFactoryProvider());
     }
 
     @Override
-    protected void configure(OptionMap options) {
+    protected void configure(Options options) {
         //enable pooling by default
         defaultOption(options, TransportOptions.CONNECTION_POOLING, true);
         defaultOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.MESSAGE_TYPE);

@@ -23,7 +23,7 @@ import com.ibasco.agql.core.transport.*;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Option;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.*;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -51,7 +51,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     private final AttributeKey<CompletableFuture<S>> PROMISE = AttributeKey.valueOf("messengerPromise");
 
     //<editor-fold desc="Class Members">
-    private final OptionMap options;
+    private final Options options;
 
     private final Transport<Channel, Envelope<AbstractRequest>> transport;
 
@@ -59,10 +59,10 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
-    protected NettyMessenger(OptionMap options, final NettyChannelFactoryProvider factoryProvider) {
+    protected NettyMessenger(Options options, final NettyChannelFactoryProvider factoryProvider) {
         Objects.requireNonNull(factoryProvider, "Transport factory provider is missing");
         if (options == null)
-            options = new OptionMap(getClass());
+            options = new Options(getClass());
         //Apply messenger specific configuration parameters
         configure(options);
         this.options = options;
@@ -81,9 +81,9 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
      * Populate with configuration options. Sub-classes should override this method. This is called right before the underlying transport is initialized.
      *
      * @param options
-     *         The {@link OptionMap} instance holding the configuration data
+     *         The {@link Options} instance holding the configuration data
      */
-    protected void configure(final OptionMap options) {}
+    protected void configure(final Options options) {}
 
     //<editor-fold desc="Public methods">
     @Override
@@ -187,7 +187,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //</editor-fold>
 
     @Override
-    public OptionMap getOptions() {
+    public Options getOptions() {
         return this.options;
     }
 
@@ -204,13 +204,13 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             transport.close();
     }
 
-    protected final <X> void lockedOption(OptionMap map, Option<X> option, X value) {
+    protected final <X> void lockedOption(Options map, Option<X> option, X value) {
         if (map.contains(option))
             map.remove(option);
         map.add(option, value, true);
     }
 
-    protected final <X> void defaultOption(OptionMap map, Option<X> option, X value) {
+    protected final <X> void defaultOption(Options map, Option<X> option, X value) {
         if (!map.contains(option))
             map.add(option, value);
     }

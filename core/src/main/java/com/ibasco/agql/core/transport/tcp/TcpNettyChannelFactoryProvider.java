@@ -21,7 +21,7 @@ import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.pool.PooledNettyChannelFactory;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
@@ -29,7 +29,7 @@ import io.netty.channel.ChannelOption;
 public class TcpNettyChannelFactoryProvider implements NettyChannelFactoryProvider {
 
     @Override
-    public ChannelFactory<Channel> getFactory(OptionMap options, NettyChannelHandlerInitializer initializer) {
+    public ChannelFactory<Channel> getFactory(Options options, NettyChannelHandlerInitializer initializer) {
         final NettyChannelFactory channelFactory = new TcpNettyChannelFactory(initializer, options);
         channelFactory.getBootstrap().option(ChannelOption.SO_KEEPALIVE, options.getOrDefault(TransportOptions.SOCKET_KEEP_ALIVE));
         channelFactory.getBootstrap().option(ChannelOption.TCP_NODELAY, true);

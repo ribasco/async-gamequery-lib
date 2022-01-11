@@ -21,7 +21,7 @@ import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
 import com.ibasco.agql.core.transport.tcp.TcpNettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.handlers.*;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconRequest;
@@ -42,13 +42,13 @@ public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress,
 
     private final SourceRconAuthProxy proxy;
 
-    public SourceRconMessenger(OptionMap options) {
+    public SourceRconMessenger(Options options) {
         super(options, new TcpNettyChannelFactoryProvider());
         this.proxy = new SourceRconAuthProxy(this, options.get(SourceRconOptions.CREDENTIALS_MANAGER, new RconCredentialsManager()));
     }
 
     @Override
-    protected void configure(final OptionMap options) {
+    protected void configure(final Options options) {
         //connection pooling
         lockedOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS); //do not allow to be modified by the client
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);

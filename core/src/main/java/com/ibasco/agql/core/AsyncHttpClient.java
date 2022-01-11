@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
@@ -28,12 +28,12 @@ import java.util.concurrent.CompletableFuture;
  */
 abstract class AsyncHttpClient extends AbstractClient<InetSocketAddress, AbstractWebRequest, AbstractWebResponse> {
 
-    protected AsyncHttpClient(OptionMap options) {
+    protected AsyncHttpClient(Options options) {
         super(options);
     }
 
     @Override
-    abstract protected HttpMessenger createMessenger(OptionMap options);
+    abstract protected HttpMessenger createMessenger(Options options);
 
     protected CompletableFuture<AbstractWebResponse> send(AbstractWebRequest message) {
         return getMessenger().send(null, message);

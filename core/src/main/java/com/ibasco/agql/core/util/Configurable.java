@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.ibasco.agql.core.util;
 
 public interface Configurable {
 
-    OptionMap getOptions();
+    Options getOptions();
 
     default <V> V getOrDefault(Option<V> option) {
         return getOrDefault(option, null);

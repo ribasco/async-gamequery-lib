@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,7 @@ public final class SourceRconOptions {
     public static final Option<Boolean> STRICT_MODE = Option.createOption("rconStrictMode", true, true, true);
 
     /**
-     * Automatically send an authentication request if the current conneection is invalidated by the server
+     * Automatically send an authentication request if the current connection has been invalidated by the server
      */
     public static final Option<Boolean> REAUTH = Option.createOption("rconReauth", false, true, true);
 

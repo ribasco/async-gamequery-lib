@@ -22,7 +22,7 @@ import com.google.common.cache.LoadingCache;
 import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.util.OptionBuilder;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryMessenger;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
@@ -106,11 +106,11 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
      * Create a new {@link SourceQueryClient} instance with custom configuration options
      *
      * @param options
-     *         The {@link OptionMap} containing the configuration options for this client
+     *         The {@link Options} containing the configuration options for this client
      *
      * @see OptionBuilder
      */
-    public SourceQueryClient(OptionMap options) {
+    public SourceQueryClient(Options options) {
         super(options);
     }
 
@@ -447,7 +447,7 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, SourceQueryRequest, SourceQueryResponse> createMessenger(OptionMap options) {
+    protected NettyMessenger<InetSocketAddress, SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
         return new SourceQueryMessenger(options);
     }
 

@@ -18,7 +18,7 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.OptionBuilder;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
@@ -60,7 +60,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
 
     private final UUID id = UUID.create();
 
-    private final OptionMap options;
+    private final Options options;
 
     private Messenger<A, R, S> messenger;
 
@@ -90,19 +90,19 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
      * Create a new client instance using the provided configuration options.
      *
      * @param options
-     *         The {@link OptionMap} containing the configuration options that will be used by the client
+     *         The {@link Options} containing the configuration options that will be used by the client
      *
      * @see OptionBuilder
-     * @see OptionMap
+     * @see Options
      */
-    protected AbstractClient(OptionMap options) {
+    protected AbstractClient(Options options) {
         if (options == null)
-            options = new OptionMap(this.getClass());
+            options = new Options(this.getClass());
         this.options = options;
         this.log = LoggerFactory.getLogger(getClass());
     }
 
-    abstract protected Messenger<A, R, S> createMessenger(OptionMap options);
+    abstract protected Messenger<A, R, S> createMessenger(Options options);
 
     protected final CompletableFuture<S> send(A address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");

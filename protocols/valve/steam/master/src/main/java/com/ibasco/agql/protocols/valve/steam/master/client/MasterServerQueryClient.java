@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.functions.TriConsumer;
 import com.ibasco.agql.core.util.OptionBuilder;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
@@ -55,7 +55,7 @@ public final class MasterServerQueryClient extends NettyClient<InetSocketAddress
      * @see OptionBuilder
      * @since 0.2.0
      */
-    public MasterServerQueryClient(OptionMap options) {
+    public MasterServerQueryClient(Options options) {
         super(options);
     }
 
@@ -106,7 +106,7 @@ public final class MasterServerQueryClient extends NettyClient<InetSocketAddress
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, MasterServerRequest, MasterServerResponse> createMessenger(OptionMap options) {
+    protected NettyMessenger<InetSocketAddress, MasterServerRequest, MasterServerResponse> createMessenger(Options options) {
         return new MasterServerMessenger(options);
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.JsonContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.XmlContentTypeProcessor;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
@@ -66,7 +66,7 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      * @return A {@link HttpMessenger} instance
      */
     @Override
-    protected HttpMessenger createMessenger(OptionMap options) {
+    protected HttpMessenger createMessenger(Options options) {
         Function<Response, AbstractWebApiResponse> responseFactory = this::createWebApiResponse;
         return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor));
     }

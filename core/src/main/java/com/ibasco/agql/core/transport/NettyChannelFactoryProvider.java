@@ -16,11 +16,11 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 
 @FunctionalInterface
 public interface NettyChannelFactoryProvider {
 
-    ChannelFactory<Channel> getFactory(OptionMap options, NettyChannelHandlerInitializer initializer);
+    ChannelFactory<Channel> getFactory(Options options, NettyChannelHandlerInitializer initializer);
 }

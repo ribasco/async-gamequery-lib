@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
 
     public FixedNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);
-        final OptionMap options = channelFactory.getOptions();
+        final Options options = channelFactory.getOptions();
         this.action = options.getOrDefault(TransportOptions.POOL_ACQUIRE_TIMEOUT_ACTION);
         this.acquireTimeoutMillis = options.getOrDefault(TransportOptions.POOL_ACQUIRE_TIMEOUT);
         this.maxConnections = options.getOrDefault(TransportOptions.POOL_MAX_CONNECTIONS);

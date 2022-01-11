@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.pool.ChannelPoolHandler;
 
@@ -33,7 +33,7 @@ abstract public class NettyChannelPoolFactory {
     private final NettyChannelFactory channelFactory;
 
     protected NettyChannelPoolFactory(NettyChannelFactory channelFactory) {
-        final OptionMap options = Objects.requireNonNull(channelFactory, "Channel factory must not be null").getOptions();
+        final Options options = Objects.requireNonNull(channelFactory, "Channel factory must not be null").getOptions();
         this.channelFactory = channelFactory;
         this.channelPoolHandler = new DefaultChannelPoolHandler(channelFactory.getBootstrap());
         this.channelHealthChecker = options.getOrDefault(TransportOptions.POOL_CHANNEL_HEALTH_CHECKER);

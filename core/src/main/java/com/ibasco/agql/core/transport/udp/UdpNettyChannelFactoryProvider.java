@@ -21,7 +21,7 @@ import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.pool.PooledNettyChannelFactory;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
 
@@ -38,7 +38,7 @@ public class UdpNettyChannelFactoryProvider implements NettyChannelFactoryProvid
     }
 
     @Override
-    public ChannelFactory<Channel> getFactory(OptionMap options, NettyChannelHandlerInitializer initializer) {
+    public ChannelFactory<Channel> getFactory(Options options, NettyChannelHandlerInitializer initializer) {
         final NettyChannelFactory channelFactory = new UdpNettyChannelFactory(initializer, options, connectionLess);
         return options.getOrDefault(TransportOptions.CONNECTION_POOLING) ? new PooledNettyChannelFactory(channelFactory) : channelFactory;
     }

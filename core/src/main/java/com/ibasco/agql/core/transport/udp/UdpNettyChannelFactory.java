@@ -22,7 +22,7 @@ import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 
@@ -38,7 +38,7 @@ public class UdpNettyChannelFactory extends NettyChannelFactory {
 
     private final boolean connectionless;
 
-    public UdpNettyChannelFactory(NettyChannelHandlerInitializer initializer, OptionMap options, boolean connectionless) {
+    public UdpNettyChannelFactory(NettyChannelHandlerInitializer initializer, Options options, boolean connectionless) {
         super(TransportType.UDP, initializer, options);
         this.connectionless = connectionless;
     }

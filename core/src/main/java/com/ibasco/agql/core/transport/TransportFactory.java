@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,10 +17,10 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 
 public interface TransportFactory<D> {
 
-    Transport<Channel, D> create(OptionMap options, NettyChannelHandlerInitializer initializer);
+    Transport<Channel, D> create(Options options, NettyChannelHandlerInitializer initializer);
 }

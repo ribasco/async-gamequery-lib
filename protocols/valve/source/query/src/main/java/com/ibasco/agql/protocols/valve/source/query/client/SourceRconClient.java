@@ -60,7 +60,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @param sendTerminatingPacket
      *         Set to <code>true</code> to send terminator packets for every command.
      *
-     * @deprecated Use {@link #SourceRconClient(OptionMap)}
+     * @deprecated Use {@link #SourceRconClient(Options)}
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval
@@ -73,16 +73,16 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * Create a new {@link SourceRconClient} using the provided configuration options.
      *
      * @param options
-     *         The {@link OptionMap} containing the configuration settings specific for this instance
+     *         The {@link Options} containing the configuration settings specific for this instance
      *
      * @see OptionBuilder
      */
-    public SourceRconClient(OptionMap options) {
+    public SourceRconClient(Options options) {
         super(options);
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, SourceRconRequest, SourceRconResponse> createMessenger(OptionMap options) {
+    protected NettyMessenger<InetSocketAddress, SourceRconRequest, SourceRconResponse> createMessenger(Options options) {
         if (this.sendTerminatingPacket != null)
             options.add(SourceRconOptions.USE_TERMINATOR_PACKET, this.sendTerminatingPacket);
         return new SourceRconMessenger(options);
@@ -244,7 +244,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      *         Set to <code>true</code> to re-authenticate from server on error
      *
      * @see SourceRconOptions#REAUTH
-     * @deprecated Use {@link #SourceRconClient(OptionMap)}
+     * @deprecated Use {@link #SourceRconClient(Options)}
      */
     @Deprecated
     public void setReauthenticate(boolean reauthenticate) {

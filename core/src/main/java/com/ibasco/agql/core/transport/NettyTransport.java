@@ -23,7 +23,7 @@ import com.ibasco.agql.core.exceptions.TransportWriteException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NettyUtil;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -48,13 +48,13 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     private final Logger log = LoggerFactory.getLogger(getClass());
 
     //<editor-fold desc="Private Members">
-    private final OptionMap options;
+    private final Options options;
 
     private final ChannelFactory<Channel> channelFactory;
     //</editor-fold>
 
     //<editor-fold desc="Default Constructor">
-    public NettyTransport(final ChannelFactory<Channel> channelFactory, final OptionMap options) {
+    public NettyTransport(final ChannelFactory<Channel> channelFactory, final Options options) {
         this.channelFactory = Objects.requireNonNull(channelFactory, "Channel factory must not be null");
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
@@ -262,7 +262,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     }
 
     @Override
-    public final OptionMap getOptions() {
+    public final Options getOptions() {
         return options;
     }
 

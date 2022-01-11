@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.steam.master;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
 import com.ibasco.agql.core.transport.udp.UdpNettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerAddressDecoder;
 import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerPacketDecoder;
@@ -35,12 +35,12 @@ import java.util.LinkedList;
 
 public class MasterServerMessenger extends NettyMessenger<InetSocketAddress, MasterServerRequest, MasterServerResponse> {
 
-    public MasterServerMessenger(OptionMap options) {
+    public MasterServerMessenger(Options options) {
         super(options, new UdpNettyChannelFactoryProvider(false));
     }
 
     @Override
-    protected void configure(OptionMap options) {
+    protected void configure(Options options) {
         defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
         defaultOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS);
         defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);

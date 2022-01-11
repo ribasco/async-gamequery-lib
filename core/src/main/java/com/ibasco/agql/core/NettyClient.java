@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.OptionBuilder;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoopGroup;
@@ -58,17 +58,17 @@ abstract public class NettyClient<A extends SocketAddress, R extends AbstractReq
      * Create a new client instance using the provided configuration options.
      *
      * @param options
-     *         The {@link OptionMap} containing the configuration options that will be used by the client
+     *         The {@link Options} containing the configuration options that will be used by the client
      *
      * @see OptionBuilder
      */
-    protected NettyClient(OptionMap options) {
+    protected NettyClient(Options options) {
         super(options);
         log.debug("[{}] CLIENT => Initialzied new client '{}' with ID '{}'", id.getInteger(), getClass().getSimpleName(), id().getInteger());
     }
 
     @Override
-    abstract protected NettyMessenger<A, R, S> createMessenger(OptionMap options);
+    abstract protected NettyMessenger<A, R, S> createMessenger(Options options);
 
     //<editor-fold desc="Netty specific send functions">
     protected CompletableFuture<S> send(A address, R request, Channel channel) {

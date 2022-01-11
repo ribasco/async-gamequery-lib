@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.http;
 
 import com.ibasco.agql.core.Transport;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import org.asynchttpclient.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,7 +73,7 @@ public class AsyncHttpTransport implements Transport<Response, Request> {
     }
 
     @Override
-    public OptionMap getOptions() {
+    public Options getOptions() {
         return null;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ package com.ibasco.agql.core.util;
  */
 public class OptionBuilder {
 
-    private final OptionMap map;
+    private final Options map;
 
     private OptionBuilder(Class<?> group) {
-        map = new OptionMap(group);
+        map = new Options(group);
     }
 
     public static OptionBuilder newBuilder() {
@@ -42,7 +42,7 @@ public class OptionBuilder {
         return this;
     }
 
-    public OptionMap build() {
+    public Options build() {
         return map;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
-import com.ibasco.agql.core.util.OptionMap;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.EventLoopGroup;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -44,15 +44,15 @@ public final class HttpMessenger implements Messenger<InetSocketAddress, Abstrac
 
     private final Function<Response, AbstractWebResponse> responseFactory;
 
-    private final OptionMap options;
+    private final Options options;
 
     private final EventLoopGroup eventLoopGroup;
 
     public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory) {
-        this(responseFactory, new OptionMap(HttpMessenger.class));
+        this(responseFactory, new Options(HttpMessenger.class));
     }
 
-    public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory, OptionMap options) {
+    public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory, Options options) {
         this.options = options;
         this.eventLoopGroup = options.getOrDefault(TransportOptions.THREAD_EL_GROUP);
         DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
@@ -87,7 +87,7 @@ public final class HttpMessenger implements Messenger<InetSocketAddress, Abstrac
     }
 
     @Override
-    public OptionMap getOptions() {
+    public Options getOptions() {
         return options;
     }
 }

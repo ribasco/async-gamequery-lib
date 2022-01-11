@@ -49,13 +49,13 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
 
     private final EventLoopGroup eventLoopGroup;
 
-    private final OptionMap options;
+    private final Options options;
 
     private final TransportType transportType;
 
     private final NettyChannelHandlerInitializer channelHandlerInitializer;
 
-    protected NettyChannelFactory(TransportType type, NettyChannelHandlerInitializer initializer, OptionMap options) {
+    protected NettyChannelFactory(TransportType type, NettyChannelHandlerInitializer initializer, Options options) {
         this.options = options;
         this.transportType = type;
         this.channelClass = Platform.getChannelClass(type, true);
@@ -183,7 +183,7 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
         return bootstrap;
     }
 
-    public final OptionMap getOptions() {
+    public final Options getOptions() {
         return options;
     }
 

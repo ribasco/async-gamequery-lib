@@ -76,15 +76,15 @@ public class SourceRconExample extends BaseExample {
             nonInteractive = "ni".equalsIgnoreCase(args[0]);
         }
 
-        final OptionMap rconOptions = OptionBuilder.newBuilder()
-                                                   .option(TransportOptions.POOL_MAX_CONNECTIONS, 8)
-                                                   .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
-                                                   .option(SourceRconOptions.STRICT_MODE, false)
-                                                   .option(TransportOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                   .option(TransportOptions.READ_TIMEOUT, 5000)
-                                                   .option(TransportOptions.CONNECTION_POOLING, true)
-                                                   .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
-                                                   .build();
+        final Options rconOptions = OptionBuilder.newBuilder()
+                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 8)
+                                                 .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
+                                                 .option(SourceRconOptions.STRICT_MODE, false)
+                                                 .option(TransportOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
+                                                 .option(TransportOptions.READ_TIMEOUT, 5000)
+                                                 .option(TransportOptions.CONNECTION_POOLING, true)
+                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                 .build();
 
         try {
             rconClient = new SourceRconClient(rconOptions);

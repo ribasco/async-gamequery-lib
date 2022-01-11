@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,21 +24,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * A special map containing for storing {@link Option} instances.
+ * A map for storing configuration {@link Option} instances.
  *
  * @author Rafael Luis Ibasco
  */
-public final class OptionMap implements Cloneable, Iterable<Map.Entry<Option<?>, Object>> {
+public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, Object>> {
 
     private final Class<?> group;
 
     private final Map<Option<?>, OptionValue> options = new ConcurrentHashMap<>();
 
-    public OptionMap() {
+    public Options() {
         this(null);
     }
 
-    public OptionMap(Class<?> group) {
+    public Options(Class<?> group) {
         this.group = group;
     }
 
@@ -96,8 +96,8 @@ public final class OptionMap implements Cloneable, Iterable<Map.Entry<Option<?>,
         return (X) optVal.value;
     }
 
-    public OptionMap clone() throws CloneNotSupportedException {
-        OptionMap clone = (OptionMap) super.clone();
+    public Options clone() throws CloneNotSupportedException {
+        Options clone = (Options) super.clone();
         clone.options.putAll(options);
         return clone;
     }

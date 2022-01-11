@@ -26,7 +26,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>agql-all</artifactId>
     <packaging>jar</packaging>
-    <name>AGQL - Assembly (Aggregatee)</name>
+    <name>AGQL - Assembly (Aggregate)</name>
     <dependencies>
         <dependency>
             <groupId>com.ibasco.agql</groupId>

@@ -50,7 +50,7 @@ public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress,
     @Override
     protected void configure(final OptionMap options) {
         //connection pooling
-        options.add(TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS, true); //do not allow to be modified by the client
+        lockedOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS); //do not allow to be modified by the client
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
         defaultOption(options, SourceRconOptions.USE_TERMINATOR_PACKET, true);
         defaultOption(options, SourceRconOptions.STRICT_MODE, false);

@@ -204,6 +204,12 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             transport.close();
     }
 
+    protected final <X> void lockedOption(OptionMap map, Option<X> option, X value) {
+        if (map.contains(option))
+            map.remove(option);
+        map.add(option, value, true);
+    }
+
     protected final <X> void defaultOption(OptionMap map, Option<X> option, X value) {
         if (!map.contains(option))
             map.add(option, value);

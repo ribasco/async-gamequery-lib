@@ -46,8 +46,14 @@ public class PooledNettyChannelFactory implements ChannelFactory<Channel> {
 
     private final NettyChannelPoolFactory channelPoolFactory;
 
+    /**
+     * Creates a new instance using the provided {@link NettyChannelFactory}. A default {@link NettyChannelPoolFactoryProvider} will be used to obtain a {@link NettyChannelPoolFactory}
+     *
+     * @param channelFactory
+     *         The {@link NettyChannelFactory} that will be used to create {@link Channel} instances
+     */
     public PooledNettyChannelFactory(final NettyChannelFactory channelFactory) {
-        this(NettyChannelPoolFactoryProvider.DEFAULT.getFactory(channelFactory.getOptions().getOrDefault(TransportOptions.POOL_TYPE), channelFactory));
+        this(toPoolFactory(channelFactory));
     }
 
     /**
@@ -80,5 +86,9 @@ public class PooledNettyChannelFactory implements ChannelFactory<Channel> {
     @Override
     public void close() throws IOException {
         this.channelPoolMap.close();
+    }
+
+    private static NettyChannelPoolFactory toPoolFactory(NettyChannelFactory factory) {
+        return NettyChannelPoolFactoryProvider.DEFAULT.getFactory(factory.getOptions().getOrDefault(TransportOptions.POOL_TYPE), factory);
     }
 }

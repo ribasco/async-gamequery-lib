@@ -122,15 +122,17 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         if (log.isDebugEnabled())
             log.debug("MESSENGER => Received response '{}' (Error: {})", envelope, error == null ? "N/A" : error.getClass().getSimpleName());
         if (envelope.isCompleted()) {
-            envelope.promise().obtrudeValue(envelope.content());
-            log.warn("MESSENGER => [INVALID] Response '{}' has already been marked as completed. Not notifying client (Promise: {})", envelope, envelope.promise());
+            log.debug("MESSENGER => [INVALID] Response '{}' has already been marked as completed. Not notifying client (Promise: {})", envelope, envelope.promise());
             return;
         }
         if (error != null) {
             log.debug("MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", envelope, error.getClass().getSimpleName());
             envelope.promise().completeExceptionally(new ResponseException(error, envelope.sender()));
         } else {
-            envelope.promise().complete(envelope.content());
+            S response = envelope.content();
+            if (response.getAddress() == null)
+                response.setAddress(envelope.sender());
+            envelope.promise().complete(response);
             log.debug("MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", envelope);
         }
     }

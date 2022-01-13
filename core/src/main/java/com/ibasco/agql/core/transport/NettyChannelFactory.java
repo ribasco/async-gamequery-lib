@@ -43,8 +43,6 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
 
     private final Bootstrap bootstrap = new Bootstrap();
 
-    private final Class<? extends Channel> channelClass;
-
     private final ChannelHandler channelInitializer;
 
     private final EventLoopGroup eventLoopGroup;
@@ -55,28 +53,27 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
 
     private final NettyChannelHandlerInitializer channelHandlerInitializer;
 
-    protected NettyChannelFactory(TransportType type, NettyChannelHandlerInitializer initializer, Options options) {
+    protected NettyChannelFactory(final TransportType type, final NettyChannelHandlerInitializer handlerInitializer, final Options options) {
+        final Class<? extends Channel> channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
         this.options = options;
         this.transportType = type;
-        this.channelClass = Platform.getChannelClass(type, true);
-        this.channelHandlerInitializer = initializer;
-        this.channelInitializer = new DefaultNettyChannelInitializer<>(initializer);
+        this.channelHandlerInitializer = handlerInitializer;
+        this.channelInitializer = new DefaultNettyChannelInitializer<>(handlerInitializer);
         this.eventLoopGroup = initializeEventLoopGroup();
-        initializeBootstrap();
+        initializeBootstrap(channelClass, this.eventLoopGroup, this.channelInitializer);
     }
 
-    private void initializeBootstrap() {
+    private void initializeBootstrap(Class<? extends Channel> channelClass, EventLoopGroup eventLoopGroup, ChannelHandler defaultChannelHandler) {
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Initializing Bootstrap");
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Channel Class '{}'", channelClass.getSimpleName());
-        Bootstrap bootstrap = getBootstrap();
-        bootstrap.channel(this.channelClass);
-        bootstrap.group(this.eventLoopGroup);
-        bootstrap.handler(this.channelInitializer);
+        this.bootstrap.channel(channelClass);
+        this.bootstrap.group(eventLoopGroup);
+        this.bootstrap.handler(defaultChannelHandler);
 
-        configureDefaultOptions(bootstrap);
-        configureDefaultAttributes(bootstrap);
-        configureBootstrap(bootstrap);
-        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName());
+        configureDefaultOptions(this.bootstrap);
+        configureDefaultAttributes(this.bootstrap);
+        configureBootstrap(this.bootstrap);
+        log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}', Default Channel Handler: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName(), defaultChannelHandler);
     }
 
     private EventLoopGroup initializeEventLoopGroup() {

@@ -27,7 +27,7 @@
 
     <artifactId>agql-lib-core</artifactId>
     <name>AGQL - Core</name>
-    <description>The core library. Required for all game protocol modules.</description>
+    <description>The core library. Required by all agql modules.</description>
     <packaging>jar</packaging>
 
     <dependencies>

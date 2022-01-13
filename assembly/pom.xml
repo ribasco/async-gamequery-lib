@@ -24,7 +24,7 @@
         <version>${revision}${sha1}${changelist}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>agql-lib</artifactId>
+    <artifactId>agql</artifactId>
     <packaging>jar</packaging>
     <name>AGQL - Aggregate</name>
     <dependencies>
@@ -64,13 +64,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <configuration>
-                    <!-- A little workaround to disable the jar warning -->
-                    <classesDirectory>src</classesDirectory>
-                    <excludes>
-                        <exclude>**</exclude>
-                    </excludes>
-                </configuration>
             </plugin>
             <!-- Javadoc -->
             <plugin>

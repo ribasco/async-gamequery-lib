@@ -72,7 +72,7 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
 
         configureDefaultOptions(this.bootstrap);
         configureDefaultAttributes(this.bootstrap);
-        configureBootstrap(this.bootstrap);
+        configure(this.bootstrap);
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}', Default Channel Handler: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName(), defaultChannelHandler);
     }
 
@@ -152,7 +152,7 @@ abstract public class NettyChannelFactory implements ChannelFactory<Channel> {
         log.debug("===================================================================================================================");
     }
 
-    protected void configureBootstrap(final Bootstrap bootstrap) {
+    protected void configure(final Bootstrap bootstrap) {
         //no-operation
     }
 

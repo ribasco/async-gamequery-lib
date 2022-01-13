@@ -42,7 +42,7 @@ public class TcpNettyChannelFactory extends NettyChannelFactory {
     }
 
     @Override
-    protected void configureBootstrap(Bootstrap bootstrap) {
+    protected void configure(Bootstrap bootstrap) {
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 

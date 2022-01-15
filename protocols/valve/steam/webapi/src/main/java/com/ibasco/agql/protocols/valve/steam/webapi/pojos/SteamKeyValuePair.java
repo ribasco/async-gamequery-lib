@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,13 +16,17 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
+import org.jetbrains.annotations.ApiStatus;
+
 /**
  * Created by raffy on 10/27/2016.
  */
-//TODO: Remove this and use org.ribasco.asyncgamequerylib.core.KeyValuePair instead
 @Deprecated
+@ApiStatus.ScheduledForRemoval
 public class SteamKeyValuePair<K, V> {
+
     private K name;
+
     private V value;
 
     public K getName() {

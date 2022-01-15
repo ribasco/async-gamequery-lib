@@ -23,6 +23,7 @@ import com.ibasco.agql.examples.query.ResponseHandler;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
+import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdResponse;
@@ -138,7 +139,7 @@ public class SourceRconExample extends BaseExample {
 
         if (result.containsValue(false)) {
             result.entrySet().stream().filter(p -> !p.getValue()).forEach(e -> log.error("Server {} did not authenticate successfully", e.getKey()));
-            throw new RconNotYetAuthException("A server did not authenticate successfully");
+            throw new RconNotYetAuthException("A server did not authenticate successfully", SourceRconAuthReason.NOT_AUTHENTICATED, null);
         }
     }
 

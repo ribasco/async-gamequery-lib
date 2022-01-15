@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,24 +16,21 @@
 
 package com.ibasco.agql.protocols.valve.source.query.exceptions;
 
-import com.ibasco.agql.core.exceptions.AsyncGameLibCheckedException;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
+
+import java.net.InetSocketAddress;
 
 /**
  * Thrown when the current rcon connection requires authentication
  *
  * @author Rafael Luis Ibasco
  */
-public class RconNotYetAuthException extends AsyncGameLibCheckedException {
+public class RconNotYetAuthException extends RconAuthException {
 
     private final SourceRconAuthReason reason;
 
-    public RconNotYetAuthException(String message) {
-        this(message, SourceRconAuthReason.UNKNOWN);
-    }
-
-    public RconNotYetAuthException(String message, SourceRconAuthReason reason) {
-        super(message);
+    public RconNotYetAuthException(String message, SourceRconAuthReason reason, InetSocketAddress address) {
+        super(message, address);
         this.reason = reason;
     }
 

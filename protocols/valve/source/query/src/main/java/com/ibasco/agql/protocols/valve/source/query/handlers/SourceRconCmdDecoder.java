@@ -55,11 +55,11 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
         //Make sure we are still authenticated.
         if (!ctx.channel().hasAttr(SourceRcon.AUTHENTICATED) || !ctx.channel().attr(SourceRcon.AUTHENTICATED).get()) {
             debug("NOT_AUTH: Authentication flag is not set (Address: {})", ctx.channel().remoteAddress());
-            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.REAUTHENTICATE);
+            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.REAUTHENTICATE, (InetSocketAddress) ctx.channel().remoteAddress());
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, false, error);
         } else if (result != null && (result.contains("Bad Password"))) {
             debug("NOT_AUTH: Found empty or not authenticated response");
-            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", result), SourceRconAuthReason.BAD_PASSWORD);
+            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", result), SourceRconAuthReason.BAD_PASSWORD, (InetSocketAddress) ctx.channel().remoteAddress());
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, false, error);
         } else {
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, true);

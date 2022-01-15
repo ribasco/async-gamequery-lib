@@ -143,7 +143,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      */
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) throws RconNotYetAuthException {
         if (!getAuthenticationProxy().isAuthenticated(address))
-            throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED);
+            throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED, address);
         return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class).thenApply(SourceRconAuthResponse::toAuthStatus);
     }
 
@@ -181,7 +181,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     @ApiStatus.Experimental
     public CompletableFuture<SourceRconCmdResponse> exec(InetSocketAddress address, String command) {
         if (!getAuthenticationProxy().isAuthenticated(address))
-            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address)));
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address), SourceRconAuthReason.NOT_AUTHENTICATED, address));
         return send(address, new SourceRconCmdRequest(command), SourceRconCmdResponse.class);
     }
 
@@ -234,7 +234,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @return <code>true</code> if the client should re-authenticate on error
      */
     public boolean isReauthenticate() {
-        return getMessenger().getOrDefault(SourceRconOptions.REAUTH);
+        return getMessenger().getOrDefault(SourceRconOptions.REAUTHENTICATE);
     }
 
     /**
@@ -243,12 +243,12 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @param reauthenticate
      *         Set to <code>true</code> to re-authenticate from server on error
      *
-     * @see SourceRconOptions#REAUTH
+     * @see SourceRconOptions#REAUTHENTICATE
      * @deprecated Use {@link #SourceRconClient(Options)}
      */
     @Deprecated
     public void setReauthenticate(boolean reauthenticate) {
-        getMessenger().set(SourceRconOptions.REAUTH, reauthenticate);
+        getMessenger().set(SourceRconOptions.REAUTHENTICATE, reauthenticate);
     }
 
     @Override

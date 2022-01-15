@@ -16,6 +16,7 @@ Changelog
 
 - **General Updates**
   - Re-licensed project to Apache-2.0
+  - New aggregate project artifact: `agql-all-<version>`
   - Completely re-worked on the core implementation from the ground up with improved performance and reliability.
   - Added configuration support. Clients can now be tweaked depending on the requirements of the developer (e.g. providing custom executor service, set max active connections, modify read/write timeout settings etc)
   - Failsafe Integration. Queries throwing a ReadTimeoutException or WriteTimeoutException will be re-attempted (max of 3 attempts by default)

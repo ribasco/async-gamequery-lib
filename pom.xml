@@ -98,6 +98,16 @@
 
     <!-- Profiles -->
     <profiles>
+        <!-- See https://stackoverflow.com/questions/59049980/maven-compiler-release-as-an-replacement-for-source-and-target -->
+        <profile>
+            <id>java-8-api</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <properties>
+                <maven.compiler.release>8</maven.compiler.release>
+            </properties>
+        </profile>
         <!-- Deploy to Sonatype -->
         <profile>
             <id>deploy-sonatype</id>

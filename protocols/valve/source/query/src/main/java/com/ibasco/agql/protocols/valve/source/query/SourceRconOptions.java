@@ -52,9 +52,9 @@ public final class SourceRconOptions {
     public static final Option<Boolean> STRICT_MODE = Option.createOption("rconStrictMode", true, true, true);
 
     /**
-     * Automatically send an authentication request if the current connection has been invalidated by the server
+     * Automatically send a reauthentication request if the connection is no longer valid. This applies only to successfully authenticated addresses.
      */
-    public static final Option<Boolean> REAUTH = Option.createOption("rconReauth", false, true, true);
+    public static final Option<Boolean> REAUTHENTICATE = Option.createOption("rconReauth", true, true, true);
 
     /**
      * The {@link CredentialsManager} to be used by the rcon authentication module. Default is {@link RconCredentialsManager}.

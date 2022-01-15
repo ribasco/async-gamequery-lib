@@ -50,11 +50,11 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     //<editor-fold desc="Private Members">
     private final Options options;
 
-    private final ChannelFactory<Channel> channelFactory;
+    private final NettyChannelFactory channelFactory;
     //</editor-fold>
 
     //<editor-fold desc="Default Constructor">
-    public NettyTransport(final ChannelFactory<Channel> channelFactory, final Options options) {
+    public NettyTransport(final NettyChannelFactory channelFactory, final Options options) {
         this.channelFactory = Objects.requireNonNull(channelFactory, "Channel factory must not be null");
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
@@ -267,9 +267,9 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     }
 
     /**
-     * @return The underlying {@link ChannelFactory} for this transport.
+     * @return The underlying {@link NettyChannelFactory} for this transport.
      */
-    public ChannelFactory<Channel> getChannelFactory() {
+    public NettyChannelFactory getChannelFactory() {
         return this.channelFactory;
     }
 

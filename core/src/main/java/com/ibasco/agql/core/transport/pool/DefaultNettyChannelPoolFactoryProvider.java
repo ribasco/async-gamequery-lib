@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolF
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelPoolFactoryProvider.class);
 
     @Override
-    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final NettyChannelFactory channelFactory) {
+    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final BootstrapNettyChannelFactory channelFactory) {
         NettyChannelPoolFactory poolFactory;
         switch (type) {
             case ADAPTIVE: {

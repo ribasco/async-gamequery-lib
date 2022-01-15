@@ -19,7 +19,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.ChannelFactory;
+import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
@@ -34,11 +34,11 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A special decorator for {@link NettyChannelFactory} which cache's {@link Channel} instances in a {@link NettyChannelPool}
+ * A special decorator for {@link BootstrapNettyChannelFactory} which cache's {@link Channel} instances in a {@link NettyChannelPool}
  *
  * @author Rafael Luis Ibasco
  */
-public class PooledNettyChannelFactory implements ChannelFactory<Channel> {
+public class PooledNettyChannelFactory implements NettyChannelFactory {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -47,12 +47,12 @@ public class PooledNettyChannelFactory implements ChannelFactory<Channel> {
     private final NettyChannelPoolFactory channelPoolFactory;
 
     /**
-     * Creates a new instance using the provided {@link NettyChannelFactory}. A default {@link NettyChannelPoolFactoryProvider} will be used to obtain a {@link NettyChannelPoolFactory}
+     * Creates a new instance using the provided {@link BootstrapNettyChannelFactory}. A default {@link NettyChannelPoolFactoryProvider} will be used to obtain a {@link NettyChannelPoolFactory}
      *
      * @param channelFactory
-     *         The {@link NettyChannelFactory} that will be used to create {@link Channel} instances
+     *         The {@link BootstrapNettyChannelFactory} that will be used to create {@link Channel} instances
      */
-    public PooledNettyChannelFactory(final NettyChannelFactory channelFactory) {
+    public PooledNettyChannelFactory(final BootstrapNettyChannelFactory channelFactory) {
         this(toPoolFactory(channelFactory));
     }
 
@@ -88,7 +88,7 @@ public class PooledNettyChannelFactory implements ChannelFactory<Channel> {
         this.channelPoolMap.close();
     }
 
-    private static NettyChannelPoolFactory toPoolFactory(NettyChannelFactory factory) {
+    private static NettyChannelPoolFactory toPoolFactory(BootstrapNettyChannelFactory factory) {
         return NettyChannelPoolFactoryProvider.DEFAULT.getFactory(factory.getOptions().getOrDefault(TransportOptions.POOL_TYPE), factory);
     }
 }

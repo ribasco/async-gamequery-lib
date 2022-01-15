@@ -18,7 +18,6 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ResponseException;
-import com.ibasco.agql.core.transport.ChannelFactory;
 import com.ibasco.agql.core.transport.*;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.NettyUtil;
@@ -53,9 +52,9 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //<editor-fold desc="Class Members">
     private final Options options;
 
-    private final Transport<Channel, Envelope<AbstractRequest>> transport;
+    private final NettyTransport transport;
 
-    private final ChannelFactory<Channel> channelFactory;
+    private final NettyChannelFactory channelFactory;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
@@ -115,6 +114,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
         failOnClose(writeFuture);
         return writeFuture.thenCompose(c -> envelope.promise());
+        //return envelope.promise();
     }
 
     @Override
@@ -202,6 +202,10 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         //its possible that the transport has not been initialized yet, if the client did not call send yet
         if (transport != null)
             transport.close();
+    }
+
+    public final NettyChannelFactory getChannelFactory() {
+        return channelFactory;
     }
 
     protected final <X> void lockedOption(Options map, Option<X> option, X value) {

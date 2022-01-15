@@ -18,7 +18,7 @@ package com.ibasco.agql.core.transport.udp;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-public class UdpNettyChannelFactory extends NettyChannelFactory {
+public class UdpNettyChannelFactory extends BootstrapNettyChannelFactory {
 
     private final boolean connectionless;
 

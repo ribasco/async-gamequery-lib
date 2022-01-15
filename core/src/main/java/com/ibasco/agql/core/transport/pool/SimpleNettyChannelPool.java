@@ -17,7 +17,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -55,7 +55,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
 
     private final ReleaseStrategy releaseStrategy;
 
-    private final NettyChannelFactory channelFactory;
+    private final BootstrapNettyChannelFactory channelFactory;
 
     /**
      * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
@@ -65,7 +65,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param handler
      *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
      */
-    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler) {
+    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler) {
         this(channelFactory, handler, ChannelHealthChecker.ACTIVE);
     }
 
@@ -80,7 +80,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
      *         still healthy when obtain from the {@link NettyChannelPool}
      */
-    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
+    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
         this(channelFactory, handler, healthCheck, true, null);
     }
 
@@ -100,7 +100,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param releaseStrategy
      *         Default strategy to apply during release
      */
-    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, ReleaseStrategy releaseStrategy) {
+    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, ReleaseStrategy releaseStrategy) {
         this(channelFactory, handler, healthCheck, releaseHealthCheck, true, releaseStrategy);
     }
 
@@ -122,7 +122,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param releaseStrategy
      *         Default strategy to apply during release
      */
-    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, boolean lastRecentUsed, ReleaseStrategy releaseStrategy) {
+    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, boolean lastRecentUsed, ReleaseStrategy releaseStrategy) {
         this.handler = checkNotNull(handler, "handler");
         this.healthCheck = checkNotNull(healthCheck, "healthCheck");
         this.releaseHealthCheck = releaseHealthCheck;
@@ -131,7 +131,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         this.releaseStrategy = releaseStrategy == null ? NONE : releaseStrategy;
     }
 
-    public NettyChannelFactory getChannelFactory() {
+    public BootstrapNettyChannelFactory getChannelFactory() {
         return channelFactory;
     }
 
@@ -186,7 +186,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         try {
             final Channel ch = pollChannel();
             if (ch == null) {
-                CompletableFuture<Channel> channelFuture = channelFactory.create(envelope).thenApply(DefaultPooledChannel::new).thenApply(this::updateAttribute).whenComplete(this::notifyConnect);
+                CompletableFuture<Channel> channelFuture = newChannel(envelope);
                 //create a new conncted channel
                 notifyOnComplete(promise, channelFuture);
             } else {
@@ -197,6 +197,10 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
             promise.completeExceptionally(cause);
         }
         return promise;
+    }
+
+    protected CompletableFuture<Channel> newChannel(Envelope<? extends AbstractRequest> envelope) {
+        return channelFactory.create(envelope).thenApply(DefaultPooledChannel::new).thenApply(this::updateAttribute).whenComplete(this::notifyConnect);
     }
 
     private void doHealthCheck(Channel ch, Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> promise) {

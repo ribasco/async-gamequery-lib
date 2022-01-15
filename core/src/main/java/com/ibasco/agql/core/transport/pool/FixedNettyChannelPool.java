@@ -17,7 +17,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.channel.Channel;
@@ -89,7 +89,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         a {@link Channel} will be delayed until a connection is returned to the pool again.
      */
     @SuppressWarnings("unused")
-    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler, int maxConnections) {
         this(channelFactory, handler, maxConnections, Integer.MAX_VALUE);
     }
@@ -109,7 +109,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
      *         be failed.
      */
-    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler, int maxConnections, int maxPendingAcquires) {
         this(channelFactory, handler, ChannelHealthChecker.ACTIVE, null, -1, maxConnections, maxPendingAcquires);
     }
@@ -138,7 +138,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
      *         be failed.
      */
-    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -173,7 +173,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         will check channel health before offering back if this parameter set to
      *         {@code true}.
      */
-    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -210,7 +210,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * @param lastRecentUsed
      *         {@code true} {@link Channel} selection will be LIFO, if {@code false} FIFO.
      */
-    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -270,9 +270,9 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     public CompletableFuture<Channel> acquire(final Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise) {
         try {
             if (executor.inEventLoop()) {
-                acquire0(envelope, promise);
+                acquireEL(envelope, promise);
             } else {
-                executor.execute(() -> acquire0(envelope, promise));
+                executor.execute(() -> acquireEL(envelope, promise));
             }
         } catch (Throwable cause) {
             promise.completeExceptionally(cause);
@@ -280,7 +280,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         return promise;
     }
 
-    private void acquire0(final Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise) {
+    private void acquireEL(final Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise) {
         try {
             assert executor.inEventLoop();
 

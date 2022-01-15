@@ -1,8 +1,10 @@
 Features
 ========
 
--   All operations are asynchronous (non-blocking)
--   Designed to be capable of talking to a wide range of protocols.
+- Implments Valve's RCON, Query and Steam Web API Protocols. Compatible with most steam based games.
+- All operations are asynchronous (non-blocking i/o)
+- Takes advantage of netty's event loop model and pooled off-heap buffers allowing for high-performance, high throughput concurrent transactions.
+- Built-in connection and thread pooling facilities.
 
 Web API Implementations
 -----------------------
@@ -15,7 +17,6 @@ A list of supported web service implementations
 | Valve      | Steam             | Apps, Community, Econ, Economy, Player Service, User, User Stats, Store Front |
 | Valve      | Dota 2            | Econ, Fantasy, Match, Stats, Stream, Teams                                    |
 | Valve      | CS:GO             | Servers                                                                       |
-
 
 Game Server Queries
 -------------------
@@ -37,11 +38,3 @@ Other supported protocols
 |------------|------------------------------|
 | Valve      | Source Log                   |
 | Valve      | Master Server Query Protocol |
-
-
-Upcoming Implementations
-------------------------
-
-| **Game**          | **Type**             |
-|-------------------|----------------------|
-| League of Legends | Web API              |

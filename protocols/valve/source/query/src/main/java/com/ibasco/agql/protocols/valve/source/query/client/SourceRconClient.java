@@ -196,6 +196,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @see #authenticate(InetSocketAddress, String)
      * @since 0.2.0
      */
+    @ApiStatus.Experimental
     public void invalidate() {
         getAuthenticationProxy().invalidate(true);
     }
@@ -211,6 +212,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @see #authenticate(InetSocketAddress, String)
      * @since 0.2.0
      */
+    @ApiStatus.Experimental
     public void invalidate(InetSocketAddress address) {
         getAuthenticationProxy().invalidate(address);
     }

@@ -98,12 +98,9 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ### Install from Maven Central
 
-**Aggregate**
-
-Contains all modules (rcon, query, web apis)
+**Aggregate (All modules included in this artifact)**
 
 ```xml
-
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql</artifactId>

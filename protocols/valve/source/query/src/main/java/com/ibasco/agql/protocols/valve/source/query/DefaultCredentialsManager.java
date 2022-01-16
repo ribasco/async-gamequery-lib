@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,11 +20,11 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Basic In-Memory {@link CredentialsManager}
+ * Default In-Memory {@link CredentialsManager}
  *
  * @author Rafael Luis Ibasco
  */
-public class RconCredentialsManager implements CredentialsManager {
+public class DefaultCredentialsManager implements CredentialsManager {
 
     private final ConcurrentHashMap<InetSocketAddress, Credentials> credentials = new ConcurrentHashMap<>();
 

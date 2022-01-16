@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.SocketAddress;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +68,6 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
     protected final RetryPolicy<S> DEFAULT_RETRY_POLICY = RetryPolicy.<S>builder()
                                                                      .handle(ReadTimeoutException.class, WriteTimeoutException.class)
                                                                      .withMaxAttempts(3)
-                                                                     .withBackoff(Duration.ofSeconds(3), Duration.ofSeconds(6))
                                                                      .abortOn(ConnectTimeoutException.class)
                                                                      .onFailure(statsCollector.onFailure)
                                                                      .onSuccess(statsCollector.onSuccess)

@@ -288,7 +288,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     class Parcel {
 
         //<editor-fold desc="Members">
-        private final WeakReference<Envelope<? extends AbstractRequest>> envelopeRef;
+        private final Envelope<? extends AbstractRequest> envelope;
 
         private WeakReference<Channel> channelRef;
 
@@ -296,7 +296,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         //</editor-fold>
 
         Parcel(Envelope<? extends AbstractRequest> envelope) {
-            this.envelopeRef = new WeakReference<>(envelope);
+            this.envelope = envelope;
         }
 
         //<editor-fold desc="Convenience methods">
@@ -311,7 +311,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         }
 
         Envelope<? extends AbstractRequest> envelope() {
-            return envelopeRef.get();
+            return envelope;
         }
 
         Throwable error() {
@@ -355,7 +355,6 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
             }
             this.channelRef = null;
             this.error = null;
-            this.envelopeRef.clear();
         }
         //</editor-fold>
 

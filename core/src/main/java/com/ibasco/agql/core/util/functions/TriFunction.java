@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,17 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.functions;
+package com.ibasco.agql.core.util.functions;
 
 import java.util.Objects;
+import java.util.function.Function;
 
 @FunctionalInterface
-public interface TriConsumer<T, U, V> {
-    void accept(T t, U u, V v);
+public interface TriFunction<A, B, C, R> {
+    R apply(A a, B b, C c);
 
-    default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
+    default <V> TriFunction<A, B, C, V> andThen(Function<? super R, ? extends V> after) {
         Objects.requireNonNull(after);
-        return (a, b, c) -> {
-            accept(a, b, c);
-            after.accept(a, b, c);
-        };
+        return (A a, B b, C c) -> after.apply(apply(a, b, c));
     }
 }

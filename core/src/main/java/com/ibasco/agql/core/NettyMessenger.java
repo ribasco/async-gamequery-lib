@@ -66,6 +66,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         configure(options);
         this.options = options;
         this.channelFactory = factoryProvider.getFactory(options, this);
+        assert this.channelFactory != null;
         this.transport = new NettyTransport(channelFactory, options);
     }
     //</editor-fold>

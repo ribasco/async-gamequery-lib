@@ -16,10 +16,10 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.handlers.MessageDecoder;
-import com.ibasco.agql.core.handlers.MessageEncoder;
-import com.ibasco.agql.core.handlers.MessageRouter;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
+import com.ibasco.agql.core.transport.handlers.MessageDecoder;
+import com.ibasco.agql.core.transport.handlers.MessageEncoder;
+import com.ibasco.agql.core.transport.handlers.MessageRouter;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.*;
 import org.jetbrains.annotations.NotNull;

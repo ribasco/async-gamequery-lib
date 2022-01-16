@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.handlers.MessageOutboundEncoder;
+import com.ibasco.agql.core.transport.handlers.MessageOutboundEncoder;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacketFactory;
 import io.netty.channel.ChannelHandlerContext;

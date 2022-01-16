@@ -1,5 +1,5 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.handlers;
+package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import io.netty.channel.ChannelHandlerContext;

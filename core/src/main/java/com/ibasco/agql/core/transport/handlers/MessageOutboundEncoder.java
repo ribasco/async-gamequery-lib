@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.handlers;
+package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;

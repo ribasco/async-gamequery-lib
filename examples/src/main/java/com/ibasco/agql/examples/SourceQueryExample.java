@@ -17,9 +17,9 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.AbstractClient;
-import com.ibasco.agql.core.functions.TriConsumer;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NetUtil;
+import com.ibasco.agql.core.util.functions.TriConsumer;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.PlayersHandler;
 import com.ibasco.agql.examples.query.ResponseHandler;

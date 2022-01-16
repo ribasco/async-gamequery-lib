@@ -16,10 +16,10 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.handlers.ReadTimeoutHandler;
-import com.ibasco.agql.core.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
+import com.ibasco.agql.core.transport.handlers.ReadTimeoutHandler;
+import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;

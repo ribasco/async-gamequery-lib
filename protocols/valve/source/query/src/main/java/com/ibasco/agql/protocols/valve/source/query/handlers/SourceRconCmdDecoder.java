@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.handlers.MessageInboundDecoder;
+import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.handlers;
+package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
@@ -23,49 +23,25 @@ import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelOutboundHandlerAdapter;
-import io.netty.channel.ChannelPromise;
+import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.function.BiConsumer;
 
-abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapter {
+@SuppressWarnings("unused")
+abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter {
 
-    private final Logger log;
+    private final Logger log = LoggerFactory.getLogger(MessageInboundHandler.class);
 
     private Channel channel;
 
-    private final Class<? extends AbstractRequest> filterRequestClass;
-
-    private final Class<?> filterMessageType;
-
-    protected MessageOutboundHandler() {
-        this(null, null);
+    protected MessageInboundHandler() {
+        //this.log = LoggerFactory.getLogger(this.getClass());
     }
 
-    protected MessageOutboundHandler(Class<? extends AbstractRequest> filterRequestClass, Class<?> filterMessageType) {
-        this.log = LoggerFactory.getLogger(this.getClass());
-        this.filterRequestClass = filterRequestClass;
-        this.filterMessageType = filterMessageType;
-    }
-
-    protected void writeMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        ctx.write(msg, promise);
-    }
-
-    @Override
-    public final void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        ensureValidState();
-        if (filterRequestClass != null && getRequest().content().getClass().equals(filterRequestClass)) {
-            ctx.write(msg, promise);
-            return;
-        }
-        if (msg.getClass().equals(filterMessageType)) {
-            ctx.write(msg, promise);
-            return;
-        }
-        writeMessage(ctx, msg, promise);
+    protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ctx.fireChannelRead(msg);
     }
 
     @Override
@@ -79,12 +55,47 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
         this.channel = null;
     }
 
+    @Override
+    public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (this.channel == null || this.channel != ctx.channel())
+            this.channel = ctx.channel();
+        ensureValidState();
+        readMessage(ctx, msg);
+    }
+
     private void ensureValidState() {
         Envelope<AbstractRequest> requestEnvelope = getRequest();
+        Envelope<AbstractResponse> responseEnvelope = getResponse();
         if (requestEnvelope == null)
             throw new IllegalStateException("No request envelope is attached to this channel");
+        if (responseEnvelope == null)
+            throw new IllegalStateException("No response envelope is attached to this channel");
         if (requestEnvelope.content() == null)
             throw new IllegalStateException("Request envelope's content is null");
+    }
+
+    protected void trace(String msg, Object... args) {
+        log(msg, log::trace, args);
+    }
+
+    protected void error(String msg, Object... args) {
+        log(msg, log::error, args);
+    }
+
+    protected void info(String msg, Object... args) {
+        log(msg, log::info, args);
+    }
+
+    protected void debug(String msg, Object... args) {
+        log(msg, log::debug, args);
+    }
+
+    protected final void warn(String msg, Object... args) {
+        log(msg, log::warn, args);
+    }
+
+    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(String.format("%s INB => %s", NettyUtil.id(channel), msg), args);
     }
 
     protected final Envelope<AbstractRequest> getRequest() {
@@ -97,28 +108,14 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
         return channel.attr(NettyChannelAttributes.RESPONSE).get();
     }
 
-    protected final void trace(String msg, Object... args) {
-        log(msg, log::trace, args);
+    protected void printField(String name, Object value) {
+        debug(String.format("    %-15s: ", name));
+        if (value instanceof Number) {
+            //noinspection MalformedFormatString
+            debug(String.format("%-10d", value));
+        } else if (value instanceof String || value instanceof Character) {
+            debug(String.format("%-10s", value));
+        }
+        debug("");
     }
-
-    protected final void error(String msg, Object... args) {
-        log(msg, log::error, args);
-    }
-
-    protected final void info(String msg, Object... args) {
-        log(msg, log::info, args);
-    }
-
-    protected final void debug(String msg, Object... args) {
-        log(msg, log::debug, args);
-    }
-
-    protected final void warn(String msg, Object... args) {
-        log(msg, log::warn, args);
-    }
-
-    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s INB => %s", NettyUtil.id(channel), msg), args);
-    }
-
 }

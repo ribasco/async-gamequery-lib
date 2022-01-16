@@ -98,14 +98,27 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ### Install from Maven Central
 
+**Aggregate**
+
+Contains all modules (rcon, query, web apis)
+
+```xml
+
+<dependency>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql</artifactId>
+  <version>0.2.0</version>
+</dependency>
+```
+
 **Valve Master Server Query Protocol**
 
 ```xml
 
 <dependency>
-    <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-steam-master</artifactId>
-    <version>0.2.0</version>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-steam-master</artifactId>
+  <version>0.2.0</version>
 </dependency>
 ```
 

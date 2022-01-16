@@ -18,13 +18,13 @@ package com.ibasco.agql.core.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import io.netty.handler.timeout.ReadTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

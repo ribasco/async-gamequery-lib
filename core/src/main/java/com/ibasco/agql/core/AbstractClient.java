@@ -16,6 +16,8 @@
 
 package com.ibasco.agql.core;
 
+import com.ibasco.agql.core.exceptions.ReadTimeoutException;
+import com.ibasco.agql.core.exceptions.WriteTimeoutException;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
@@ -26,8 +28,6 @@ import dev.failsafe.RetryPolicy;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionCompletedEvent;
 import io.netty.channel.ConnectTimeoutException;
-import io.netty.handler.timeout.ReadTimeoutException;
-import io.netty.handler.timeout.WriteTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -18,6 +18,7 @@ package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.handlers.MessageInboundDecoder;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
@@ -25,7 +26,6 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.timeout.ReadTimeoutException;
 import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;

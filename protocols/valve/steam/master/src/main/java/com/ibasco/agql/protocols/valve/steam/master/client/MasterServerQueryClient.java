@@ -18,6 +18,7 @@ package com.ibasco.agql.protocols.valve.steam.master.client;
 
 import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.functions.TriConsumer;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
@@ -29,7 +30,6 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
-import io.netty.handler.timeout.ReadTimeoutException;
 
 import java.net.InetSocketAddress;
 import java.util.Vector;

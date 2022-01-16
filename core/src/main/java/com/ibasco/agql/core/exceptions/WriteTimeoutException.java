@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,18 @@
 
 package com.ibasco.agql.core.exceptions;
 
-public class ConnectException extends TransportException {
-    public ConnectException() {
+public class WriteTimeoutException extends TimeoutException {
+
+    public static final WriteTimeoutException INSTANCE = new WriteTimeoutException();
+
+    public WriteTimeoutException() {
     }
 
-    public ConnectException(String message) {
+    public WriteTimeoutException(String message) {
         super(message);
     }
 
-    public ConnectException(String message, Throwable cause) {
+    public WriteTimeoutException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    public ConnectException(Throwable cause) {
-        super(cause);
-    }
-
-    public ConnectException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

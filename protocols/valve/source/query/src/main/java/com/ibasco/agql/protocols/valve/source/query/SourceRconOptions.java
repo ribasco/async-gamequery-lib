@@ -31,7 +31,7 @@ public final class SourceRconOptions {
     /**
      * Enable the use of "terminating packets". A terminator packet allows the library to accurately determine the end of a response.
      * <p/>
-     * When enabled, an empty rcon response packet is sent after every command. The game server will then mirror it back
+     * When enabled, an empty <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#SERVERDATA_RESPONSE_VALUE">rcon response packet</a> is sent after every command. The game server will then mirror it back
      * at the end of the response, followed by an additional terminator packet with a terminating byte equals to 1 (0x01), thus allowing the library to determine
      * that it has reached the end of the response. This is mostly useful for large response packets that are sent in smaller chunks by the server, which would then
      * have to be re-assembled by the library back into a single {@link SourceRconPacket} instance.

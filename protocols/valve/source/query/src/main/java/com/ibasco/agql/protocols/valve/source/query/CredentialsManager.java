@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,11 @@ package com.ibasco.agql.protocols.valve.source.query;
 import java.net.InetSocketAddress;
 
 /**
- * Manage credentials of each registered {@link InetSocketAddress}.
+ * <p>Manage credentials of each registered {@link InetSocketAddress}.</p>
+ *
+ * <p>
+ * Note: Implementation of this interface must be thread-safe.
+ * </p>
  *
  * @author Rafael Luis Ibasco
  */

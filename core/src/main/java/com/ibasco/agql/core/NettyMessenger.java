@@ -77,7 +77,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     //</editor-fold>
 
     /**
-     * Populate with configuration options. Sub-classes should override this method. This is called right before the underlying transport is initialized.
+     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
      *
      * @param options
      *         The {@link Options} instance holding the configuration data
@@ -182,7 +182,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
      */
     @Override
     public final NettyTransport getTransport() {
-        return (NettyTransport) transport;
+        return transport;
     }
     //</editor-fold>
 
@@ -199,7 +199,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     @Override
     public void close() throws IOException {
-        //its possible that the transport has not been initialized yet, if the client did not call send yet
+        //it's possible that the transport has not been initialized yet, if the client did not call send yet
         if (transport != null)
             transport.close();
     }
@@ -208,6 +208,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         return channelFactory;
     }
 
+    @SuppressWarnings("SameParameterValue")
     protected final <X> void lockedOption(Options map, Option<X> option, X value) {
         if (map.contains(option))
             map.remove(option);

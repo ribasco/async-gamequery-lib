@@ -44,7 +44,7 @@ public final class SourceRconMessenger extends NettyMessenger<InetSocketAddress,
 
     public SourceRconMessenger(Options options) {
         super(options, new TcpNettyChannelFactoryProvider());
-        this.proxy = new SourceRconAuthProxy(this, options.get(SourceRconOptions.CREDENTIALS_MANAGER, new RconCredentialsManager()));
+        this.proxy = new SourceRconAuthProxy(this, options.get(SourceRconOptions.CREDENTIALS_MANAGER, new DefaultCredentialsManager()));
     }
 
     @Override

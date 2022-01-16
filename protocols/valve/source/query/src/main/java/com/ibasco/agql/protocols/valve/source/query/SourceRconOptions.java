@@ -69,4 +69,11 @@ public final class SourceRconOptions {
      * Automatically close inactive channels/connections once it has reached the threshold value (value is in seconds). Set to -1 to disable.
      */
     public static final Option<Integer> CLOSE_INACTIVE_CHANNELS = Option.createOption("rconClosedUnused", 30);
+
+    /**
+     * Number of seconds to check for inactive {@link io.netty.channel.Channel}'s/connections
+     *
+     * @see #CLOSE_INACTIVE_CHANNELS
+     */
+    public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.createOption("rconInactiveCheckInterval", 1);
 }

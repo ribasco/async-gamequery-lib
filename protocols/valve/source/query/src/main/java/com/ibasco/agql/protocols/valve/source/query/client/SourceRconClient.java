@@ -60,6 +60,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @param sendTerminatingPacket
      *         Set to <code>true</code> to send terminator packets for every command.
      *
+     * @see SourceRconOptions#USE_TERMINATOR_PACKET
      * @deprecated Use {@link #SourceRconClient(Options)}
      */
     @Deprecated
@@ -186,7 +187,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     /**
-     * <p>Invalidates the connections for all registered addresses (registered via {@link #authenticate(InetSocketAddress, byte[])})</p>
+     * <p>Invalidates all connections for each registered address (registered via {@link #authenticate(InetSocketAddress, byte[])})</p>
      *
      * <p>
      * Once invalidated, the existing connections will be re-authenticated (assuming the credentials remain valid). If the credentials have changed, then you will need to explicitly call {@link #authenticate(InetSocketAddress, byte[])}.
@@ -202,8 +203,8 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     /**
-     * Invalidates the specified address along with the previously authenticated connections associated with it. Once invalidated, the credentials stored in-memory for
-     * the specified address will be cleared so you will have to call {@link #authenticate(InetSocketAddress, byte[])} again.
+     * Invalidates the specified address along with the previously authenticated connections associated with it. Once invalidated, the credentials associated with the address will be cleared,
+     * so you will have to call {@link #authenticate(InetSocketAddress, byte[])} again.
      *
      * @param address
      *         The {@link InetSocketAddress} to invalidate.

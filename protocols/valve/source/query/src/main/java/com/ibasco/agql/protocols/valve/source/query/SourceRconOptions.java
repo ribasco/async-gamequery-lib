@@ -57,7 +57,7 @@ public final class SourceRconOptions {
     public static final Option<Boolean> REAUTHENTICATE = Option.createOption("rconReauth", true, true, true);
 
     /**
-     * The {@link CredentialsManager} to be used by the rcon authentication module. Default is {@link RconCredentialsManager}.
+     * The {@link CredentialsManager} to be used by the rcon authentication module. Default is {@link DefaultCredentialsManager}.
      *
      * @see Credentials
      * @see CredentialsManager

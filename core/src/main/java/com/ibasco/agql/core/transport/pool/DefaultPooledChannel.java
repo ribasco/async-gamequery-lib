@@ -26,7 +26,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.net.SocketAddress;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
@@ -281,17 +280,14 @@ public class DefaultPooledChannel extends PooledChannel {
     }
 
     @Override
-    public CompletableFuture<Channel> release() {
+    public CompletableFuture<Void> release() {
         if (channel.eventLoop().isShutdown())
             return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
         if (!isPooled(channel))
-            return CompletableFuture.completedFuture(channel);
+            return CompletableFuture.completedFuture(null);
         final NettyChannelPool pool = NettyChannelPool.getPool(channel);
-        return pool.release(channel).handle((unused, error) -> {
-            if (error != null)
-                throw new CompletionException("Failed to release channel from pool: " + pool, error);
-            return channel;
-        });
+        assert pool != null;
+        return pool.release(channel);
     }
 
     @Override

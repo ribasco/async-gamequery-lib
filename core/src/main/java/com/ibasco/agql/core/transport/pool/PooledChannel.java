@@ -28,7 +28,7 @@ abstract public class PooledChannel implements Channel {
 
     private final ReleaseFuture releaseFuture = new ReleaseFuture(this);
 
-    abstract public CompletableFuture<Channel> release();
+    abstract public CompletableFuture<Void> release();
 
     public CompletableFuture<Channel> releaseFuture() {
         return releaseFuture;

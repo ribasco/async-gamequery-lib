@@ -308,7 +308,6 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     private void doReleaseChannel(Channel channel, CompletableFuture<Void> promise) {
         try {
             assert channel.eventLoop().inEventLoop();
-
             // Remove the POOL_KEY attribute from the Channel and check if it was acquired from this pool, if not fail.
             if (channel.attr(CHANNEL_POOL).getAndSet(null) != this) {
                 closeAndFail(channel, new IllegalArgumentException("Channel " + channel + " was not acquired from this ChannelPool"), promise);
@@ -367,6 +366,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
             if (channel instanceof PooledChannel) {
                 PooledChannel pooledChannel = (PooledChannel) channel;
                 ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).success();
+                pooledChannel.notifyRelease();
             }
             handler.channelReleased(channel);
             applyReleaseStrategy(channel);
@@ -375,6 +375,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
             if (channel instanceof PooledChannel) {
                 PooledChannel pooledChannel = (PooledChannel) channel;
                 ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).fail(new ChannelPoolFullException());
+                pooledChannel.notifyRelease(new ChannelPoolFullException());
             }
             closeAndFail(channel, new ChannelPoolFullException(), promise);
         }

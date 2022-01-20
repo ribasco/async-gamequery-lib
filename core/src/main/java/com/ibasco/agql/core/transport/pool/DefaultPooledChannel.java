@@ -280,14 +280,19 @@ public class DefaultPooledChannel extends PooledChannel {
     }
 
     @Override
+    public NettyChannelPool getChannelPool() {
+        return attr(NettyChannelPool.CHANNEL_POOL).get();
+    }
+
+    @Override
     public CompletableFuture<Void> release() {
-        if (channel.eventLoop().isShutdown())
+        if (eventLoop().isShutdown())
             return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
-        if (!isPooled(channel))
+        if (!isPooled(this))
             return CompletableFuture.completedFuture(null);
-        final NettyChannelPool pool = NettyChannelPool.getPool(channel);
+        final NettyChannelPool pool = getChannelPool();//NettyUtil.getChannelPool(this);
         assert pool != null;
-        return pool.release(channel);
+        return pool.release(this);
     }
 
     @Override

@@ -18,15 +18,50 @@ package com.ibasco.agql.core.transport.pool;
 
 import io.netty.channel.Channel;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+//TODO: Add a release listener, using CompletableFuture/Future can only be used once.
 abstract public class PooledChannel implements Channel {
 
     private final ReleaseFuture releaseFuture = new ReleaseFuture(this);
+
+    private final Set<BiConsumer<PooledChannel, Throwable>> listeners = new HashSet<>();
+
+    /**
+     * Add release listener
+     *
+     * @param listener
+     *         The callback to notify when this channel has been released
+     */
+    public void addListener(BiConsumer<PooledChannel, Throwable> listener) {
+        listeners.add(listener);
+    }
+
+    /**
+     * Remove release listener
+     *
+     * @param listener
+     *         The callback to remove
+     */
+    public void removeListener(BiConsumer<PooledChannel, Throwable> listener) {
+        listeners.remove(listener);
+    }
+
+    void notifyRelease() {
+        notifyRelease(null);
+    }
+
+    void notifyRelease(Throwable error) {
+        listeners.forEach(c -> c.accept(this, error));
+    }
+
+    abstract public NettyChannelPool getChannelPool();
 
     abstract public CompletableFuture<Void> release();
 

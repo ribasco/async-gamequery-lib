@@ -82,7 +82,6 @@ public class SourceRconExample extends BaseExample {
                                                  .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
                                                  .option(SourceRconOptions.STRICT_MODE, false)
                                                  .option(TransportOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                 .option(TransportOptions.READ_TIMEOUT, 5000)
                                                  .option(TransportOptions.CONNECTION_POOLING, true)
                                                  .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                  .build();

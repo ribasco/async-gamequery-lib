@@ -56,7 +56,7 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         if (SourceRcon.isResponseValuePacket(packet)) {
             ByteBuf content = packet.content();
             String body = NettyUtil.readString(content);
-            info("Ignoring auth response packet (Packet Id: {}, Body: {})", packet.getId(), body);
+            debug("Ignoring auth response packet (Packet Id: {}, Body: {})", packet.getId(), body);
             return null;
         }
 

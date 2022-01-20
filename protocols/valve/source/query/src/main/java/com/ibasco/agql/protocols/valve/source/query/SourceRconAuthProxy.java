@@ -23,6 +23,7 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
@@ -33,8 +34,11 @@ import dev.failsafe.ExecutionContext;
 import dev.failsafe.Failsafe;
 import dev.failsafe.FailsafeExecutor;
 import dev.failsafe.RetryPolicy;
+import dev.failsafe.event.EventListener;
+import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.*;
+import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutor;
 import org.apache.commons.lang3.StringUtils;
@@ -44,11 +48,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
@@ -98,9 +100,13 @@ public final class SourceRconAuthProxy implements Closeable {
 
     private volatile boolean healthCheckStarted;
 
+    private final boolean reauthenticate;
+
     private final RconHelper helper = new RconHelper();
 
     private final ThreadLocal<FailsafeExecutor<Parcel>> authExecutors = ThreadLocal.withInitial(() -> Failsafe.with(AUTH_CHANNEL_POLICY));
+
+    private final InactivityCheckTask INACTIVITY_CHECK_TASK = new InactivityCheckTask();
 
     /**
      * Create a new authentication proxy
@@ -111,11 +117,12 @@ public final class SourceRconAuthProxy implements Closeable {
     public SourceRconAuthProxy(SourceRconMessenger messenger, CredentialsManager credentialsManager) {
         this.messenger = Objects.requireNonNull(messenger, "Messenger cannot be null");
         if (credentialsManager == null)
-            credentialsManager = new RconCredentialsManager();
+            credentialsManager = new DefaultCredentialsManager();
         EventLoopGroup group = messenger.getExecutor();
         this.credentialsManager = credentialsManager;
         this.scheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory(getClass()));
         this.acquireExecutor = Failsafe.with(ACQUIRE_RETRY_POLICY).with(group.next());
+        this.reauthenticate = messenger.getOrDefault(SourceRconOptions.REAUTHENTICATE);
     }
 
     /**
@@ -126,7 +133,7 @@ public final class SourceRconAuthProxy implements Closeable {
      *
      * @return {@code true} if the {@link Channel} has been registered otherwise {@code false} if the {@link Channel} has been registered already
      */
-    public CompletableFuture<Channel> register(final Channel channel) {
+    private CompletableFuture<Channel> register(final Channel channel) {
         if (channel.eventLoop().inEventLoop()) {
             return CompletableFuture.completedFuture(register0(channel));
         } else {
@@ -134,7 +141,8 @@ public final class SourceRconAuthProxy implements Closeable {
         }
     }
 
-    private Channel register0(Channel channel) {
+    private Channel register0(final Channel channel) {
+        assert channel.eventLoop().inEventLoop();
         Objects.requireNonNull(channel, "Channel must not be null");
         if (isRegistered(channel))
             return channel;
@@ -157,7 +165,7 @@ public final class SourceRconAuthProxy implements Closeable {
                 unregisterOnClose(channel);
                 return channel;
             }
-            return null;
+            throw new IllegalStateException("Failed to register channel: " + channel);
         }
     }
 
@@ -172,9 +180,7 @@ public final class SourceRconAuthProxy implements Closeable {
     private void markAuthenticated(final Channel channel, SourceRconAuthRequest request) {
         if (!isRegistered(channel))
             throw new IllegalStateException(String.format("Channel '%s' is not registered (Request: %s)", channel, request));
-
         helper.validate(channel);
-
         final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         //we might have an existing entry for this address, if so, then we overwrite it
         if (request == null) {
@@ -221,34 +227,84 @@ public final class SourceRconAuthProxy implements Closeable {
         return credentials != null && credentials.isValid();
     }
 
+    private final RetryPolicy<SourceRconResponse> COMMAND_RETRY_POLICY = RetryPolicy
+            .<SourceRconResponse>builder()
+            .handle(ChannelClosedException.class)
+            .onSuccess(new EventListener<ExecutionCompletedEvent<SourceRconResponse>>() {
+                @Override
+                public void accept(ExecutionCompletedEvent<SourceRconResponse> event) throws Throwable {
+
+                }
+            })
+            .onRetry(event -> log.info("ON REEETRY"))
+            .onFailure(event -> log.info("ON FAILUREE"))
+            .withMaxAttempts(3)
+            .build();
+
+    /**
+     * Route the rcon request to it's appropriate handler
+     *
+     * @param address
+     *         The destination address
+     * @param request
+     *         The request to be sent to the server
+     *
+     * @return A {@link CompletableFuture} which is notified once a response has been received from the server
+     */
     public CompletableFuture<SourceRconResponse> send(final InetSocketAddress address, final SourceRconRequest request) {
         Objects.requireNonNull(address, "Address must not be null");
         Objects.requireNonNull(request, "Request must not be null");
         CompletableFuture<Parcel> parcelFuture = createParcel(address, request).thenApply(helper::validate);
-        if (request instanceof SourceRconAuthRequest)
-            parcelFuture = parcelFuture.thenCompose(this::sendAuthRequest);
-        else if (request instanceof SourceRconCmdRequest)
-            parcelFuture = parcelFuture.thenCompose(this::sendCmdRequest);
-        else
-            throw new IllegalStateException("Invalid rcon request");
-        return parcelFuture.handle(this::release);
+        return route(request, parcelFuture).handle(this::release);
     }
 
+    private CompletableFuture<Parcel> route(final SourceRconRequest request, CompletableFuture<Parcel> parcelFuture) {
+        if (parcelFuture.isCompletedExceptionally() || parcelFuture.isCancelled())
+            return parcelFuture;
+        if (request instanceof SourceRconAuthRequest) {
+            parcelFuture = parcelFuture.thenCompose(this::sendAuthRequest);
+        } else if (request instanceof SourceRconCmdRequest) {
+            parcelFuture = parcelFuture.thenCompose(this::sendCmdRequest);
+        } else
+            throw new IllegalStateException("Invalid rcon request");
+        return parcelFuture;
+    }
+
+    //handle client auth requsets
     private CompletableFuture<Parcel> sendAuthRequest(final Parcel parcel) {
-        if (parcel.hasError())
-            return CompletableFuture.completedFuture(parcel);
-        SourceRconAuthRequest request = (SourceRconAuthRequest) parcel.envelope().content();
-        //if no password was supplied, then we check if we have credentials registered for this address
+        final SourceRconAuthRequest request = (SourceRconAuthRequest) parcel.request();
+        //if no password was supplied, then we check
+        //if we have credentials registered for this address
         if (request.getPassword() == null) {
             Credentials credentials = credentialsManager.get(parcel.address());
             if (credentials == null)
-                return ConcurrentUtil.failedFuture(new RconNotYetAuthException("Address '" + parcel.address() + "' not yet authenticated by the remote server. Please authenticate with a provided passphrase", SourceRconAuthReason.NOT_AUTHENTICATED));
+                return ConcurrentUtil.failedFuture(new RconNotYetAuthException("Address '" + parcel.address() + "' not yet authenticated by the remote server. Please authenticate with a provided passphrase", SourceRconAuthReason.NOT_AUTHENTICATED, parcel.address()));
+            //make sure the credentials are still valid
             if (!credentials.isValid())
-                return ConcurrentUtil.failedFuture(new RconNotYetAuthException("The credentials for address '" + parcel.address() + "' has been invalidated. Please re-authenticate with the server", SourceRconAuthReason.REAUTH));
-            //update request
-            parcel.envelope().content(new SourceRconAuthRequest(request, credentials.getPassphrase()));
+                return ConcurrentUtil.failedFuture(new RconNotYetAuthException("The credentials for address '" + parcel.address() + "' has been invalidated. Please re-authenticate with the server", SourceRconAuthReason.REAUTHENTICATE, parcel.address()));
+            //Update credentials
+            request.setPassword(credentials.getPassphrase());
         }
         return sendParcel(parcel).thenApply(this::authResponseHandler);
+    }
+
+    private CompletableFuture<Parcel> sendCmdRequest(final Parcel parcel) {
+        //Is the address authenticated?
+        if (!isAuthenticated(parcel.address())) {
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated. Make sure to call authenticate().", parcel.address()), SourceRconAuthReason.NOT_AUTHENTICATED, parcel.address()));
+        }
+        //Are the credentials still valid?
+        if (!credentialsManager.isValid(parcel.address()))
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("The credentials for address '%s' is no longer valid. Re-authenticate with the server", parcel.address()), SourceRconAuthReason.REAUTHENTICATE, parcel.address()));
+        //is the channel authenticated already?
+        if (isAuthenticated(parcel.channel()))
+            return sendParcel(parcel);
+        if (!reauthenticate)
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("The connection for address '%s' needs to be authenticated by the server", parcel.address()), SourceRconAuthReason.REAUTHENTICATE, parcel.address()));
+
+        log.debug("{} AUTH => Channel not yet authenticated. Attempting to authenticate with server", NettyUtil.id(parcel.channel()));
+        //Send the request over the transport. If the channel is not yet authenticated, an authentication request will be sent first.
+        return tryAuthenticate(parcel).thenCompose(this::sendParcel);
     }
 
     private Parcel authResponseHandler(Parcel parcel) {
@@ -256,7 +312,7 @@ public final class SourceRconAuthProxy implements Closeable {
         final SourceRconAuthRequest request = (SourceRconAuthRequest) parcel.envelope().content();
         final Channel channel = parcel.channel();
 
-        if (parcel.hasError()) {
+        /*if (parcel.hasError()) {
             Throwable cause = ConcurrentUtil.unwrap(parcel.error());
             if (cause instanceof ChannelClosedException) {
                 //if the server forcibly closes the connection, without sending a response, then it can mean that:
@@ -277,7 +333,7 @@ public final class SourceRconAuthProxy implements Closeable {
             }
             cause.printStackTrace(System.err);
             throw new CompletionException(cause);
-        }
+        }*/
 
         if (!parcel.hasResponse())
             throw new IllegalStateException("Parcel does not contain a response");
@@ -286,10 +342,9 @@ public final class SourceRconAuthProxy implements Closeable {
         if (!(parcel.response() instanceof SourceRconAuthResponse))
             throw new IllegalStateException("Request/Response Mismatch. Expected SourceRconAuthResponse (Actual: " + parcel.response() + ")");
 
-        final SourceRconAuthResponse authResponse = (SourceRconAuthResponse) parcel.response();
-
-        if (authResponse.isSuccess()) {
-            if (authResponse.isAuthenticated()) {
+        final SourceRconAuthResponse response = (SourceRconAuthResponse) parcel.response();
+        if (response.isSuccess()) {
+            if (response.isAuthenticated()) {
                 //allow channel to be re-authenticated
                 markAuthenticated(channel, request);
                 log.debug("{} AUTH => Successfully authenticated address '{}' (Request: {})", NettyUtil.id(channel), address, request);
@@ -304,35 +359,14 @@ public final class SourceRconAuthProxy implements Closeable {
         }
     }
 
-    private CompletableFuture<Parcel> sendCmdRequest(final Parcel parcel) {
-        if (parcel.hasError())
-            return CompletableFuture.completedFuture(parcel);
-        //Is the address authenticated?
-        if (!isAuthenticated(parcel.address()))
-            return CompletableFuture.completedFuture(parcel.error(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated. Make sure to call authenticate().", parcel.address()), SourceRconAuthReason.NOT_AUTHENTICATED)));
-        //Are the credentials still valid?
-        if (!credentialsManager.isValid(parcel.address()))
-            return CompletableFuture.completedFuture(parcel.error(new RconNotYetAuthException(String.format("The credentials for address '%s' is no longer valid. Re-authenticate with the server", parcel.address()), SourceRconAuthReason.REAUTH)));
-        //is the channel authenticated already?
-        if (isAuthenticated(parcel.channel()))
-            return sendParcel(parcel);
-        log.debug("{} AUTH => Channel not yet authenticated. Attempting to authenticate with server", NettyUtil.id(parcel.channel()));
-        //Send the request over the transport. If the channel is not yet authenticated, an authentication request will be sent first.
-        return tryAuthenticate(parcel).thenCompose(this::sendParcel);
-    }
-
     /**
      * Send parcel to the transport
      */
     private CompletableFuture<Parcel> sendParcel(final Parcel parcel) {
-        if (parcel.hasError())
-            return CompletableFuture.completedFuture(parcel);
         assert parcel.channel() != null;
         assert parcel.channel().remoteAddress() != null;
         assert parcel.channel().remoteAddress().equals(parcel.envelope().recipient());
-        return messenger.send(parcel.envelope(), parcel.channel())
-                        .thenApply(parcel::response)
-                        .exceptionally(parcel::error);
+        return messenger.send(parcel.envelope(), parcel.channel()).thenApply(parcel::response);
     }
 
     /**
@@ -350,60 +384,53 @@ public final class SourceRconAuthProxy implements Closeable {
             throw new CompletionException(ConcurrentUtil.unwrap(error));
         assert parcel != null;
         try {
-            if (parcel.hasError()) {
-                throw new CompletionException(ConcurrentUtil.unwrap(parcel.error()));
-            } else {
-                assert parcel.hasResponse();
-                return parcel.response();
-            }
+            assert parcel.hasResponse();
+            return parcel.response();
         } finally {
+            log.debug("RESPONSE RECEIVED. RELEASING: {}", parcel.response());
             parcel.release();
         }
     }
 
-    //1) enqueue a new channel
+    private static final AttributeKey<SourceRconRequest> AUTH_RCON_REQUEST = AttributeKey.valueOf("rconAuthRequest");
+
+    private static final AttributeKey<CompletableFuture<SourceRconResponse>> AUTH_RCON_PROMISE = AttributeKey.valueOf("rconAuthPromise");
+
+    //1) acquire a new channel
     //2) wrap channeel and enqueue into a parcel
-    //3) if an error occurs, wrap the error into a parcel. the future should never complete exceptionally
     private CompletableFuture<Parcel> createParcel(final InetSocketAddress address, SourceRconRequest request) {
         final Envelope<SourceRconRequest> envelope = messenger.newEnvelope(address, request);
-        return acquire(envelope) //enqueue channel
-                                 .thenCombine(CompletableFuture.completedFuture(envelope), Parcel::new) //wrap acquired channel and enqueue in parcel
-                                 .exceptionally(error -> new Parcel(envelope, error)); //in case of exceptions, wrap it in a parcel, don't let this
+        return acquire(envelope).thenCombine(CompletableFuture.completedFuture(envelope), Parcel::new);
     }
 
     private CompletableFuture<Parcel> tryAuthenticate(Parcel parcel) {
-        if (parcel.hasError()) {
-            log.warn("Rcon parcel in error", parcel.error());
-            return CompletableFuture.completedFuture(parcel);
-        }
         final Channel channel = parcel.channel();
         assert channel.eventLoop().inEventLoop();
-
         final InetSocketAddress address = (InetSocketAddress) parcel.channel().remoteAddress();
-        //make sure that the address has been authenticated and we have credentials preset
+        //make sure that the address has been authenticated, and we have credentials preset
         if (!isAuthenticated(address) || !isValid(address)) {
             log.warn("Address not authenticated or valid: {} (Authenticated: {}, Valid: {})", address, isAuthenticated(address), isValid(address));
-            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not authenticated or not valid", address), SourceRconAuthReason.NOT_AUTHENTICATED));
+            return ConcurrentUtil.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not authenticated or not valid", address), SourceRconAuthReason.NOT_AUTHENTICATED, parcel.address()));
         }
         //if the channel is authenticated, return immediately
         if (isAuthenticated(parcel.channel()))
             return CompletableFuture.completedFuture(parcel);
+        assert channel.eventLoop().inEventLoop();
         //at this point, we need to authenticate the channel/connection with the remote server
-        return authExecutors.get().with(channel.eventLoop()).getStageAsync(new AuthenticatedParcelSupplier(parcel));
+        return authExecutors.get().with(channel.eventLoop()).getStageAsync(new AuthenticateParcelSupplier(parcel));
     }
 
     /**
-     * Acquire new/existing {@link Channel} from the factory then register it with the authentication manager.
+     * Acquire a new/existing {@link Channel}
      *
      * @param envelope
      *         The {@link Envelope} containing the request and promise details
      *
-     * @return A {@link CompletableFuture} that will be notified when the channel has been successfully acquired from the {@link com.ibasco.agql.core.transport.ChannelFactory}
+     * @return A {@link CompletableFuture} that will be notified when the channel has been successfully acquired from the {@link NettyChannelFactory}
      */
     private CompletableFuture<Channel> acquire(final Envelope<SourceRconRequest> envelope) {
-        log.debug("AUTH => Acquiring channel for enqueue '{}'", envelope);
-        //channelSupplier.enqueue(envelope)
-        return acquireExecutor.getStageAsync(new ChannelSupplier(envelope)).thenCompose(this::register).handle(statistics);
+        log.debug("AUTH => Acquiring channel for envelope '{}'", envelope);
+        return acquireExecutor.getStageAsync(context -> messenger.getChannelFactory().create(envelope)).thenCompose(this::register).handle(statistics);
     }
 
     @ApiStatus.Experimental
@@ -434,6 +461,9 @@ public final class SourceRconAuthProxy implements Closeable {
         }
     }
 
+    /**
+     * Cleanup inactive connctions
+     */
     public void cleanup() {
         this.scheduler.execute(new InactivityCheckTask(true));
     }
@@ -444,22 +474,21 @@ public final class SourceRconAuthProxy implements Closeable {
     }
 
     /**
-     * Invalidate all addresses and the {@link Channel}'s associated with it
+     * Invalidate all addresses and the connections associated with it
      */
     public void invalidate() {
         invalidate(false);
     }
 
     /**
-     * Invalidates all registered address and it's {@link Channel}s under it.
+     * Invalidates all registered addresses and all of it's associated connections.
      *
-     * @param onlyChannels
+     * @param onlyConnections
      *         {@code true} if we should only invalidate the {@link Channel}'s for the specified address.
      */
-    public void invalidate(boolean onlyChannels) {
-        for (InetSocketAddress address : channels.keySet()) {
-            invalidate(address, onlyChannels);
-        }
+    public void invalidate(boolean onlyConnections) {
+        for (InetSocketAddress address : channels.keySet())
+            invalidate(address, onlyConnections);
     }
 
     /**
@@ -474,25 +503,21 @@ public final class SourceRconAuthProxy implements Closeable {
      *
      * @param address
      *         The {@link InetSocketAddress} to invalidate
-     * @param onlyChannels
-     *         {@code true} if we should only invalidate the {@link Channel}'s for the specified address. Credentials will remain valid.
+     * @param connectionsOnly
+     *         {@code true} if we should only also invalidate the connections associated with the specified address. Credentials will remain valid.
      */
-    public void invalidate(InetSocketAddress address, boolean onlyChannels) {
+    public void invalidate(InetSocketAddress address, boolean connectionsOnly) {
         checkAddress(address);
         log.debug("AUTH => Invalidating address '{}'", address);
-        if (!onlyChannels)
+        if (!connectionsOnly)
             credentialsManager.invalidate(address);
         synchronized (channels) {
             for (Channel channel : channels.get(address)) {
-                invalidate(channel);
+                Objects.requireNonNull(channel);
+                channel.attr(SourceRcon.AUTHENTICATED).set(false);
+                log.debug("{} AUTH => Invalidated channel. Marked for re-authentication", NettyUtil.id(channel));
             }
         }
-    }
-
-    private void invalidate(Channel channel) {
-        Objects.requireNonNull(channel);
-        channel.attr(SourceRcon.AUTHENTICATED).set(false);
-        log.debug("{} AUTH => Invalidated channel. Marked for re-authentication", NettyUtil.id(channel));
     }
 
     /**
@@ -521,6 +546,8 @@ public final class SourceRconAuthProxy implements Closeable {
 
     private void cleanup0(Channel channel) {
         assert channel.eventLoop().inEventLoop();
+        if (channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown())
+            return;
         unregister(channel);
         statistics.remove(channel);
         NettyUtil.releaseOrClose(channel);
@@ -534,7 +561,7 @@ public final class SourceRconAuthProxy implements Closeable {
     private void startInactivityCheck() {
         if (healthCheckStarted)
             return;
-        scheduler.scheduleAtFixedRate(new InactivityCheckTask(), 0, 1, TimeUnit.SECONDS);
+        scheduler.scheduleAtFixedRate(INACTIVITY_CHECK_TASK, 0, messenger.getOrDefault(SourceRconOptions.INACTIVE_CHECK_INTERVAL), TimeUnit.SECONDS);
         healthCheckStarted = true;
     }
 
@@ -573,6 +600,9 @@ public final class SourceRconAuthProxy implements Closeable {
                         int remaining = channels.get(address).size();
                         if (remaining == 1 || cRemaining == 1)
                             continue;
+                        //close channels having:
+                        //- 0 acquire count
+                        //- Last acquired duration >= closeDuration
                         if (force || (metadata.getAcquireSuccess() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
                             log.info("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {})", ++ctr, channel, metadata.getAcquireSuccess(), metadata.getLastAcquiredDuration(), isRegistered(channel));
                             final String id = channel.id().asShortText();
@@ -758,20 +788,20 @@ public final class SourceRconAuthProxy implements Closeable {
     //</editor-fold>
 
     //<editor-fold desc="Contextual Suppliers">
-    private class AuthenticatedParcelSupplier implements ContextualSupplier<Parcel, CompletableFuture<Parcel>> {
+    private class AuthenticateParcelSupplier implements ContextualSupplier<Parcel, CompletableFuture<Parcel>> {
 
         private final Parcel parcel;
 
-        public AuthenticatedParcelSupplier(Parcel parcel) {
-            this.parcel = parcel;
+        public AuthenticateParcelSupplier(final Parcel parcel) {
+            this.parcel = Objects.requireNonNull(parcel, "Parcel is null");
         }
 
         @Override
         public CompletableFuture<Parcel> get(ExecutionContext<Parcel> context) throws Throwable {
             assert parcel.channel().eventLoop().inEventLoop();
             final InetSocketAddress address = (InetSocketAddress) parcel.channel().remoteAddress();
-            log.debug("{} AUTH => Re-authenticating channel (Attempts: {}, Channel: {}, Active: {})", NettyUtil.id(parcel.channel()), context.getAttemptCount(), parcel.channel(), parcel.channel().isActive());
-            if (!parcel.channel().isActive() && !context.isRetry() && (context.getLastFailure() instanceof ClosedChannelException)) {
+            log.debug("{} AUTH => Authenticating channel (Attempts: {}, Channel: {}, Active: {})", NettyUtil.id(parcel.channel()), context.getAttemptCount(), parcel.channel(), parcel.channel().isActive());
+            if (!parcel.channel().isActive() && !context.isRetry() && (context.getLastFailure() instanceof ChannelClosedException)) {
                 log.debug(String.format("%s AUTH => Maximum number of login attempts reached (Last Result: %s, Last Failure: %s)", NettyUtil.id(parcel.channel()), context.getLastResult(), context.getLastFailure()));
                 invalidate(address);
                 return ConcurrentUtil.failedFuture(new RconMaxLoginAttemptsException(String.format("Maximum number of login attempts reached (%d). Connection has been dropped by the server", AUTH_RETRY_POLICY.getConfig().getMaxAttempts()), address));
@@ -779,8 +809,7 @@ public final class SourceRconAuthProxy implements Closeable {
             final Credentials credentials = credentialsManager.get(address);
             if (!credentials.isValid())
                 return ConcurrentUtil.failedFuture(new RconInvalidCredentialsException(String.format("The credentials for address '%s' is no longer valid and needs to be updated", address), address));
-
-            log.info("{} AUTH => Authenticating parcel: {}", NettyUtil.id(parcel.channel()), parcel.channel());
+            log.debug("{} AUTH => Authenticating parcel: {}", NettyUtil.id(parcel.channel()), parcel.channel());
             return authenticate(parcel.channel(), credentials).thenApply(parcel::channel);
         }
 
@@ -798,38 +827,22 @@ public final class SourceRconAuthProxy implements Closeable {
             Objects.requireNonNull(credentials, "Credentials cannot be null");
             if (credentials.isEmpty())
                 throw new IllegalStateException("Passphrase must not be null or empty");
-            final SourceRconAuthRequest authRequest = SourceRcon.createAuthRequest(credentials.getPassphrase());
-            return messenger.send(authRequest, channel).thenCombine(CompletableFuture.completedFuture(channel), this::authHandler);
+            final SourceRconAuthRequest request = SourceRcon.createAuthRequest(credentials.getPassphrase());
+            return messenger.send(request, channel).thenCombine(CompletableFuture.completedFuture(channel), this::authHandler);
         }
 
         private Channel authHandler(SourceRconResponse response, Channel channel) {
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
             final SourceRconAuthResponse authResponse = (SourceRconAuthResponse) response;
             if (!authResponse.isSuccess())
-                throw new CompletionException(authResponse.getError());
+                throw new CompletionException(ConcurrentUtil.unwrap(authResponse.getError()));
             if (!authResponse.isAuthenticated()) {
                 String msg = String.format("Failed to authenticate with server using password (Reason: %s)", authResponse.getReason());
                 //invalidate address credentials
                 invalidate(address);
-                throw new CompletionException(new RconNotYetAuthException(msg, SourceRconAuthReason.BAD_PASSWORD));
+                throw new CompletionException(new RconNotYetAuthException(msg, SourceRconAuthReason.BAD_PASSWORD, (InetSocketAddress) channel.remoteAddress()));
             }
             return channel;
-        }
-    }
-
-    private class ChannelSupplier implements ContextualSupplier<Channel, CompletableFuture<Channel>> {
-
-        private final WeakReference<Envelope<SourceRconRequest>> envelopeRef;
-
-        private ChannelSupplier(Envelope<SourceRconRequest> envelope) {
-            this.envelopeRef = new WeakReference<>(envelope);
-        }
-
-        @Override
-        public CompletableFuture<Channel> get(ExecutionContext<Channel> context) throws Throwable {
-            if (envelopeRef.get() == null)
-                throw new IllegalStateException("Envelope is null");
-            return messenger.getTransport().getChannelFactory().create(envelopeRef.get());
         }
     }
     //</editor-fold>
@@ -842,34 +855,9 @@ public final class SourceRconAuthProxy implements Closeable {
 
         private SourceRconResponse response;
 
-        private Throwable error;
-
-        private Parcel(Envelope<SourceRconRequest> envelope, Throwable error) {
-            this.envelope = envelope;
-            this.error = error;
-            this.channel = null;
-        }
-
         private Parcel(Channel channel, Envelope<SourceRconRequest> envelope) {
             this.channel = channel;
             this.envelope = envelope;
-        }
-
-        private boolean hasError() {
-            return this.error != null;
-        }
-
-        private Throwable error() {
-            return this.error;
-        }
-
-        private Parcel error(Throwable error) {
-            this.error = error;
-            return this;
-        }
-
-        private void clearError() {
-            error(null);
         }
 
         private SourceRconRequest request() {
@@ -880,6 +868,12 @@ public final class SourceRconAuthProxy implements Closeable {
             if (channel == null || channel.remoteAddress() == null)
                 return null;
             return (InetSocketAddress) channel.remoteAddress();
+        }
+
+        private boolean inEventLoop() {
+            if (channel == null)
+                return false;
+            return channel.eventLoop().inEventLoop();
         }
 
         private Channel channel() {
@@ -915,8 +909,9 @@ public final class SourceRconAuthProxy implements Closeable {
 
         private void release() {
             Channel channel = channel();
+            log.info("RELEASE: {}", channel);
             if (channel == null) {
-                log.debug("AUTH (RELEASE) => No channel available to release (parcel: " + this + ", has error: " + hasError() + ")", error);
+                log.debug("AUTH (RELEASE) => No channel available to release (parcel: " + this + ")");
                 return;
             }
             NettyUtil.releaseOrClose(channel);
@@ -926,8 +921,8 @@ public final class SourceRconAuthProxy implements Closeable {
     private static class RconHelper {
 
         public Parcel validate(Parcel parcel) {
-            if (parcel.hasError() || parcel.channel() == null)
-                return parcel;
+            /*if (parcel.hasError() || parcel.channel() == null)
+                return parcel;*/
 
             final Envelope<SourceRconRequest> envelope = parcel.envelope();
             final Channel channel = parcel.channel();

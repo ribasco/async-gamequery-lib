@@ -24,6 +24,7 @@ import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.handlers.MessageEncoder;
 import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
+import com.ibasco.agql.core.transport.pool.PooledChannel;
 import com.ibasco.agql.core.transport.pool.SimpleNettyChannelPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -42,7 +43,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -107,9 +107,11 @@ public class NettyUtil {
         return "N/A";
     }
 
+    @Deprecated
     public static boolean isPooled(Channel ch) {
         Objects.requireNonNull(ch, "Channel is null");
-        return ch.attr(getChannelPoolKey()).get() != null;
+        return NettyChannelPool.isPooled(ch);
+        //return ch.attr(getChannelPoolKey()).get() != null;
     }
 
     /**
@@ -120,8 +122,10 @@ public class NettyUtil {
      *
      * @return The {@link ChannelPool} that this channel was created/acquired from. {@code null} if the channel is not pooled.
      */
+    @Deprecated
     public static NettyChannelPool getChannelPool(Channel ch) {
-        return Objects.requireNonNull(ch, "Channel is null").attr(getChannelPoolKey()).get();
+        return NettyChannelPool.getPool(ch);
+        //return Objects.requireNonNull(ch, "Channel is null").attr(getChannelPoolKey()).get();
     }
 
     /**
@@ -132,17 +136,16 @@ public class NettyUtil {
      *
      * @return A {@link CompletableFuture} that will be notified if the {@link Channel} has been successfully released or not
      */
-    public static CompletableFuture<NettyChannelPool> release(Channel ch) {
+    public static CompletableFuture<Void> release(Channel ch) {
         if (ch.eventLoop().isShutdown())
             return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
+        if (ch instanceof PooledChannel) {
+            return ((PooledChannel) ch).release();
+        }
         if (!isPooled(ch))
             return CompletableFuture.completedFuture(null);
-        final NettyChannelPool pool = getChannelPool(ch);
-        return pool.release(ch).handle((unused, error) -> {
-            if (error != null)
-                throw new CompletionException("Failed to release channel from pool: " + pool, error);
-            return pool;
-        });
+        final NettyChannelPool pool = NettyChannelPool.getPool(ch);
+        return pool.release(ch);
     }
 
     public static String id(ChannelHandlerContext ctx) {
@@ -167,7 +170,6 @@ public class NettyUtil {
             }
         }
         return "[" + ch.id().asShortText() + "]";
-        //return String.format("[%s]", ch.id().asShortText());
     }
 
     /**
@@ -221,23 +223,16 @@ public class NettyUtil {
     }
 
     public static void registerTimeoutHandlers(Channel ch) {
-        //assert ch.hasAttr(ChannelAttributes.READ_TIMEOUT);
-        assert ch.hasAttr(NettyChannelAttributes.WRITE_TIMEOUT);
-
+        //assert ch.hasAttr(NettyChannelAttributes.WRITE_TIMEOUT);
+        Integer writeTimeout = TransportOptions.WRITE_TIMEOUT.attr(ch);
+        assert writeTimeout != null;
         //read default channel attributes
-        //int readTimeout = ch.attr(ChannelAttributes.READ_TIMEOUT).get();
-        int writeTimeout = ch.attr(NettyChannelAttributes.WRITE_TIMEOUT).get();
-
         try {
             //ensure they are not existing within the current pipeline
-            //ch.pipeline().remove(ReadTimeoutHandler.class);
             ch.pipeline().remove(WriteTimeoutHandler.class);
         } catch (NoSuchElementException ignored) {
         }
-
-        //ch.pipeline().addBefore("responseDecoder", "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
         ch.pipeline().addAfter(MessageEncoder.NAME, "writeTimeout", new WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS));
-
         log.debug("{} TRANSPORT => Registered READ/WRITE Timeout Handlers", NettyUtil.id(ch));
     }
 
@@ -254,12 +249,12 @@ public class NettyUtil {
     }
 
     public static void clearAttribute(Channel ch, AttributeKey<?> key) {
-        if (ch.hasAttr(key)) {
-            Attribute<?> attr = ch.attr(key);
-            if (attr.get() != null) {
-                attr.set(null);
-                log.debug("{} RESET => Cleared channel attribute '{}' (cleared: {})", NettyUtil.id(ch), key.name(), ch.attr(key).get() == null);
-            }
+        if (!ch.hasAttr(key))
+            return;
+        Attribute<?> attr = ch.attr(key);
+        if (attr.get() != null) {
+            attr.set(null);
+            log.debug("{} RESET => Cleared channel attribute '{}' (cleared: {})", NettyUtil.id(ch), key.name(), ch.attr(key).get() == null);
         }
     }
 
@@ -376,11 +371,11 @@ public class NettyUtil {
     }
 
     /**
-     * Attempt to release (if acquired from a {@link ChannelPool}) or close a channel
+     * Attempt to release (if acquired from a {@link NettyChannelPool}) or close a channel
      */
     public static void releaseOrClose(Channel channel) {
         if (channel == null) {
-            log.debug("[N/A] ROUTER (RELEASE) => Channel has been disposed. Skipping operation");
+            log.debug("[N/A] ROUTER (RELEASE) => Channel is null. Skipping operation");
             return;
         }
         //is the channel pooled?
@@ -392,9 +387,9 @@ public class NettyUtil {
         final String id = id(channel);
         final NettyChannelPool pool = getChannelPool(channel);
         log.debug("{} ROUTER (RELEASE) => Releasing channel '{}' from pool '{}#{}'", id, channel, pool.getClass().getName(), pool.hashCode());
-        release(channel).whenComplete((pool1, error) -> {
+        release(channel).whenComplete((unused, error) -> {
             if (error != null) {
-                log.error(String.format("%s ROUTER (RELEASE) => Failed to release channel from pool '%s'. Requesting to close context.", id, pool1), error);
+                log.error(String.format("%s ROUTER (RELEASE) => Failed to release channel from pool '%s'. Requesting to close channel.", id, unused), error);
                 channel.close();
             }
         });
@@ -411,4 +406,5 @@ public class NettyUtil {
     private static AttributeKey<NettyChannelPool> getChannelPoolKey() {
         return SimpleNettyChannelPool.getChannelPoolKey();
     }
+
 }

@@ -111,7 +111,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
 
     protected <V extends S> CompletableFuture<V> send(A address, R request, Class<V> expectedResponse) {
         log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
-        return failSafeSend(address, request).thenApply(expectedResponse::cast);
+        return send(address, request).thenApply(expectedResponse::cast);
     }
 
     protected CompletableFuture<S> failSafeSend(A address, R request) {

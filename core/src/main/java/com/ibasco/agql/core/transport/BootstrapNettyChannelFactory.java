@@ -112,8 +112,6 @@ abstract public class BootstrapNettyChannelFactory implements NettyChannelFactor
 
     private void configureDefaultAttributes(Bootstrap bootstrap) {
         //Global default attributes
-        bootstrap.attr(NettyChannelAttributes.READ_TIMEOUT, getOptions().getOrDefault(TransportOptions.READ_TIMEOUT));
-        bootstrap.attr(NettyChannelAttributes.WRITE_TIMEOUT, getOptions().getOrDefault(TransportOptions.WRITE_TIMEOUT));
         bootstrap.attr(NettyChannelAttributes.AUTO_RELEASE, true);
 
         int ctr = 0;

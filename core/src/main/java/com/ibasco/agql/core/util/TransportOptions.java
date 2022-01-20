@@ -51,12 +51,12 @@ public final class TransportOptions {
     /**
      * Number of milliseconds to wait before we throw a ReadTimeoutException
      */
-    public static final Option<Integer> READ_TIMEOUT = Option.createOption("readTimeOut", 5000);
+    public static final Option<Integer> READ_TIMEOUT = Option.createOption("readTimeOut", 5000, true, true);
 
     /**
      * Number of milliseconds to wait before we throw a WriteTimeoutException
      */
-    public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("writeTimeout", 5000);
+    public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("writeTimeout", 5000, true, true);
 
     /**
      * When {@code true}, the transport will throw an {@link IncompletePacketException} if the split-packets received from the game server are in incomplete state.

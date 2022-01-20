@@ -32,12 +32,7 @@ public final class NettyChannelAttributes {
 
     public static final AttributeKey<Envelope<AbstractRequest>> REQUEST = AttributeKey.valueOf("request");
 
-    //TODO: Consider removing this
     public static final AttributeKey<Envelope<AbstractResponse>> RESPONSE = AttributeKey.valueOf("response");
-
-    public static final AttributeKey<Integer> READ_TIMEOUT = AttributeKey.valueOf("readTimeout");
-
-    public static final AttributeKey<Integer> WRITE_TIMEOUT = AttributeKey.valueOf("writeTimeout");
 
     public static final AttributeKey<Boolean> AUTO_RELEASE = AttributeKey.valueOf("autoRelease");
 }

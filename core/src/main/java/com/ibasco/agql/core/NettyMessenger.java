@@ -111,11 +111,10 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     public CompletableFuture<S> send(Envelope<R> envelope, CompletableFuture<Channel> channelFuture) {
         Objects.requireNonNull(envelope, "Envelope cannot be null");
         Objects.requireNonNull(envelope.promise(), "Promise is null");
-        log.debug("{} SEND => Preparing request '{}' for transport (destination: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope.recipient());
+        log.debug("{} SEND => Sending request to transport '{}' (Envelope: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope);
         CompletableFuture<Channel> writeFuture = getTransport().send(envelope, channelFuture).thenApply(this::updateAttributes);
         failOnClose(writeFuture);
         return writeFuture.thenCompose(c -> envelope.promise());
-        //return envelope.promise();
     }
 
     @Override
@@ -134,6 +133,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             if (response.getAddress() == null)
                 response.setAddress(envelope.sender());
             envelope.promise().complete(response);
+            log.info("COMPLETING: {} (Result: {})", envelope.promise(), response);
             log.debug("MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", envelope);
         }
     }
@@ -168,7 +168,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
      * @return An {@link Envelope} containing the request and other details needed by the {@link Transport}
      */
     public Envelope<R> newEnvelope(A address, R request, CompletableFuture<S> promise) {
-        log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", NettyUtil.id(request), request.getClass().getSimpleName(), request.id(), address);
+        //log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", NettyUtil.id(request), request.getClass().getSimpleName(), request.id(), address);
         return MessageEnvelopeBuilder.createNew()
                                      .fromAnyAddress()
                                      .recipient(address)
@@ -200,6 +200,8 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     @Override
     public void close() throws IOException {
+        if (this.channelFactory != null)
+            this.channelFactory.close();
         //it's possible that the transport has not been initialized yet, if the client did not call send yet
         if (transport != null)
             transport.close();

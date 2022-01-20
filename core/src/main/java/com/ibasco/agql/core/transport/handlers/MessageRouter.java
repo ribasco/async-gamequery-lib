@@ -22,6 +22,7 @@ import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Messenger;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.*;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
@@ -52,8 +53,8 @@ public class MessageRouter extends ChannelDuplexHandler {
         } else {
             log.debug("{} ROUTER (OUTBOUND) => Writing message '{}' to transport (Request Id: N/A)", NettyUtil.id(ctx.channel()), msg);
         }
-        super.write(ctx, msg, promise);
         registerTimeoutOnWrite(promise, ctx.channel());
+        super.write(ctx, msg, promise);
     }
 
     @Override
@@ -91,7 +92,6 @@ public class MessageRouter extends ChannelDuplexHandler {
             if (channel.attr(NettyChannelAttributes.AUTO_RELEASE).get()) {
                 log.debug("{} ROUTER (INBOUND) => Auto Release Channel", NettyUtil.id(channel));
                 NettyUtil.releaseOrClose(ctx.channel());
-
             } else {
                 log.debug("{} ROUTER (INBOUND) => Skipping Auto Release Channel (Disabled by Config)", NettyUtil.id(channel));
             }
@@ -131,8 +131,6 @@ public class MessageRouter extends ChannelDuplexHandler {
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", NettyUtil.id(ctx.channel()), NettyUtil.isPooled(ctx.channel()));
-        //Envelope<AbstractRequest> request = getRequest(ctx.channel());
-        //Envelope<AbstractResponse> response = getResponse(ctx.channel());
     }
 
     @Override
@@ -148,7 +146,8 @@ public class MessageRouter extends ChannelDuplexHandler {
             channel.pipeline().remove(ReadTimeoutHandler.class);
         } catch (NoSuchElementException ignored) {
         }
-        int readTimeout = channel.attr(NettyChannelAttributes.READ_TIMEOUT).get();
+        Integer readTimeout = TransportOptions.READ_TIMEOUT.attr(channel);
+        assert readTimeout != null;
         channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
         log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", NettyUtil.id(channel), readTimeout);
     }
@@ -174,14 +173,15 @@ public class MessageRouter extends ChannelDuplexHandler {
     private void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {
         Envelope<AbstractRequest> requestEnvelope = getRequest(channel);
         if (requestEnvelope != null && requestEnvelope.promise().isDone()) {
-            log.warn("Skipping timeout registration");
+            log.warn("Skipping timeout registration. Response already received (Promise: {})", requestEnvelope.promise());
             return;
         }
         if (promise.isDone()) {
             if (promise.isSuccess())
                 registerReadTimeoutHandler(channel);
-            else
-                promise.cause().printStackTrace();
+            else {
+                log.error("Failed write operation for request '{}'", requestEnvelope, promise.cause());
+            }
         } else {
             promise.addListener((ChannelFutureListener) future -> {
                 assert future.channel().eventLoop().inEventLoop();

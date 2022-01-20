@@ -20,7 +20,9 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.exceptions.TransportWriteException;
+import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory;
+import com.ibasco.agql.core.transport.pool.PooledChannel;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Options;
@@ -69,13 +71,84 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     }
 
     public final CompletableFuture<Channel> send(final Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> channelFuture) {
-        //fail-fast
-        if (envelope == null)
-            throw new IllegalStateException("Envelope is null");
-        if (envelope.content() == null)
-            throw new IllegalStateException("Request is null");
+        checkEnvelope(envelope);
+        return initialize(envelope, channelFuture).thenCompose(this::write).handle(this::release);
+        //return prepare(envelope, channelFuture).thenCompose(this::write).handle(this::cleanup);
+    }
+
+    private Channel release(Channel channel, Throwable error) {
+        if (error != null)
+            throw new TransportWriteException("Failed to send request via transport", ConcurrentUtil.unwrap(error));
+        if (channel == null)
+            throw new IllegalStateException("Channel is null");
+        return channel;
+    }
+
+    private CompletableFuture<Channel> initialize(final Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> channelFuture) {
         channelFuture = channelFuture == null ? newChannel(envelope) : channelFuture;
-        return prepare(envelope, channelFuture).thenCompose(this::write).handle(this::cleanup);
+        if (channelFuture == null)
+            throw new IllegalStateException("No channel is available for transport");
+        return channelFuture.thenCombine(CompletableFuture.completedFuture(envelope), this::updateAttributes);
+    }
+
+    /**
+     * Update the {@link Channel}'s attributes and envelope properties
+     *
+     * @param channel
+     *         The {@link Channel} to update
+     * @param envelope
+     *         The {@link Envelope} to be attached to the channel
+     *
+     * @return The {@link Channel} instance
+     */
+    private Channel updateAttributes(final Channel channel, final Envelope<? extends AbstractRequest> envelope) {
+        Objects.requireNonNull(channel, "Channel must not be null");
+        //update sender address
+        envelope.sender(channel.localAddress());
+
+        if (!channel.hasAttr(NettyChannelAttributes.REQUEST) || channel.attr(NettyChannelAttributes.REQUEST).get() == null) {
+            //update request channel attribute
+            //noinspection unchecked
+            channel.attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
+        }
+        return channel;
+    }
+
+    private CompletableFuture<Channel> write(final Channel channel) {
+        Envelope<? extends AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
+        if (envelope == null)
+            throw new IllegalStateException("Request envelope is not present in channel");
+        final CompletableFuture<Channel> promise = new CompletableFuture<>();
+        if (channel.eventLoop().inEventLoop()) {
+            writeAndNotify(channel, promise);
+        } else {
+            channel.eventLoop().execute(() -> writeAndNotify(channel, promise));
+        }
+        return promise;
+    }
+
+    private void writeAndNotify(final Channel channel, CompletableFuture<Channel> promise) {
+        Objects.requireNonNull(channel, "Channel is null");
+        assert channel.eventLoop().inEventLoop();
+        try {
+            Envelope<? extends AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
+            if (envelope == null)
+                throw new IllegalStateException("Request envelope is not present in channel");
+            ChannelFuture writeFuture = channel.writeAndFlush(envelope);
+            runWhenComplate(writeFuture, future -> {
+                if (!future.isSuccess()) {
+                    log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", NettyUtil.id(channel), future.cause());
+                    promise.completeExceptionally(future.cause());
+                } else
+                    log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", NettyUtil.id(channel));
+                if (!promise.complete(channel))
+                    log.warn("{} TRANSPORT => Failed to mark writeAndNotify promise as completed (Reason: Already completed, Promise: {})", NettyUtil.id(channel), promise);
+            });
+        } catch (Throwable e) {
+            log.debug("{} TRANSPORT => Error occured during writeAndNotify operation", NettyUtil.id(channel), e);
+            if (!promise.isDone())
+                promise.completeExceptionally(ConcurrentUtil.unwrap(e));
+        }
     }
 
     /**
@@ -149,7 +222,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
             Channel channel = parcel.channel();
             ChannelFuture writeFuture = channel.writeAndFlush(parcel.envelope());
             runWhenComplate(writeFuture, future -> {
-                Channel ch = parcel.channel();
+                Channel ch = future.channel();//parcel.channel();
                 if (!future.isSuccess()) {
                     parcel.error(future.cause());
                     log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", NettyUtil.id(ch), parcel.error());
@@ -226,9 +299,14 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
                 //If we have acquired a channel, make sure we release it
                 if (parcel.hasChannel()) {
                     final Channel channel = parcel.channel();
-                    if (NettyUtil.isPooled(channel)) {
+                    if (NettyChannelPool.isPooled(channel)) {
                         log.debug("{} TRANSPORT (CLEANUP) => Found error ({}) during parcel send. Requesting to release channel from pool", NettyUtil.id(channel), parcel.error().getClass().getSimpleName());
-                        NettyUtil.release(channel);
+                        //NettyUtil.release(channel);
+                        if (channel instanceof PooledChannel) {
+                            ((PooledChannel) channel).release();
+                        } else {
+                            NettyUtil.release(channel);
+                        }
                     } else {
                         log.debug("{} TRANSPORT (CLEANUP) => Channel is not pooled. Closing connection.", NettyUtil.id(channel));
                         channel.close();
@@ -258,7 +336,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
 
     @Override
     public void close() throws IOException {
-        channelFactory.close();
+        //channelFactory.close();
     }
 
     @Override
@@ -274,6 +352,7 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
     }
 
     protected CompletableFuture<Channel> newChannel(final Envelope<? extends AbstractRequest> envelope) {
+        Objects.requireNonNull(envelope, "Envelope is null");
         return channelFactory.create(envelope);
     }
 
@@ -350,9 +429,8 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         }
 
         void release() {
-            if (hasChannel()) {
+            if (hasChannel())
                 this.channelRef.clear();
-            }
             this.channelRef = null;
             this.error = null;
         }
@@ -367,5 +445,13 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
             assert parcel == this;
             return parcel.attach(channel);
         }
+    }
+
+    private static void checkEnvelope(final Envelope<? extends AbstractRequest> envelope) {
+        //fail-fast
+        if (envelope == null)
+            throw new IllegalArgumentException("Envelope is null");
+        if (envelope.content() == null)
+            throw new IllegalStateException("Request is null");
     }
 }

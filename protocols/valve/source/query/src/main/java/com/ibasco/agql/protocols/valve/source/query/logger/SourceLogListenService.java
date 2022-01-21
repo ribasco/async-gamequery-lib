@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -203,7 +203,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
-     * @return A {@link CompletableFuture} that is notified once the underlying connection of the service closes. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
+     * @return A {@link CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      *
      * @see #setListenAddress(InetSocketAddress)
      * @see #close()
@@ -219,7 +219,7 @@ public class SourceLogListenService implements Closeable {
      * @param address
      *         The {@link InetSocketAddress} to listen on
      *
-     * @return A {@link CompletableFuture} that is notified once the underlying connection of the service closes. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
+     * @return A {@link CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      *
      * @see #close()
      */

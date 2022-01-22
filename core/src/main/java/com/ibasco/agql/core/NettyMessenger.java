@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -133,7 +133,6 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             if (response.getAddress() == null)
                 response.setAddress(envelope.sender());
             envelope.promise().complete(response);
-            log.info("COMPLETING: {} (Result: {})", envelope.promise(), response);
             log.debug("MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", envelope);
         }
     }

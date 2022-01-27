@@ -43,24 +43,16 @@ abstract public class BootstrapNettyChannelFactory implements NettyChannelFactor
 
     private final Bootstrap bootstrap = new Bootstrap();
 
-    private final ChannelHandler channelInitializer;
-
     private final EventLoopGroup eventLoopGroup;
 
     private final Options options;
 
-    private final TransportType transportType;
-
-    private final NettyChannelHandlerInitializer channelHandlerInitializer;
-
     protected BootstrapNettyChannelFactory(final TransportType type, final NettyChannelHandlerInitializer handlerInitializer, final Options options) {
         final Class<? extends Channel> channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
         this.options = options;
-        this.transportType = type;
-        this.channelHandlerInitializer = handlerInitializer;
-        this.channelInitializer = new DefaultNettyChannelInitializer<>(handlerInitializer);
+        ChannelHandler channelInitializer = new DefaultNettyChannelInitializer<>(handlerInitializer);
         this.eventLoopGroup = initializeEventLoopGroup();
-        initializeBootstrap(channelClass, this.eventLoopGroup, this.channelInitializer);
+        initializeBootstrap(channelClass, this.eventLoopGroup, channelInitializer);
     }
 
     private void initializeBootstrap(Class<? extends Channel> channelClass, EventLoopGroup eventLoopGroup, ChannelHandler defaultChannelHandler) {

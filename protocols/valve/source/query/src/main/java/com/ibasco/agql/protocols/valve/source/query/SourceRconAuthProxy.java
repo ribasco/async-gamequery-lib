@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -366,7 +366,13 @@ public final class SourceRconAuthProxy implements Closeable {
         assert parcel.channel() != null;
         assert parcel.channel().remoteAddress() != null;
         assert parcel.channel().remoteAddress().equals(parcel.envelope().recipient());
-        return messenger.send(parcel.envelope(), parcel.channel()).thenApply(parcel::response);
+        log.debug("Sending request: {} (Channel Id: {}, Thread: {}, Request Id: {})", parcel.request().getClass().getSimpleName(), NettyUtil.id(parcel.channel()), NettyUtil.getThreadName(parcel.channel()), parcel.requestId());
+
+        if (parcel.channel().eventLoop().inEventLoop()) {
+            return messenger.send(parcel.envelope(), parcel.channel()).thenApply(parcel::response);
+        } else {
+            return CompletableFuture.completedFuture(parcel).thenComposeAsync(p -> messenger.send(p.envelope(), p.channel()).thenApply(p::response), parcel.channel().eventLoop());
+        }
     }
 
     /**
@@ -445,7 +451,7 @@ public final class SourceRconAuthProxy implements Closeable {
      * @param channel
      *         The {@link Channel} to be removed
      */
-    public void unregister(Channel channel) {
+    private void unregister(Channel channel) {
         if (!isRegistered(channel))
             return;
         synchronized (channels) {
@@ -517,6 +523,18 @@ public final class SourceRconAuthProxy implements Closeable {
                 channel.attr(SourceRcon.AUTHENTICATED).set(false);
                 log.debug("{} AUTH => Invalidated channel. Marked for re-authentication", NettyUtil.id(channel));
             }
+        }
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (scheduler.isShutdown())
+            return;
+        log.debug("PROXY (CLOSE) => Requesting graceful shutdown");
+        if (ConcurrentUtil.shutdown(scheduler)) {
+            log.debug("PROXY (CLOSE) => Rcon auth proxy shutdown gracefully");
+        } else {
+            log.debug("PROXY (CLOSE) => Rcon auth proxy shutdown failed");
         }
     }
 
@@ -809,7 +827,6 @@ public final class SourceRconAuthProxy implements Closeable {
             final Credentials credentials = credentialsManager.get(address);
             if (!credentials.isValid())
                 return ConcurrentUtil.failedFuture(new RconInvalidCredentialsException(String.format("The credentials for address '%s' is no longer valid and needs to be updated", address), address));
-            log.debug("{} AUTH => Authenticating parcel: {}", NettyUtil.id(parcel.channel()), parcel.channel());
             return authenticate(parcel.channel(), credentials).thenApply(parcel::channel);
         }
 
@@ -864,6 +881,12 @@ public final class SourceRconAuthProxy implements Closeable {
             return envelope.content();
         }
 
+        private String requestId() {
+            if (request() == null)
+                return "N/A";
+            return request().id().toString();
+        }
+
         private InetSocketAddress address() {
             if (channel == null || channel.remoteAddress() == null)
                 return null;
@@ -909,7 +932,6 @@ public final class SourceRconAuthProxy implements Closeable {
 
         private void release() {
             Channel channel = channel();
-            log.info("RELEASE: {}", channel);
             if (channel == null) {
                 log.debug("AUTH (RELEASE) => No channel available to release (parcel: " + this + ")");
                 return;
@@ -946,18 +968,6 @@ public final class SourceRconAuthProxy implements Closeable {
                 throw new IllegalStateException("No request attribute");
             if (!channel.hasAttr(SourceRcon.AUTHENTICATED) || !channel.attr(SourceRcon.AUTHENTICATED).get())
                 throw new IllegalStateException("Channel not marked as authenticated");
-        }
-    }
-
-    @Override
-    public void close() throws IOException {
-        if (scheduler.isShutdown())
-            return;
-        log.debug("PROXY (CLOSE) => Requesting graceful shutdown");
-        if (ConcurrentUtil.shutdown(scheduler)) {
-            log.debug("PROXY (CLOSE) => Rcon auth proxy shutdown gracefully");
-        } else {
-            log.debug("PROXY (CLOSE) => Rcon auth proxy shutdown failed");
         }
     }
 }

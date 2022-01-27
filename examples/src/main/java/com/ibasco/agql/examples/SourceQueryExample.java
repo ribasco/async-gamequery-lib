@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -85,7 +85,7 @@ public class SourceQueryExample extends BaseExample {
     }
 
     public void runInteractiveExample() throws Exception {
-        Boolean queryAllServers = promptInputBool("Query all available servers? (y/n)", true, "y");
+        Boolean queryAllServers = promptInputBool("Query all available servers? (y/n)", true, "y", "queryAllServers");
         long start, end;
 
         final Phaser phaser = new Phaser();
@@ -106,7 +106,7 @@ public class SourceQueryExample extends BaseExample {
             log.info("Fetching server list using filter '{}'", filter);
             total = fetchServersAndQuery(filter, phaser, queries);
         } else {
-            String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, "192.168.1.34:27017"); //127.0.0.1:27015
+            String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
             int requestCount = Integer.parseInt(promptInput("How many requests should we run?", false, "1", "requestCount"));
             InetSocketAddress address = NetUtil.parseAddress(addressString, 27015);
             log.info("Waiting for the queries to complete");

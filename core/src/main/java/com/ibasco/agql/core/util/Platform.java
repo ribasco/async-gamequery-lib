@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -169,6 +169,18 @@ public final class Platform {
         return DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
     }
 
+    /**
+     * Creates a new {@link EventLoopGroup} instance. The default is {@link NioEventLoopGroup}
+     *
+     * @param executor
+     *         The {@link Executor} to be used by the {@link EventLoopGroup}
+     * @param nThreads
+     *         The number of threads to be used by the {@link EventLoopGroup}. If a custom {@link Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     * @param useNative
+     *         {@code true} to use native transports when available (e.g. epoll for linux, kqueue for osx).
+     *
+     * @return A new {@link EventLoopGroup} instance
+     */
     public static EventLoopGroup createEventLoopGroup(Executor executor, int nThreads, boolean useNative) {
         EventLoopGroup elg = null;
         if (useNative) {

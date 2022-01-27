@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -536,7 +536,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
             // Ensure we dispatch this on another Thread as close0 will be called from the EventExecutor and we need
             // to ensure we will not block in a EventExecutor.
-            return NettyUtil.makeCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
+            return NettyUtil.toCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
                 FixedNettyChannelPool.super.close();
                 return null;
             }));

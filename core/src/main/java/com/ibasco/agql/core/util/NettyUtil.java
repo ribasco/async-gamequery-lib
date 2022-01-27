@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -65,7 +65,7 @@ public class NettyUtil {
     public static final Function<LinkedList<ChannelOutboundHandler>, ChannelHandler> OUTBOUND = LinkedList::pollLast;
 
     public static CompletableFuture<Channel> replaceExecutor(Channel channel, EventLoop eventLoop) {
-        return NettyUtil.makeCompletable(channel.deregister()).thenCompose(ch -> NettyUtil.makeCompletable(eventLoop.register(ch)));
+        return NettyUtil.toCompletable(channel.deregister()).thenCompose(ch -> NettyUtil.toCompletable(eventLoop.register(ch)));
     }
 
     public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf, Integer limit) {
@@ -258,7 +258,7 @@ public class NettyUtil {
         }
     }
 
-    public static <V> CompletableFuture<V> makeCompletable(Future<V> future) {
+    public static <V> CompletableFuture<V> toCompletable(Future<V> future) {
         CompletableFuture<V> cFuture = new CompletableFuture<>();
         if (future.isDone()) {
             if (future.isSuccess()) {
@@ -278,11 +278,19 @@ public class NettyUtil {
         return cFuture;
     }
 
-    public static CompletableFuture<Channel> makeCompletable(ChannelFuture future) {
-        return makeCompletable(future, future::channel, future::cause);
+    /**
+     * Converts a netty {@link ChannelFuture} to a {@link CompletableFuture}
+     *
+     * @param future
+     *         The {@link ChannelFuture} to convert
+     *
+     * @return The converted {@link CompletableFuture}
+     */
+    public static CompletableFuture<Channel> toCompletable(ChannelFuture future) {
+        return toCompletable(future, future::channel, future::cause);
     }
 
-    public static <A, B, C extends Future<B>> CompletableFuture<A> makeCompletable(C future, Supplier<A> success, Supplier<Throwable> fail) {
+    public static <A, B, C extends Future<B>> CompletableFuture<A> toCompletable(C future, Supplier<A> success, Supplier<Throwable> fail) {
         CompletableFuture<A> cFuture = new CompletableFuture<>();
         if (future.isDone()) {
             if (future.isSuccess()) {
@@ -299,21 +307,6 @@ public class NettyUtil {
                 }
             });
         }
-        return cFuture;
-    }
-
-    public static CompletableFuture<Channel> makeCompletable(Future<Channel> future, int timeout, TimeUnit timeUnit, Consumer<Channel> initialize) {
-        final CompletableFuture<Channel> cFuture = new CompletableFuture<>();
-        future.addListener((Future<Channel> pFuture) -> {
-            try {
-                Channel channel = pFuture.get(timeout, timeUnit);
-                if (initialize != null)
-                    initialize.accept(channel);
-                cFuture.complete(channel);
-            } catch (Throwable e) {
-                cFuture.completeExceptionally(e);
-            }
-        });
         return cFuture;
     }
 

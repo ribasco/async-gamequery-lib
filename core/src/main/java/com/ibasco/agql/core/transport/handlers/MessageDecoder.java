@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -61,7 +61,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
             log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", id, msg, channel.attr(NettyChannelAttributes.REQUEST).get());
             if (msg instanceof ByteBuf && log.isDebugEnabled()) {
                 ByteBuf b = (ByteBuf) msg;
-                NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", NettyUtil.id(ctx), b.readableBytes()), b, 32);
+                NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", id, b.readableBytes()), b, 32);
             }
             ReferenceCountUtil.release(msg);
             return;
@@ -114,8 +114,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
         //Make sure we have a request associated, otherwise do not propagate
         if (hasInvalidRequest(channel)) {
-            log.debug("{} INB => No VALID request found (Error: {})", NettyUtil.id(ctx.channel()), cause.getClass().getSimpleName());
-            cause.printStackTrace();
+            log.debug("{} INB => No VALID request found (Error: {}, Request: {})", id, cause.getClass().getSimpleName(), channel.attr(NettyChannelAttributes.REQUEST).get(), cause);
             return;
         }
 

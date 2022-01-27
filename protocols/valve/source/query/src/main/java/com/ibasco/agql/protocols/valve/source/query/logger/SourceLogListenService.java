@@ -224,9 +224,9 @@ public class SourceLogListenService implements Closeable {
      * @see #close()
      */
     public CompletableFuture<Void> listen(InetSocketAddress address) {
-        Objects.requireNonNull(listenAddress, "Listen address cannot bee null");
+        this.listenAddress = Objects.requireNonNull(address, "Listen address cannot bee null");
         if (bindInProgress)
-            throw new IllegalStateException("A bind is already in progreess for address: " + listenAddress);
+            throw new IllegalStateException("A bind is already in progreess for address: " + address);
         if (started)
             throw new IllegalStateException("Service has already been started");
         ChannelFuture bindFuture = bootstrap.localAddress(address).bind();

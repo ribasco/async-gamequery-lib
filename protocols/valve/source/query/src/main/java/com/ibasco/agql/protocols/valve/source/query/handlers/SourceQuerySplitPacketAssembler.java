@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -84,7 +84,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
                          "Forcing reset of assembler (Packets received: {}, Packets expected: {})",
                  this.assembler.received(), this.assembler.count());
             this.assembler.reset();
-            if (throwOnIncomplete) {
+            if (throwOnIncomplete != null && throwOnIncomplete) {
                 warn("Throwing exception");
                 throw new IncompletePacketException(assembler.received(), assembler.count(), assembler.dump());
             }

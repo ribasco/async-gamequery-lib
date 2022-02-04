@@ -46,7 +46,7 @@ import java.util.concurrent.CompletableFuture;
 @SuppressWarnings("unchecked")
 abstract public class NettyMessenger<A extends SocketAddress, R extends AbstractRequest, S extends AbstractResponse> implements Messenger<A, R, S>, NettyChannelHandlerInitializer {
 
-    private final Logger log = LoggerFactory.getLogger(NettyMessenger.class);
+    private static final Logger log = LoggerFactory.getLogger(NettyMessenger.class);
 
     private static final AttributeKey<CompletableFuture<?>> PROMISE = AttributeKey.valueOf("messengerPromise");
 
@@ -63,8 +63,10 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         final Channel ch = future.channel();
         try {
             CompletableFuture<?> p = ch.attr(PROMISE).get();
-            if (p == null)
+            if (p == null) {
+                log.warn("{} No promise attached to channel: {}", NettyUtil.id(ch), ch);
                 return;
+            }
             if (p.isDone())
                 return;
             if (future.isSuccess())
@@ -107,14 +109,6 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     abstract public void registerOutboundHandlers(LinkedList<ChannelOutboundHandler> handlers);
     //</editor-fold>
 
-    /**
-     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
-     *
-     * @param options
-     *         The {@link Options} instance holding the configuration data
-     */
-    protected void configure(final Options options) {}
-
     //<editor-fold desc="Public methods">
     @Override
     public CompletableFuture<S> send(A address, R request) {
@@ -134,46 +128,21 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     }
 
     public CompletableFuture<S> send(Envelope<R> envelope, Channel channel) {
-        return send(envelope, CompletableFuture.completedFuture(channel));
+        return send(envelope, channel != null ? CompletableFuture.completedFuture(channel) : null);
     }
 
     public CompletableFuture<S> send(Envelope<R> envelope, CompletableFuture<Channel> channelFuture) {
         Objects.requireNonNull(envelope, "Envelope cannot be null");
         Objects.requireNonNull(envelope.promise(), "Promise is null");
-
-        /*SingleThreadEventLoop el = (SingleThreadEventLoop) getExecutor().next();
-
         if (channelFuture == null) {
-            log.info("Using event loop: '{}' for new channel", el.threadProperties().name());
-            channelFuture = channelFactory.create(envelope, el);
-        }*/
-
+            //log.info("Using event loop: '{}' for new channel", el.threadProperties().name());
+            channelFuture = channelFactory.create(envelope);
+        }
         log.debug("{} SEND => Sending request to transport '{}' (Envelope: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope);
         return transport.send(envelope, channelFuture)
-                        .thenApply(this::failOnClose)
                         .thenApply(this::initialize)
+                        .thenApply(this::failOnClose)
                         .thenCompose(this::toResult);
-    }
-
-    private CompletableFuture<S> toResult(Channel channel) {
-        Objects.requireNonNull(channel, "Channel must not be null");
-        if (!channel.eventLoop().inEventLoop()) {
-            throw new IllegalStateException(String.format("Channel '%s' not in event loop (Expected: %s, Actual: %s)", channel, NettyUtil.getThreadName(channel), Thread.currentThread().getName()));
-        }
-        //note: messages sent via transport should always have a request envelope instance present in it's channel's attributes
-        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
-        if (envelope == null)
-            throw new IllegalStateException("Missing request envelope");
-        Objects.requireNonNull(envelope.promise(), "Response promise is null");
-        CompletableFuture<S> promise = envelope.promise();
-        ChannelContext context = channelContextMap.get();
-        if (context == null)
-            throw new IllegalStateException("No channel context found for: " + channel);
-        //ensure we are dealing with thee same channel
-        assert channel.id().equals(context.channel().id());
-        //when the promise completes, then release resources (if any)
-        promise.whenComplete(context::cleanup);
-        return promise;
     }
 
     @Override
@@ -204,9 +173,35 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
             }
         }
     }
-    //</editor-fold>
 
-    //<editor-fold desc="Private/Protected Methods">
+    private CompletableFuture<S> toResult(Channel channel) {
+        Objects.requireNonNull(channel, "Channel must not be null");
+        if (!channel.eventLoop().inEventLoop()) {
+            throw new IllegalStateException(String.format("Channel '%s' not in event loop (Expected: %s, Actual: %s)", channel, NettyUtil.getThreadName(channel), Thread.currentThread().getName()));
+        }
+        //note: messages sent via transport should always have a request envelope instance present in it's channel's attributes
+        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
+        if (envelope == null)
+            throw new IllegalStateException("Missing request envelope");
+        Objects.requireNonNull(envelope.promise(), "Response promise is null");
+        CompletableFuture<S> promise = envelope.promise();
+        ChannelContext context = channelContextMap.get();
+        if (context == null)
+            throw new IllegalStateException("No channel context found for: " + channel);
+        //ensure we are dealing with thee same channel
+        assert channel.id().equals(context.channel().id());
+        //when the promise completes, then release resources (if any)
+        promise.whenComplete(context::cleanup);
+        return promise;
+    }
+
+    /**
+     * @return The underlying {@link Transport} used by this messenger
+     */
+    @Override
+    public final NettyTransport getTransport() {
+        return transport;
+    }
 
     /**
      * Packs the raw request into an envelope containing all the required details of the underlying {@link Transport}
@@ -245,15 +240,6 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
                                      .build();
     }
 
-    /**
-     * @return The underlying {@link Transport} used by this messenger
-     */
-    @Override
-    public final NettyTransport getTransport() {
-        return transport;
-    }
-    //</editor-fold>
-
     @Override
     public Options getOptions() {
         return this.options;
@@ -261,8 +247,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     @Override
     public final EventLoopGroup getExecutor() {
-        //return (EventLoopGroup) transport.getExecutor();
-        return (EventLoopGroup) channelFactory.getExecutor();
+        return channelFactory.getExecutor();
     }
 
     @Override
@@ -277,6 +262,16 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     public final NettyChannelFactory getChannelFactory() {
         return channelFactory;
     }
+    //</editor-fold>
+
+    //<editor-fold desc="Private/Protected Methods">
+    /**
+     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
+     *
+     * @param options
+     *         The {@link Options} instance holding the configuration data
+     */
+    protected void configure(final Options options) {}
 
     @SuppressWarnings("SameParameterValue")
     protected final <X> void lockedOption(Options map, Option<X> option, X value) {
@@ -301,8 +296,7 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     private Channel failOnClose(Channel channel) {
         CompletableFuture<?> promise = channel.attr(PROMISE).get();
         if (promise == null) {
-            log.debug("Promise for channel {} is null", channel);
-            return channel;
+            throw new IllegalStateException("Missing envelope promise");
         }
         ChannelFuture closeFuture = channel.closeFuture();
         if (closeFuture.isDone()) {
@@ -343,10 +337,11 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         ChannelContext context = channelContextMap.get();
         if (context != null) {
             if (!context.channel().id().equals(channel.id()))
-              log.debug(String.format("Channel id mismatch (Expeected: %s, Actual: %s)", context.channel(), channel));
+                log.debug(String.format("Channel id mismatch (Expeected: %s, Actual: %s)", context.channel(), channel));
         }
         channelContextMap.set(new ChannelContext(channel));
     }
+    //</editor-fold>
 
     private class ChannelContext {
 

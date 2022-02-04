@@ -64,7 +64,7 @@ abstract public class BootstrapNettyChannelFactory implements NettyChannelFactor
 
         configureDefaultOptions(this.bootstrap);
         configureDefaultAttributes(this.bootstrap);
-        configure(this.bootstrap);
+        configure(bootstrap);
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}', Default Channel Handler: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName(), defaultChannelHandler);
     }
 

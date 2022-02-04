@@ -27,7 +27,6 @@ import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.EventLoop;
 import io.netty.util.AttributeKey;
 import io.netty.util.ResourceLeakDetector;
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 /**
  * Base class for all classee who would like to utilize the netty framework
@@ -93,10 +91,6 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
         return initialize(envelope, channelFuture).thenCompose(this::write).handle(this::cleanup);
     }
 
-    private CompletableFuture<Channel> initialize(final Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> channelFuture) {
-        return initialize(envelope, channelFuture, null);
-    }
-
     /**
      * Initialize the {@link Channel} and update the required attributes once it is readily available. If no {@link Channel} future is provided, then a nw {@link Channel} will be created using the provided {@link NettyChannelFactory}.
      *
@@ -107,13 +101,9 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
      *
      * @return A {@link CompletableFuture} that is notified once a {@link Channel} is available.
      */
-    private CompletableFuture<Channel> initialize(final Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> channelFuture, EventLoop eventLoop) {
-        if (eventLoop == null) {
-            eventLoop = channelFactory.getExecutor().next();
-        }
-        if (channelFuture == null) {
-            channelFuture = channelFactory.create(envelope, eventLoop);
-        }
+    private CompletableFuture<Channel> initialize(final Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> channelFuture) {
+        if (channelFuture == null)
+            channelFuture = channelFactory.create(envelope);
         if (channelFuture == null)
             throw new IllegalStateException("No channel is available for transport");
         return channelFuture.thenCombine(CompletableFuture.completedFuture(envelope), this::updateAttributes);
@@ -200,24 +190,6 @@ public class NettyTransport implements Transport<Channel, Envelope<AbstractReque
             throw new IllegalStateException("Channel is null");
         assert channel.eventLoop().inEventLoop();
         return channel;
-    }
-
-    /**
-     * Convenience utility method which runs the callback once the provided future has transitioned to a completed state
-     *
-     * @param future
-     *         The {@link ChannelFuture} to track
-     * @param consumer
-     *         The callback to be notified oncee the future has been marked as completed
-     * @param <V>
-     *         The type passed to the callback
-     */
-    private <V> void runWhenComplate(ChannelFuture future, Consumer<ChannelFuture> consumer) {
-        if (future.isDone()) {
-            consumer.accept(future);
-        } else {
-            future.addListener((ChannelFutureListener) consumer::accept);
-        }
     }
 
     @Override

@@ -20,7 +20,6 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelOutboundInvoker;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 
@@ -32,11 +31,7 @@ public interface NettyChannelFactory extends Closeable {
     CompletableFuture<Channel> create(final Envelope<? extends AbstractRequest> envelope);
 
     default CompletableFuture<Channel> create(final Envelope<? extends AbstractRequest> envelope, EventLoop eventLoop) {
-        return create(envelope)
-                .thenApply(ChannelOutboundInvoker::deregister)
-                .thenCompose(NettyUtil::toCompletable)
-                .thenApply(eventLoop::register)
-                .thenCompose(NettyUtil::toCompletable);
+        return NettyUtil.useEventLoop(create(envelope), eventLoop);
     }
 
     EventLoopGroup getExecutor();

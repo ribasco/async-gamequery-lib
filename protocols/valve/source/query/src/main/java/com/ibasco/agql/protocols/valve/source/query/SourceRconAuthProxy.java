@@ -16,16 +16,15 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
-import com.google.common.collect.HashMultimap;
-import com.google.common.collect.Multimaps;
-import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.ChannelRegistrationException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconMaxLoginAttemptsException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
@@ -48,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -56,7 +56,6 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
 
 /**
  * <p>An proxy that ensures that requests are sent via an authenticated {@link Channel}
@@ -88,8 +87,6 @@ public final class SourceRconAuthProxy implements Closeable {
 
     private final Statistics statistics = new Statistics();
 
-    private final SetMultimap<InetSocketAddress, Channel> channels = Multimaps.synchronizedSetMultimap(HashMultimap.create());
-
     private final SourceRconMessenger messenger;
 
     private final ScheduledExecutorService scheduler;
@@ -107,6 +104,15 @@ public final class SourceRconAuthProxy implements Closeable {
     private final ThreadLocal<FailsafeExecutor<Parcel>> authExecutors = ThreadLocal.withInitial(() -> Failsafe.with(AUTH_CHANNEL_POLICY));
 
     private final InactivityCheckTask INACTIVITY_CHECK_TASK = new InactivityCheckTask();
+
+    private final ChannelRegistry registry = new DefaultChannelRegistry();
+
+    private static final ChannelFutureListener CLEANUP_ON_CLOSE = future -> {
+        Channel channel = future.channel();
+        log.debug("{} AUTH (CLEANUP) => Channel closed. Performing cleanup operation", NettyUtil.id(channel));
+        channel.attr(SourceRcon.AUTHENTICATED).set(null);
+        NettyChannelPool.tryRelease(channel);
+    };
 
     /**
      * Create a new authentication proxy
@@ -137,36 +143,39 @@ public final class SourceRconAuthProxy implements Closeable {
         if (channel.eventLoop().inEventLoop()) {
             return CompletableFuture.completedFuture(register0(channel));
         } else {
-            return CompletableFuture.supplyAsync(() -> register0(channel), channel.eventLoop());
+            return CompletableFuture.completedFuture(channel).thenApplyAsync(this::register0, channel.eventLoop());
         }
     }
 
     private Channel register0(final Channel channel) {
         assert channel.eventLoop().inEventLoop();
         Objects.requireNonNull(channel, "Channel must not be null");
-        if (isRegistered(channel))
+        if (registry.isRegistered(channel))
             return channel;
         if (!channel.isActive())
             throw new IllegalStateException("Can't register a channel that is inactive");
         if (!(channel.remoteAddress() instanceof InetSocketAddress))
             throw new IllegalStateException("Not a valid remote address. Either null or not an InetSocketAddress instance");
-
-        synchronized (channels) {
+        final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+        try {
             log.debug("{} AUTH => Registering channel '{}'", NettyUtil.id(channel), channel);
-            final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-            if (channels.put(address, channel)) {
-                startInactivityCheck();
-                //Disable auto release of channel, we will release/close it manually
-                channel.attr(NettyChannelAttributes.AUTO_RELEASE).set(false);
-                //Initialize channel attribute
-                channel.attr(SourceRcon.AUTHENTICATED).set(false);
-                if (log.isDebugEnabled())
-                    log.debug("{} AUTH => Successfully registered channel (Total: {}, Address: {}, Authenticated: {})", NettyUtil.id(channel), channels.get(address).size(), channel.remoteAddress(), isAuthenticated(channel));
-                unregisterOnClose(channel);
-                return channel;
-            }
-            throw new IllegalStateException("Failed to register channel: " + channel);
+            registry.register(channel);
+            log.debug("{} AUTH => Successfully registered channel (Total: {}, Address: {}, Authenticated: {})", NettyUtil.id(channel), registry.getChannels(address).size(), channel.remoteAddress(), isAuthenticated(channel));
+
+            //perform additional initialization
+            //perform cleanup operation on close
+            channel.closeFuture().addListener(CLEANUP_ON_CLOSE);
+            //Disable auto release of channel, we will release/close it manually
+            channel.attr(NettyChannelAttributes.AUTO_RELEASE).set(false);
+            //Initialize channel attribute
+            channel.attr(SourceRcon.AUTHENTICATED).set(false);
+
+            //Start inactivity check task once a channel has been registered
+            startInactivityCheck();
+        } catch (ChannelRegistrationException e) {
+            throw new IllegalStateException(e);
         }
+        return channel;
     }
 
     /**
@@ -178,7 +187,7 @@ public final class SourceRconAuthProxy implements Closeable {
      *         The {@link SourceRconAuthRequest} that was used to authenticate the {@link Channel}
      */
     private void markAuthenticated(final Channel channel, SourceRconAuthRequest request) {
-        if (!isRegistered(channel))
+        if (!registry.isRegistered(channel))
             throw new IllegalStateException(String.format("Channel '%s' is not registered (Request: %s)", channel, request));
         helper.validate(channel);
         final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
@@ -214,7 +223,7 @@ public final class SourceRconAuthProxy implements Closeable {
      */
     public boolean isAuthenticated(Channel channel) {
         Objects.requireNonNull(channel, "Channel is null");
-        if (!isRegistered(channel))
+        if (!registry.isRegistered(channel))
             return false;
         if (!channel.hasAttr(SourceRcon.AUTHENTICATED))
             return false;
@@ -398,10 +407,6 @@ public final class SourceRconAuthProxy implements Closeable {
         }
     }
 
-    private static final AttributeKey<SourceRconRequest> AUTH_RCON_REQUEST = AttributeKey.valueOf("rconAuthRequest");
-
-    private static final AttributeKey<CompletableFuture<SourceRconResponse>> AUTH_RCON_PROMISE = AttributeKey.valueOf("rconAuthPromise");
-
     //1) acquire a new channel
     //2) wrap channeel and enqueue into a parcel
     private CompletableFuture<Parcel> createParcel(final InetSocketAddress address, SourceRconRequest request) {
@@ -436,7 +441,8 @@ public final class SourceRconAuthProxy implements Closeable {
      */
     private CompletableFuture<Channel> acquire(final Envelope<SourceRconRequest> envelope) {
         log.debug("AUTH => Acquiring channel for envelope '{}'", envelope);
-        return acquireExecutor.getStageAsync(context -> messenger.getChannelFactory().create(envelope)).thenCompose(this::register).handle(statistics);
+        EventLoop el = messenger.getExecutor().next();
+        return acquireExecutor.with(el).getStageAsync(context -> messenger.getChannelFactory().create(envelope, el)).thenComposeAsync(this::register, el).handleAsync(statistics, el);
     }
 
     @ApiStatus.Experimental
@@ -446,37 +452,10 @@ public final class SourceRconAuthProxy implements Closeable {
     }
 
     /**
-     * Removes a registered {@link Channel} from the registry.
-     *
-     * @param channel
-     *         The {@link Channel} to be removed
-     */
-    private void unregister(Channel channel) {
-        if (!isRegistered(channel))
-            return;
-        synchronized (channels) {
-            channel.attr(SourceRcon.AUTHENTICATED).set(null);
-            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-            if (channels.remove(address, channel)) {
-                if (log.isDebugEnabled()) {
-                    Credentials credentials = credentialsManager.get(address);
-                    boolean isValid = credentials != null && credentials.isValid();
-                    log.debug("{} AUTH => Unregistered channel '{}' from address entry '{}' (Address Valids: {})", NettyUtil.id(channel), channel, channel.remoteAddress(), isValid);
-                }
-            }
-        }
-    }
-
-    /**
      * Cleanup inactive connctions
      */
     public void cleanup() {
         this.scheduler.execute(new InactivityCheckTask(true));
-    }
-
-    public boolean isRegistered(Channel channel) {
-        Objects.requireNonNull(channel, "Channel is null");
-        return channels.containsValue(channel);
     }
 
     /**
@@ -493,7 +472,7 @@ public final class SourceRconAuthProxy implements Closeable {
      *         {@code true} if we should only invalidate the {@link Channel}'s for the specified address.
      */
     public void invalidate(boolean onlyConnections) {
-        for (InetSocketAddress address : channels.keySet())
+        for (InetSocketAddress address : registry.getAddresses())
             invalidate(address, onlyConnections);
     }
 
@@ -517,12 +496,10 @@ public final class SourceRconAuthProxy implements Closeable {
         log.debug("AUTH => Invalidating address '{}'", address);
         if (!connectionsOnly)
             credentialsManager.invalidate(address);
-        synchronized (channels) {
-            for (Channel channel : channels.get(address)) {
-                Objects.requireNonNull(channel);
-                channel.attr(SourceRcon.AUTHENTICATED).set(false);
-                log.debug("{} AUTH => Invalidated channel. Marked for re-authentication", NettyUtil.id(channel));
-            }
+        for (Channel channel : registry.getChannels(address)) {
+            Objects.requireNonNull(channel);
+            channel.attr(SourceRcon.AUTHENTICATED).set(false);
+            log.debug("{} AUTH => Invalidated channel. Marked for re-authentication", NettyUtil.id(channel));
         }
     }
 
@@ -536,39 +513,6 @@ public final class SourceRconAuthProxy implements Closeable {
         } else {
             log.debug("PROXY (CLOSE) => Rcon auth proxy shutdown failed");
         }
-    }
-
-    /**
-     * Remove the {@link Channel} from the registry on close
-     *
-     * @param channel
-     *         The {@link Channel} to track
-     */
-    private void unregisterOnClose(Channel channel) {
-        Objects.requireNonNull(channel, "Channel is null");
-        if (channel.closeFuture().isDone()) {
-            cleanup(channel);
-        } else {
-            channel.closeFuture().addListener((ChannelFutureListener) future -> cleanup(channel));
-        }
-    }
-
-    private void cleanup(Channel channel) {
-        assert !channel.isActive();
-        if (channel.eventLoop().inEventLoop()) {
-            cleanup0(channel);
-        } else {
-            channel.eventLoop().execute(() -> cleanup0(channel));
-        }
-    }
-
-    private void cleanup0(Channel channel) {
-        assert channel.eventLoop().inEventLoop();
-        if (channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown())
-            return;
-        unregister(channel);
-        statistics.remove(channel);
-        NettyUtil.releaseOrClose(channel);
     }
 
     private static void checkAddress(SocketAddress address) {
@@ -601,34 +545,30 @@ public final class SourceRconAuthProxy implements Closeable {
             final int closeDuration = messenger.getOrDefault(SourceRconOptions.CLOSE_INACTIVE_CHANNELS);
             if (closeDuration < 0)
                 return;
-            //close unused connections
-            synchronized (channels) {
-                for (InetSocketAddress address : channels.keySet()) {
-                    Set<Channel> channelList = channels.get(address);
+            final Set<Map.Entry<InetSocketAddress, Channel>> entries = registry.getEntries();
+            for (Map.Entry<InetSocketAddress, Channel> entry : entries) {
+                InetSocketAddress address = entry.getKey();
+                Channel channel = entry.getValue();
+                int cRemaining = registry.getCount(address);
+                int ctr = 0;
 
-                    int cRemaining = channelList.size();
-                    int ctr = 0;
+                //ignore channels that are currently in-use
+                if (NettyChannelPool.isPooled(channel))
+                    continue;
 
-                    for (final Channel channel : channelList) {
-                        //ignore channels that are currently in-use
-                        if (NettyUtil.isPooled(channel))
-                            continue;
-                        Metadata metadata = statistics.getMetadata(channel);
-                        long lastAcquiredDuration = metadata.getLastAcquiredDuration();
-                        int remaining = channels.get(address).size();
-                        if (remaining == 1 || cRemaining == 1)
-                            continue;
-                        //close channels having:
-                        //- 0 acquire count
-                        //- Last acquired duration >= closeDuration
-                        if (force || (metadata.getAcquireSuccess() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
-                            log.info("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {})", ++ctr, channel, metadata.getAcquireSuccess(), metadata.getLastAcquiredDuration(), isRegistered(channel));
-                            final String id = channel.id().asShortText();
-                            //NettyUtil.release(channel).thenAccept(channelPool -> log.debug("AUTH (CLEANUP) => Released channel '{}' from channel pool", id));
-                            NettyUtil.close(channel).thenAccept(unused -> log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id));
-                            cRemaining--;
-                        }
-                    }
+                Metadata metadata = statistics.getMetadata(channel);
+                long lastAcquiredDuration = metadata.getLastAcquiredDuration();
+                int remaining = registry.getChannels(address).size();
+                if (remaining == 1 || cRemaining == 1)
+                    continue;
+
+                //close channels having:
+                //- 0 acquire count
+                //- Last acquired duration >= closeDuration
+                if (force || (metadata.getAcquireCount() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
+                    log.info("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {}, Remaining: {})", ++ctr, channel, metadata.getAcquireCount(), metadata.getLastAcquiredDuration(), registry.isRegistered(channel), cRemaining);
+                    final String id = channel.id().asShortText();
+                    NettyUtil.close(channel).thenAcceptAsync(unused -> log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id), channel.eventLoop());
                 }
             }
         }
@@ -638,75 +578,109 @@ public final class SourceRconAuthProxy implements Closeable {
     //<editor-fold desc="Statistics">
     public static class Metadata {
 
-        private int acquireCount = 0;
+        public enum Stats {
+            ACQUIRE_COUNT(Integer.class, "channelStatsAcquireCount"),
+            LAST_ACQUIRE_MILLIS(Long.class, "channelStatsLastAcquiredDurationMillis");
 
-        private int failCount = 0;
+            private final Class<?> type;
 
-        private long lastAcquireMillis;
+            private final AttributeKey<?> key;
 
-        private int getAcquireSuccess() {
-            return acquireCount;
+            Stats(Class<?> type, String key) {
+                this.type = type;
+                this.key = AttributeKey.valueOf(type, key);
+            }
+
+            public Class<?> type() {
+                return type;
+            }
+
+            public <V> AttributeKey<V> key() {
+                //noinspection unchecked
+                return (AttributeKey<V>) key;
+            }
+
+            public <V> V value(Channel channel) {
+                Objects.requireNonNull(channel, "Channel must not be null");
+                //noinspection unchecked
+                return (V) channel.attr(key()).get();
+            }
+
+            public <V> void value(Channel channel, V value) {
+                channel.attr(key()).set(value);
+            }
+
+            public boolean exists(Channel channel) {
+                return channel.hasAttr(key()) && channel.attr(key()).get() != null;
+            }
+
+            public <V extends Number> V increment(Channel channel) {
+                if (!(Number.class.isAssignableFrom(type())))
+                    throw new IllegalStateException("Cannot incremement a stat that is not a number type");
+                //noinspection unchecked
+                return (V) NettyUtil.incrementAttrNumber(channel, this.key());
+            }
         }
 
-        private int getAcquireFail() {
-            return failCount;
+        private final WeakReference<Channel> channelRef;
+
+        public Metadata(Channel channel) {
+            this.channelRef = new WeakReference<>(channel);
         }
 
-        private long getLastAcquiredDuration() {
-            return acquireCount > 0 ? Duration.ofMillis(System.currentTimeMillis() - lastAcquireMillis).getSeconds() : -1;
+        private Channel channel() {
+            Channel channel = this.channelRef.get();
+            if (channel == null)
+                throw new IllegalStateException("Channel no longer available");
+            return channel;
         }
 
-        private long getLastAcquiredDurationMillis() {
-            return acquireCount > 0 ? System.currentTimeMillis() - lastAcquireMillis : -1;
+        public int getAcquireCount() {
+            return (int) channel().attr(Stats.ACQUIRE_COUNT.key()).get();
+        }
+
+        public long getLastAcquiredDuration() {
+            long lastAcquireMillis = Stats.LAST_ACQUIRE_MILLIS.value(channel());
+            return getAcquireCount() > 0 ? Duration.ofMillis(System.currentTimeMillis() - lastAcquireMillis).getSeconds() : -1;
+        }
+
+        public long getLastAcquiredDurationMillis() {
+            long lastAcquireMillis = Stats.LAST_ACQUIRE_MILLIS.value(channel());
+            return getAcquireCount() > 0 ? System.currentTimeMillis() - lastAcquireMillis : -1;
         }
     }
 
     public class Statistics implements BiFunction<Channel, Throwable, Channel> {
 
-        private final ConcurrentHashMap<Channel, Metadata> counter = new ConcurrentHashMap<>();
+        private final ChannelFutureListener REMOVE_ON_CLOSE = future -> {
+            log.debug("STATISTICS (CLEANUP) => Removing channel '{}'", future.channel());
+            remove(future.channel());
+        };
+
+        //lookup by channel id since PooledChannel and Channel equals are not symmetrical
+        private Metadata getMetadata(Channel channel) {
+            return new Metadata(channel);
+        }
 
         @Override
         public Channel apply(Channel channel, Throwable error) {
-            if (channel != null) {
-                Metadata stat = counter.get(channel);
-                if (stat == null) {
-                    Metadata metadata = new Metadata();
-                    if (error != null) {
-                        metadata.failCount = 1;
-                    } else {
-                        metadata.acquireCount = 1;
-                        metadata.lastAcquireMillis = System.currentTimeMillis();
-                    }
-                    counter.put(channel, metadata);
-                } else {
-                    if (error != null) {
-                        stat.failCount = stat.failCount + 1;
-                    } else {
-                        stat.lastAcquireMillis = System.currentTimeMillis();
-                        stat.acquireCount = stat.acquireCount + 1;
-                    }
-                }
-            }
-            //make sure we propagatee the error down the chain
-            if (error != null && channel == null) {
+            if (error != null) {
                 if (error instanceof CompletionException)
                     throw (CompletionException) error;
                 else
                     throw new CompletionException(error);
+            } else {
+                assert channel != null;
+                //reset attributes if channel was closed
+                if (!Metadata.Stats.ACQUIRE_COUNT.exists(channel)) {
+                    log.debug("{} STATISTICS => Initializing stats for channel '{}'", NettyUtil.id(channel), channel);
+                    //remove entry on close
+                    channel.closeFuture().addListener(REMOVE_ON_CLOSE);
+                }
+                Metadata.Stats.ACQUIRE_COUNT.increment(channel);
+                Metadata.Stats.LAST_ACQUIRE_MILLIS.value(channel, System.currentTimeMillis());
             }
             return channel;
-        }
-
-        public void reset() {
-            counter.clear();
-        }
-
-        public List<InetSocketAddress> getAddressList() {
-            return counter.keySet().stream().map(Channel::remoteAddress).map(InetSocketAddress.class::cast).distinct().collect(Collectors.toList());
-        }
-
-        public List<Channel> getChannels(InetSocketAddress address) {
-            return counter.keySet().stream().filter(a -> a.remoteAddress().equals(address)).sorted().collect(Collectors.toList());
         }
 
         public void print() {
@@ -739,46 +713,30 @@ public final class SourceRconAuthProxy implements Closeable {
             }
 
             print(output, LINE);
-            final List<InetSocketAddress> addressList = getAddressList();
+            final List<InetSocketAddress> addressList = new ArrayList<>(registry.getAddresses());
             for (int i = 0, distinctAddressesSize = addressList.size(); i < distinctAddressesSize; i++) {
                 final InetSocketAddress address = addressList.get(i);
-                List<Channel> channels = getChannels(address);
-                int totalAcquireCount = getTotalAcquireSuccess(channels);
-                int totalFailedAquires = getTotalAcquireFail(channels);
-
-                print(output, "%d) Address: %s (Successful Acquires: %d, Failed Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, totalFailedAquires, channels.size(), isAuthenticated(address) ? "YES" : "NO");
+                List<Channel> channels = new ArrayList<>(registry.getChannels(address));
+                int totalAcquireCount = getTotalAcquireCount(channels);
+                print(output, "%d) Address: %s (Successful Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, channels.size(), isAuthenticated(address) ? "YES" : "NO");
                 for (int j = 0; j < channels.size(); j++) {
                     Channel channel = channels.get(j);
-                    Metadata metadata = counter.get(channel);
-                    print(output, "\t%d) Channel: %s, Acquire: [Success: %d, Fail: %d], Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.acquireCount, metadata.failCount, channel.isActive(), SourceRconAuthProxy.this.isAuthenticated(channel), NettyUtil.isPooled(channel) ? "YES" : "NO", TimeUtil.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), NettyUtil.getThreadName(channel));
+                    Metadata metadata = getMetadata(channel);//counter.get(channel);
+                    print(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), SourceRconAuthProxy.this.isAuthenticated(channel), NettyUtil.isPooled(channel) ? "YES" : "NO", TimeUtil.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), NettyUtil.getThreadName(channel));
                 }
             }
             print(output, LINE);
         }
 
         private void remove(Channel channel) {
-            counter.remove(channel);
+            for (Metadata.Stats stat : Metadata.Stats.values()) {
+                log.debug("{} STATISTICS => Clearing stats for channel '{}'", NettyUtil.id(channel), channel);
+                channel.attr(stat.key()).set(null);
+            }
         }
 
-        private Map<Channel, Metadata> getMetadataMap() {
-            return new HashMap<>(counter);
-        }
-
-        private int getTotalAcquireSuccess(List<Channel> channels) {
-            return counter.entrySet().stream().filter(p -> channels.contains(p.getKey())).map(Map.Entry::getValue).mapToInt(Metadata::getAcquireSuccess).sum();
-        }
-
-        private int getTotalAcquireFail(List<Channel> channels) {
-            return counter.entrySet().stream().filter(p -> channels.contains(p.getKey())).map(Map.Entry::getValue).mapToInt(Metadata::getAcquireFail).sum();
-        }
-
-        private long getLastAcquired(Channel channel) {
-            Metadata channelStat = counter.get(channel);
-            return channelStat.acquireCount > 0 ? Duration.ofMillis(System.currentTimeMillis() - channelStat.lastAcquireMillis).getSeconds() : -1;
-        }
-
-        private Metadata getMetadata(Channel channel) {
-            return counter.get(channel);
+        private int getTotalAcquireCount(List<Channel> channels) {
+            return channels.stream().filter(Metadata.Stats.ACQUIRE_COUNT::exists).mapToInt(Metadata.Stats.ACQUIRE_COUNT::value).sum();
         }
 
         private int getCorePoolSize(Executor executor) {
@@ -864,6 +822,7 @@ public final class SourceRconAuthProxy implements Closeable {
     }
     //</editor-fold>
 
+    @Deprecated
     private static class Parcel {
 
         private final Envelope<SourceRconRequest> envelope;
@@ -943,9 +902,6 @@ public final class SourceRconAuthProxy implements Closeable {
     private static class RconHelper {
 
         public Parcel validate(Parcel parcel) {
-            /*if (parcel.hasError() || parcel.channel() == null)
-                return parcel;*/
-
             final Envelope<SourceRconRequest> envelope = parcel.envelope();
             final Channel channel = parcel.channel();
 

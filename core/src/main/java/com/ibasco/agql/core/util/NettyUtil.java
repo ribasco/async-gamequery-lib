@@ -64,8 +64,11 @@ public class NettyUtil {
 
     public static final Function<LinkedList<ChannelOutboundHandler>, ChannelHandler> OUTBOUND = LinkedList::pollLast;
 
-    public static CompletableFuture<Channel> replaceExecutor(Channel channel, EventLoop eventLoop) {
-        return NettyUtil.toCompletable(channel.deregister()).thenCompose(ch -> NettyUtil.toCompletable(eventLoop.register(ch)));
+    public static CompletableFuture<Channel> useEventLoop(CompletableFuture<Channel> channelFuture, EventLoop eventLoop) {
+        return channelFuture.thenApplyAsync(ChannelOutboundInvoker::deregister, eventLoop)
+                .thenComposeAsync(NettyUtil::toCompletable, eventLoop)
+                .thenApplyAsync(eventLoop::register, eventLoop)
+                .thenComposeAsync(NettyUtil::toCompletable, eventLoop);
     }
 
     public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf, Integer limit) {
@@ -145,6 +148,7 @@ public class NettyUtil {
         if (!isPooled(ch))
             return CompletableFuture.completedFuture(null);
         final NettyChannelPool pool = NettyChannelPool.getPool(ch);
+        assert pool != null;
         return pool.release(ch);
     }
 
@@ -344,6 +348,7 @@ public class NettyUtil {
 
     public static CompletableFuture<Void> close(Channel channel) {
         CompletableFuture<Void> cf = new CompletableFuture<>();
+
         ChannelFuture future = channel.close();
         if (future.isDone()) {
             if (future.isSuccess()) {
@@ -396,8 +401,37 @@ public class NettyUtil {
         }
     }
 
+    public static <V extends Number> Number incrementAttrNumber(Channel channel, AttributeKey<V> stat) {
+        Attribute<V> attr = channel.attr(stat);
+        Number oldValue = attr.get();
+        Number newValue;
+        if (oldValue == null) {
+            newValue = 1;
+            //noinspection unchecked
+            attr.set((V) newValue);
+        } else {
+            if (oldValue instanceof Integer) {
+                newValue = attr.get().intValue() + 1;
+            } else if (oldValue instanceof Long) {
+                newValue = attr.get().longValue() + 1;
+            } else if (oldValue instanceof Double) {
+                newValue = attr.get().doubleValue() + 1;
+            } else if (oldValue instanceof Float) {
+                newValue = attr.get().floatValue() + 1;
+            } else if (oldValue instanceof Byte) {
+                newValue = attr.get().byteValue() + 1;
+            } else if (oldValue instanceof Short) {
+                newValue = attr.get().shortValue() + 1;
+            } else {
+                throw new IllegalStateException("Unsupported number type: " + oldValue.getClass());
+            }
+            //noinspection unchecked
+            attr.set((V) newValue);
+        }
+        return newValue;
+    }
+
     private static AttributeKey<NettyChannelPool> getChannelPoolKey() {
         return SimpleNettyChannelPool.getChannelPoolKey();
     }
-
 }

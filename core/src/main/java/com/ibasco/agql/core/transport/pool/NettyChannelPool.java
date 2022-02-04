@@ -112,7 +112,9 @@ public interface NettyChannelPool extends Closeable {
      * @return The {@link NettyChannelPool} or {@code null} if the {@link Channel} was not acquired from a {@link NettyChannelPool}
      */
     static NettyChannelPool getPool(Channel channel) {
-        if (channel == null || !channel.hasAttr(CHANNEL_POOL))
+        if (channel == null)
+            throw new IllegalArgumentException("Channel must not be null");
+        if (!channel.hasAttr(CHANNEL_POOL))
             return null;
         return channel.attr(CHANNEL_POOL).get();
     }

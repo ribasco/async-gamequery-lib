@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,11 @@ import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
-import org.jetbrains.annotations.ApiStatus;
 
 import java.util.concurrent.Executor;
 
 /**
- * A collection of global configuration {@link Option} instances for the underlying {@link Transport}
+ * A collection of global configuration {@link Option}s to be used by the underlying {@link Transport}
  *
  * @author Rafael Luis Ibasco
  */
@@ -92,6 +91,11 @@ public final class TransportOptions {
      */
     public static final Option<Integer> POOL_ACQUIRE_MAX = Option.createOption("maxPendingAcquires", Integer.MAX_VALUE);
 
+    /**
+     * The action that will be executed once an acquire timeout is thrown
+     *
+     * @see com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction
+     */
     public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.createOption("acquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
 
     /**
@@ -140,20 +144,8 @@ public final class TransportOptions {
 
     /**
      * Use a custom {@link EventLoopGroup} that will be used by the underlying {@link Transport}
-     *
-     * @see #THREAD_EL_SIZE
      */
     public static final Option<EventLoopGroup> THREAD_EL_GROUP = Option.createOption("eventLoopGroup");
-
-    /**
-     * The number of threads that will be used by the {@link EventLoopGroup}. If providing a custom {@link Executor}, make sure that the value is not greater than the {@link Executor}'s core pool size.
-     * If 0 is provided, the value will automatically be computed based on the number of available cores of the current system.
-     *
-     * @see #POOL_MAX_CONNECTIONS
-     * @see #THREAD_POOL_EXECUTOR
-     */
-    @ApiStatus.Experimental
-    public static final Option<Integer> THREAD_EL_SIZE = Option.createOption("threadElSize", Platform.DEFAULT_THREAD_SIZE);
 
     /**
      * When the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating. Time unit is in milliseconds.

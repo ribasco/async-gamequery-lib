@@ -54,7 +54,7 @@ import java.util.function.Consumer;
  *
  *     service.setLogEventCallback(SourceLogEventHandler::handleLogMessages);
  *     service.listen(); //non-blocking
- *     service.listen().join(); //blocking (will wait until close() is called or due to interruption)
+ *     service.listen().join(); //blocking (will wait until close() is called or until the service is closed)
  *
  *     public class SourceLogEventPrinter {
  *         public static void handleLogMessages(SourceLogEntry logEntry) {
@@ -240,7 +240,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Tries to shutdown the listener gracefully</p>
      *
-     * @deprecated Use {@link #close()}
+     * @deprecated Use {@link #close()} instead. This will be removed in future versions
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval

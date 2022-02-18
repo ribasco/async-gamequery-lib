@@ -91,7 +91,7 @@ public class SourceLogListenService implements Closeable {
     }
 
     /**
-     * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on.</p>
+     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
      *         An {@link InetSocketAddress} where the listen service will bind or listen on
@@ -101,8 +101,7 @@ public class SourceLogListenService implements Closeable {
     }
 
     /**
-     * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on and utilizing
-     * the callback specified to notify listeners of source log events</p>
+     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
      *         The {@link InetSocketAddress} to listen on
@@ -114,8 +113,7 @@ public class SourceLogListenService implements Closeable {
     }
 
     /**
-     * <p>Creates a new service using the specified {@link InetSocketAddress} to listen on and utilizing
-     * the callback specified to notify listeners of source log events</p>
+     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
      *         The {@link InetSocketAddress} to listen on

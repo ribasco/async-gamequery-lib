@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,8 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
@@ -43,15 +41,16 @@ public class ReadTimeoutHandler extends IdleStateHandler {
     @Override
     protected final void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
         assert evt.state() == IdleState.READER_IDLE;
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         //do not throw timeout exceptions for channels with no request associated
-        if (ctx.channel().hasAttr(NettyChannelAttributes.REQUEST) && ctx.channel().attr(NettyChannelAttributes.REQUEST).get() == null) {
+        if (context.properties().envelope() == null || context.properties().responsePromise().isDone()) {
             log.debug("{} INB => No request associated with channel. Not firing timeout", NettyUtil.id(ctx.channel()));
             return;
         }
-        readTimedOut(ctx, ctx.channel().attr(NettyChannelAttributes.REQUEST).get());
+        readTimedOut(ctx);
     }
 
-    protected void readTimedOut(ChannelHandlerContext ctx, Envelope<AbstractRequest> request) throws Exception {
+    protected void readTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {
             log.debug("{} INB => Firing ReadTimeoutException (Time: {} ms)", NettyUtil.id(ctx.channel()), getReaderIdleTimeInMillis());
             ctx.fireExceptionCaught(ReadTimeoutException.INSTANCE);

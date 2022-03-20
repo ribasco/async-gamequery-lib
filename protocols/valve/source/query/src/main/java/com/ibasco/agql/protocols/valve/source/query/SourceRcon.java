@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,15 +16,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacket;
-import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.EventLoop;
-import io.netty.channel.pool.ChannelHealthChecker;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.Future;
 import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.ApiStatus;
 
@@ -37,16 +34,6 @@ import java.util.Objects;
  */
 @ApiStatus.Internal
 public final class SourceRcon {
-
-    public static ChannelHealthChecker CHANNEL_AUTHENTICATED = new ChannelHealthChecker() {
-        @Override
-        public Future<Boolean> isHealthy(Channel channel) {
-            EventLoop el = channel.eventLoop();
-            if (!channel.hasAttr(AUTHENTICATED) || channel.attr(AUTHENTICATED) == null)
-                return el.newSucceededFuture(false);
-            return (channel.isActive() && channel.attr(AUTHENTICATED).get()) ? el.newSucceededFuture(true) : el.newSucceededFuture(false);
-        }
-    };
 
     public static final ThreadGroup DEFAULT_THREAD_GROUP = Platform.creeateThreadGroup(SourceRcon.class);
 
@@ -88,7 +75,7 @@ public final class SourceRcon {
     /**
      * Flag indicating that the channel has been successfully authenticated by the remote server
      */
-    public static final AttributeKey<Boolean> AUTHENTICATED = AttributeKey.valueOf("rconAuthenticated");
+    //public static final AttributeKey<Boolean> AUTHENTICATED = AttributeKey.valueOf("rconAuthenticated");
 
     /**
      * Flag indicating that the channel has been invalidated and needs to be re-authenticated
@@ -285,6 +272,10 @@ public final class SourceRcon {
                 return "Unknown";
             }
         }
+    }
+
+    public static SourceRconAuthRequest createAuthRequest(Credentials credentials) {
+        return createAuthRequest(credentials.getPassphrase());
     }
 
     public static SourceRconAuthRequest createAuthRequest(byte[] password) {

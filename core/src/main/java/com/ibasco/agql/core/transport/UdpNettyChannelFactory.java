@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport.udp;
+package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
-import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 
-import java.util.Objects;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,19 +30,30 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-public class UdpNettyChannelFactory extends BootstrapNettyChannelFactory {
+public class UdpNettyChannelFactory extends AbstractNettyChannelFactory {
 
     private final boolean connectionless;
 
-    public UdpNettyChannelFactory(NettyChannelHandlerInitializer initializer, Options options, boolean connectionless) {
-        super(TransportType.UDP, initializer, options);
+    public UdpNettyChannelFactory(final Options options, final boolean connectionless) {
+        this(options, null, connectionless);
+    }
+
+    public UdpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver, final boolean connectionless) {
+        super(TransportType.UDP, options, resolver);
         this.connectionless = connectionless;
     }
 
     @Override
-    public CompletableFuture<Channel> create(Envelope<? extends AbstractRequest> envelope) {
-        Objects.requireNonNull(envelope, "Envelope is null");
-        Bootstrap bootstrap = getBootstrap().clone().localAddress(envelope.sender()).remoteAddress(envelope.recipient());
+    protected CompletableFuture<Channel> newChannel(final Object data) {
+        final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
+        final InetSocketAddress localAddress = getResolver().resolveLocalAddress(data);
+        final Bootstrap bootstrap = getBootstrap().clone();
+        //optional
+        if (localAddress != null)
+            bootstrap.localAddress(localAddress);
+        else
+            bootstrap.localAddress(0);
+        bootstrap.remoteAddress(remoteAddress);
         return NettyUtil.toCompletable((connectionless) ? bootstrap.bind() : bootstrap.connect());
     }
 }

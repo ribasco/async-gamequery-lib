@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,16 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.nio.ByteOrder;
@@ -57,22 +61,29 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
     protected final Object decodePacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket packet) {
         //did we receive a challenge response from the server?
         if (packet.getHeader() == SourceQuery.SOURCE_QUERY_CHALLENGE_RES) {
+            Envelope<AbstractRequest> envelope = getRequest();
             int challenge = packet.content().readIntLE();
             //if auto update is not set, throw an exception instead
             if (!request.isAutoUpdate()) {
                 debug("Auto-Update challenge is disabled. Exception will be thrown");
-                ctx.fireExceptionCaught(new SourceChallengeException(String.format("Server '%s' responded with a challenge number: '%d' (%s). Please re-send the request using the received challenge number.", getResponse().sender(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN)), challenge));
+                ctx.fireExceptionCaught(new SourceChallengeException(String.format("Server '%s' responded with a challenge number: '%d' (%s). Please re-send the request using the received challenge number.", envelope.recipient(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN)), challenge));
                 return null;
             }
             debug("Got challenge response: {} ({})", challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN));
             debug("Resending '{}' request with challenge (Challenge: {} ({}), Destination: {})", request.getClass().getSimpleName(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN), getRequest().recipient());
             request.setChallenge(challenge);
-            ctx.channel().writeAndFlush(
-                    MessageEnvelopeBuilder
-                            .createNew()
-                            .message(request)
-                            .recipient(getRequest().recipient())
-                            .build());
+            //resend auth request
+            Envelope<AbstractRequest> reauthRequest = MessageEnvelopeBuilder.createFrom(getRequest(), request).build();
+            ChannelFuture writeFuture = ctx.channel().writeAndFlush(reauthRequest);
+            if (writeFuture.isDone()) {
+                if (writeFuture.isSuccess()) {
+                    debug("Successfully sent re-auth request to the pipline: {}", reauthRequest);
+                } else {
+                    ctx.channel().pipeline().fireExceptionCaught(writeFuture.cause());
+                }
+            } else {
+                writeFuture.addListener(ChannelFutureListener.FIRE_EXCEPTION_ON_FAILURE);
+            }
             return null;
         }
         return decodeQueryPacket(ctx, request, packet);

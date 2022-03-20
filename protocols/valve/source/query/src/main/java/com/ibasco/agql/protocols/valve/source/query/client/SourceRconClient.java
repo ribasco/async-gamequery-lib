@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,10 @@
 
 package com.ibasco.agql.protocols.valve.source.query.client;
 
-import com.ibasco.agql.core.NettyClient;
+import com.ibasco.agql.core.Credentials;
+import com.ibasco.agql.core.CredentialsStore;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.NettySocketClient;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.*;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
@@ -37,7 +39,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol Specifications</a>
  */
-public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconRequest, SourceRconResponse> {
+public final class SourceRconClient extends NettySocketClient<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
@@ -83,14 +85,14 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, SourceRconRequest, SourceRconResponse> createMessenger(Options options) {
+    protected NettyMessenger<SourceRconRequest, SourceRconResponse> createMessenger(Options options) {
         if (this.sendTerminatingPacket != null)
             options.add(SourceRconOptions.USE_TERMINATOR_PACKET, this.sendTerminatingPacket);
         return new SourceRconMessenger(options);
     }
 
     /**
-     * <p>Send an authentication request to the Server for the specified address. Upon successful authentication, the credentials for the specified address will be registered and stored in-memory.
+     * <p>Send an authentication request to the Server for the specified address. If successful, the credentials for the specified address will be registered and stored in-memory.
      * New connections will automatically be authenticated, so there is no need to call this method for every command request unless the credentials have been invalidated</p>
      *
      * @param address
@@ -109,8 +111,8 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     /**
-     * <p>Send an authentication request to the Server for the specified address. Upon successful authentication, the credentials for the specified address will be registered and stored in-memory.
-     * New connections will automatically be authenticated, so there is no need to call this method for every command request unless the credentials have been invalidated</p>
+     * <p>Send an authentication request to the server for the specified address. If successful, the credentials for the specified address will be registered and stored in-memory.
+     * New connections will automatically be authenticated, so there is no need to call this method for every command request unless the connection or credentials have been invalidated by the remote server</p>
      *
      * @param address
      *         The address of the source server
@@ -122,11 +124,14 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      *
      * @throws IllegalArgumentException
      *         Thrown when the address or password supplied is empty or null
+     * @see SourceRconOptions#CREDENTIALS_STORE
+     * @see CredentialsStore
+     * @see Credentials
      */
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address, byte[] password) {
         if (password == null || password.length == 0)
             throw new IllegalArgumentException("Password is empty");
-        return send(address, new SourceRconAuthRequest(password), SourceRconAuthResponse.class).thenApply(SourceRconAuthResponse::toAuthStatus);
+        return send(address, new SourceRconAuthRequest(password), SourceRconAuthResponse.class).thenApply(SourceRconAuthStatus::new);
     }
 
     /**
@@ -145,7 +150,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     public CompletableFuture<SourceRconAuthStatus> authenticate(InetSocketAddress address) throws RconNotYetAuthException {
         if (!getAuthenticationProxy().isAuthenticated(address))
             throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED, address);
-        return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class).thenApply(SourceRconAuthResponse::toAuthStatus);
+        return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class).thenApply(SourceRconAuthStatus::new);
     }
 
     /**
@@ -234,8 +239,10 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     /**
-     * @return <code>true</code> if the client should re-authenticate on error
+     * @return <code>true</code> if the library should automatically send a re-authentication request once a connection has been invalidated
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public boolean isReauthenticate() {
         return getMessenger().getOrDefault(SourceRconOptions.REAUTHENTICATE);
     }
@@ -250,6 +257,7 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
      * @deprecated Use {@link #SourceRconClient(Options)}
      */
     @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public void setReauthenticate(boolean reauthenticate) {
         getMessenger().set(SourceRconOptions.REAUTHENTICATE, reauthenticate);
     }
@@ -269,12 +277,12 @@ public class SourceRconClient extends NettyClient<InetSocketAddress, SourceRconR
     }
 
     @ApiStatus.Experimental
-    public SourceRconAuthProxy.Statistics getStatistics() {
+    public SourceRconAuthManager.Statistics getStatistics() {
         return getAuthenticationProxy().getStatistics();
     }
 
-    private SourceRconAuthProxy getAuthenticationProxy() {
-        return getMessenger().getAuthenticationProxy();
+    private SourceRconAuthManager getAuthenticationProxy() {
+        return getMessenger().getAuthManager();
     }
 
     @Override

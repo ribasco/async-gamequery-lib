@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,11 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import org.apache.commons.lang3.StringUtils;
@@ -43,7 +46,8 @@ public class MinecraftRconExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         //remember to set the terminator flag to false
-        mcRconClient = new SourceRconClient(false);
+        Options options = OptionBuilder.newBuilder().option(SourceRconOptions.USE_TERMINATOR_PACKET, false).build();
+        mcRconClient = new SourceRconClient(options);
         this.testRcon();
     }
 

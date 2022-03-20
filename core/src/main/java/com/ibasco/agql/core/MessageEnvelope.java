@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,26 +19,19 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.util.NettyUtil;
 
 import java.net.SocketAddress;
-import java.util.concurrent.CompletableFuture;
 
 public class MessageEnvelope<M extends Message> implements Envelope<M> {
-
-    private final CompletableFuture<?> promise;
 
     private SocketAddress sender;
 
     private SocketAddress recipient;
 
-    private Messenger<? extends SocketAddress, AbstractRequest, AbstractResponse> messenger;
-
     private M message;
 
-    public MessageEnvelope(M message, SocketAddress sender, SocketAddress recipient, CompletableFuture<?> promise, Messenger<? extends SocketAddress, AbstractRequest, AbstractResponse> messenger) {
+    public MessageEnvelope(M message, SocketAddress sender, SocketAddress recipient/*, CompletableFuture<?> promise, Messenger<? extends SocketAddress, AbstractRequest, AbstractResponse> messenger*/) {
         this.message = message;
         this.sender = sender;
         this.recipient = recipient;
-        this.promise = promise;
-        this.messenger = messenger;
     }
 
     @Override
@@ -74,25 +67,13 @@ public class MessageEnvelope<M extends Message> implements Envelope<M> {
     }
 
     @Override
-    public <V extends CompletableFuture<A>, A> V promise() {
-        //noinspection unchecked
-        return (V) this.promise;
-    }
-
-    @Override
-    public <A extends SocketAddress> Messenger<A, AbstractRequest, AbstractResponse> messenger() {
-        //noinspection unchecked
-        return (Messenger<A, AbstractRequest, AbstractResponse>) this.messenger;
-    }
-
-    @Override
-    public <A extends SocketAddress> void messenger(Messenger<A, AbstractRequest, AbstractResponse> messenger) {
-        this.messenger = messenger;
+    public Envelope<M> get() {
+        return this;
     }
 
     @Override
     public String toString() {
         String msgType = content() != null ? content().getClass().getSimpleName() : "N/A";
-        return String.format("Msg: %s, Type: %s, From: %s, To: %s (Promise: %s)", NettyUtil.id(this), msgType, sender(), recipient(), promise());
+        return String.format("Msg: %s, Type: %s, From: %s, To: %s", NettyUtil.id(this), msgType, sender(), recipient());
     }
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -14,18 +14,20 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport.pool;
+package com.ibasco.agql.core.exceptions;
 
-import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.pool.ChannelHealthChecker;
-import io.netty.channel.pool.ChannelPool;
-import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.channel.Channel;
 
-public interface ConfigurableChannelPool extends ChannelPool {
+public class NoChannelContextException extends AsyncGameLibUncheckedException {
 
-    Bootstrap bootstrap();
+    private final Channel channel;
 
-    ChannelPoolHandler handler();
+    public NoChannelContextException(String message, Channel channel) {
+        super(message);
+        this.channel = channel;
+    }
 
-    ChannelHealthChecker healthChecker();
+    public final Channel getChannel() {
+        return channel;
+    }
 }

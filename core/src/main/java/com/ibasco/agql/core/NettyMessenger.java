@@ -16,39 +16,41 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ResponseException;
-import com.ibasco.agql.core.transport.*;
-import com.ibasco.agql.core.transport.pool.NettyChannelPool;
+import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Option;
 import com.ibasco.agql.core.util.Options;
-import io.netty.channel.*;
-import io.netty.util.AttributeKey;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler;
+import io.netty.channel.EventLoopGroup;
+import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.SocketAddress;
-import java.util.LinkedList;
-import java.util.Objects;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Base messenger class utiliting Sockets for transport
+ * A Messenger does the following:
  *
- * @param <A>
- *         The type of {@link SocketAddress} which identifies the destination address of the message
+ * <ul>
+ *     <li>Creating, Acquiring, Closing or Releasing system allocated resource</li>
+ *     <li>Preparing the request and send it to the {@link Transport}</li>
+ * </ul>
  *
  * @author Rafael Luis Ibasco
  */
-@SuppressWarnings("unchecked")
-abstract public class NettyMessenger<A extends SocketAddress, R extends AbstractRequest, S extends AbstractResponse> implements Messenger<A, R, S>, NettyChannelHandlerInitializer {
+abstract public class NettyMessenger<R extends AbstractRequest, S extends AbstractResponse> implements Messenger<R, S> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyMessenger.class);
 
-    private static final AttributeKey<CompletableFuture<?>> PROMISE = AttributeKey.valueOf("messengerPromise");
+    private static final NettyChannelFactoryProvider DEFAULT_FACTORY_PROVIDER = new DefaultNettyChannelFactoryProvider();
 
     //<editor-fold desc="Class Members">
     private final Options options;
@@ -57,142 +59,156 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
 
     private final NettyChannelFactory channelFactory;
 
-    private final ThreadLocal<ChannelContext> channelContextMap = new ThreadLocal<>();
-
-    private static final ChannelFutureListener FAIL_ON_CLOSE = future -> {
-        final Channel ch = future.channel();
-        try {
-            CompletableFuture<?> p = ch.attr(PROMISE).get();
-            if (p == null) {
-                log.warn("{} No promise attached to channel: {}", NettyUtil.id(ch), ch);
-                return;
-            }
-            if (p.isDone())
-                return;
-            if (future.isSuccess())
-                p.completeExceptionally(new ChannelClosedException("Connection was dropped by the remote server"));
-            else
-                p.completeExceptionally(new ChannelClosedException("Connection was dropped by the remote server", future.cause()));
-        } finally {
-            ch.attr(PROMISE).set(null);
-        }
-    };
-
-    private final ChannelFutureListener UNREGISTER_ON_CLOSE = future -> {
-        Channel channel = future.channel();
-        if (channel.eventLoop().inEventLoop()) {
-            channelContextMap.remove();
-        } else {
-            channel.eventLoop().execute(channelContextMap::remove);
-        }
-    };
+    private final NettyChannelFactoryProvider factoryProvider;
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
-    protected NettyMessenger(Options options, final NettyChannelFactoryProvider factoryProvider) {
-        Objects.requireNonNull(factoryProvider, "Transport factory provider is missing");
+    protected NettyMessenger(Options options) {
         if (options == null)
             options = new Options(getClass());
         //Apply messenger specific configuration parameters
         configure(options);
+        //Initialize members
         this.options = options;
-        this.channelFactory = factoryProvider.getFactory(options, this);
-        assert this.channelFactory != null;
-        this.transport = new NettyTransport(channelFactory, options);
-
+        this.factoryProvider = newFactoryProvider();
+        this.channelFactory = newChannelFactory();
+        this.transport = new NettyTransport(options);
     }
+
     //</editor-fold>
 
-    //<editor-fold desc="Abstract Methods">
-    abstract public void registerInboundHandlers(LinkedList<ChannelInboundHandler> handlers);
+    //<editor-fold desc="Abstract/Protected Methods">
+    abstract protected NettyChannelFactory newChannelFactory();
 
-    abstract public void registerOutboundHandlers(LinkedList<ChannelOutboundHandler> handlers);
+    protected NettyChannelFactoryProvider newFactoryProvider() {
+        return DEFAULT_FACTORY_PROVIDER;
+    }
     //</editor-fold>
 
     //<editor-fold desc="Public methods">
     @Override
-    public CompletableFuture<S> send(A address, R request) {
-        return send(address, request, (CompletableFuture<Channel>) null);
+    public CompletableFuture<S> send(InetSocketAddress address, R request) {
+        if (address == null)
+            throw new IllegalArgumentException("Address not provided");
+        if (request == null)
+            throw new IllegalArgumentException("Request not provided");
+        //Initialize the context
+        return acquireOrUse(address)
+                .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
+                .thenCompose(this::send)
+                .thenCompose(NettyMessenger::response);
     }
 
-    public CompletableFuture<S> send(R request, Channel channel) {
-        return send(newEnvelope((A) channel.remoteAddress(), request), channel);
+    public CompletableFuture<S> send(Channel channel, R request) {
+        return acquireOrUse(channel)
+                .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
+                .thenCompose(this::send)
+                .thenComposeAsync(NettyMessenger::response, channel.eventLoop());
     }
 
-    public CompletableFuture<S> send(A address, R request, Channel channel) {
-        return send(address, request, CompletableFuture.completedFuture(channel));
-    }
-
-    public CompletableFuture<S> send(A address, R request, CompletableFuture<Channel> channelFuture) {
-        return send(newEnvelope(address, request), channelFuture);
-    }
-
-    public CompletableFuture<S> send(Envelope<R> envelope, Channel channel) {
-        return send(envelope, channel != null ? CompletableFuture.completedFuture(channel) : null);
-    }
-
-    public CompletableFuture<S> send(Envelope<R> envelope, CompletableFuture<Channel> channelFuture) {
-        Objects.requireNonNull(envelope, "Envelope cannot be null");
-        Objects.requireNonNull(envelope.promise(), "Promise is null");
-        if (channelFuture == null) {
-            //log.info("Using event loop: '{}' for new channel", el.threadProperties().name());
-            channelFuture = channelFactory.create(envelope);
+    public <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
+        assert context != null;
+        log.debug("{} MESSENGER => Preparing context for transport (Request: {})", context.id(), context.properties().request());
+        if (context.inEventLoop()) {
+            return context.future()
+                          .thenApply(NettyMessenger::initialize)
+                          .thenCompose(transport::send)
+                          .thenCompose(NettyChannelContext::composedFuture);
+        } else {
+            return context.future()
+                          .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
+                          .thenComposeAsync(transport::send, context.eventLoop())
+                          .thenComposeAsync(NettyChannelContext::composedFuture, context.eventLoop());
         }
-        log.debug("{} SEND => Sending request to transport '{}' (Envelope: {})", NettyUtil.id(envelope.content()), envelope.content().getClass().getSimpleName(), envelope);
-        return transport.send(envelope, channelFuture)
-                        .thenApply(this::initialize)
-                        .thenApply(this::failOnClose)
-                        .thenCompose(this::toResult);
+    }
+    //</editor-fold>
+
+    private CompletableFuture<NettyChannelContext> acquireOrUse(InetSocketAddress address) {
+        return acquireOrUse(address, null);
     }
 
-    @Override
-    public void receive(Envelope<S> envelope, Throwable error) {
+    private CompletableFuture<NettyChannelContext> acquireOrUse(Channel channel) {
+        return acquireOrUse(null, channel);
+    }
+
+    private CompletableFuture<NettyChannelContext> acquireOrUse(InetSocketAddress address, Channel channel) {
+        CompletableFuture<Channel> channelFuture;
+        if (channel == null) {
+            if (address == null)
+                throw new IllegalStateException("Address not provided");
+            channelFuture = channelFactory.create(address);
+        } else {
+            if (address != null && !address.equals(channel.remoteAddress()))
+                throw new IllegalStateException("Address does not match the address on channel: " + channel);
+            channelFuture = CompletableFuture.completedFuture(channel);
+        }
+        return channelFuture.thenApply(NettyChannelContext::getContext);
+    }
+
+    private static NettyChannelContext initialize(final NettyChannelContext context) {
+        if (context.properties().envelope() == null)
+            throw new IllegalStateException("No request is attached to the channel");
+        //Update sender address
+        if (context.channel().localAddress() != null && (context.channel().localAddress() != context.properties().envelope().sender()))
+            context.properties().envelope().sender(context.channel().localAddress());
+        else
+            log.debug("{} MESSENGER => Local address not updated for envelope {}", context.id(), context.properties().envelope());
+        //Reset context properties/promises
+        log.debug("MESSENGER => Prepare request for transport '{}' (Write Promise: {}, Response Promise: {}, Channel: {})", context.properties().request(), context.properties().writePromise(), context.properties().responsePromise(), context.id());
+        context.properties().reset();
+        return context;
+    }
+
+    private static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
+        log.debug("{} MESSENGER => Attaching request '{}' to context", context.id(), request);
+        //update the request in envelope
+        context.properties().request(request);
+        return context;
+    }
+
+    private static <V extends AbstractResponse> CompletableFuture<V> response(NettyChannelContext context) {
+        return context.properties().responsePromise();
+    }
+
+    /**
+     * The method that will be called by the last {@link ChannelHandler} once a response has been received from the remote server.
+     *
+     * @param context
+     *         The {@link NettyChannelContext} contianing all the important transaction details.
+     * @param error
+     *         The error that occured during send/receive operation. {@code null} if no error occured.
+     */
+    @ApiStatus.Internal
+    void receive(@NotNull final NettyChannelContext context, AbstractResponse response, Throwable error) {
+        final Envelope<R> envelope = context.properties().envelope();
+        final CompletableFuture<S> promise = context.properties().responsePromise();
+        assert context.channel().eventLoop().inEventLoop();
+        if (promise == null)
+            throw new IllegalStateException("Response promise not initialized");
+
         try {
             if (log.isDebugEnabled())
-                log.debug("MESSENGER => Received response '{}' (Error: {})", envelope, error == null ? "N/A" : error.getClass().getSimpleName());
-            if (envelope.isCompleted()) {
-                log.debug("MESSENGER => [INVALID] Response '{}' has already been marked as completed. Not notifying client (Promise: {})", envelope, envelope.promise());
+                log.debug("{} MESSENGER => Received response '{}' (Error: {})", context.id(), envelope, error == null ? "N/A" : error.getClass().getSimpleName());
+            if (promise.isDone()) {
+                log.debug("{} MESSENGER => [INVALID] Response '{}' has already been marked as completed. Not notifying client (Promise: {})", context.id(), envelope, promise);
                 return;
             }
             if (error != null) {
-                log.debug("MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", envelope, error.getClass().getSimpleName());
-                envelope.promise().completeExceptionally(new ResponseException(error, envelope.sender()));
+                log.error("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
+                context.markInError(new ResponseException(error, envelope.recipient()));
             } else {
-                S response = envelope.content();
+                assert response != null;
                 if (response.getAddress() == null)
-                    response.setAddress(envelope.sender());
-                envelope.promise().complete(response);
-                log.debug("MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", envelope);
+                    response.setAddress(context.properties().remoteAddress()); //source address
+                //attach response to context and mark as completed
+                if (context.markSuccess(response))
+                    log.debug("{} MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", context.id(), envelope);
             }
+            assert promise.isDone();
         } catch (Throwable e) {
-            if (envelope != null) {
-                if (!envelope.isCompleted())
-                    envelope.promise().completeExceptionally(e);
-            } else {
-                log.error("Error occured during receive() operation", e);
-            }
+            if (!promise.isDone())
+                promise.completeExceptionally(e);
         }
-    }
-
-    private CompletableFuture<S> toResult(Channel channel) {
-        Objects.requireNonNull(channel, "Channel must not be null");
-        if (!channel.eventLoop().inEventLoop()) {
-            throw new IllegalStateException(String.format("Channel '%s' not in event loop (Expected: %s, Actual: %s)", channel, NettyUtil.getThreadName(channel), Thread.currentThread().getName()));
-        }
-        //note: messages sent via transport should always have a request envelope instance present in it's channel's attributes
-        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
-        if (envelope == null)
-            throw new IllegalStateException("Missing request envelope");
-        Objects.requireNonNull(envelope.promise(), "Response promise is null");
-        CompletableFuture<S> promise = envelope.promise();
-        ChannelContext context = channelContextMap.get();
-        if (context == null)
-            throw new IllegalStateException("No channel context found for: " + channel);
-        //ensure we are dealing with thee same channel
-        assert channel.id().equals(context.channel().id());
-        //when the promise completes, then release resources (if any)
-        promise.whenComplete(context::cleanup);
-        return promise;
     }
 
     /**
@@ -213,30 +229,12 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
      *
      * @return An {@link Envelope} containing the request and other details needed by the {@link Transport}
      */
-    public Envelope<R> newEnvelope(A address, R request) {
-        return newEnvelope(address, request, new CompletableFuture<>());
-    }
-
-    /**
-     * Packs the raw request into an envelope containing all the required details of the underlying {@link Transport}
-     *
-     * @param address
-     *         The address of the destination
-     * @param request
-     *         The request to be delivered to the address
-     * @param promise
-     *         The {@link CompletableFuture} that will be noitified once a response has been received from the destination
-     *
-     * @return An {@link Envelope} containing the request and other details needed by the {@link Transport}
-     */
-    public Envelope<R> newEnvelope(A address, R request, CompletableFuture<S> promise) {
-        //log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", NettyUtil.id(request), request.getClass().getSimpleName(), request.id(), address);
+    public final Envelope<R> newEnvelope(InetSocketAddress address, R request) {
+        log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", NettyUtil.id(request), request.getClass().getSimpleName(), request.id(), address);
         return MessageEnvelopeBuilder.createNew()
                                      .fromAnyAddress()
                                      .recipient(address)
                                      .message(request)
-                                     .messenger(this)
-                                     .promise(promise)
                                      .build();
     }
 
@@ -262,9 +260,18 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
     public final NettyChannelFactory getChannelFactory() {
         return channelFactory;
     }
-    //</editor-fold>
 
     //<editor-fold desc="Private/Protected Methods">
+    protected final NettyChannelFactoryProvider getFactoryProvider() {
+        return factoryProvider;
+    }
+
+    private static <V extends AbstractResponse> CompletableFuture<V> fromResponse(final NettyChannelContext context) {
+        assert context.properties().responsePromise() != null;
+        //assert context.properties().responsePromise().isDone();
+        return context.properties().responsePromise();
+    }
+
     /**
      * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
      *
@@ -284,91 +291,5 @@ abstract public class NettyMessenger<A extends SocketAddress, R extends Abstract
         if (!map.contains(option))
             map.add(option, value);
     }
-
-    /**
-     * Fail when {@link Channel} has been closed pre-maturely
-     *
-     * @param channel
-     *         The {@link Channel} to monitor for closure
-     *
-     * @return The {@link Channel}
-     */
-    private Channel failOnClose(Channel channel) {
-        CompletableFuture<?> promise = channel.attr(PROMISE).get();
-        if (promise == null) {
-            throw new IllegalStateException("Missing envelope promise");
-        }
-        ChannelFuture closeFuture = channel.closeFuture();
-        if (closeFuture.isDone()) {
-            try {
-                if (promise.isDone())
-                    return channel;
-                if (closeFuture.isSuccess()) {
-                    promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server"));
-                } else {
-                    promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", closeFuture.cause()));
-                }
-            } finally {
-                channel.attr(PROMISE).set(null);
-            }
-        } else {
-            closeFuture.addListener(FAIL_ON_CLOSE);
-        }
-        return channel;
-    }
-
-    private Channel initialize(Channel channel) {
-        Envelope<AbstractRequest> envelope = channel.attr(NettyChannelAttributes.REQUEST).get();
-        channel.attr(PROMISE).set(envelope.promise());
-        registerContext(channel);
-        return channel;
-    }
-
-    private void registerContext(Channel channel) {
-        if (channel.eventLoop().inEventLoop()) {
-            registerContextIfEmpty(channel);
-        } else {
-            channel.eventLoop().execute(() -> registerContextIfEmpty(channel));
-        }
-    }
-
-    private void registerContextIfEmpty(Channel channel) {
-        assert channel.eventLoop().inEventLoop();
-        ChannelContext context = channelContextMap.get();
-        if (context != null) {
-            if (!context.channel().id().equals(channel.id()))
-                log.debug(String.format("Channel id mismatch (Expeected: %s, Actual: %s)", context.channel(), channel));
-        }
-        channelContextMap.set(new ChannelContext(channel));
-    }
     //</editor-fold>
-
-    private class ChannelContext {
-
-        private final Channel channel;
-
-        private ChannelContext(Channel channel) {
-            this.channel = Objects.requireNonNull(channel, "Channel must not be null");
-            channel.closeFuture().addListener(UNREGISTER_ON_CLOSE);
-        }
-
-        public final Channel channel() {
-            return channel;
-        }
-
-        public void cleanup(S response, Throwable error) {
-            Boolean autoRelease = channel.attr(NettyChannelAttributes.AUTO_RELEASE).get();
-            if (autoRelease) {
-                log.debug("MESSENGER => Releasing channel '{}' (Has Error: {})", response, error != null, error);
-                NettyChannelPool.tryRelease(channel);
-            }
-        }
-
-        @Override
-        public String toString() {
-            if (channel == null)
-                return "N/A";
-            return channel.toString();
-        }
-    }
 }

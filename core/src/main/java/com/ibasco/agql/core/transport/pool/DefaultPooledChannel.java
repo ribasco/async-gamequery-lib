@@ -43,7 +43,7 @@ public class DefaultPooledChannel extends PooledChannel {
 
     private final Channel channel;
 
-    public DefaultPooledChannel(Channel channel) {
+    DefaultPooledChannel(Channel channel) {
         this.channel = channel;
     }
 

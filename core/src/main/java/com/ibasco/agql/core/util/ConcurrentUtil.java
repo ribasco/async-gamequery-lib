@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,6 +27,10 @@ public final class ConcurrentUtil {
 
     private static final Logger log = LoggerFactory.getLogger(ConcurrentUtil.class);
 
+    public static <V> CompletionStage<V> wrap(CompletableFuture<V> future) {
+        return future;
+    }
+
     public static <A, B> B combine(A a, B b) {
         return b;
     }
@@ -34,11 +38,14 @@ public final class ConcurrentUtil {
     public static Throwable unwrap(Throwable error) {
         if (error == null)
             return null;
-        if (error instanceof CompletionException || error instanceof ExecutionException) {
+        if (error.getCause() != null)
+            return error.getCause();
+        return error;
+        /*if (error instanceof CompletionException || error instanceof ExecutionException) {
             return error.getCause();
         } else {
             return error;
-        }
+        }*/
     }
 
     public static void unwrapAndThrow(Throwable error) {
@@ -55,9 +62,18 @@ public final class ConcurrentUtil {
     }
 
     public static <V> CompletableFuture<V> failedFuture(Throwable error) {
-        CompletableFuture<V> future = new CompletableFuture<>();
-        future.completeExceptionally(error);
-        return future;
+        return failedFuture(error, null);
+    }
+
+    public static <V> CompletableFuture<V> failedFuture(Throwable error, Executor executor) {
+        if (executor == null) {
+            CompletableFuture<V> future = new CompletableFuture<>();
+            future.completeExceptionally(error);
+            return future;
+        }
+        return CompletableFuture.supplyAsync(() -> {
+            throw new CompletionException(error);
+        }, executor);
     }
 
     public static <V> CompletableFuture<V> completeExceptionally(CompletableFuture<V> future, Throwable error) {

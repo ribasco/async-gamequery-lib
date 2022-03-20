@@ -16,9 +16,9 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.transport.enums.TransportType;
+import com.ibasco.agql.core.util.Options;
+import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
@@ -28,11 +28,21 @@ import java.util.concurrent.CompletableFuture;
 
 public interface NettyChannelFactory extends Closeable {
 
-    CompletableFuture<Channel> create(final Envelope<? extends AbstractRequest> envelope);
+    CompletableFuture<Channel> create(final Object data);
 
-    default CompletableFuture<Channel> create(final Envelope<? extends AbstractRequest> envelope, EventLoop eventLoop) {
-        return NettyUtil.useEventLoop(create(envelope), eventLoop);
-    }
+    CompletableFuture<Channel> create(final Object data, EventLoop eventLoop);
+
+    TransportType getTransportType();
+
+    NettyChannelInitializer getChannelInitializer();
+
+    void setChannelInitializer(NettyChannelInitializer channelInitializer);
+
+    NettyPropertyResolver getResolver();
 
     EventLoopGroup getExecutor();
+
+    Bootstrap getBootstrap();
+
+    Options getOptions();
 }

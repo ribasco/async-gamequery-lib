@@ -118,7 +118,6 @@ public final class Platform {
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
             final ThreadPoolExecutor executor = getDefaultExecutor();
-
             DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), true);
             //noinspection unchecked
             DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
@@ -127,7 +126,6 @@ public final class Platform {
                         log.debug("Shutting down default global executor");
                         ConcurrentUtil.shutdown(executor);
                     }, "agql-shutdown").start();
-
                 } else {
                     throw new IllegalStateException(future.cause());
                 }

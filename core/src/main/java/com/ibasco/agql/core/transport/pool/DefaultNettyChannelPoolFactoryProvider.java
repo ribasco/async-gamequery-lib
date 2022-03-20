@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +26,7 @@ public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolF
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelPoolFactoryProvider.class);
 
     @Override
-    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final BootstrapNettyChannelFactory channelFactory) {
+    public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final NettyChannelFactory channelFactory) {
         NettyChannelPoolFactory poolFactory;
         switch (type) {
             case ADAPTIVE: {

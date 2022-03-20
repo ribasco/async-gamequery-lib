@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,8 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.MessageEnvelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
@@ -42,6 +40,7 @@ public class MessageEncoder extends MessageToMessageEncoder<Object> {
 
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         log.debug("{} OUT => Intercepted request of type '{}' ({})", NettyUtil.id(ctx.channel()), msg.getClass().getSimpleName(), msg);
 
         if (!(msg instanceof Envelope<?>)) {
@@ -57,13 +56,13 @@ public class MessageEncoder extends MessageToMessageEncoder<Object> {
         }
 
         //update channel attribute request
-        if (envelope instanceof MessageEnvelope<?>) {
-            if (!ctx.channel().hasAttr(NettyChannelAttributes.REQUEST) || ctx.channel().attr(NettyChannelAttributes.REQUEST) == null) {
+        /*if (envelope instanceof MessageEnvelope<?>) {
+            if (context.properties().envelope() == null) {
                 //noinspection unchecked
-                ctx.channel().attr(NettyChannelAttributes.REQUEST).set((Envelope<AbstractRequest>) envelope);
+                context.properties().envelope((Envelope<AbstractRequest>) envelope);
                 log.debug("{} OUT => Updated request attribute to '{}'", NettyUtil.id(ctx.channel()), envelope);
             }
-        }
+        }*/
 
         //unwrap envelope and send it's content
         out.add(ReferenceCountUtil.retain(msg)); //call retain because this decoder will automatically release the message

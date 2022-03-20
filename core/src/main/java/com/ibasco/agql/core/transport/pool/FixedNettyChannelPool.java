@@ -15,20 +15,24 @@
  */
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.channel.Channel;
+import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.pool.ChannelPoolHandler;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutor;
+import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.internal.ObjectUtil;
 import static io.netty.util.internal.ObjectUtil.checkPositive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -77,6 +81,8 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
     private boolean closed;
 
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-pool"));
+
     /**
      * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
      *
@@ -89,7 +95,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         a {@link Channel} will be delayed until a connection is returned to the pool again.
      */
     @SuppressWarnings("unused")
-    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler, int maxConnections) {
         this(channelFactory, handler, maxConnections, Integer.MAX_VALUE);
     }
@@ -109,7 +115,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
      *         be failed.
      */
-    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler, int maxConnections, int maxPendingAcquires) {
         this(channelFactory, handler, ChannelHealthChecker.ACTIVE, null, -1, maxConnections, maxPendingAcquires);
     }
@@ -138,7 +144,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
      *         be failed.
      */
-    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -173,7 +179,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         will check channel health before offering back if this parameter set to
      *         {@code true}.
      */
-    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -210,7 +216,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * @param lastRecentUsed
      *         {@code true} {@link Channel} selection will be LIFO, if {@code false} FIFO.
      */
-    public FixedNettyChannelPool(BootstrapNettyChannelFactory channelFactory,
+    public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
                                  ChannelHealthChecker healthCheck, AcquireTimeoutAction action,
                                  final long acquireTimeoutMillis,
@@ -233,7 +239,6 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                     timeoutTask = new TimeoutTask() {
                         @Override
                         public void onTimeout(AcquireTask task) {
-                            log.info("ACQUIRE TIMEOUT!!!!!!: {}", task.expireNanoTime);
                             // Fail the promise as we timed out.
                             task.promise.completeExceptionally(new AcquireTimeoutException());
                         }
@@ -246,7 +251,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                             // Increment the acquire count and delegate to super to actually acquire a Channel which will
                             // create a new connection.
                             task.acquired();
-                            FixedNettyChannelPool.super.acquire(task.envelope, task.promise);
+                            FixedNettyChannelPool.super.acquire(task.address, task.promise);
                         }
                     };
                     break;
@@ -255,7 +260,17 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
             }
         }
 
-        this.executor = Platform.getDefaultEventLoopGroup().next();
+        EventLoopGroup channelAcquisitionGroup = Platform.createEventLoopGroup(executorService, 1, true);
+        //noinspection unchecked
+        channelAcquisitionGroup.terminationFuture().addListener((GenericFutureListener) future -> {
+            if (future.isSuccess()) {
+                ConcurrentUtil.shutdown(executorService);
+            } else {
+                throw new IllegalStateException(future.cause());
+            }
+        });
+        this.executor = channelAcquisitionGroup.next();
+        log.debug("POOL => Using event loop '{}' for channel acquisition", NettyUtil.getThreadName((EventLoop) executor));
         this.maxConnections = maxConnections;
         this.maxPendingAcquires = maxPendingAcquires;
     }
@@ -267,12 +282,12 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     }
 
     @Override
-    public CompletableFuture<Channel> acquire(final Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise) {
+    public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, final CompletableFuture<Channel> promise) {
         try {
             if (executor.inEventLoop()) {
-                acquireEL(envelope, promise);
+                acquireEL(remoteAddress, promise);
             } else {
-                executor.execute(() -> acquireEL(envelope, promise));
+                executor.execute(() -> acquireEL(remoteAddress, promise));
             }
         } catch (Throwable cause) {
             promise.completeExceptionally(cause);
@@ -280,7 +295,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         return promise;
     }
 
-    private void acquireEL(final Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise) {
+    private void acquireEL(final InetSocketAddress remoteAddress, final CompletableFuture<Channel> promise) {
         try {
             assert executor.inEventLoop();
 
@@ -296,12 +311,12 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                 AcquireListener l = new AcquireListener(promise);
                 l.acquired();
                 p.whenCompleteAsync(l, executor);
-                super.acquire(envelope, p);
+                super.acquire(remoteAddress, p);
             } else {
                 if (pendingAcquireCount >= maxPendingAcquires) {
                     tooManyOutstanding(promise);
                 } else {
-                    AcquireTask task = new AcquireTask(envelope, promise);
+                    AcquireTask task = new AcquireTask(remoteAddress, promise);
                     if (pendingAcquireQueue.offer(task)) {
                         ++pendingAcquireCount;
                         if (timeoutTask != null) {
@@ -383,7 +398,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
             --pendingAcquireCount;
             task.acquired();
 
-            super.acquire(task.envelope, task.promise);
+            super.acquire(task.address, task.promise);
         }
 
         // We should never have a negative value.
@@ -394,7 +409,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     // AcquireTask extends AcquireListener to reduce object creations and so GC pressure
     private final class AcquireTask extends AcquireListener {
 
-        final Envelope<? extends AbstractRequest> envelope;
+        final InetSocketAddress address;
 
         final CompletableFuture<Channel> promise;
 
@@ -402,9 +417,9 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
         ScheduledFuture<?> timeoutFuture;
 
-        AcquireTask(Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> promise) {
+        AcquireTask(final InetSocketAddress address, CompletableFuture<Channel> promise) {
             super(promise);
-            this.envelope = envelope;
+            this.address = address;
             // We need to create a new promise as we need to ensure the AcquireListener runs in the correct
             // EventLoop.
             CompletableFuture<Channel> cf = new CompletableFuture<>();
@@ -428,7 +443,6 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                 if (task == null || nanoTime - task.expireNanoTime < 0) {
                     break;
                 }
-                log.info("ACQUIRE TASK EXPIRED: {}", task.expireNanoTime);
                 pendingAcquireQueue.remove();
 
                 --pendingAcquireCount;
@@ -452,7 +466,6 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         @Override
         public void accept(Channel channel, Throwable error) {
             try {
-                //log.info("ACQUIRE LISTENER: (IN LOOP: {}, THREAD: {})", executor.inEventLoop(), Thread.currentThread().getName());
                 assert executor.inEventLoop();
                 boolean success = error == null && channel != null;
 
@@ -493,6 +506,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     public void close() {
         try {
             closeAsync().get();
+            executor.shutdownGracefully();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);

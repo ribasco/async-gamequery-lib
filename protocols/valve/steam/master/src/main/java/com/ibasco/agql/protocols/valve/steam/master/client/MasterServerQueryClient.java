@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,8 @@
 
 package com.ibasco.agql.protocols.valve.steam.master.client;
 
-import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.NettySocketClient;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-public final class MasterServerQueryClient extends NettyClient<InetSocketAddress, MasterServerRequest, MasterServerResponse> {
+public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
 
     /**
      * Create a new {@link MasterServerQueryClient} client instance using the default configuration options.
@@ -106,7 +106,7 @@ public final class MasterServerQueryClient extends NettyClient<InetSocketAddress
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, MasterServerRequest, MasterServerResponse> createMessenger(Options options) {
+    protected NettyMessenger<MasterServerRequest, MasterServerResponse> createMessenger(Options options) {
         return new MasterServerMessenger(options);
     }
 }

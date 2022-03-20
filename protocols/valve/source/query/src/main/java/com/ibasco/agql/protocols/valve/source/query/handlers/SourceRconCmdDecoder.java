@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconChannelContext;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdRequest;
@@ -52,12 +53,13 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
         //payload is null-terminated, make sure not to include it in the response
         final String result = (String) payload.readCharSequence(payload.capacity() - 1, StandardCharsets.UTF_8);
 
+        SourceRconChannelContext context = SourceRconChannelContext.getContext(ctx.channel());
         //Make sure we are still authenticated.
-        if (!ctx.channel().hasAttr(SourceRcon.AUTHENTICATED) || !ctx.channel().attr(SourceRcon.AUTHENTICATED).get()) {
+        if (!context.properties().authenticated()) {
             debug("NOT_AUTH: Authentication flag is not set (Address: {})", ctx.channel().remoteAddress());
-            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.REAUTHENTICATE, (InetSocketAddress) ctx.channel().remoteAddress());
+            Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.INVALIDATED, (InetSocketAddress) ctx.channel().remoteAddress());
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, false, error);
-        } else if (result != null && (result.contains("Bad Password"))) {
+        } else if (result != null && result.contains("Bad Password")) {
             debug("NOT_AUTH: Found empty or not authenticated response");
             Throwable error = new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", result), SourceRconAuthReason.BAD_PASSWORD, (InetSocketAddress) ctx.channel().remoteAddress());
             response = new SourceRconCmdResponse(cmd.getRequestId(), cmd.getCommand(), result, false, error);

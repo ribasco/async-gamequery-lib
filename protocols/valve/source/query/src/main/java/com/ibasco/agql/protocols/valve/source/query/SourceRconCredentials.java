@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.ibasco.agql.core.Credentials;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Arrays;
 
 /**
  * Default implementation for {@link Credentials}
@@ -24,13 +29,15 @@ import org.jetbrains.annotations.ApiStatus;
  * @author Rafael Luis Ibasco
  */
 @ApiStatus.Internal
-public final class RconCredentials implements Credentials {
+public final class SourceRconCredentials implements Credentials {
+
+    private static final Logger log = LoggerFactory.getLogger(SourceRconCredentials.class);
 
     private final byte[] passphrase;
 
     private boolean valid;
 
-    public RconCredentials(byte[] passphrase) {
+    public SourceRconCredentials(byte[] passphrase) {
         if (passphrase == null || passphrase.length == 0)
             throw new IllegalStateException("Passphrase cannot be null or empty");
         this.passphrase = passphrase;
@@ -54,5 +61,18 @@ public final class RconCredentials implements Credentials {
     @Override
     public boolean isValid() {
         return valid;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SourceRconCredentials)) return false;
+        SourceRconCredentials that = (SourceRconCredentials) o;
+        return Arrays.equals(getPassphrase(), that.getPassphrase());
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(getPassphrase());
     }
 }

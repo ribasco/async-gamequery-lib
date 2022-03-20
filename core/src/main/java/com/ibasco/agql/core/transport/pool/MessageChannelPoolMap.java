@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,9 +16,6 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.util.concurrent.Future;
@@ -30,8 +27,8 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Closeable;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
@@ -39,11 +36,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A custom {@link ChannelPoolMap} implementation using {@link Envelope} as the key for obtaining a {@link NettyChannelPool} instance.
+ * A custom {@link ChannelPoolMap} implementation that allows a custom pool key to be used for {@link NettyChannelPool} lookup.
  *
  * @author Rafael Luis Ibasco
  */
-public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? extends AbstractRequest>, NettyChannelPool>, Iterable<Map.Entry<Object, NettyChannelPool>>, Closeable {
+public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyChannelPool>, Iterable<Map.Entry<Object, NettyChannelPool>> {
 
     private static final Logger log = LoggerFactory.getLogger(MessageChannelPoolMap.class);
 
@@ -51,25 +48,21 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? ext
 
     private final NettyChannelPoolFactory channelPoolFactory;
 
-    private final NettyPoolingStrategy poolStrategy;
+    private final NettyPoolPropertyResolver resolver;
 
-    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory) {
+    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory, NettyPoolPropertyResolver resolver) {
+        this.resolver = resolver;
         this.channelPoolFactory = Objects.requireNonNull(channelPoolFactory, "Channel pool factory is not provided");
-        this.poolStrategy = channelPoolFactory.getChannelFactory().getOptions().getOrDefault(TransportOptions.POOL_STRATEGY);
-        log.debug("[INIT] POOL => Using pool strategy '{}'", poolStrategy.getName());
     }
 
     @Override
-    public NettyChannelPool get(Envelope<? extends AbstractRequest> envelope) {
-        Objects.requireNonNull(envelope, "Envelope must not be null");
-        Objects.requireNonNull(envelope.sender(), "Receipient address is null");
-        Objects.requireNonNull(envelope.recipient(), "Destination address is null");
-
-        Object key = poolStrategy.extractKey(envelope);
-        NettyChannelPool pool = map.get(key);
+    public NettyChannelPool get(Object data) {
+        final InetSocketAddress remoteAddress = resolver.resolveRemoteAddress(data);
+        final Object poolKey = resolver.resolvePoolKey(data);
+        NettyChannelPool pool = map.get(poolKey);
         if (pool == null) {
-            pool = channelPoolFactory.create(envelope.sender(), envelope.recipient());
-            NettyChannelPool old = map.putIfAbsent(key, pool);
+            pool = channelPoolFactory.create(null, remoteAddress);
+            NettyChannelPool old = map.putIfAbsent(poolKey, pool);
             if (old != null) {
                 // We need to destroy the newly created pool as we not use it.
                 poolCloseAsyncIfSupported(pool);
@@ -80,8 +73,8 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Envelope<? ext
     }
 
     @Override
-    public boolean contains(Envelope<? extends AbstractRequest> key) {
-        return map.containsKey(poolStrategy.extractKey(key));
+    public boolean contains(Object data) {
+        return map.containsKey(resolver.resolvePoolKey(data));
     }
 
     @Override

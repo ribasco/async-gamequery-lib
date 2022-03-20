@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,10 +18,10 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
+import com.ibasco.agql.protocols.valve.source.query.SourceRconChannelContext;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthResponse;
@@ -47,7 +47,8 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
 
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
-        final Envelope<AbstractRequest> envelope = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
+        final SourceRconChannelContext context = SourceRconChannelContext.getContext(ctx.channel());
+        final Envelope<AbstractRequest> envelope = context.properties().envelope();
         final SourceRconRequest rconRequest = (SourceRconRequest) request;
         final SourceRconPacket packet = (SourceRconPacket) msg;
         assert envelope != null;
@@ -67,10 +68,9 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         final int requestId = rconRequest.getRequestId();
         final boolean authenticated = packet.getId() != -1 && packet.getId() == requestId;
 
-        //Update channel attribute and mark this channel as authenticated
-        ctx.channel().attr(SourceRcon.AUTHENTICATED).set(authenticated);
+        debug("Received AUTH response packet: {} (Content: {})", packet, NettyUtil.readString(packet.content()));
 
-        debug("Updated authentication flag to '{}' (Packet Id [{}] == Request Id [{}])", authenticated, packet.getId(), rconRequest.getRequestId());
+        debug("Updated context authentication flag to '{}' (Packet Id [{}] == Request Id [{}])", authenticated, packet.getId(), rconRequest.getRequestId());
         //Ensure we are responding to the right request
         if (request instanceof SourceRconAuthRequest) {
             if (authenticated) {

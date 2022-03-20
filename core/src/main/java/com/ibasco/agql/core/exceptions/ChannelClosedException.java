@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.ibasco.agql.core.exceptions;
 
+import io.netty.channel.Channel;
+
 /**
  * Thrown when the channel/connction was closed before the request is marked as oompleted
  *
@@ -23,14 +25,23 @@ package com.ibasco.agql.core.exceptions;
  */
 public class ChannelClosedException extends AsyncGameLibCheckedException {
 
-    public ChannelClosedException() {
+    private final Channel channel;
+
+    public ChannelClosedException(Channel channel) {
+        this(null, channel);
     }
 
-    public ChannelClosedException(String message) {
+    public ChannelClosedException(String message, Channel channel) {
         super(message);
+        this.channel = channel;
     }
 
-    public ChannelClosedException(String message, Throwable cause) {
+    public ChannelClosedException(String message, Throwable cause, Channel channel) {
         super(message, cause);
+        this.channel = channel;
+    }
+
+    public final Channel getChannel() {
+        return channel;
     }
 }

@@ -21,9 +21,9 @@ import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.ChannelHealthChecker;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
-import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
+import org.jetbrains.annotations.ApiStatus;
 
 import java.util.concurrent.Executor;
 
@@ -37,8 +37,8 @@ public final class TransportOptions {
     //<editor-fold desc="General">
 
     /**
-     * When enabled, the library will attempt to utilize platform specific transport implementation (e.g. epoll for linux or kqueue for mac osx)
-     * otherwise the default java NIO transport implementation will be used.
+     * When enabled, the library will attempt to utilize platform specific transport(s) (e.g. epoll for linux or kqueue for mac osx)
+     * otherwise the default java NIO transport will be used.
      */
     public static final Option<Boolean> USE_NATIVE_TRANSPORT = Option.createOption("useNativeTransport", true);
 
@@ -48,12 +48,12 @@ public final class TransportOptions {
     public static final Option<ResourceLeakDetector.Level> RESOURCE_LEAK_DETECTOR_LEVEL = Option.createOption("resourceLeakDetectorLevel", ResourceLeakDetector.Level.PARANOID);
 
     /**
-     * Number of milliseconds to wait before we throw a ReadTimeoutException
+     * Number of milliseconds to wait before we throw a ReadTimeoutException (Default: 5 seconds)
      */
     public static final Option<Integer> READ_TIMEOUT = Option.createOption("readTimeOut", 5000, true, true);
 
     /**
-     * Number of milliseconds to wait before we throw a WriteTimeoutException
+     * Number of milliseconds to wait before we throw a WriteTimeoutException (Default: 5 seconds)
      */
     public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("writeTimeout", 5000, true, true);
 
@@ -73,7 +73,16 @@ public final class TransportOptions {
     /**
      * The {@link ChannelHealthChecker} that is used by the {@link io.netty.channel.pool.ChannelPool} implementation to check if the {@link io.netty.channel.Channel} can be acquired.
      */
+    @ApiStatus.Internal
     public static final Option<ChannelHealthChecker> POOL_CHANNEL_HEALTH_CHECKER = Option.createOption("channelHealthChecker", ChannelHealthChecker.ACTIVE);
+
+    /**
+     * The action that will be executed once an acquire timeout is thrown
+     *
+     * @see com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction
+     */
+    @ApiStatus.Internal
+    public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.createOption("acquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
 
     /**
      * The maximum number of milliseconds to wait before a timeout is triggered during {@link io.netty.channel.Channel} acquisition.
@@ -92,16 +101,8 @@ public final class TransportOptions {
     public static final Option<Integer> POOL_ACQUIRE_MAX = Option.createOption("maxPendingAcquires", Integer.MAX_VALUE);
 
     /**
-     * The action that will be executed once an acquire timeout is thrown
-     *
-     * @see com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction
-     */
-    public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.createOption("acquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
-
-    /**
      * Maximum number of connections to be maintained in the channel/connection pool. This option is only applicable when {@link #POOL_TYPE} is set to {@link ChannelPoolType#FIXED}
      *
-     * @see #THREAD_EL_SIZE
      * @see io.netty.channel.pool.FixedChannelPool
      * @see ChannelPoolType
      */
@@ -119,20 +120,19 @@ public final class TransportOptions {
      * Set to {@code true} to enable channel/connection pooling
      */
     public static final Option<Boolean> CONNECTION_POOLING = Option.createOption("pooling", true, false, false);
+    //</editor-fold>
+
+    //<editor-fold desc="Failsafe Integration">
 
     /**
-     * Use this option to specify the connection pooling strategy to be used by the underlying transport.
-     * <p>
-     * A connection pooling strategy determines how a channel pool instance is obtained from a request.
-     * <p>
-     * Note: This is only applicable if connection pooling is enabled (See {@link #CONNECTION_POOLING}).
-     *
-     * @see #CONNECTION_POOLING
-     * @see NettyPoolingStrategy
-     * @see NettyPoolingStrategy#MESSAGE_TYPE
-     * @see NettyPoolingStrategy#ADDRESS
+     * Enable/disable {@link dev.failsafe.Failsafe} integration
      */
-    public static final Option<NettyPoolingStrategy> POOL_STRATEGY = Option.createOption("poolingStrategy", NettyPoolingStrategy.ADDRESS, false, false);
+    public static final Option<Boolean> FAILSAFE_ENABLED = Option.createOption("failSafeEnabled", true, false, false);
+
+    /**
+     * The maximum number of connection attempts for acquiring a {@link io.netty.channel.Channel} / Connection
+     */
+    public static final Option<Integer> FAILSAFE_ACQUIRE_MAX_CONNECT = Option.createOption("failSafeMaxConnectAttempts", 3, false, false);
     //</editor-fold>
 
     //<editor-fold desc="Concurrency">

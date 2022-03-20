@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -44,8 +44,6 @@ import java.util.function.BiFunction;
 /**
  * Base implementation for all {@link Client} interfaces
  *
- * @param <A>
- *         A type of {@link SocketAddress}
  * @param <R>
  *         A type of {@link AbstractRequest}
  * @param <S>
@@ -53,7 +51,7 @@ import java.util.function.BiFunction;
  *
  * @author Rafael Luis Ibasco.
  */
-abstract public class AbstractClient<A extends SocketAddress, R extends AbstractRequest, S extends AbstractResponse> implements Client {
+abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
 
     private final Logger log;
 
@@ -61,7 +59,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
 
     private final Options options;
 
-    private Messenger<A, R, S> messenger;
+    private Messenger<R, S> messenger;
 
     private final ClientStatistics<S> statsCollector = new ClientStatistics<>();
 
@@ -100,21 +98,21 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
         this.log = LoggerFactory.getLogger(getClass());
     }
 
-    abstract protected Messenger<A, R, S> createMessenger(Options options);
+    abstract protected Messenger<R, S> createMessenger(Options options);
 
-    protected final CompletableFuture<S> send(A address, R request) {
+    protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");
         Objects.requireNonNull(request, "Request cannot be null");
         log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
         return messenger().send(address, request);
     }
 
-    protected <V extends S> CompletableFuture<V> send(A address, R request, Class<V> expectedResponse) {
+    protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
         log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
         return send(address, request).thenApply(expectedResponse::cast);
     }
 
-    protected CompletableFuture<S> failSafeSend(A address, R request) {
+    protected CompletableFuture<S> failSafeSend(InetSocketAddress address, R request) {
         return failSafeExecutor().getStageAsync(context -> send(address, request));
     }
 
@@ -142,7 +140,7 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
         return messenger().getExecutor();
     }
 
-    protected Messenger<A, R, S> getMessenger() {
+    protected Messenger<R, S> getMessenger() {
         return messenger();
     }
 
@@ -156,9 +154,10 @@ abstract public class AbstractClient<A extends SocketAddress, R extends Abstract
     /**
      * @return Returns an existing instance of the messenger. If no instance exists yet, initialize then return
      */
-    private Messenger<A, R, S> messenger() {
+    private Messenger<R, S> messenger() {
         if (this.messenger == null) {
-            this.messenger = createMessenger(this.options);
+            //noinspection unchecked
+            this.messenger = (Messenger<R, S>) createMessenger(this.options);
         }
         return messenger;
     }

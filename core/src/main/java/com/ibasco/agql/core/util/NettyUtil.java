@@ -16,19 +16,14 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.AbstractResponse;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.Message;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.exceptions.NoChannelContextException;
 import com.ibasco.agql.core.transport.handlers.MessageEncoder;
 import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.transport.pool.PooledChannel;
-import com.ibasco.agql.core.transport.pool.SimpleNettyChannelPool;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
-import io.netty.channel.pool.ChannelPool;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
@@ -41,8 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
@@ -65,10 +60,32 @@ public class NettyUtil {
     public static final Function<LinkedList<ChannelOutboundHandler>, ChannelHandler> OUTBOUND = LinkedList::pollLast;
 
     public static CompletableFuture<Channel> useEventLoop(CompletableFuture<Channel> channelFuture, EventLoop eventLoop) {
+        if (eventLoop == null)
+            throw new IllegalArgumentException("Event loop group is null");
         return channelFuture.thenApplyAsync(ChannelOutboundInvoker::deregister, eventLoop)
-                .thenComposeAsync(NettyUtil::toCompletable, eventLoop)
-                .thenApplyAsync(eventLoop::register, eventLoop)
-                .thenComposeAsync(NettyUtil::toCompletable, eventLoop);
+                            .thenComposeAsync(NettyUtil::toCompletable, eventLoop)
+                            .thenApplyAsync(eventLoop::register, eventLoop)
+                            .thenComposeAsync(NettyUtil::toCompletable, eventLoop);
+    }
+
+    public static <V> void notifyOnCompletion(ChannelFuture future, V completedValue, CompletableFuture<V> promise, ChannelFutureListener listener) {
+        if (future.isDone()) {
+            if (future.isSuccess()) {
+                promise.complete(completedValue);
+            } else {
+                promise.completeExceptionally(future.cause());
+            }
+        } else {
+            future.addListener(listener);
+        }
+    }
+
+    public static CompletableFuture<Channel> register(Channel channel, EventLoop group) {
+        return toCompletable(group.register(channel));
+    }
+
+    public static CompletableFuture<Channel> deregister(Channel channel) {
+        return toCompletable(channel.deregister());
     }
 
     public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf, Integer limit) {
@@ -86,15 +103,11 @@ public class NettyUtil {
         }
     }
 
-    public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf) {
-        dumpBuffer(logger, msg, buf, null);
-    }
-
     public static synchronized void printChannelPipeline(Logger log, Channel ch) {
         if (!log.isDebugEnabled())
             return;
         log.debug("{} ========================================================================================================================================================", id(ch));
-        log.debug("{} Initializing handlers for channel '{}' (Pooled: {})", id(ch), ch.id().asShortText(), isPooled(ch) ? "YES" : "NO");
+        log.debug("{} Initializing handlers for channel '{}' (Pooled: {})", id(ch), ch.id().asShortText(), NettyChannelPool.isPooled(ch) ? "YES" : "NO");
         log.debug("{} ========================================================================================================================================================", id(ch));
         for (Map.Entry<String, ChannelHandler> handlers : ch.pipeline().toMap().entrySet()) {
             log.debug("{} {}: {} = {}", id(ch), getType(handlers.getValue()), handlers.getKey(), handlers.getValue());
@@ -103,32 +116,14 @@ public class NettyUtil {
     }
 
     public static String getThreadName(Channel channel) {
-        EventLoop el = channel.eventLoop();
-        if (el instanceof SingleThreadEventLoop) {
-            return ((SingleThreadEventLoop) el).threadProperties().name();
+        return getThreadName(channel.eventLoop());
+    }
+
+    public static String getThreadName(EventLoop eventLoop) {
+        if (eventLoop instanceof SingleThreadEventLoop) {
+            return ((SingleThreadEventLoop) eventLoop).threadProperties().name();
         }
         return "N/A";
-    }
-
-    @Deprecated
-    public static boolean isPooled(Channel ch) {
-        Objects.requireNonNull(ch, "Channel is null");
-        return NettyChannelPool.isPooled(ch);
-        //return ch.attr(getChannelPoolKey()).get() != null;
-    }
-
-    /**
-     * Returns the underlying {@link ChannelPool} this channel was created/acquired from.
-     *
-     * @param ch
-     *         The {@link Channel} to check
-     *
-     * @return The {@link ChannelPool} that this channel was created/acquired from. {@code null} if the channel is not pooled.
-     */
-    @Deprecated
-    public static NettyChannelPool getChannelPool(Channel ch) {
-        return NettyChannelPool.getPool(ch);
-        //return Objects.requireNonNull(ch, "Channel is null").attr(getChannelPoolKey()).get();
     }
 
     /**
@@ -145,10 +140,9 @@ public class NettyUtil {
         if (ch instanceof PooledChannel) {
             return ((PooledChannel) ch).release();
         }
-        if (!isPooled(ch))
-            return CompletableFuture.completedFuture(null);
         final NettyChannelPool pool = NettyChannelPool.getPool(ch);
-        assert pool != null;
+        if (pool == null)
+            return CompletableFuture.completedFuture(null);
         return pool.release(ch);
     }
 
@@ -167,11 +161,15 @@ public class NettyUtil {
     public static String id(Channel ch) {
         if (ch == null)
             return "[N/A]";
-        if (ch.hasAttr(NettyChannelAttributes.REQUEST) && ch.attr(NettyChannelAttributes.REQUEST).get() != null) {
-            Envelope<AbstractRequest> request = ch.attr(NettyChannelAttributes.REQUEST).get();
-            if (request.content() != null) {
-                return "[" + ch.id().asShortText() + " : " + request.content().id() + "]";//String.format("[%s : %s]", ch.id().asShortText(), request.content().id());
+        try {
+            NettyChannelContext context = NettyChannelContext.getContext(ch);
+            if (context.properties().envelope() != null) {
+                Envelope<AbstractRequest> request = context.properties().envelope();
+                if (request.content() != null) {
+                    return "[" + ch.id().asShortText() + " : " + request.content().id() + "]";//String.format("[%s : %s]", ch.id().asShortText(), request.content().id());
+                }
             }
+        } catch (NoChannelContextException ignored) {
         }
         return "[" + ch.id().asShortText() + "]";
     }
@@ -227,7 +225,6 @@ public class NettyUtil {
     }
 
     public static void registerTimeoutHandlers(Channel ch) {
-        //assert ch.hasAttr(NettyChannelAttributes.WRITE_TIMEOUT);
         Integer writeTimeout = TransportOptions.WRITE_TIMEOUT.attr(ch);
         assert writeTimeout != null;
         //read default channel attributes
@@ -263,35 +260,53 @@ public class NettyUtil {
     }
 
     public static <V> CompletableFuture<V> toCompletable(Future<V> future) {
-        CompletableFuture<V> cFuture = new CompletableFuture<>();
         if (future.isDone()) {
             if (future.isSuccess()) {
-                cFuture.complete(future.getNow());
+                return CompletableFuture.completedFuture(future.getNow());
             } else {
-                cFuture.completeExceptionally(future.cause());
+                return ConcurrentUtil.failedFuture(future.cause());
             }
         } else {
-            future.addListener(future1 -> {
-                if (future1.isSuccess()) {
-                    cFuture.complete(future.getNow());
+            CompletableFuture<V> cFuture = new CompletableFuture<>();
+            future.addListener(fut -> {
+                if (fut.isSuccess()) {
+                    //noinspection unchecked
+                    cFuture.complete((V) fut.getNow());
                 } else {
-                    cFuture.completeExceptionally(future1.cause());
+                    cFuture.completeExceptionally(fut.cause());
                 }
             });
+            return cFuture;
         }
-        return cFuture;
     }
 
     /**
      * Converts a netty {@link ChannelFuture} to a {@link CompletableFuture}
      *
-     * @param future
+     * @param channelFuture
      *         The {@link ChannelFuture} to convert
      *
      * @return The converted {@link CompletableFuture}
      */
-    public static CompletableFuture<Channel> toCompletable(ChannelFuture future) {
-        return toCompletable(future, future::channel, future::cause);
+    public static CompletableFuture<Channel> toCompletable(ChannelFuture channelFuture) {
+        if (channelFuture.isDone()) {
+            if (channelFuture.isSuccess()) {
+                assert channelFuture.channel() != null;
+                return CompletableFuture.supplyAsync(channelFuture::channel, channelFuture.channel().eventLoop());
+            } else {
+                return ConcurrentUtil.failedFuture(channelFuture.cause(), channelFuture.channel() == null ? null : channelFuture.channel().eventLoop());
+            }
+        } else {
+            CompletableFuture<Channel> cFuture = new CompletableFuture<>();
+            channelFuture.addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    cFuture.complete(future.channel());
+                } else {
+                    cFuture.completeExceptionally(future.cause());
+                }
+            });
+            return cFuture;
+        }
     }
 
     public static <A, B, C extends Future<B>> CompletableFuture<A> toCompletable(C future, Supplier<A> success, Supplier<Throwable> fail) {
@@ -332,20 +347,6 @@ public class NettyUtil {
         return buffer.readCharSequence(length, charset).toString();
     }
 
-    /**
-     * Release or close the {@link Channel} returned by the future.
-     *
-     * @param channelFuture
-     *         The future whose {@link Channel} will be closed once it transitions to a completed state.
-     */
-    public static void releaseOrClose(CompletableFuture<Channel> channelFuture) {
-        if (channelFuture.isDone()) {
-            releaseOrClose(channelFuture.getNow(null));
-        } else {
-            channelFuture.thenAccept(NettyUtil::releaseOrClose);
-        }
-    }
-
     public static CompletableFuture<Void> close(Channel channel) {
         CompletableFuture<Void> cf = new CompletableFuture<>();
 
@@ -376,14 +377,14 @@ public class NettyUtil {
             log.debug("[N/A] ROUTER (RELEASE) => Channel is null. Skipping operation");
             return;
         }
+        final NettyChannelPool pool = NettyChannelPool.getPool(channel);
         //is the channel pooled?
-        if (!isPooled(channel)) {
+        if (pool == null) {
             log.debug("{} ROUTER (RELEASE) => This channel does not have a channel pool attached. Closing.", id(channel));
             channel.close();
             return;
         }
         final String id = id(channel);
-        final NettyChannelPool pool = getChannelPool(channel);
         log.debug("{} ROUTER (RELEASE) => Releasing channel '{}' from pool '{}#{}'", id, channel, pool.getClass().getName(), pool.hashCode());
         release(channel).whenComplete((unused, error) -> {
             if (error != null) {
@@ -391,14 +392,6 @@ public class NettyUtil {
                 channel.close();
             }
         });
-    }
-
-    public static <V> void runWhenComplate(ChannelFuture future, Consumer<ChannelFuture> consumer) {
-        if (future.isDone()) {
-            consumer.accept(future);
-        } else {
-            future.addListener((ChannelFutureListener) consumer::accept);
-        }
     }
 
     public static <V extends Number> Number incrementAttrNumber(Channel channel, AttributeKey<V> stat) {
@@ -431,7 +424,28 @@ public class NettyUtil {
         return newValue;
     }
 
-    private static AttributeKey<NettyChannelPool> getChannelPoolKey() {
-        return SimpleNettyChannelPool.getChannelPoolKey();
+    public static <V> CompletableFuture<V> supplyAsync(Supplier<V> supplier, EventLoop eventLoop) {
+        if (eventLoop.inEventLoop()) {
+            return CompletableFuture.completedFuture(supplier.get());
+        } else {
+            return CompletableFuture.supplyAsync(supplier, eventLoop);
+        }
+    }
+
+    public static <V> CompletableFuture<V> applyAsync(Channel channel, Function<Channel, V> func) {
+        if (channel.eventLoop().inEventLoop())
+            return CompletableFuture.completedFuture(channel).thenApply(func);
+        return applyAsync(CompletableFuture.completedFuture(channel), func);
+    }
+
+    public static <V> CompletableFuture<V> applyAsync(CompletableFuture<Channel> channelFuture, Function<Channel, V> func) {
+        //return channelFuture.thenCombine(CompletableFuture.completedFuture(func), Pair::new).thenCompose(pair -> CompletableFuture.completedFuture(pair.getFirst()).thenApplyAsync(pair.getSecond(), pair.getFirst().eventLoop()));
+        return channelFuture.thenCompose(channel -> CompletableFuture.completedFuture(channel).thenApplyAsync(func, channel.eventLoop()));
+    }
+
+    public static <V> CompletableFuture<V> composeAsync(CompletableFuture<Channel> channelFuture, Function<Channel, CompletionStage<V>> func) {
+        return channelFuture.thenCompose(channel -> CompletableFuture.completedFuture(channel).thenComposeAsync(func, channel.eventLoop()));
     }
 }
+
+

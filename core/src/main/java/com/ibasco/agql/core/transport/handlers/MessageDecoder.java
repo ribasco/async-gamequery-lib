@@ -16,28 +16,19 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
-import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
-import io.netty.channel.AddressedEnvelope;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.DatagramPacket;
-import io.netty.channel.socket.SocketChannel;
-import io.netty.util.Attribute;
 import io.netty.util.ReferenceCountUtil;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.SocketAddress;
 
 /**
  * The initial global intercept for all raw data recived from a remote address. This handler creates a response {@link Envelope} for the
@@ -53,124 +44,51 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) {
-        final Channel channel = ctx.channel();
-        final String id = NettyUtil.id(channel);
-
+        final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         //Make sure we have a request associated, otherwise do not propagate
-        if (hasInvalidRequest(channel)) {
-            log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", id, msg, channel.attr(NettyChannelAttributes.REQUEST).get());
+        if (hasInvalidRequest(context.channel())) {
+            log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", context.id(), msg, context.properties().envelope());
             if (msg instanceof ByteBuf && log.isDebugEnabled()) {
                 ByteBuf b = (ByteBuf) msg;
-                NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", id, b.readableBytes()), b, 32);
+                NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", context.id(), b.readableBytes()), b, 32);
             }
             ReferenceCountUtil.release(msg);
             return;
         }
 
         try {
-            log.debug("{} INB => Received incoming data from server of type: {} (Length: {} bytes)", id, String.format("%s (%d)", msg.getClass().getSimpleName(), msg.hashCode()), getResponseLength(msg));
-            Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(NettyChannelAttributes.RESPONSE);
-
-            //if already initialized, dont overwrite, just skip
-            if (responseAttr.get() != null) {
-                Envelope<AbstractRequest> request = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
-                Envelope<AbstractResponse> response = responseAttr.get();
-                assert request != null;
-                assert response != null;
-
-                //TODO: Dirty workaround, re-evaluate
-                boolean updateResponse = response.promise() != request.promise();
-                if (!updateResponse) {
-                    log.debug("{} INB => Response already initialized. Skipping. (Request: {}, Response: {})", id, ctx.channel().attr(NettyChannelAttributes.REQUEST).get(), ctx.channel().attr(NettyChannelAttributes.RESPONSE).get());
-                    return;
-                } else {
-                    log.debug("{} INB => Response neeeds to be updated (Reason: Promise does not match, Request: {}, Response: {})", id, request, response);
-                }
-            }
-
-            //update with new response
-            responseAttr.set(newResponse(channel, msg));
-            log.debug("{} INB => Initialized channel with response '{}'", id, responseAttr.get());
-        } catch (Throwable ex) {
-            log.error(String.format("%s INB => Error occured during initialization", id), ex);
-            ctx.fireExceptionCaught(ex);
-        } finally {
+            log.debug("{} INB => Received incoming data from server of type: {} (Length: {} bytes)", context.id(), String.format("%s (%d)", msg.getClass().getSimpleName(), msg.hashCode()), getResponseLength(msg));
             Object decoded;
             if (msg instanceof ByteBufHolder) {
                 decoded = ((ByteBufHolder) msg).content();
-                log.debug("{} INB => Passing decoded message ({}) to the next handler(s)", id, decoded.getClass().getSimpleName());
+                log.debug("{} INB => Passing decoded message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());
             } else {
                 decoded = msg;
-                log.debug("{} INB => Passing message ({}) to the next handler(s)", id, decoded.getClass().getSimpleName());
+                log.debug("{} INB => Passing message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());
             }
             ctx.fireChannelRead(decoded);
+        } catch (Throwable ex) {
+            log.error(String.format("%s INB => Error occured during initialization", context.id()), ex);
+            ctx.fireExceptionCaught(ex);
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         final Channel channel = ctx.channel();
+        final NettyChannelContext context = NettyChannelContext.getContext(channel);
         final String id = NettyUtil.id(channel);
-
         //Make sure we have a request associated, otherwise do not propagate
         if (hasInvalidRequest(channel)) {
-            log.debug("{} INB => No VALID request found (Error: {}, Request: {})", id, cause.getClass().getSimpleName(), channel.attr(NettyChannelAttributes.REQUEST).get(), cause);
+            log.debug("{} INB => No VALID request found (Error: {}, Request: {})", id, cause.getClass().getSimpleName(), context.properties().envelope(), cause);
             return;
         }
-
-        Attribute<Envelope<AbstractResponse>> responseAttr = channel.attr(NettyChannelAttributes.RESPONSE);
-        //make sure we still have a response instance in case we encounter any errors during read operation
-        if (responseAttr.getAndSet(newResponse(channel)) == null) {
-            log.debug("{} INB => Exception caught and response envelope is missing. Creating response '{}'", id, responseAttr.get());
-        }
-
-        //forward exception to the next handler
         ctx.fireExceptionCaught(cause);
     }
 
     private boolean hasInvalidRequest(Channel channel) {
-        return !channel.hasAttr(NettyChannelAttributes.REQUEST) || channel.attr(NettyChannelAttributes.REQUEST).get() == null || channel.attr(NettyChannelAttributes.REQUEST).get().isCompleted();
-    }
-
-    private Envelope<AbstractResponse> newResponse(Channel channel) {
-        return newResponse(channel, null);
-    }
-
-    private Envelope<AbstractResponse> newResponse(Channel channel, Object msg) {
-        assert channel != null;
-        assert channel.hasAttr(NettyChannelAttributes.REQUEST);
-
-        SocketAddress sender, recipient;
-        Envelope<AbstractRequest> request = channel.attr(NettyChannelAttributes.REQUEST).get();
-        log.debug("{} INB => Initializing response envelope for request '{}'", NettyUtil.id(channel), request);
-        assert request != null;
-
-        if (msg != null) {
-            if (channel instanceof DatagramChannel) {
-                if (!(msg instanceof AddressedEnvelope))
-                    throw new IllegalStateException(msg.getClass().getSimpleName());
-                AddressedEnvelope dpMsg = (AddressedEnvelope) msg;
-                recipient = dpMsg.recipient();
-                sender = dpMsg.sender();
-            } else if (channel instanceof SocketChannel) {
-                recipient = channel.localAddress();
-                sender = channel.remoteAddress();
-            } else {
-                throw new IllegalStateException("Unsupported channel type");
-            }
-        } else {
-            sender = request.recipient();
-            recipient = request.sender();
-        }
-
-        assert sender != null;
-        assert recipient != null;
-        return MessageEnvelopeBuilder.createNew()
-                                     .sender(sender)
-                                     .recipient(recipient)
-                                     .promise(request.promise())
-                                     .messenger(request.messenger())
-                                     .build();
+        NettyChannelContext context = NettyChannelContext.getContext(channel);
+        return context.properties().envelope() == null || context.properties().responsePromise().isDone();
     }
 
     private static int getResponseLength(Object msg) {

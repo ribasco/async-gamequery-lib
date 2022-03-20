@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.exceptions.InvalidCredentialsException;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
@@ -35,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.ClosedChannelException;
 import java.text.ParseException;
 import java.time.Duration;
 import java.util.HashMap;
@@ -84,6 +84,7 @@ public class SourceRconExample extends BaseExample {
                                                  .option(TransportOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
                                                  .option(TransportOptions.CONNECTION_POOLING, true)
                                                  .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                 .option(TransportOptions.FAILSAFE_ENABLED, true)
                                                  .build();
 
         try {
@@ -144,8 +145,8 @@ public class SourceRconExample extends BaseExample {
 
     private void runBenchmark() throws Exception {
         final Map<InetSocketAddress, String> servers = new HashMap<>();
-        servers.put(new InetSocketAddress("192.168.1.34", 27016), "G8oGC24io5zUt6ErS5ShD");
-        servers.put(new InetSocketAddress("192.168.1.34", 27017), "twdeyprtkfs6TsH5SMqiR");
+        servers.put(new InetSocketAddress("192.168.50.6", 27016), "G8oGC24io5zUt6ErS5ShD");
+        servers.put(new InetSocketAddress("192.168.50.6", 27017), "twdeyprtkfs6TsH5SMqiR");
         //servers.put(new InetSocketAddress("192.168.1.34", 27018), "twdeyprtkfs6TsH5SMqiR");
         authenticate(servers);
 
@@ -214,7 +215,7 @@ public class SourceRconExample extends BaseExample {
                 if (cause instanceof CancellationException) {
                     System.out.println("Shutting down example program");
                     stop.compareAndSet(false, true);
-                } else if (cause instanceof RconInvalidCredentialsException) {
+                } else if (cause instanceof InvalidCredentialsException) {
                     System.err.println(cause.getMessage());
                     authenticated.set(false);
                 } else if (cause instanceof ParseException) {
@@ -241,11 +242,19 @@ public class SourceRconExample extends BaseExample {
                     if (!authenticated.get())
                         System.err.printf("Error authenticating with server: '%s'\n", status.getReason());
                 } catch (CompletionException e) {
-                    if (e.getCause() instanceof ClosedChannelException) {
-                        log.error("Connection dropped by remote server");
-                        continue;
+                    Throwable cause = ConcurrentUtil.unwrap(e);
+                    if (cause instanceof RconInvalidCredentialsException) {
+                        System.err.print("\nFailed to authenticate with server due to bad credentials\n");
+                        cause.printStackTrace(System.err);
+                        authenticated.set(false);
+                    } else {
+                        System.err.printf("\nAn unknown error occured while trying to authenticate with server (using password %s bytes)\n", password.length());
+                        cause.printStackTrace(System.err);
+                        throw e;
                     }
-                    throw e;
+                } catch (Throwable error) {
+                    System.err.println("Failed to authenticate with server");
+                    error.printStackTrace(System.err);
                 }
                 continue;
             }
@@ -298,7 +307,6 @@ public class SourceRconExample extends BaseExample {
         } catch (RconNotYetAuthException e) {
             return error(e.getMessage());
         }
-        //return success("done", args[0]);
     }
 
     private CompletableFuture<SourceRconCmdResponse> commandCleanup(String[] args) {
@@ -366,7 +374,7 @@ public class SourceRconExample extends BaseExample {
         phaser.arriveAndAwaitAdvance();
     }
 
-    private CompletableFuture<SourceRconCmdResponse> executeBatch(int count, String command) {
+    private CompletableFuture<SourceRconCmdResponse> executeBatch(final int count, String command) {
         return CompletableFuture.runAsync(() -> {
 
             System.out.println(line);
@@ -465,7 +473,7 @@ public class SourceRconExample extends BaseExample {
 
         @Override
         protected void onFail(Throwable error) {
-            //commandCount.compute(res.getCommand(), successCounter);
+            System.err.println("[CONSOLE] Failed to execute rcon commmand");
             error.printStackTrace(System.err);
         }
 

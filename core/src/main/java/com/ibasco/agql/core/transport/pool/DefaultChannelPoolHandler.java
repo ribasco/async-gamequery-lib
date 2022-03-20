@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,10 +16,10 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.transport.handlers.ReadTimeoutHandler;
 import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
+import com.ibasco.agql.core.util.NetUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -30,14 +30,21 @@ import io.netty.channel.pool.AbstractChannelPoolHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
 public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultChannelPoolHandler.class);
+
+    private static final ChannelFutureListener RELEASE_ON_CLOSE = future -> {
+        Channel channel = future.channel();
+        //ensure that the channel is released when closed pre-maturely
+        if (NettyChannelPool.isPooled(channel)) {
+            log.debug("{} HANDLER => Channel closed. Releasing from the pool", NettyUtil.id(channel));
+            NettyChannelPool.tryRelease(channel);
+        }
+    };
 
     private final ChannelHandler defaultChannelHandler;
 
@@ -54,30 +61,17 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
         });
     }
 
-    private static final ChannelFutureListener CLOSE_LISTENER = future -> {
-        Channel channel = future.channel();
-        //ensure that the channel is released when closed pre-maturely
-        if (future.isDone() && NettyUtil.isPooled(channel)) {
-            log.debug("{} HANDLER => Channel closed. Releasing from the pool", NettyUtil.id(channel));
-            NettyUtil.release(channel);
-        }
-    };
-
     @Override
     public void channelCreated(Channel ch) {
         log.debug("{} HANDLER => Channel Created", NettyUtil.id(ch));
-        ch.closeFuture().addListener(CLOSE_LISTENER);
+        ch.closeFuture().addListener(RELEASE_ON_CLOSE);
         ch.pipeline().addFirst("initializer", defaultChannelHandler);
     }
 
     @Override
     public void channelAcquired(Channel ch) {
-        try {
-            log.debug("{} HANDLER => Channel Acquired. (Local Address: '{}', Remote Address: '{}') ({})", NettyUtil.id(ch), hostString(ch.localAddress()), hostString(ch.remoteAddress()), NettyUtil.isPooled(ch) ? "POOLED" : "NOT POOLED");
-            NettyUtil.registerTimeoutHandlers(ch);
-        } finally {
-            ch.pipeline().fireUserEventTriggered(ChannelEvent.ACQUIRED);
-        }
+        log.debug("{} HANDLER => Channel Acquired. (Local Address: '{}', Remote Address: '{}') ({})", NettyUtil.id(ch), NetUtil.hostString(ch.localAddress()), NetUtil.hostString(ch.remoteAddress()), NettyChannelPool.isPooled(ch) ? "POOLED" : "NOT POOLED");
+        ch.pipeline().fireUserEventTriggered(ChannelEvent.ACQUIRED);
     }
 
     @Override
@@ -96,17 +90,8 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
                 log.warn(String.format("%s HANDLER => Failed to remove timeout handler(s)", NettyUtil.id(ch)));
         } finally {
             ch.pipeline().fireUserEventTriggered(ChannelEvent.RELEASED);
-            NettyUtil.clearAttribute(ch, NettyChannelAttributes.REQUEST);
-            NettyUtil.clearAttribute(ch, NettyChannelAttributes.RESPONSE);
+            //NettyUtil.clearAttribute(ch, NettyChannelAttributes.REQUEST);
         }
     }
 
-    private static String hostString(SocketAddress address) {
-        if (address == null)
-            return "N/A";
-        if (address instanceof InetSocketAddress) {
-            return ((InetSocketAddress) address).getHostString();
-        }
-        return address.toString();
-    }
 }

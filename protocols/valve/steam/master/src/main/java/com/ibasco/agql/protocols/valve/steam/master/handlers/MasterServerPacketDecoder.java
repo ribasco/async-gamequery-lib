@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,7 +18,7 @@ package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
@@ -93,7 +93,8 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
     }
 
     private MasterServerRequest getRequest(ChannelHandlerContext ctx) {
-        Envelope<AbstractRequest> envelope = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        Envelope<AbstractRequest> envelope = context.properties().envelope();
         if (envelope == null)
             throw new IllegalStateException("Request envelope is missing");
         if (!(envelope.content() instanceof MasterServerRequest))

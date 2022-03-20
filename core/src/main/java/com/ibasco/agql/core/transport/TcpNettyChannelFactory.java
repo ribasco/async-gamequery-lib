@@ -14,12 +14,8 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport.tcp;
+package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
-import com.ibasco.agql.core.transport.NettyChannelHandlerInitializer;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Options;
@@ -28,7 +24,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
 
-import java.util.Objects;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,21 +32,30 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-public class TcpNettyChannelFactory extends BootstrapNettyChannelFactory {
+public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
 
-    public TcpNettyChannelFactory(NettyChannelHandlerInitializer initializer, Options options) {
-        super(TransportType.TCP, initializer, options);
+    public TcpNettyChannelFactory(final Options options) {
+        this(options, null);
+    }
+
+    public TcpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver) {
+        super(TransportType.TCP, options, resolver);
     }
 
     @Override
-    protected void configure(Bootstrap bootstrap) {
+    protected void configureBootstrap(final Bootstrap bootstrap) {
         bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(TransportOptions.SOCKET_KEEP_ALIVE));
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 
     @Override
-    public CompletableFuture<Channel> create(Envelope<? extends AbstractRequest> envelope) {
-        Objects.requireNonNull(envelope, "Envelope is null");
-        return NettyUtil.toCompletable(getBootstrap().clone().connect(envelope.recipient(), envelope.sender()));
+    protected CompletableFuture<Channel> newChannel(final Object data) {
+        final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
+        final InetSocketAddress localAddress = getResolver().resolveLocalAddress(data);
+        if (localAddress != null) {
+            return NettyUtil.toCompletable(getBootstrap().clone().connect(remoteAddress, localAddress));
+        } else {
+            return NettyUtil.toCompletable(getBootstrap().clone().connect(remoteAddress));
+        }
     }
 }

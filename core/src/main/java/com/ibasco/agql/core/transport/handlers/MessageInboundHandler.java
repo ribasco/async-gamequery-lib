@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,8 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,12 +31,12 @@ import java.util.function.BiConsumer;
 @SuppressWarnings("unused")
 abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter {
 
-    private final Logger log = LoggerFactory.getLogger(MessageInboundHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(MessageInboundHandler.class);
 
     private Channel channel;
 
     protected MessageInboundHandler() {
-        //this.log = LoggerFactory.getLogger(this.getClass());
+
     }
 
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -59,17 +58,14 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (this.channel == null || this.channel != ctx.channel())
             this.channel = ctx.channel();
-        ensureValidState();
+        checkEnvelope();
         readMessage(ctx, msg);
     }
 
-    private void ensureValidState() {
+    private void checkEnvelope() {
         Envelope<AbstractRequest> requestEnvelope = getRequest();
-        Envelope<AbstractResponse> responseEnvelope = getResponse();
         if (requestEnvelope == null)
             throw new IllegalStateException("No request envelope is attached to this channel");
-        if (responseEnvelope == null)
-            throw new IllegalStateException("No response envelope is attached to this channel");
         if (requestEnvelope.content() == null)
             throw new IllegalStateException("Request envelope's content is null");
     }
@@ -95,17 +91,16 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     }
 
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s INB => %s", NettyUtil.id(channel), msg), args);
+        level.accept(String.format("%s (%-25s) INB => %s", NettyUtil.id(channel), getClass().getSimpleName(), msg), args);
+    }
+
+    protected final NettyChannelContext getContext() {
+        return NettyChannelContext.getContext(channel);
     }
 
     protected final Envelope<AbstractRequest> getRequest() {
         assert channel != null;
-        return channel.attr(NettyChannelAttributes.REQUEST).get();
-    }
-
-    protected final Envelope<AbstractResponse> getResponse() {
-        assert channel != null;
-        return channel.attr(NettyChannelAttributes.RESPONSE).get();
+        return getContext().properties().envelope();
     }
 
     protected void printField(String name, Object value) {

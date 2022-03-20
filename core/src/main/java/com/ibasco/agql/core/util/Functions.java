@@ -16,11 +16,37 @@
 
 package com.ibasco.agql.core.util;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.util.function.Function;
 
+/**
+ * Utilities for Functional Interfaces
+ *
+ * @author Rafael Luis Ibasco
+ */
+@ApiStatus.Internal
 public class Functions {
 
     public static final Function<Object, Boolean> TRUE = unused -> true;
 
     public static final Function<Object, Boolean> FALSE = unused -> false;
+
+    public static <A, B> A selectFirst(A a, B b) {
+        return a;
+    }
+
+    public static <A, B> B selectSecond(A a, B b) {
+        return b;
+    }
+
+    public static boolean isTypeOf(Object v, Class<?>... arr) {
+        if (arr == null || arr.length == 0)
+            return false;
+        for (Class<?> c : arr) {
+            if (c.equals(v.getClass()))
+                return true;
+        }
+        return false;
+    }
 }

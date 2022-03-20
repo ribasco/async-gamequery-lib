@@ -19,9 +19,10 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
+import com.ibasco.agql.core.ChannelRegistry;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
+import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
 import com.ibasco.agql.core.util.NettyUtil;
-import com.ibasco.agql.protocols.valve.source.query.exceptions.ChannelRegistrationException;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -36,18 +37,18 @@ import java.util.*;
  *
  * @author Rafael Luis Ibasco
  */
-public class DefaultChannelRegistry implements ChannelRegistry {
+public class SourceRconChannelRegistry implements ChannelRegistry {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultChannelRegistry.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceRconChannelRegistry.class);
 
     private final SetMultimap<InetSocketAddress, Channel> channels = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
 
     private final ChannelFutureListener UNREGISTER_ON_CLOSE = future -> {
-        Channel channel = future.channel();
+        final Channel channel = future.channel();
         if (unregister(channel)) {
             log.debug("{} REGISTRY => Successfully unregistered channel: {}", NettyUtil.id(channel), channel);
         } else {
-            log.error("{} REGISTRY => Failed to unregister channel: {}", NettyUtil.id(channel), future.channel(), future.cause());
+            log.debug("{} REGISTRY => Failed to unregister channel: {}", NettyUtil.id(channel), future.channel(), future.cause());
         }
     };
 
@@ -58,7 +59,7 @@ public class DefaultChannelRegistry implements ChannelRegistry {
         if (isRegistered(channel))
             return;
         if (!channel.isActive())
-            throw new ChannelRegistrationException(new ChannelClosedException("Can't register a channel that is inactive"));
+            throw new ChannelRegistrationException(new ChannelClosedException("Can't register a channel that is inactive", channel));
         if (!(channel.remoteAddress() instanceof InetSocketAddress))
             throw new ChannelRegistrationException(new UnsupportedAddressTypeException());
         synchronized (channels) {
@@ -137,9 +138,13 @@ public class DefaultChannelRegistry implements ChannelRegistry {
     private void unregisterOnClose(Channel channel) {
         Objects.requireNonNull(channel, "Channel is null");
         if (channel.closeFuture().isDone()) {
-            unregister(channel);
+            try {
+                UNREGISTER_ON_CLOSE.operationComplete(channel.closeFuture());
+            } catch (Exception e) {
+                log.error("An error occured while trying to unregister channel '{}'", channel, e);
+            }
         } else {
-            channel.closeFuture().addListener(UNREGISTER_ON_CLOSE); //note: do not use future.channel() as this will
+            channel.closeFuture().addListener(UNREGISTER_ON_CLOSE);
         }
     }
 }

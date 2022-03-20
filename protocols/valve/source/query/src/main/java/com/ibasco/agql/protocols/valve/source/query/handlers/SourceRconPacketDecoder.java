@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,8 +18,8 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.PacketDecoder;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
@@ -70,11 +70,11 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
-        Envelope<AbstractRequest> envelope = ctx.channel().attr(NettyChannelAttributes.REQUEST).get();
+        Envelope<AbstractRequest> envelope = NettyChannelContext.getContext(ctx.channel()).properties().envelope();
         if (envelope == null)
             throw new IllegalStateException("Missing request envelope");
         if (!(envelope.content() instanceof SourceRconRequest))
-            throw new IllegalStateException("Expected an instance of SourceRconRequest");
+            throw new IllegalStateException("Expected an instance of SourceRconRequest but got: " + envelope.content());
 
         boolean readMoreBytes = false;
         final SourceRconRequest request = (SourceRconRequest) envelope.content();
@@ -133,11 +133,9 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         //Do we have the required number of bytes to process one complete packet? (packet size included)
         if (in.readableBytes() < (packetSize + PACKET_SIZE_LENGTH)) {
             debug(ctx, "Not enough readable bytes available to process this packet (Readable Bytes: {}, Expected packet size: {}, Collected packets: {})", in.readableBytes(), packetSize, packets.size());
-            //log.info("Not enough readable bytes available to process this packet (Readable Bytes: {}, Expected packet size: {}, Collected packets: {})", in.readableBytes(), packetSize + PACKET_SIZE_LENGTH, packets.size());
             return;
         }
 
-        //log.info("Got enough readable bytes. Start Decoding. (Readable Bytes: {}, Packet Size: {})", in.readableBytes(), packetSize);
         debug(ctx, "Got enough readable bytes. Start Decoding. (Readable Bytes: {}, Packet Size: {})", in.readableBytes(), packetSize);
 
         try {
@@ -286,11 +284,9 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
             return;
         if (SourceRcon.isTerminatorPacket(packet))
             return;
-        /*if (packets.stream().allMatch(p -> p.getId() == packet.getId()))
-            return;*/
         if (allMatch(packet))
             return;
-        if (packet.getId() == 0)
+        if (packet.getId() == 0 || packet.getId() == -1)
             return;
         if (request.getRequestId() != packet.getId())
             throw new IllegalStateException(String.format("Packet id mismatch. Expected packet id of '%d' but got '%d' (Request: %s)", request.getRequestId(), packet.getId(), request));

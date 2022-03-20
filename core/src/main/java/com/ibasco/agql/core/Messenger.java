@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.util.Configurable;
 
 import java.io.Closeable;
-import java.net.SocketAddress;
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
@@ -28,11 +28,9 @@ import java.util.concurrent.Executor;
  *
  * @author Rafael Luis Ibasco
  */
-public interface Messenger<A extends SocketAddress, R extends AbstractRequest, S extends AbstractResponse> extends Closeable, Configurable {
+public interface Messenger<R extends AbstractRequest, S extends AbstractResponse> extends Closeable, Configurable {
 
-    CompletableFuture<S> send(A address, R request);
-
-    default void receive(Envelope<S> response, Throwable error) {}
+    CompletableFuture<S> send(InetSocketAddress address, R request);
 
     Transport<?, ?> getTransport();
 

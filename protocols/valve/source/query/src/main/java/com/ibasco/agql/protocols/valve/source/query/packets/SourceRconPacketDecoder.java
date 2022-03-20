@@ -63,7 +63,6 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
             //Make sure that we have minimum number of bytes required to process an rcon packet
             String desc = StringUtils.rightPad("Minimum bytes required?", PAD_SIZE);
             int packetSize = in.readIntLE();
-            //log.info("TOTAL SIZE: {}, PACKET SIZE: {}", totalSize, packetSize);
             if (in.readableBytes() < packetSize) {
                 debug(ctx, " [ ] {} = NO  (Readable Bytes: {}, Packet Size: {})", desc, in.readableBytes(), packetSize);
                 throw new PacketDecodeException(String.format("Not enough bytes to process packet (Available: %d bytes, Minimum Required: %d bytes)", in.readableBytes(), packetSize));
@@ -101,7 +100,7 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
                     throw new PacketDecodeException(String.format("Malformed packet. Did not find a NULL terminating byte following the packet body (Remaining bytes: %d, Body Length: %d, Packet Size: %d, Packet Id: %d)", in.readableBytes(), bodyLength, packetSize, packetId));
                 } else {
                     bodyLength = packetSize - 9;
-                    log.info("Updating body length to: {} (Remaining bytes: {}, Packet Size: {}, Packet Type: {}, Packet Id: {})", bodyLength, in.readableBytes(), packetSize, packetType, packetId);
+                    log.debug("Updating body length to: {} (Remaining bytes: {}, Packet Size: {}, Packet Type: {}, Packet Id: {})", bodyLength, in.readableBytes(), packetSize, packetType, packetId);
                 }
             }
             ByteBuf packetPayload = in.readRetainedSlice(bodyLength + 1); //in.readBytes(bodyLength + 1) //add plus 1 to include reading the last NULL byte

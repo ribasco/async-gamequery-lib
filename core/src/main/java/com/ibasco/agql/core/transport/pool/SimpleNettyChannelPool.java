@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -15,19 +15,18 @@
  */
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.BootstrapNettyChannelFactory;
+import com.ibasco.agql.core.transport.AbstractNettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.pool.ChannelPoolHandler;
-import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import static io.netty.util.internal.ObjectUtil.checkNotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetSocketAddress;
 import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
@@ -55,7 +54,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
 
     private final ReleaseStrategy releaseStrategy;
 
-    private final BootstrapNettyChannelFactory channelFactory;
+    private final NettyChannelFactory channelFactory;
 
     /**
      * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
@@ -65,7 +64,8 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param handler
      *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
      */
-    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler) {
+    @SuppressWarnings("unused")
+    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler) {
         this(channelFactory, handler, ChannelHealthChecker.ACTIVE);
     }
 
@@ -80,7 +80,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
      *         still healthy when obtain from the {@link NettyChannelPool}
      */
-    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
+    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
         this(channelFactory, handler, healthCheck, true, null);
     }
 
@@ -100,7 +100,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param releaseStrategy
      *         Default strategy to apply during release
      */
-    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, ReleaseStrategy releaseStrategy) {
+    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, ReleaseStrategy releaseStrategy) {
         this(channelFactory, handler, healthCheck, releaseHealthCheck, true, releaseStrategy);
     }
 
@@ -122,7 +122,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @param releaseStrategy
      *         Default strategy to apply during release
      */
-    public SimpleNettyChannelPool(BootstrapNettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, boolean lastRecentUsed, ReleaseStrategy releaseStrategy) {
+    public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck, boolean releaseHealthCheck, boolean lastRecentUsed, ReleaseStrategy releaseStrategy) {
         this.handler = checkNotNull(handler, "handler");
         this.healthCheck = checkNotNull(healthCheck, "healthCheck");
         this.releaseHealthCheck = releaseHealthCheck;
@@ -131,12 +131,13 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         this.releaseStrategy = releaseStrategy == null ? NONE : releaseStrategy;
     }
 
-    public BootstrapNettyChannelFactory getChannelFactory() {
+    /**
+     * The underlying {@link NettyChannelFactory} used to create new {@link Channel} instances.
+     *
+     * @return A type of {@link AbstractNettyChannelFactory}
+     */
+    public NettyChannelFactory getChannelFactory() {
         return channelFactory;
-    }
-
-    public static AttributeKey<NettyChannelPool> getChannelPoolKey() {
-        return CHANNEL_POOL;
     }
 
     /**
@@ -144,6 +145,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *
      * @return the {@link ChannelPoolHandler} that will be notified for the different pool actions
      */
+    @SuppressWarnings("unused")
     public ChannelPoolHandler getChannelPoolHandler() {
         return handler;
     }
@@ -153,6 +155,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *
      * @return the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is healthy
      */
+    @SuppressWarnings("unused")
     protected ChannelHealthChecker getChannelHealthChecker() {
         return healthCheck;
     }
@@ -163,18 +166,19 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * @return {@code true} if this pool will check the health of channels before offering them back into the pool, or
      * {@code false} if channel health is only checked at acquisition time
      */
+    @SuppressWarnings("unused")
     protected boolean releaseHealthCheck() {
         return releaseHealthCheck;
     }
 
     @Override
-    public final CompletableFuture<Channel> acquire(Envelope<? extends AbstractRequest> envelope) {
-        return acquire(envelope, new CompletableFuture<>());
+    public final CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress) {
+        return acquire(remoteAddress, new CompletableFuture<>());
     }
 
     @Override
-    public CompletableFuture<Channel> acquire(Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> promise) {
-        return acquireHealthyFromPoolOrNew(envelope, promise);
+    public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
+        return acquireHealthyFromPoolOrNew(remoteAddress, promise);
     }
 
     /**
@@ -182,16 +186,16 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      *
      * @return future for acquiring a channel.
      */
-    private CompletableFuture<Channel> acquireHealthyFromPoolOrNew(Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> promise) {
+    private CompletableFuture<Channel> acquireHealthyFromPoolOrNew(final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
         try {
             final Channel ch = pollChannel();
             if (ch == null) {
-                CompletableFuture<Channel> channelFuture = newChannel(envelope);
-                //create a new conncted channel
+                //create a new connected channel
+                CompletableFuture<Channel> channelFuture = newChannel(remoteAddress);
                 notifyOnComplete(promise, channelFuture);
             } else {
                 //Channel is not null, ensure that health checker is run in the channel's event loop
-                runInEventLoop(ch.eventLoop(), (v) -> doHealthCheck(ch, envelope, promise));
+                runInEventLoop(ch.eventLoop(), (v) -> doHealthCheck(ch, remoteAddress, promise));
             }
         } catch (Throwable cause) {
             promise.completeExceptionally(cause);
@@ -199,16 +203,28 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return promise;
     }
 
-    protected CompletableFuture<Channel> newChannel(Envelope<? extends AbstractRequest> envelope) {
-        return channelFactory.create(envelope).thenApply(DefaultPooledChannel::new).thenApply(this::updateAttribute).whenComplete(this::notifyConnect);
+    protected CompletableFuture<Channel> newChannel(InetSocketAddress remoteAddress) {
+        return channelFactory.create(remoteAddress).thenCompose(this::initializeChannel);
     }
 
-    private void doHealthCheck(Channel ch, Envelope<? extends AbstractRequest> envelope, CompletableFuture<Channel> promise) {
+    private CompletableFuture<Channel> initializeChannel(Channel channel) {
+        return CompletableFuture.completedFuture(channel)
+                                .thenApply(DefaultPooledChannel::new)
+                                .thenApply(this::updateAttribute)
+                                .whenCompleteAsync(this::notifyConnect, channel.eventLoop());
+    }
+
+    private Channel updateAttribute(Channel channel) {
+        channel.attr(CHANNEL_POOL).set(this);
+        return channel;
+    }
+
+    private void doHealthCheck(Channel ch, final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
         try {
             assert ch.eventLoop().inEventLoop();
             CompletableFuture<Boolean> healthFuture = healthCheck.isHealthy(ch);
             if (healthFuture.isDone()) {
-                notifyHealthCheck(envelope, healthFuture.get(), ch, promise);
+                notifyHealthCheck(remoteAddress, healthFuture.get(), ch, promise);
             } else {
                 healthFuture.whenComplete((healthy, error) -> {
                     if (error != null) {
@@ -216,7 +232,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
                         return;
                     }
                     try {
-                        notifyHealthCheck(envelope, healthy, ch, promise);
+                        notifyHealthCheck(remoteAddress, healthy, ch, promise);
                     } catch (Throwable e) {
                         closeAndFail(ch, e, promise);
                     }
@@ -245,19 +261,16 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         }
     }
 
-    private void notifyConnect(Channel channel, Throwable factoryError) {
-        if (factoryError != null)
-            throw new CompletionException(ConcurrentUtil.unwrap(factoryError));
+    private void notifyConnect(Channel channel, Throwable error) {
+        assert channel.eventLoop().inEventLoop();
+
+        if (error != null)
+            throw new CompletionException(ConcurrentUtil.unwrap(error));
         try {
             handler.channelAcquired(channel);
         } catch (Throwable handlerError) {
             closeAndFail(channel, handlerError);
         }
-    }
-
-    private Channel updateAttribute(Channel channel) {
-        channel.attr(CHANNEL_POOL).set(this);
-        return channel;
     }
 
     private void runInEventLoop(EventLoop el, Consumer<Void> function) {
@@ -270,21 +283,18 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         }
     }
 
-    private void notifyHealthCheck(final Envelope<? extends AbstractRequest> envelope, boolean isHealthy, Channel channel, CompletableFuture<Channel> promise) throws Exception {
+    private void notifyHealthCheck(final InetSocketAddress remoteAddress, boolean isHealthy, Channel channel, CompletableFuture<Channel> promise) throws Exception {
         assert channel.eventLoop().inEventLoop();
         //if the channel is healthy, mark the promise as completed
         if (isHealthy) {
             channel.attr(CHANNEL_POOL).set(this);
-            if (channel instanceof PooledChannel) {
-                ((PooledChannel.ReleaseFuture) ((PooledChannel) channel).releaseFuture()).reset();
-            }
             handler.channelAcquired(channel);
-            if (promise.complete(channel)) {
-                log.debug("[{}] Acquired an existing healthy channel: {} for '{}' {} (Local: {}, Active: {})", this, channel, envelope.content().getClass().getSimpleName(), envelope.recipient(), channel.localAddress(), channel.isActive());
-            }
+            if (promise.complete(channel))
+                log.debug("[{}] Acquired an existing healthy channel: {} for address '{}' (Local: {}, Active: {})", this, channel, remoteAddress, channel.localAddress(), channel.isActive());
         } else {
+            //if channel is not healthy, close and acquire a new one
             closeChannel(channel);
-            acquireHealthyFromPoolOrNew(envelope, promise);
+            acquireHealthyFromPoolOrNew(remoteAddress, promise);
         }
     }
 
@@ -323,7 +333,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         }
     }
 
-    private void doHealthCheckOnRelease(final Channel channel, final CompletableFuture<Void> promise) throws Exception {
+    private void doHealthCheckOnRelease(final Channel channel, final CompletableFuture<Void> promise) {
         final CompletableFuture<Boolean> f = healthCheck.isHealthy(channel);
         if (f.isDone()) {
             releaseAndOfferIfHealthy(channel, promise, f);
@@ -363,20 +373,14 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
 
     private void releaseAndOffer(Channel channel, CompletableFuture<Void> promise) throws Exception {
         if (offerChannel(channel)) {
-            if (channel instanceof PooledChannel) {
-                PooledChannel pooledChannel = (PooledChannel) channel;
-                ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).success();
-                pooledChannel.notifyRelease();
-            }
+            if (channel instanceof PooledChannel)
+                ((PooledChannel) channel).notifyRelease();
             handler.channelReleased(channel);
             applyReleaseStrategy(channel);
             promise.complete(null);
         } else {
-            if (channel instanceof PooledChannel) {
-                PooledChannel pooledChannel = (PooledChannel) channel;
-                ((PooledChannel.ReleaseFuture) pooledChannel.releaseFuture()).fail(new ChannelPoolFullException());
-                pooledChannel.notifyRelease(new ChannelPoolFullException());
-            }
+            if (channel instanceof PooledChannel)
+                ((PooledChannel) channel).notifyRelease(new ChannelPoolFullException());
             closeAndFail(channel, new ChannelPoolFullException(), promise);
         }
     }
@@ -414,7 +418,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Poll a {@link Channel} out of the internal storage to reuse it. This will return {@code null} if no
      * {@link Channel} is ready to be reused.
      * <p>
-     * Subclasses may override {@link #pollChannel()} and {@link #offerChannel(Channel)}. Be aware that
+     * Subclasses may override {@code pollChannel()} and {@code offerChannel()). Be aware that
      * implementations of these methods needs to be thread-safe!
      */
     protected Channel pollChannel() {
@@ -425,7 +429,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Offer a {@link Channel} back to the internal storage. This will return {@code true} if the {@link Channel}
      * could be added, {@code false} otherwise.
      * <p>
-     * Sub-classes may override {@link #pollChannel()} and {@link #offerChannel(Channel)}. Be aware that
+     * Sub-classes may override {@code pollChannel()} and {@code offerChannel()). Be aware that
      * implementations of these methods needs to be thread-safe!
      */
     protected boolean offerChannel(Channel channel) {

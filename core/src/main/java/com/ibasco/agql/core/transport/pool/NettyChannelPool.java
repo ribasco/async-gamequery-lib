@@ -15,8 +15,6 @@
  */
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
 import static com.ibasco.agql.core.util.Functions.TRUE;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOutboundInvoker;
@@ -25,6 +23,7 @@ import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.Promise;
 
 import java.io.Closeable;
+import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
@@ -57,10 +56,10 @@ public interface NettyChannelPool extends Closeable {
      * <strong>Its important that an acquired is always released to the pool again, even if the {@link Channel}
      * is explicitly closed..</strong>
      *
-     * @param envelope
-     *         The request envelope that will be used to acquire a {@link Channel}
+     * @param remoteAddress
+     *         The remote address to connect to
      */
-    CompletableFuture<Channel> acquire(Envelope<? extends AbstractRequest> envelope);
+    CompletableFuture<Channel> acquire(InetSocketAddress remoteAddress);
 
     /**
      * Acquire a {@link Channel} from this {@link NettyChannelPool}. The returned {@link CompletableFuture} is notified once
@@ -69,12 +68,12 @@ public interface NettyChannelPool extends Closeable {
      * <strong>Its important that an acquired is always released to the pool again, even if the {@link Channel}
      * is explicitly closed..</strong>
      *
-     * @param envelope
-     *         The request envelope that will be used to acquire a {@link Channel}
+     * @param remoteAddress
+     *         The remote address to connect to
      * @param promise
      *         The {@link CompletableFuture} that is notified once the acquire operation is complete.
      */
-    CompletableFuture<Channel> acquire(Envelope<? extends AbstractRequest> envelope, final CompletableFuture<Channel> promise);
+    CompletableFuture<Channel> acquire(InetSocketAddress remoteAddress, final CompletableFuture<Channel> promise);
 
     /**
      * Release a {@link Channel} back to this {@link NettyChannelPool}. The returned {@link Future} is notified once

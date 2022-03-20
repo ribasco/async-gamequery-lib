@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.source.query;
+package com.ibasco.agql.core;
 
-import com.ibasco.agql.protocols.valve.source.query.exceptions.ChannelRegistrationException;
+import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;

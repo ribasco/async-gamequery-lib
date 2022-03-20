@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.source.query.exceptions;
-
-import com.ibasco.agql.core.exceptions.AsyncGameLibCheckedException;
+package com.ibasco.agql.core.exceptions;
 
 public class ChannelRegistrationException extends AsyncGameLibCheckedException {
 

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,8 +19,8 @@ package com.ibasco.agql.protocols.valve.source.query.client;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import com.ibasco.agql.core.NettyClient;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.NettySocketClient;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryMessenger;
@@ -61,7 +61,7 @@ import java.util.concurrent.TimeUnit;
  * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query
  * Protocol</a>
  */
-public final class SourceQueryClient extends NettyClient<InetSocketAddress, SourceQueryRequest, SourceQueryResponse> {
+public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
 
@@ -447,7 +447,7 @@ public final class SourceQueryClient extends NettyClient<InetSocketAddress, Sour
     }
 
     @Override
-    protected NettyMessenger<InetSocketAddress, SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
+    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
         return new SourceQueryMessenger(options);
     }
 

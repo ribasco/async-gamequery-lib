@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,44 +17,30 @@
 package com.ibasco.agql.protocols.valve.steam.master;
 
 import com.ibasco.agql.core.NettyMessenger;
-import com.ibasco.agql.core.transport.pool.NettyPoolingStrategy;
-import com.ibasco.agql.core.transport.udp.UdpNettyChannelFactoryProvider;
+import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
+import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.transport.NettyContextChannelFactory;
+import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
-import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerAddressDecoder;
-import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerPacketDecoder;
-import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerPacketEncoder;
-import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerRequestEncoder;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
-import io.netty.channel.ChannelInboundHandler;
-import io.netty.channel.ChannelOutboundHandler;
 
-import java.net.InetSocketAddress;
-import java.util.LinkedList;
-
-public class MasterServerMessenger extends NettyMessenger<InetSocketAddress, MasterServerRequest, MasterServerResponse> {
+public final class MasterServerMessenger extends NettyMessenger<MasterServerRequest, MasterServerResponse> {
 
     public MasterServerMessenger(Options options) {
-        super(options, new UdpNettyChannelFactoryProvider(false));
+        super(options);
     }
 
     @Override
     protected void configure(Options options) {
         defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
-        defaultOption(options, TransportOptions.POOL_STRATEGY, NettyPoolingStrategy.ADDRESS);
         defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);
     }
 
     @Override
-    public void registerInboundHandlers(LinkedList<ChannelInboundHandler> handlers) {
-        handlers.addLast(new MasterServerPacketDecoder());
-        handlers.addLast(new MasterServerAddressDecoder());
-    }
-
-    @Override
-    public void registerOutboundHandlers(LinkedList<ChannelOutboundHandler> handlers) {
-        handlers.addLast(new MasterServerRequestEncoder());
-        handlers.addLast(new MasterServerPacketEncoder());
+    protected NettyChannelFactory newChannelFactory() {
+        NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP, getOptions(), new DefaultChannlContextFactory(this));
+        return new MasterServerChannelFactory(channelFactory);
     }
 }

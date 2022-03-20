@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,6 +19,7 @@ package com.ibasco.agql.core.util;
 import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +27,15 @@ import java.util.regex.Pattern;
 public class NetUtil {
 
     private static final Pattern PATTERN_IP = Pattern.compile("(?<ip>\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b)|\\:(?<port>\\d*)");
+
+    public static String hostString(SocketAddress address) {
+        if (address == null)
+            return "N/A";
+        if (address instanceof InetSocketAddress) {
+            return ((InetSocketAddress) address).getHostString();
+        }
+        return address.toString();
+    }
 
     public static InetSocketAddress parseAddress(String address, int defaultPort) throws ParseException {
         if (address == null || address.trim().equalsIgnoreCase(""))

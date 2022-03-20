@@ -16,11 +16,8 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.AbstractResponse;
-import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.Messenger;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.TransportOptions;
@@ -46,6 +43,7 @@ public class MessageRouter extends ChannelDuplexHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MessageRouter.class);
 
+    //TODO: Move to a separate re-usable class
     private static final ChannelFutureListener REGISTER_READ_TIMEOUT = future -> {
         Channel ch = future.channel();
         assert ch.eventLoop().inEventLoop();
@@ -58,11 +56,14 @@ public class MessageRouter extends ChannelDuplexHandler {
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        Envelope<AbstractRequest> request = getRequest(ctx.channel());
-        if (request != null && request.content() != null) {
-            log.debug("{} ROUTER (OUTBOUND) => Writing message '{}' to transport (Request Id: {}, Type: {})", NettyUtil.id(ctx.channel()), msg, request.content().id(), request.content().getClass().getSimpleName());
+        final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        final Envelope<AbstractRequest> request = context.properties().envelope();
+        if (request == null)
+            throw new IllegalStateException("Missing request envelope for channel: " + ctx.channel());
+        if (request.content() != null) {
+            log.debug("{} ROUTER (OUTBOUND) => Writing message '{}' to transport (Request Id: {}, Type: {})", context.id(), msg, request.content().id(), request.content().getClass().getSimpleName());
         } else {
-            log.debug("{} ROUTER (OUTBOUND) => Writing message '{}' to transport (Request Id: N/A)", NettyUtil.id(ctx.channel()), msg);
+            log.debug("{} ROUTER (OUTBOUND) => Writing message '{}' to transport (Request Id: N/A)", context.id(), msg);
         }
         registerTimeoutOnWrite(promise, ctx.channel());
         super.write(ctx, msg, promise);
@@ -70,57 +71,55 @@ public class MessageRouter extends ChannelDuplexHandler {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, @NotNull Object response) throws Exception {
-        final Channel channel = ctx.channel();
-        checkResponse(channel);
-        final Envelope<AbstractResponse> envelope = getResponse(channel);
+        final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        final Envelope<AbstractRequest> envelope = context.properties().envelope();
+        if (context.messenger() == null)
+            throw new IllegalStateException("Messenger not found for context: " + context);
         try {
-            //send the response back to the client/messenger
+            //send the response back to the messenger
             if (response instanceof AbstractResponse) {
-                log.debug("{} ROUTER (INBOUND) => Success! Received a decoded response: {}", NettyUtil.id(channel), response);
-                envelope.content((AbstractResponse) response);
-                log.debug("{} ROUTER (INBOUND) => Notifying messenger (Promise: {}, Content: {})", NettyUtil.id(channel), envelope.promise(), envelope.content());
-                envelope.messenger().receive(envelope, null);
+                log.debug("{} ROUTER (INBOUND) => Response Received. Notifying messenger (Promise: {}, Request: {}, Response: {})", NettyUtil.id(context.channel()), context.properties().responsePromise(), envelope.content(), response);
+                context.receiveResponse((AbstractResponse) response);
             } else {
-                if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
-                    log.error("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", NettyUtil.id(channel), response.getClass().getSimpleName());
-                } else {
-                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", NettyUtil.id(channel), response.getClass().getSimpleName(), response.hashCode(), response);
+                try {
+                    //report unwanted instances of objects not being released properly
+                    if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
+                        log.error("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", context.id(), response.getClass().getSimpleName());
+                        throw new NoMessageHandlerException(String.format("Memory was not properly deallocated for object '%s'. Please investigate", response.getClass().getSimpleName()));
+                    }
+                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response);
+                } finally {
+                    context.receiveResponse(new IllegalStateException("No handlers found for message: " + response.getClass().getSimpleName()));
                 }
-                envelope.messenger().receive(envelope, new IllegalStateException("No handlers found for message: " + response.getClass().getSimpleName()));
             }
         } finally {
-            log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", NettyUtil.id(channel), response.getClass().getSimpleName());
-            if (ReferenceCountUtil.release(response)) {
-                log.debug("{} ROUTER (INBOUND) => Released reference counted message", NettyUtil.id(channel));
-            }
+            log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", context.id(), response.getClass().getSimpleName());
+            if (ReferenceCountUtil.release(response))
+                log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
         }
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable error) throws Exception {
-        Channel channel = ctx.channel();
-        assert channel != null;
-        checkResponse(channel);
-        Envelope<AbstractResponse> response = getResponse(channel);
-        log.error(String.format("%s ROUTER (ERROR) => Type: %s, Message: %s (Channel: %s, Pooled: %s)",
-                                NettyUtil.id(channel),
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        log.debug(String.format("%s ROUTER (ERROR) => Type: %s, Message: %s (Channel: %s, Pooled: %s)",
+                                context.id(),
                                 error.getClass().getSimpleName(),
                                 StringUtils.defaultString(error.getMessage(), "N/A"),
-                                channel,
-                                NettyChannelPool.isPooled(channel)), error);
-        response.messenger().receive(response, error);
+                                context.channel(),
+                                NettyChannelPool.isPooled(context.channel())), error);
+        context.receiveResponse(error);
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", NettyUtil.id(ctx.channel()), NettyUtil.isPooled(ctx.channel()));
+        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", NettyUtil.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelReadComplete();
-        Envelope<AbstractRequest> request = getRequest(ctx.channel());
         log.debug("{} ROUTER (INBOUND) => Read Complete", NettyUtil.id(ctx.channel()));
     }
 
@@ -136,35 +135,18 @@ public class MessageRouter extends ChannelDuplexHandler {
         log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", NettyUtil.id(channel), readTimeout);
     }
 
-    private void checkResponse(Channel channel) {
-        Envelope<AbstractResponse> response = getResponse(channel);
-        if (response == null)
-            throw new IllegalStateException("Missing response envelope for channel '" + NettyUtil.id(channel) + "'");
-        if (response.promise() == null)
-            throw new IllegalStateException("Missing client promise for channel '" + NettyUtil.id(channel) + "'");
-        if (response.messenger() == null)
-            throw new IllegalStateException("Missing messenger instance for channel '" + NettyUtil.id(channel) + "'");
-    }
-
-    private static Envelope<AbstractRequest> getRequest(Channel channel) {
-        return channel.attr(NettyChannelAttributes.REQUEST).get();
-    }
-
-    private static Envelope<AbstractResponse> getResponse(Channel channel) {
-        return channel.attr(NettyChannelAttributes.RESPONSE).get();
-    }
-
     private static void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {
-        Envelope<AbstractRequest> requestEnvelope = getRequest(channel);
-        if (requestEnvelope != null && requestEnvelope.promise().isDone()) {
-            log.warn("Skipping timeout registration. Response already received (Promise: {})", requestEnvelope.promise());
+        NettyChannelContext context = NettyChannelContext.getContext(channel);
+        Envelope<AbstractRequest> envelope = context.properties().envelope();
+        if (envelope != null && context.properties().responsePromise().isDone()) {
+            log.warn("Skipping timeout registration. Response already received (Promise: {})", context.properties().responsePromise());
             return;
         }
         if (promise.isDone()) {
             if (promise.isSuccess())
                 registerReadTimeoutHandler(channel);
             else {
-                log.error("Failed write operation for request '{}'", requestEnvelope, promise.cause());
+                log.error("Failed write operation for request '{}'", envelope, promise.cause());
             }
         } else {
             promise.addListener(REGISTER_READ_TIMEOUT);

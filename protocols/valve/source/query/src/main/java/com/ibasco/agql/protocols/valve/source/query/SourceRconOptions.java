@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,6 +16,8 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.ibasco.agql.core.Credentials;
+import com.ibasco.agql.core.CredentialsStore;
 import com.ibasco.agql.core.util.Option;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconPacketAssembler;
@@ -29,15 +31,22 @@ import com.ibasco.agql.protocols.valve.source.query.packets.SourceRconPacket;
 public final class SourceRconOptions {
 
     /**
-     * Enable the use of "terminating packets". A terminator packet allows the library to accurately determine the end of a response.
-     * <p/>
-     * When enabled, an empty <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#SERVERDATA_RESPONSE_VALUE">rcon response packet</a> is sent after every command. The game server will then mirror it back
-     * at the end of the response, followed by an additional terminator packet with a terminating byte equals to 1 (0x01), thus allowing the library to determine
-     * that it has reached the end of the response. This is mostly useful for large response packets that are sent in smaller chunks by the server, which would then
-     * have to be re-assembled by the library back into a single {@link SourceRconPacket} instance.
      * <p>
+     * Enable the use of "terminating packets (Enabled by default)".
      * <p/>
-     * Please note that some games such as <a href="https://wiki.vg/RCON">Minecraft</a> does not support this mode, if that is the case this configuration option should be left disabled. A special heuristics will be used instead to determine the end of the response.
+     *
+     * <p>
+     * Simply put, a terminator packet allows the library to accurately determine the end of a response ensuring the integrity of the data received from the game server. If disabled, a special heuristics will be performed to determine the end of response but this is not always accurate in some cases and its possible that you won't be receiving the entire response from the server (especially when dealing with large response packets).
+     * </p>
+     * <br />
+     * <h3>Detailed description</h3>
+     * <p>
+     * When enabled, an empty <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#SERVERDATA_RESPONSE_VALUE">rcon response packet</a> is sent after every command. The game server will then mirror it back
+     * at the end of the response, followed by an additional terminator packet with a terminating byte equals to 1 (0x01). This allows the library to accurately determine
+     * that it has reached the end of the response ensuring the integrity of the data received from the game server. This is mostly useful for large response packets that are sent in smaller chunks by the server, which would then
+     * have to be re-assembled by the library back into a single {@link SourceRconPacket} instance.
+     * <p/>
+     * Please note that some games such as <a href="https://wiki.vg/RCON">Minecraft</a> does not support this mode as it does not echo back the empty terminator packets, if that is the case then this configuration option should be left <strong>disabled</strong>. A special heuristics will be used instead to determine the end of the response.
      *
      * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses">Multi-Packet Responses</a>
      * @see SourceRconPacket
@@ -52,18 +61,18 @@ public final class SourceRconOptions {
     public static final Option<Boolean> STRICT_MODE = Option.createOption("rconStrictMode", true, true, true);
 
     /**
-     * Automatically send a reauthentication request if the connection is no longer valid. This applies only to successfully authenticated addresses.
+     * Automatically send a re-authentication request if the connection is no longer valid. This applies only to successfully authenticated addresses.
      */
     public static final Option<Boolean> REAUTHENTICATE = Option.createOption("rconReauth", true, true, true);
 
     /**
-     * The {@link CredentialsManager} to be used by the rcon authentication module. Default is {@link DefaultCredentialsManager}.
+     * The {@link CredentialsStore} to be used by the rcon authentication module. Default is {@link SourceRconInMemoryCredentialsStore}.
      *
      * @see Credentials
-     * @see CredentialsManager
-     * @see SourceRconAuthProxy
+     * @see CredentialsStore
+     * @see SourceRconAuthManager
      */
-    public static final Option<CredentialsManager> CREDENTIALS_MANAGER = Option.createOption("rconCredManager", null);
+    public static final Option<CredentialsStore> CREDENTIALS_STORE = Option.createOption("rconCredManager", null);
 
     /**
      * Automatically close inactive channels/connections once it has reached the threshold value (value is in seconds). Set to -1 to disable.
@@ -76,4 +85,9 @@ public final class SourceRconOptions {
      * @see #CLOSE_INACTIVE_CHANNELS
      */
     public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.createOption("rconInactiveCheckInterval", 1);
+
+    /**
+     * When enabled, registered {@link Credentials} will automatically be invalidated once it detects that a connection is abrupty dropped by the remote server.
+     */
+    public static final Option<Boolean> INVALIDATE_ON_CLOSE = Option.createOption("rconInvalidateOnClose", true);
 }

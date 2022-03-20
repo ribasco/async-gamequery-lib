@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,9 +17,8 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
@@ -102,12 +101,11 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
 
     protected final Envelope<AbstractRequest> getRequest() {
         assert channel != null;
-        return channel.attr(NettyChannelAttributes.REQUEST).get();
+        return getContext().properties().envelope();
     }
 
-    protected final Envelope<AbstractResponse> getResponse() {
-        assert channel != null;
-        return channel.attr(NettyChannelAttributes.RESPONSE).get();
+    protected final NettyChannelContext getContext() {
+        return NettyChannelContext.getContext(channel);
     }
 
     protected final boolean isDebugEnabled() {

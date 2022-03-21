@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,9 +33,14 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
-public class DefaultRconAuthenticator implements RconAuthenticator {
+/**
+ * The default {@link RconAuthenticator}.
+ *
+ * @author Rafael Luis Ibasco
+ */
+public class SourceRconAuthenticator implements RconAuthenticator {
 
-    private static final Logger log = LoggerFactory.getLogger(DefaultRconAuthenticator.class);
+    private static final Logger log = LoggerFactory.getLogger(SourceRconAuthenticator.class);
 
     private final boolean reauthenticate;
 
@@ -45,7 +50,7 @@ public class DefaultRconAuthenticator implements RconAuthenticator {
 
     static final String NOT_YET_AUTH_MSG = "Address '%s' not yet authenticated by the remote server. Use authenticate() with a valid passphrase";
 
-    public DefaultRconAuthenticator(CredentialsStore credentialsStore, boolean reauthenticate) {
+    public SourceRconAuthenticator(CredentialsStore credentialsStore, boolean reauthenticate) {
         this.credentialsStore = credentialsStore;
         this.reauthenticate = reauthenticate;
     }

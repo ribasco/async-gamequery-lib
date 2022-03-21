@@ -362,7 +362,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
         private Throwable responseError;
 
-        private boolean autoRelease;
+        private boolean autoRelease = true;
 
         protected Properties() {
             log.debug("CONTEXT => Initializing context properties for channel '{}' (Local: {}, Remote: {})", channel, channel.localAddress(), channel.remoteAddress());

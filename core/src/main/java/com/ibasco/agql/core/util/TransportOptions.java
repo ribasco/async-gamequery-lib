@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -126,13 +126,31 @@ public final class TransportOptions {
 
     /**
      * Enable/disable {@link dev.failsafe.Failsafe} integration
+     *
+     * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
     public static final Option<Boolean> FAILSAFE_ENABLED = Option.createOption("failSafeEnabled", true, false, false);
 
     /**
      * The maximum number of connection attempts for acquiring a {@link io.netty.channel.Channel} / Connection
+     *
+     * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
     public static final Option<Integer> FAILSAFE_ACQUIRE_MAX_CONNECT = Option.createOption("failSafeMaxConnectAttempts", 3, false, false);
+
+    /**
+     * Sets the minimum delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by a factor of 2.
+     *
+     * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
+     */
+    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MIN = Option.createOption("failSafeBackoffMin", 1);
+
+    /**
+     * Sets the maximum delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by a factor of 2.
+     *
+     * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
+     */
+    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MAX = Option.createOption("failSafeBackoffMax", 5);
     //</editor-fold>
 
     //<editor-fold desc="Concurrency">

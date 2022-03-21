@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -88,7 +88,10 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
                           .abortOn(RejectedExecutionException.class)
                           .onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastFailure() != null ? event.getLastFailure().getClass().getSimpleName() : "N/A"))
                           .withMaxAttempts(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_MAX_CONNECT))
-                          .withBackoff(Duration.ofSeconds(1), Duration.ofSeconds(5));
+                          .withBackoff(
+                                  Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN))
+                                  , Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX))
+                          );
         configureRetryPolicy(retryPolicyBuilder);
         return retryPolicyBuilder.build();
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -58,8 +58,6 @@ public class SourceRconExample extends BaseExample {
 
     private InetSocketAddress serverAddress;
 
-    private static boolean nonInteractive;
-
     private static final String[] COMMANDS = new String[] {"status", "sm plugins list", "cvarlist", "maps *", "meta list", "sm exts list", "sm version", "find sv", "help sv_cheats"};
 
     private final AtomicBoolean authenticated = new AtomicBoolean();
@@ -73,10 +71,6 @@ public class SourceRconExample extends BaseExample {
 
     @Override
     public void run(String[] args) throws Exception {
-        if (args != null && args.length > 0 && args[0] != null && !args[0].isEmpty()) {
-            nonInteractive = "ni".equalsIgnoreCase(args[0]);
-        }
-
         final Options rconOptions = OptionBuilder.newBuilder()
                                                  .option(TransportOptions.POOL_MAX_CONNECTIONS, 8)
                                                  .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
@@ -90,10 +84,7 @@ public class SourceRconExample extends BaseExample {
         try {
             rconClient = new SourceRconClient(rconOptions);
             printConsoleBanner();
-            if (nonInteractive)
-                this.runBenchmark();
-            else
-                this.runRconConsole();
+            runRconConsole();
         } finally {
             close();
         }
@@ -141,55 +132,6 @@ public class SourceRconExample extends BaseExample {
             result.entrySet().stream().filter(p -> !p.getValue()).forEach(e -> log.error("Server {} did not authenticate successfully", e.getKey()));
             throw new RconNotYetAuthException("A server did not authenticate successfully", SourceRconAuthReason.NOT_AUTHENTICATED, null);
         }
-    }
-
-    private void runBenchmark() throws Exception {
-        final Map<InetSocketAddress, String> servers = new HashMap<>();
-        servers.put(new InetSocketAddress("192.168.50.6", 27016), "G8oGC24io5zUt6ErS5ShD");
-        servers.put(new InetSocketAddress("192.168.50.6", 27017), "twdeyprtkfs6TsH5SMqiR");
-        //servers.put(new InetSocketAddress("192.168.1.34", 27018), "twdeyprtkfs6TsH5SMqiR");
-        authenticate(servers);
-
-        int size = 10000;
-        final AtomicInteger success = new AtomicInteger();
-        final AtomicInteger fail = new AtomicInteger();
-
-        log.info("Running benchmark test ({} commands)", size);
-        long start = System.nanoTime();
-
-        final Phaser phaser = new Phaser();
-        final BiConsumer<SourceRconCmdResponse, Throwable> handler = new BiConsumer<SourceRconCmdResponse, Throwable>() {
-
-            @Override
-            public synchronized void accept(SourceRconCmdResponse response, Throwable error) {
-                try {
-                    if (error != null) {
-                        log.error("COMMAND [ERROR]", error);
-                        fail.incrementAndGet();
-                    } else {
-                        if (!response.isSuccess()) {
-                            log.error("COMMAND [ERROR]", response.getError());
-                            fail.incrementAndGet();
-                        } else {
-                            success.incrementAndGet();
-                        }
-                    }
-                } finally {
-                    phaser.arriveAndDeregister();
-                    int successCount = success.get();
-                    int failCount = fail.get();
-                    int totalCount = successCount + failCount;
-                    int remaining = phaser.getUnarrivedParties();
-                    if ((totalCount % 1000) == 0) {
-                        log.info("Processed a total of {} queries in {} secs (Remaining: {}, Success: {}, Failed: {})", totalCount, Duration.ofNanos(System.nanoTime() - start).getSeconds(), remaining, successCount, failCount);
-                    }
-                }
-            }
-        };
-        sendCommandBatch(size, servers.keySet(), handler, phaser);
-        Duration duration = Duration.ofNanos(System.nanoTime() - start);
-        log.info("Done. (Total Commands: {}, Duration: {} ms, Count: {}, Success: {}, Fail: {})", size, duration.toMillis(), phaser.getArrivedParties(), success.get(), fail.get());
-        rconClient.getStatistics().print();
     }
 
     private void printConsoleBanner() {

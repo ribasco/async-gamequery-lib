@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,7 +32,7 @@ public final class SourceRconOptions {
 
     /**
      * <p>
-     * Enable the use of "terminating packets (Enabled by default)".
+     * Enable the use of "terminating packets" (Enabled by default).
      * <p/>
      *
      * <p>
@@ -72,7 +72,7 @@ public final class SourceRconOptions {
      * @see CredentialsStore
      * @see SourceRconAuthManager
      */
-    public static final Option<CredentialsStore> CREDENTIALS_STORE = Option.createOption("rconCredManager", null);
+    public static final Option<CredentialsStore> CREDENTIALS_STORE = Option.createOption("rconCredentialsStore", null);
 
     /**
      * Automatically close inactive channels/connections once it has reached the threshold value (value is in seconds). Set to -1 to disable.
@@ -87,7 +87,19 @@ public final class SourceRconOptions {
     public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.createOption("rconInactiveCheckInterval", 1);
 
     /**
-     * When enabled, registered {@link Credentials} will automatically be invalidated once it detects that a connection is abrupty dropped by the remote server.
+     * When enabled, registered {@link Credentials} will automatically be invalidated when the connection is abruptly dropped by the remote server.
      */
     public static final Option<Boolean> INVALIDATE_ON_CLOSE = Option.createOption("rconInvalidateOnClose", true);
+
+    /**
+     * The maximum number of attempts to be made when re-sending failed requests (Default: 3)
+     */
+    public static final Option<Integer> FAILSAFE_MAX_ATTEMPTS = Option.createOption("rconFailsafeMaxAttempts", 3);
+
+    /**
+     * The delay interval between retries in seconds (Default: 1 )
+     *
+     * @see #FAILSAFE_MAX_ATTEMPTS
+     */
+    public static final Option<Integer> FAILSAFE_DELAY_INTERVAL = Option.createOption("rconFailsafeDelayInterval", 1);
 }

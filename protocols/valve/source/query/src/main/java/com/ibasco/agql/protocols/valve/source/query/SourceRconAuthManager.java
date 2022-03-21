@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 Asynchronous Game Query Library
+ * Copyright 2022-2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -60,7 +60,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 /**
- * <p>A proxy that ensures that requests are sent via an authenticated {@link Channel}
+ * <p>The default Source RCON authentication manager. This also serves as a messenger proxy that allows rcon requests to passthrough.</p>
  *
  * @author Rafael Luis Ibasco
  */
@@ -89,10 +89,7 @@ public final class SourceRconAuthManager implements Closeable {
 
     private final RconAuthenticator authenticator;
 
-    private final RetryPolicy<SourceRconChannelContext> rconRequestRetryPolicy = RetryPolicy.<SourceRconChannelContext>builder()
-                                                                                            .abortOn(ConnectTimeoutException.class)
-                                                                                            .withDelay(Duration.ofSeconds(1))
-                                                                                            .withMaxAttempts(3).build();
+    private final RetryPolicy<SourceRconChannelContext> rconRequestRetryPolicy;
 
     private final FailsafeExecutor<SourceRconChannelContext> executor;
 
@@ -109,7 +106,14 @@ public final class SourceRconAuthManager implements Closeable {
         this.credentialsStore = credentialsStore;
         this.jobScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-auth-job"));
         this.reauthenticate = messenger.getOrDefault(SourceRconOptions.REAUTHENTICATE);
-        this.authenticator = new DefaultRconAuthenticator(credentialsStore, reauthenticate);
+        this.authenticator = new SourceRconAuthenticator(credentialsStore, reauthenticate);
+
+        this.rconRequestRetryPolicy = RetryPolicy.<SourceRconChannelContext>builder()
+                                                 .abortOn(ConnectTimeoutException.class)
+                                                 .withDelay(Duration.ofSeconds(messenger.getOrDefault(SourceRconOptions.FAILSAFE_DELAY_INTERVAL)))
+                                                 .withMaxAttempts(messenger.getOrDefault(SourceRconOptions.FAILSAFE_MAX_ATTEMPTS))
+                                                 .build();
+
         this.executor = Failsafe.with(rconRequestRetryPolicy).with(messenger.getExecutor());
         this.channelFactory = (SourceRconChannelFactory) messenger.getChannelFactory();
     }
@@ -266,16 +270,16 @@ public final class SourceRconAuthManager implements Closeable {
         final InetSocketAddress address = context.properties().envelope().recipient();
         //Do we a valid credential registered for the address
         if (!isAuthenticated(address))
-            throw new RconNotYetAuthException(String.format(DefaultRconAuthenticator.NOT_YET_AUTH_MSG, address), SourceRconAuthReason.NOT_AUTHENTICATED, address);
+            throw new RconNotYetAuthException(String.format(SourceRconAuthenticator.NOT_YET_AUTH_MSG, address), SourceRconAuthReason.NOT_AUTHENTICATED, address);
         //Are the credentials still valid?
         if (!isValidAddress(address))
-            throw new RconInvalidCredentialsException(String.format(DefaultRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
+            throw new RconInvalidCredentialsException(String.format(SourceRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
         log.debug("{} AUTH => Found existing valid credentials for address '{}' (Authenticated: {})", context.id(), address, context.properties().authenticated());
         //is the channel authenticated already?
         if (context.properties().authenticated())
             return context.send();
         if (!reauthenticate)
-            throw new RconInvalidCredentialsException(String.format(DefaultRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
+            throw new RconInvalidCredentialsException(String.format(SourceRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
 
         log.debug("{} AUTH => Channel not yet authenticated. Attempting to authenticate the underlying connection with remote server", context.id());
         //Send the request over the transport. If the channel is not yet authenticated, an authentication request will be sent first.
@@ -664,7 +668,7 @@ public final class SourceRconAuthManager implements Closeable {
                 if (ctx.properties().request() instanceof SourceRconAuthRequest) {
                     if (credentials != null && credentials.isValid()) {
                         credentials.invalidate();
-                        throw new RconInvalidCredentialsException(String.format(DefaultRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
+                        throw new RconInvalidCredentialsException(String.format(SourceRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
                     }
                     throw new RconMaxLoginAttemptsException("Failed to authenticate with server. Maximum number of login attempts has been reached (" + rconRequestRetryPolicy.getConfig().getMaxAttempts() + ")", address);
                 }

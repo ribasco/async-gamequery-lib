@@ -46,10 +46,10 @@ public class SourceQueryOptions {
      * @see #FAILSAFE_RATELIMIT_MAX_WAIT_TIME
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static final Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.createOption("queryFailsafeRateLimitEnabled", true);
+    public static final Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.createOption("queryFailsafeRateLimitEnabled", false);
 
     /**
-     * Maximum number of executions within the specified period (Default is 10 executions per minute)
+     * Maximum number of executions within the specified period (Default is 500 executions per minute)
      *
      * @see #FAILSAFE_RATELIMIT_PERIOD
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
@@ -65,7 +65,7 @@ public class SourceQueryOptions {
     public static final Option<Long> FAILSAFE_RATELIMIT_PERIOD = Option.createOption("queryFailsafeRateLimitPeriod", 60000L);
 
     /**
-     * Maximum waiting time for permits to be available (Default is 3000 ms)
+     * Maximum waiting time for permits to be available (Default is 10000 ms)
      *
      * @see <a href="https://failsafe.dev/rate-limiter/#waiting">Failsafe's Rate Limiter (Waiting)</a>
      */

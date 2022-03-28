@@ -9,8 +9,6 @@ Asynchronous Game Query Library
 
 An asynchronous game query library written for Java. Implements Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
 
-![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
-
 Project Resources
 -------------
 
@@ -149,6 +147,8 @@ For usage examples, please refer to the [site docs](http://ribasco.github.io/asy
 
 Interactive Examples
 --------------------
+
+![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
 
 To run the available examples, I have included a convenience script (`run-example.sh`) that will allow you to pick a specific example you want to run.
 

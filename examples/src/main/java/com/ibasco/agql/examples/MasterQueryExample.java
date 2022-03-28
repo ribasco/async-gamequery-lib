@@ -19,7 +19,6 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
@@ -27,15 +26,12 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
-import io.netty.channel.EventLoopGroup;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Vector;
-import java.util.concurrent.Executors;
 
 public class MasterQueryExample extends BaseExample {
 
@@ -49,15 +45,12 @@ public class MasterQueryExample extends BaseExample {
 
     @Override
     public void run(String[] args) throws Exception {
-        //in this example, use a different event loop group to be used by the master query module.
-        EventLoopGroup elg = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-master")), 0, true);
         Options options = OptionBuilder.newBuilder()
                                        .option(TransportOptions.READ_TIMEOUT, 3000)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 15L)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_PERIOD, 60000L)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                        .option(MasterServerOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
-                                       .option(TransportOptions.THREAD_EL_GROUP, elg)
                                        .build();
         client = new MasterServerQueryClient(options);
         this.listAllServers();

@@ -17,8 +17,7 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.AbstractClient;
-import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.util.NetUtil;
+import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.PlayersHandler;
 import com.ibasco.agql.examples.query.ResponseHandler;
@@ -29,6 +28,8 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -70,8 +71,14 @@ public class SourceQueryExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         try {
+            //use default options for query client
             queryClient = new SourceQueryClient(); //queryOptions
-            masterClient = new MasterServerQueryClient();
+
+            //in this example, use a different event loop group to be used by the master query module.
+            EventLoopGroup masterEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-master")), 0, true);
+            Options masterOptions = OptionBuilder.newBuilder().option(TransportOptions.THREAD_EL_GROUP, masterEventLoopGroup).build();
+            masterClient = new MasterServerQueryClient(masterOptions);
+
             log.info("NOTE: Depending on your selected criteria, the application may time some time to complete. You can review the log file(s) once the program exits.");
             runInteractiveExample();
         } catch (Exception e) {

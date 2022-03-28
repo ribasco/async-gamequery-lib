@@ -38,6 +38,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol Specifications</a>
+ * @see SourceRconOptions
  */
 public final class SourceRconClient extends NettySocketClient<SourceRconRequest, SourceRconResponse> {
 

@@ -33,14 +33,17 @@ Changelog
 - **Source Master Query**
     - Improved/re-worked implementation
     - Failsafe Integration
-        - Fallback
+        - Fallback Policy
             - If a connection is dropped by the master server (e.g. timeout or rate limit exceeded), the resulting future will still be marked as completed returning the list of addresses collected from the master server.
-        - Retry
+        - Retry Policy
             - If a timeout is encountered during a query (there are usually 3 ip available for each master server), the request will automatically be retried cycling through all available master server IPs.
-        - Rate Limiter
+        - Rate Limiting Policy
             - Requests sent to the master servers are rate limited by default to prevent timeouts or dropped connections.
 
 - **Source Query (Info/Players/Rules)**
+    - Failsafe Integration
+      - Retry Policy
+        - Failed requests will be re-attempted 3 times by default. 
     - Source info query now compatible with the new implementation (challenge based) (See [RFC: Changes to the A2S_INFO protocol ](https://steamcommunity.com/discussions/forum/14/2989789048633291344/))
     - Queries that require a challenge number are now handled automatically by the library by default, this means that the developer no longer needs to obtain a challenge number manually.
     - **Deprecated** built-in challenge caching facilities. This will be removed in the next major update.

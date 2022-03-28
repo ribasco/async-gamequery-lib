@@ -55,7 +55,6 @@ public class MasterQueryExample extends BaseExample {
                                        .option(TransportOptions.READ_TIMEOUT, 3000)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 15L)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_PERIOD, 60000L)
-                                       //.option(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, (60000L / 12L) + 3000L)
                                        .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                        .option(MasterServerOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
                                        .option(TransportOptions.THREAD_EL_GROUP, elg)

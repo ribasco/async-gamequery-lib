@@ -567,7 +567,6 @@ public final class SourceRconAuthManager implements Closeable {
             print(output, LINE);
             print(output, "Channel Statistics");
             print(output, LINE);
-            print(output, "Custom executor: %s", messenger.get(TransportOptions.THREAD_POOL_EXECUTOR));
             print(output, "Connection pooling enabled: %s", messenger.getOrDefault(TransportOptions.CONNECTION_POOLING));
             print(output, "Max Pooled Connections: %d", messenger.getOrDefault(TransportOptions.POOL_MAX_CONNECTIONS));
             print(output, "Max Core Pool Size: %d", getCorePoolSize(messenger.getExecutor()));

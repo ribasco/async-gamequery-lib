@@ -132,7 +132,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
 
         //Reset context properties/promises if necessary
         if (context.properties().responsePromise() != null && context.properties().responsePromise().isDone()) {
-            log.info("{} MESSENGER => Resetting response promise for request '{}'", context.id(), context.properties().request());
+            log.debug("{} MESSENGER => Resetting response promise for request '{}'", context.id(), context.properties().request());
             context.properties().reset();
         }
         return context;

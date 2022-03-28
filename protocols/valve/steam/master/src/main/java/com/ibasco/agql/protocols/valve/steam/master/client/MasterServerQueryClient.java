@@ -65,7 +65,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @param filter
      *         A {@link MasterServerFilter} containing the filters to be applied in the query
      *
-     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector<InetSocketAddress>} containing the {@link InetSocketAddress} instances of the servers.
+     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector} containing the {@link InetSocketAddress} instances of the servers.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
@@ -85,7 +85,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @param callback
      *         Accepts a {@link TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server
      *
-     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector<InetSocketAddress>} containing the {@link InetSocketAddress} instances of the servers.
+     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector} containing the {@link InetSocketAddress} instances of the servers.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
      */

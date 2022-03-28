@@ -434,7 +434,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Offer a {@link Channel} back to the internal storage. This will return {@code true} if the {@link Channel}
      * could be added, {@code false} otherwise.
      * <p>
-     * Sub-classes may override {@code pollChannel()} and {@code offerChannel()). Be aware that
+     * Sub-classes may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
      * implementations of these methods needs to be thread-safe!
      */
     protected boolean offerChannel(Channel channel) {

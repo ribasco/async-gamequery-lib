@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,9 +39,13 @@ import java.util.stream.Collectors;
 /**
  * Re-assembles all {@link SourceRconPacket} split-packet back into a single {@link SourceRconPacket} instance.
  *
- * @author Rafael Luis Ibasco
- * @implNote When terminator packets are enabled, we expect to receive two terminator packets with request id of -1 and with terminator byte of 0 then 1.
+ * <blockquote>
+ * <h4>Note</h4>
+ * When terminator packets are enabled, we expect to receive two terminator packets with request id of -1 and with terminator byte of 0 then 1.
  * This implementation expects only to receive a SINGLE terminator packet, because there are cases when an unauthenticated request is sent, then the server will only send a single terminator packet (with terminator value of 0) instead of two.
+ * </blockquote>
+ *
+ * @author Rafael Luis Ibasco
  * @see SourceRconOptions#USE_TERMINATOR_PACKET
  */
 public class SourceRconPacketAssembler extends MessageInboundDecoder {

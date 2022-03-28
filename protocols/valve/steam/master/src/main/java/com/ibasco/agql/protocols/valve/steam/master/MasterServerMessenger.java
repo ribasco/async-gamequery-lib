@@ -272,7 +272,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             int maxAttempts = retryPolicy.getConfig().getMaxAttempts();
 
             if (!executionContext.isFirstAttempt() && executionContext.isRetry() && executionContext.getLastFailure() instanceof ReadTimeoutException) {
-                log.info("{} MASTER => Encountered a READ TIMEOUT in the last request for address '{}'. Selecting an alternative address", contextId, masterAddress);
+                log.debug("{} MASTER => Encountered a READ TIMEOUT in the last request for address '{}'. Selecting an alternative address", contextId, masterAddress);
                 masterAddress = null;
             }
 

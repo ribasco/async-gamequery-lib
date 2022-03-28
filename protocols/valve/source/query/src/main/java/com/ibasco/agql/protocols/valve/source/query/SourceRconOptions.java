@@ -93,14 +93,16 @@ public final class SourceRconOptions {
     public static final Option<Boolean> INVALIDATE_ON_CLOSE = Option.createOption("rconInvalidateOnClose", true);
 
     /**
-     * The maximum number of attempts to be made when re-sending failed requests (Default: 3)
+     * Sets the max number of execution attempts to perform. -1 indicates no limit (Default is 3 attempts)
+     *
+     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static final Option<Integer> FAILSAFE_MAX_ATTEMPTS = Option.createOption("rconFailsafeMaxAttempts", 3);
+    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("rconFailsafeMaxAttempts", 3);
 
     /**
-     * The delay interval between retries in seconds (Default: 1 )
+     * Delay between retries (In milliseconds. Use -1 to disable)
      *
-     * @see #FAILSAFE_MAX_ATTEMPTS
+     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static final Option<Integer> FAILSAFE_DELAY_INTERVAL = Option.createOption("rconFailsafeDelayInterval", 1);
+    public static final Option<Integer> FAILSAFE_RETRY_DELAY = Option.createOption("rconFailsafeDelayInterval", 1);
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,11 +19,12 @@ package com.ibasco.agql.core.transport.pool;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 
+import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Called before a {@link Channel} will be returned via {@link NettyChannelPool#acquire(com.ibasco.agql.core.Envelope)} or
- * {@link NettyChannelPool#acquire(com.ibasco.agql.core.Envelope, java.util.concurrent.CompletableFuture)}.
+ * Called before a {@link Channel} will be returned via {@link NettyChannelPool#acquire(InetSocketAddress)} or
+ * {@link NettyChannelPool#acquire(InetSocketAddress, CompletableFuture)}.
  */
 public interface ChannelHealthChecker {
 

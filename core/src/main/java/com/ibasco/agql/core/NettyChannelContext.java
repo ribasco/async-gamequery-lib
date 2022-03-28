@@ -68,7 +68,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
     private static final ChannelFutureListener CLEANUP_ON_CLOSE = future -> {
         NettyChannelContext context = NettyChannelContext.getContext(future.channel());
-        log.info("{} CONTEXT (CLOSE) => Context closed (Error: {}, Response: {})", context.id(), context.properties().error(), context.properties().response());
+        log.debug("{} CONTEXT (CLOSE) => Context closed (Error: {}, Response: {})", context.id(), context.properties().error(), context.properties().response());
         context.cleanup();
     };
 

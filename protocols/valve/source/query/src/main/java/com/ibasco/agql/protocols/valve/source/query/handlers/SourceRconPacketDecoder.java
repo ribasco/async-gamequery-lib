@@ -40,12 +40,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * <p>
  * Decodes a raw {@link ByteBuf} message into a {@link SourceRconPacket} type. This decoder will read and collect decoded packets until everything has been received from the server.
+ * </p>
+ * <blockquote>
+ * When the server receives an auth request, it will respond with an empty {@code SERVERDATA_RESPONSE_VALUE}, followed immediately by a {@code SERVERDATA_AUTH_RESPONSE} indicating whether authentication succeeded or failed.
+ * Note that the status code is returned in the packet id field, so when pairing the response with the original auth request, you may need to look at the packet id of the preceeding {@code SERVERDATA_RESPONSE_VALUE}.
+ * </blockquote>
  *
  * @author Rafael Luis Ibasco
- * @apiNote When the server receives an auth request, it will respond with an empty {@code SERVERDATA_RESPONSE_VALUE}, followed immediately by a {@code SERVERDATA_AUTH_RESPONSE} indicating whether authentication succeeded or failed.
- * Note that the status code is returned in the packet id field, so when pairing the response with the original auth request, you may need to look at the packet id of the preceeding {@code SERVERDATA_RESPONSE_VALUE}.
- * <p/>
  */
 public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 

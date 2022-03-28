@@ -16,18 +16,12 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.exceptions.ReadTimeoutException;
-import com.ibasco.agql.core.exceptions.WriteTimeoutException;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
-import dev.failsafe.Failsafe;
-import dev.failsafe.FailsafeExecutor;
-import dev.failsafe.RetryPolicy;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionCompletedEvent;
-import io.netty.channel.ConnectTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,7 +32,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.function.BiFunction;
 
 /**
@@ -62,18 +55,6 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     private Messenger<R, S> messenger;
 
     private final ClientStatistics<S> statsCollector = new ClientStatistics<>();
-
-    protected final RetryPolicy<S> DEFAULT_RETRY_POLICY = RetryPolicy.<S>builder()
-                                                                     .handle(ReadTimeoutException.class, WriteTimeoutException.class)
-                                                                     .withMaxAttempts(3)
-                                                                     .abortOn(ConnectTimeoutException.class)
-                                                                     .onFailure(statsCollector.onFailure)
-                                                                     .onSuccess(statsCollector.onSuccess)
-                                                                     .onAbort(statsCollector.onAbort)
-                                                                     .onRetriesExceeded(statsCollector.onRetriesExceeded)
-                                                                     .build();
-
-    private FailsafeExecutor<S> failsafeExecutor;
 
     /**
      * Create a new client instance using the default configuration options.
@@ -100,34 +81,16 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
 
     abstract protected Messenger<R, S> createMessenger(Options options);
 
-    protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
-        Objects.requireNonNull(address, "Address cannot be null");
-        Objects.requireNonNull(request, "Request cannot be null");
-        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
-        return messenger().send(address, request);
-    }
-
     protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
         log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
         return send(address, request).thenApply(expectedResponse::cast);
     }
 
-    protected CompletableFuture<S> failSafeSend(InetSocketAddress address, R request) {
-        return failSafeExecutor().getStageAsync(context -> send(address, request));
-    }
-
-    protected void configureFailsafe(FailsafeExecutor<S> executor) {}
-
-    protected FailsafeExecutor<S> createFailsafeExecutor() {
-        return Failsafe.with(DEFAULT_RETRY_POLICY).with((ScheduledExecutorService) getExecutor());
-    }
-
-    protected final FailsafeExecutor<S> failSafeExecutor() {
-        if (this.failsafeExecutor == null) {
-            this.failsafeExecutor = createFailsafeExecutor();
-            configureFailsafe(this.failsafeExecutor);
-        }
-        return this.failsafeExecutor;
+    protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
+        Objects.requireNonNull(address, "Address cannot be null");
+        Objects.requireNonNull(request, "Request cannot be null");
+        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
+        return messenger().send(address, request);
     }
 
     @Override
@@ -156,8 +119,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      */
     private Messenger<R, S> messenger() {
         if (this.messenger == null) {
-            //noinspection unchecked
-            this.messenger = (Messenger<R, S>) createMessenger(this.options);
+            this.messenger = createMessenger(this.options);
         }
         return messenger;
     }

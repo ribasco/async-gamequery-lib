@@ -16,29 +16,27 @@
 
 package com.ibasco.agql.protocols.valve.steam.master.client;
 
-import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.NettySocketClient;
-import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.functions.TriConsumer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
-import dev.failsafe.FailsafeExecutor;
-import dev.failsafe.RetryPolicy;
 
 import java.net.InetSocketAddress;
 import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * <p>Queries Valve Master Server to retrieve a list of game servers</p>
+ * <p>Queries Valve Master Server to retrieve a list of game servers. Note that the master servers are rate-limited by default.</p>
  *
  * @author Rafael Luis Ibasco
+ * @see MasterServerOptions
  */
 public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
 
@@ -65,9 +63,9 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @param region
      *         A {@link MasterServerRegion} value that specifies which server region the master server should return
      * @param filter
-     *         A {@link MasterServerFilter} representing a set of filters to be used by the query
+     *         A {@link MasterServerFilter} containing the filters to be applied in the query
      *
-     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
+     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector<InetSocketAddress>} containing the {@link InetSocketAddress} instances of the servers.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
@@ -79,34 +77,34 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * <p>Retrieves a list of servers from the Steam Master Server. Passing a callback will allow you to partially receive a batch of addresses in real-time as it queries the master server</p>
      *
      * @param type
-     *         A {@link MasterServerType} to indicate which type of servers the master server should return
+     *         The {@link MasterServerType} describing the type of master server to query
      * @param region
      *         A {@link MasterServerRegion} value that specifies which server region the master server should return
      * @param filter
-     *         A {@link MasterServerFilter} representing a set of filters to be used by the query
+     *         A {@link MasterServerFilter} containing the filters to be applied in the query
      * @param callback
-     *         A {@link TriConsumer} that will be invoked repeatedly for partial response
+     *         Accepts a {@link TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server
      *
-     * @return A {@link CompletableFuture} containing a {@link Vector} of {@link InetSocketAddress}.
+     * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector<InetSocketAddress>} containing the {@link InetSocketAddress} instances of the servers.
      *
      * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
     public CompletableFuture<Vector<InetSocketAddress>> getServerList(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         MasterServerRequest request = new MasterServerRequest();
+        request.setType(type);
         request.setRegion(region);
         request.setFilter(filter);
         request.setCallback(callback);
-        return send(type.getMasterAddress(), request, MasterServerResponse.class).thenApply(MasterServerResponse::getServerList);
+        return getMessenger().send(request).thenApply(MasterServerResponse::getServerList);
     }
 
     @Override
-    protected void configureFailsafe(FailsafeExecutor<MasterServerResponse> executor) {
-        RetryPolicy<MasterServerResponse> SWITCH_ADDR_ON_TIMEOUT = RetryPolicy.<MasterServerResponse>builder().handle(ReadTimeoutException.class).build();
-        //executor.compose(SWITCH_ADDR_ON_TIMEOUT);
+    protected MasterServerMessenger getMessenger() {
+        return (MasterServerMessenger) super.getMessenger();
     }
 
     @Override
-    protected NettyMessenger<MasterServerRequest, MasterServerResponse> createMessenger(Options options) {
+    protected MasterServerMessenger createMessenger(Options options) {
         return new MasterServerMessenger(options);
     }
 }

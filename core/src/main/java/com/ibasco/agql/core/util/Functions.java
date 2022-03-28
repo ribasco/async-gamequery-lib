@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.core.util;
 
+import com.ibasco.agql.core.NettyChannelContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Function;
@@ -31,6 +32,15 @@ public class Functions {
     public static final Function<Object, Boolean> TRUE = unused -> true;
 
     public static final Function<Object, Boolean> FALSE = unused -> false;
+
+    public static <B, C extends B> C convert(B b) {
+        //noinspection unchecked
+        return (C) b;
+    }
+
+    public static <A> A returnFirst(A a) {
+        return a;
+    }
 
     public static <A, B> A selectFirst(A a, B b) {
         return a;
@@ -48,5 +58,9 @@ public class Functions {
                 return true;
         }
         return false;
+    }
+
+    public static NettyChannelContext supplyThis(NettyChannelContext c) {
+        return c;
     }
 }

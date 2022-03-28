@@ -18,6 +18,7 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.TransportWriteException;
+import com.ibasco.agql.core.exceptions.WriteInProgressException;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Options;
@@ -51,21 +52,15 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
         NettyChannelContext context;
         try {
             context = NettyChannelContext.getContext(channel);
-            final CompletableFuture<NettyChannelContext> writePromise = context.properties().writePromise();
             assert context.channel().id().equals(channel.id());
-
-            if (writePromise == null)
-                throw new IllegalStateException("Missing write promise in channel channel context: " + channel);
-            if (writePromise.isDone())
-                throw new IllegalStateException("Write promise has already been marked as completed");
             if (future.isSuccess()) {
                 log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", context.id());
-                writePromise.complete(context);
+                context.properties().endWrite();
             } else {
                 log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", context.id(), future.cause());
-                writePromise.completeExceptionally(future.cause());
+                context.properties().endWrite(future.cause());
             }
-            assert writePromise.isDone();
+            assert !context.properties().writeInProgress();
         } catch (Throwable e) {
             log.error("{} TRANSPORT => Error occured during write operation", NettyUtil.id(channel), e);
         }
@@ -88,11 +83,11 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
         if (context.inEventLoop()) {
             return contextFuture
                     .thenCompose(this::writeAndNotify)
-                    .handle(this::cleanup);
+                    .handle(this::finalize);
         } else {
             return contextFuture
                     .thenComposeAsync(this::writeAndNotify, context.eventLoop())
-                    .handleAsync(this::cleanup, context.eventLoop());
+                    .handleAsync(this::finalize, context.eventLoop());
         }
     }
 
@@ -104,13 +99,14 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
         if (!context.isValid())
             throw new IllegalStateException("Context is no longer in a valid state", new ChannelClosedException(channel));
 
-        //make sure we are in a valid state
-        final CompletableFuture<NettyChannelContext> writePromise = context.properties().writePromise();
+        if (context.properties().writeInProgress())
+            throw new WriteInProgressException(String.format("A write is currently in-progress for context '%s'", context));
 
-        if (writePromise == null)
-            throw new IllegalStateException("Write promise not initialized");
-        if (writePromise.isDone())
-            throw new IllegalStateException("Write promise has already been marked as completed: " + writePromise);
+        //make sure we are in a valid state
+        final CompletableFuture<NettyChannelContext> writePromise = context.properties().beginWrite();
+
+        assert writePromise != null;
+        assert !writePromise.isDone();
 
         try {
             final Envelope<AbstractRequest> envelope = context.properties().envelope();
@@ -124,14 +120,14 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             } else {
                 writeFuture.addListener(COMPLETE_ON_WRITE);
             }
-        } catch (Throwable e) {
-            log.debug("{} TRANSPORT => Error occured during writeAndNotify operation", context.id(), e);
-            writePromise.completeExceptionally(ConcurrentUtil.unwrap(e));
+        } catch (Throwable error) {
+            log.debug("{} TRANSPORT => Error occured during writeAndNotify operation", context.id(), error);
+            context.properties().endWrite(error);
         }
         return writePromise;
     }
 
-    private NettyChannelContext cleanup(NettyChannelContext context, Throwable error) {
+    private NettyChannelContext finalize(NettyChannelContext context, Throwable error) {
         if (error != null) {
             log.debug("TRANSPORT => Error during write operation", error);
             throw new TransportWriteException("Failed to send request via transport", ConcurrentUtil.unwrap(error));
@@ -147,8 +143,8 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             throw new IllegalStateException("Channel context must not be null");
         if (context.properties().envelope() == null)
             throw new IllegalStateException("No valid request attached to channel context: " + context);
-        if (context.properties().writePromise() == null)
-            throw new IllegalStateException("Write promise not initialized");
+        /*if (context.properties().writePromise() == null)
+            throw new IllegalStateException("Write promise not initialized");*/
     }
 
     @Override

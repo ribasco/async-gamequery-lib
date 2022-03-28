@@ -315,6 +315,11 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return promise;
     }
 
+    @Override
+    public int getSize() {
+        return deque.size();
+    }
+
     private void doReleaseChannel(Channel channel, CompletableFuture<Void> promise) {
         try {
             assert channel.eventLoop().inEventLoop();

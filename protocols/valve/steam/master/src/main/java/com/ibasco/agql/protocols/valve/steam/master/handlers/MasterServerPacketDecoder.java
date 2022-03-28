@@ -16,11 +16,10 @@
 
 package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
-import com.ibasco.agql.core.AbstractRequest;
-import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
+import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerChannelContext;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerQueryPacket;
@@ -32,7 +31,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
@@ -53,11 +51,11 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
         //ignore header
         if (MasterServer.isHeaderPacket(packet)) {
-            log.debug("Ignoring HEADER packet: {}", packet.getAddressString(true));
+            log.debug("{} MASTER => Ignoring HEADER packet: {}", NettyUtil.id(ctx.channel()), packet.getAddressString(true));
             packet.release();
         } else {
             if (MasterServer.isTerminatingPacket(packet)) {
-                log.debug("Received terminator packet: {}",lastAddress);
+                log.debug("{} MASTER => Received terminator packet: {}", NettyUtil.id(ctx.channel()), lastAddress);
             }
             out.add(packet);
         }
@@ -68,14 +66,18 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
         try {
             if (lastAddress == null)
                 return;
-            log.debug("Decoder complete (Last IP Packet: {})", lastAddress);
-            if (!MasterServer.isTerminatingAddress(lastAddress)) {
-                int sendInterval = MasterServerOptions.REQUEST_INTERVAL.attr(ctx);
-                log.debug("Scheduling: {} (Interval: {})", lastAddress, sendInterval);
-                ctx.channel().eventLoop().schedule(() -> sendRequest(ctx, lastAddress), sendInterval, TimeUnit.MILLISECONDS);
+            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
+            log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", NettyUtil.id(ctx.channel()), lastAddress);
+            /*if (!MasterServer.isTerminatingAddress(lastAddress)) {
+               int sendInterval = MasterServerOptions.REQUEST_DELAY.attr(ctx);
+                MasterServerRequest request = context.properties().request();
+                log.debug("Scheduling: {} (Interval: {})", lastAddress, request.getRequestDelay());
+                ctx.channel().eventLoop().schedule(() -> sendRequest(ctx, lastAddress), request.getRequestDelay(), TimeUnit.MILLISECONDS);
             } else {
-                log.debug("Terminating packet received: {}", lastAddress);
-            }
+                log.debug("{} MASTER => Terminating packet received: {}", NettyUtil.id(ctx.channel()), lastAddress);
+            }*/
+            //update seed address in context
+            context.properties().lastSeedAddress(lastAddress);
         } finally {
             ctx.fireChannelReadComplete();
         }
@@ -93,13 +95,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
     }
 
     private MasterServerRequest getRequest(ChannelHandlerContext ctx) {
-        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
-        Envelope<AbstractRequest> envelope = context.properties().envelope();
-        if (envelope == null)
-            throw new IllegalStateException("Request envelope is missing");
-        if (!(envelope.content() instanceof MasterServerRequest))
-            throw new IllegalStateException("Not an instance of MasterServerRequest");
-        return (MasterServerRequest) envelope.content();
+        return NettyChannelContext.getContext(ctx.channel()).properties().request();
     }
 
     @Override

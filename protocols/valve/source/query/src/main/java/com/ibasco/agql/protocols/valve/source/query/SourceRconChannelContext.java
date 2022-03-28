@@ -55,7 +55,7 @@ public final class SourceRconChannelContext extends NettyChannelContext {
     @Override
     public CompletableFuture<SourceRconChannelContext> send() {
         //noinspection unchecked
-        return (CompletableFuture<SourceRconChannelContext>) super.send();
+        return super.send().thenCompose(NettyChannelContext::composedFuture);
     }
 
     @Override

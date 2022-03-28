@@ -19,7 +19,6 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NetUtil;
-import com.ibasco.agql.core.util.functions.TriConsumer;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.PlayersHandler;
 import com.ibasco.agql.examples.query.ResponseHandler;
@@ -42,7 +41,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
 public class SourceQueryExample extends BaseExample {
@@ -58,8 +56,6 @@ public class SourceQueryExample extends BaseExample {
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     private final ConcurrentLinkedDeque<DelayedQueryTask> requestQueue = new ConcurrentLinkedDeque<>();
-
-    private AtomicInteger requestCounter = new AtomicInteger();
 
     public SourceQueryExample() {}
 
@@ -146,7 +142,6 @@ public class SourceQueryExample extends BaseExample {
     private void startProcessing(int delay) {
         if (this.requester != null && !this.requester.isDone())
             return;
-        this.requestCounter = new AtomicInteger();
         this.requester = scheduler.scheduleAtFixedRate(() -> {
             DelayedQueryTask task = requestQueue.pollFirst();
             if (task == null)
@@ -172,7 +167,7 @@ public class SourceQueryExample extends BaseExample {
         Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n)", false, "y", "srcQryDedicated");
         MasterServerFilter filter = MasterServerFilter.create().dedicated(dedicatedServers).isPasswordProtected(passwordProtected).allServers().isEmpty(emptyServers);
         if (appId > 0)
-            filter.appId(appId); //twdeyprtkfs6TsH5SMqiR
+            filter.appId(appId);
         return filter;
     }
 
@@ -204,14 +199,10 @@ public class SourceQueryExample extends BaseExample {
      *         {@link MasterServerFilter}
      */
     private int fetchServersAndQuery(MasterServerFilter filter, Phaser phaser, Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries) {
-        //phaser.register();
-        List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, new TriConsumer<InetSocketAddress, InetSocketAddress, Throwable>() {
-            @Override
-            public void accept(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
-                if (error != null)
-                    throw new CompletionException(error);
-                queryServer(address, phaser, queries);
-            }
+        List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
+            if (error != null)
+                throw new CompletionException(ConcurrentUtil.unwrap(error));
+            queryServer(address, phaser, queries);
         }).join();
         return addressList.size();
     }
@@ -223,10 +214,10 @@ public class SourceQueryExample extends BaseExample {
     private void queryServer(InetSocketAddress address, Phaser phaser, Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries, Integer count) {
         try {
             int total = count == null ? 1 : count;
-            log.info("Querying server: {}", address);
             for (int i = 0; i < total; i++) {
                 for (Map.Entry<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> entry : queries.entrySet()) {
                     phaser.register();
+                    log.debug("QUERY => Sending request (Address: {}, {})", address, entry.getKey());
                     requestQueue.addFirst(new DelayedQueryTask(address, entry.getKey(), entry.getValue()));
                 }
             }

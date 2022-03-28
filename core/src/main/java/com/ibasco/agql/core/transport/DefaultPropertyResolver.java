@@ -33,6 +33,6 @@ public class DefaultPropertyResolver implements NettyPropertyResolver {
         } else if (data instanceof InetSocketAddress) {
             return (InetSocketAddress) data;
         }
-        throw new IllegalStateException("Failed to extract remote address from argument. (Reason: Unsupported type)");
+        throw new IllegalStateException(String.format("Failed to extract remote address from argument. Define a custom property resolver. (Reason: Unsupported type '%s')", data.getClass().getSimpleName()));
     }
 }

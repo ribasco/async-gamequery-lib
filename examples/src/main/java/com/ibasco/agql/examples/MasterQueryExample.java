@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,8 +16,13 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
@@ -40,7 +45,15 @@ public class MasterQueryExample extends BaseExample {
 
     @Override
     public void run(String[] args) throws Exception {
-        client = new MasterServerQueryClient();
+        Options options = OptionBuilder.newBuilder()
+                                       .option(TransportOptions.READ_TIMEOUT, 3000)
+                                       .option(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 15L)
+                                       .option(MasterServerOptions.FAILSAFE_RATELIMIT_PERIOD, 60000L)
+                                       //.option(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, (60000L / 12L) + 3000L)
+                                       .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                       .option(MasterServerOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
+                                       .build();
+        client = new MasterServerQueryClient(options);
         this.listAllServers();
     }
 
@@ -58,12 +71,19 @@ public class MasterQueryExample extends BaseExample {
             filter.appId(appId);
 
         log.info("Displaying Non-Empty servers for App Id: {}", (appId > 0) ? appId : "N/A");
-        Vector<InetSocketAddress> addresses = client.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+        Vector<InetSocketAddress> addresses = null;
+        try {
+            addresses = client.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        } finally {
+            if (addresses != null)
+                log.info("Done (Total: {})", addresses.size());
+        }
 
-        log.info("Done (Total: {})", addresses.size());
     }
 
     public void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
-        log.info("Server : {}", address);
+        //log.info("Server : {}", address);
     }
 }

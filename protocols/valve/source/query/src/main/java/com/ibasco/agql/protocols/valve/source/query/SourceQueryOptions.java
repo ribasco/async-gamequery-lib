@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.steam.master;
+package com.ibasco.agql.protocols.valve.source.query;
 
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.util.Option;
@@ -23,20 +23,20 @@ import com.ibasco.agql.core.util.Options;
 import dev.failsafe.Failsafe;
 
 /**
- * Options for Master Server Query
+ * Options for Source Query module
  *
  * @author Rafael Luis Ibasco
  * @see Options
  * @see OptionBuilder
  */
-public final class MasterServerOptions {
+public class SourceQueryOptions {
 
     /**
-     * Enable {@link Failsafe} integration for Master Query module
+     * Enable {@link Failsafe} integration for Source Query module
      *
      * @see <a href="https://failsafe.dev/">Failsafe</a>
      */
-    public static Option<Boolean> FAILSAFE_ENABLED = Option.createOption("masterFailsafeEnabled", true);
+    public static final Option<Boolean> FAILSAFE_ENABLED = Option.createOption("queryFailsafeEnabled", true);
 
     /**
      * Enable Rate Limiter (Failsafe)
@@ -46,7 +46,7 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RATELIMIT_MAX_WAIT_TIME
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.createOption("masterFailsafeRateLimitEnabled", true);
+    public static final Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.createOption("queryFailsafeRateLimitEnabled", true);
 
     /**
      * Maximum number of executions within the specified period (Default is 10 executions per minute)
@@ -54,7 +54,22 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RATELIMIT_PERIOD
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static Option<Long> FAILSAFE_RATELIMIT_MAX_EXEC = Option.createOption("masterFailsafeRateLimitMaxExec", 15L);
+    public static final Option<Long> FAILSAFE_RATELIMIT_MAX_EXEC = Option.createOption("queryFailsafeRateLimitMaxExec", 500L);
+
+    /**
+     * The period after which permitted executions are reset to the max executions. (Default is 60000 ms or 1 minute)
+     *
+     * @see #FAILSAFE_RATELIMIT_MAX_EXEC
+     * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
+     */
+    public static final Option<Long> FAILSAFE_RATELIMIT_PERIOD = Option.createOption("queryFailsafeRateLimitPeriod", 60000L);
+
+    /**
+     * Maximum waiting time for permits to be available (Default is 3000 ms)
+     *
+     * @see <a href="https://failsafe.dev/rate-limiter/#waiting">Failsafe's Rate Limiter (Waiting)</a>
+     */
+    public static final Option<Long> FAILSAFE_RATELIMIT_MAX_WAIT_TIME = Option.createOption("queryFailsafeRateLimitMaxWaitTime", 10000L);
 
     /**
      * Specifies the rate limiting method to use (Default is Smooth)
@@ -63,22 +78,7 @@ public final class MasterServerOptions {
      * @see <a href="https://failsafe.dev/rate-limiter/#rate-limiter">Failsafe's Rate Limiter</a>
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static Option<RateLimitType> FAILSAFE_RATELIMIT_TYPE = Option.createOption("masterFailsafeRateLimitType", RateLimitType.SMOOTH);
-
-    /**
-     * The period after which permitted executions are reset to the max executions. (Default is 60000 ms or 1 minute)
-     *
-     * @see #FAILSAFE_RATELIMIT_MAX_EXEC
-     * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
-     */
-    public static Option<Long> FAILSAFE_RATELIMIT_PERIOD = Option.createOption("masterFailsafeRateLimitPeriod", 60000L);
-
-    /**
-     * Maximum waiting time for permits to be available (Default is 3000 ms)
-     *
-     * @see <a href="https://failsafe.dev/rate-limiter/#waiting">Failsafe's Rate Limiter (Waiting)</a>
-     */
-    public static Option<Long> FAILSAFE_RATELIMIT_MAX_WAIT_TIME = Option.createOption("masterFailsafeRateLimitMaxWaitTime", 3000L);
+    public static Option<RateLimitType> FAILSAFE_RATELIMIT_TYPE = Option.createOption("queryFailsafeRateLimitType", RateLimitType.SMOOTH);
 
     /**
      * Enable retry policy
@@ -90,7 +90,7 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RETRY_MAX_ATTEMPTS
      * @see <a href="https://failsafe.dev/retry/">Failsafe's Retry Policy</a>
      */
-    public static Option<Boolean> FAILSAFE_RETRY_ENABLED = Option.createOption("masterFailsafeRetryEnabled", true);
+    public static final Option<Boolean> FAILSAFE_RETRY_ENABLED = Option.createOption("queryFailsafeRetryEnabled", true);
 
     /**
      * Enable Failsafe's Retry Backoff Feature
@@ -100,7 +100,7 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static Option<Boolean> FAILSAFE_RETRY_BACKOFF_ENABLED = Option.createOption("masterFailsafeBackoffEnabled", true);
+    public static final Option<Boolean> FAILSAFE_RETRY_BACKOFF_ENABLED = Option.createOption("queryFailsafeBackoffEnabled", true);
 
     /**
      * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays.
@@ -109,7 +109,7 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.createOption("masterFailsafeBackoffDelay", 5000L);
+    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.createOption("queryFailsafeBackoffDelay", 3000L);
 
     /**
      * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 60000 ms or 1 minute)
@@ -119,7 +119,7 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static Option<Long> FAILSAFE_RETRY_BACKOFF_MAX_DELAY = Option.createOption("masterFailsafeBackoffMaxDelay", 60000L);
+    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_MAX_DELAY = Option.createOption("queryFailsafeBackoffMaxDelay", 5000L);
 
     /**
      * Sets the delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5.0)
@@ -127,20 +127,19 @@ public final class MasterServerOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.createOption("masterFailsafeBackoffDelayFactor", 5d);
+    public static final Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.createOption("queryFailsafeBackoffDelayFactor", 2d);
 
     /**
      * Sets the max number of execution attempts to perform. -1 indicates no limit (Default is 3 attempts)
      *
      * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("masterFailsafeMaxAttempts", 3);
+    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("queryFailsafeMaxAttempts", 3);
 
     /**
      * Delay between retries (In milliseconds. Use -1 to disable)
      *
      * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static Option<Long> FAILSAFE_RETRY_DELAY = Option.createOption("masterFailsafeDelay", -1L);
-
+    public static final Option<Long> FAILSAFE_RETRY_DELAY = Option.createOption("queryFailsafeDelay", 1000L);
 }

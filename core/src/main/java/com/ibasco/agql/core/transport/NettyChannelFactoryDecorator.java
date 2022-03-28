@@ -80,6 +80,11 @@ abstract public class NettyChannelFactoryDecorator implements NettyChannelFactor
     }
 
     @Override
+    public void setResolver(NettyPropertyResolver resolver) {
+        this.channelFactory.setResolver(resolver);
+    }
+
+    @Override
     public Bootstrap getBootstrap() {
         return this.channelFactory.getBootstrap();
     }

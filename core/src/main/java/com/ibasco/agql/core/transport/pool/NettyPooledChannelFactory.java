@@ -45,8 +45,6 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
 
     private final NettyChannelPoolFactory channelPoolFactory;
 
-    private final NettyPoolPropertyResolver resolver;
-
     /**
      * Creates a new instance using the provided {@link NettyChannelFactory}. A default {@link NettyChannelPoolFactoryProvider} will be used to obtain a {@link NettyChannelPoolFactory}
      *
@@ -56,19 +54,18 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
     public NettyPooledChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
         final ChannelPoolType poolType = getOptions().getOrDefault(TransportOptions.POOL_TYPE);
-        this.resolver = new DefaultPoolPropertyResolver();
         this.channelPoolFactory = NettyChannelPoolFactoryProvider.DEFAULT.getFactory(poolType, channelFactory);
         log.debug("[INIT] POOL => Using channel pool factory '{}'", channelPoolFactory);
-        this.channelPoolMap = new MessageChannelPoolMap(channelPoolFactory, resolver);
+        this.channelPoolMap = new MessageChannelPoolMap(this);
         log.debug("[INIT] POOL => Using channel pool map '{}'", this.channelPoolMap);
     }
 
     @Override
     public CompletableFuture<Channel> create(Object data) {
-        final InetSocketAddress remoteAddress = this.getResolver().resolveRemoteAddress(data);
+        final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
         final NettyChannelPool pool = channelPoolMap.get(data);
         assert pool != null;
-        log.debug("[POOL] Acquiring channel for address '{}' (Channel Pool: {})", remoteAddress, pool);
+        log.debug("[POOL] Acquiring channel for address '{}' (Channel Pool: {}, Pool Size: {})", remoteAddress, pool, pool.getSize());
         return pool.acquire(remoteAddress);
     }
 
@@ -77,13 +74,12 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
         return NettyUtil.useEventLoop(create(data), eventLoop);
     }
 
-    public NettyChannelFactory getChannelFactory() {
-        return this.channelPoolFactory.getChannelFactory();
+    public NettyChannelPoolFactory getChannelPoolFactory() {
+        return this.channelPoolFactory;
     }
 
-    @Override
-    public NettyPoolPropertyResolver getResolver() {
-        return this.resolver;
+    public NettyChannelFactory getChannelFactory() {
+        return this.channelPoolFactory.getChannelFactory();
     }
 
     @Override

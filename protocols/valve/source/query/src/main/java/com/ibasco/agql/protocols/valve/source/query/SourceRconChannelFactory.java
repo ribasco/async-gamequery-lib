@@ -16,8 +16,10 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
+import com.ibasco.agql.core.transport.DefaultPropertyResolver;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryInitializer;
+import com.ibasco.agql.core.transport.pool.DefaultPoolPropertyResolver;
 import com.ibasco.agql.protocols.valve.source.query.handlers.*;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
@@ -37,6 +39,7 @@ public final class SourceRconChannelFactory extends NettyChannelFactoryInitializ
 
     public SourceRconChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
+        setResolver(new DefaultPoolPropertyResolver(new DefaultPropertyResolver()));
     }
 
     @Override

@@ -20,11 +20,7 @@ import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
-import com.ibasco.agql.core.util.NettyUtil;
-import com.ibasco.agql.core.util.Option;
-import com.ibasco.agql.core.util.Options;
-import io.netty.channel.Channel;
+import com.ibasco.agql.core.util.*;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import org.jetbrains.annotations.ApiStatus;
@@ -37,12 +33,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A Messenger does the following:
- *
- * <ul>
- *     <li>Creating, Acquiring, Closing or Releasing system allocated resource</li>
- *     <li>Preparing the request and send it to the {@link Transport}</li>
- * </ul>
+ * Base class for modules utilizing Netty as the mode of transport
  *
  * @author Rafael Luis Ibasco
  */
@@ -70,17 +61,17 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         configure(options);
         //Initialize members
         this.options = options;
-        this.factoryProvider = newFactoryProvider();
-        this.channelFactory = newChannelFactory();
+        this.factoryProvider = createFactoryProvider();
+        this.channelFactory = createChannelFactory();
         this.transport = new NettyTransport(options);
     }
 
     //</editor-fold>
 
     //<editor-fold desc="Abstract/Protected Methods">
-    abstract protected NettyChannelFactory newChannelFactory();
+    abstract protected NettyChannelFactory createChannelFactory();
 
-    protected NettyChannelFactoryProvider newFactoryProvider() {
+    protected NettyChannelFactoryProvider createFactoryProvider() {
         return DEFAULT_FACTORY_PROVIDER;
     }
     //</editor-fold>
@@ -92,74 +83,62 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
             throw new IllegalArgumentException("Address not provided");
         if (request == null)
             throw new IllegalArgumentException("Request not provided");
-        //Initialize the context
-        return acquireOrUse(address)
+        return acquireContext(transformProperties(address, request))
                 .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
                 .thenCompose(this::send)
                 .thenCompose(NettyMessenger::response);
     }
 
-    public CompletableFuture<S> send(Channel channel, R request) {
-        return acquireOrUse(channel)
-                .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
-                .thenCompose(this::send)
-                .thenComposeAsync(NettyMessenger::response, channel.eventLoop());
-    }
-
     public <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
         assert context != null;
+        assert context.properties().request() != null;
         log.debug("{} MESSENGER => Preparing context for transport (Request: {})", context.id(), context.properties().request());
         if (context.inEventLoop()) {
             return context.future()
                           .thenApply(NettyMessenger::initialize)
                           .thenCompose(transport::send)
-                          .thenCompose(NettyChannelContext::composedFuture);
+                          .thenApply(Functions::convert);
         } else {
             return context.future()
                           .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
                           .thenComposeAsync(transport::send, context.eventLoop())
-                          .thenComposeAsync(NettyChannelContext::composedFuture, context.eventLoop());
+                          .thenApplyAsync(Functions::convert, context.eventLoop());
         }
     }
     //</editor-fold>
 
-    private CompletableFuture<NettyChannelContext> acquireOrUse(InetSocketAddress address) {
-        return acquireOrUse(address, null);
+    protected Object transformProperties(InetSocketAddress address, R request) {
+        return address;
     }
 
-    private CompletableFuture<NettyChannelContext> acquireOrUse(Channel channel) {
-        return acquireOrUse(null, channel);
-    }
-
-    private CompletableFuture<NettyChannelContext> acquireOrUse(InetSocketAddress address, Channel channel) {
-        CompletableFuture<Channel> channelFuture;
-        if (channel == null) {
-            if (address == null)
-                throw new IllegalStateException("Address not provided");
-            channelFuture = channelFactory.create(address);
-        } else {
-            if (address != null && !address.equals(channel.remoteAddress()))
-                throw new IllegalStateException("Address does not match the address on channel: " + channel);
-            channelFuture = CompletableFuture.completedFuture(channel);
-        }
-        return channelFuture.thenApply(NettyChannelContext::getContext);
+    protected CompletableFuture<NettyChannelContext> acquireContext(Object data) {
+        if (data == null)
+            throw new IllegalStateException("No data provided for channel acquisition");
+        return channelFactory.create(data).thenApply(NettyChannelContext::getContext);
     }
 
     private static NettyChannelContext initialize(final NettyChannelContext context) {
+        assert context.inEventLoop();
+
+        //Check request
         if (context.properties().envelope() == null)
             throw new IllegalStateException("No request is attached to the channel");
+
         //Update sender address
         if (context.channel().localAddress() != null && (context.channel().localAddress() != context.properties().envelope().sender()))
             context.properties().envelope().sender(context.channel().localAddress());
         else
             log.debug("{} MESSENGER => Local address not updated for envelope {}", context.id(), context.properties().envelope());
-        //Reset context properties/promises
-        log.debug("MESSENGER => Prepare request for transport '{}' (Write Promise: {}, Response Promise: {}, Channel: {})", context.properties().request(), context.properties().writePromise(), context.properties().responsePromise(), context.id());
-        context.properties().reset();
+
+        //Reset context properties/promises if necessary
+        if (context.properties().responsePromise() != null && context.properties().responsePromise().isDone()) {
+            log.info("{} MESSENGER => Resetting response promise for request '{}'", context.id(), context.properties().request());
+            context.properties().reset();
+        }
         return context;
     }
 
-    private static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
+    protected static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
         log.debug("{} MESSENGER => Attaching request '{}' to context", context.id(), request);
         //update the request in envelope
         context.properties().request(request);
@@ -179,7 +158,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      *         The error that occured during send/receive operation. {@code null} if no error occured.
      */
     @ApiStatus.Internal
-    void receive(@NotNull final NettyChannelContext context, AbstractResponse response, Throwable error) {
+    protected void receive(@NotNull final NettyChannelContext context, AbstractResponse response, Throwable error) {
         final Envelope<R> envelope = context.properties().envelope();
         final CompletableFuture<S> promise = context.properties().responsePromise();
         assert context.channel().eventLoop().inEventLoop();
@@ -194,7 +173,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                 return;
             }
             if (error != null) {
-                log.error("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
+                log.debug("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
                 context.markInError(new ResponseException(error, envelope.recipient()));
             } else {
                 assert response != null;

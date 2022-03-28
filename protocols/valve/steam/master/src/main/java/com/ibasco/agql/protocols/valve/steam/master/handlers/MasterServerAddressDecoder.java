@@ -19,11 +19,11 @@ package com.ibasco.agql.protocols.valve.steam.master.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerChannelContext;
+import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialResponse;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
-import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
 import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
@@ -37,15 +37,17 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
     private Set<InetSocketAddress> addressSet;
 
+    private boolean terminatorReceived;
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        if (cause instanceof ReadTimeoutException) {
+        /*if (cause instanceof ReadTimeoutException) {
             if (!addressSet.isEmpty()) {
-                debug("Timeout occured. Sending Returning list of addresses (Total: {})", addressSet.size());
+                debug("Timeout occured. Returning list of addresses (Total: {})", addressSet.size());
                 ctx.fireChannelRead(new MasterServerResponse(new Vector<>(addressSet)));
                 return;
             }
-        }
+        }*/
         ctx.fireExceptionCaught(cause);
     }
 
@@ -63,25 +65,41 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         Envelope<AbstractRequest> envelope = context.properties().envelope();
         MasterServerRequest masterRequest = (MasterServerRequest) request;
         MasterServerAddressPacket addressPacket = (MasterServerAddressPacket) msg;
+
         if (MasterServer.isTerminatingPacket(addressPacket)) {
             debug("Terminating packet found. Returning response");
-            return new MasterServerResponse(new Vector<>(addressSet));
+            terminatorReceived = true;
         }
+
         InetSocketAddress address = addressPacket.getAddress();
         if (masterRequest.getCallback() != null && !addressSet.contains(address)) {
             addressSet.add(address);
             try {
                 masterRequest.getCallback().accept(address, envelope.recipient(), null);
             } catch (Exception e) {
-                debug("Error in callback", e);
+                debug("Error thrown by the callback", e);
             }
         }
         return null;
     }
 
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        debug("MASTER => CHANNEL READ COMPLETE (Terminator received: {}, Last Seed Address: {})", terminatorReceived);
+        if (!addressSet.isEmpty()) {
+            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
+            context.properties().addressSet().addAll(addressSet);
+            ctx.fireChannelRead(new MasterServerPartialResponse(new Vector<>(addressSet), terminatorReceived, context.properties().lastSeedAddress()));
+            addressSet.clear();
+        }
+        super.channelReadComplete(ctx);
+    }
+
+    @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        debug("MASTER => Initializing Address Set");
         addressSet = new HashSet<>();
+        terminatorReceived = false;
     }
 
     @Override

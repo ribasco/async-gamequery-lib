@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -46,22 +45,19 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
 
     private final ConcurrentMap<Object, NettyChannelPool> map = new ConcurrentHashMap<>();
 
-    private final NettyChannelPoolFactory channelPoolFactory;
+    private final NettyPooledChannelFactory pooledChannelFactory;
 
-    private final NettyPoolPropertyResolver resolver;
-
-    public MessageChannelPoolMap(final NettyChannelPoolFactory channelPoolFactory, NettyPoolPropertyResolver resolver) {
-        this.resolver = resolver;
-        this.channelPoolFactory = Objects.requireNonNull(channelPoolFactory, "Channel pool factory is not provided");
+    public MessageChannelPoolMap(final NettyPooledChannelFactory pooledChannelFactory) {
+        this.pooledChannelFactory = pooledChannelFactory;
     }
 
     @Override
     public NettyChannelPool get(Object data) {
-        final InetSocketAddress remoteAddress = resolver.resolveRemoteAddress(data);
-        final Object poolKey = resolver.resolvePoolKey(data);
+        final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
+        final Object poolKey = getResolver().resolvePoolKey(data);
         NettyChannelPool pool = map.get(poolKey);
         if (pool == null) {
-            pool = channelPoolFactory.create(null, remoteAddress);
+            pool = pooledChannelFactory.getChannelPoolFactory().create(null, remoteAddress);
             NettyChannelPool old = map.putIfAbsent(poolKey, pool);
             if (old != null) {
                 // We need to destroy the newly created pool as we not use it.
@@ -74,7 +70,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
 
     @Override
     public boolean contains(Object data) {
-        return map.containsKey(resolver.resolvePoolKey(data));
+        return map.containsKey(getResolver().resolvePoolKey(data));
     }
 
     @Override
@@ -83,7 +79,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
             // Wait for remove to finish ensuring that resources are released before returning from close
             removeAsyncIfSupported(key).syncUninterruptibly();
         }
-        this.channelPoolFactory.getChannelFactory().close();
+        getChannelPoolFactory().getChannelFactory().close();
     }
 
     @NotNull
@@ -119,5 +115,15 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
                 return GlobalEventExecutor.INSTANCE.newFailedFuture(e);
             }
         }
+    }
+
+    public NettyChannelPoolFactory getChannelPoolFactory() {
+        return pooledChannelFactory.getChannelPoolFactory();
+    }
+
+    public NettyPoolPropertyResolver getResolver() {
+        if (!(pooledChannelFactory.getResolver() instanceof NettyPoolPropertyResolver))
+            throw new IllegalStateException("Property resolver must be a type of " + NettyPoolPropertyResolver.class.getSimpleName());
+        return (NettyPoolPropertyResolver) pooledChannelFactory.getResolver();
     }
 }

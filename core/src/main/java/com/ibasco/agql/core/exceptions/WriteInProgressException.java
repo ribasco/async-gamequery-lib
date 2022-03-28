@@ -14,25 +14,15 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.steam.master.message;
+package com.ibasco.agql.core.exceptions;
 
-import com.ibasco.agql.core.AbstractResponse;
+public class WriteInProgressException extends TransportWriteException {
 
-import java.net.InetSocketAddress;
-import java.util.Vector;
-
-public class MasterServerResponse extends AbstractResponse {
-
-    private Vector<InetSocketAddress> serverList;
-
-    public MasterServerResponse(Vector<InetSocketAddress> serverList) {
-        this.serverList = serverList;
+    public WriteInProgressException(String message) {
+        super(message);
     }
 
-    public final Vector<InetSocketAddress> getServerList() {
-        if (this.serverList == null) {
-            this.serverList = new Vector<>();
-        }
-        return serverList;
+    public WriteInProgressException(String message, Throwable cause) {
+        super(message, cause);
     }
 }

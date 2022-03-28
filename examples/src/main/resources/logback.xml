@@ -54,8 +54,25 @@
     </root>
 
     <logger name="io.netty" level="error"/>
-    <logger name="com.ibasco.agql.examples" level="debug" />
+    <logger name="com.ibasco" level="info"/>
+
+    <!-- Core -->
+    <logger name="com.ibasco.agql.core.transport.handlers.MessageInboundHandler" level="info"/>
+    <logger name="com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory" level="info" />
+    <logger name="com.ibasco.agql.core.NettyChannelContext" level="info" />
+
+    <!-- Master -->
+    <logger name="com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger" level="debug"/>
+    <logger name="com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerAddressDecoder" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerPacketDecoder" level="info"/>
+    <logger name="com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerRequestEncoder" level="info"/>
+
+    <!--<logger name="com.ibasco.agql.examples" level="debug" />
     <logger name="com.ibasco.agql.core" level="info"/>
     <logger name="com.ibasco.agql.protocols" level="info"/>
     <logger name="com.ibasco.agql.core.transport" level="info" />
+    <logger name="com.ibasco.agql.protocols.valve.source.query" level="info" />
+    <logger name="com.ibasco.agql.core.transport.handlers.MessageInboundHandler" level="info" />
+    <logger name="com.ibasco.agql.protocols.valve.source.query.handlers.SourceRconAuthDecoder" level="debug" />
+    <logger name="com.ibasco.agql.core.transport.FailsafeChannelFactory" level="debug"/>-->
 </configuration>

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.master.handlers;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.transport.handlers.MessageOutboundEncoder;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerQueryPacket;
@@ -41,18 +40,6 @@ public class MasterServerRequestEncoder extends MessageOutboundEncoder<MasterSer
 
         if (request.getRegion() == null)
             request.setRegion(MasterServerRegion.REGION_ALL);
-
-        if (request.getRequestInterval() == null) {
-            if (MasterServerRegion.REGION_ALL.equals(request.getRegion())) {
-                MasterServerOptions.REQUEST_INTERVAL.attr(ctx, 3000);
-            } else {
-                MasterServerOptions.REQUEST_INTERVAL.attr(ctx, 200);
-            }
-        } else {
-            MasterServerOptions.REQUEST_INTERVAL.attr(ctx, request.getRequestInterval());
-        }
-
-        debug("Using request interval of {} ms", MasterServerOptions.REQUEST_INTERVAL.attr(ctx));
 
         String address = request.getAddress() == null ? MasterServer.INITIAL_IP : request.getAddress();
         debug("Sending MASTER REQUEST with address '{}'", address);

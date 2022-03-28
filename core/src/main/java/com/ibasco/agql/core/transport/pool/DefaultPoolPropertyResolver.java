@@ -17,13 +17,17 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.Envelope;
-import com.ibasco.agql.core.transport.DefaultPropertyResolver;
+import com.ibasco.agql.core.transport.NettyPropertyResolver;
 
 import java.net.InetSocketAddress;
 
-public class DefaultPoolPropertyResolver extends DefaultPropertyResolver implements NettyPoolPropertyResolver {
+public class DefaultPoolPropertyResolver implements NettyPoolPropertyResolver {
 
-    public static final DefaultPoolPropertyResolver INSTANCE = new DefaultPoolPropertyResolver();
+    private final NettyPropertyResolver propertyResolver;
+
+    public DefaultPoolPropertyResolver(NettyPropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+    }
 
     @Override
     public Object resolvePoolKey(Object data) {
@@ -35,5 +39,15 @@ public class DefaultPoolPropertyResolver extends DefaultPropertyResolver impleme
             return ((Envelope<?>) data).recipient();
         else
             throw new IllegalStateException("Unsupported key type: " + data.getClass());
+    }
+
+    @Override
+    public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
+        return propertyResolver.resolveRemoteAddress(data);
+    }
+
+    @Override
+    public InetSocketAddress resolveLocalAddress(Object data) {
+        return propertyResolver.resolveLocalAddress(data);
     }
 }

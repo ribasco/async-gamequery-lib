@@ -14,25 +14,20 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.steam.master.message;
+package com.ibasco.agql.protocols.valve.steam.master;
 
-import com.ibasco.agql.core.AbstractResponse;
+import com.ibasco.agql.core.NettyChannelContext;
+import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
+import io.netty.channel.Channel;
 
-import java.net.InetSocketAddress;
-import java.util.Vector;
+public class MasterServerChannelContextFactory extends DefaultChannlContextFactory<MasterServerMessenger> {
 
-public class MasterServerResponse extends AbstractResponse {
-
-    private Vector<InetSocketAddress> serverList;
-
-    public MasterServerResponse(Vector<InetSocketAddress> serverList) {
-        this.serverList = serverList;
+    public MasterServerChannelContextFactory(MasterServerMessenger messenger) {
+        super(messenger);
     }
 
-    public final Vector<InetSocketAddress> getServerList() {
-        if (this.serverList == null) {
-            this.serverList = new Vector<>();
-        }
-        return serverList;
+    @Override
+    protected NettyChannelContext newChannelContext(Channel channel, MasterServerMessenger messenger) {
+        return new MasterServerChannelContext(channel, messenger);
     }
 }

@@ -18,7 +18,10 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.NoChannelContextException;
+import com.ibasco.agql.core.exceptions.WriteInProgressException;
 import com.ibasco.agql.core.transport.NettyChannelAttributes;
+import com.ibasco.agql.core.transport.handlers.ReadTimeoutHandler;
+import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
@@ -38,6 +41,7 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 /**
  * The context attached to a {@link Channel} instance
@@ -58,9 +62,13 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
     private Properties properties;
 
+    private final Supplier<NettyChannelContext> supplier = () -> this;
+
+    private final CompletableFuture<NettyChannelContext> completedFuture = CompletableFuture.completedFuture(supplier.get());
+
     private static final ChannelFutureListener CLEANUP_ON_CLOSE = future -> {
         NettyChannelContext context = NettyChannelContext.getContext(future.channel());
-        log.debug("{} CONTEXT (CLOSE) => Context closed (Error: {}, Response: {})", context.id(), context.properties().error(), context.properties().response());
+        log.info("{} CONTEXT (CLOSE) => Context closed (Error: {}, Response: {})", context.id(), context.properties().error(), context.properties().response());
         context.cleanup();
     };
 
@@ -110,11 +118,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     public final CompletableFuture<NettyChannelContext> future() {
-        if (inEventLoop()) {
-            return CompletableFuture.completedFuture(this);
-        } else {
-            return CompletableFuture.supplyAsync(() -> this, eventLoop());
-        }
+        return CompletableFuture.completedFuture(this);
     }
 
     public final <C extends NettyChannelContext> CompletableFuture<C> composedFuture() {
@@ -181,7 +185,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
     public final void receiveResponse(AbstractResponse response) {
         if (this.messenger == null)
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
-        this.messenger.receive(this, response, null);
+        try {
+            this.messenger.receive(this, response, null);
+        } catch (Throwable e) {
+            log.error("{} CONTEXT => Messenger receive() has thrown an error", id(), e);
+            markInError(e);
+        }
     }
 
     /**
@@ -193,7 +202,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
     public final void receiveResponse(Throwable error) {
         if (this.messenger == null)
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
-        this.messenger.receive(this, null, error);
+        try {
+            this.messenger.receive(this, null, error);
+        } catch (Throwable e) {
+            log.error("{} CONTEXT => Messenger receive() has thrown an error", id(), e);
+            markInError(e);
+        }
     }
 
     public final <V> boolean exists(AttributeKey<V> key) {
@@ -221,7 +235,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     public CompletableFuture<? extends NettyChannelContext> send() {
-        return messenger.send(this);
+        return messenger.send(this).thenCompose(NettyChannelContext::composedFuture);
     }
 
     /**
@@ -283,6 +297,31 @@ public class NettyChannelContext implements Closeable, Cloneable {
         if (context == null)
             throw new NoChannelContextException("Missing channel context", channel);
         return context;
+    }
+
+    public NettyChannelContext attach(AbstractRequest request) {
+        properties().request(request);
+        return this;
+    }
+
+    public NettyChannelContext enableAutoRelease() {
+        properties().autoRelease(true);
+        return this;
+    }
+
+    public NettyChannelContext disableAutoRelease() {
+        properties().autoRelease(false);
+        return this;
+    }
+
+    public NettyChannelContext disableWriteTimeout() {
+        channel().pipeline().remove(WriteTimeoutHandler.class);
+        return this;
+    }
+
+    public NettyChannelContext disableReadTimeout() {
+        channel().pipeline().remove(ReadTimeoutHandler.class);
+        return this;
     }
 
     @Override
@@ -356,7 +395,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
         private final Envelope<? extends AbstractRequest> envelope;
 
-        private CompletableFuture<NettyChannelContext> writePromise;
+        private volatile CompletableFuture<NettyChannelContext> writePromise;
 
         private CompletableFuture<AbstractResponse> responsePromise;
 
@@ -368,18 +407,16 @@ public class NettyChannelContext implements Closeable, Cloneable {
             log.debug("CONTEXT => Initializing context properties for channel '{}' (Local: {}, Remote: {})", channel, channel.localAddress(), channel.remoteAddress());
             this.envelope = MessageEnvelopeBuilder.createNew().fromAnyAddress().recipient(channel().remoteAddress()).build();
             this.responseError = null;
-            this.writePromise = new CompletableFuture<>();
             this.responsePromise = new CompletableFuture<>();
-            //reattach listeners
             attachListeners();
         }
 
         public Properties(Properties properties) {
             this.envelope = MessageEnvelopeBuilder.createFrom(properties.envelope).build();
-            this.writePromise = properties.writePromise;
             this.responsePromise = properties.responsePromise;
             this.responseError = properties.responseError;
             this.autoRelease = properties.autoRelease;
+            this.writePromise = properties.writePromise;
         }
 
         protected void onPropertiesReset() {
@@ -451,8 +488,67 @@ public class NettyChannelContext implements Closeable, Cloneable {
         }
 
         @Override
-        public CompletableFuture<NettyChannelContext> writePromise() {
+        public boolean writeDone() {
+            if (this.writePromise == null)
+                throw new IllegalStateException("No write operation is currntly in-progress");
+            return this.writePromise.isDone();
+        }
+
+        @Override
+        public boolean writeInError() {
+            if (this.writePromise == null)
+                throw new IllegalStateException("No write operation is currntly in-progress");
+            return this.writePromise.isCompletedExceptionally();
+        }
+
+        @Override
+        public boolean writeInProgress() {
+            return this.writePromise != null && !this.writePromise.isDone();
+        }
+
+        @Override
+        public CompletableFuture<NettyChannelContext> beginWrite() {
+            if (writeInProgress())
+                throw new WriteInProgressException("A write operation is already in-progress");
+            this.writePromise = new CompletableFuture<>();
             return writePromise;
+        }
+
+        @Override
+        public CompletableFuture<NettyChannelContext> endWrite() {
+            return endWrite(null);
+        }
+
+        @Override
+        public CompletableFuture<NettyChannelContext> endWrite(Throwable error) {
+            if (!writeInProgress())
+                throw new IllegalStateException("No write operation on-going");
+            if (inEventLoop()) {
+                try {
+                    if (error != null) {
+                        this.writePromise.completeExceptionally(error);
+                    } else {
+                        this.writePromise.complete(NettyChannelContext.this);
+                    }
+                } finally {
+                    this.writePromise = null;
+                }
+                return CompletableFuture.completedFuture(NettyChannelContext.this);
+            } else {
+                return CompletableFuture.supplyAsync(() -> {
+                    final NettyChannelContext ctx = NettyChannelContext.this;
+                    try {
+                        if (error != null) {
+                            ctx.properties.writePromise.completeExceptionally(error);
+                        } else {
+                            ctx.properties.writePromise.complete(NettyChannelContext.this);
+                        }
+                    } finally {
+                        ctx.properties.writePromise = null;
+                    }
+                    return NettyChannelContext.this;
+                }, eventLoop());
+            }
         }
 
         @Override
@@ -466,9 +562,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
             log.debug("{} CONTEXT => Resetting context properties (Request: {})", id(), request());
             //note: envelope's content will not be cleared, hence can be re-used.
             this.responseError = null;
-            this.writePromise = new CompletableFuture<>();
             this.responsePromise = new CompletableFuture<>();
-
             //reattach listeners
             attachListeners();
             onPropertiesReset();
@@ -481,14 +575,18 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
         private void attachListeners() {
             //release once the response promise has been marked as completed
-            this.responsePromise.whenComplete((response, error) -> {
-                if (!autoRelease)
-                    return;
-                log.debug("{} CONTEXT => Auto releasing context", id());
-                //release or close the context
-                close();
-            });
+            this.responsePromise.whenComplete(this::releaseOnCompletion);
             log.debug("{} CONTEXT => Attached auto-release listener", id());
+        }
+
+        private void releaseOnCompletion(AbstractResponse response, Throwable error) {
+            if (!autoRelease) {
+                log.debug("{} CONTEXT => Skipping auto release", id());
+                return;
+            }
+            log.debug("{} CONTEXT => Auto releasing context (Auto release: {}, Request: {})", id(), properties().autoRelease(), properties.request());
+            //release or close the context
+            close();
         }
     }
 

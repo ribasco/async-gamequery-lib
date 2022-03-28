@@ -53,7 +53,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     }
 
     @Override
-    protected NettyChannelFactory newChannelFactory() {
+    protected NettyChannelFactory createChannelFactory() {
         final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
         return new SourceRconChannelFactory(channelFactory);
     }

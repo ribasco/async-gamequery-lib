@@ -17,6 +17,7 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.Configurable;
+import io.netty.channel.Channel;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -24,7 +25,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * The {@link Messenger} acts as the middle man between the {@link Client} and the {@link Transport}.
+ * A Messenger is responsible for:
+ *
+ * <ul>
+ *     <li>Creating, Acquiring, Closing or Releasing a network resource (e.g. {@link Channel}/Connection)</li>
+ *     <li>Prepare and initialize the request for {@link Transport}</li>
+ *     <li>Process the response received from the remote server and route it back to the {@link Client}</li>
+ * </ul>
  *
  * @author Rafael Luis Ibasco
  */

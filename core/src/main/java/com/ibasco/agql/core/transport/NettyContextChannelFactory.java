@@ -90,9 +90,9 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
                 context = contextFactory.create(channel);
                 attr.set(context);
             } else {
-                log.debug("CHANNEL_FACTORY ({}) => Initializing EXISTING context for channel '{}' to '{}' (Write Done: {}, Response Done: {})", getClass().getSimpleName(), context.id(), address, context.properties().writePromise(), context.properties().responsePromise());
-                if (context.properties().writePromise() != null && context.properties().writePromise().isDone() && context.properties().responsePromise() != null && !context.properties().responsePromise().isDone())
-                    throw new IllegalStateException(String.format("Previous tranaction has not yet been marked as completed (Write promise: %s, Response promise: %s)", context.properties().writePromise(), context.properties().responsePromise()));
+                log.debug("CHANNEL_FACTORY ({}) => Initializing EXISTING context for channel '{}' to '{}' (Response Promise: {})", getClass().getSimpleName(), context.id(), address, context.properties().responsePromise());
+                if (context.properties().writeInProgress() && context.properties().responsePromise() != null && !context.properties().responsePromise().isDone())
+                    throw new IllegalStateException(String.format("Previous tranaction has not yet been marked as completed (Response promise: %s)", context.properties().responsePromise()));
             }
         }
         assert channel == context.channel();

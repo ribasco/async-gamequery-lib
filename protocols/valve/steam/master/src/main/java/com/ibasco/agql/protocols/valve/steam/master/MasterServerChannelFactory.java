@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.steam.master;
 
+import com.ibasco.agql.core.transport.DefaultPropertyResolver;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryInitializer;
 import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerAddressDecoder;
@@ -31,6 +32,7 @@ public class MasterServerChannelFactory extends NettyChannelFactoryInitializer {
 
     public MasterServerChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
+        setResolver(new DefaultPropertyResolver());
     }
 
     @Override

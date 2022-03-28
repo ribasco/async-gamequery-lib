@@ -64,11 +64,6 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
 
     @Override
     abstract protected NettyMessenger<R, S> createMessenger(Options options);
-
-    //<editor-fold desc="Netty specific send functions">
-    /*protected CompletableFuture<S> send(A address, R request, Channel channel) {
-        return getMessenger().send(address, request, channel);
-    }*/
     //</editor-fold>
 
     @Override

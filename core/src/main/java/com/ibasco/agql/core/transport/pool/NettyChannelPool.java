@@ -87,6 +87,9 @@ public interface NettyChannelPool extends Closeable {
      */
     CompletableFuture<Void> release(Channel channel, CompletableFuture<Void> promise);
 
+
+    int getSize();
+
     /**
      * Attempts to release the {@link Channel} if it is pooleed.
      *

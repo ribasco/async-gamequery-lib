@@ -48,7 +48,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     private final Class<? extends Channel> channelClass;
 
-    private final NettyPropertyResolver resolver;
+    private NettyPropertyResolver resolver;
 
     private EventLoopGroup eventLoopGroup;
 
@@ -124,6 +124,11 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     @Override
     public NettyPropertyResolver getResolver() {
         return resolver;
+    }
+
+    @Override
+    public void setResolver(NettyPropertyResolver resolver) {
+        this.resolver = resolver;
     }
 
     @Override

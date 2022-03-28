@@ -40,6 +40,8 @@ public interface NettyChannelFactory extends Closeable {
 
     NettyPropertyResolver getResolver();
 
+    void setResolver(NettyPropertyResolver resolver);
+
     EventLoopGroup getExecutor();
 
     Bootstrap getBootstrap();

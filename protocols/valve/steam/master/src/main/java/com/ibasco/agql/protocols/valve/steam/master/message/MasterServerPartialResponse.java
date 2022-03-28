@@ -16,23 +16,26 @@
 
 package com.ibasco.agql.protocols.valve.steam.master.message;
 
-import com.ibasco.agql.core.AbstractResponse;
-
 import java.net.InetSocketAddress;
 import java.util.Vector;
 
-public class MasterServerResponse extends AbstractResponse {
+public class MasterServerPartialResponse extends MasterServerResponse {
 
-    private Vector<InetSocketAddress> serverList;
+    private final boolean endOfResponse;
 
-    public MasterServerResponse(Vector<InetSocketAddress> serverList) {
-        this.serverList = serverList;
+    private final InetSocketAddress lastSeedAddress;
+
+    public MasterServerPartialResponse(Vector<InetSocketAddress> serverList, boolean endOfResponse, InetSocketAddress lastSeedAddress) {
+        super(serverList);
+        this.endOfResponse = endOfResponse;
+        this.lastSeedAddress = lastSeedAddress;
     }
 
-    public final Vector<InetSocketAddress> getServerList() {
-        if (this.serverList == null) {
-            this.serverList = new Vector<>();
-        }
-        return serverList;
+    public final InetSocketAddress getLastSeedAddress() {
+        return lastSeedAddress;
+    }
+
+    public final boolean isEndOfResponse() {
+        return endOfResponse;
     }
 }

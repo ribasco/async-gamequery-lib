@@ -36,9 +36,19 @@ public interface ContextProperties {
 
     Throwable error();
 
-    <A extends AbstractRequest> Envelope<A> envelope();
+    boolean writeInProgress();
 
-    CompletableFuture<NettyChannelContext> writePromise();
+    boolean writeDone();
+
+    boolean writeInError();
+
+    CompletableFuture<NettyChannelContext> beginWrite();
+
+    CompletableFuture<NettyChannelContext> endWrite();
+
+    CompletableFuture<NettyChannelContext> endWrite(Throwable error);
+
+    <A extends AbstractRequest> Envelope<A> envelope();
 
     <V extends AbstractResponse> CompletableFuture<V> responsePromise();
 

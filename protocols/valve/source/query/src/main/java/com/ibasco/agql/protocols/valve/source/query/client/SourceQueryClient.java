@@ -24,6 +24,7 @@ import com.ibasco.agql.core.NettySocketClient;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryMessenger;
+import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
@@ -60,6 +61,7 @@ import java.util.concurrent.TimeUnit;
  * @author Rafael Luis Ibasco
  * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query
  * Protocol</a>
+ * @see SourceQueryOptions
  */
 public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse> {
 

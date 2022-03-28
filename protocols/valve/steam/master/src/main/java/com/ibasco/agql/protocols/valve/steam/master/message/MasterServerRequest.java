@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -36,7 +36,7 @@ public class MasterServerRequest extends AbstractRequest {
 
     private String address = "0.0.0.0:0";
 
-    private Integer requestInterval = null;
+    private Integer requestDelay = null;
 
     public MasterServerRequest() {
         this(null);
@@ -78,19 +78,29 @@ public class MasterServerRequest extends AbstractRequest {
         this.filter = filter;
     }
 
+    /**
+     * The last seed address used
+     *
+     * @return A host string representing the last seed address used in the format of {@code &lt;ip:port&gt;}
+     */
     public String getAddress() {
         return address;
     }
 
+    /**
+     * Update the seed address to be sent to the remote server.
+     *
+     * @param address A host string in the format of {@code &lt;ip:port&gt;}
+     */
     public void setAddress(String address) {
         this.address = address;
     }
 
-    public Integer getRequestInterval() {
-        return requestInterval;
+    public Integer getRequestDelay() {
+        return requestDelay;
     }
 
-    public void setRequestInterval(Integer requestInterval) {
-        this.requestInterval = requestInterval;
+    public void setRequestDelay(Integer requestDelay) {
+        this.requestDelay = requestDelay;
     }
 }

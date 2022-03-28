@@ -71,10 +71,9 @@ public class SourceQueryExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         try {
-            //use default options for query client
-            EventLoopGroup queryEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-query")), 0, false);
-            Options queryOptions = OptionBuilder.newBuilder().option(TransportOptions.THREAD_EL_GROUP, queryEventLoopGroup).build();
-            queryClient = new SourceQueryClient(queryOptions); //queryOptions
+            //EventLoopGroup queryEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-query")), 0, false);
+            //Options queryOptions = OptionBuilder.newBuilder().option(TransportOptions.THREAD_EL_GROUP, queryEventLoopGroup).build();
+            queryClient = new SourceQueryClient(); //queryOptions
 
             //in this example, use a different event loop group to be used by the master query module.
             EventLoopGroup masterEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-master")), 0, false);

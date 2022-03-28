@@ -46,7 +46,7 @@ import java.util.function.BiFunction;
  */
 abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
 
-    private final Logger log;
+    private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
 
     private final UUID id = UUID.create();
 
@@ -76,7 +76,6 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
         if (options == null)
             options = new Options(this.getClass());
         this.options = options;
-        this.log = LoggerFactory.getLogger(getClass());
     }
 
     abstract protected Messenger<R, S> createMessenger(Options options);

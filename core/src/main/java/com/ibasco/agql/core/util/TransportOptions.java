@@ -25,8 +25,6 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import org.jetbrains.annotations.ApiStatus;
 
-import java.util.concurrent.Executor;
-
 /**
  * A collection of global configuration {@link Option}s to be used by the underlying {@link Transport}
  *
@@ -154,12 +152,6 @@ public final class TransportOptions {
     //</editor-fold>
 
     //<editor-fold desc="Concurrency">
-
-    /**
-     * Set the default executor service that should be utilized by netty.
-     */
-    public static final Option<Executor> THREAD_POOL_EXECUTOR = Option.createOption("threadExecutor");
-
     /**
      * Use a custom {@link EventLoopGroup} that will be used by the underlying {@link Transport}
      */

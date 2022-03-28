@@ -178,7 +178,8 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         //Add retry policy (optional)
         if (retryPolicy != null)
             this.requestExecutor = requestExecutor.compose(retryPolicy);
-        this.requestExecutor = this.requestExecutor.with(executor);
+        if (executor != null)
+            this.requestExecutor.with(executor);
     }
 
     private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {

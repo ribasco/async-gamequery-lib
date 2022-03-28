@@ -7,55 +7,10 @@ Asynchronous Game Query Library
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
 
-An asynchronous java based game query library for Valve's source query, rcon and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
+An asynchronous game query library written for Java. Implements Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
 
-Changelog
--------------
+![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
 
-0.2.0 - BIG UPDATE. In-preparation for the next major release.
-
-- **General Updates**
-  - Re-licensed project to Apache-2.0
-  - New aggregate project artifact: `agql-<version>.jar`
-  - Completely re-worked on the core implementation from the ground up with improved performance and reliability.
-  - Added configuration support. Clients can now be tweaked depending on the requirements of the developer (e.g. providing custom executor service, set max active connections, modify read/write timeout settings etc)
-  - Failsafe Integration. Queries throwing a ReadTimeoutException or WriteTimeoutException will be re-attempted (max of 3 attempts by default)
-  - Deprecated client constructors. Use the new configuration feature of the client.
-  - Now using off-heap pooled direct buffers by default for the majority of the queries.
-  - Cleaned up and standardized log statements for better readability.
-  - Removed custom request/response state management facilities in the core module. Now using netty's channel attributes for managing each channel/connection state.
-  - A default global EventLoopGroup (a special netty executor service) is now shared for all clients. A custom executor/EventLoopGroup can still be provided via configuration. (See TransportOptions.THREAD_EL_GROUP)
-  - Updated/Enhanced interactive examples
-
-- **Source RCON**
-  - Improved support for connection pooling
-    - Connection Pooling is now enabled by default
-    - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see TransportOptions.POOL_MAX_CONNECTIONS)
-  - Authentication management
-    - An internal authentication manager is now utilized by the library to manage all existing connection and ensures that each connection remains in a valid state (connection is active and authenticated by the remote server). Dropped connections will automatically be re-authenticated assuming that the credentials remain valid.
-  - Addressed a few special cases
-    - **Case #1**: An update of the rcon password (via rcon_password), cause the remote server to close the connection. An exception is now thrown requiring the application to re-authenticate itself by calling authenticate()
-    - **Case #2**: Some commands such as 'changelevel' cause the remote server to drop the connection (e.g. changelevel). Previously the client will throw a closed channel exception
-
-- **Source Master Query**
-  - Improved/re-worked implementation
-  - Failsafe integration
-    - Implemented retry and fallback policies. If the primary master server address fails, the client will attempt to connect using an alternative IP address until a connection is established. A maximum of 3 connection attempts will be made.
-    - Requests can optionally be rate limited, waiting a specific amount of time before sending a new request for a batch of new addresses.
-
-- **Source Query**
-  - Source info query now compatible with the new implementation (challenge based) (See [RFC: Changes to the A2S_INFO protocol ](https://steamcommunity.com/discussions/forum/14/2989789048633291344/))
-  - Queries that require a challenge number are now handled automatically by the library, this means that the developer no longer needs to obtain a challenge number manually.
-  - **DEPRECATED** challenge caching facilities. This will be removed in the next major update.
-
-- **Source Log Service**
-  - Fixed: Callback set via setter method is not applied (Issue #44)
-  - Introduced new constructor arguments that accepts a custom ExecutorService
-  - listen() now returns a CompletableFuture which is notified once the underlying connection of the service has been closd.
-
-- **Clash of Clans (Web API)**
-  - Marked as deprecated and will be removed in the next major version. This module will be removed in the next major version.
-  
 Project Resources
 -------------
 
@@ -89,7 +44,7 @@ Below is the list of what is currently implemented on the library
 Requirements
 ------------
 
-* Java JDK 8
+* Java JDK 8 or above
 
 Installation
 ------------
@@ -101,10 +56,11 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Aggregate (All modules included in this artifact)**
 
 ```xml
+
 <dependency>
-  <groupId>com.ibasco.agql</groupId>
-  <artifactId>agql</artifactId>
-  <version>0.2.0</version>
+    <groupId>com.ibasco.agql</groupId>
+    <artifactId>agql</artifactId>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -113,9 +69,9 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 
 <dependency>
-  <groupId>com.ibasco.agql</groupId>
-  <artifactId>agql-steam-master</artifactId>
-  <version>0.2.0</version>
+    <groupId>com.ibasco.agql</groupId>
+    <artifactId>agql-steam-master</artifactId>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -157,9 +113,9 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 
 <dependency>
-  <groupId>com.ibasco.agql</groupId>
-  <artifactId>agql-csgo-webapi</artifactId>
-  <version>0.2.0</version>
+    <groupId>com.ibasco.agql</groupId>
+    <artifactId>agql-csgo-webapi</artifactId>
+    <version>0.2.0</version>
 </dependency>
 ```
 
@@ -170,9 +126,9 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 
 <dependency>
-  <groupId>com.ibasco.agql</groupId>
-  <artifactId>agql-coc-webapi</artifactId>
-  <version>0.2.0</version>
+    <groupId>com.ibasco.agql</groupId>
+    <artifactId>agql-coc-webapi</artifactId>
+    <version>0.2.0</version>
 </dependency>
 ```
 

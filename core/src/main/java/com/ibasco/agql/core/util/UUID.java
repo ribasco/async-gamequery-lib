@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,24 +19,20 @@ package com.ibasco.agql.core.util;
 import org.apache.commons.lang3.RandomUtils;
 
 import java.io.Serializable;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
 import java.util.Base64;
+import java.util.Random;
 
 public class UUID implements Serializable {
 
-    private transient static SecureRandom sRand;
+    private transient static Random sRand;
 
     private byte[] data;
 
     private String dataStr;
 
     private UUID() {
-        try {
-            sRand = SecureRandom.getInstanceStrong();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException(e);
-        }
+        //sRand = SecureRandom.getInstanceStrong();
+        sRand = new Random();
     }
 
     public static UUID create() {

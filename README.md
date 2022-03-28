@@ -150,8 +150,7 @@ For usage examples, please refer to the [site docs](http://ribasco.github.io/asy
 Interactive Examples
 --------------------
 
-Rcon Demo (Running 1000 requests asynchronously)
--------------------------
+#### RCON interactive example video (executing 1000 requests asynchronously)
 
 https://user-images.githubusercontent.com/13303385/160422666-7314a89a-a68a-4b92-82ea-5734c4b075e2.mp4
 

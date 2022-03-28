@@ -150,7 +150,12 @@ For usage examples, please refer to the [site docs](http://ribasco.github.io/asy
 Interactive Examples
 --------------------
 
-#### RCON interactive example video (executing 1000 requests asynchronously)
+#### RCON interactive example video
+
+The video below demonstrates the following:
+- Executing 1000-5000 random commands asynchronously
+- Connections are pooled and created on-demand. Max of 8 connection where each connection is automatically authenticated with the remote server.
+- Executing a command immediately after issuing a `changelevel` command does not result in failure.  
 
 https://user-images.githubusercontent.com/13303385/160422666-7314a89a-a68a-4b92-82ea-5734c4b075e2.mp4
 

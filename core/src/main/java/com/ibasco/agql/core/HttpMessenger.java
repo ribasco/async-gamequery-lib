@@ -18,6 +18,7 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
 import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.EventLoopGroup;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
@@ -29,6 +30,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 
 /**
@@ -54,13 +57,31 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory, Options options) {
         this.options = options;
-        this.eventLoopGroup = options.getOrDefault(TransportOptions.THREAD_EL_GROUP);
+        this.eventLoopGroup = initializeEventLoopGroup();
         DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
         configBuilder.setKeepAlive(options.getOrDefault(TransportOptions.SOCKET_KEEP_ALIVE));
         configBuilder.addRequestFilter(new ThrottleRequestFilter(options.getOrDefault(TransportOptions.POOL_MAX_CONNECTIONS)));
         configBuilder.setEventLoopGroup(this.eventLoopGroup);
         this.transport = new AsyncHttpTransport(configBuilder.build());
         this.responseFactory = responseFactory;
+    }
+
+    private EventLoopGroup initializeEventLoopGroup() {
+        ExecutorService executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
+        Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
+        //Attempt to determine the number of threads supported by the executor service
+        if (nThreads == null) {
+            if (executorService instanceof ThreadPoolExecutor) {
+                ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
+                nThreads = tpe.getCorePoolSize();
+            } else {
+                throw new IllegalStateException("Please specify a core pool size in the options (See TransportOptions.THREAD_CORE_SIZE)");
+            }
+        }
+        EventLoopGroup group = Platform.createEventLoopGroup(executorService, nThreads, getOptions().getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
+        log.debug("HTTP_MESSENGER (INIT) => Executor Service: '{}'", executorService);
+        log.debug("HTTP_MESSENGER (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
+        return group;
     }
 
     @Override

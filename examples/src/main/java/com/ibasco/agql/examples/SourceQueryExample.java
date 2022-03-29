@@ -23,12 +23,12 @@ import com.ibasco.agql.examples.query.PlayersHandler;
 import com.ibasco.agql.examples.query.ResponseHandler;
 import com.ibasco.agql.examples.query.RulesHandler;
 import com.ibasco.agql.examples.query.ServerInfoHandler;
+import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
-import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,20 +66,33 @@ public class SourceQueryExample extends BaseExample {
         example.close();
     }
 
+    private final ThreadPoolExecutor masterExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE,
+                                                                             60L, TimeUnit.SECONDS,
+                                                                             new SynchronousQueue<>(),
+                                                                             new DefaultThreadFactory("agql-master"));
+
+    private final ThreadPoolExecutor queryExecutor = new ThreadPoolExecutor(9, Integer.MAX_VALUE,
+                                                                            60L, TimeUnit.SECONDS,
+                                                                            new LinkedBlockingQueue<>(),
+                                                                            new DefaultThreadFactory("agql-query"));
+
     private ScheduledFuture<?> requester;
 
     @Override
     public void run(String[] args) throws Exception {
         try {
-            //EventLoopGroup queryEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-query")), 0, false);
-            //Options queryOptions = OptionBuilder.newBuilder().option(TransportOptions.THREAD_EL_GROUP, queryEventLoopGroup).build();
-            queryClient = new SourceQueryClient(); //queryOptions
+            //query client (using custom executor)
+            Options queryOptions = OptionBuilder.newBuilder()
+                                                .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+                                                .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
+                                                .build();
+            queryClient = new SourceQueryClient(queryOptions);
 
-            //in this example, use a different event loop group to be used by the master query module.
-            EventLoopGroup masterEventLoopGroup = Platform.createEventLoopGroup(Executors.newCachedThreadPool(new DefaultThreadFactory("agql-master")), 0, false);
-            Options masterOptions = OptionBuilder.newBuilder().option(TransportOptions.THREAD_EL_GROUP, masterEventLoopGroup).build();
+            //master client (using custom executor)
+            Options masterOptions = OptionBuilder.newBuilder()
+                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
+                                                 .build();
             masterClient = new MasterServerQueryClient(masterOptions);
-
             log.info("NOTE: Depending on your selected criteria, the application may time some time to complete. You can review the log file(s) once the program exits.");
             runInteractiveExample();
         } catch (Exception e) {
@@ -210,6 +223,7 @@ public class SourceQueryExample extends BaseExample {
         List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
+            log.info("Querying server: {}", address);
             queryServer(address, phaser, queries);
         }).join();
         return addressList.size();
@@ -243,5 +257,7 @@ public class SourceQueryExample extends BaseExample {
         if (ConcurrentUtil.shutdown(scheduler)) {
             log.info("Successfully shutdown scheduler");
         }
+        ConcurrentUtil.shutdown(queryExecutor);
+        ConcurrentUtil.shutdown(masterExecutor);
     }
 }

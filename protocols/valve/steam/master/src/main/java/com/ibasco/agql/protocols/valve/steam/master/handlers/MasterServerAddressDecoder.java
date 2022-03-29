@@ -35,7 +35,9 @@ import java.util.Vector;
 
 public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
-    private Set<InetSocketAddress> addressSet;
+    private Set<InetSocketAddress> fullSet;
+
+    private Set<InetSocketAddress> partialSet;
 
     private boolean terminatorReceived;
 
@@ -72,8 +74,8 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         }
 
         InetSocketAddress address = addressPacket.getAddress();
-        if (masterRequest.getCallback() != null && !addressSet.contains(address)) {
-            addressSet.add(address);
+        if (masterRequest.getCallback() != null && fullSet.add(address)) {
+            partialSet.add(address);
             try {
                 masterRequest.getCallback().accept(address, envelope.recipient(), null);
             } catch (Exception e) {
@@ -86,11 +88,11 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug("MASTER => CHANNEL READ COMPLETE (Terminator received: {}, Last Seed Address: {})", terminatorReceived);
-        if (!addressSet.isEmpty()) {
+        if (!partialSet.isEmpty()) {
             MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
-            context.properties().addressSet().addAll(addressSet);
-            ctx.fireChannelRead(new MasterServerPartialResponse(new Vector<>(addressSet), terminatorReceived, context.properties().lastSeedAddress()));
-            addressSet.clear();
+            context.properties().addressSet().addAll(partialSet);
+            ctx.fireChannelRead(new MasterServerPartialResponse(new Vector<>(partialSet), terminatorReceived, context.properties().lastSeedAddress()));
+            partialSet.clear();
         }
         super.channelReadComplete(ctx);
     }
@@ -98,12 +100,13 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         debug("MASTER => Initializing Address Set");
-        addressSet = new HashSet<>();
+        partialSet = new HashSet<>();
+        fullSet = new HashSet<>();
         terminatorReceived = false;
     }
 
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
-        addressSet = null;
+        partialSet = null;
     }
 }

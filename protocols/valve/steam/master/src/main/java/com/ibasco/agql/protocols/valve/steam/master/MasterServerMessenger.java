@@ -96,6 +96,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //<editor-fold desc="Protected Methods">
     @Override
     protected void configure(Options options) {
+        defaultOption(options, TransportOptions.USE_NATIVE_TRANSPORT, false);
         defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
         defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);
     }
@@ -241,6 +242,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
         if (rateLimiter != null) {
             try {
+                log.debug("{} MASTER => Acquiring permit", context.id());
                 rateLimiter.acquirePermit();
                 context.send();
             } catch (InterruptedException e) {

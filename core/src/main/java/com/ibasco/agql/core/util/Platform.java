@@ -102,7 +102,7 @@ public final class Platform {
         if (DEFAULT_EXECUTOR == null) {
             DEFAULT_EXECUTOR = new ThreadPoolExecutor(DEFAULT_THREAD_SIZE,
                                                       Integer.MAX_VALUE,
-                                                      TransportOptions.THREAD_POOL_KEEP_ALIVE.getDefaultValue(),
+                                                      Long.MAX_VALUE,
                                                       TimeUnit.MILLISECONDS,
                                                       getDefaultQueue(),
                                                       getDefaultThreadFactory());
@@ -179,7 +179,7 @@ public final class Platform {
      *
      * @return A new {@link EventLoopGroup} instance
      */
-    public static EventLoopGroup createEventLoopGroup(Executor executor, int nThreads, boolean useNative) {
+    public static EventLoopGroup createEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
         EventLoopGroup elg = null;
         if (useNative) {
             if (Epoll.isAvailable()) {
@@ -192,6 +192,37 @@ public final class Platform {
             elg = new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
         log.debug("Created default event loop group with: {} threads", nThreads);
         return elg;
+    }
+
+    /**
+     * Creates a new {@link EventLoopGroup} instance. The default is {@link NioEventLoopGroup}
+     *
+     * @param channelClass
+     *         The netty channel {@link Class} that will be used as a referece to lookup the {@link EventLoopGroup}
+     * @param executor
+     *         The {@link Executor} to be used by the {@link EventLoopGroup}
+     * @param nThreads
+     *         The number of threads to be used by the {@link EventLoopGroup}. If a custom {@link Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     *
+     * @return A new {@link EventLoopGroup} instance
+     *
+     * @throws IllegalStateException
+     *         If channelClass is not supported
+     * @throws IllegalArgumentException
+     *         If channelClass is {@code null}
+     */
+    public static EventLoopGroup createEventLoopGroup(Class<? extends Channel> channelClass, Executor executor, int nThreads) {
+        if (channelClass == null)
+            throw new IllegalArgumentException("Channel class must not be null");
+        if (NioSocketChannel.class.isAssignableFrom(channelClass) || NioDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else if (EpollSocketChannel.class.isAssignableFrom(channelClass) || EpollDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new EpollEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else if (KQueueSocketChannel.class.isAssignableFrom(channelClass) || KQueueDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new KQueueEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else {
+            throw new IllegalStateException("Unsupported channel class: " + channelClass);
+        }
     }
 
     public static Class<? extends Channel> getChannelClass(TransportType type, EventLoopGroup group) {

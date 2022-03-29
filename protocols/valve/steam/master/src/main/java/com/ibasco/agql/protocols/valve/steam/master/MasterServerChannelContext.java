@@ -26,6 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class MasterServerChannelContext extends NettyChannelContext {
 
@@ -76,7 +77,7 @@ public class MasterServerChannelContext extends NettyChannelContext {
 
     public class MasterServerProperties extends Properties {
 
-        private InetSocketAddress lastSeedAddress;
+        private AtomicReference<InetSocketAddress> lastSeedAddress = new AtomicReference<>();
 
         private final Set<InetSocketAddress> addressSet;
 
@@ -95,11 +96,11 @@ public class MasterServerChannelContext extends NettyChannelContext {
         }
 
         public InetSocketAddress lastSeedAddress() {
-            return lastSeedAddress;
+            return lastSeedAddress.get();
         }
 
         public void lastSeedAddress(InetSocketAddress lastSeedAddress) {
-            this.lastSeedAddress = lastSeedAddress;
+            this.lastSeedAddress.getAndSet(lastSeedAddress);
         }
 
     }

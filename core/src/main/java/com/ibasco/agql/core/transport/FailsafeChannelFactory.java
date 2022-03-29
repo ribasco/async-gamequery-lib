@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.TransportOptions;
 import dev.failsafe.*;
@@ -24,7 +23,6 @@ import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
 import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoop;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +30,10 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * Adds {@link Failsafe} support for the underlying {@link NettyChannelFactory}.
@@ -51,12 +52,12 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final FailsafeExecutor<Channel> acquireExecutor;
 
-    private final ScheduledExecutorService acquireScheduler;
+    //private final ScheduledExecutorService acquireScheduler;
 
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        this.acquireScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-acquire"));
-        this.acquireExecutor = Failsafe.with(newRetryPolicy()).with(acquireScheduler);
+        //this.acquireScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-acquire"));
+        this.acquireExecutor = Failsafe.with(newRetryPolicy()).with(channelFactory.getExecutor());
     }
 
     protected void configureRetryPolicy(RetryPolicyBuilder<Channel> builder) {}
@@ -73,12 +74,13 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     @Override
     public void close() throws IOException {
-        try {
+        super.close();
+        /*try {
             super.close();
         } finally {
             log.debug("CHANNEL_FACTORY ({}) => Shutting down acquire scheduler", getClass().getSimpleName());
             ConcurrentUtil.shutdown(acquireScheduler);
-        }
+        }*/
     }
 
     private RetryPolicy<Channel> newRetryPolicy() {

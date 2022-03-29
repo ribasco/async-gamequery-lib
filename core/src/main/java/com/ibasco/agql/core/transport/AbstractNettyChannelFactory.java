@@ -28,6 +28,8 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -77,21 +79,37 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.options = options;
         this.resolver = resolver == null ? DefaultPropertyResolver.INSTANCE : resolver;
         this.channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
+
+        //initialize event loop group
+        final ExecutorService executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
+        this.eventLoopGroup = initializeEventLoopGroup(channelClass, executorService);
         this.channelInitializer = initializer == null ? new NettyChannelInitializer() : initializer;
-        initialize();
+
+        initializeBootstrap();
     }
     //</editor-fold>
+
+    protected EventLoopGroup initializeEventLoopGroup(Class<? extends Channel> channelClass, ExecutorService executorService) {
+        Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
+        //Attempt to determine the number of threads supported by the executor service
+        if (nThreads == null) {
+            if (executorService instanceof ThreadPoolExecutor) {
+                ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
+                nThreads = tpe.getCorePoolSize();
+            } else {
+                throw new IllegalStateException("Please specify a core pool size in the options (See TransportOptions.THREAD_CORE_SIZE)");
+            }
+        }
+        EventLoopGroup group = Platform.createEventLoopGroup(channelClass, executorService, nThreads);
+        log.debug("CHANNEL_FACTORY (INIT) => Channel Class '{}'", channelClass);
+        log.debug("CHANNEL_FACTORY (INIT) => Executor Service: '{}'", executorService);
+        log.debug("CHANNEL_FACTORY (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
+        return group;
+    }
 
     abstract protected CompletableFuture<Channel> newChannel(final Object data);
 
     protected void configureBootstrap(Bootstrap bootstrap) {}
-
-    protected void initialize() {
-        //Initialize event loop group
-        this.eventLoopGroup = newEventLoopGroup();
-        //Initialize bootstrap
-        initializeBootstrap();
-    }
 
     @Override
     public final CompletableFuture<Channel> create(final Object data) {
@@ -173,7 +191,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}', Default Channel Handler: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName(), bootstrap.config().handler());
     }
 
-    protected EventLoopGroup newEventLoopGroup() {
+    /*protected EventLoopGroup createEventLoopGroup() {
         EventLoopGroup eventLoopGroup = getOptions().getOrDefault(TransportOptions.THREAD_EL_GROUP);
         Integer elThreadSize = null;
         //use a shared instance of event loop group by default
@@ -184,7 +202,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         }
         log.debug("[INIT] CHANNEL_FACTORY => Event Loop Group '{}' (Max Threads: {}, Instance: {})", eventLoopGroup, elThreadSize == null ? "N/A" : elThreadSize, eventLoopGroup.hashCode());
         return eventLoopGroup;
-    }
+    }*/
 
     private void configureDefaultOptions() {
         //Default channel options

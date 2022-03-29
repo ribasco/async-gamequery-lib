@@ -25,20 +25,36 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import org.jetbrains.annotations.ApiStatus;
 
+import java.util.concurrent.ExecutorService;
+
 /**
- * A collection of global configuration {@link Option}s to be used by the underlying {@link Transport}
+ * <p>A collection of global configuration {@link Option}s to be used by the underlying {@link Transport}</p>
+ *
+ * <h3>Sample usage:</h3>
+ *
+ *
+ * <pre>
+ *  ThreadPoolExecutor executor = new ThreadPoolExecutor(9, Integer.MAX_VALUE,
+ *                                                            60L, TimeUnit.SECONDS,
+ *                                                            new LinkedBlockingQueue<>(),
+ *                                                            new DefaultThreadFactory("agql-query"));
+ *  Options queryOptions = OptionBuilder.newBuilder()
+ *                                      .option(TransportOptions.READ_TIMEOUT, 3000)
+ *                                      .option(TransportOptions.THREAD_EXECUTOR_SERVICE, executor)
+ *                                      .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+ *                                      .build();
+ *
+ *  SourceQueryClient client = new SourceQueryClient(queryOptions);
+ *
+ * </pre>
  *
  * @author Rafael Luis Ibasco
+ * @see Option
+ * @see OptionBuilder
  */
 public final class TransportOptions {
 
     //<editor-fold desc="General">
-
-    /**
-     * When enabled, the library will attempt to utilize platform specific transport(s) (e.g. epoll for linux or kqueue for mac osx)
-     * otherwise the default java NIO transport will be used.
-     */
-    public static final Option<Boolean> USE_NATIVE_TRANSPORT = Option.createOption("useNativeTransport", true);
 
     /**
      * Monitor resource usage leaks. Set the desired {@link ResourceLeakDetector}
@@ -123,7 +139,7 @@ public final class TransportOptions {
     //<editor-fold desc="Failsafe Integration">
 
     /**
-     * Enable/disable {@link dev.failsafe.Failsafe} integration
+     * Enable/disable {@link dev.failsafe.Failsafe} support (This is to ensure that a connection is successfully established and will re-attempt to connect once it encounters an error)
      *
      * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
@@ -152,10 +168,31 @@ public final class TransportOptions {
     //</editor-fold>
 
     //<editor-fold desc="Concurrency">
+
     /**
-     * Use a custom {@link EventLoopGroup} that will be used by the underlying {@link Transport}
+     * When enabled, the library will attempt to utilize platform specific transport(s) (e.g. epoll for linux or kqueue for mac osx)
+     * otherwise the default java NIO transport will be used.
      */
-    public static final Option<EventLoopGroup> THREAD_EL_GROUP = Option.createOption("eventLoopGroup");
+    public static final Option<Boolean> USE_NATIVE_TRANSPORT = Option.createOption("useNativeTransport", true);
+
+    /**
+     * A custom {@link ExecutorService} that will be used by the client. Set to {@code null} to use the global executor provided by the library which is shared across all clients by default. (Default: {@code null})
+     *
+     * <p>
+     * <strong>Note:</strong> If you provide a custom {@link ExecutorService}, then you are responsible for closing it. Only the default executor is closed automatically.
+     * </p>
+     *
+     * @see Platform#getDefaultExecutor()
+     * @see Platform#getDefaultEventLoopGroup()
+     */
+    public static final Option<ExecutorService> THREAD_EXECUTOR_SERVICE = Option.createOption("threadExecutorService", null);
+
+    /**
+     * The number of threads to be used by the internal {@link EventLoopGroup}. This is usually less than or equals to the core pool size of the {@link ExecutorService} provided (Default: {@code null}).
+     *
+     * @see #THREAD_EXECUTOR_SERVICE
+     */
+    public static final Option<Integer> THREAD_CORE_SIZE = Option.createOption("threadCorePoolSize", null);
 
     /**
      * When the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating. Time unit is in milliseconds.

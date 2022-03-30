@@ -132,7 +132,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         still healthy when obtain from the {@link NettyChannelPool}
      * @param action
      *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
-     *         In this case {@param acquireTimeoutMillis} must be {@code -1}.
+     *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
      *         the {@link AcquireTimeoutAction} takes place.
@@ -164,7 +164,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         still healthy when obtain from the {@link NettyChannelPool}
      * @param action
      *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
-     *         In this case {@param acquireTimeoutMillis} must be {@code -1}.
+     *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
      *         the {@link AcquireTimeoutAction} takes place.
@@ -199,7 +199,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         still healthy when obtain from the {@link NettyChannelPool}
      * @param action
      *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
-     *         In this case {@param acquireTimeoutMillis} must be {@code -1}.
+     *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
      *         the {@link AcquireTimeoutAction} takes place.

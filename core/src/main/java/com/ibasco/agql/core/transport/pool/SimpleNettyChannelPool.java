@@ -423,7 +423,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Poll a {@link Channel} out of the internal storage to reuse it. This will return {@code null} if no
      * {@link Channel} is ready to be reused.
      * <p>
-     * Subclasses may override {@code pollChannel()} and {@code offerChannel()). Be aware that
+     * Subclasses may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
      * implementations of these methods needs to be thread-safe!
      */
     protected Channel pollChannel() {

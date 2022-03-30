@@ -13,13 +13,13 @@ Features
 -------------
 - Simple and easy to use API
 - Powered by [Netty](https://netty.io/). All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
-- Fast and memory efficient. Capable of handling multiple transactions at once
+- Fast and memory efficient. Capable of handling multiple transactions at once. This is made possible by the following features:
     - Netty's off-heap pooled direct byte buffers (Less GC pressure)
-    - Thread and connection pooling support. Makes use of netty's event loop (every transaction is run on the same thread).
-    - Makes use of native transports if available (e.g. EPOLL, KQueue). Java's NIO is used by default.
+    - Thread and connection pooling support. Makes use of netty's event loop model (every transaction is run on the same thread).
+    - Use of native transports if available (e.g. EPOLL, KQueue). Java's NIO is used by default.
 - Flexible Configuration support. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limits etc)
 - [Failsafe](https://failsafe.dev/) Integration
-    - Retry Policy: A failed transaction is re-attempted until a response is received or it has reached the maximum number of attempts. This is convenient in cases where a connection is dropped by the server due to it changing level etc.
+    - Retry Policy: A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
     - Rate Limiter: This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
 Sample Usage

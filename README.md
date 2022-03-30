@@ -109,7 +109,7 @@ Below is the list of what is currently implemented on the library
 * Valve Steam StoreFront Web API
 * Valve Dota 2 Web API
 * Valve CS:GO Web API
-* Valve Source Log Handler (a log monitor service)
+* Valve Source Log Service (A service which allows you to recive server log events)
 * Supercell Clash of Clans Web API (Deprecated)
 
 Requirements

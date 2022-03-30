@@ -96,6 +96,8 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //<editor-fold desc="Protected Methods">
     @Override
     protected void configure(Options options) {
+        //we disable using native transports (e.g. epoll) by default. Per my tests, it seems NIO seems to be more reliable.
+        //This can still be overriden by the developer
         defaultOption(options, TransportOptions.USE_NATIVE_TRANSPORT, false);
         defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
         defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);

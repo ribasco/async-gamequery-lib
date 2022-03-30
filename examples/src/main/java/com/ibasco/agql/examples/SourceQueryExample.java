@@ -20,18 +20,17 @@ import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
-import com.ibasco.agql.examples.query.PlayersHandler;
-import com.ibasco.agql.examples.query.ResponseHandler;
-import com.ibasco.agql.examples.query.RulesHandler;
-import com.ibasco.agql.examples.query.ServerInfoHandler;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
+import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
+import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,11 +39,11 @@ import java.net.InetSocketAddress;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Function;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 public class SourceQueryExample extends BaseExample {
 
@@ -54,18 +53,13 @@ public class SourceQueryExample extends BaseExample {
 
     private MasterServerQueryClient masterClient;
 
-    private final NumberFormat nf = new DecimalFormat("00000");
-
-    private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-
-    private final ConcurrentLinkedDeque<DelayedQueryTask> requestQueue = new ConcurrentLinkedDeque<>();
+    private static final NumberFormat nf = new DecimalFormat("00000");
 
     public SourceQueryExample() {}
 
     public static void main(String[] args) throws Exception {
         SourceQueryExample example = new SourceQueryExample();
         example.run(args);
-        example.close();
     }
 
     private final ThreadPoolExecutor masterExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE,
@@ -78,19 +72,24 @@ public class SourceQueryExample extends BaseExample {
                                                                             new LinkedBlockingQueue<>(),
                                                                             new DefaultThreadFactory("agql-query"));
 
-    private ScheduledFuture<?> requester;
-
     @Override
     public void run(String[] args) throws Exception {
         try {
-            //query client (using custom executor)
+            //query client
+            // - Enabled rate limiting so we don't send too fast
+            // - Change rate limiting type to BURST
+            // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
             Options queryOptions = OptionBuilder.newBuilder()
                                                 .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
 
-            //master client (using custom executor)
+            //master client initialization
+            // - Configuring the Rate limit type to SMOOTH
+            // - Used a custom executor for master client. We are responsible for shutting down this executor, not the library.
             Options masterOptions = OptionBuilder.newBuilder()
                                                  .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                  .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
@@ -109,14 +108,7 @@ public class SourceQueryExample extends BaseExample {
         long start, end;
 
         final Phaser phaser = new Phaser();
-        //noinspection rawtypes
-        final Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries = new HashMap<>();
-        queries.put(queryClient::getServerInfo, new ServerInfoHandler(phaser));
-        queries.put(queryClient::getPlayers, new PlayersHandler(phaser));
-        queries.put(queryClient::getServerRules, new RulesHandler(phaser));
-
-        int requestDelay = Integer.parseInt(promptInput("Set frequency of request (ms)", true, "200", "requestDelay"));
-        startProcessing(requestDelay);
+        final SourceQueryAggregateProcessor processor = new SourceQueryAggregateProcessor();
 
         int total = 0;
         start = System.currentTimeMillis();
@@ -124,19 +116,19 @@ public class SourceQueryExample extends BaseExample {
         if (queryAllServers) {
             final MasterServerFilter filter = buildServerFilter();
             log.info("Fetching server list using filter '{}'", filter);
-            total = fetchServersAndQuery(filter, phaser, queries);
+            total = fetchServersAndQuery(filter, phaser, processor);
         } else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
-            int requestCount = Integer.parseInt(promptInput("How many requests should we run?", false, "1", "requestCount"));
             InetSocketAddress address = NetUtil.parseAddress(addressString, 27015);
             log.info("Waiting for the queries to complete");
             start = System.currentTimeMillis();
-            //phaser.register();
-            queryServer(address, phaser, queries, requestCount);
+            queryServer(address, phaser);
             total = 1;
         }
         phaser.arriveAndAwaitAdvance();
         end = System.currentTimeMillis() - start;
+
+        log.info("=================================================================================================================================");
 
         if (end < 1) {
             log.info("Test Completed  in {} seconds", Duration.ofMillis(end).getSeconds());
@@ -147,31 +139,20 @@ public class SourceQueryExample extends BaseExample {
         log.info("=================================================================================================================================");
         log.info("Test Results (Total address fetched: {})", total);
         log.info("=================================================================================================================================");
-        //noinspection rawtypes
-        for (Map.Entry<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> entry : queries.entrySet()) {
-            ResponseHandler<?> handler = entry.getValue();
-            //assert handler.getTotalCount() == total;
-            handler.printStats();
-            handler.reset();
+
+        for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
+            String name = entry.getKey().name();
+            SourceQueryStatCounter stat = entry.getValue();
+            log.info("{} (Success: {}, Failure: {}, Total: {})", name, nf.format(stat.getSuccessCount()), nf.format(stat.getFailureCount()), nf.format(stat.getTotalCount()));
         }
+
         for (Map.Entry<AbstractClient.ClientStatistics.Stat, Integer> e : queryClient.getClientStatistics().getValues().entrySet()) {
             AbstractClient.ClientStatistics.Stat stat = e.getKey();
             Integer count = e.getValue();
-            log.info("{} = {}", stat.name(), count);
+            log.info("{} = {}", stat.name(), nf.format(count));
 
         }
         log.info("=================================================================================================================================");
-    }
-
-    private void startProcessing(int delay) {
-        if (this.requester != null && !this.requester.isDone())
-            return;
-        this.requester = scheduler.scheduleAtFixedRate(() -> {
-            DelayedQueryTask task = requestQueue.pollFirst();
-            if (task == null)
-                return;
-            task.run();
-        }, 0, delay, TimeUnit.MILLISECONDS);
     }
 
     private MasterServerFilter buildServerFilter() {
@@ -185,72 +166,260 @@ public class SourceQueryExample extends BaseExample {
         return filter;
     }
 
-    private static class DelayedQueryTask implements Runnable {
-
-        private final InetSocketAddress address;
-
-        private final Function<InetSocketAddress, CompletableFuture> query;
-
-        private final ResponseHandler<?> handler;
-
-        private DelayedQueryTask(InetSocketAddress address, Function<InetSocketAddress, CompletableFuture> query, ResponseHandler<?> handler) {
-            this.address = address;
-            this.query = query;
-            this.handler = handler;
-        }
-
-        @Override
-        public void run() {
-            //noinspection unchecked
-            query.apply(address).whenComplete(handler);
-        }
-    }
-
     /**
      * Fetch a new list from the master server and query
      *
      * @param filter
      *         {@link MasterServerFilter}
      */
-    private int fetchServersAndQuery(MasterServerFilter filter, Phaser phaser, Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries) {
+    private int fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, SourceQueryAggregateProcessor processor) {
         List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
-            log.debug("QUERY => Querying server address '{}'", address);
-            queryServer(address, phaser, queries);
+            queryServer(address, phaser).whenComplete(processor);
         }).join();
         return addressList.size();
     }
 
-    private void queryServer(InetSocketAddress address, Phaser phaser, Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries) {
-        queryServer(address, phaser, queries, null);
-    }
-
-    private void queryServer(InetSocketAddress address, Phaser phaser, Map<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> queries, Integer count) {
-        try {
-            int total = count == null ? 1 : count;
-            for (int i = 0; i < total; i++) {
-                for (Map.Entry<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> entry : queries.entrySet()) {
-                    phaser.register();
-                    log.debug("QUERY => Sending query request (Address: {}, {})", address, entry.getKey());
-                    requestQueue.addFirst(new DelayedQueryTask(address, entry.getKey(), entry.getValue()));
-                }
-            }
-        } catch (Exception e) {
-            log.error("Error occured during processing", e);
-        }
+    /**
+     * Performs all types of queries for the specified address. This is just one example on how you can combine all operations in one single asynchronous call.
+     *
+     * @param address
+     *         The {@link InetSocketAddress} of the remote server to query
+     * @param phaser
+     *         The synchronization barrier that is notified once a result has been received
+     *
+     * @return A {@link CompletableFuture} that is notified once all the responses from each type of query have been received.
+     */
+    private CompletableFuture<SourceQueryAggregate> queryServer(final InetSocketAddress address, final Phaser phaser) {
+        SourceQueryAggregate result = new SourceQueryAggregate(address, phaser);
+        //we register three parties for the info, player and rules requests
+        phaser.bulkRegister(3);
+        return CompletableFuture.completedFuture(result)
+                                .thenCombine(queryClient.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
+                                .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
+                                .thenCombine(queryClient.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
     }
 
     @Override
     public void close() throws IOException {
-        log.info("Closing source query client");
-        queryClient.close();
-        log.info("Closing master query client");
-        masterClient.close();
-        if (ConcurrentUtil.shutdown(scheduler)) {
-            log.info("Successfully shutdown scheduler");
+        if (queryClient != null) {
+            log.info("Closing source query client");
+            queryClient.close();
         }
-        ConcurrentUtil.shutdown(queryExecutor);
-        ConcurrentUtil.shutdown(masterExecutor);
+        if (masterClient != null) {
+            log.info("Closing master query client");
+            masterClient.close();
+        }
+        if (ConcurrentUtil.shutdown(queryExecutor))
+            log.info("Successfully shutdown query executor");
+        if (ConcurrentUtil.shutdown(masterExecutor))
+            log.info("Successfully shutdown master query executor");
+    }
+
+    /**
+     * Enumeration for identifying the type of source query
+     */
+    private enum SourceQueryType {
+        INFO,
+        PLAYERS,
+        RULES
+    }
+
+    /**
+     * An aggregate for INFO, PLAYER and RULES queries for a specific server {@link InetSocketAddress}
+     */
+    private static class SourceQueryAggregate {
+
+        private final InetSocketAddress address;
+
+        private SourceServer info;
+
+        private Collection<SourcePlayer> players;
+
+        private Map<String, String> rules;
+
+        private final Map<SourceQueryType, Throwable> status = new HashMap<>();
+
+        private final Phaser phaser;
+
+        private SourceQueryAggregate(final InetSocketAddress address, final Phaser phaser) {
+            this.address = address;
+            this.phaser = phaser;
+        }
+
+        private SourceServer getInfo() {
+            return info;
+        }
+
+        private Collection<SourcePlayer> getPlayers() {
+            return players;
+        }
+
+        private Map<String, String> getRules() {
+            return rules;
+        }
+
+        private InetSocketAddress getAddress() {
+            return address;
+        }
+
+        private Throwable getError(SourceQueryType type) {
+            return ConcurrentUtil.unwrap(status.get(type));
+        }
+
+        private boolean hasError() {
+            return status.entrySet().stream().anyMatch(e -> e.getValue() != null);
+        }
+
+        private boolean hasError(SourceQueryType type) {
+            return status.get(type) != null;
+        }
+
+        /**
+         * A factory method which returns a callback for processing the specified {@link SourceQueryType}
+         *
+         * @param responseType
+         *         {@link SourceQueryType} enumeration identifying the type of response (INFO, PLAYER or RULES)
+         * @param <R>
+         *         Type of the response
+         *
+         * @return A {@link BiFunction} callback that is called by the client
+         */
+        @SuppressWarnings("unchecked")
+        private <R> BiFunction<R, Throwable, SourceQueryAggregate> ofType(SourceQueryType responseType) {
+            return (response, error) -> {
+                try {
+                    boolean hasError = error != null;
+                    if (hasError)
+                        status.put(responseType, error);
+                    switch (responseType) {
+                        case INFO: {
+                            if (hasError) {
+                                SourceQueryAggregate.this.info = null;
+                            } else {
+                                SourceQueryAggregate.this.info = (SourceServer) response;
+                            }
+                            break;
+                        }
+                        case PLAYERS: {
+                            if (hasError) {
+                                SourceQueryAggregate.this.players = new ArrayList<>();
+                            } else {
+                                SourceQueryAggregate.this.players = (List<SourcePlayer>) response;
+                            }
+                            break;
+                        }
+                        case RULES: {
+                            if (hasError) {
+                                SourceQueryAggregate.this.rules = new HashMap<>();
+                            } else {
+                                SourceQueryAggregate.this.rules = (Map<String, String>) response;
+                            }
+                            break;
+                        }
+                        default:
+                            throw new IllegalStateException("Invalid result recieved from server: " + response);
+                    }
+                    return SourceQueryAggregate.this;
+                } finally {
+                    phaser.arriveAndDeregister();
+                }
+            };
+        }
+    }
+
+    /**
+     * A stat counter for a specific {@link SourceQueryType}
+     */
+    private static class SourceQueryStatCounter {
+
+        private final SourceQueryType type;
+
+        private final AtomicInteger successCount = new AtomicInteger();
+
+        private final AtomicInteger failureCount = new AtomicInteger();
+
+        private SourceQueryStatCounter(SourceQueryType type) {
+            this.type = type;
+        }
+
+        public SourceQueryType getType() {
+            return type;
+        }
+
+        public int getSuccessCount() {
+            return successCount.get();
+        }
+
+        public int getFailureCount() {
+            return failureCount.get();
+        }
+
+        public int getTotalCount() {
+            return getSuccessCount() + getFailureCount();
+        }
+
+        public void recordSuccess() {
+            this.successCount.incrementAndGet();
+        }
+
+        public void recordFailure(Throwable error) {
+            this.failureCount.incrementAndGet();
+        }
+    }
+
+    /**
+     * A class for processing {@link SourceQueryAggregate} instances (For Collecting statistics)
+     */
+    private static class SourceQueryAggregateProcessor implements BiConsumer<SourceQueryAggregate, Throwable> {
+
+        private final AtomicInteger counter = new AtomicInteger();
+
+        private final Map<SourceQueryType, SourceQueryStatCounter> stats = new ConcurrentHashMap<>();
+
+        @Override
+        public void accept(SourceQueryAggregate result, Throwable error) {
+            if (error != null)
+                throw new CompletionException(ConcurrentUtil.unwrap(error));
+
+            SourceQueryStatCounter infoCounter = stats.computeIfAbsent(SourceQueryType.INFO, SourceQueryStatCounter::new);
+            SourceQueryStatCounter playerCounter = stats.computeIfAbsent(SourceQueryType.PLAYERS, SourceQueryStatCounter::new);
+            SourceQueryStatCounter rulesCounter = stats.computeIfAbsent(SourceQueryType.RULES, SourceQueryStatCounter::new);
+
+            Throwable infoError = result.getError(SourceQueryType.INFO);
+            Throwable playerError = result.getError(SourceQueryType.PLAYERS);
+            Throwable rulesError = result.getError(SourceQueryType.RULES);
+
+            //process info
+            if (infoError != null) {
+                infoCounter.recordFailure(infoError);
+            } else {
+                infoCounter.recordSuccess();
+            }
+
+            //process players
+            if (playerError != null) {
+                playerCounter.recordFailure(playerError);
+            } else {
+                playerCounter.recordSuccess();
+            }
+
+            //process rules
+            if (rulesError != null) {
+                rulesCounter.recordFailure(rulesError);
+            } else {
+                rulesCounter.recordSuccess();
+            }
+
+            String infoResult = infoError != null ? infoError.getClass().getSimpleName() : result.getInfo().getName();
+            String playerResult = playerError != null ? playerError.getClass().getSimpleName() : String.valueOf(result.getPlayers().size());
+            String rulesResult = rulesError != null ? rulesError.getClass().getSimpleName() : String.valueOf(result.getRules().size());
+            log.info("{}) {} :: [INFO]: {} [PLAYERS]: {} [RULES]: {}", nf.format(counter.incrementAndGet()), String.format("%-25s", result.getAddress()), StringUtils.rightPad(infoResult, 64), playerResult, rulesResult);
+        }
+
+        public Map<SourceQueryType, SourceQueryStatCounter> getStats() {
+            return stats;
+        }
     }
 }

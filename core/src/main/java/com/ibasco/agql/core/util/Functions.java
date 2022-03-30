@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.NettyChannelContext;
 import org.jetbrains.annotations.ApiStatus;
 
 import java.util.function.Function;
@@ -38,7 +37,7 @@ public class Functions {
         return (C) b;
     }
 
-    public static <A> A returnFirst(A a) {
+    public static <A> A returnArg(A a) {
         return a;
     }
 
@@ -58,9 +57,5 @@ public class Functions {
                 return true;
         }
         return false;
-    }
-
-    public static NettyChannelContext supplyThis(NettyChannelContext c) {
-        return c;
     }
 }

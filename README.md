@@ -30,13 +30,9 @@ Synchronous method
 ```java
 //query client
 ExecutorService customExecutor = Executors.newCachedThreadPool();
-
-// - Enabled rate limiting so we don't send too fast
-// - Change rate limiting type to BURST
+// - Change rate limiting method to BURST
 // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
 Options queryOptions = OptionBuilder.newBuilder()
-                                    .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
-                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
                                     .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
                                     .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                     .build();
@@ -53,12 +49,10 @@ Asynchronous method. Composing all queries (info, players and rules) in one sing
 ExecutorService customExecutor = Executors.newCachedThreadPool();
 
 // - Enabled rate limiting so we don't send too fast
-// - Change rate limiting type to BURST
+// - Change rate limiting type to SMOOTH
 // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
 Options queryOptions = OptionBuilder.newBuilder()
-                                    .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
-                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
-                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                     .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                     .build();
         

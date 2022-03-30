@@ -7,7 +7,7 @@ Asynchronous Game Query Library
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
 
-A game query library on steroids written for Java. This is an implementation of Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
+A game query library on steroids written for Java. This is an implementation of Valve's source [Query](https://developer.valvesoftware.com/wiki/Server_queries), [Rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol), [Master](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol) and [Steam Web API](https://steamcommunity.com/dev) protocols. Built on top of [Netty](https://github.com/netty/netty)
 
 Features
 -------------
@@ -16,26 +16,34 @@ Features
 - Fast and memory efficient. Capable of handling multiple transactions at once. This is made possible by the following features:
     - Netty's off-heap pooled direct byte buffers (Less GC pressure)
     - Thread and connection pooling support. Makes use of netty's event loop model (every transaction is run on the same thread).
-    - Use of native transports if available (e.g. EPOLL, KQueue). Java's NIO is used by default.
-- Flexible Configuration support. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limits etc)
+    - Use of native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- Configuration support. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limits etc)
 - [Failsafe](https://failsafe.dev/) Integration
     - Retry Policy: A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
-    - Rate Limiter: This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+    - Rate Limiter Policy: This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
 Sample Usage
 -------------
 
-Synchronous method
+For more examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
+
+**Blocking**
 
 ```java
 //query client
+
+//Use a custom executor. This is not really necessary as the library 
+//provides it's own default executor, this only serves an example.
 ExecutorService customExecutor = Executors.newCachedThreadPool();
+
 // - Change rate limiting method to BURST
 // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
 Options queryOptions = OptionBuilder.newBuilder()
                                     .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
                                     .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                     .build();
+
+//You can instantiate the client from the try-with block as it implements the java.io.Closeable interface
 try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
     InetSocketAddress address = new InetSocketAddress("192.168.60.1", 27016);
     SourceServer info = client.getServerInfo(address).join();
@@ -43,28 +51,35 @@ try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
 }
 ```
 
-Asynchronous method. Composing all queries (info, players and rules) in one single call. Refer to the documentation for more information.
+**Non-Blocking**
 
 ```java
+//Use a custom executor. This is not really necessary as the library 
+//provides it's own default executor, this only serves an example.
 ExecutorService customExecutor = Executors.newCachedThreadPool();
 
+//Example configuration
 // - Enabled rate limiting so we don't send too fast
-// - Change rate limiting type to SMOOTH
+// - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
 // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
 Options queryOptions = OptionBuilder.newBuilder()
                                     .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                     .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                     .build();
         
+//Instantiate the client (constructor argument is optional)
 SourceQueryClient client = new SourceQueryClient(queryOptions);
 
+//Create a user defined object which serves as an aggregate where all the resulting data will be stored
 SourceQueryAggregate result = new SourceQueryAggregate(address);
 
+//Combining all queries in one call
 CompletableFuture<SourceQueryAggregate> resultFuture = CompletableFuture.completedFuture(result)
-                        .thenCombine(queryClient.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
-                        .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
-                        .thenCombine(queryClient.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
+                        .thenCombine(client.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
+                        .thenCombine(client.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
+                        .thenCombine(client.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
 
+//Display result
 resultFuture.whenComplete(new BiConsumer<SourceQueryAggregate, Throwable>() {
     @Override
     public void accept(SourceQueryAggregate result, Throwable error) {
@@ -110,7 +125,7 @@ Below is the list of what is currently implemented on the library
 * Valve Dota 2 Web API
 * Valve CS:GO Web API
 * Valve Source Log Service (A service which allows you to recive server log events)
-* Supercell Clash of Clans Web API (Deprecated)
+* ~~Supercell Clash of Clans Web API (Deprecated)~~
 
 Requirements
 ------------
@@ -127,7 +142,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Aggregate (All modules included in this artifact)**
 
 ```xml
-
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql</artifactId>
@@ -171,7 +185,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve Dota 2 Web API**
 
 ```xml
-
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
@@ -182,7 +195,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve CS:GO Web API**
 
 ```xml
-
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
@@ -195,7 +207,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 > **NOTE**: As of 0.2.0, this has been marked as deprecated and will be removed in the next major release
 
 ```xml
-
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
@@ -213,11 +224,6 @@ cd async-gamequery-lib
 mvn install
 ~~~
 
-Usage
-------------
-
-For usage examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
-
 Interactive Examples
 --------------------
 
@@ -227,7 +233,7 @@ The video below demonstrates the following:
 
 - Executing 1000-5000 random commands asynchronously
 - Connections are pooled and created on-demand. Max of 8 connection where each connection is automatically authenticated with the remote server.
-- Executing a command immediately after issuing a `changelevel` command does not result in failure.
+- Executing a command immediately after issuing a `changelevel` and does not result in failure.
 
 https://user-images.githubusercontent.com/13303385/160422666-7314a89a-a68a-4b92-82ea-5734c4b075e2.mp4
 
@@ -236,7 +242,7 @@ To run the available examples, I have included a convenience script (`run-exampl
 The script accepts a "key" that represents an example application. To get a list of keys, simply invoke the script without arguments, for example:
 
 ~~~bash
-raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh
+$ ./run-example.sh
 Error: Missing Example Key. Please specify the example key. (e.g. source-query)
 
 ====================================================================
@@ -257,7 +263,7 @@ List of available examples
 If you are running a web service type example, you will be prompted with an API key. Simply copy and paste the key to the console.
 
 ~~~
-raffy@spinmetal:~/projects/async-gamequery-lib$ ./run-example.sh coc-webapi
+$ ./run-example.sh coc-webapi
 Running example for coc-webapi
 [INFO] Scanning for projects...
 [INFO]

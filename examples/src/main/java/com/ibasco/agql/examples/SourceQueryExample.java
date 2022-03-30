@@ -30,7 +30,6 @@ import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClie
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -412,10 +411,12 @@ public class SourceQueryExample extends BaseExample {
                 rulesCounter.recordSuccess();
             }
 
-            String infoResult = infoError != null ? infoError.getClass().getSimpleName() : result.getInfo().getName();
-            String playerResult = playerError != null ? playerError.getClass().getSimpleName() : String.valueOf(result.getPlayers().size());
-            String rulesResult = rulesError != null ? rulesError.getClass().getSimpleName() : String.valueOf(result.getRules().size());
-            log.info("{}) {} :: [INFO]: {} [PLAYERS]: {} [RULES]: {}", nf.format(counter.incrementAndGet()), String.format("%-25s", result.getAddress()), StringUtils.rightPad(infoResult, 64), playerResult, rulesResult);
+            String infoResult = infoError != null ? "\u001B[31m" + infoError.getClass().getSimpleName() + "\u001B[0m" : result.getInfo().getName();
+            String playerResult = playerError != null ? "\u001B[31m" + playerError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getPlayers().size());
+            String rulesResult = rulesError != null ? "\u001B[31m" + rulesError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getRules().size());
+
+            String line = String.format("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[32m[INFO]\u001B[0m: %-64s \u001B[34m[PLAYERS]\u001B[0m: %-25s \u001B[34m[RULES]\u001B[0m: %-25s", counter.incrementAndGet(), result.getAddress().getHostString(), result.getAddress().getPort(), infoResult, playerResult, rulesResult);
+            System.out.println(line);
         }
 
         public Map<SourceQueryType, SourceQueryStatCounter> getStats() {

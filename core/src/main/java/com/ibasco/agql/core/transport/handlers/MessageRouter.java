@@ -84,7 +84,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                 try {
                     //report unwanted instances of objects not being released properly
                     if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
-                        log.error("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", context.id(), response.getClass().getSimpleName());
+                        log.warn("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", context.id(), response.getClass().getSimpleName());
                         throw new NoMessageHandlerException(String.format("Memory was not properly deallocated for object '%s'. Please investigate", response.getClass().getSimpleName()));
                     }
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response);

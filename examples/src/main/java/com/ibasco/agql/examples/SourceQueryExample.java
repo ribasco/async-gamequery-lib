@@ -415,7 +415,7 @@ public class SourceQueryExample extends BaseExample {
             String playerResult = playerError != null ? "\u001B[31m" + playerError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getPlayers().size());
             String rulesResult = rulesError != null ? "\u001B[31m" + rulesError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getRules().size());
 
-            String line = String.format("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[32m[INFO]\u001B[0m: %-64s \u001B[34m[PLAYERS]\u001B[0m: %-25s \u001B[34m[RULES]\u001B[0m: %-25s", counter.incrementAndGet(), result.getAddress().getHostString(), result.getAddress().getPort(), infoResult, playerResult, rulesResult);
+            String line = String.format("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %-25s \u001B[34m[RULES]\u001B[0m: %-25s \u001B[32m[INFO]\u001B[0m: %-64s", counter.incrementAndGet(), result.getAddress().getHostString(), result.getAddress().getPort(), playerResult, rulesResult, infoResult);
             System.out.println(line);
         }
 

@@ -18,6 +18,7 @@ package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
@@ -411,9 +412,9 @@ public class SourceQueryExample extends BaseExample {
                 rulesCounter.recordSuccess();
             }
 
-            String infoResult = infoError != null ? "\u001B[31m" + infoError.getClass().getSimpleName() + "\u001B[0m" : result.getInfo().getName();
-            String playerResult = playerError != null ? "\u001B[31m" + playerError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getPlayers().size());
-            String rulesResult = rulesError != null ? "\u001B[31m" + rulesError.getClass().getSimpleName() + "\u001B[0m": String.valueOf(result.getRules().size());
+            String infoResult = infoError != null ? "\u001B[31m" + errorName(infoError) + "\u001B[0m" : result.getInfo().getName();
+            String playerResult = playerError != null ? "\u001B[31m" + errorName(playerError) + "\u001B[0m": String.valueOf(result.getPlayers().size());
+            String rulesResult = rulesError != null ? "\u001B[31m" + errorName(rulesError) + "\u001B[0m": String.valueOf(result.getRules().size());
 
             String line = String.format("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %-25s \u001B[34m[RULES]\u001B[0m: %-25s \u001B[32m[INFO]\u001B[0m: %-64s", counter.incrementAndGet(), result.getAddress().getHostString(), result.getAddress().getPort(), playerResult, rulesResult, infoResult);
             System.out.println(line);
@@ -421,6 +422,14 @@ public class SourceQueryExample extends BaseExample {
 
         public Map<SourceQueryType, SourceQueryStatCounter> getStats() {
             return stats;
+        }
+
+        private static String errorName(Throwable error) {
+            if (error instanceof TimeoutException) {
+                return "TIMEOUT";
+            } else {
+                return error.getClass().getSimpleName();
+            }
         }
     }
 }

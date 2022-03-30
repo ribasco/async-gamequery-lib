@@ -163,7 +163,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @param address
      *         The {@link InetSocketAddress} of the source server
      * @param autoUpdate
-     *         Set to {@code true} if the challenge number will automatically be queried. Otherwise an exception will be thrown indicating that the server requires a new/updated challenge number.
+     *         Set to {@code true} if a new challenge request should automatically be sent when needed. Otherwise an exception will be thrown indicating that the server requires a new/updated challenge number.
      *
      * @return A {@link CompletableFuture} that is notified once a reply has been received from the remote server. If successful, a {@link SourceServer} is returned.
      *

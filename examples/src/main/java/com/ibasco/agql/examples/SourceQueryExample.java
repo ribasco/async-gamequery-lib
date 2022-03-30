@@ -17,6 +17,7 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.AbstractClient;
+import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.PlayersHandler;
@@ -26,6 +27,7 @@ import com.ibasco.agql.examples.query.ServerInfoHandler;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
@@ -90,6 +92,7 @@ public class SourceQueryExample extends BaseExample {
 
             //master client (using custom executor)
             Options masterOptions = OptionBuilder.newBuilder()
+                                                 .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                  .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
                                                  .build();
             masterClient = new MasterServerQueryClient(masterOptions);
@@ -112,7 +115,7 @@ public class SourceQueryExample extends BaseExample {
         queries.put(queryClient::getPlayers, new PlayersHandler(phaser));
         queries.put(queryClient::getServerRules, new RulesHandler(phaser));
 
-        int requestDelay = Integer.parseInt(promptInput("Delay in request (ms)", true, "200", "requestDelay"));
+        int requestDelay = Integer.parseInt(promptInput("Set frequency of request (ms)", true, "200", "requestDelay"));
         startProcessing(requestDelay);
 
         int total = 0;
@@ -171,16 +174,6 @@ public class SourceQueryExample extends BaseExample {
         }, 0, delay, TimeUnit.MILLISECONDS);
     }
 
-    private void stopProcessing() {
-        if (this.requester == null)
-            return;
-        if (!this.requester.isDone()) {
-            if (this.requester.cancel(true)) {
-                this.requester = null;
-            }
-        }
-    }
-
     private MasterServerFilter buildServerFilter() {
         int appId = Integer.parseInt(promptInput("List servers only from this app id (int)", false, null, "srcQryAppId"));
         Boolean emptyServers = promptInputBool("List only empty servers? (y/n)", false, null, "srcQryEmptySvrs");
@@ -223,7 +216,7 @@ public class SourceQueryExample extends BaseExample {
         List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
-            log.info("Querying server: {}", address);
+            log.debug("QUERY => Querying server address '{}'", address);
             queryServer(address, phaser, queries);
         }).join();
         return addressList.size();
@@ -239,7 +232,7 @@ public class SourceQueryExample extends BaseExample {
             for (int i = 0; i < total; i++) {
                 for (Map.Entry<Function<InetSocketAddress, CompletableFuture>, ResponseHandler> entry : queries.entrySet()) {
                     phaser.register();
-                    log.debug("QUERY => Sending request (Address: {}, {})", address, entry.getKey());
+                    log.debug("QUERY => Sending query request (Address: {}, {})", address, entry.getKey());
                     requestQueue.addFirst(new DelayedQueryTask(address, entry.getKey(), entry.getValue()));
                 }
             }

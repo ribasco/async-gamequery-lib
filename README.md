@@ -87,7 +87,7 @@ Project Resources
 
 * [Java API Docs](https://ribasco.github.io/async-gamequery-lib/apidocs)
 * [Project Documentation](https://ribasco.github.io/async-gamequery-lib/)
-* [Continuous Integration](https://travis-ci.org/ribasco/async-gamequery-lib)
+* [Continuous Integration](https://github.com/ribasco/async-gamequery-lib/actions)
 * [Snapshot Builds](https://oss.sonatype.org/content/repositories/snapshots/com/ibasco/agql/)
 
 Discussion Platforms

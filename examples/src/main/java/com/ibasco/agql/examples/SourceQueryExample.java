@@ -31,6 +31,7 @@ import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClie
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -412,21 +413,51 @@ public class SourceQueryExample extends BaseExample {
                 rulesCounter.recordSuccess();
             }
 
-            String infoResult = infoError != null ? "\u001B[31m" + errorName(infoError) + "\u001B[0m" : result.getInfo().getName();
-            String playerResult = playerError != null ? "\u001B[31m" + errorName(playerError) + "\u001B[0m": String.valueOf(result.getPlayers().size());
-            String rulesResult = rulesError != null ? "\u001B[31m" + errorName(rulesError) + "\u001B[0m": String.valueOf(result.getRules().size());
-
-            String line = String.format("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %-25s \u001B[34m[RULES]\u001B[0m: %-25s \u001B[32m[INFO]\u001B[0m: %-64s", counter.incrementAndGet(), result.getAddress().getHostString(), result.getAddress().getPort(), playerResult, rulesResult, infoResult);
-            System.out.println(line);
+            System.out.printf("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %s \u001B[34m[RULES]\u001B[0m: %s \u001B[32m[INFO]\u001B[0m: %-64s\n",
+                              counter.incrementAndGet(),
+                              result.getAddress().getHostString(),
+                              result.getAddress().getPort(),
+                              formatResult(result, SourceQueryType.PLAYERS),
+                              formatResult(result, SourceQueryType.RULES),
+                              formatResult(result, SourceQueryType.INFO)
+            );
         }
 
         public Map<SourceQueryType, SourceQueryStatCounter> getStats() {
             return stats;
         }
 
+        private static String formatResult(SourceQueryAggregate result, SourceQueryType type) {
+            Throwable error = result.getError(type);
+            String data;
+            if (error != null) {
+                return "\u001B[31m" + StringUtils.rightPad(errorName(error), 21, " ") + "\u001B[0m";
+            } else {
+                switch (type) {
+                    case INFO: {
+                        data = result.getInfo().getName();
+                        break;
+                    }
+                    case PLAYERS: {
+                        data = String.valueOf(result.getPlayers().size());
+                        break;
+                    }
+                    case RULES: {
+                        data = String.valueOf(result.getRules().size());
+                        break;
+                    }
+                    default: {
+                        data = "ERR";
+                        break;
+                    }
+                }
+            }
+            return StringUtils.rightPad(data, 21, " ");
+        }
+
         private static String errorName(Throwable error) {
             if (error instanceof TimeoutException) {
-                return "TIMEOUT";
+                return "TIMED OUT";
             } else {
                 return error.getClass().getSimpleName();
             }

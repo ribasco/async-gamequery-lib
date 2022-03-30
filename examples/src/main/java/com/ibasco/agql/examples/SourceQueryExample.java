@@ -428,10 +428,11 @@ public class SourceQueryExample extends BaseExample {
         }
 
         private static String formatResult(SourceQueryAggregate result, SourceQueryType type) {
+            final int padSize = 30;
             Throwable error = result.getError(type);
             String data;
             if (error != null) {
-                return "\u001B[31m" + StringUtils.rightPad(errorName(error), 21, " ") + "\u001B[0m";
+                return "\u001B[31m" + StringUtils.rightPad(errorName(error), padSize, " ") + "\u001B[0m";
             } else {
                 switch (type) {
                     case INFO: {
@@ -452,7 +453,7 @@ public class SourceQueryExample extends BaseExample {
                     }
                 }
             }
-            return StringUtils.rightPad(data, 21, " ");
+            return StringUtils.rightPad(data, padSize, " ");
         }
 
         private static String errorName(Throwable error) {

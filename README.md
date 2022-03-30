@@ -7,7 +7,84 @@ Asynchronous Game Query Library
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
 
-An asynchronous game query library written for Java. Implements Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
+A game query library on steroids written for Java. This is an implementation of Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
+
+Features
+-------------
+- Simple and easy to use API
+- Powered by [Netty](https://netty.io/). All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
+- Fast and memory efficient. Capable of handling multiple transactions at once
+    - Netty's off-heap pooled direct byte buffers (Less GC pressure)
+    - Thread and connection pooling support. Makes use of netty's event loop (every transaction is run on the same thread).
+    - Makes use of native transports if available (e.g. EPOLL, KQueue). Java's NIO is used by default.
+- Flexible Configuration support. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limits etc)
+- [Failsafe](https://failsafe.dev/) Integration
+    - Retry Policy: A failed transaction is re-attempted until a response is received or it has reached the maximum number of attempts. This is convenient in cases where a connection is dropped by the server due to it changing level etc.
+    - Rate Limiter: This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+
+Sample Usage
+-------------
+
+Synchronous method
+
+```java
+//query client
+ExecutorService customExecutor = Executors.newCachedThreadPool();
+
+// - Enabled rate limiting so we don't send too fast
+// - Change rate limiting type to BURST
+// - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+Options queryOptions = OptionBuilder.newBuilder()
+                                    .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
+                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                    .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                    .build();
+try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
+    InetSocketAddress address = new InetSocketAddress("192.168.60.1", 27016);
+    SourceServer info = client.getServerInfo(address).join();
+    System.out.printf("INFO: %s\n", info);
+}
+```
+
+Asynchronous method. Composing all queries (info, players and rules) in one single call. Refer to the documentation for more information.
+
+```java
+ExecutorService customExecutor = Executors.newCachedThreadPool();
+
+// - Enabled rate limiting so we don't send too fast
+// - Change rate limiting type to BURST
+// - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+Options queryOptions = OptionBuilder.newBuilder()
+                                    .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
+                                    .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                    .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                    .build();
+        
+SourceQueryClient client = new SourceQueryClient(queryOptions);
+
+SourceQueryAggregate result = new SourceQueryAggregate(address);
+
+CompletableFuture<SourceQueryAggregate> resultFuture = CompletableFuture.completedFuture(result)
+                        .thenCombine(queryClient.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
+                        .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
+                        .thenCombine(queryClient.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
+
+resultFuture.whenComplete(new BiConsumer<SourceQueryAggregate, Throwable>() {
+    @Override
+    public void accept(SourceQueryAggregate result, Throwable error) {
+        if (error != null) {
+            throw new CompletionException(error);
+        }
+        log.info("INFO: {}, PLAYERS: {}, RULES: {}", result.getInfo(), result.getPlayers(), result.getRules());
+    }
+});
+```
+
+RCON Demo Application
+
+ The following image shows the rcon demo executing `500,000k` requests without errors (Specs: Intel i5 3.2Ghz processor, 8Gb ram, Ubuntu Linux OS).
 
 ![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
 
@@ -39,7 +116,7 @@ Below is the list of what is currently implemented on the library
 * Valve Dota 2 Web API
 * Valve CS:GO Web API
 * Valve Source Log Handler (a log monitor service)
-* Supercell Clash of Clans Web API
+* Supercell Clash of Clans Web API (Deprecated)
 
 Requirements
 ------------
@@ -153,9 +230,10 @@ Interactive Examples
 #### RCON interactive example video
 
 The video below demonstrates the following:
+
 - Executing 1000-5000 random commands asynchronously
 - Connections are pooled and created on-demand. Max of 8 connection where each connection is automatically authenticated with the remote server.
-- Executing a command immediately after issuing a `changelevel` command does not result in failure.  
+- Executing a command immediately after issuing a `changelevel` command does not result in failure.
 
 https://user-images.githubusercontent.com/13303385/160422666-7314a89a-a68a-4b92-82ea-5734c4b075e2.mp4
 

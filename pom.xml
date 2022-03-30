@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright 2022 Asynchronous Game Query Library
+  ~ Copyright (c) 2022 Asynchronous Game Query Library
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
   ~ you may not use this file except in compliance with the License.
   ~ You may obtain a copy of the License at
   ~
-  ~   http://www.apache.org/licenses/LICENSE-2.0
+  ~     http://www.apache.org/licenses/LICENSE-2.0
   ~
   ~ Unless required by applicable law or agreed to in writing, software
   ~ distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,9 +25,7 @@
     <url>https://ribasco.github.io/async-gamequery-lib</url>
     <packaging>pom</packaging>
     <description>
-        The Asynchronous Game Query Library (AGQL) provides a convenient way for java clients to execute asynchronous
-        requests to various supported game servers and services .
-        It's built on top of Netty as it's core transport engine and use AsyncHttpClient as the web transport.
+        A game query library on steroids written for Java. This is an implementation of Valve's source query, rcon, master and steam web api protocols. Built on top of [Netty](https://github.com/netty/netty)
     </description>
 
     <!-- Properties -->

@@ -118,7 +118,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         if (executor != null && getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED)) {
             return executor.getStageAsync(context -> acquireContext(new Pair<>(address, request))
                     .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
-                    .thenCompose(SourceQueryMessenger.this::send)
+                    .thenCompose(SourceQueryMessenger.super::send)
                     .thenCompose(NettyChannelContext::composedFuture)
                     .thenApply(c -> c.properties().response()));
         } else {
@@ -150,6 +150,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             @Override
             public Object resolvePoolKey(Object data) {
                 //use a single key for every channel acquisition to ensure we get the same pool instance for each request
+                //log.info("DATA: {}", data);
+                /*if (data instanceof Pair<?, ?>) {
+                    Pair<?, ?> pair = (Pair<?, ?>) data;
+                    //log.info("DATA: {}, {}", pair.getFirst(), pair.getSecond());
+                    return pair.getSecond().getClass();
+                }*/
                 return SourceQuery.class;
             }
 

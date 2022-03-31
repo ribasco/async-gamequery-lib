@@ -25,6 +25,7 @@ import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
@@ -194,6 +195,8 @@ public class SourceQueryExample extends BaseExample {
      */
     private CompletableFuture<SourceQueryAggregate> queryServer(final InetSocketAddress address, final Phaser phaser) {
         SourceQueryAggregate result = new SourceQueryAggregate(address, phaser);
+        if (MasterServer.isTerminatingAddress(address))
+            return ConcurrentUtil.failedFuture(new IllegalArgumentException("Invalid address: " + address));
         //we register three parties for the info, player and rules requests
         phaser.bulkRegister(3);
         return CompletableFuture.completedFuture(result)

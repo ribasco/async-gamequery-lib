@@ -40,67 +40,72 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
         final SourceServer info = new SourceServer();
 
-        String name = readString(buf);
-        String map = readString(buf);
-        String folder = readString(buf);
-        String game = readString(buf);
-        int appId = buf.readShortLE();
-        int playerCount = buf.readUnsignedByte();
-        int maxPlayerCount = buf.readUnsignedByte();
-        int botCount = buf.readUnsignedByte();
-        String serverType = buf.readCharSequence(1, StandardCharsets.US_ASCII).toString();
-        String environmentType = buf.readCharSequence(1, StandardCharsets.US_ASCII).toString();
-        String visibility = buf.readByte() == 0 ? "public" : "private";
-        int vac = buf.readByte();
-        String version = readString(buf);
-        int flags = buf.readUnsignedByte();
-        int port = -1;
-        if (isSet(flags, A2S_INFO_EDF_PORT)) {
-            port = buf.readShortLE();
-        }
-        long steamId = -1;
-        if (isSet(flags, A2S_INFO_EDF_STEAMID)) {
-            steamId = buf.readLongLE();
-        }
-        int specPort = -1;
-        String specName = null;
-        if (isSet(flags, A2S_INFO_EDF_SOURCETV)) {
-            specPort = buf.readShortLE();
-            specName = readString(buf);
-        }
-        String tags = null;
-        if (isSet(flags, A2S_INFO_EDF_TAGS)) {
-            tags = readString(buf);
-        }
-        long gameId = -1;
-        if (isSet(flags, A2S_INFO_EDF_GAMEID)) {
-            gameId = buf.readLongLE();
-        }
+        //NOTE: Some servers return an empty response. If this is the case, we skip the decoding process and simply return SourceServer instance
+        if (buf.readableBytes() > 0) {
+            String name = readString(buf);
+            String map = readString(buf);
+            String folder = readString(buf);
+            String game = readString(buf);
+            int appId = buf.readShortLE();
+            int playerCount = buf.readUnsignedByte();
+            int maxPlayerCount = buf.readUnsignedByte();
+            int botCount = buf.readUnsignedByte();
+            String serverType = buf.readCharSequence(1, StandardCharsets.US_ASCII).toString();
+            String environmentType = buf.readCharSequence(1, StandardCharsets.US_ASCII).toString();
+            String visibility = buf.readByte() == 0 ? "public" : "private";
+            int vac = buf.readByte();
+            String version = readString(buf);
+            int flags = buf.readUnsignedByte();
+            int port = -1;
+            if (isSet(flags, A2S_INFO_EDF_PORT)) {
+                port = buf.readShortLE();
+            }
+            long steamId = -1;
+            if (isSet(flags, A2S_INFO_EDF_STEAMID)) {
+                steamId = buf.readLongLE();
+            }
+            int specPort = -1;
+            String specName = null;
+            if (isSet(flags, A2S_INFO_EDF_SOURCETV)) {
+                specPort = buf.readShortLE();
+                specName = readString(buf);
+            }
+            String tags = null;
+            if (isSet(flags, A2S_INFO_EDF_TAGS)) {
+                tags = readString(buf);
+            }
+            long gameId = -1;
+            if (isSet(flags, A2S_INFO_EDF_GAMEID)) {
+                gameId = buf.readLongLE();
+            }
 
-        assert getRequest().recipient() != null;
-        assert getRequest().recipient() instanceof InetSocketAddress;
+            assert getRequest().recipient() != null;
+            assert getRequest().recipient() instanceof InetSocketAddress;
 
-        InetSocketAddress addr = getRequest().recipient();
+            InetSocketAddress addr = getRequest().recipient();
 
-        info.setAddress(addr);
-        info.setName(name);
-        info.setMapName(map);
-        info.setGameDirectory(folder);
-        info.setGameDescription(game);
-        info.setAppId(appId);
-        info.setNumOfPlayers(playerCount);
-        info.setMaxPlayers(maxPlayerCount);
-        info.setNumOfBots(botCount);
-        info.setDedicated("d".equalsIgnoreCase(serverType));
-        info.setOperatingSystem(environmentType);
-        info.setPrivateServer("private".equalsIgnoreCase(visibility));
-        info.setSecure(vac == 1);
-        info.setGameVersion(version);
-        info.setServerId(steamId);
-        info.setTvName(specName);
-        info.setTvPort(specPort);
-        info.setServerTags(tags);
-        info.setGameId(gameId);
+            info.setAddress(addr);
+            info.setName(name);
+            info.setMapName(map);
+            info.setGameDirectory(folder);
+            info.setGameDescription(game);
+            info.setAppId(appId);
+            info.setNumOfPlayers(playerCount);
+            info.setMaxPlayers(maxPlayerCount);
+            info.setNumOfBots(botCount);
+            info.setDedicated("d".equalsIgnoreCase(serverType));
+            info.setOperatingSystem(environmentType);
+            info.setPrivateServer("private".equalsIgnoreCase(visibility));
+            info.setSecure(vac == 1);
+            info.setGameVersion(version);
+            info.setServerId(steamId);
+            info.setTvName(specName);
+            info.setTvPort(specPort);
+            info.setServerTags(tags);
+            info.setGameId(gameId);
+        } else {
+            debug("Received an empty INFO response");
+        }
 
         return new SourceQueryInfoResponse(info);
     }

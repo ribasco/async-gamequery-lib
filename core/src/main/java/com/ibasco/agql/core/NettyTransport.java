@@ -112,10 +112,10 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             final Envelope<AbstractRequest> envelope = context.properties().envelope();
             if (envelope == null)
                 throw new IllegalStateException("Request envelope is not present in channel");
+            log.debug("{} TRANSPORT => Sending request '{}' to transport", context.id(), envelope.content());
             //write to the channel pipeline
             ChannelFuture writeFuture = channel.writeAndFlush(envelope);
             if (writeFuture.isDone()) {
-                log.debug("{} TRANSPORT => Sending request '{}' to transport", context.id(), envelope.content());
                 COMPLETE_ON_WRITE.operationComplete(writeFuture);
             } else {
                 writeFuture.addListener(COMPLETE_ON_WRITE);

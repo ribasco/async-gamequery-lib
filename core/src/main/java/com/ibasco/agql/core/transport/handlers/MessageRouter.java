@@ -51,6 +51,9 @@ public class MessageRouter extends ChannelDuplexHandler {
             registerReadTimeoutHandler(ch);
         } else {
             log.error("{} ROUTER => Error during read timout handler registration", NettyUtil.id(ch), future.cause());
+            if (log.isDebugEnabled()) {
+                future.cause().printStackTrace(System.err);
+            }
         }
     };
 
@@ -81,15 +84,13 @@ public class MessageRouter extends ChannelDuplexHandler {
                 log.debug("{} ROUTER (INBOUND) => Response Received. Notifying messenger (Promise: {}, Request: {}, Response: {})", NettyUtil.id(context.channel()), context.properties().responsePromise(), envelope.content(), response);
                 context.receiveResponse((AbstractResponse) response);
             } else {
-                try {
-                    //report unwanted instances of objects not being released properly
-                    if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
-                        log.warn("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{}' (Reference Count has reached 0)", context.id(), response.getClass().getSimpleName());
-                        throw new NoMessageHandlerException(String.format("Memory was not properly deallocated for object '%s'. Please investigate", response.getClass().getSimpleName()));
-                    }
-                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response);
-                } finally {
-                    context.receiveResponse(new IllegalStateException("No handlers found for message: " + response.getClass().getSimpleName()));
+                //report unwanted instances of objects not being released properly
+                if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
+                    throw new IllegalStateException(String.format("Memory was not properly deallocated for object '%s' (Reference count: %d)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response)));
+                } else {
+                    Exception error = new NoMessageHandlerException("No handlers found for message: " + response.getClass().getSimpleName());
+                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
+                    context.receiveResponse(error);
                 }
             }
         } finally {

@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import io.netty.buffer.ByteBuf;
@@ -31,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The initial global intercept for all raw data recived from a remote address. This handler creates a response {@link Envelope} for the
- * message received, unwraps the message's content then passes it to the next handlers in the pipeline for further processing.
+ * The initial global intercept for all raw data recived from a remote address. This handler unwraps the message's content then passes it
+ * to the next handlers in the pipeline for further processing.
  *
  * @author Rafael Luis Ibasco
  */

@@ -173,7 +173,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                 return;
             }
             if (error != null) {
-                log.debug("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
+                log.error("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
                 context.markInError(new ResponseException(error, envelope.recipient()));
             } else {
                 assert response != null;

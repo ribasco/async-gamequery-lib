@@ -81,7 +81,6 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     abstract protected Messenger<R, S> createMessenger(Options options);
 
     protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
-        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
         return send(address, request).thenApply(expectedResponse::cast);
     }
 

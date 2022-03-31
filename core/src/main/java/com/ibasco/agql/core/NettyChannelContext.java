@@ -404,7 +404,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
         private boolean autoRelease = true;
 
         protected Properties() {
-            log.debug("CONTEXT => Initializing context properties for channel '{}' (Local: {}, Remote: {})", channel, channel.localAddress(), channel.remoteAddress());
+            log.debug("{} CONTEXT => Initializing context properties for channel '{}' (Local: {}, Remote: {})", id(), channel, channel.localAddress(), channel.remoteAddress());
             this.envelope = MessageEnvelopeBuilder.createNew().fromAnyAddress().recipient(channel().remoteAddress()).build();
             this.responseError = null;
             this.responsePromise = new CompletableFuture<>();

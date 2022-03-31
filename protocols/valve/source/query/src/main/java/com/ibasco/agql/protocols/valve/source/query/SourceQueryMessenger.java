@@ -132,7 +132,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         defaultOption(options, TransportOptions.CONNECTION_POOLING, true);
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
         defaultOption(options, TransportOptions.POOL_MAX_CONNECTIONS, Platform.getDefaultPoolSize());
-        defaultOption(options, TransportOptions.READ_TIMEOUT, 10000);
+        defaultOption(options, TransportOptions.READ_TIMEOUT, 1500);
     }
 
     //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).

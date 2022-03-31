@@ -20,6 +20,12 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
         </filter>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>com.ibasco.agql.core.exceptions.TimeoutException.class.isInstance(throwable)</expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+        </filter>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg%n</pattern>
         </encoder>
@@ -55,4 +61,5 @@
 
     <logger name="io.netty" level="error"/>
     <logger name="com.ibasco" level="error"/>
+    <logger name="com.ibasco.agql.core.NettyMessenger" level="info"/>
 </configuration>

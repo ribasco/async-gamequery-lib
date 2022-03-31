@@ -61,5 +61,4 @@
 
     <logger name="io.netty" level="error"/>
     <logger name="com.ibasco" level="error"/>
-    <logger name="com.ibasco.agql.core.NettyMessenger" level="info"/>
 </configuration>

@@ -130,7 +130,7 @@ public class SourceQueryExample extends BaseExample {
         phaser.arriveAndAwaitAdvance();
         end = System.currentTimeMillis() - start;
 
-        log.info("=================================================================================================================================");
+        System.out.println("=================================================================================================================================");
 
         if (end < 1) {
             log.info("Test Completed  in {} seconds", Duration.ofMillis(end).getSeconds());
@@ -138,23 +138,23 @@ public class SourceQueryExample extends BaseExample {
             log.info("Test Completed  in {} minutes", Duration.ofMillis(end).getSeconds() / 60.0D);
         }
 
-        log.info("=================================================================================================================================");
-        log.info("Test Results (Total address fetched: {})", total);
-        log.info("=================================================================================================================================");
+        System.out.println("=================================================================================================================================");
+        System.out.printf("Test Results (Total address fetched: %d)\n", total);
+        System.out.println("=================================================================================================================================");
 
         for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
             String name = entry.getKey().name();
             SourceQueryStatCounter stat = entry.getValue();
-            log.info("{} (Success: {}, Failure: {}, Total: {})", name, nf.format(stat.getSuccessCount()), nf.format(stat.getFailureCount()), nf.format(stat.getTotalCount()));
+            System.out.printf("%s (Success: %05d, Failure: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
         }
 
         for (Map.Entry<AbstractClient.ClientStatistics.Stat, Integer> e : queryClient.getClientStatistics().getValues().entrySet()) {
             AbstractClient.ClientStatistics.Stat stat = e.getKey();
             Integer count = e.getValue();
-            log.info("{} = {}", stat.name(), nf.format(count));
+            System.out.printf("%s = %05d\n", stat.name(), count);
 
         }
-        log.info("=================================================================================================================================");
+        System.out.println("=================================================================================================================================");
     }
 
     private MasterServerFilter buildServerFilter() {

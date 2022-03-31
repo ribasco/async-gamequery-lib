@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -39,6 +39,8 @@ public class ExampleRunner {
 
     private BaseExample activeExample;
 
+    private volatile boolean closed;
+
     public ExampleRunner() {
         this.examples.put("source-query", new SourceQueryExample());
         this.examples.put("master-query", new MasterQueryExample());
@@ -56,7 +58,7 @@ public class ExampleRunner {
                                                         {
                                                             try {
                                                                 log.info("Shutting down example");
-                                                                if (this.activeExample != null) {
+                                                                if (this.activeExample != null && !closed) {
                                                                     this.activeExample.close();
                                                                 }
                                                             } catch (IOException e) {
@@ -86,15 +88,18 @@ public class ExampleRunner {
         }
     }
 
+
+
     private void runExample(String[] args, String exampleKey) throws Exception {
         if (this.examples.containsKey(exampleKey)) {
-            BaseExample example = this.examples.get(exampleKey);
-            this.activeExample = example;
-
-            log.info("Running Example : {}", exampleKey);
-            example.run(args);
-            log.info("Closing Example");
-            example.close();
+            try (BaseExample example = this.examples.get(exampleKey)) {
+                this.activeExample = example;
+                log.info("Running Example : {}", exampleKey);
+                example.run(args);
+            } finally {
+                log.info("Example closed");
+                closed = true;
+            }
         }
     }
 

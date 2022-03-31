@@ -126,9 +126,9 @@ abstract public class BaseExample implements Closeable {
         do {
             if (!StringUtils.isEmpty(defaultValue)) {
                 if (isPassword) {
-                    System.out.printf("%s [%s]: ", message, StringUtils.replaceAll(defaultValue, ".", "*"));
+                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, StringUtils.replaceAll(defaultValue, ".", "*"));
                 } else
-                    System.out.printf("%s [%s]: ", message, defaultValue);
+                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, defaultValue);
             } else {
                 System.out.printf("%s: ", message);
             }

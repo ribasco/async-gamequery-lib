@@ -97,7 +97,6 @@ public class SourceQueryExample extends BaseExample {
                                                  .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
                                                  .build();
             masterClient = new MasterServerQueryClient(masterOptions);
-            log.info("NOTE: Depending on your selected criteria, the application may time some time to complete. You can review the log file(s) once the program exits.");
             runInteractiveExample();
         } catch (Exception e) {
             log.error("Failed to run query: {}", e.getMessage());
@@ -109,52 +108,54 @@ public class SourceQueryExample extends BaseExample {
         Boolean queryAllServers = promptInputBool("Query all available servers? (y/n)", true, "y", "queryAllServers");
         long start, end;
 
-        final Phaser phaser = new Phaser();
         final SourceQueryAggregateProcessor processor = new SourceQueryAggregateProcessor();
+        final Phaser phaser = new Phaser();
 
         int total = 0;
         start = System.currentTimeMillis();
         phaser.register();
         if (queryAllServers) {
             final MasterServerFilter filter = buildServerFilter();
-            log.info("Fetching server list using filter '{}'", filter);
+            System.out.printf("Fetching server list using filter '%s'\n", filter);
             total = fetchServersAndQuery(filter, phaser, processor);
         } else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
             InetSocketAddress address = NetUtil.parseAddress(addressString, 27015);
-            log.info("Waiting for the queries to complete");
+            System.out.println("Waiting for the queries to complete");
             start = System.currentTimeMillis();
-            queryServer(address, phaser);
+            queryServer(address, phaser).whenComplete(processor).join();
             total = 1;
         }
         phaser.arriveAndAwaitAdvance();
         end = System.currentTimeMillis() - start;
 
         System.out.println("=================================================================================================================================");
-
         if (end < 1) {
-            log.info("Test Completed  in {} seconds", Duration.ofMillis(end).getSeconds());
+            System.out.printf("Test Completed  in %03d seconds\n", Duration.ofMillis(end).getSeconds());
         } else {
-            log.info("Test Completed  in {} minutes", Duration.ofMillis(end).getSeconds() / 60.0D);
+            System.out.printf("Test Completed  in %02f minutes\n", Duration.ofMillis(end).getSeconds() / 60.0D);
         }
+        System.out.flush();
 
         System.out.println("=================================================================================================================================");
         System.out.printf("Test Results (Total address fetched: %d)\n", total);
         System.out.println("=================================================================================================================================");
+        System.out.flush();
 
         for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
             String name = entry.getKey().name();
             SourceQueryStatCounter stat = entry.getValue();
-            System.out.printf("%s (Success: %05d, Failure: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
+            System.out.printf("%-10s (Success: %05d, Failure: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
         }
+        System.out.flush();
 
         for (Map.Entry<AbstractClient.ClientStatistics.Stat, Integer> e : queryClient.getClientStatistics().getValues().entrySet()) {
             AbstractClient.ClientStatistics.Stat stat = e.getKey();
             Integer count = e.getValue();
             System.out.printf("%s = %05d\n", stat.name(), count);
-
         }
         System.out.println("=================================================================================================================================");
+        System.out.flush();
     }
 
     private MasterServerFilter buildServerFilter() {
@@ -208,17 +209,17 @@ public class SourceQueryExample extends BaseExample {
     @Override
     public void close() throws IOException {
         if (queryClient != null) {
-            log.info("Closing source query client");
+            System.out.println("Closing source query client");
             queryClient.close();
         }
         if (masterClient != null) {
-            log.info("Closing master query client");
+            System.out.println("Closing master query client");
             masterClient.close();
         }
         if (ConcurrentUtil.shutdown(queryExecutor))
-            log.info("Successfully shutdown query executor");
+            System.out.println("Successfully shutdown query executor");
         if (ConcurrentUtil.shutdown(masterExecutor))
-            log.info("Successfully shutdown master query executor");
+            System.out.println("Successfully shutdown master query executor");
     }
 
     /**
@@ -383,7 +384,7 @@ public class SourceQueryExample extends BaseExample {
         private final Map<SourceQueryType, SourceQueryStatCounter> stats = new ConcurrentHashMap<>();
 
         @Override
-        public void accept(SourceQueryAggregate result, Throwable error) {
+        public synchronized void accept(SourceQueryAggregate result, Throwable error) {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
 
@@ -424,6 +425,7 @@ public class SourceQueryExample extends BaseExample {
                               formatResult(result, SourceQueryType.RULES),
                               formatResult(result, SourceQueryType.INFO)
             );
+            System.out.flush();
         }
 
         public Map<SourceQueryType, SourceQueryStatCounter> getStats() {

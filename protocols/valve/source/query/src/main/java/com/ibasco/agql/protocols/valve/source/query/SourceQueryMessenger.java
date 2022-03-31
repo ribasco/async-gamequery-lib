@@ -80,7 +80,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             policies.add(rateLimiter);
         }
         //Initialize executor
-        this.executor = Failsafe.with(policies);
+        this.executor = Failsafe.with(policies).with(getExecutor());
     }
 
     private RetryPolicy<SourceQueryResponse> buildRetryPolicy(final Options options) {

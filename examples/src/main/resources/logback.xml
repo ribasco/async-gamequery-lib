@@ -17,8 +17,13 @@
 <configuration>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
+        </filter>-->
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
         </filter>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>

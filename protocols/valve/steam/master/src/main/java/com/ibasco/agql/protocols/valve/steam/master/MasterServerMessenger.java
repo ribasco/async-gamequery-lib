@@ -175,7 +175,6 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         if (options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_ENABLED)) {
             this.rateLimiter = buildRateLimiterPolicy(options);
         }
-
         //initialize executors
         this.requestExecutor = Failsafe.with(fallbackPolicy);
         //Add retry policy (optional)

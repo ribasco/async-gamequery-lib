@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,11 @@ import org.apache.commons.lang3.StringUtils;
  * <p>A Master Server Filter Utility class</p>
  */
 public final class MasterServerFilter {
+
+    private int appId;
+
+    private boolean allServers;
+
     private final StringBuffer filter;
 
     /**
@@ -41,12 +46,12 @@ public final class MasterServerFilter {
     }
 
     /**
-     * A filter to return all available servers
+     * A filter to return all available servers. Once called, every other filter will be overriden and ignored.
      *
      * @return Instance of {@link MasterServerFilter}
      */
     public MasterServerFilter allServers() {
-        filter.setLength(0);
+        allServers = true;
         return this;
     }
 
@@ -301,8 +306,10 @@ public final class MasterServerFilter {
      * @return Instance of {@link MasterServerFilter}
      */
     public MasterServerFilter appId(Integer appId) {
-        if (appId > 0)
+        if (appId > 0) {
+            this.appId = appId;
             return create("appId", appId);
+        }
         return this;
     }
 
@@ -339,6 +346,12 @@ public final class MasterServerFilter {
      */
     @Override
     public String toString() {
+        if (allServers) {
+            if (appId > 0) {
+                filter.setLength(0);
+                appId(this.appId);
+            }
+        }
         return filter.toString();
     }
 }

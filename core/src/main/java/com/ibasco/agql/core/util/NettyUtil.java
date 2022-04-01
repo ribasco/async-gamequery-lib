@@ -89,6 +89,10 @@ public class NettyUtil {
     }
 
     public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf, Integer limit) {
+        if (buf == null) {
+            logger.accept("{} = NULL", new Object[] {msg});
+            return;
+        }
         if (limit == null) {
             limit = buf.readableBytes();
         }
@@ -101,6 +105,42 @@ public class NettyUtil {
         } finally {
             buf.resetReaderIndex();
         }
+    }
+
+    /**
+     * Return a byte array contents of a {@link ByteBuf}
+     *
+     * @param buf
+     *         The {@link ByteBuf} to process
+     *
+     * @return A byte array containing the contents of the buffer
+     */
+    public static byte[] getBufferContents(ByteBuf buf) {
+        return getBufferContents(buf, null);
+    }
+
+    /**
+     * Return a byte array contents of a {@link ByteBuf}
+     *
+     * @param buf
+     *         The {@link ByteBuf} to process
+     * @param limit
+     *         Limit the number of bytes to read or {@code null} to read the entire buffer
+     *
+     * @return A byte array containing the contents of the buffer
+     */
+    public static byte[] getBufferContents(ByteBuf buf, Integer limit) {
+        if (limit == null) {
+            limit = buf.readableBytes();
+        }
+        byte[] tmp = new byte[Math.min(limit, buf.readableBytes())];
+        try {
+            buf.markReaderIndex();
+            buf.readBytes(tmp);
+        } finally {
+            buf.resetReaderIndex();
+        }
+        return tmp;
     }
 
     public static synchronized void printChannelPipeline(Logger log, Channel ch) {

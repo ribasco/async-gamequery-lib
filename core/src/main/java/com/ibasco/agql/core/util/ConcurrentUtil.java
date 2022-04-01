@@ -41,11 +41,6 @@ public final class ConcurrentUtil {
         if (error.getCause() != null)
             return error.getCause();
         return error;
-        /*if (error instanceof CompletionException || error instanceof ExecutionException) {
-            return error.getCause();
-        } else {
-            return error;
-        }*/
     }
 
     public static void unwrapAndThrow(Throwable error) {

@@ -17,11 +17,15 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
+import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.TransportOptions;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
+import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import org.apache.commons.lang3.StringUtils;
@@ -86,17 +90,39 @@ public class MessageRouter extends ChannelDuplexHandler {
             } else {
                 //report unwanted instances of objects not being released properly
                 if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
-                    throw new IllegalStateException(String.format("Memory was not properly deallocated for object '%s' (Reference count: %d)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response)));
+                    throw new IllegalStateException(String.format("Memory was not properly deallocated for object '%s'. Please report this error. (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id()));
                 } else {
-                    Exception error = new NoMessageHandlerException("No handlers found for message: " + response.getClass().getSimpleName());
+                    Exception cause;
+                    //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly malformed packet.
+                    if (response instanceof ByteBuf) {
+                        byte[] data = NettyUtil.getBufferContents((ByteBuf) response, null);
+                        cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
+                        log.error("{} ROUTER (ERROR) => Packet Dump of raw ByteBuf '{} of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
+                    }
+                    //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
+                    else if (response instanceof AbstractPacket) {
+                        byte[] data = NettyUtil.getBufferContents(((AbstractPacket) response).content(), null);
+                        cause = new InvalidPacketException("Received a PARTIAL decoded packet but no other handlers were available to process it to produce a desirable response", data);
+                        log.error("{} ROUTER (ERROR) => Packet Dump of Packet type '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
+                    } else {
+                        cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));
+                    }
+
+                    //report back error
+                    Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", response.getClass().getSimpleName(), context.properties().request()), cause);
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
                     context.receiveResponse(error);
                 }
             }
         } finally {
             log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", context.id(), response.getClass().getSimpleName());
-            if (ReferenceCountUtil.release(response))
-                log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
+            try {
+                if (ReferenceCountUtil.release(response))
+                    log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
+            } catch (IllegalReferenceCountException e) {
+                int refCnt = ReferenceCountUtil.refCnt(response);
+                log.error("Failed to de-allocate resource '{}'. The resource was already released due to unforseen events. Please investigate/report this issue (Reference count: {})", response, refCnt, e);
+            }
         }
     }
 

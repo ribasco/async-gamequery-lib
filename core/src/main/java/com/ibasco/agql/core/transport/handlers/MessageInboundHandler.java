@@ -70,6 +70,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
             throw new IllegalStateException("Request envelope's content is null");
     }
 
+    protected boolean isDebugEnabled() {
+        return log.isDebugEnabled();
+    }
+
     protected void trace(String msg, Object... args) {
         log(msg, log::trace, args);
     }
@@ -84,6 +88,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     protected void debug(String msg, Object... args) {
         log(msg, log::debug, args);
+    }
+
+    protected void debug(Logger logger, String msg, Object... args) {
+        log(msg, logger::debug, args);
     }
 
     protected final void warn(String msg, Object... args) {

@@ -89,7 +89,7 @@ public class MessageRouter extends ChannelDuplexHandler {
             } else {
                 //throw an error if we did not receive an AbstractResponse type
                 if (!isAccessible(response)) {
-                    throw new IllegalStateException(String.format("Resource '%s' is no longer accessible as it has already been released unexpectedly (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id()));
+                    context.receive(new NoMessageHandlerException(String.format("Resource '%s' is no longer accessible as it has already been released. No handlers available for this message (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id())));
                 } else {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.

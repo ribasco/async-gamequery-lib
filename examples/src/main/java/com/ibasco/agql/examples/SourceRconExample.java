@@ -81,13 +81,9 @@ public class SourceRconExample extends BaseExample {
                                                  .option(TransportOptions.FAILSAFE_ENABLED, true)
                                                  .build();
 
-        try {
-            rconClient = new SourceRconClient(rconOptions);
-            printConsoleBanner();
-            runRconConsole();
-        } finally {
-            close();
-        }
+        rconClient = new SourceRconClient(rconOptions);
+        printConsoleBanner();
+        runRconConsole();
     }
 
     @Override
@@ -95,7 +91,7 @@ public class SourceRconExample extends BaseExample {
         if (rconClient == null)
             return;
         try {
-            log.debug("Closing client");
+            System.out.println("Closing rcon client");
             rconClient.close();
         } catch (IOException ignored) {
         }
@@ -205,6 +201,9 @@ public class SourceRconExample extends BaseExample {
             String cmd = promptInput(promptText, true);
             parseCommand(cmd).whenComplete(handler).thenAccept(sourceRconCmdResponse -> System.out.print(promptText));
         }
+
+        System.out.println("Rcon Console Exiting..");
+        System.exit(0);
     }
 
     private String promptRconInput() {

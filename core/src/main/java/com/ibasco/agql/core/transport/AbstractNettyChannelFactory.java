@@ -54,6 +54,8 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     private EventLoopGroup eventLoopGroup;
 
+    private ExecutorService executorService;
+
     private NettyChannelInitializer channelInitializer;
 
     private final ChannelFactory<Channel> DEFAULT_CHANNEL_FACTORY = new ChannelFactory<Channel>() {
@@ -81,7 +83,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
 
         //initialize event loop group
-        final ExecutorService executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
+        this.executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
         this.eventLoopGroup = initializeEventLoopGroup(channelClass, executorService);
         this.channelInitializer = initializer == null ? new NettyChannelInitializer() : initializer;
 
@@ -190,19 +192,6 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         configureBootstrap(this.bootstrap);
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Successfully Initialized Bootstrap (Event Loop Group: '{}', Channel Class: '{}', Default Channel Handler: '{}')", eventLoopGroup.getClass().getSimpleName(), channelClass.getSimpleName(), bootstrap.config().handler());
     }
-
-    /*protected EventLoopGroup createEventLoopGroup() {
-        EventLoopGroup eventLoopGroup = getOptions().getOrDefault(TransportOptions.THREAD_EL_GROUP);
-        Integer elThreadSize = null;
-        //use a shared instance of event loop group by default
-        if (eventLoopGroup == null) {
-            eventLoopGroup = Platform.getDefaultEventLoopGroup();
-            elThreadSize = Platform.getDefaultPoolSize();
-            log.debug("[INIT] CHANNEL_FACTORY => Using default global event loop group with a a limit of '{}' thread(s) (Instance: '{}')", elThreadSize, eventLoopGroup);
-        }
-        log.debug("[INIT] CHANNEL_FACTORY => Event Loop Group '{}' (Max Threads: {}, Instance: {})", eventLoopGroup, elThreadSize == null ? "N/A" : elThreadSize, eventLoopGroup.hashCode());
-        return eventLoopGroup;
-    }*/
 
     private void configureDefaultOptions() {
         //Default channel options

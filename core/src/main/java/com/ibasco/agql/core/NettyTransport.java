@@ -143,8 +143,6 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             throw new IllegalStateException("Channel context must not be null");
         if (context.properties().envelope() == null)
             throw new IllegalStateException("No valid request attached to channel context: " + context);
-        /*if (context.properties().writePromise() == null)
-            throw new IllegalStateException("Write promise not initialized");*/
     }
 
     @Override

@@ -77,6 +77,25 @@ public final class Platform {
 
     private Platform() {}
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                if (DEFAULT_EXECUTOR != null) {
+                    if (ConcurrentUtil.shutdown(DEFAULT_EXECUTOR)) {
+                        log.debug("PLATFORM => Default global executor has shutdown gracefully");
+                    }
+                }
+                if (DEFAULT_EVENT_LOOP_GROUP != null) {
+                    if (ConcurrentUtil.shutdown(DEFAULT_EVENT_LOOP_GROUP)) {
+                        log.debug("PLATFORM => Default global event loop group has shutdown gracefully");
+                    }
+                }
+            }
+        });
+        log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
+    }
+
     public static synchronized BlockingQueue<Runnable> getDefaultQueue() {
         if (DEFAULT_QUEUE == null) {
             DEFAULT_QUEUE = new LinkedBlockingQueue<>();
@@ -91,6 +110,20 @@ public final class Platform {
         if (DEFAULT_THREAD_FACTORY == null)
             DEFAULT_THREAD_FACTORY = new DefaultThreadFactory("agql-el", false, Thread.NORM_PRIORITY, DEFAULT_THREAD_GROUP);
         return DEFAULT_THREAD_FACTORY;
+    }
+
+    /**
+     * Check if the specified {@link Executor} is a shared global executor provided by the library
+     *
+     * @param executor
+     *         The {@link Executor} to check
+     *
+     * @return {@code true} if the {@link Executor} is global
+     */
+    public static boolean isGlobal(Executor executor) {
+        if (executor == null)
+            return false;
+        return DEFAULT_EXECUTOR == executor || DEFAULT_EVENT_LOOP_GROUP == executor;
     }
 
     /**
@@ -116,6 +149,7 @@ public final class Platform {
      * @return The global {@link EventLoopGroup}
      */
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
+        System.out.println("INSTANTIATING DEFAULT EVENT LOOP GROUP");
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
             final ThreadPoolExecutor executor = getDefaultExecutor();
             DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), true);

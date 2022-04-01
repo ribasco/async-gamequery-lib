@@ -94,7 +94,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
                     if (response instanceof ByteBuf) {
-                        byte[] data = NettyUtil.getBufferContents((ByteBuf) response, null);
+                        byte[] data = NettyUtil.getBufferContents((ByteBuf) response);
                         cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
                         log.error("{} ROUTER (ERROR) => Packet Dump of raw ByteBuf '{} of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
                     }

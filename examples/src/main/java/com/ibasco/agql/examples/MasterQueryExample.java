@@ -46,6 +46,7 @@ public class MasterQueryExample extends BaseExample {
     public void run(String[] args) throws Exception {
         client = new MasterServerQueryClient();
         this.listAllServers();
+        System.exit(0);
     }
 
     @Override
@@ -54,7 +55,7 @@ public class MasterQueryExample extends BaseExample {
     }
 
     public void listAllServers() {
-        int appId = Integer.parseInt(promptInput("Please enter an App ID (optional): ", false, "-1"));
+        int appId = Integer.parseInt(promptInput("Please enter an App ID (optional | -1 default): ", true, "-1", "masterAppId"));
 
         MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
 
@@ -70,16 +71,15 @@ public class MasterQueryExample extends BaseExample {
             e.printStackTrace(System.err);
         } finally {
             if (addresses != null)
-                log.info("Done (Total: {})", addresses.size());
+                System.out.printf("\033[0;32mDONE\033[0m \033[0;36m(Total: %d)\033[0m", addressSet.size());
         }
-
     }
 
     public void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
         if (addressSet.add(address)) {
-            log.info("Received Server Address : {}", address);
+            System.out.printf("\033[0;34mReceived Server Address :\033[0m \033[0;33m%s\033[0m\n", address);
         } else {
-            log.info("Received Server Address (DUPLICATE) : {}", address);
+            System.out.printf("\033[0;31mReceived Server Address (DUPLICATE) : %s\033[0m\n", address);
         }
     }
 }

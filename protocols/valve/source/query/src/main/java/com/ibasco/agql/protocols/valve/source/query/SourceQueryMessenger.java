@@ -19,6 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
@@ -32,6 +33,8 @@ import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 import dev.failsafe.*;
 import dev.failsafe.function.ContextualSupplier;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -173,6 +176,29 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
+    private static class RequestEntry extends Pair<InetSocketAddress, SourceQueryRequest> {
+
+        private RequestEntry(InetSocketAddress address, SourceQueryRequest request) {
+            super(address, request);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (!(o instanceof RequestEntry)) return false;
+
+            RequestEntry that = (RequestEntry) o;
+
+            return new EqualsBuilder().append(getFirst(), that.getFirst()).append(getSecond(), that.getSecond()).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(getFirst()).append(getSecond()).toHashCode();
+        }
+    }
+
     private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse, CompletableFuture<SourceQueryResponse>> {
 
         private final InetSocketAddress address;
@@ -186,7 +212,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         @Override
         public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
-            return acquireContext(new Pair<>(address, request))
+            log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {})", address, request, context.getAttemptCount());
+            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(new Pair<>(address, request));
+            return contextFuture
                     .thenApply(NettyChannelContext::disableAutoRelease)
                     .thenApply(this::attach)
                     .thenCompose(SourceQueryMessenger.super::send)
@@ -201,6 +229,13 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         private SourceQueryResponse response(NettyChannelContext context, Throwable error) {
             if (error != null) {
+                if (error instanceof ResponseException) {
+                    ResponseException responseEx = (ResponseException) error;
+                    context = responseEx.getContext();
+                    log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
+                    context.close();
+                    throw responseEx;
+                }
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
             }
             SourceQueryResponse response = context.properties().response();

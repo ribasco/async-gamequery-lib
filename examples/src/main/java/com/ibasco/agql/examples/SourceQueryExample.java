@@ -84,6 +84,7 @@ public class SourceQueryExample extends BaseExample {
                                                 //override default value, enable rate limiting
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
+                                                //.option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
 

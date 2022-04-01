@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,24 +16,20 @@
 
 package com.ibasco.agql.core.exceptions;
 
-import java.net.InetSocketAddress;
+import com.ibasco.agql.core.NettyChannelContext;
+
 import java.util.concurrent.CompletionException;
 
 public final class ResponseException extends CompletionException {
 
-    private final InetSocketAddress address;
+    private final NettyChannelContext context;
 
-    public ResponseException(String message, InetSocketAddress address) {
-        super(message);
-        this.address = address;
-    }
-
-    public ResponseException(Throwable cause, InetSocketAddress address) {
+    public ResponseException(Throwable cause, NettyChannelContext context) {
         super(cause);
-        this.address = address;
+        this.context = context;
     }
 
-    public InetSocketAddress getAddress() {
-        return address;
+    public NettyChannelContext getContext() {
+        return context;
     }
 }

@@ -41,7 +41,6 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Supplier;
 
 /**
  * The context attached to a {@link Channel} instance
@@ -61,10 +60,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
     private final Deque<Properties> propertiesStack = new ArrayDeque<>(10);
 
     private Properties properties;
-
-    private final Supplier<NettyChannelContext> supplier = () -> this;
-
-    private final CompletableFuture<NettyChannelContext> completedFuture = CompletableFuture.completedFuture(supplier.get());
 
     private static final ChannelFutureListener CLEANUP_ON_CLOSE = future -> {
         NettyChannelContext context = NettyChannelContext.getContext(future.channel());
@@ -182,7 +177,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      * @param response
      *         The {@link AbstractResponse} to receive
      */
-    public final void receiveResponse(AbstractResponse response) {
+    public final void receive(AbstractResponse response) {
         if (this.messenger == null)
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
         try {
@@ -199,7 +194,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      * @param error
      *         The {@link Throwable} to receive
      */
-    public final void receiveResponse(Throwable error) {
+    public final void receive(Throwable error) {
         if (this.messenger == null)
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
         try {
@@ -333,10 +328,11 @@ public class NettyChannelContext implements Closeable, Cloneable {
                     channel.close();
                     return;
                 }
-                log.debug("{} CONTEXT (RELEASE) => Context released", id());
+                log.debug("{} CONTEXT (RELEASE) => Context released (Pooled)", id());
             });
         else {
             channel.close();
+            log.debug("{} CONTEXT (RELEASE) => Context released", id());
         }
     }
 
@@ -465,6 +461,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
             try {
                 return (V) responsePromise.getNow(null);
             } catch (Throwable e) {
+                log.debug("{} CONTEXT => Failed to retrieve response value due to an error", id(), e);
                 return null;
             }
         }

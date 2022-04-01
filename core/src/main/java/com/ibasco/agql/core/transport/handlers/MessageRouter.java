@@ -47,7 +47,6 @@ public class MessageRouter extends ChannelDuplexHandler {
 
     private static final Logger log = LoggerFactory.getLogger(MessageRouter.class);
 
-    //TODO: Move to a separate re-usable class
     private static final ChannelFutureListener REGISTER_READ_TIMEOUT = future -> {
         Channel ch = future.channel();
         assert ch.eventLoop().inEventLoop();
@@ -86,14 +85,14 @@ public class MessageRouter extends ChannelDuplexHandler {
             //send the response back to the messenger
             if (response instanceof AbstractResponse) {
                 log.debug("{} ROUTER (INBOUND) => Response Received. Notifying messenger (Promise: {}, Request: {}, Response: {})", NettyUtil.id(context.channel()), context.properties().responsePromise(), envelope.content(), response);
-                context.receiveResponse((AbstractResponse) response);
+                context.receive((AbstractResponse) response);
             } else {
-                //report unwanted instances of objects not being released properly
-                if (response instanceof ReferenceCounted && ReferenceCountUtil.refCnt(response) == 0) {
-                    throw new IllegalStateException(String.format("Memory was not properly deallocated for object '%s'. Please report this error. (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id()));
+                //throw an error if we did not receive an AbstractResponse type
+                if (!isAccessible(response)) {
+                    throw new IllegalStateException(String.format("Resource '%s' is no longer accessible as it has already been released unexpectedly (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id()));
                 } else {
                     Exception cause;
-                    //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly malformed packet.
+                    //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
                     if (response instanceof ByteBuf) {
                         byte[] data = NettyUtil.getBufferContents((ByteBuf) response, null);
                         cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
@@ -107,11 +106,10 @@ public class MessageRouter extends ChannelDuplexHandler {
                     } else {
                         cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));
                     }
-
                     //report back error
                     Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", response.getClass().getSimpleName(), context.properties().request()), cause);
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
-                    context.receiveResponse(error);
+                    context.receive(error);
                 }
             }
         } finally {
@@ -121,9 +119,13 @@ public class MessageRouter extends ChannelDuplexHandler {
                     log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
             } catch (IllegalReferenceCountException e) {
                 int refCnt = ReferenceCountUtil.refCnt(response);
-                log.error("Failed to de-allocate resource '{}'. The resource was already released due to unforseen events. Please investigate/report this issue (Reference count: {})", response, refCnt, e);
+                log.error("{} ROUTER (INBOUND) => Failed to de-allocate resource '{}'. The resource has already been released unexpectedly. (Reference count: {})", context.id(), response, refCnt, e);
             }
         }
+    }
+
+    private boolean isAccessible(Object msg) {
+        return !(msg instanceof ReferenceCounted) || ReferenceCountUtil.refCnt(msg) > 0;
     }
 
     @Override
@@ -135,7 +137,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                                 StringUtils.defaultString(error.getMessage(), "N/A"),
                                 context.channel(),
                                 NettyChannelPool.isPooled(context.channel())), error);
-        context.receiveResponse(error);
+        context.receive(error);
     }
 
     @Override

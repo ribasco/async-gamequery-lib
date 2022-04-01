@@ -54,6 +54,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 /**
  * A client used for querying information on Source servers. Based on the Valve Source Query Protocol.
@@ -140,7 +141,14 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
      */
     public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address) {
-        return send(address, new SourceQueryInfoRequest(), SourceQueryInfoResponse.class).thenApply(SourceQueryInfoResponse::getServer);
+        return send(address, new SourceQueryInfoRequest(), SourceQueryInfoResponse.class).thenApply(response -> {
+            if (response.getServer() == null) {
+                SourceServer svr = new SourceServer();
+                svr.setAddress(address);
+                return svr;
+            }
+            return response.getServer();
+        });
     }
 
     /**
@@ -212,7 +220,10 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @see #getPlayers(Integer, InetSocketAddress)
      */
     public CompletableFuture<Collection<SourcePlayer>> getPlayers(InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class).thenApply(SourceQueryPlayerResponse::getPlayers);
+        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class)
+                .thenApply(response -> {
+            return response.getPlayers();
+        });
     }
 
     /**
@@ -232,7 +243,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
     public CompletableFuture<List<SourcePlayer>> getPlayers(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryPlayerResponse::getPlayers);
+        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(new Function<SourceQueryPlayerResponse, List<SourcePlayer>>() {
+            @Override
+            public List<SourcePlayer> apply(SourceQueryPlayerResponse response) {
+                return response.getPlayers();
+            }
+        });
     }
 
     /**
@@ -267,7 +283,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
     public CompletableFuture<Map<String, String>> getServerRules(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class).thenApply(SourceQueryRulesResponse::getRules);
+        return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class).thenApply(new Function<SourceQueryRulesResponse, Map<String, String>>() {
+            @Override
+            public Map<String, String> apply(SourceQueryRulesResponse response) {
+                return response.getRules();
+            }
+        });
     }
 
     /**

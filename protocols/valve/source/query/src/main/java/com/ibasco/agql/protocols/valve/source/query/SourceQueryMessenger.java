@@ -27,13 +27,11 @@ import com.ibasco.agql.core.transport.NettyPropertyResolver;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.transport.pool.NettyPoolPropertyResolver;
-import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.Pair;
-import com.ibasco.agql.core.util.Platform;
-import com.ibasco.agql.core.util.TransportOptions;
+import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 import dev.failsafe.*;
+import dev.failsafe.function.ContextualSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,6 +40,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 /**
  * Messenger implementation for the Source Query Protocol
@@ -116,13 +115,47 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     @Override
     public CompletableFuture<SourceQueryResponse> send(InetSocketAddress address, SourceQueryRequest request) {
         if (executor != null && getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED)) {
-            return executor.getStageAsync(context -> acquireContext(new Pair<>(address, request))
-                    .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
-                    .thenCompose(SourceQueryMessenger.super::send)
-                    .thenCompose(NettyChannelContext::composedFuture)
-                    .thenApply(c -> c.properties().response()));
+            return executor.getStageAsync(new QueryContextSupplier(address, request));
         } else {
             return super.send(address, request);
+        }
+    }
+
+    private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse, CompletableFuture<SourceQueryResponse>> {
+
+        private final InetSocketAddress address;
+
+        private final SourceQueryRequest request;
+
+        private QueryContextSupplier(InetSocketAddress address, SourceQueryRequest request) {
+            this.address = address;
+            this.request = request;
+        }
+
+        @Override
+        public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
+            return acquireContext(new Pair<>(address, request))
+                    .thenApply(NettyChannelContext::disableAutoRelease)
+                    .thenApply(this::attach)
+                    .thenCompose(SourceQueryMessenger.super::send)
+                    .thenCompose(NettyChannelContext::composedFuture)
+                    .handle(this::response);
+        }
+
+        private NettyChannelContext attach(NettyChannelContext context) {
+            context.attach(request);
+            return context;
+        }
+
+        private SourceQueryResponse response(NettyChannelContext context, Throwable error) {
+            if (error != null) {
+                throw new CompletionException(ConcurrentUtil.unwrap(error));
+            }
+            SourceQueryResponse response = context.properties().response();
+            if (response == null)
+                throw new IllegalStateException("Missing response: " + context);
+            context.close();
+            return response;
         }
     }
 

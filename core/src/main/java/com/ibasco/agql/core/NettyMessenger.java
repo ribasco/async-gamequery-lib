@@ -139,7 +139,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
 
     protected static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
-        log.debug("{} MESSENGER => Attaching request '{}' to context", context.id(), request);
+        log.debug("{} MESSENGER => Attaching new request '{}' to context", context.id(), request);
         //update the request in envelope
         context.properties().request(request);
         return context;
@@ -174,7 +174,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
             }
             if (error != null) {
                 log.error("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
-                context.markInError(new ResponseException(error, envelope.recipient()));
+                context.markInError(new ResponseException(error, context));
             } else {
                 assert response != null;
                 if (response.getAddress() == null)

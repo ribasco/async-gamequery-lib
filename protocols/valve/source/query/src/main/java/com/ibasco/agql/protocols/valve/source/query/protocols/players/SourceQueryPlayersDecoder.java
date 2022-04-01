@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.players;
 
+import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
@@ -23,11 +24,16 @@ import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePac
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQueryPlayerRequest> {
+
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryPlayersDecoder.class);
 
     public SourceQueryPlayersDecoder() {
         super(SourceQueryPlayerRequest.class, SourceQuery.SOURCE_QUERY_PLAYER_RES);
@@ -41,19 +47,42 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.readableBytes() > 0) {
             int playereCount = payload.readUnsignedByte();
-            debug("Parsing Player Data (Player count: {})", playereCount);
+            debug(log,"Decoding player payload data (Player count: {})", playereCount);
             for (int i = 0; i < playereCount; i++) {
                 if (payload.readableBytes() < 10)
                     break;
-                int index = payload.readUnsignedByte();
-                String name = NettyUtil.readString(payload, StandardCharsets.UTF_8);
-                int score = payload.readIntLE();
-                float duration = payload.readFloatLE();
+                debug(log, "Decoding player #{}", i);
+                short index = decodeField(i, "Index", (short) -1, payload, ByteBuf::readUnsignedByte);
+                String name = decodeField(i, "Name", "N/A", payload, buf -> NettyUtil.readString(buf, StandardCharsets.UTF_8));
+                int score = decodeField(i, "Score", -1, payload, ByteBuf::readIntLE);
+                float duration = decodeField(i, "Duration", -1f, payload, ByteBuf::readFloatLE);
                 playerList.add(new SourcePlayer(index, name, score, duration));
             }
         } else {
-            debug("Received an empty INFO response");
+            debug(log, "Received an empty INFO response");
         }
         return new SourceQueryPlayerResponse(playerList);
+    }
+
+    private <V> V decodeField(int index, String name, V defaultValue, ByteBuf payload, Function<ByteBuf, V> decoder) {
+        int readerIndex = payload.readerIndex();
+        V res;
+        try {
+           res = decoder.apply(payload);
+        } catch (Throwable error) {
+            try {
+                payload.markReaderIndex();
+                payload.readerIndex(readerIndex);
+                byte[] payloadData = NettyUtil.getBufferContents(payload);
+                String payloadDump = ByteUtil.toHexString(payloadData);
+                error("{}) Failed to decode packet into player data ({} bytes):\n{}", index, payloadData.length, payloadDump, error);
+            } finally {
+                payload.resetReaderIndex();
+                res = null;
+            }
+        }
+        res = res == null ? defaultValue : res;
+        debug(log, "\t{}) Decoded '{}' to '{}'", index, name, res);
+        return res;
     }
 }

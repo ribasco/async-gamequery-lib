@@ -1,11 +1,11 @@
 /*
- * Copyright 2021-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -151,6 +151,6 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     }
 
     protected final void print(String msg, Object... args) {
-        output.accept(String.format("[%s]: %s", getDescription(), String.format(msg, args)));
+        output.accept(String.format("[\033[0;33m%s]\033[0m: %s", getDescription(), String.format(msg, args)));
     }
 }

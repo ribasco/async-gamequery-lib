@@ -54,7 +54,7 @@ public class SourceQueryOptions {
      * @see #FAILSAFE_RATELIMIT_PERIOD
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static final Option<Long> FAILSAFE_RATELIMIT_MAX_EXEC = Option.createOption("queryFailsafeRateLimitMaxExec", 500L);
+    public static final Option<Long> FAILSAFE_RATELIMIT_MAX_EXEC = Option.createOption("queryFailsafeRateLimitMaxExec", 650L);
 
     /**
      * The period after which permitted executions are reset to the max executions. (Default is 60000 ms or 1 minute)
@@ -62,7 +62,7 @@ public class SourceQueryOptions {
      * @see #FAILSAFE_RATELIMIT_MAX_EXEC
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
-    public static final Option<Long> FAILSAFE_RATELIMIT_PERIOD = Option.createOption("queryFailsafeRateLimitPeriod", 60000L);
+    public static final Option<Long> FAILSAFE_RATELIMIT_PERIOD = Option.createOption("queryFailsafeRateLimitPeriod", 5000L);
 
     /**
      * Maximum waiting time for permits to be available (Default is 10000 ms)

@@ -548,7 +548,7 @@ public final class SourceRconAuthManager implements Closeable {
 
         public void print(Consumer<String> output) {
 
-            final String LINE = StringUtils.repeat("=", 200);
+            final String LINE = "\033[0;36m" + StringUtils.repeat("=", 200) + "\033[0m";
             print(output, LINE);
             print(output, "Channel Statistics");
             print(output, LINE);
@@ -561,12 +561,12 @@ public final class SourceRconAuthManager implements Closeable {
             print(output, "Executor Service: %s (Default executor: %s)", eventLoopGroup, (eventLoopGroup == Platform.getDefaultEventLoopGroup()) ? "YES" : "NO");
 
             print(output, LINE);
-            print(output, "Event Loop Group: (Group: %s)", eventLoopGroup);
+            print(output, "\033[0;33mEvent Loop Group: (Group: %s)\033[0m", eventLoopGroup);
             print(output, LINE);
             int ctr = 0;
             for (EventExecutor ex : eventLoopGroup) {
                 SingleThreadEventLoop el = (SingleThreadEventLoop) ex;
-                print(output, "%02d) %s-%d [%s] (Pending Tasks: %d, Thread Id: %d)", ++ctr, ex.getClass().getSimpleName(), el.hashCode(), el.threadProperties().name(), el.pendingTasks(), el.threadProperties().id());
+                print(output, "\033[0;33m%02d)\033[0m \033[0;36m%s-%-15d\033[0m \033[0;34m[%s]\033[0m (\033[0;37mPending Tasks:\033[0m \033[0;36m%d\033[0m, \033[0;37mThread Id:\033[0m \033[0;36m%d\033[0m)", ++ctr, ex.getClass().getSimpleName(), el.hashCode(), el.threadProperties().name(), el.pendingTasks(), el.threadProperties().id());
             }
 
             print(output, LINE);

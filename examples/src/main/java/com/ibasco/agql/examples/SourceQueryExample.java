@@ -81,8 +81,8 @@ public class SourceQueryExample extends BaseExample {
             // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
             Options queryOptions = OptionBuilder.newBuilder()
                                                 .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
-                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false)
-                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                                //override default value, enable rate limiting
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
@@ -148,14 +148,14 @@ public class SourceQueryExample extends BaseExample {
         for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
             String name = entry.getKey().name();
             SourceQueryStatCounter stat = entry.getValue();
-            System.out.printf("%-10s (Success: %05d, Failure: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
+            System.out.printf("\033[0;33m%-10s\033[0m (\033[1;32mSuccess\033[0m: %05d, \033[1;31mFailure\033[0m: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
         }
         System.out.flush();
 
         for (Map.Entry<AbstractClient.ClientStatistics.Stat, Integer> e : queryClient.getClientStatistics().getValues().entrySet()) {
             AbstractClient.ClientStatistics.Stat stat = e.getKey();
             Integer count = e.getValue();
-            System.out.printf("%s = %05d\n", stat.name(), count);
+            System.out.printf("\033[0;33m%s\033[0m = %05d\n", stat.name(), count);
         }
         printLine();
     }
@@ -230,17 +230,17 @@ public class SourceQueryExample extends BaseExample {
     @Override
     public void close() throws IOException {
         if (queryClient != null) {
-            System.out.println("Closing source query client");
             queryClient.close();
+            System.out.println("(CLOSE) \033[0;35mClosed query client\033[0m");
         }
         if (masterClient != null) {
-            System.out.println("Closing master query client");
             masterClient.close();
+            System.out.println("(CLOSE) \033[0;35mClosed master client\033[0m");
         }
         if (ConcurrentUtil.shutdown(queryExecutor))
-            System.out.println("Successfully shutdown query executor");
+            System.out.println("(CLOSE) \033[0;35mQuery executor gracefully shutdown\033[0m");
         if (ConcurrentUtil.shutdown(masterExecutor))
-            System.out.println("Successfully shutdown master query executor");
+            System.out.println("(CLOSE) \033[0;35mMaster query executor gracefully shutdown\033[0m");
     }
 
     /**

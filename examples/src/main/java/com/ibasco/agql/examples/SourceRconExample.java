@@ -52,7 +52,7 @@ public class SourceRconExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconExample.class);
 
-    private static final String line = StringUtils.repeat("=", 158);
+    private static final String line = "\033[0;36m" + StringUtils.repeat("=", 158) + "\033[0m";
 
     private SourceRconClient rconClient;
 
@@ -137,20 +137,19 @@ public class SourceRconExample extends BaseExample {
     }
 
     private void printConsoleBanner() {
-        System.out.println("██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗");
-        System.out.println("██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝");
-        System.out.println("██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  ");
-        System.out.println("██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  ");
-        System.out.println("██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗");
-        System.out.println("╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝");
-        System.out.println("                                                         Powered by Asynchronous Game Query Library");
+        System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
+        System.out.println("\033[0;36m██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\033[0m");
+        System.out.println("\033[0;36m██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  \033[0m");
+        System.out.println("\033[0;36m██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  \033[0m");
+        System.out.println("\033[0;36m██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗\033[0m");
+        System.out.println("\033[0;36m╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\033[0m");
+        System.out.println("\033[0;36m                                               \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
     }
 
     public void runRconConsole() {
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
 
-        //twdeyprtkfs6TsH5SMqiR
         serverAddress = new InetSocketAddress(address, port);
         AtomicBoolean stop = new AtomicBoolean();
         final BiConsumer<SourceRconCmdResponse, Throwable> handler = (res, error) -> {
@@ -171,7 +170,7 @@ public class SourceRconExample extends BaseExample {
                 return;
             }
             if (res != null) {
-                System.out.printf("\n%s\n", res.getResult());
+                System.out.printf("\n\033[0;37m%s\033[0m\n", res.getResult());
                 log.debug(res.getResult());
             }
         };
@@ -202,7 +201,7 @@ public class SourceRconExample extends BaseExample {
                 }
                 continue;
             }
-            String promptText = String.format("[%s:%d]: ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
+            String promptText = String.format("\033[0;33m[%s:%d]:\033[0m ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
             String cmd = promptInput(promptText, true);
             parseCommand(cmd).whenComplete(handler).thenAccept(sourceRconCmdResponse -> System.out.print(promptText));
         }
@@ -429,7 +428,9 @@ public class SourceRconExample extends BaseExample {
             Duration duration = Duration.ofNanos(System.nanoTime() - startTime);
             if (increment > 0 && (total % increment) != 0)
                 return;
-            print("%03d) Processed a total of % 6d queries (Progress: % 4.0f%%, Success: %05d, Fail: %05d, Batch Size: %03d, Elapsed: %s, Last Thread: %s)", iteration.incrementAndGet(), total, getProgress(), success, fail, increment, TimeUtil.getTimeDesc(duration.toMillis(), true), Thread.currentThread().getName());
+            //\033[0;37m
+            //\033[0m
+            print("\033[0;35m%03d)\033[0m Processed a total of \033[1;35m% 6d\033[0m queries (\033[0;37mProgress:\033[0m \033[1;36m% 4.0f%%\033[0m, \033[0;37mSuccess:\033[0m \033[1;36m%05d, \033[0;37mFail:\033[0m \033[1;36m%05d, \033[0;37mBatch Size:\033[0m \033[1;36m%03d, \033[0;37mElapsed:\033[0m \033[1;36m%s, \033[0;37mLast Thread Used:\033[0m \033[1;36m%s\033[0m\033[0;37m)\033[0m", iteration.incrementAndGet(), total, getProgress(), success, fail, increment, TimeUtil.getTimeDesc(duration.toMillis(), true), Thread.currentThread().getName());
         }
 
         @Override

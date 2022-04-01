@@ -121,44 +121,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         }
     }
 
-    private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse, CompletableFuture<SourceQueryResponse>> {
-
-        private final InetSocketAddress address;
-
-        private final SourceQueryRequest request;
-
-        private QueryContextSupplier(InetSocketAddress address, SourceQueryRequest request) {
-            this.address = address;
-            this.request = request;
-        }
-
-        @Override
-        public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
-            return acquireContext(new Pair<>(address, request))
-                    .thenApply(NettyChannelContext::disableAutoRelease)
-                    .thenApply(this::attach)
-                    .thenCompose(SourceQueryMessenger.super::send)
-                    .thenCompose(NettyChannelContext::composedFuture)
-                    .handle(this::response);
-        }
-
-        private NettyChannelContext attach(NettyChannelContext context) {
-            context.attach(request);
-            return context;
-        }
-
-        private SourceQueryResponse response(NettyChannelContext context, Throwable error) {
-            if (error != null) {
-                throw new CompletionException(ConcurrentUtil.unwrap(error));
-            }
-            SourceQueryResponse response = context.properties().response();
-            if (response == null)
-                throw new IllegalStateException("Missing response: " + context);
-            context.close();
-            return response;
-        }
-    }
-
     @Override
     protected void configure(Options options) {
         //enable pooling by default
@@ -166,6 +128,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
         defaultOption(options, TransportOptions.POOL_MAX_CONNECTIONS, Platform.getDefaultPoolSize());
         defaultOption(options, TransportOptions.READ_TIMEOUT, 1500);
+        //default rate limiting options
+        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false);
+        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
+        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
+        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
     }
 
     //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).
@@ -206,4 +173,41 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
+    private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse, CompletableFuture<SourceQueryResponse>> {
+
+        private final InetSocketAddress address;
+
+        private final SourceQueryRequest request;
+
+        private QueryContextSupplier(InetSocketAddress address, SourceQueryRequest request) {
+            this.address = address;
+            this.request = request;
+        }
+
+        @Override
+        public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
+            return acquireContext(new Pair<>(address, request))
+                    .thenApply(NettyChannelContext::disableAutoRelease)
+                    .thenApply(this::attach)
+                    .thenCompose(SourceQueryMessenger.super::send)
+                    .thenCompose(NettyChannelContext::composedFuture)
+                    .handle(this::response);
+        }
+
+        private NettyChannelContext attach(NettyChannelContext context) {
+            context.attach(request);
+            return context;
+        }
+
+        private SourceQueryResponse response(NettyChannelContext context, Throwable error) {
+            if (error != null) {
+                throw new CompletionException(ConcurrentUtil.unwrap(error));
+            }
+            SourceQueryResponse response = context.properties().response();
+            if (response == null)
+                throw new IllegalStateException("Missing response: " + context);
+            context.close();
+            return response;
+        }
+    }
 }

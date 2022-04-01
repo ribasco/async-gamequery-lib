@@ -38,8 +38,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
@@ -55,7 +53,7 @@ public class SourceQueryExample extends BaseExample {
 
     private MasterServerQueryClient masterClient;
 
-    private static final NumberFormat nf = new DecimalFormat("00000");
+    private Boolean skipServersInError;
 
     public SourceQueryExample() {}
 
@@ -116,20 +114,25 @@ public class SourceQueryExample extends BaseExample {
         phaser.register();
         if (queryAllServers) {
             final MasterServerFilter filter = buildServerFilter();
-            System.out.printf("Fetching server list using filter '%s'\n", filter);
+            printLine();
+            System.out.printf("\033[1;36mFetching server list using filter \033[1;33m'%s'\033[0m\n", filter);
+            printLine();
             total = fetchServersAndQuery(filter, phaser, processor);
         } else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
+            int iterations = Integer.parseInt(promptInput("How many times should we repeat our queries? (int)", false, "1", "queryIterations"));
+
             InetSocketAddress address = NetUtil.parseAddress(addressString, 27015);
             System.out.println("Waiting for the queries to complete");
             start = System.currentTimeMillis();
-            queryServer(address, phaser).whenComplete(processor).join();
+            for (int i = 0; i < iterations; i++)
+                queryServer(address, phaser).whenComplete(processor).join();
             total = 1;
         }
         phaser.arriveAndAwaitAdvance();
         end = System.currentTimeMillis() - start;
 
-        System.out.println("=================================================================================================================================");
+        printLine();
         if (end < 1) {
             System.out.printf("Test Completed  in %03d seconds\n", Duration.ofMillis(end).getSeconds());
         } else {
@@ -137,9 +140,9 @@ public class SourceQueryExample extends BaseExample {
         }
         System.out.flush();
 
-        System.out.println("=================================================================================================================================");
-        System.out.printf("Test Results (Total address fetched: %d)\n", total);
-        System.out.println("=================================================================================================================================");
+        printLine();
+        System.out.printf("Test Results (Total address processed: %d)\n", total);
+        printLine();
         System.out.flush();
 
         for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
@@ -154,16 +157,31 @@ public class SourceQueryExample extends BaseExample {
             Integer count = e.getValue();
             System.out.printf("%s = %05d\n", stat.name(), count);
         }
-        System.out.println("=================================================================================================================================");
+        printLine();
+    }
+
+    private static void printLine() {
+        System.out.println("\033[0;36m=================================================================================================================================\033[0m");
         System.out.flush();
     }
 
+    /**
+     * Create our server filter using {@link MasterServerFilter} builder
+     *
+     * @return The {@link MasterServerFilter} created from the user input
+     */
     private MasterServerFilter buildServerFilter() {
         int appId = Integer.parseInt(promptInput("List servers only from this app id (int)", false, null, "srcQryAppId"));
         Boolean emptyServers = promptInputBool("List only empty servers? (y/n)", false, null, "srcQryEmptySvrs");
+        skipServersInError = promptInputBool("Skip servers with error? (y/n)", false, null, "skipServersInError");
         Boolean passwordProtected = promptInputBool("List only passwd protected servers? (y/n)", false, null, "srcQryPassProtect");
         Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n)", false, "y", "srcQryDedicated");
-        MasterServerFilter filter = MasterServerFilter.create().dedicated(dedicatedServers).isPasswordProtected(passwordProtected).allServers().isEmpty(emptyServers);
+        MasterServerFilter filter = MasterServerFilter.create()
+                                                      .dedicated(dedicatedServers)
+                                                      .isPasswordProtected(passwordProtected);
+        if (emptyServers != null && emptyServers) {
+            filter.isEmpty(true);
+        }
         if (appId > 0)
             filter.appId(appId);
         return filter;
@@ -176,6 +194,7 @@ public class SourceQueryExample extends BaseExample {
      *         {@link MasterServerFilter}
      */
     private int fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, SourceQueryAggregateProcessor processor) {
+        //fetch server list and block the main thread until it completes
         List<InetSocketAddress> addressList = masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
@@ -190,7 +209,7 @@ public class SourceQueryExample extends BaseExample {
      * @param address
      *         The {@link InetSocketAddress} of the remote server to query
      * @param phaser
-     *         The synchronization barrier that is notified once a result has been received
+     *         The synchronization barrier for managing synchronization between requests/responses.
      *
      * @return A {@link CompletableFuture} that is notified once all the responses from each type of query have been received.
      */
@@ -377,7 +396,7 @@ public class SourceQueryExample extends BaseExample {
     /**
      * A class for processing {@link SourceQueryAggregate} instances (For Collecting statistics)
      */
-    private static class SourceQueryAggregateProcessor implements BiConsumer<SourceQueryAggregate, Throwable> {
+    private class SourceQueryAggregateProcessor implements BiConsumer<SourceQueryAggregate, Throwable> {
 
         private final AtomicInteger counter = new AtomicInteger();
 
@@ -417,7 +436,10 @@ public class SourceQueryExample extends BaseExample {
                 rulesCounter.recordSuccess();
             }
 
-            System.out.printf("%05d) \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %s \u001B[34m[RULES]\u001B[0m: %s \u001B[32m[INFO]\u001B[0m: %-64s\n",
+            if (skipServersInError != null && skipServersInError && result.hasError())
+                return;
+
+            System.out.printf("\033[1;35m%05d)\033[0m \u001B[33m%-15s:%05d\u001B[0m => \u001B[34m[PLAYERS]\u001B[0m: %s \u001B[34m[RULES]\u001B[0m: %s \u001B[32m[INFO]\u001B[0m: %-64s\n",
                               counter.incrementAndGet(),
                               result.getAddress().getHostString(),
                               result.getAddress().getPort(),
@@ -432,8 +454,8 @@ public class SourceQueryExample extends BaseExample {
             return stats;
         }
 
-        private static String formatResult(SourceQueryAggregate result, SourceQueryType type) {
-            final int padSize = 30;
+        private String formatResult(SourceQueryAggregate result, SourceQueryType type) {
+            final int padSize = 20;
             Throwable error = result.getError(type);
             String data;
             if (error != null) {
@@ -441,15 +463,15 @@ public class SourceQueryExample extends BaseExample {
             } else {
                 switch (type) {
                     case INFO: {
-                        data = result.getInfo().getName();
+                        data = result.getInfo() != null ? result.getInfo().getName() : "N/A";
                         break;
                     }
                     case PLAYERS: {
-                        data = String.valueOf(result.getPlayers().size());
+                        data = result.getPlayers() != null ? String.valueOf(result.getPlayers().size()) : "N/A";
                         break;
                     }
                     case RULES: {
-                        data = String.valueOf(result.getRules().size());
+                        data = result.getRules() != null ? String.valueOf(result.getRules().size()) : "N/A";
                         break;
                     }
                     default: {
@@ -461,7 +483,7 @@ public class SourceQueryExample extends BaseExample {
             return StringUtils.rightPad(data, padSize, " ");
         }
 
-        private static String errorName(Throwable error) {
+        private String errorName(Throwable error) {
             if (error instanceof TimeoutException) {
                 return "TIMED OUT";
             } else {

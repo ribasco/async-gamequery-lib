@@ -296,21 +296,6 @@ public final class SourceRconAuthManager implements Closeable {
         return context;
     }
 
-    /**
-     * Acquire a new/existing {@link Channel}
-     *
-     * @param address
-     *         The {@link InetSocketAddress} to connect and acquire a {@link Channel} from
-     *
-     * @return A {@link CompletableFuture} that will be notified when the channel has been successfully acquired from the {@link FailsafeChannelFactory}
-     */
-    private CompletableFuture<SourceRconChannelContext> acquire(final InetSocketAddress address) {
-        return channelFactory.create(address)
-                             .thenCompose(this::register)
-                             .handle(statistics)
-                             .thenApply(SourceRconChannelContext::getContext);
-    }
-
     @ApiStatus.Experimental
     @ApiStatus.Internal
     public Statistics getStatistics() {
@@ -571,7 +556,6 @@ public final class SourceRconAuthManager implements Closeable {
             print(output, "Max Pooled Connections: %d", messenger.getOrDefault(TransportOptions.POOL_MAX_CONNECTIONS));
             print(output, "Max Core Pool Size: %d", getCorePoolSize(messenger.getExecutor()));
             print(output, "Max Pending Acquires: %d", messenger.getOrDefault(TransportOptions.POOL_ACQUIRE_MAX));
-            //print(output, "Pool strategy: %s", messenger.getOrDefault(TransportOptions.POOL_STRATEGY).getName());
             print(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
             EventLoopGroup eventLoopGroup = messenger.getExecutor();
             print(output, "Executor Service: %s (Default executor: %s)", eventLoopGroup, (eventLoopGroup == Platform.getDefaultEventLoopGroup()) ? "YES" : "NO");
@@ -674,17 +658,20 @@ public final class SourceRconAuthManager implements Closeable {
             }
 
             log.debug("AUTH => Sending RCON Request '{}' to address '{}' (Valid Credentials: {}, Attempts: {}, Cancelled: {}, Last Failure: {}, Last Result: {})", request, address, credentials != null && credentials.isValid(), context.getAttemptCount(), context.isCancelled(), context.getLastFailure(), context.getLastResult());
-            return acquire().thenCompose(callback);//.handle(this::processResult);
+            return acquire().thenCompose(callback);
         }
 
-        private SourceRconChannelContext processResult(SourceRconChannelContext context, Throwable error) {
-            if (error != null)
-                throw new CompletionException(ConcurrentUtil.unwrap(error));
-            return context;
-        }
-
+        /**
+         * Acquire a new/existing {@link Channel}
+         *
+         * @return A {@link CompletableFuture} that will be notified when the channel has been successfully acquired from the {@link FailsafeChannelFactory}
+         */
         private CompletableFuture<SourceRconChannelContext> acquire() {
-            return SourceRconAuthManager.this.acquire(address).thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
+            return channelFactory.create(address)
+                                 .thenCompose(SourceRconAuthManager.this::register)
+                                 .handle(statistics)
+                                 .thenApply(SourceRconChannelContext::getContext)
+                                 .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
         }
 
         private SourceRconChannelContext initializeContext(SourceRconChannelContext context, SourceRconRequest request) {

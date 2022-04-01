@@ -27,7 +27,7 @@
             <onMatch>DENY</onMatch>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg %ex{2}%nopex%n</pattern>
         </encoder>
     </appender>
 

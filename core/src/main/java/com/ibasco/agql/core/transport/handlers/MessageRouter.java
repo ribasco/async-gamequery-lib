@@ -32,6 +32,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -46,6 +48,8 @@ public class MessageRouter extends ChannelDuplexHandler {
     public static final String NAME = "messageRouter";
 
     private static final Logger log = LoggerFactory.getLogger(MessageRouter.class);
+
+    public static final Marker UNFREED_RESOURCE = MarkerFactory.getMarker("UNFREED_RESOURCE");
 
     private static final ChannelFutureListener REGISTER_READ_TIMEOUT = future -> {
         Channel ch = future.channel();
@@ -119,7 +123,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                     log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
             } catch (IllegalReferenceCountException e) {
                 int refCnt = ReferenceCountUtil.refCnt(response);
-                log.debug("{} ROUTER (INBOUND) => Skipped de-allocation request '{}'. The resource has already been released. (Reference count: {})", context.id(), response, refCnt, e);
+                log.warn("{} ROUTER (INBOUND) => Attempted to de-allocate resource '{}' but the resource has already been released. (Reference count: {})", context.id(), response, refCnt, e);
             }
         }
     }

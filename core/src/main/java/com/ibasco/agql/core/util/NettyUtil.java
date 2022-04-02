@@ -130,15 +130,29 @@ public class NettyUtil {
      * @return A byte array containing the contents of the buffer
      */
     public static byte[] getBufferContents(ByteBuf buf, Integer limit) {
-        if (limit == null) {
+        if (limit == null)
             limit = buf.readableBytes();
-        }
-        byte[] tmp = new byte[Math.min(limit, buf.readableBytes())];
+        int bufferSize = Math.min(limit, buf.readableBytes());
+        byte[] tmp = new byte[bufferSize];
         try {
             buf.markReaderIndex();
             buf.readBytes(tmp);
         } finally {
             buf.resetReaderIndex();
+        }
+        return tmp;
+    }
+
+    public static byte[] getBufferContentsAll(ByteBuf buf) {
+        int origReaderIndex = buf.readerIndex();
+        buf.readerIndex(0);
+        int bufferSize = buf.readableBytes();
+        byte[] tmp = new byte[bufferSize];
+        try {
+            buf.markReaderIndex();
+            buf.readBytes(tmp);
+        } finally {
+            buf.readerIndex(origReaderIndex);
         }
         return tmp;
     }

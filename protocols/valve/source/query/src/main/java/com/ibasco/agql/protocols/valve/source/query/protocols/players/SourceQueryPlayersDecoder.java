@@ -59,7 +59,7 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
                 playerList.add(new SourcePlayer(index, name, score, duration));
             }
         } else {
-            debug(log, "Received an empty INFO response");
+            debug(log, "Received an empty PLAYERS response");
         }
         return new SourceQueryPlayerResponse(playerList);
     }

@@ -25,6 +25,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
 
 import java.util.function.BiConsumer;
 
@@ -92,6 +93,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     protected void debug(Logger logger, String msg, Object... args) {
         log(msg, logger::debug, args);
+    }
+
+    protected void debug(Logger logger, Marker marker, String msg, Object... args) {
+        logger.debug(marker, String.format("%s (%-25s) INB => %s", NettyUtil.id(channel), getClass().getSimpleName(), msg), args);
     }
 
     protected final void warn(String msg, Object... args) {

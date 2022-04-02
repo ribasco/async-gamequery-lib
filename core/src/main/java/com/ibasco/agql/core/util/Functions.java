@@ -32,6 +32,11 @@ public class Functions {
 
     public static final Function<Object, Boolean> FALSE = unused -> false;
 
+    public static <A, B> B cast(A a) {
+        //noinspection unchecked
+        return (B) a;
+    }
+
     public static <B, C extends B> C convert(B b) {
         //noinspection unchecked
         return (C) b;

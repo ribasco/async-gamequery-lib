@@ -18,8 +18,8 @@ package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.NettyChannelContext;
 import static com.ibasco.agql.core.transport.NettyChannelAttributes.CHANNEL_CONTEXT;
+import com.ibasco.agql.core.util.ImmutablePair;
 import com.ibasco.agql.core.util.NettyUtil;
-import com.ibasco.agql.core.util.Pair;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.util.Attribute;
@@ -54,7 +54,7 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
     public CompletableFuture<Channel> create(final Object data) {
         checkContextFactory();
         final InetSocketAddress address = getResolver().resolveRemoteAddress(data);
-        return super.create(data).thenCombine(CompletableFuture.completedFuture(address), Pair::new).thenCompose(this::initializeEL);
+        return super.create(data).thenCombine(CompletableFuture.completedFuture(address), ImmutablePair::new).thenCompose(this::initializeEL);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         return super.create(data, eventLoop).thenCombineAsync(CompletableFuture.completedFuture(address), this::initializeContext, eventLoop);
     }
 
-    private CompletableFuture<Channel> initializeEL(Pair<Channel, InetSocketAddress> pair) {
+    private CompletableFuture<Channel> initializeEL(ImmutablePair<Channel, InetSocketAddress> pair) {
         if (pair.getFirst().eventLoop().inEventLoop()) {
             return CompletableFuture.completedFuture(pair.getFirst()).thenCombine(CompletableFuture.completedFuture(pair.getSecond()), this::initializeContext);
         } else {

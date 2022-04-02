@@ -16,15 +16,13 @@
 
 package com.ibasco.agql.core.util;
 
-public class Pair<A, B> {
+public class ImmutablePair<A, B> {
 
-    private A first;
+    private final A first;
 
-    private B second;
+    private final B second;
 
-    public Pair() {}
-
-    public Pair(A first, B second) {
+    public ImmutablePair(A first, B second) {
         this.first = first;
         this.second = second;
     }
@@ -33,15 +31,7 @@ public class Pair<A, B> {
         return first;
     }
 
-    public void setFirst(A first) {
-        this.first = first;
-    }
-
     public B getSecond() {
         return second;
-    }
-
-    public void setSecond(B second) {
-        this.second = second;
     }
 }

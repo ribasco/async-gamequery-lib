@@ -16,7 +16,10 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.rules;
 
+import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Pair;
+import com.ibasco.agql.core.util.Strings;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
@@ -25,7 +28,10 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+@SuppressWarnings({"SameParameterValue", "DuplicatedCode"})
 public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryRulesRequest> {
 
     public SourceQueryRulesDecoder() {
@@ -37,18 +43,41 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
         ByteBuf payload = msg.content();
         Map<String, String> rules = new HashMap<>();
         //some servers send an empty info response packet, so we also return an empty response
-        if (payload.readableBytes() > 0) {
+        if (payload.isReadable()) {
             int noOfRules = payload.readShortLE();
             for (int i = 0; i < noOfRules; i++) {
-                String name = NettyUtil.readString(payload);
-                String value = NettyUtil.readString(payload);
-                rules.put(name, value);
+                //make sure we have more data to read
+                if (!payload.isReadable())
+                    break;
+                Pair<String, String> rule = new Pair<>();
+                decodeField("ruleName", payload, NettyUtil::readString, rule::setFirst, null);
+                decodeField("ruleValue", payload, NettyUtil::readString, rule::setSecond, null);
+                if (!Strings.isBlank(rule.getFirst()) && !Strings.isBlank(rule.getSecond()))
+                    rules.put(rule.getFirst(), rule.getSecond());
             }
-            assert noOfRules == rules.size();
             debug("Successfully decoded a total of {} source rules", rules.size());
         } else {
-            debug("Received an empty INFO response");
+            debug("Received an empty RULES response");
         }
         return new SourceQueryRulesResponse(rules);
+    }
+
+    private <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) {
+        if (!buf.isReadable()) {
+            debug("Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            return;
+        }
+        int startPosition = buf.readerIndex();
+        debug("Decoding field '{}' at index position '{}'", name, startPosition);
+        if (transformer == null)
+            transformer = Functions::cast;
+        try {
+            A fromValue = reader.apply(buf);
+            B toValue = transformer.apply(fromValue);
+            writer.accept(toValue);
+            debug("Saved decoded field '{}'", name);
+        } catch (Throwable e) {
+            error("Failed to decode field '{}' at position '{}'", startPosition);
+        }
     }
 }

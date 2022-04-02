@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -63,7 +63,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                     out = decodePacket(ctx, cast, packet);
                 } finally {
                     //release assuming we have decoded and consumed the message
-                    debug("Releasing reference counted message '{}'", msg.getClass().getSimpleName());
+                    debug("Releasing reference counted message '{}' (Decoded message: {})", msg.getClass().getSimpleName(), out);
                     ReferenceCountUtil.release(msg);
                 }
             } else {

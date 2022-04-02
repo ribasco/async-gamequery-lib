@@ -142,7 +142,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     // By overriding this, we then need to make sure to register a custom property resolver.
     @Override
     protected Object transformProperties(InetSocketAddress address, SourceQueryRequest request) {
-        return new Pair<>(address, request);
+        return new ImmutablePair<>(address, request);
     }
 
     @Override
@@ -164,9 +164,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
             @Override
             public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
-                if (data instanceof Pair<?, ?>) {
+                if (data instanceof ImmutablePair<?, ?>) {
                     //noinspection unchecked
-                    Pair<InetSocketAddress, SourceQueryRequest> pair = (Pair<InetSocketAddress, SourceQueryRequest>) data;
+                    ImmutablePair<InetSocketAddress, SourceQueryRequest> pair = (ImmutablePair<InetSocketAddress, SourceQueryRequest>) data;
                     return pair.getFirst();
                 } else {
                     return defaultResolver.resolveRemoteAddress(data);
@@ -176,7 +176,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
-    private static class RequestEntry extends Pair<InetSocketAddress, SourceQueryRequest> {
+    private static class RequestEntry extends ImmutablePair<InetSocketAddress, SourceQueryRequest> {
 
         private RequestEntry(InetSocketAddress address, SourceQueryRequest request) {
             super(address, request);
@@ -213,7 +213,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         @Override
         public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
             log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {})", address, request, context.getAttemptCount());
-            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(new Pair<>(address, request));
+            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(new ImmutablePair<>(address, request));
             return contextFuture
                     .thenApply(NettyChannelContext::disableAutoRelease)
                     .thenApply(this::attach)

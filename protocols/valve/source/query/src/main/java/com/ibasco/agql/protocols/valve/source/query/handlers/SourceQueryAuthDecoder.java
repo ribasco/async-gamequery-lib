@@ -27,6 +27,8 @@ import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePac
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -45,6 +47,8 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
 
     private final int responseHeader;
 
+    private static final Logger log = LoggerFactory.getLogger(SourceQueryAuthDecoder.class);
+
     protected SourceQueryAuthDecoder(Class<T> requestClass, int responseHeader) {
         this.requestClass = Objects.requireNonNull(requestClass, "Request class not provided");
         this.responseHeader = responseHeader;
@@ -56,7 +60,12 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
     protected final boolean acceptPacket(SourceQueryMessage msg) {
         //some servers throw an empty info response for any type of requests (info, players and rules) so as long as we get a matching request AND the header and packet is empty, then we accept it
         boolean emptyInfoResponse = msg.hasHeader(SourceQuery.SOURCE_QUERY_INFO_RES) && msg.getPacket().content().readableBytes() == 0;
-        return msg.hasRequest(requestClass) && (emptyInfoResponse || msg.hasHeader(responseHeader) || msg.hasHeader(SourceQuery.SOURCE_QUERY_CHALLENGE_RES));
+        boolean accept = msg.hasRequest(requestClass) && (emptyInfoResponse || msg.hasHeader(responseHeader) || msg.hasHeader(SourceQuery.SOURCE_QUERY_CHALLENGE_RES));
+        if (!accept)
+            debug("Rejected message '{}' with response header '{}' (Expected request: {}, Expected response header: {})", msg.getRequest(), msg.getPacket().getHeader(), requestClass, responseHeader);
+        else
+            debug("Accepted message '{}' with response header '{}' (Expected request: {}, Expected response header: {})", msg.getRequest(), msg.getPacket().getHeader(), requestClass, responseHeader);
+        return accept;
     }
 
     @Override

@@ -23,6 +23,8 @@ import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryIn
 import com.ibasco.agql.protocols.valve.source.query.protocols.players.SourceQueryPlayerRequest;
 import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesRequest;
 import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 
 /**
  * Utility class for Source Query module
@@ -31,6 +33,8 @@ import org.jetbrains.annotations.ApiStatus;
  */
 @ApiStatus.Internal
 public final class SourceQuery {
+
+    public static final Marker INFO_QUERY = MarkerFactory.getMarker("INFO_QUERY");
 
     public static final int SOURCE_PACKET_TYPE_SINGLE = 0xFFFFFFFF;
 

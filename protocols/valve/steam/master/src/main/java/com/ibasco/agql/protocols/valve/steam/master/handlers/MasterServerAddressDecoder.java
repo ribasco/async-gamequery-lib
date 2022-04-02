@@ -71,6 +71,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         if (MasterServer.isTerminatingPacket(addressPacket)) {
             debug("Terminating packet found. Returning response");
             terminatorReceived = true;
+            return null;
         }
 
         InetSocketAddress address = addressPacket.getAddress();

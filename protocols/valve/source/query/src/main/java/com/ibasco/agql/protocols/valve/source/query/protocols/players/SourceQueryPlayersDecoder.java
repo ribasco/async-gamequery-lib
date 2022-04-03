@@ -66,11 +66,14 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
 
     private <V> V decodeField(int index, String name, V defaultValue, ByteBuf payload, Function<ByteBuf, V> decoder) {
         int readerIndex = payload.readerIndex();
+        if (!payload.isReadable()) {
+            debug("Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, payload.readerIndex(), payload.readableBytes());
+            return defaultValue;
+        }
         V res;
         try {
-           res = decoder.apply(payload);
+            res = decoder.apply(payload);
         } catch (Throwable error) {
-            System.err.printf("PLAYER DECODE ERROR FIELD: %s\n", name);
             try {
                 payload.markReaderIndex();
                 payload.readerIndex(readerIndex);

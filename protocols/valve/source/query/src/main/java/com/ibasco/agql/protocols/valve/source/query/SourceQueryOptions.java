@@ -112,7 +112,7 @@ public class SourceQueryOptions {
     public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.createOption("queryFailsafeBackoffDelay", 3000L);
 
     /**
-     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 60000 ms or 1 minute)
+     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5000 ms or 5 seconds)
      *
      * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
      * @see #FAILSAFE_RETRY_BACKOFF_DELAY

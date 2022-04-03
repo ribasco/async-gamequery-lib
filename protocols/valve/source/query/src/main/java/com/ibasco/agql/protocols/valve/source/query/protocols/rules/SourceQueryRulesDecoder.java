@@ -42,13 +42,15 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
     protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryRulesRequest request, SourceQuerySinglePacket msg) {
         ByteBuf payload = msg.content();
         Map<String, String> rules = new HashMap<>();
+        int expectedCount = -1;
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.isReadable()) {
-            int noOfRules = payload.readShortLE();
-            for (int i = 0; i < noOfRules; i++) {
+            expectedCount = payload.readShortLE();
+            for (int i = 0; i < expectedCount; i++) {
                 //make sure we have more data to read
-                if (!payload.isReadable())
+                if (!payload.isReadable()) {
                     break;
+                }
                 Pair<String, String> rule = new Pair<>();
                 decodeField("ruleName", payload, NettyUtil::readString, rule::setFirst, null);
                 decodeField("ruleValue", payload, NettyUtil::readString, rule::setSecond, null);
@@ -59,7 +61,7 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
         } else {
             debug("Received an empty RULES response");
         }
-        return new SourceQueryRulesResponse(rules);
+        return new SourceQueryRulesResponse(rules, expectedCount);
     }
 
     private <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) {

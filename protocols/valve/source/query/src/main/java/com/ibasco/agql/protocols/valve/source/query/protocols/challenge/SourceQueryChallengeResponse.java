@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,19 +19,13 @@ package com.ibasco.agql.protocols.valve.source.query.protocols.challenge;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 
-public class SourceQueryChallengeResponse extends SourceQueryResponse {
-
-    private final Integer challenge;
+public class SourceQueryChallengeResponse extends SourceQueryResponse<Integer> {
 
     private final SourceChallengeType type;
 
     public SourceQueryChallengeResponse(Integer challenge, SourceChallengeType type) {
-        this.challenge = challenge;
+        super(challenge);
         this.type = type;
-    }
-
-    public final Integer getChallenge() {
-        return challenge;
     }
 
     public final SourceChallengeType getType() {

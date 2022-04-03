@@ -21,21 +21,30 @@ package com.ibasco.agql.protocols.valve.source.query.enums;
  *
  * @author Rafael Luis Ibasco
  */
-@Deprecated
 public enum SourceChallengeType {
-    INFO((byte) 0x54),
-    PLAYER((byte) 0x55),
-    RULES((byte) 0x56),
-    CHALLENGE((byte) 0x57),
-    ANY((byte) 0x56);
+    INFO((byte) 0x54, SourceGameRequest.INFO),
+    PLAYER((byte) 0x55, SourceGameRequest.PLAYER),
+    RULES((byte) 0x56, SourceGameRequest.RULES),
+    CHALLENGE((byte) 0x57, SourceGameRequest.CHALLENGE),
+    @Deprecated
+    ANY((byte) 0x56, SourceGameRequest.RULES);
 
     private final byte header;
 
-    SourceChallengeType(byte header) {
+    @Deprecated
+    private final SourceGameRequest request;
+
+    SourceChallengeType(byte header, SourceGameRequest request) {
         this.header = header;
+        this.request = request;
     }
 
     public byte getHeader() {
         return header;
+    }
+
+    @Deprecated
+    public SourceGameRequest getRequest() {
+        return request;
     }
 }

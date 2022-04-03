@@ -91,8 +91,8 @@ public class SourceRconExample extends BaseExample {
         if (rconClient == null)
             return;
         try {
-            System.out.println("Closing rcon client");
             rconClient.close();
+            System.out.println("(CLOSE) \033[0;35mClosed rcon client\033[0m");
         } catch (IOException ignored) {
         }
     }
@@ -143,6 +143,7 @@ public class SourceRconExample extends BaseExample {
     }
 
     public void runRconConsole() {
+        clearConsole();
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
 
@@ -152,7 +153,6 @@ public class SourceRconExample extends BaseExample {
             if (error != null) {
                 Throwable cause = error instanceof CompletionException || error instanceof ExecutionException ? error.getCause() : error;
                 if (cause instanceof CancellationException) {
-                    System.out.println("Shutting down example program");
                     stop.compareAndSet(false, true);
                 } else if (cause instanceof InvalidCredentialsException) {
                     System.err.println(cause.getMessage());
@@ -202,7 +202,7 @@ public class SourceRconExample extends BaseExample {
             parseCommand(cmd).whenComplete(handler).thenAccept(sourceRconCmdResponse -> System.out.print(promptText));
         }
 
-        System.out.println("Rcon Console Exiting..");
+        System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
         System.exit(0);
     }
 
@@ -227,7 +227,7 @@ public class SourceRconExample extends BaseExample {
                 return ConcurrentUtil.failedFuture(new CancellationException());
             } else if (command.startsWith("/invalidate")) {
                 return commandInvalidate(args);
-            } else if (command.startsWith("/authenticate")) {
+            } else if (command.startsWith("/newauth")) {
                 return commandAuthenticate(args);
             } else if (command.startsWith("/cleanup")) {
                 return commandCleanup(args);
@@ -283,17 +283,18 @@ public class SourceRconExample extends BaseExample {
     }
 
     private void commandUsage() {
-        clearConsole();
         System.out.println(line);
-        System.out.println("RCON Console Commands");
+        System.out.println("\033[0;33mList of Available Console Commands\033[0m".toUpperCase());
         System.out.println(line);
-        System.out.println("Rcon Command: <command>");
-        System.out.println("Rcon Batch Command: /batch <amount> [command]");
-        System.out.println("Help: /help, /h, /?");
-        System.out.println("Invalidate connections: /invalidate");
-        System.out.println("Statistics: /stats");
-        System.out.println("Re-authenticate: /authenticate");
-        System.out.println("Cleanup unsused channels: /cleanup");
+        System.out.println("\033[0;34mRcon Command:\033[0m \033[0;36m<command>\033[0m");
+        System.out.println("\033[0;34mRcon Batch Command:\033[0m \033[0;36m/batch <amount> [command]\033[0m");
+        System.out.println("\033[0;34mHelp:\033[0m \033[0;36m/help, /h, /?\033[0m");
+        System.out.println("\033[0;34mInvalidate connections:\033[0m \033[0;36m/invalidate\033[0m");
+        System.out.println("\033[0;34mThread/Connection Statistics:\033[0m \033[0;36m/stats\033[0m");
+        System.out.println("\033[0;34mRe-authenticate with server with new password:\033[0m \033[0;36m/newauth\033[0m");
+        System.out.println("\033[0;34mRe-authenticate with server using registered password:\033[0m \033[0;36m/reauth\033[0m");
+        System.out.println("\033[0;34mCleanup unsused channels:\033[0m \033[0;36m/cleanup\033[0m");
+        System.out.println("\033[0;34mQuit Console:\033[0m \033[0;36m/quit\033[0m");
 
     }
 

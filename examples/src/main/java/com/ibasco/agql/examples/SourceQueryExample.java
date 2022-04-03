@@ -19,12 +19,15 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.core.AbstractClient;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.TimeoutException;
+import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
+import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryInfoResponse;
+import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesResponse;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
@@ -75,28 +78,36 @@ public class SourceQueryExample extends BaseExample {
     @Override
     public void run(String[] args) throws Exception {
         try {
-            //query client
+            printConsoleBanner();
+            System.out.println();
+
+            //query client configuration
             // - Enabled rate limiting so we don't send too fast
-            // - Change rate limiting type to BURST
-            // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+            // - set rate limit type to SMOOTH so requests are sent evenly at a steady rate
+            // - Provide a custom executor for query client. We are responsible for shutting down this executor, not the library.
+            // - Set channel pooling strategy to FIXED (POOL_TYPE) with using a fixed number of pooled connections of 50 (POOL_MAX_CONNECTIONS)
+            // - Set read timeout to 1000ms (1 second)
             Options queryOptions = OptionBuilder.newBuilder()
-                                                .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
-                                                //override default value, enable rate limiting
+                                                //override default value, enable rate limiting (default is: false)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
-                                                //.option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
+                                                .option(TransportOptions.READ_TIMEOUT, 1000)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
 
-            //master client initialization
+            //master client configuration
             // - Configuring the Rate limit type to SMOOTH
-            // - Used a custom executor for master client. We are responsible for shutting down this executor, not the library.
+            // - Provide a custom executor for master client. We are responsible for shutting down this executor, not the library.
             Options masterOptions = OptionBuilder.newBuilder()
                                                  .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                  .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
                                                  .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runInteractiveExample();
+            queryClient.getClientStatistics().getValues();
         } catch (Exception e) {
             log.error("Failed to run query: {}", e.getMessage());
             throw e;
@@ -114,6 +125,7 @@ public class SourceQueryExample extends BaseExample {
         start = System.currentTimeMillis();
         phaser.register();
         if (queryAllServers) {
+            System.out.println("Note: Type 'skip' to exclude filter");
             final MasterServerFilter filter = buildServerFilter();
             printLine();
             System.out.printf("\033[1;36mFetching server list using filter \033[1;33m'%s'\033[0m\n", filter);
@@ -166,24 +178,60 @@ public class SourceQueryExample extends BaseExample {
         System.out.flush();
     }
 
+    private void printConsoleBanner() {
+        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
+        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
+        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
+        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
+        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
+        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
+        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
+    }
+
     /**
      * Create our server filter using {@link MasterServerFilter} builder
      *
      * @return The {@link MasterServerFilter} created from the user input
      */
     private MasterServerFilter buildServerFilter() {
-        int appId = Integer.parseInt(promptInput("List servers only from this app id (int)", false, null, "srcQryAppId"));
-        Boolean emptyServers = promptInputBool("List only empty servers? (y/n)", false, null, "srcQryEmptySvrs");
-        skipServersInError = promptInputBool("Skip servers with error? (y/n)", false, null, "skipServersInError");
-        Boolean passwordProtected = promptInputBool("List only passwd protected servers? (y/n)", false, null, "srcQryPassProtect");
-        Boolean dedicatedServers = promptInputBool("List only dedicated servers (y/n)", false, "y", "srcQryDedicated");
-        MasterServerFilter filter = MasterServerFilter.create()
-                                                      .dedicated(dedicatedServers)
-                                                      .isPasswordProtected(passwordProtected);
-        if (emptyServers != null && emptyServers) {
+        Integer appId = promptInputInt("List servers only from this app id (int)", false, null, "srcQryAppId");
+        Boolean nonEmptyServers = promptInputBool("List only non-empty servers? (y/n)", false, null, "srcQryEmptySvrs");
+        skipServersInError = promptInputBool("Skip servers with error? (y/n)", false, null, "srcQrySkipServers");
+        Boolean passwordProtected = promptInputBool("List passw0rd protected servers? (y/n)", false, null, "srcQryPassProtect");
+        Boolean dedicatedServers = promptInputBool("List dedicated servers (y/n)", false, "y", "srcQryDedicated");
+        String serverTags = promptInput("Specify public server tags (separated with comma)", false, null, "srcQryServerTagsPublic");
+        String serverTagsHidden = promptInput("Specify hidden server tags (separated with comma)", false, null, "srcQryServerTagsHidden");
+        Boolean whiteListedOnly = promptInputBool("Display only whitelisted servers? (y/n)", false, null, "srcQryWhitelisted");
+
+        MasterServerFilter filter = MasterServerFilter.create();
+
+        if (whiteListedOnly != null)
+            filter.isWhitelisted(whiteListedOnly);
+        if (dedicatedServers != null)
+            filter.dedicated(dedicatedServers);
+        if (nonEmptyServers != null && nonEmptyServers)
             filter.isEmpty(true);
+        if (passwordProtected != null)
+            filter.isPasswordProtected(passwordProtected);
+        if (serverTags != null) {
+            String[] serverTagsArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(serverTags, ",");
+            if (Arrays.stream(serverTagsArray).noneMatch(v -> "skip".trim().equalsIgnoreCase(v))) {
+                filter.gametypes(serverTagsArray);
+                for (String type : serverTagsArray) {
+                    System.out.printf(" * Added server tag filter: '%s'\n", type);
+                }
+            }
         }
-        if (appId > 0)
+        if (serverTagsHidden != null) {
+            String[] serverTagsHiddenArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(serverTagsHidden, ",");
+            if (Arrays.stream(serverTagsHiddenArray).noneMatch(v -> "skip".trim().equalsIgnoreCase(v))) {
+                filter.gamedata(serverTagsHiddenArray);
+                for (String type : serverTagsHiddenArray) {
+                    System.out.printf(" * Added hidden server tag filter: %s\n", type);
+                }
+            }
+        }
+        if (appId != null && appId > 0)
             filter.appId(appId);
         return filter;
     }
@@ -203,6 +251,7 @@ public class SourceQueryExample extends BaseExample {
             queryServer(address, phaser).whenComplete(processor);
             addressCtr.incrementAndGet();
         }).join();
+        System.out.println("DONE");
         return addressCtr.get();
     }
 
@@ -223,9 +272,9 @@ public class SourceQueryExample extends BaseExample {
         //we register three parties for the info, player and rules requests
         phaser.bulkRegister(3);
         return CompletableFuture.completedFuture(result)
-                                .thenCombine(queryClient.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
+                                .thenCombine(queryClient.getInfo(address).thenApply(SourceQueryInfoResponse::getResult).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
                                 .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
-                                .thenCombine(queryClient.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
+                                .thenCombine(queryClient.getRules(address).thenApply(SourceQueryRulesResponse::getResult).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
     }
 
     @Override

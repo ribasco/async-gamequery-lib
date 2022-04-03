@@ -14,22 +14,32 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.source.query.protocols.rules;
+package com.ibasco.agql.protocols.valve.source.query.enums;
 
-import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
+import java.util.Arrays;
 
-import java.util.Map;
+/**
+ * Created by raffy on 9/11/2016.
+ */
+@Deprecated
+public enum SourceGameRequest {
 
-public class SourceQueryRulesResponse extends SourceQueryResponse<Map<String, String>> {
+    CHALLENGE((byte) 0x57),
+    INFO((byte) 0x54),
+    PLAYER((byte) 0x55),
+    RULES((byte) 0x56);
 
-    private final int expectedCount;
+    private byte header;
 
-    public SourceQueryRulesResponse(Map<String, String> rules, int expectedCount) {
-        super(rules);
-        this.expectedCount = expectedCount;
+    SourceGameRequest(byte header) {
+        this.header = header;
     }
 
-    public final int getExpectedCount() {
-        return expectedCount;
+    public static SourceGameRequest get(byte header) {
+        return Arrays.stream(values()).filter(sourceRequest -> sourceRequest.getHeader() == header).findFirst().orElse(null);
+    }
+
+    public byte getHeader() {
+        return header;
     }
 }

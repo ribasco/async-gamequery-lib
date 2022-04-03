@@ -29,8 +29,11 @@ import java.util.Scanner;
 
 @SuppressWarnings("SameParameterValue")
 abstract public class BaseExample implements Closeable {
+
     private static final Logger log = LoggerFactory.getLogger(BaseExample.class);
+
     private static final String EXAMPLE_PROP_FILE = "example.properties";
+
     private final Properties exampleProps = new Properties();
 
     abstract public void run(String[] args) throws Exception;
@@ -93,7 +96,16 @@ abstract public class BaseExample implements Closeable {
 
     protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue, String defaultProperty) {
         String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty);
-        return tmpVal != null ? BooleanUtils.toBoolean(tmpVal) : null;
+        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? BooleanUtils.toBoolean(tmpVal) : null;
+    }
+
+    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue) {
+        return promptInputInt(message, required, defaultReturnValue, null);
+    }
+
+    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty);
+        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? Integer.valueOf(tmpVal) : null;
     }
 
     protected String promptInput(String message, boolean required, String defaultReturnValue) {
@@ -159,6 +171,5 @@ abstract public class BaseExample implements Closeable {
 
         return returnValue;
     }
-
 
 }

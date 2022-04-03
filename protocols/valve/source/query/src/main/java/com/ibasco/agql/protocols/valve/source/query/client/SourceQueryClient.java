@@ -54,7 +54,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
 
 /**
  * A client used for querying information on Source servers. Based on the Valve Source Query Protocol.
@@ -67,6 +66,8 @@ import java.util.function.Function;
 public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
+
+    //<editor-fold desc="Deprecated Members">
 
     /**
      * @deprecated To be removed in the next major release
@@ -97,16 +98,19 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      */
     @Deprecated
     private Duration cacheRefreshInterval = Duration.ofMinutes(10);
+    //</editor-fold>
+
+    //<editor-fold desc="Public Constructors">
 
     /**
-     * Create a new {@link SourceQueryClient} instance
+     * Create a new {@link SourceQueryClient} instance using the default {@link Options} configured for this module
      */
     public SourceQueryClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link SourceQueryClient} instance with custom configuration options
+     * Create a new {@link SourceQueryClient} instance using the provided user-defined configuration options
      *
      * @param options
      *         The {@link Options} containing the configuration options for this client
@@ -116,90 +120,182 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     public SourceQueryClient(Options options) {
         super(options);
     }
+    //</editor-fold>
+
+    //<editor-fold desc="New API">
+
+    /**
+     * <p>Retrieves information about the specified Source Server</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link CompletableFuture} returns a value of {@link SourceQueryInfoResponse} which provides additional details on the response.
+     *
+     * @since 0.2.0
+     */
+    public CompletableFuture<SourceQueryInfoResponse> getInfo(InetSocketAddress address) {
+        return getInfo(address, null);
+    }
+
+    /**
+     * <p>Retrieves information about the specified Source Server using the provided challenge number <em>(optional)</em></p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     * @param challenge
+     *         A 32-bit signed integer anti-spoofing challenge number. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getInfo(InetSocketAddress)})
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link CompletableFuture} returns a value of {@link SourceQueryInfoResponse} which provides additional details on the response.
+     *
+     * @see <a href="https://steamcommunity.com/discussions/forum/14/2974028351344359625/?ctp=2">Changes to A2S_INFO protocol</a>
+     * @see <a href="https://store.steampowered.com/oldnews/78652">Steam Client Updates as of 12/08/2020</a>
+     * @since 0.2.0
+     */
+    public CompletableFuture<SourceQueryInfoResponse> getInfo(InetSocketAddress address, Integer challenge) {
+        return send(address, new SourceQueryInfoRequest(challenge), SourceQueryInfoResponse.class);
+    }
+
+    /**
+     * <p>Retrieves information about the specified Source Server.</p>
+     *
+     * <blockquote>
+     * <strong>Note:</strong> If the server requires a challenge number, it will automatically be obtained IF {@code autoUpdate} is set. Otherwise an exception will be thrown and will mark the resulting {@link CompletableFuture} in failure. You will then have to obtain the challenge number manually and execute the query via {@link #getInfo(InetSocketAddress, Integer)}
+     * </blockquote>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     * @param autoUpdate
+     *         Set to {@code true} if the process of obtaining a new challenge number from the server should be done automatically. Otherwise the {@link CompletableFuture} will be marked as failed and return a {@link SourceChallengeException}
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link CompletableFuture} returns a value of {@link SourceQueryInfoResponse} which provides additional details on the response.
+     *
+     * @throws SourceChallengeException
+     *         When autoUpdate is {@code false}, this exception is thrown when the server requires a challenge number. Attached to the exception is the challenge number to be sent to the server.
+     * @see <a href="https://steamcommunity.com/discussions/forum/14/2974028351344359625/?ctp=2">Changes to A2S_INFO protocol</a>
+     * @see <a href="https://store.steampowered.com/oldnews/78652">Steam Client Updates as of 12/08/2020</a>
+     * @see #getInfo(InetSocketAddress, Integer)
+     * @see #getInfo(InetSocketAddress, boolean, boolean)
+     * @since 0.2.0
+     */
+    public CompletableFuture<SourceQueryInfoResponse> getInfo(InetSocketAddress address, boolean autoUpdate) {
+        return getInfo(address, autoUpdate, false);
+    }
+
+    /**
+     * <p>Retrieves information about the specified Source Server</p>
+     *
+     * <blockquote>
+     * <strong>Note:</strong> If the server requires a challenge number, it will automatically be obtained IF {@code autoUpdate} is set. Otherwise an exception will be thrown and will mark the resulting {@link CompletableFuture} in failure. You will then have to obtain the challenge number manually and execute the query via {@link #getInfo(InetSocketAddress, Integer)}
+     * </blockquote>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     * @param autoUpdate
+     *         Set to {@code true} if the process of obtaining a new challenge number from the server should be done automatically. Otherwise the {@link CompletableFuture} will be marked as failed and return a {@link SourceChallengeException}
+     * @param bypassChallenge
+     *         Attempts to bypass challenge number (even if server requires it). Please note that his is experimental and it may or may not work and might be removed in future versions.
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link CompletableFuture} returns a value of {@link SourceQueryInfoResponse} which provides additional details on the response.
+     *
+     * @throws SourceChallengeException
+     *         When autoUpdate is {@code false}, this exception is thrown when the server requires a challenge number. Attached to the exception is the challenge number to be sent to the server.
+     * @see <a href="https://steamcommunity.com/discussions/forum/14/2974028351344359625/?ctp=2">Changes to A2S_INFO protocol</a>
+     * @see <a href="https://store.steampowered.com/oldnews/78652">Steam Client Updates as of 12/08/2020</a>
+     * @since 0.2.0
+     */
+    @ApiStatus.Experimental
+    public CompletableFuture<SourceQueryInfoResponse> getInfo(InetSocketAddress address, boolean autoUpdate, boolean bypassChallenge) {
+        SourceQueryInfoRequest request = new SourceQueryInfoRequest();
+        request.setAutoUpdate(autoUpdate);
+        request.setBypassChallenge(bypassChallenge);
+        return send(address, request, SourceQueryInfoResponse.class);
+    }
+
+    /**
+     * <p>Retrieve server rules information</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link CompletableFuture} returns a value of {@link SourceQueryRulesResponse} which provides additional details on the response.
+     *
+     * @see #getRules(InetSocketAddress, Integer)
+     * @see #getChallenge(InetSocketAddress, SourceChallengeType)
+     * @since 0.2.0
+     */
+    public CompletableFuture<SourceQueryRulesResponse> getRules(InetSocketAddress address) {
+        return getRules(address, null);
+    }
+
+    /**
+     * <p>Retrieve server rules information</p>
+     *
+     * <blockquote>
+     * <em><strong>Note:</strong> This method requires a valid challenge number which can be obtained via {@link #getChallenge(InetSocketAddress, SourceChallengeType)}</em>
+     * </blockquote>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     * @param challenge
+     *         A 32-bit signed integer anti-spoofing challenge number. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getRules(InetSocketAddress)})
+     *
+     * @return A {@link CompletableFuture} that is notified once a response has been received from the server. If successful, the future returns a value of {@link SourceQueryRulesResponse} which provides additional details on the response.
+     *
+     * @see #getRules(InetSocketAddress, Integer)
+     * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
+     * @since 0.2.0
+     */
+    public CompletableFuture<SourceQueryRulesResponse> getRules(InetSocketAddress address, Integer challenge) {
+        return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class);
+    }
+
+    /**
+     * <p>Obtains a 4-byte (32-bit) anti-spoofing integer from the server. This is used for some requests (such as PLAYERS, RULES or INFO) that requires a challenge number.</p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     * @param type
+     *         The {@link SourceChallengeType} enumeration which identifies the type of server challenge.
+     *
+     * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
+     */
+    public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
+        return null;
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Deprecated API">
 
     /**
      * <p>Retrieves a Server Challenge number from the server. This is used for some requests (such as PLAYERS and
      * RULES) that requires a challenge number.</p>
      *
      * @param type
-     *         A {@link SourceChallengeType}
+     *         The {@link SourceChallengeType} enumeration which identifies the type of server challenge.
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<Integer> getServerChallenge(SourceChallengeType type, InetSocketAddress address) {
-        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class).thenApply(SourceQueryChallengeResponse::getChallenge);
+        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
      * <p>Retrieves information of the Source Server</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains {@link SourceServer} instance
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address) {
-        return send(address, new SourceQueryInfoRequest(), SourceQueryInfoResponse.class).thenApply(response -> {
-            if (response.getServer() == null) {
-                SourceServer svr = new SourceServer();
-                svr.setAddress(address);
-                return svr;
-            }
-            return response.getServer();
-        });
-    }
-
-    /**
-     * <p>Retrieves information about the Source Server.</p>
-     *
-     * @param challenge
-     *         The challenge number to be used for the request
-     * @param address
-     *         The {@link InetSocketAddress} of the source server
-     *
-     * @return A {@link CompletableFuture} that is notified once a reply has been received from the remote server. If successful, a {@link SourceServer} is returned.
-     */
-    public CompletableFuture<SourceServer> getServerInfo(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryInfoRequest(challenge), SourceQueryInfoResponse.class).thenApply(SourceQueryInfoResponse::getServer);
-    }
-
-    /**
-     * <p>Retrieves information about the Source Server</p>
-     *
-     * @param address
-     *         The {@link InetSocketAddress} of the source server
-     * @param autoUpdate
-     *         Set to {@code true} if a new challenge request should automatically be sent when needed. Otherwise an exception will be thrown indicating that the server requires a new/updated challenge number.
-     *
-     * @return A {@link CompletableFuture} that is notified once a reply has been received from the remote server. If successful, a {@link SourceServer} is returned.
-     *
-     * @throws SourceChallengeException
-     *         When autoUpdate is {@code false}, this exception is thrown when the server requires a challenge number. Attached to the exception is the challenge number to be sent to the server.
-     */
-    public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address, boolean autoUpdate) {
-        return getServerInfo(address, autoUpdate, false);
-    }
-
-    /**
-     * <p>Retrieves information about the Source Server</p>
-     *
-     * @param address
-     *         The {@link InetSocketAddress} of the source server
-     * @param autoUpdate
-     *         Set to {@code true} if the challenge number will automatically be queried. Otherwise the future will be marked as failed and return a {@link SourceChallengeException}
-     *
-     * @return A {@link CompletableFuture} that is notified once a reply has been received from the remote server. If successful, a {@link SourceServer} is returned.
-     *
-     * @throws SourceChallengeException
-     *         When autoUpdate is {@code false}, this exception is thrown when the server requires a challenge number. Attached to the exception is the challenge number to be sent to the server.
-     */
-    public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address, boolean autoUpdate, boolean bypassChallenge) {
-        SourceQueryInfoRequest request = new SourceQueryInfoRequest();
-        request.setAutoUpdate(autoUpdate);
-        request.setBypassChallenge(bypassChallenge);
-        return send(address, request, SourceQueryInfoResponse.class).thenApply(SourceQueryInfoResponse::getServer);
+        return send(address, new SourceQueryInfoRequest(), SourceQueryInfoResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
@@ -212,18 +308,18 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * </p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
      * the server
      *
      * @see #getPlayers(Integer, InetSocketAddress)
+     * @deprecated The return value of the future will be replaced by {@link SourceQueryPlayerResponse}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<Collection<SourcePlayer>> getPlayers(InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class)
-                .thenApply(response -> {
-            return response.getPlayers();
-        });
+        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
@@ -231,9 +327,9 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * first.</p>
      *
      * @param challenge
-     *         The challenge number to be used for the request
+     *         A 32-bit signed integer anti-spoofing challenge number. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getPlayers(InetSocketAddress)})
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
      * the server
@@ -241,14 +337,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @see #getPlayers(InetSocketAddress)
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
+     * @deprecated The return value of the future will be replaced by {@link SourceQueryPlayerResponse}
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<List<SourcePlayer>> getPlayers(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(new Function<SourceQueryPlayerResponse, List<SourcePlayer>>() {
-            @Override
-            public List<SourcePlayer> apply(SourceQueryPlayerResponse response) {
-                return response.getPlayers();
-            }
-        });
+        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
@@ -259,10 +353,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * </p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<Map<String, String>> getServerRules(InetSocketAddress address) {
         return getServerRules(null, address);
     }
@@ -275,20 +371,17 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @param challenge
      *         The challenge number to be used for the request
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
      */
+    @Deprecated
+    @ApiStatus.ScheduledForRemoval
     public CompletableFuture<Map<String, String>> getServerRules(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class).thenApply(new Function<SourceQueryRulesResponse, Map<String, String>>() {
-            @Override
-            public Map<String, String> apply(SourceQueryRulesResponse response) {
-                return response.getRules();
-            }
-        });
+        return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
@@ -381,14 +474,14 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * (if available).</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
      * the server
      *
      * @see #getPlayers(Integer, InetSocketAddress)
      * @see #getServerChallengeFromCache(InetSocketAddress)
-     * @deprecated This will be removed in the next major release
+     * @deprecated This will be removed in the next major release. Please use {@link #getPlayers(InetSocketAddress)} instead
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval
@@ -404,12 +497,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * <p>This is considered to be thread-safe.</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} containing the resulting challenge {@link Integer}
      *
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
-     * @deprecated This will be removed in the next major version
+     * @deprecated This will be removed in the next major version. Please use {@link #getChallenge(InetSocketAddress, SourceChallengeType)} instead
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval
@@ -428,13 +521,13 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * available).</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
      *
      * @return A {@link CompletableFuture} that contains a {@link Map} of server rules
      *
      * @see #getServerChallengeFromCache(InetSocketAddress)
      * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
-     * @deprecated This will be removed in the next major release
+     * @deprecated This will be removed in the next major release. Please use {@link #getRules(InetSocketAddress)} instead.
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval
@@ -469,11 +562,6 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
         return this.challengeCache;
     }
 
-    @Override
-    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
-        return new SourceQueryMessenger(options);
-    }
-
     private static class ChallengeKey {
 
         private final SourceChallengeType type;
@@ -497,5 +585,11 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
         public int hashCode() {
             return Objects.hash(type, address);
         }
+    }
+    //</editor-fold>
+
+    @Override
+    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
+        return new SourceQueryMessenger(options);
     }
 }

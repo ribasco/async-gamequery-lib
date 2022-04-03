@@ -24,6 +24,7 @@ import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -73,7 +74,14 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
         //did we receive a challenge response from the server?
         if (packet.getHeader() == SourceQuery.SOURCE_QUERY_CHALLENGE_RES) {
             Envelope<AbstractRequest> envelope = getRequest();
-            int challenge = packet.content().readIntLE();
+            ByteBuf payload = packet.content();
+            //ensure we have bytes to decode
+            if (!payload.isReadable() || payload.readableBytes() < 4) {
+                debug("Not enough bytes available to decode a challenge number: {}", payload.readableBytes());
+                ctx.fireExceptionCaught(new SourceChallengeException("Not enough bytes available to decode challenge number", -1));
+                return null;
+            }
+            int challenge = payload.readIntLE();
             //if auto update is not set, throw an exception instead
             if (!request.isAutoUpdate()) {
                 debug("Auto-Update challenge is disabled. Exception will be thrown");

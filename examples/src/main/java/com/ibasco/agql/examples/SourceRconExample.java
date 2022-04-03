@@ -284,7 +284,7 @@ public class SourceRconExample extends BaseExample {
 
     private void commandUsage() {
         System.out.println(line);
-        System.out.println("\033[0;33mList of Available Console Commands\033[0m".toUpperCase());
+        System.out.println("List of Available Console Commands".toUpperCase());
         System.out.println(line);
         System.out.println("\033[0;34mRcon Command:\033[0m \033[0;36m<command>\033[0m");
         System.out.println("\033[0;34mRcon Batch Command:\033[0m \033[0;36m/batch <amount> [command]\033[0m");

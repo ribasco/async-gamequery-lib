@@ -21,4 +21,16 @@ public class Strings {
     public static boolean isBlank(String str) {
         return str == null || "".equals(str.trim());
     }
+
+    public static boolean isNumeric(String str) {
+        if (isBlank(str)) {
+            return false;
+        }
+        final int size = str.length();
+        for (int i = 0; i < size; i++) {
+            if (!Character.isDigit(str.charAt(i)))
+                return false;
+        }
+        return true;
+    }
 }

@@ -48,16 +48,17 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
             expectedCount = payload.readShortLE();
             for (int i = 0; i < expectedCount; i++) {
                 //make sure we have more data to read
-                if (!payload.isReadable()) {
+                if (!payload.isReadable())
                     break;
-                }
                 Pair<String, String> rule = new Pair<>();
                 decodeField("ruleName", payload, NettyUtil::readString, rule::setFirst, null);
                 decodeField("ruleValue", payload, NettyUtil::readString, rule::setSecond, null);
                 if (!Strings.isBlank(rule.getFirst()) && !Strings.isBlank(rule.getSecond()))
                     rules.put(rule.getFirst(), rule.getSecond());
             }
-            debug("Successfully decoded a total of {} source rules", rules.size());
+            if (expectedCount != rules.size())
+                debug("Did not get expected number of rules from the server (Expected: {}, Actual: {})", expectedCount, rules.size());
+            debug("Successfully decoded a total of '{}' source rules (expected size: %d)", rules.size(), expectedCount);
         } else {
             debug("Received an empty RULES response");
         }

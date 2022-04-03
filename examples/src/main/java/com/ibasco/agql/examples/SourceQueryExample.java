@@ -83,10 +83,10 @@ public class SourceQueryExample extends BaseExample {
 
             //For every 1 minute, we have 3,465 addresses available to query
 
-
             //query client configuration
             // - Enabled rate limiting so we don't send too fast
             // - set rate limit type to SMOOTH so requests are sent evenly at a steady rate
+            // - set retry max attempts and backoff parameters
             // - Provide a custom executor for query client. We are responsible for shutting down this executor, not the library.
             // - Set channel pooling strategy to FIXED (POOL_TYPE) with using a fixed number of pooled connections of 50 (POOL_MAX_CONNECTIONS)
             // - Set read timeout to 1000ms (1 second)
@@ -94,6 +94,11 @@ public class SourceQueryExample extends BaseExample {
                                                 //override default value, enable rate limiting (default is: false)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 15)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
@@ -253,7 +258,7 @@ public class SourceQueryExample extends BaseExample {
             queryServer(address, phaser).whenComplete(processor);
             addressCtr.incrementAndGet();
         }).join();
-        System.out.println("DONE");
+        System.out.println("\033[0;32mDONE\033[0m");
         return addressCtr.get();
     }
 

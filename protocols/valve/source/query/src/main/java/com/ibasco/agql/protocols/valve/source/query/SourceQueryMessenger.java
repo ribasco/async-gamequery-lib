@@ -86,7 +86,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     }
 
     private RetryPolicy<SourceQueryResponse> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<SourceQueryResponse> builder = RetryPolicy.<SourceQueryResponse>builder().handleIf(e -> e instanceof TimeoutException);
+        RetryPolicyBuilder<SourceQueryResponse> builder = RetryPolicy.<SourceQueryResponse>builder().handleIf(e -> ConcurrentUtil.unwrap(e) instanceof TimeoutException || e instanceof ResponseException);
         Long retryDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_DELAY);
         Integer maxAttempts = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
         Boolean backOffEnabled = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED);

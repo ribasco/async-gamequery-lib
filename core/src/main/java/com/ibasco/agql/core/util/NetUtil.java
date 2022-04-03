@@ -16,8 +16,6 @@
 
 package com.ibasco.agql.core.util;
 
-import org.apache.commons.lang3.StringUtils;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.text.ParseException;
@@ -47,7 +45,7 @@ public class NetUtil {
         Integer port = null;
         if (matcher.find()) {
             String portStr = matcher.group("port");
-            if (StringUtils.isBlank(portStr) || !StringUtils.isNumeric(portStr))
+            if (Strings.isBlank(portStr) || !Strings.isNumeric(portStr))
                 throw new ParseException(String.format("Invalid port number '%s'", portStr), 0);
             port = Integer.parseInt(portStr);
         }

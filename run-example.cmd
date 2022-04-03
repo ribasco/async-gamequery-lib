@@ -4,7 +4,7 @@ if "%1"=="" goto usage
 
 echo Running example '%1'
 
-mvn -f examples/pom.xml exec:java -Dexec.args="-e %1"
+mvn -q -f examples/pom.xml exec:java -Dexec.args="-e %1"
 
 goto done
 

@@ -82,6 +82,7 @@ public class SourceRconExample extends BaseExample {
                                                  .build();
 
         rconClient = new SourceRconClient(rconOptions);
+        clearConsole();
         printConsoleBanner();
         runRconConsole();
     }
@@ -143,7 +144,6 @@ public class SourceRconExample extends BaseExample {
     }
 
     public void runRconConsole() {
-        clearConsole();
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
 

@@ -22,6 +22,11 @@ abstract public class AbstractResponse extends AbstractMessage {
 
     private InetSocketAddress address;
 
+    /**
+     * The sender address
+     *
+     * @return An {@link InetSocketAddress} representing the address and port of the sender
+     */
     public final InetSocketAddress getAddress() {
         return address;
     }

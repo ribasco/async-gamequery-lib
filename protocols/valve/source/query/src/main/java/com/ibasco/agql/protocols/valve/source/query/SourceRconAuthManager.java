@@ -643,7 +643,7 @@ public final class SourceRconAuthManager implements Closeable {
         @Override
         public CompletableFuture<SourceRconChannelContext> get(ExecutionContext<SourceRconChannelContext> context) throws Throwable {
             Credentials credentials = credentialsStore.get(address);
-            Throwable lastError = ConcurrentUtil.unwrap(context.getLastFailure());
+            Throwable lastError = ConcurrentUtil.unwrap(context.getLastException());
 
             //have we reached the maximum number of login attempts?
             if (lastError instanceof ChannelClosedException && context.getAttemptCount() >= (rconRequestRetryPolicy.getConfig().getMaxAttempts() - 1)) {
@@ -657,7 +657,7 @@ public final class SourceRconAuthManager implements Closeable {
                 }
             }
 
-            log.debug("AUTH => Sending RCON Request '{}' to address '{}' (Valid Credentials: {}, Attempts: {}, Cancelled: {}, Last Failure: {}, Last Result: {})", request, address, credentials != null && credentials.isValid(), context.getAttemptCount(), context.isCancelled(), context.getLastFailure(), context.getLastResult());
+            log.debug("AUTH => Sending RCON Request '{}' to address '{}' (Valid Credentials: {}, Attempts: {}, Cancelled: {}, Last Failure: {}, Last Result: {})", request, address, credentials != null && credentials.isValid(), context.getAttemptCount(), context.isCancelled(), context.getLastException(), context.getLastResult());
             return acquire().thenCompose(callback);
         }
 

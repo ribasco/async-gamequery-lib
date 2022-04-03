@@ -88,7 +88,7 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         retryPolicyBuilder.handle(ConnectTimeoutException.class, ConnectException.class)
                           .abortIf(channel -> channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown())
                           .abortOn(RejectedExecutionException.class)
-                          .onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastFailure() != null ? event.getLastFailure().getClass().getSimpleName() : "N/A"))
+                          .onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A"))
                           .withMaxAttempts(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_MAX_CONNECT))
                           .withBackoff(
                                   Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN))
@@ -112,7 +112,7 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
         @Override
         public CompletableFuture<Channel> get(ExecutionContext<Channel> context) throws Throwable {
-            log.debug("CHANNEL_FACTORY ({}) => Acquiring channel for address '{}' (Supplier: {}, Attempt: {}, Executions: {}, Last Result: {}, Last Failure: {})", FailsafeChannelFactory.class.getSimpleName(), address, this, context.getAttemptCount(), context.getExecutionCount(), context.getLastResult(), context.getLastFailure());
+            log.debug("CHANNEL_FACTORY ({}) => Acquiring channel for address '{}' (Supplier: {}, Attempt: {}, Executions: {}, Last Result: {}, Last Failure: {})", FailsafeChannelFactory.class.getSimpleName(), address, this, context.getAttemptCount(), context.getExecutionCount(), context.getLastResult(), context.getLastException());
             return FailsafeChannelFactory.super.create(address);
         }
     }

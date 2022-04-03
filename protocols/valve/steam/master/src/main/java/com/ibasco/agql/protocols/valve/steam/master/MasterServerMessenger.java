@@ -35,6 +35,7 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse
 import dev.failsafe.*;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.function.CheckedFunction;
+import dev.failsafe.function.CheckedPredicate;
 import dev.failsafe.function.ContextualSupplier;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -50,7 +51,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
 
 /**
  * Handles the internal processing of the master server request/response.
@@ -67,7 +67,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     private RateLimiter<MasterServerChannelContext> rateLimiter;
 
-    private static final Predicate<Throwable> TIMEOUT_ERROR = e -> e instanceof TimeoutException || e instanceof SocketException;
+    private static final CheckedPredicate<Throwable> TIMEOUT_ERROR = MasterServerMessenger::handleError;
 
     public MasterServerMessenger(Options options) {
         super(options);
@@ -160,8 +160,8 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
         //initialize failsafe policies
         Fallback<MasterServerResponse> fallbackPolicy = Fallback.builder((CheckedFunction<ExecutionAttemptedEvent<? extends MasterServerResponse>, MasterServerResponse>) event -> {
-            if (event.getLastFailure() instanceof MasterServerTimeoutException) {
-                MasterServerTimeoutException timeoutException = (MasterServerTimeoutException) event.getLastFailure();
+            if (event.getLastException() instanceof MasterServerTimeoutException) {
+                MasterServerTimeoutException timeoutException = (MasterServerTimeoutException) event.getLastException();
                 return new MasterServerResponse(new Vector<>(timeoutException.getAddresses()));
             }
             return new MasterServerResponse(new Vector<>());
@@ -255,6 +255,10 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         log.debug("{} MASTER (REQUEST) => Sent next batch request with seed address '{}' to master server '{}' (Rate Limited: {})", context.id(), request.getAddress(), context.remoteAddress(), rateLimiter != null ? "Yes" : "No");
     }
 
+    private static boolean handleError(Throwable e) {
+        return e instanceof TimeoutException || e instanceof SocketException;
+    }
+
     private class MasterServerContextualSupplier implements ContextualSupplier<MasterServerResponse, CompletableFuture<MasterServerResponse>> {
 
         private final MasterServerRequest request;
@@ -275,7 +279,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             String contextId = (getContext() != null) ? getContext().id() : "[N/A]";
             int maxAttempts = retryPolicy.getConfig().getMaxAttempts();
 
-            if (!executionContext.isFirstAttempt() && executionContext.isRetry() && executionContext.getLastFailure() instanceof ReadTimeoutException) {
+            if (!executionContext.isFirstAttempt() && executionContext.isRetry() && executionContext.getLastException() instanceof ReadTimeoutException) {
                 log.debug("{} MASTER => Encountered a READ TIMEOUT in the last request for address '{}'. Selecting an alternative address", contextId, masterAddress);
                 masterAddress = null;
             }
@@ -302,10 +306,11 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             final MasterServerChannelContext currentContext = getContext();
 
             boolean isValid = currentContext != null && currentContext.isValid();
-            boolean acquireNew = executionContext.getLastFailure() != null && TIMEOUT_ERROR.test(executionContext.getLastFailure());
+
+            boolean acquireNew = executionContext.getLastException() != null && handleError(executionContext.getLastException());
 
             if (isValid && !acquireNew) {
-                log.debug("{} MASTER => Reusing previous context: {} for address '{}' (Last error: {})", currentContext.id(), currentContext, masterAddress, executionContext.getLastFailure());
+                log.debug("{} MASTER => Reusing previous context: {} for address '{}' (Last error: {})", currentContext.id(), currentContext, masterAddress, executionContext.getLastException());
                 return CompletableFuture.completedFuture(currentContext);
             } else {
                 log.debug("{} MASTER => Acquiring new context for address '{}' (Previous: {}, Previous Valid: {})", currentContext != null ? currentContext.id() : "[N/A]", masterAddress, currentContext, isValid);

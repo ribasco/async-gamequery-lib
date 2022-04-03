@@ -49,7 +49,7 @@ public class SourceQueryOptions {
     public static final Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.createOption("queryFailsafeRateLimitEnabled", false);
 
     /**
-     * Maximum number of executions within the specified period (Default is 500 executions per minute)
+     * Maximum number of executions within the specified period (Default is 650 executions per minute)
      *
      * @see #FAILSAFE_RATELIMIT_PERIOD
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>

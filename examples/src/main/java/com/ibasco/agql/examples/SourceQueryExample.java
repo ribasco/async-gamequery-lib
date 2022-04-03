@@ -81,6 +81,9 @@ public class SourceQueryExample extends BaseExample {
             printConsoleBanner();
             System.out.println();
 
+            //For every 1 minute, we have 3,465 addresses available to query
+
+
             //query client configuration
             // - Enabled rate limiting so we don't send too fast
             // - set rate limit type to SMOOTH so requests are sent evenly at a steady rate
@@ -90,7 +93,9 @@ public class SourceQueryExample extends BaseExample {
             Options queryOptions = OptionBuilder.newBuilder()
                                                 //override default value, enable rate limiting (default is: false)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
-                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L)
+                                                .option(SourceQueryOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
@@ -107,7 +112,6 @@ public class SourceQueryExample extends BaseExample {
                                                  .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runInteractiveExample();
-            queryClient.getClientStatistics().getValues();
         } catch (Exception e) {
             log.error("Failed to run query: {}", e.getMessage());
             throw e;

@@ -105,7 +105,7 @@ public class MessageRouter extends ChannelDuplexHandler {
                     //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
                     else if (response instanceof AbstractPacket) {
                         byte[] data = NettyUtil.getBufferContents(((AbstractPacket) response).content(), null);
-                        cause = new InvalidPacketException("Received a PARTIAL decoded packet but no other handlers were available to process it to produce a desirable response", data);
+                        cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", data);
                         log.error("{} ROUTER (ERROR) => Packet Dump of Packet type '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
                     } else {
                         cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));

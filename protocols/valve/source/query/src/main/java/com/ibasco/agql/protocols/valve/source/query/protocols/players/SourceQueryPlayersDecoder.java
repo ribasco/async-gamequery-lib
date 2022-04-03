@@ -70,6 +70,7 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
         try {
            res = decoder.apply(payload);
         } catch (Throwable error) {
+            System.err.printf("PLAYER DECODE ERROR FIELD: %s\n", name);
             try {
                 payload.markReaderIndex();
                 payload.readerIndex(readerIndex);

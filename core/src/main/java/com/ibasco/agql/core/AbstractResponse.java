@@ -22,6 +22,8 @@ abstract public class AbstractResponse extends AbstractMessage {
 
     private InetSocketAddress address;
 
+    private AbstractRequest request;
+
     /**
      * The sender address
      *
@@ -33,5 +35,18 @@ abstract public class AbstractResponse extends AbstractMessage {
 
     protected void setAddress(InetSocketAddress address) {
         this.address = address;
+    }
+
+    /**
+     * The originating request
+     *
+     * @return The {@link AbstractRequest}
+     */
+    public final AbstractRequest getRequest() {
+        return request;
+    }
+
+    protected void setRequest(AbstractRequest request) {
+        this.request = request;
     }
 }

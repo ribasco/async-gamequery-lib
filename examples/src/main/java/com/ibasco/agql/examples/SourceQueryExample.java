@@ -69,12 +69,12 @@ public class SourceQueryExample extends BaseExample {
     private final ThreadPoolExecutor masterExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE,
                                                                              60L, TimeUnit.SECONDS,
                                                                              new SynchronousQueue<>(),
-                                                                             new DefaultThreadFactory("agql-master"));
+                                                                             new DefaultThreadFactory("master"));
 
     private final ThreadPoolExecutor queryExecutor = new ThreadPoolExecutor(9, Integer.MAX_VALUE,
                                                                             60L, TimeUnit.SECONDS,
                                                                             new LinkedBlockingQueue<>(),
-                                                                            new DefaultThreadFactory("agql-query"));
+                                                                            new DefaultThreadFactory("query"));
 
     @Override
     public void run(String[] args) throws Exception {
@@ -95,7 +95,7 @@ public class SourceQueryExample extends BaseExample {
                                                 //override default value, enable rate limiting (default is: false)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 15)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 8)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
@@ -279,6 +279,8 @@ public class SourceQueryExample extends BaseExample {
             return ConcurrentUtil.failedFuture(new IllegalArgumentException("Invalid address: " + address));
         //we register three parties for the info, player and rules requests
         phaser.bulkRegister(3);
+        //int challenge = queryClient.getChallenge(address, SourceChallengeType.RULES).thenApply(SourceQueryChallengeResponse::getResult).join();
+        //System.out.printf("GOT CHALLENGE: %d\n", challenge);
         return CompletableFuture.completedFuture(result)
                                 .thenCombine(queryClient.getInfo(address).thenApply(SourceQueryInfoResponse::getResult).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
                                 .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)

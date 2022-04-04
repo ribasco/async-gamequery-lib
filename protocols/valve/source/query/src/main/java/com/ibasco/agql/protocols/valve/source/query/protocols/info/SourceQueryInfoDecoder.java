@@ -48,8 +48,14 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
         info.setAddress(getRequest().recipient());
 
         //NOTE: Some servers return an empty response. If this is the case, we skip the decoding process and simply return SourceServer instance
-        if (buf.readableBytes() > 0) {
+        if (buf.isReadable()) {
             debug("Attempting to decode A2S_INFO response (Reader Index: {}, Readable bytes: {})", buf.readerIndex(), buf.readableBytes());
+
+            //I dont know what this byte (0x11) is for, there is no mention of this in the docs
+            int undocumentedByte = buf.readUnsignedByte();
+
+            if (isDebugEnabled())
+                debug("INFO Dump ({})\n{}", undocumentedByte, NettyUtil.prettyHexDump(buf));
 
             decodeField("name", buf, NettyUtil::readString, info::setName);
             decodeField("mapName", buf, NettyUtil::readString, info::setMapName);

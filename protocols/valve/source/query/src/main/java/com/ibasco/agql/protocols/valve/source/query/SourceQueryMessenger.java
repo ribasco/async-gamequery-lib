@@ -70,7 +70,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
                 log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), TimeUtil.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
             } else {
-                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), event.getException());
+                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {}, Error: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), simplify(event.getException()), event.getException());
             }
         }
 
@@ -126,6 +126,33 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
+        //Verify that we have received all the rules
+        /*builder.handleResultIf(new CheckedPredicate<SourceQueryResponse>() {
+
+            @Override
+            public boolean test(SourceQueryResponse response) throws Throwable {
+                if (response instanceof SourceQueryRulesResponse) {
+                    SourceQueryRulesResponse rules = (SourceQueryRulesResponse) response;
+                    if (rules.getResult().size() != rules.getExpectedCount()) {
+                        System.err.printf("Did not get expected count for '%s'. Requesting retry (Expected: %d, Actual: %d, Request: %s)\n", response, rules.getExpectedCount(), rules.getResult().size(), response.getRequest());
+                        for (Map.Entry<String, String> entry : rules.getResult().entrySet()) {
+                            System.err.printf("> %-10s = %-10s\n", entry.getKey(), entry.getValue());
+                        }
+                        return true;
+                    }
+                }
+                System.out.printf("Response '%s' is OK. Completing request '%s'\n", response, response.getRequest());
+                return false;
+            }
+        });
+        builder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceQueryResponse>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<SourceQueryResponse> event) throws Throwable {
+                if (event.getLastResult() != null && event.getLastResult() instanceof SourceQueryRulesResponse) {
+                    System.out.printf("Retrying request '%s' (Last Response: %s)\n", event.getLastResult().getRequest(), event.getLastResult());
+                }
+            }
+        });*/
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }
@@ -213,10 +240,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         if (!failsafeEnabled || rateLimiter == null)
             return context;
         try {
+            log.debug("{} MESSENGER => (SourceQueryMessenger) Acquiring send permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
             rateLimiter.acquirePermit();
+            log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
             return context;
         } catch (InterruptedException e) {
-            log.debug("Failed to acquire permit", e);
+            log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request(), e);
             throw new CompletionException(e);
         }
     }
@@ -263,7 +292,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         @Override
         public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
-            log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {}, Last Error: {})", address, request, context.getAttemptCount(), context.getLastException() != null ? context.getLastException().getClass().getSimpleName() : "N/A");
+            log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {}, Last Error: {}, Is Retry: {})", address, request, context.getAttemptCount(), context.getLastException() != null ? context.getLastException().getClass().getSimpleName() : "N/A", context.isRetry());
             return sendQuery(address, request).handle((response, error) -> handleTimeouts(response, error, context));
         }
 

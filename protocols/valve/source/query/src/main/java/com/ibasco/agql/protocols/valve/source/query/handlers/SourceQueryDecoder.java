@@ -131,14 +131,12 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             return;
         }
         if (!buf.isReadable()) {
-            error("[O1] Skipped decoding flag '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O1] Skipped decoding flag '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
-        int endPosition = -1;
-        int bytesBefore = -1, bytesAfter = -1;
+        int bytesBefore = -1;
         try {
-            debug("[O1] Decoding flag '{}' at index position '{}'", name, startPosition);
             bytesBefore = buf.readableBytes();
             A fromValue = reader.get();
             if (writer != null) {
@@ -146,12 +144,10 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                     transformer = Functions::cast;
                 B toValue = transformer.apply(fromValue);
                 writer.accept(toValue);
-                debug("[O1] Saved decoded flag '{}' with value '{}'", name, toValue);
+                debug("[O1] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            bytesAfter = buf.readableBytes();
-            endPosition = buf.readerIndex();
-            error("[O1] Failed to decode flag '{}' at start position '{}' (end position: {}, bytes before: {}, bytes after: {})\n{}", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf), e);
+            error("[O1] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
         }
     }
 
@@ -165,14 +161,12 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             return;
         }
         if (!buf.isReadable()) {
-            error("[O3] Skipped decoding flag '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O2] Skipped decoding flag '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
-        int endPosition = -1;
-        int bytesBefore = -1, bytesAfter = -1;
+        int bytesBefore = -1;
         try {
-            debug("[O2] Decoding flag '{}' at index position '{}'", name, startPosition);
             bytesBefore = buf.readableBytes();
             A fromValue = reader.apply(buf);
             if (writer != null) {
@@ -180,12 +174,10 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                     transformer = Functions::cast;
                 B toValue = transformer.apply(fromValue);
                 writer.accept(toValue);
-                debug("[O2] Saved decoded flag '{}' with value '{}'", name, toValue);
+                debug("[O2] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            bytesAfter = buf.readableBytes();
-            endPosition = buf.readerIndex();
-            error("[O2] Failed to decode flag '{}' at start position '{}' (end position: {}, bytes before: {}, bytes after: {})\n{}", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf), e);
+            error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
         }
     }
 
@@ -195,14 +187,12 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     protected <A, B> void decodeField(String name, ByteBuf buf, Supplier<A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[O3] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O3] Skipped decoding field '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
-        int endPosition = -1;
-        int bytesBefore = -1, bytesAfter = -1;
+        int bytesBefore = -1;
         try {
-            debug("[O3] Decoding field '{}' at index position '{}'", name, startPosition);
             bytesBefore = buf.readableBytes();
             A fromValue = reader.get();
             if (writer != null) {
@@ -210,12 +200,10 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                     transformer = Functions::cast;
                 B toValue = transformer.apply(fromValue);
                 writer.accept(toValue);
-                debug("[O3] Saved decoded field '{}' with value '{}'", name, toValue);
+                debug("[O4] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            bytesAfter = buf.readableBytes();
-            endPosition = buf.readerIndex();
-            error("[O3] Failed to decode field '{}' at start position '{}' (end position: {}, bytes before: {}, bytes after: {})\n{}", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf), e);
+            error("[O3] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
         }
     }
 
@@ -225,13 +213,11 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     protected <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[O4] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O4] Skipped decoding field '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
-        int endPosition = -1;
-        int bytesBefore = -1, bytesAfter = -1;
-        debug("[O4] Decoding field '{}' at index position '{}'", name, startPosition);
+        int bytesBefore = -1;
         if (transformer == null)
             transformer = Functions::cast;
         try {
@@ -239,32 +225,26 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             A fromValue = reader.apply(buf);
             B toValue = transformer.apply(fromValue);
             writer.accept(toValue);
-            debug("[O4] Saved decoded field '{}'", name);
+            debug("[O4] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
         } catch (Throwable e) {
-            bytesAfter = buf.readableBytes();
-            endPosition = buf.readerIndex();
-            error("[O4] Failed to decode field '{}' at start position '{}' (end position: {}, bytes before: {}, bytes after: {})\n{}", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf), e);
-            /*String errorMsg = String.format("[O4] Failed to decode field '%s' at start position '%d' (end position: %d, bytes before: %d, bytes after: %d)\n%s", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf));
-            throw new DecodeException(errorMsg);*/
+            error("[O4] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
         }
     }
 
     protected <V> V decodeField(String name, V defaultValue, ByteBuf buf, Function<ByteBuf, V> decoder) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[O5] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O5] Skipped decoding field '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return defaultValue;
         }
         int startPosition = buf.readerIndex();
-        int endPosition = -1;
-        int bytesBefore = -1, bytesAfter = -1;
+        int bytesBefore = -1;
         V returnValue;
         try {
             bytesBefore = buf.readableBytes();
             returnValue = decoder.apply(buf);
+            debug("[O5] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, returnValue);
         } catch (Throwable e) {
-            bytesAfter = buf.readableBytes();
-            endPosition = buf.readerIndex();
-            error("[O5] Failed to decode field '{}' at start position '{}' (end position: {}, bytes before: {}, bytes after: {})\n{}", name, startPosition, endPosition, bytesBefore, bytesAfter, NettyUtil.prettyHexDump(buf), e);
+            error("[O5] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
             returnValue = null;
         }
         returnValue = returnValue == null ? defaultValue : returnValue;

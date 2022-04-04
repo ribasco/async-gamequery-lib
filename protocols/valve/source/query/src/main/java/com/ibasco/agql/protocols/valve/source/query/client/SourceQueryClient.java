@@ -261,7 +261,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @return A {@link CompletableFuture} returning a value of {@link Integer} representing the server challenge number
      */
     public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
-        return null;
+        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class);
     }
     //</editor-fold>
 

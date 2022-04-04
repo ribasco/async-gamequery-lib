@@ -43,6 +43,9 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
         ArrayList<SourcePlayer> playerList = new ArrayList<>();
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.readableBytes() > 0) {
+            if (isDebugEnabled())
+                debug("PLAYERS Dump\n{}", NettyUtil.prettyHexDump(payload));
+
             int playereCount = payload.readUnsignedByte();
             debug(log, "Decoding player payload data (Player count: {})", playereCount);
             for (int i = 0; i < playereCount; i++) {

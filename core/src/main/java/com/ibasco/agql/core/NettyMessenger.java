@@ -165,9 +165,18 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         if (promise == null)
             throw new IllegalStateException("Response promise not initialized");
 
+        if (response != null) {
+            //Update address
+            if (response.getAddress() == null)
+                response.setAddress(context.properties().envelope().recipient());
+            //attach request to response
+            if (response.getRequest() == null)
+                response.setRequest(context.properties().request());
+        }
+
         try {
             if (log.isDebugEnabled())
-                log.debug("{} MESSENGER => Received response '{}' (Error: {})", context.id(), envelope, error == null ? "N/A" : error.getClass().getSimpleName());
+                log.debug("{} MESSENGER => Received response for request '{}' (Error: {})", context.id(), envelope, error == null ? "N/A" : error.getClass().getSimpleName());
             if (promise.isDone()) {
                 log.debug("{} MESSENGER => [INVALID] Response '{}' has already been marked as completed. Not notifying client (Promise: {})", context.id(), envelope, promise);
                 return;

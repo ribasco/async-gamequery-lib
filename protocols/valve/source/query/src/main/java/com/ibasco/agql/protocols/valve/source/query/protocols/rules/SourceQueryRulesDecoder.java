@@ -42,6 +42,8 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
         int expectedCount = -1;
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.isReadable()) {
+            if (isDebugEnabled())
+                debug("RULES Dump\n{}", NettyUtil.prettyHexDump(payload));
             expectedCount = payload.readShortLE();
             for (int i = 0; i < expectedCount; i++) {
                 //make sure we have more data to read
@@ -53,9 +55,9 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
                 if (!Strings.isBlank(rule.getFirst()) && !Strings.isBlank(rule.getSecond()))
                     rules.put(rule.getFirst(), rule.getSecond());
             }
-            if (expectedCount != rules.size())
+            if (expectedCount >= 0 && expectedCount != rules.size())
                 debug("Did not get expected number of rules from the server (Expected: {}, Actual: {})", expectedCount, rules.size());
-            debug("Successfully decoded a total of '{}' source rules (expected size: %d)", rules.size(), expectedCount);
+            debug("Successfully decoded a total of '{}' source rules (expected size: {})", rules.size(), expectedCount);
         } else {
             debug("Received an empty RULES response");
         }

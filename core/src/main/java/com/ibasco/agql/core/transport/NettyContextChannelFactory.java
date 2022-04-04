@@ -80,17 +80,17 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         NettyChannelContext context = attr.get();
         //no context available yet, create and initialize
         if (context == null) {
-            log.debug("CHANNEL_FACTORY ({}) => Initializing NEW context for channel '{}' with envelope '{}' (Event Loop: {})", getClass().getSimpleName(), channel, address, NettyUtil.getThreadName(channel));
+            log.debug("{} CHANNEL_FACTORY ({}) => Initializing NEW context for channel '{}' with envelope '{}' (Event Loop: {})",NettyUtil.id(channel), getClass().getSimpleName(), channel, address, NettyUtil.getThreadName(channel));
             context = contextFactory.create(channel);
             attr.set(context);
         } else {
             //If the references are not the same but points to the same underlying channel, then we need to recreate the context
             if (channel != context.channel() && channel.id().equals(context.channel().id())) {
-                log.debug("CHANNEL_FACTORY ({}) => Reference mismatch. Replacing channel context from '{}' to '{}'", getClass().getSimpleName(), context.channel(), channel);
+                log.debug("{} CHANNEL_FACTORY ({}) => Reference mismatch. Replacing channel context from '{}' to '{}'", NettyUtil.id(channel), getClass().getSimpleName(), context.channel(), channel);
                 context = contextFactory.create(channel);
                 attr.set(context);
             } else {
-                log.debug("CHANNEL_FACTORY ({}) => Initializing EXISTING context for channel '{}' to '{}' (Response Promise: {})", getClass().getSimpleName(), context.id(), address, context.properties().responsePromise());
+                log.debug("{} CHANNEL_FACTORY ({}) => Initializing EXISTING context for channel '{}' to '{}' (Response Promise: {})", context.id(), getClass().getSimpleName(), context.id(), address, context.properties().responsePromise());
                 if (context.properties().writeInProgress() && context.properties().responsePromise() != null && !context.properties().responsePromise().isDone())
                     throw new IllegalStateException(String.format("Previous tranaction has not yet been marked as completed (Response promise: %s)", context.properties().responsePromise()));
             }
@@ -99,7 +99,7 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
 
         //update envelope address if necessary
         if (context.properties().envelope().recipient() == null || !context.properties().envelope().recipient().equals(address)) {
-            log.debug("CHANNEL_FACTORY => Updating context address for channel '{}' -> {}", channel, address);
+            log.debug("{} CHANNEL_FACTORY => Updating context address for channel '{}' -> {}", context.id(), channel, address);
             context.properties().envelope().recipient(address);
         }
 

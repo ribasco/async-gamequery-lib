@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.rules;
 
-import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.Pair;
 import com.ibasco.agql.core.util.Strings;
@@ -28,8 +27,6 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 @SuppressWarnings({"SameParameterValue", "DuplicatedCode"})
 public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryRulesRequest> {
@@ -39,7 +36,7 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
     }
 
     @Override
-    protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryRulesRequest request, SourceQuerySinglePacket msg) {
+    protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryRulesRequest request, SourceQuerySinglePacket msg) throws Exception {
         ByteBuf payload = msg.content();
         Map<String, String> rules = new HashMap<>();
         int expectedCount = -1;
@@ -63,24 +60,5 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
             debug("Received an empty RULES response");
         }
         return new SourceQueryRulesResponse(rules, expectedCount);
-    }
-
-    private <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) {
-        if (!buf.isReadable()) {
-            debug("Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
-            return;
-        }
-        int startPosition = buf.readerIndex();
-        debug("Decoding field '{}' at index position '{}'", name, startPosition);
-        if (transformer == null)
-            transformer = Functions::cast;
-        try {
-            A fromValue = reader.apply(buf);
-            B toValue = transformer.apply(fromValue);
-            writer.accept(toValue);
-            debug("Saved decoded field '{}'", name);
-        } catch (Throwable e) {
-            error("Failed to decode field '{}' at position '{}'", startPosition);
-        }
     }
 }

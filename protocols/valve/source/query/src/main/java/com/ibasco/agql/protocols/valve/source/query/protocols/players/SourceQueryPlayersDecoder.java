@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.players;
 
-import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.function.Function;
 
 public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQueryPlayerRequest> {
 
@@ -40,53 +38,26 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
     }
 
     @Override
-    protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryPlayerRequest request, SourceQuerySinglePacket packet) {
-        //TODO: Caused by: java.lang.IndexOutOfBoundsException: readerIndex(712) + length(4) exceeds writerIndex(712): UnpooledSlicedByteBuf(ridx: 712, widx: 712, cap: 712/712, unwrapped: PooledUnsafeDirectByteBuf(ridx: 5, widx: 717, cap: 2048))
+    protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryPlayerRequest request, SourceQuerySinglePacket packet) throws Exception {
         ByteBuf payload = packet.content();
         ArrayList<SourcePlayer> playerList = new ArrayList<>();
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.readableBytes() > 0) {
             int playereCount = payload.readUnsignedByte();
-            debug(log,"Decoding player payload data (Player count: {})", playereCount);
+            debug(log, "Decoding player payload data (Player count: {})", playereCount);
             for (int i = 0; i < playereCount; i++) {
                 if (payload.readableBytes() < 10)
                     break;
                 debug(log, "Decoding player #{}", i);
-                short index = decodeField(i, "Index", (short) -1, payload, ByteBuf::readUnsignedByte);
-                String name = decodeField(i, "Name", "N/A", payload, buf -> NettyUtil.readString(buf, StandardCharsets.UTF_8));
-                int score = decodeField(i, "Score", -1, payload, ByteBuf::readIntLE);
-                float duration = decodeField(i, "Duration", -1f, payload, ByteBuf::readFloatLE);
+                short index = decodeField(i + ") Index", (short) -1, payload, ByteBuf::readUnsignedByte);
+                String name = decodeField(i + ") Name", "N/A", payload, buf -> NettyUtil.readString(buf, StandardCharsets.UTF_8));
+                int score = decodeField(i + ") Score", -1, payload, ByteBuf::readIntLE);
+                float duration = decodeField(i + ") Duration", -1f, payload, ByteBuf::readFloatLE);
                 playerList.add(new SourcePlayer(index, name, score, duration));
             }
         } else {
             debug(log, "Received an empty PLAYERS response");
         }
         return new SourceQueryPlayerResponse(playerList);
-    }
-
-    private <V> V decodeField(int index, String name, V defaultValue, ByteBuf payload, Function<ByteBuf, V> decoder) {
-        int readerIndex = payload.readerIndex();
-        if (!payload.isReadable()) {
-            debug("Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, payload.readerIndex(), payload.readableBytes());
-            return defaultValue;
-        }
-        V res;
-        try {
-            res = decoder.apply(payload);
-        } catch (Throwable error) {
-            try {
-                payload.markReaderIndex();
-                payload.readerIndex(readerIndex);
-                byte[] payloadData = NettyUtil.getBufferContents(payload);
-                String payloadDump = ByteUtil.toHexString(payloadData);
-                error("{}) Failed to decode packet into player data ({} bytes):\n{}", index, payloadData.length, payloadDump, error);
-            } finally {
-                payload.resetReaderIndex();
-                res = null;
-            }
-        }
-        res = res == null ? defaultValue : res;
-        debug(log, "\t{}) Decoded '{}' to '{}'", index, name, res);
-        return res;
     }
 }

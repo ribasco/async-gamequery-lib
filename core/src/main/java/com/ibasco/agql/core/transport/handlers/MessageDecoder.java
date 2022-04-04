@@ -58,6 +58,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
         try {
             log.debug("{} INB => Received incoming data from server of type: {} (Length: {} bytes)", context.id(), String.format("%s (%d)", msg.getClass().getSimpleName(), msg.hashCode()), getResponseLength(msg));
             Object decoded;
+            //TODO: Should we process addressedenvelope instances so we can retrieve sender address information?
             if (msg instanceof ByteBufHolder) {
                 decoded = ((ByteBufHolder) msg).content();
                 log.debug("{} INB => Passing decoded message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());

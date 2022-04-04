@@ -23,6 +23,7 @@ import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.transport.pool.PooledChannel;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.*;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -117,6 +118,23 @@ public class NettyUtil {
      */
     public static byte[] getBufferContents(ByteBuf buf) {
         return getBufferContents(buf, null);
+    }
+
+    public static String prettyHexDump(ByteBuf buf) {
+        return prettyHexDump(buf, true);
+    }
+
+    public static String prettyHexDump(ByteBuf buf, boolean dumpAll) {
+        int origIndex = -1;
+        try {
+            origIndex = buf.readerIndex();
+            if (dumpAll)
+                buf.readerIndex(0);
+            return ByteBufUtil.prettyHexDump(buf);
+        } finally {
+            if (origIndex >= 0)
+                buf.readerIndex(origIndex);
+        }
     }
 
     /**

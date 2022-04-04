@@ -55,7 +55,7 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
         this.responseHeader = responseHeader;
     }
 
-    abstract protected Object decodeQueryPacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket msg);
+    abstract protected Object decodeQueryPacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket msg) throws Exception;
 
     @Override
     protected final boolean acceptPacket(SourceQueryMessage msg) {
@@ -70,7 +70,7 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
     }
 
     @Override
-    protected final Object decodePacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket packet) {
+    protected final Object decodePacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket packet) throws Exception {
         //did we receive a challenge response from the server?
         if (packet.getHeader() == SourceQuery.SOURCE_QUERY_CHALLENGE_RES) {
             Envelope<AbstractRequest> envelope = getRequest();

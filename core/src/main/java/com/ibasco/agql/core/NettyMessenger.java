@@ -173,7 +173,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                 return;
             }
             if (error != null) {
-                log.error("{} MESSENGER => [ERROR] Notified client with error (Envelope: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
+                log.error("{} MESSENGER => [ERROR] Received response in error (Request: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
                 context.markInError(new ResponseException(error, context));
             } else {
                 assert response != null;
@@ -181,7 +181,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                     response.setAddress(context.properties().remoteAddress()); //source address
                 //attach response to context and mark as completed
                 if (context.markSuccess(response))
-                    log.debug("{} MESSENGER => [SUCCESS] Notified client with response (Envelope: '{}')", context.id(), envelope);
+                    log.debug("{} MESSENGER => [SUCCESS] Received response successfully (Request: '{}')", context.id(), envelope);
             }
             assert promise.isDone();
         } catch (Throwable e) {

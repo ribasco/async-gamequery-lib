@@ -17,9 +17,9 @@
 <configuration>
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
-        <!--<filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
-        </filter>-->
+        </filter>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
             <onMatch>DENY</onMatch>
@@ -54,7 +54,7 @@
             <level>ERROR</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %level %logger - %ex</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %level %logger - %msg%n%r %ex{full, com.ibasco}</pattern>
         </encoder>
     </appender>
 

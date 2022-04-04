@@ -414,14 +414,18 @@ public class NettyUtil {
         int readable = buffer.readableBytes();
         if (readable <= 0)
             return null;
-        if (readable > 1)
-            buffer.skipBytes(1);
         int length = buffer.bytesBefore((byte) 0);
         if (length < 0)
             return null;
         if (charset == null)
             charset = StandardCharsets.UTF_8;
-        return buffer.readCharSequence(length, charset).toString();
+
+        String data = buffer.readCharSequence(length, charset).toString();
+        //upon successful read, we need to advance the reader index by 1 so the next read operation
+        //will not start on the previous null-byte, which might be interpreted as null/empty.
+        if (buffer.isReadable())
+            buffer.skipBytes(1);
+        return data;
     }
 
     public static CompletableFuture<Void> close(Channel channel) {

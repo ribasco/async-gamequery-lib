@@ -70,7 +70,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     public NettyTransport(final Options options) {
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
-        if (log.isDebugEnabled())
+        if (log.isErrorEnabled())
             ResourceLeakDetector.setLevel(getOrDefault(TransportOptions.RESOURCE_LEAK_DETECTOR_LEVEL));
     }
     //</editor-fold>

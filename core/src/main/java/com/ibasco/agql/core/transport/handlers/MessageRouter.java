@@ -105,10 +105,10 @@ public class MessageRouter extends ChannelDuplexHandler {
                     }
                     //report back error
                     Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", response.getClass().getSimpleName(), context.properties().request()), cause);
+                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
                     //if we have an invalid packet, dump the packet for the logs
                     if (cause instanceof InvalidPacketException)
                         log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(((InvalidPacketException) cause).getData()));
-                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
                     context.receive(error);
                 }
             }

@@ -94,11 +94,11 @@ public class SourceQueryExample extends BaseExample {
                                                 //override default value, enable rate limiting (default is: false)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 15)
+                                                /*.option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 15)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
-                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)*/
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)

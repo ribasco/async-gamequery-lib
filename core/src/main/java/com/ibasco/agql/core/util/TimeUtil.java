@@ -18,7 +18,13 @@ package com.ibasco.agql.core.util;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import java.time.Duration;
+
 public class TimeUtil {
+
+    public static String getTimeDesc(Duration duration) {
+        return DurationFormatUtils.formatDuration(duration.toMillis(), "HH:mm:ss");
+    }
 
     public static String getTimeDesc(long millis) {
         return getTimeDesc(millis, false);

@@ -22,7 +22,7 @@
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>DEBUG</level>
+            <level>INFO</level>
         </filter>
         <filter class="ch.qos.logback.classic.filter.LevelFilter">
             <level>ERROR</level>
@@ -45,9 +45,18 @@
         <append>false</append>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>com.ibasco.agql.core.exceptions.TimeoutException.class.isInstance(throwable)</expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
         </filter>
         <encoder>
-            <pattern>%-8relative |%-20thread| %-6level | %-25logger{0} | %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg %ex{2}%nopex%n</pattern>
         </encoder>
     </appender>
 
@@ -56,6 +65,15 @@
         <append>false</append>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
+            <evaluator>
+                <expression>com.ibasco.agql.core.exceptions.TimeoutException.class.isInstance(throwable)</expression>
+            </evaluator>
+            <onMatch>DENY</onMatch>
+            <onMismatch>ACCEPT</onMismatch>
         </filter>
         <encoder>
             <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg%n%ex{full, DISPLAY_EX_EVAL}</pattern>
@@ -73,5 +91,5 @@
     </root>
 
     <logger name="io.netty" level="error"/>
-    <logger name="com.ibasco" level="error"/>
+    <logger name="com.ibasco" level="debug"/>
 </configuration>

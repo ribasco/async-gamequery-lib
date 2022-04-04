@@ -32,6 +32,8 @@ import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 import dev.failsafe.*;
+import dev.failsafe.event.EventListener;
+import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +102,21 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
+        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceQueryResponse>>() {
+            @Override
+            public void accept(ExecutionCompletedEvent<SourceQueryResponse> event) throws Throwable {
+                log.error("Maximum number of attempts reached (Attempts: {}, Started: {} ago, Elapsed: {}, Last Exception: {})", event.getAttemptCount(), TimeUtil.getTimeDesc(event.getStartTime()), TimeUtil.getTimeDesc(event.getElapsedTime()), simplify(event.getException()));
+            }
+
+            public Object simplify(Throwable error) {
+                if (error == null)
+                    return "N/A";
+                if (error instanceof TimeoutException) {
+                    return error.getClass().getSimpleName();
+                }
+                return error;
+            }
+        });
         return builder.build();
     }
 

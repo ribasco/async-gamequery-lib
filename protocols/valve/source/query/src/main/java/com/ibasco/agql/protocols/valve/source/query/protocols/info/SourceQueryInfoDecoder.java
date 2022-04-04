@@ -67,7 +67,7 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
             //do we still have more bytes to process?
             if (!buf.isReadable()) {
-                warn("Extra data flags not available for server. Skipping decode.");
+                debug("The server '{}' did not contain any Extra Data Flags information we could decode. Skipping this process.", getContext().properties().envelope().recipient());
                 return new SourceQueryInfoResponse(info);
             }
 

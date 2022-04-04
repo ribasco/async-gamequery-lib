@@ -131,7 +131,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             return;
         }
         if (!buf.isReadable()) {
-            debug("[O1] Skipped decoding flag '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O1] Skipped decoding flag '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
@@ -165,7 +165,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             return;
         }
         if (!buf.isReadable()) {
-            error("[O2] Skipped decoding flag '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O3] Skipped decoding flag '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
@@ -195,7 +195,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     protected <A, B> void decodeField(String name, ByteBuf buf, Supplier<A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[O3] Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O3] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
@@ -225,7 +225,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     protected <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[O4] Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O4] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return;
         }
         int startPosition = buf.readerIndex();
@@ -251,7 +251,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     protected <V> V decodeField(String name, V defaultValue, ByteBuf buf, Function<ByteBuf, V> decoder) throws DecodeException {
         if (!buf.isReadable()) {
-            error("[5] Skipped decoding for field '{}'. Buffer no longer readable (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
+            error("[O5] Skipped decoding field '{}'. Buffer no longer readable. Packet was received in an incomplete/truncated state. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
             return defaultValue;
         }
         int startPosition = buf.readerIndex();

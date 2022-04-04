@@ -24,6 +24,7 @@ import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.transport.pool.PooledChannel;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
@@ -118,6 +119,10 @@ public class NettyUtil {
      */
     public static byte[] getBufferContents(ByteBuf buf) {
         return getBufferContents(buf, null);
+    }
+
+    public static String prettyHexDump(byte[] buf) {
+        return prettyHexDump(Unpooled.copiedBuffer(buf));
     }
 
     public static String prettyHexDump(ByteBuf buf) {

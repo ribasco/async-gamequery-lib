@@ -15,6 +15,10 @@
   -->
 
 <configuration>
+    <evaluator name="DISPLAY_EX_EVAL">
+        <expression>throwable != null &amp;&amp; throwable instanceof com.ibasco.agql.core.exceptions.ReadTimeoutException</expression>
+    </evaluator>
+
     <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
         <target>System.out</target>
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
@@ -54,7 +58,11 @@
             <level>ERROR</level>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%thread] %level %logger - %msg%n%r %ex{full, com.ibasco}</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg%n%ex{full, DISPLAY_EX_EVAL}</pattern>
+            <!--<pattern>%d{HH:mm:ss.SSS} | %-5level | %thread | %logger{1} | %m%n%rEx{full,
+                com.ibasco.agql.core.exceptions.ReadTimeoutException
+                }
+            </pattern>-->
         </encoder>
     </appender>
 

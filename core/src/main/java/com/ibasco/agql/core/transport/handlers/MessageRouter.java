@@ -31,8 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
@@ -47,8 +45,6 @@ public class MessageRouter extends ChannelDuplexHandler {
     public static final String NAME = "messageRouter";
 
     private static final Logger log = LoggerFactory.getLogger(MessageRouter.class);
-
-    public static final Marker UNFREED_RESOURCE = MarkerFactory.getMarker("UNFREED_RESOURCE");
 
     private static final ChannelFutureListener REGISTER_READ_TIMEOUT = future -> {
         Channel ch = future.channel();
@@ -97,20 +93,21 @@ public class MessageRouter extends ChannelDuplexHandler {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
                     if (response instanceof ByteBuf) {
-                        ByteBuf buf = (ByteBuf) response;
-                        cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", NettyUtil.getBufferContentsAll(buf));
-                        log.error("{} ROUTER (ERROR) => Packet Dump of raw ByteBuf '{} of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(buf));
+                        byte[] data =  NettyUtil.getBufferContentsAll((ByteBuf) response);
+                        cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
                     }
                     //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
                     else if (response instanceof AbstractPacket) {
-                        ByteBuf buf = ((AbstractPacket) response).content();
-                        cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", NettyUtil.getBufferContentsAll(buf));
-                        log.error("{} ROUTER (ERROR) => Packet Dump of Packet type '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(buf));
+                        byte[] data =  NettyUtil.getBufferContentsAll(((AbstractPacket) response).content());
+                        cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", data);
                     } else {
                         cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));
                     }
                     //report back error
                     Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", response.getClass().getSimpleName(), context.properties().request()), cause);
+                    //if we have an invalid packet, dump the packet for the logs
+                    if (cause instanceof InvalidPacketException)
+                        log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(((InvalidPacketException) cause).getData()));
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
                     context.receive(error);
                 }

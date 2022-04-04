@@ -20,7 +20,6 @@ import com.ibasco.agql.core.*;
 import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
-import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.buffer.ByteBuf;
@@ -98,15 +97,15 @@ public class MessageRouter extends ChannelDuplexHandler {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
                     if (response instanceof ByteBuf) {
-                        byte[] data = NettyUtil.getBufferContentsAll((ByteBuf) response);
-                        cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
-                        log.error("{} ROUTER (ERROR) => Packet Dump of raw ByteBuf '{} of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
+                        ByteBuf buf = (ByteBuf) response;
+                        cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", NettyUtil.getBufferContentsAll(buf));
+                        log.error("{} ROUTER (ERROR) => Packet Dump of raw ByteBuf '{} of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(buf));
                     }
                     //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
                     else if (response instanceof AbstractPacket) {
-                        byte[] data = NettyUtil.getBufferContentsAll(((AbstractPacket) response).content());
-                        cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", data);
-                        log.error("{} ROUTER (ERROR) => Packet Dump of Packet type '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), ByteUtil.toHexString(data));
+                        ByteBuf buf = ((AbstractPacket) response).content();
+                        cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", NettyUtil.getBufferContentsAll(buf));
+                        log.error("{} ROUTER (ERROR) => Packet Dump of Packet type '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(buf));
                     } else {
                         cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));
                     }

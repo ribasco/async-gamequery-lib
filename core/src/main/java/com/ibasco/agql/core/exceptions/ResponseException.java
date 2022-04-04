@@ -20,7 +20,7 @@ import com.ibasco.agql.core.NettyChannelContext;
 
 import java.util.concurrent.CompletionException;
 
-public final class ResponseException extends CompletionException {
+public class ResponseException extends CompletionException {
 
     private final NettyChannelContext context;
 

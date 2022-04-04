@@ -19,6 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
 import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
@@ -62,6 +63,29 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private final boolean failsafeEnabled;
 
+    private final EventListener<ExecutionCompletedEvent<SourceQueryResponse>> retryExceededListener = new EventListener<ExecutionCompletedEvent<SourceQueryResponse>>() {
+        @Override
+        public void accept(ExecutionCompletedEvent<SourceQueryResponse> event) throws Throwable {
+            if (event.getException() instanceof MaxAttemptsReachedException) {
+                MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
+                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), TimeUtil.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
+            } else {
+                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), event.getException());
+            }
+        }
+
+        //if its a timeout exception, just return the name. we do not need to
+        // print the whole stacktrace for these types of exceptions
+        public Object simplify(Throwable error) {
+            if (error == null)
+                return "N/A";
+            if (error instanceof TimeoutException) {
+                return error.getClass().getSimpleName();
+            }
+            return error;
+        }
+    };
+
     public SourceQueryMessenger(Options options) {
         super(options);
         this.failsafeEnabled = getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED);
@@ -88,7 +112,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     }
 
     private RetryPolicy<SourceQueryResponse> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<SourceQueryResponse> builder = RetryPolicy.<SourceQueryResponse>builder().handleIf(e -> ConcurrentUtil.unwrap(e) instanceof TimeoutException || e instanceof ResponseException);
+        RetryPolicyBuilder<SourceQueryResponse> builder = RetryPolicy.<SourceQueryResponse>builder();
         Long retryDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_DELAY);
         Integer maxAttempts = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
         Boolean backOffEnabled = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED);
@@ -102,21 +126,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
-        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceQueryResponse>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<SourceQueryResponse> event) throws Throwable {
-                log.error("Maximum number of attempts reached (Attempts: {}, Started: {} ago, Elapsed: {}, Last Exception: {})", event.getAttemptCount(), TimeUtil.getTimeDesc(event.getStartTime()), TimeUtil.getTimeDesc(event.getElapsedTime()), simplify(event.getException()));
-            }
-
-            public Object simplify(Throwable error) {
-                if (error == null)
-                    return "N/A";
-                if (error instanceof TimeoutException) {
-                    return error.getClass().getSimpleName();
-                }
-                return error;
-            }
-        });
+        builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }
 
@@ -217,21 +227,27 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     }
 
     private SourceQueryResponse response(NettyChannelContext context, Throwable error) {
-        if (error != null) {
-            if (error instanceof ResponseException) {
-                ResponseException responseEx = (ResponseException) error;
-                context = responseEx.getContext();
-                log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
-                context.close();
-                throw responseEx;
+        try {
+            if (error != null) {
+                if (error instanceof ResponseException) {
+                    ResponseException responseEx = (ResponseException) error;
+                    context = responseEx.getContext();
+                    log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
+                    throw responseEx;
+                } else {
+                    throw new CompletionException(ConcurrentUtil.unwrap(error));
+                }
+            } else {
+                assert context != null;
+                SourceQueryResponse response = context.properties().response();
+                if (response == null)
+                    throw new IllegalStateException("Missing response: " + context);
+                return response;
             }
-            throw new CompletionException(ConcurrentUtil.unwrap(error));
+        } finally {
+            if (context != null)
+                context.close();
         }
-        SourceQueryResponse response = context.properties().response();
-        if (response == null)
-            throw new IllegalStateException("Missing response: " + context);
-        context.close();
-        return response;
     }
 
     private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse, CompletableFuture<SourceQueryResponse>> {
@@ -248,7 +264,24 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         @Override
         public CompletableFuture<SourceQueryResponse> get(ExecutionContext<SourceQueryResponse> context) throws Throwable {
             log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {}, Last Error: {})", address, request, context.getAttemptCount(), context.getLastException() != null ? context.getLastException().getClass().getSimpleName() : "N/A");
-            return sendQuery(address, request);
+            return sendQuery(address, request).handle((response, error) -> handleTimeouts(response, error, context));
+        }
+
+        public SourceQueryResponse handleTimeouts(SourceQueryResponse response, Throwable error, ExecutionContext<SourceQueryResponse> executionContext) {
+            if (error != null) {
+                if (error instanceof ResponseException) {
+                    Throwable cause = ConcurrentUtil.unwrap(error);
+                    NettyChannelContext ctx = ((ResponseException) error).getContext();
+                    int maxAttemptCount = retryPolicy.getConfig().getMaxAttempts();
+                    int attemptCount = executionContext.getAttemptCount() + 1;
+                    if (attemptCount >= maxAttemptCount) {
+                        throw new CompletionException(new MaxAttemptsReachedException(cause, ctx.properties().envelope().recipient(), ctx.properties().request(), attemptCount, maxAttemptCount));
+                    }
+                    throw (ResponseException) error;
+                }
+                throw new CompletionException(ConcurrentUtil.unwrap(error));
+            }
+            return response;
         }
     }
 }

@@ -150,7 +150,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         if (this.packets != null) {
             for (SourceQuerySplitPacket packet : packets) {
                 log.debug("ASSEMBLER => Releasing incomplete split-packets: {}", packet);
-                ReferenceCountUtil.release(packet);
+                ReferenceCountUtil.safeRelease(packet);
             }
         }
         this.packets = null;

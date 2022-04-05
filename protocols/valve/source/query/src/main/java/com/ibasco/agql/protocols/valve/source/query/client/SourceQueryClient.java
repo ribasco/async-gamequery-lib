@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -263,6 +262,46 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
         return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class);
     }
+
+    /**
+     * <p>
+     * Retrieve a list of active players in the server. Please note that this method sends an initial
+     * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType,
+     * InetSocketAddress)}.
+     * If you plan to use this method more than once for the same address, please consider using {@link
+     * #getPlayersCached(InetSocketAddress)} instead.
+     * </p>
+     *
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     *
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
+     * the server
+     *
+     * @see #getPlayers(InetSocketAddress, Integer)
+     */
+    public CompletableFuture<SourceQueryPlayerResponse> getPlayers(InetSocketAddress address) {
+        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class);
+    }
+
+    /**
+     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server
+     * first.</p>
+     *
+     * @param challenge
+     *         A 32-bit signed integer anti-spoofing challenge number. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getPlayers(InetSocketAddress)})
+     * @param address
+     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
+     *
+     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
+     * the server
+     *
+     * @see #getPlayers(InetSocketAddress)
+     * @see #getChallenge(InetSocketAddress, SourceChallengeType)
+     */
+    public CompletableFuture<List<SourcePlayer>> getPlayers(InetSocketAddress address, Integer challenge) {
+        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
+    }
     //</editor-fold>
 
     //<editor-fold desc="Deprecated API">
@@ -296,53 +335,6 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     @ApiStatus.ScheduledForRemoval
     public CompletableFuture<SourceServer> getServerInfo(InetSocketAddress address) {
         return send(address, new SourceQueryInfoRequest(), SourceQueryInfoResponse.class).thenApply(SourceQueryResponse::getResult);
-    }
-
-    /**
-     * <p>
-     * Retrieve a list of active players in the server. Please note that this method sends an initial
-     * challenge request (Total of 5 bytes) to the server using {@link #getServerChallenge(SourceChallengeType,
-     * InetSocketAddress)}.
-     * If you plan to use this method more than once for the same address, please consider using {@link
-     * #getPlayersCached(InetSocketAddress)} instead.
-     * </p>
-     *
-     * @param address
-     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
-     *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
-     * the server
-     *
-     * @see #getPlayers(Integer, InetSocketAddress)
-     * @deprecated The return value of the future will be replaced by {@link SourceQueryPlayerResponse}
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval
-    public CompletableFuture<Collection<SourcePlayer>> getPlayers(InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
-    }
-
-    /**
-     * <p>Retrieve a list of active players in the server. You NEED to obtain a valid challenge number from the server
-     * first.</p>
-     *
-     * @param challenge
-     *         A 32-bit signed integer anti-spoofing challenge number. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getPlayers(InetSocketAddress)})
-     * @param address
-     *         The {@link InetSocketAddress} containing the ip address and port number information of the target server
-     *
-     * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
-     * the server
-     *
-     * @see #getPlayers(InetSocketAddress)
-     * @see #getServerChallenge(SourceChallengeType, InetSocketAddress)
-     * @see #getServerChallengeFromCache(InetSocketAddress)
-     * @deprecated The return value of the future will be replaced by {@link SourceQueryPlayerResponse}
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval
-    public CompletableFuture<List<SourcePlayer>> getPlayers(Integer challenge, InetSocketAddress address) {
-        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
     }
 
     /**
@@ -479,14 +471,14 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @return A {@link CompletableFuture} that contains a {@link List} of {@link SourcePlayer} currently residing on
      * the server
      *
-     * @see #getPlayers(Integer, InetSocketAddress)
+     * @see #getPlayers(InetSocketAddress, Integer)
      * @see #getServerChallengeFromCache(InetSocketAddress)
      * @deprecated This will be removed in the next major release. Please use {@link #getPlayers(InetSocketAddress)} instead
      */
     @Deprecated
     @ApiStatus.ScheduledForRemoval
     public CompletableFuture<List<SourcePlayer>> getPlayersCached(InetSocketAddress address) {
-        return getServerChallengeFromCache(address).thenCompose(challenge -> getPlayers(challenge, address));
+        return getServerChallengeFromCache(address).thenCompose(challenge -> getPlayers(address, challenge));
     }
 
     /**

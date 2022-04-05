@@ -17,6 +17,8 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.AbstractClient;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
@@ -25,9 +27,14 @@ import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceQueryClient;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.pojos.SourceServer;
+import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryInfoRequest;
 import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryInfoResponse;
+import com.ibasco.agql.protocols.valve.source.query.protocols.players.SourceQueryPlayerRequest;
+import com.ibasco.agql.protocols.valve.source.query.protocols.players.SourceQueryPlayerResponse;
+import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesRequest;
 import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesResponse;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
@@ -43,12 +50,20 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+/**
+ * Advanced example for executing batch asynchronous queries
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryExample.class);
@@ -101,7 +116,7 @@ public class SourceQueryExample extends BaseExample {
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
-                                                .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                .option(TransportOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
                                                 .option(TransportOptions.READ_TIMEOUT, 1000)
                                                 .build();
@@ -126,7 +141,7 @@ public class SourceQueryExample extends BaseExample {
         Boolean queryAllServers = promptInputBool("Query all available servers? (y/n)", true, "y", "queryAllServers");
         long start, end;
 
-        final SourceQueryAggregateProcessor processor = new SourceQueryAggregateProcessor();
+        final QueryAggregateProcessor processor = new QueryAggregateProcessor();
         final Phaser phaser = new Phaser();
 
         int total = 0;
@@ -166,9 +181,9 @@ public class SourceQueryExample extends BaseExample {
         printLine();
         System.out.flush();
 
-        for (Map.Entry<SourceQueryType, SourceQueryStatCounter> entry : processor.getStats().entrySet()) {
+        for (Map.Entry<QueryType, QueryStatsCounter> entry : processor.getStats().entrySet()) {
             String name = entry.getKey().name();
-            SourceQueryStatCounter stat = entry.getValue();
+            QueryStatsCounter stat = entry.getValue();
             System.out.printf("\033[0;33m%-10s\033[0m (\033[1;32mSuccess\033[0m: %05d, \033[1;31mFailure\033[0m: %05d, Total: %05d)\n", name, stat.getSuccessCount(), stat.getFailureCount(), stat.getTotalCount());
         }
         System.out.flush();
@@ -250,7 +265,7 @@ public class SourceQueryExample extends BaseExample {
      * @param filter
      *         {@link MasterServerFilter}
      */
-    private int fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, SourceQueryAggregateProcessor processor) {
+    private int fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, QueryAggregateProcessor processor) {
         final AtomicInteger addressCtr = new AtomicInteger();
         //fetch server list and block the main thread until it completes
         masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
@@ -273,18 +288,16 @@ public class SourceQueryExample extends BaseExample {
      *
      * @return A {@link CompletableFuture} that is notified once all the responses from each type of query have been received.
      */
-    private CompletableFuture<SourceQueryAggregate> queryServer(final InetSocketAddress address, final Phaser phaser) {
-        SourceQueryAggregate result = new SourceQueryAggregate(address, phaser);
+    private CompletableFuture<QueryAggregate> queryServer(final InetSocketAddress address, final Phaser phaser) {
+        QueryAggregate result = new QueryAggregate(address, phaser);
         if (MasterServer.isTerminatingAddress(address))
             return ConcurrentUtil.failedFuture(new IllegalArgumentException("Invalid address: " + address));
         //we register three parties for the info, player and rules requests
         phaser.bulkRegister(3);
-        //int challenge = queryClient.getChallenge(address, SourceChallengeType.RULES).thenApply(SourceQueryChallengeResponse::getResult).join();
-        //System.out.printf("GOT CHALLENGE: %d\n", challenge);
         return CompletableFuture.completedFuture(result)
-                                .thenCombine(queryClient.getInfo(address).thenApply(SourceQueryInfoResponse::getResult).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
-                                .thenCombine(queryClient.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
-                                .thenCombine(queryClient.getRules(address).thenApply(SourceQueryRulesResponse::getResult).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
+                                .thenCombine(queryClient.getInfo(address).handle(QueryResponse.ofInfoType()), result::aggregate)
+                                .thenCombine(queryClient.getPlayers(address).handle(QueryResponse.ofPlayerType()), result::aggregate)
+                                .thenCombine(queryClient.getRules(address).handle(QueryResponse.ofRulesType()), result::aggregate);
     }
 
     @Override
@@ -303,137 +316,237 @@ public class SourceQueryExample extends BaseExample {
             System.out.println("(CLOSE) \033[0;35mMaster query executor gracefully shutdown\033[0m");
     }
 
+    //<editor-fold desc="Private class/enum">
+
     /**
      * Enumeration for identifying the type of source query
      */
-    private enum SourceQueryType {
-        INFO,
-        PLAYERS,
-        RULES
+    private enum QueryType {
+        INFO(SourceQueryInfoRequest.class, SourceQueryInfoResponse.class),
+        PLAYERS(SourceQueryPlayerRequest.class, SourceQueryPlayerResponse.class),
+        RULES(SourceQueryRulesRequest.class, SourceQueryRulesResponse.class);
+
+        private final Class<? extends AbstractRequest> requestClass;
+
+        private final Class<? extends AbstractResponse> responseClass;
+
+        QueryType(Class<? extends AbstractRequest> requestClass, Class<? extends AbstractResponse> responseClass) {
+            this.requestClass = requestClass;
+            this.responseClass = responseClass;
+        }
+
+        public Class<? extends AbstractRequest> getRequestClass() {
+            return requestClass;
+        }
+
+        public Class<? extends AbstractResponse> getResponseClass() {
+            return responseClass;
+        }
     }
 
     /**
-     * An aggregate for INFO, PLAYER and RULES queries for a specific server {@link InetSocketAddress}
+     * A resposne container for a specific {@link QueryType} which stores both {@link SourceQueryResponse} and {@link Throwable} values (whichever is returned).
      */
-    private static class SourceQueryAggregate {
+    private static class QueryResponse<T> {
+
+        private SourceQueryResponse<T> response;
+
+        private Throwable error;
+
+        private final QueryType type;
+
+        private QueryResponse(final QueryType type) {
+            this.type = type;
+        }
+
+        public QueryType getQueryType() {
+            return type;
+        }
+
+        public SourceQueryResponse<T> getResponse() {
+            return response;
+        }
+
+        public Throwable getError() {
+            return error;
+        }
+
+        public boolean hasResponse() {
+            return response != null;
+        }
+
+        public boolean hasError() {
+            return error != null;
+        }
+
+        private QueryResponse save(SourceQueryResponse<T> response, Throwable error) {
+            this.response = response;
+            this.error = error;
+            return this;
+        }
+
+        public static <V, Q extends SourceQueryResponse<V>> BiFunction<Q, Throwable, QueryResponse<V>> ofType(QueryType type) {
+            return new QueryResponse<V>(type)::save;
+        }
+
+        public static BiFunction<SourceQueryInfoResponse, Throwable, QueryResponse<SourceServer>> ofInfoType() {
+            return ofType(QueryType.INFO);
+        }
+
+        public static BiFunction<SourceQueryPlayerResponse, Throwable, QueryResponse<List<SourcePlayer>>> ofPlayerType() {
+            return ofType(QueryType.PLAYERS);
+        }
+
+        public static BiFunction<SourceQueryRulesResponse, Throwable, QueryResponse<Map<String, String>>> ofRulesType() {
+            return ofType(QueryType.RULES);
+        }
+    }
+
+    /**
+     * An aggregate for INFO, PLAYER and RULES queries for a specific server {@link InetSocketAddress}. All the
+     */
+    private static class QueryAggregate {
 
         private final InetSocketAddress address;
 
-        private SourceServer info;
+        private QueryResponse<SourceServer> infoQuery;
 
-        private Collection<SourcePlayer> players;
+        private QueryResponse<Collection<SourcePlayer>> playersQuery;
 
-        private Map<String, String> rules;
-
-        private final Map<SourceQueryType, Throwable> status = new HashMap<>();
+        private QueryResponse<Map<String, String>> rulesQuery;
 
         private final Phaser phaser;
 
-        private SourceQueryAggregate(final InetSocketAddress address, final Phaser phaser) {
+        private QueryAggregate(final InetSocketAddress address, final Phaser phaser) {
             this.address = address;
             this.phaser = phaser;
         }
 
-        private SourceServer getInfo() {
-            return info;
+        private QueryResponse<SourceServer> infoQuery() {
+            return infoQuery;
         }
 
-        private Collection<SourcePlayer> getPlayers() {
-            return players;
+        private void infoQuery(QueryResponse<SourceServer> infoQuery) {
+            this.infoQuery = infoQuery;
         }
 
-        private Map<String, String> getRules() {
-            return rules;
+        private QueryResponse<Collection<SourcePlayer>> playersQuery() {
+            return playersQuery;
+        }
+
+        private void playersQuery(QueryResponse<Collection<SourcePlayer>> playersQuery) {
+            this.playersQuery = playersQuery;
+        }
+
+        private QueryResponse<Map<String, String>> rulesQuery() {
+            return rulesQuery;
+        }
+
+        private void rulesQuery(QueryResponse<Map<String, String>> rulesQuery) {
+            this.rulesQuery = rulesQuery;
         }
 
         private InetSocketAddress getAddress() {
             return address;
         }
 
-        private Throwable getError(SourceQueryType type) {
-            return ConcurrentUtil.unwrap(status.get(type));
+        private Throwable getError(QueryType type) {
+            switch (type) {
+                case INFO: {
+                    if (infoQuery == null)
+                        return null;
+                    return infoQuery.getError();
+                }
+                case PLAYERS: {
+                    if (playersQuery == null)
+                        return null;
+                    return playersQuery.getError();
+                }
+                case RULES: {
+                    if (rulesQuery == null)
+                        return null;
+                    return rulesQuery.getError();
+                }
+                default: {
+                    throw new IllegalStateException("Invalid query type");
+                }
+            }
         }
 
         private boolean hasError() {
-            return status.entrySet().stream().anyMatch(e -> e.getValue() != null);
+            return infoQuery.hasError() || playersQuery.hasError() || rulesQuery.hasError();
         }
 
-        private boolean hasError(SourceQueryType type) {
-            return status.get(type) != null;
+        private boolean hasError(QueryType type) {
+            switch (type) {
+                case INFO: {
+                    return infoQuery != null && infoQuery.hasError();
+                }
+                case PLAYERS: {
+                    return playersQuery != null && playersQuery.hasError();
+                }
+                case RULES: {
+                    return rulesQuery != null && rulesQuery.hasError();
+                }
+                default: {
+                    throw new IllegalStateException("Invalid query type");
+                }
+            }
         }
 
         /**
-         * A factory method which returns a callback for processing the specified {@link SourceQueryType}. Once a response has been received, the callback generated by this menthod
-         * will be notified and data (response or error) will be stored in this instance.
+         * A function which collects the recieved {@link QueryResponse} for the specific {@link QueryType}
          *
-         * @param responseType
-         *         The {@link SourceQueryType} identifying the type of response (INFO, PLAYER or RULES) the generated callback will process.
-         * @param <R>
-         *         Type of the response
+         * @param aggregate
+         *         The {@link QueryAggregate} which holds all resulting queries for an {@link InetSocketAddress}
+         * @param queryResponse
+         *         The {@link QueryResponse} to be collected and stored
          *
-         * @return A {@link BiFunction} callback that is notified once a response/error is has been received
+         * @return A {@link QueryAggregate} instance
          */
         @SuppressWarnings("unchecked")
-        private <R> BiFunction<R, Throwable, SourceQueryAggregate> ofType(final SourceQueryType responseType) {
-            return (response, error) -> {
-                try {
-                    boolean hasError = error != null;
-                    if (hasError)
-                        status.put(responseType, error);
-                    switch (responseType) {
-                        case INFO: {
-                            if (hasError) {
-                                SourceQueryAggregate.this.info = null;
-                            } else {
-                                SourceQueryAggregate.this.info = (SourceServer) response;
-                            }
-                            break;
-                        }
-                        case PLAYERS: {
-                            if (hasError) {
-                                SourceQueryAggregate.this.players = new ArrayList<>();
-                            } else {
-                                SourceQueryAggregate.this.players = (List<SourcePlayer>) response;
-                            }
-                            break;
-                        }
-                        case RULES: {
-                            if (hasError) {
-                                SourceQueryAggregate.this.rules = new HashMap<>();
-                            } else {
-                                SourceQueryAggregate.this.rules = (Map<String, String>) response;
-                            }
-                            break;
-                        }
-                        default:
-                            throw new IllegalStateException("Invalid result recieved from server: " + response);
+        private <X> QueryAggregate aggregate(QueryAggregate aggregate, QueryResponse<X> queryResponse) {
+            try {
+                switch (queryResponse.getQueryType()) {
+                    case INFO: {
+                        assert queryResponse.getResponse() instanceof SourceQueryInfoResponse;
+                        aggregate.infoQuery((QueryResponse<SourceServer>) queryResponse);
+                        break;
                     }
-                    return SourceQueryAggregate.this;
-                } finally {
-                    phaser.arriveAndDeregister();
+                    case PLAYERS: {
+                        assert queryResponse.getResponse() instanceof SourceQueryPlayerResponse;
+                        aggregate.playersQuery((QueryResponse<Collection<SourcePlayer>>) queryResponse);
+                        break;
+                    }
+                    case RULES: {
+                        assert queryResponse.getResponse() instanceof SourceQueryRulesResponse;
+                        aggregate.rulesQuery((QueryResponse<Map<String, String>>) queryResponse);
+                        break;
+                    }
                 }
-            };
+                return this;
+            } finally {
+                phaser.arriveAndDeregister();
+            }
         }
     }
 
     /**
-     * A stat counter for a specific {@link SourceQueryType}
+     * A stat counter for a specific {@link QueryType}
      */
-    private static class SourceQueryStatCounter {
+    private static class QueryStatsCounter {
 
-        private final SourceQueryType type;
-
-        //private final SetMultimap<InetSocketAddress, Throwable> errorMap = MultimapBuilder.SetMultimapBuilder;
+        private final QueryType type;
 
         private final AtomicInteger successCount = new AtomicInteger();
 
         private final AtomicInteger failureCount = new AtomicInteger();
 
-        private SourceQueryStatCounter(SourceQueryType type) {
+        private QueryStatsCounter(QueryType type) {
             this.type = type;
         }
 
-        public SourceQueryType getType() {
+        public QueryType getType() {
             return type;
         }
 
@@ -459,26 +572,26 @@ public class SourceQueryExample extends BaseExample {
     }
 
     /**
-     * A class for processing {@link SourceQueryAggregate} instances (For Collecting statistics)
+     * A class for processing {@link QueryAggregate} instances (For Collecting statistics)
      */
-    private class SourceQueryAggregateProcessor implements BiConsumer<SourceQueryAggregate, Throwable> {
+    private class QueryAggregateProcessor implements BiConsumer<QueryAggregate, Throwable> {
 
         private final AtomicInteger counter = new AtomicInteger();
 
-        private final Map<SourceQueryType, SourceQueryStatCounter> stats = new ConcurrentHashMap<>();
+        private final Map<QueryType, QueryStatsCounter> stats = new ConcurrentHashMap<>();
 
         @Override
-        public synchronized void accept(SourceQueryAggregate result, Throwable error) {
+        public synchronized void accept(QueryAggregate result, Throwable error) {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
 
-            SourceQueryStatCounter infoCounter = stats.computeIfAbsent(SourceQueryType.INFO, SourceQueryStatCounter::new);
-            SourceQueryStatCounter playerCounter = stats.computeIfAbsent(SourceQueryType.PLAYERS, SourceQueryStatCounter::new);
-            SourceQueryStatCounter rulesCounter = stats.computeIfAbsent(SourceQueryType.RULES, SourceQueryStatCounter::new);
+            QueryStatsCounter infoCounter = stats.computeIfAbsent(QueryType.INFO, QueryStatsCounter::new);
+            QueryStatsCounter playerCounter = stats.computeIfAbsent(QueryType.PLAYERS, QueryStatsCounter::new);
+            QueryStatsCounter rulesCounter = stats.computeIfAbsent(QueryType.RULES, QueryStatsCounter::new);
 
-            Throwable infoError = result.getError(SourceQueryType.INFO);
-            Throwable playerError = result.getError(SourceQueryType.PLAYERS);
-            Throwable rulesError = result.getError(SourceQueryType.RULES);
+            Throwable infoError = result.getError(QueryType.INFO);
+            Throwable playerError = result.getError(QueryType.PLAYERS);
+            Throwable rulesError = result.getError(QueryType.RULES);
 
             //process info
             if (infoError != null) {
@@ -508,20 +621,20 @@ public class SourceQueryExample extends BaseExample {
                               counter.incrementAndGet(),
                               result.getAddress().getHostString(),
                               result.getAddress().getPort(),
-                              formatResult(result, SourceQueryType.PLAYERS),
-                              formatResult(result, SourceQueryType.RULES),
-                              formatResult(result, SourceQueryType.INFO)
+                              formatResult(result, QueryType.PLAYERS),
+                              formatResult(result, QueryType.RULES),
+                              formatResult(result, QueryType.INFO)
             );
             System.out.flush();
         }
 
-        public Map<SourceQueryType, SourceQueryStatCounter> getStats() {
+        public Map<QueryType, QueryStatsCounter> getStats() {
             return stats;
         }
 
-        private String formatResult(SourceQueryAggregate result, SourceQueryType type) {
+        private String formatResult(QueryAggregate aggregate, QueryType type) {
             final int padSize = 20;
-            Throwable error = result.getError(type);
+            Throwable error = ConcurrentUtil.unwrap(aggregate.getError(type));
             String data;
             if (error != null) {
                 if (error instanceof NullPointerException) {
@@ -531,15 +644,15 @@ public class SourceQueryExample extends BaseExample {
             } else {
                 switch (type) {
                     case INFO: {
-                        data = result.getInfo() != null ? result.getInfo().getName() : "N/A";
+                        data = aggregate.infoQuery().hasResponse() ? aggregate.infoQuery().getResponse().getResult().getName() : "N/A";
                         break;
                     }
                     case PLAYERS: {
-                        data = result.getPlayers() != null ? String.valueOf(result.getPlayers().size()) : "N/A";
+                        data = aggregate.playersQuery().hasResponse() ? String.valueOf(aggregate.playersQuery().getResponse().getResult().size()) : "N/A";
                         break;
                     }
                     case RULES: {
-                        data = result.getRules() != null ? String.valueOf(result.getRules().size()) : "N/A";
+                        data = aggregate.rulesQuery().hasResponse() ? String.valueOf(aggregate.rulesQuery().getResponse().getResult().size()) : "N/A";
                         break;
                     }
                     default: {
@@ -563,4 +676,5 @@ public class SourceQueryExample extends BaseExample {
             }
         }
     }
+    //</editor-fold>
 }

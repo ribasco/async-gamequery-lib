@@ -46,7 +46,6 @@
         <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
             <level>DEBUG</level>
             <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
         </filter>
         <filter class="ch.qos.logback.core.filter.EvaluatorFilter">
             <evaluator>

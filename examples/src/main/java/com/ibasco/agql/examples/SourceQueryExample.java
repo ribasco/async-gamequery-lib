@@ -118,7 +118,7 @@ public class SourceQueryExample extends BaseExample {
                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
-                                                .option(TransportOptions.READ_TIMEOUT, 1000)
+                                                .option(TransportOptions.READ_TIMEOUT, 3000)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
 

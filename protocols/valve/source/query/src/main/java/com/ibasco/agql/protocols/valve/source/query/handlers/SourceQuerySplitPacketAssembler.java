@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.PacketDecoder;
 import com.ibasco.agql.core.exceptions.IncompletePacketException;
-import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.transport.handlers.MessageInboundHandler;
 import com.ibasco.agql.core.util.TransportOptions;
@@ -55,9 +54,9 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         //did we receive a timeout while we are still processing packets?
-        if (cause instanceof TimeoutException && (this.assembler != null && this.assembler.isProcessing())) {
+        if (this.assembler != null && this.assembler.isProcessing()) {
             NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
-            debug("A read timeout was fired but we are still receiving incoming packets from the server (Packets received: {}, Packets expected: {}, Request: {})", assembler.received(), assembler.count(), context.properties().envelope());
+            debug("An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
         }
         ctx.fireExceptionCaught(cause);
     }
@@ -68,6 +67,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             switch ((ChannelEvent) evt) {
                 case RELEASED:
                 case CLOSED: {
+                    debug("Channel event occured '{}'. Checking state of assembler", evt);
                     checkAssemblerState(ctx);
                     break;
                 }
@@ -79,6 +79,10 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private void checkAssemblerState(ChannelHandlerContext ctx) throws IncompletePacketException {
         Boolean throwOnIncomplete = TransportOptions.REPORT_INCOMPLETE_PACKET.attr(ctx);
+        if (assembler != null)
+            debug("Assembler: {}, Complete: {}, Processing: {}, Received packets: {}", assembler, assembler.isComplete(), assembler.isProcessing(), assembler.received());
+        else
+            debug("Assembler not available");
         //if the channel was pre-maturely closed while we are still processing packets, make sure we reset it.
         if (this.assembler != null && this.assembler.isProcessing()) {
             debug("Channel has been pre-maturely released/closed and we have not received and processed the entire response from the server. " +

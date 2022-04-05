@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -145,6 +146,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     @Override
     public void reset() {
+        //Fixed memory leak. MUST RELEASE INCOMPLETE PACKETS ON RESET
+        if (this.packets != null) {
+            for (SourceQuerySplitPacket packet : packets) {
+                log.debug("ASSEMBLER => Releasing incomplete split-packets: {}", packet);
+                ReferenceCountUtil.release(packet);
+            }
+        }
         this.packets = null;
         this.packetId = -1;
         this.maxPacketSize = -1;

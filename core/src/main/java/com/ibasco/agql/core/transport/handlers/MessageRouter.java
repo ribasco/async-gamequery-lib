@@ -116,7 +116,7 @@ public class MessageRouter extends ChannelDuplexHandler {
             log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", context.id(), response.getClass().getSimpleName());
             try {
                 if (ReferenceCountUtil.release(response))
-                    log.debug("{} ROUTER (INBOUND) => Released reference counted message", context.id());
+                    log.debug("{} ROUTER (INBOUND) => Released reference counted message (Reference count remaining: {})", context.id(), ReferenceCountUtil.refCnt(response));
             } catch (IllegalReferenceCountException e) {
                 int refCnt = ReferenceCountUtil.refCnt(response);
                 log.warn("{} ROUTER (INBOUND) => Attempted to de-allocate resource '{}' but the resource has already been released. (Reference count: {})", context.id(), response, refCnt, e);

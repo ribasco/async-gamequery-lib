@@ -109,6 +109,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
         try {
             SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
+            debug("Collecting split-packet: {}", splitPacket);
             if (!assembler.add(splitPacket))
                 return;
 

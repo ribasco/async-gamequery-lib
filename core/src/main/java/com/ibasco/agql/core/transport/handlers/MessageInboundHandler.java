@@ -87,6 +87,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
         log(msg, log::error, args);
     }
 
+    protected void error(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
+        log(msg, ctx, logger::error, args);
+    }
+
     protected void info(String msg, Object... args) {
         log(msg, log::info, args);
     }
@@ -99,6 +103,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
         log(msg, logger::debug, args);
     }
 
+    protected void debug(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
+        log(msg, ctx, logger::debug, args);
+    }
+
     protected void debug(Logger logger, Marker marker, String msg, Object... args) {
         logger.debug(marker, logtemplate.apply(channel, msg), args);
     }
@@ -109,6 +117,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
         level.accept(logtemplate.apply(channel, msg), args);
+    }
+
+    protected final void log(String msg, ChannelHandlerContext ctx, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(logtemplate.apply(ctx.channel(), msg), args);
     }
 
     protected void printField(String name, Object value) {

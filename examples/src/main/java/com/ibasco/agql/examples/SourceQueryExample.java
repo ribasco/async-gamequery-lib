@@ -170,14 +170,14 @@ public class SourceQueryExample extends BaseExample {
 
         printLine();
         if (end < 1) {
-            System.out.printf("Test Completed  in %03d seconds\n", Duration.ofMillis(end).getSeconds());
+            System.out.printf("\033[0;33mTEST COMPLETED  in \033[0;36m%03d\033[0;33m seconds\033[0m\n", Duration.ofMillis(end).getSeconds());
         } else {
-            System.out.printf("Test Completed  in %02f minutes\n", Duration.ofMillis(end).getSeconds() / 60.0D);
+            System.out.printf("\033[0;33mTEST COMPLETED  in \033[0;36m%02f\033[0;33m minutes\033[0m\n", Duration.ofMillis(end).getSeconds() / 60.0D);
         }
         System.out.flush();
 
         printLine();
-        System.out.printf("Test Results (Total address processed: %d)\n", total);
+        System.out.printf("\033[1;33mTEST RESULTS (Total address processed: \033[0;36m%d\033[1;33m)\033[0m\n", total);
         printLine();
         System.out.flush();
 
@@ -194,21 +194,6 @@ public class SourceQueryExample extends BaseExample {
             System.out.printf("\033[0;33m%s\033[0m = %05d\n", stat.name(), count);
         }
         printLine();
-    }
-
-    private static void printLine() {
-        System.out.println("\033[0;36m=================================================================================================================================\033[0m");
-        System.out.flush();
-    }
-
-    private void printConsoleBanner() {
-        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
-        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
-        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
-        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
-        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
-        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
-        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
     }
 
     /**
@@ -274,7 +259,7 @@ public class SourceQueryExample extends BaseExample {
             queryServer(address, phaser).whenComplete(processor);
             addressCtr.incrementAndGet();
         }).join();
-        System.out.println("\033[0;32mDONE\033[0m");
+        System.out.printf("\033[0;33mDone: Completed fetching a total of \033[0;36m'%d'\033[0;33m addresses\033[0m\n", addressCtr.get());
         return addressCtr.get();
     }
 
@@ -314,6 +299,21 @@ public class SourceQueryExample extends BaseExample {
             System.out.println("(CLOSE) \033[0;35mQuery executor gracefully shutdown\033[0m");
         if (ConcurrentUtil.shutdown(masterExecutor))
             System.out.println("(CLOSE) \033[0;35mMaster query executor gracefully shutdown\033[0m");
+    }
+
+    private static void printLine() {
+        System.out.println("\033[0;36m=================================================================================================================================\033[0m");
+        System.out.flush();
+    }
+
+    private void printConsoleBanner() {
+        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
+        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
+        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
+        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
+        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
+        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
+        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
     }
 
     //<editor-fold desc="Private class/enum">

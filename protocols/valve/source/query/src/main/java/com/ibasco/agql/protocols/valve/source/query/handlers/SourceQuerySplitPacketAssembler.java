@@ -63,6 +63,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         if (this.assembler != null && this.assembler.isProcessing()) {
             NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
             debug(log, ctx, "An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
+            assembler.reset();
         }
         ctx.fireExceptionCaught(cause);
     }

@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.core.transport;
 
+import com.ibasco.agql.core.enums.BufferAllocatorType;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.*;
 import io.netty.bootstrap.Bootstrap;
@@ -52,9 +53,9 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     private NettyPropertyResolver resolver;
 
-    private EventLoopGroup eventLoopGroup;
+    private final EventLoopGroup eventLoopGroup;
 
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
 
     private NettyChannelInitializer channelInitializer;
 
@@ -197,7 +198,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         //Default channel options
         bootstrap.option(ChannelOption.SO_SNDBUF, getOptions().getOrDefault(TransportOptions.SOCKET_SNDBUF))
                  .option(ChannelOption.SO_RCVBUF, getOptions().getOrDefault(TransportOptions.SOCKET_RECVBUF))
-                 .option(ChannelOption.RCVBUF_ALLOCATOR, new AdaptiveRecvByteBufAllocator()) //new FixedRecvByteBufAllocator(9216)
+                 .option(ChannelOption.RCVBUF_ALLOCATOR, createRecvByteBufAllocator())
                  .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                  .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT)
                  .option(ChannelOption.AUTO_READ, true)
@@ -210,6 +211,28 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
             log.debug("===================================================================================================================");
             for (Map.Entry<ChannelOption<?>, ?> option : bootstrap.config().options().entrySet()) {
                 log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Channel Option: '{}' (Value: {})", ++ctr, option.getKey().name(), option.getValue());
+            }
+        }
+    }
+
+    protected RecvByteBufAllocator createRecvByteBufAllocator() {
+        BufferAllocatorType allocatorType = getOptions().getOrDefault(TransportOptions.SOCKET_RECVBUF_ALLOC_TYPE);
+        log.debug("[INIT] Using a receive buffer allocator type of '{}'", allocatorType);
+        switch (allocatorType) {
+            case ADAPTIVE: {
+                int initSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_INIT_SIZE);
+                int minSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_MIN_SIZE);
+                int maxSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_MAX_SIZE);
+                log.debug("[INIT] Adaptive Allocator Parameters (Init Size: {}, Min Size: {}, Max Size: {})", initSize, minSize, maxSize);
+                return new AdaptiveRecvByteBufAllocator(minSize, initSize, maxSize);
+            }
+            case FIXED: {
+                int fixedSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_FIXED_SIZE);
+                log.debug("[INIT] Fixed Allocator Parameters (Size: {})", fixedSize);
+                return new FixedRecvByteBufAllocator(fixedSize);
+            }
+            default: {
+                throw new IllegalStateException("Invalid allocator type");
             }
         }
     }

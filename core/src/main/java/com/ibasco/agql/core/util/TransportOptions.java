@@ -17,6 +17,7 @@
 package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.Transport;
+import com.ibasco.agql.core.enums.BufferAllocatorType;
 import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.ChannelHealthChecker;
@@ -201,6 +202,48 @@ public final class TransportOptions {
     //</editor-fold>
 
     //<editor-fold desc="Socket/Channel">
+
+    /**
+     * Select a strategy to use in terms of allocating for netty's inbound/receive buffer. If you choose {@link BufferAllocatorType#FIXED}, make sure to also set an optimal value for the fixed  (Default is: FIXED)
+     *
+     * @see io.netty.channel.FixedRecvByteBufAllocator
+     * @see io.netty.channel.AdaptiveRecvByteBufAllocator
+     * @see #SOCKET_ALLOC_FIXED_SIZE
+     */
+    public static final Option<BufferAllocatorType> SOCKET_RECVBUF_ALLOC_TYPE = Option.createOption("recvBufferAllocatorType", BufferAllocatorType.FIXED);
+
+    /**
+     * The fixed receive buffer size to allocate during channel initialization. Please note this is only applicable if {@link #SOCKET_RECVBUF_ALLOC_TYPE} is set to {@link BufferAllocatorType#FIXED} (Default is: 9216 bytes)
+     *
+     * @see io.netty.channel.FixedRecvByteBufAllocator
+     * @see BufferAllocatorType
+     * @see #SOCKET_RECVBUF_ALLOC_TYPE
+     */
+    public static final Option<Integer> SOCKET_ALLOC_FIXED_SIZE = Option.createOption("recvAllocFixedSize", 9216);
+
+    /**
+     * As per netty: the initial buffer size when no feed back was received. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 2048 bytes)
+     *
+     * @see #SOCKET_RECVBUF_ALLOC_TYPE
+     * @see BufferAllocatorType
+     */
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_INIT_SIZE = Option.createOption("recvAllocAdaptiveInitSize", 2048);
+
+    /**
+     * As per netty: the inclusive lower bound of the expected buffer size. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 64 bytes)
+     *
+     * @see #SOCKET_RECVBUF_ALLOC_TYPE
+     * @see BufferAllocatorType
+     */
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MIN_SIZE = Option.createOption("recvAllocAdaptiveMinSize", 64);
+
+    /**
+     * As per netty: the inclusive upper bound of the expected buffer size. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 65536 bytes)
+     *
+     * @see #SOCKET_RECVBUF_ALLOC_TYPE
+     * @see BufferAllocatorType
+     */
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MAX_SIZE = Option.createOption("recvAllocAdaptiveMaxSize", 65536);
 
     /**
      * A channel option that specifies the total per-socket buffer space reserved for sends

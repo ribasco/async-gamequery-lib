@@ -652,7 +652,8 @@ public class SourceQueryExample extends BaseExample {
                         break;
                     }
                     case RULES: {
-                        data = aggregate.rulesQuery().hasResponse() ? String.valueOf(aggregate.rulesQuery().getResponse().getResult().size()) : "N/A";
+                        SourceQueryRulesResponse rulesResponse = (SourceQueryRulesResponse) aggregate.rulesQuery().getResponse();
+                        data = aggregate.rulesQuery().hasResponse() ? rulesResponse.getResult().size() + " / " + rulesResponse.getExpectedCount() : "N/A";
                         break;
                     }
                     default: {

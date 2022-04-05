@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,6 +17,7 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.NettyChannelContext;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
@@ -35,7 +36,8 @@ abstract public class MessageInboundDecoder extends MessageInboundHandler {
 
     @Override
     public final void readMessage(final ChannelHandlerContext ctx, final Object msg) throws Exception {
-        final AbstractRequest request = getRequest().content();
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        final AbstractRequest request = context.properties().request();
 
         Object out = msg;
         try {

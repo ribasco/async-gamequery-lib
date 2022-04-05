@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.info;
 
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.NettyUtil;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.*;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
@@ -42,10 +43,12 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
     @Override
     protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryInfoRequest request, SourceQuerySinglePacket packet) throws Exception {
+        NettyChannelContext context  = NettyChannelContext.getContext(ctx.channel());
+
         ByteBuf buf = packet.content();
 
         final SourceServer info = new SourceServer();
-        info.setAddress(getRequest().recipient());
+        info.setAddress(context.properties().remoteAddress());
 
         //NOTE: Some servers return an empty response. If this is the case, we skip the decoding process and simply return SourceServer instance
         if (buf.isReadable()) {
@@ -73,7 +76,7 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
             //do we still have more bytes to process?
             if (!buf.isReadable()) {
-                debug("The server '{}' did not contain any Extra Data Flags information we could decode. Skipping this process.", getContext().properties().envelope().recipient());
+                debug("The server '{}' did not contain any Extra Data Flags information we could decode. Skipping this process.", context.properties().remoteAddress());
                 return new SourceQueryInfoResponse(info);
             }
 

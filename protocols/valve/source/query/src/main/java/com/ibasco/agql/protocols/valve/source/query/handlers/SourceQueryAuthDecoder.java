@@ -18,6 +18,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
@@ -28,8 +29,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.nio.ByteOrder;
 import java.util.Objects;
@@ -47,8 +46,6 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
     private final Class<T> requestClass;
 
     private final int responseHeader;
-
-    private static final Logger log = LoggerFactory.getLogger(SourceQueryAuthDecoder.class);
 
     protected SourceQueryAuthDecoder(Class<T> requestClass, int responseHeader) {
         this.requestClass = Objects.requireNonNull(requestClass, "Request class not provided");
@@ -71,9 +68,10 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
 
     @Override
     protected final Object decodePacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket packet) throws Exception {
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         //did we receive a challenge response from the server?
         if (packet.getHeader() == SourceQuery.SOURCE_QUERY_CHALLENGE_RES) {
-            Envelope<AbstractRequest> envelope = getRequest();
+            Envelope<AbstractRequest> envelope = context.properties().envelope();
             ByteBuf payload = packet.content();
             //ensure we have bytes to decode
             if (!payload.isReadable() || payload.readableBytes() < 4) {
@@ -88,11 +86,13 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
                 ctx.fireExceptionCaught(new SourceChallengeException(String.format("Server '%s' responded with a challenge number: '%d' (%s). Please re-send the request using the received challenge number.", envelope.recipient(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN)), challenge));
                 return null;
             }
-            debug("Got challenge response: {} ({})", challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN));
-            debug("Resending '{}' request with challenge (Challenge: {} ({}), Destination: {})", request.getClass().getSimpleName(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN), getRequest().recipient());
+            if (isDebugEnabled()) {
+                debug("Got challenge response: {} ({})", challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN));
+                debug("Resending '{}' request with challenge (Challenge: {} ({}), Destination: {})", request.getClass().getSimpleName(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN), context.properties().envelope().recipient());
+            }
             request.setChallenge(challenge);
             //resend auth request
-            Envelope<AbstractRequest> reauthRequest = MessageEnvelopeBuilder.createFrom(getRequest(), request).build();
+            Envelope<AbstractRequest> reauthRequest = MessageEnvelopeBuilder.createFrom(envelope, request).build();
             ChannelFuture writeFuture = ctx.channel().writeAndFlush(reauthRequest);
             if (writeFuture.isDone()) {
                 if (writeFuture.isSuccess()) {

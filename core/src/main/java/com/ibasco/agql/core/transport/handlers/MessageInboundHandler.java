@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 
 import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 
 @SuppressWarnings("unused")
 abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter {
@@ -36,8 +37,10 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     private Channel channel;
 
-    protected MessageInboundHandler() {
+    private final BiFunction<Channel, String, String> logtemplate;
 
+    protected MessageInboundHandler() {
+        this.logtemplate = (ch, msg) -> NettyUtil.id(ch) + " (" + getClass().getSimpleName() + ") INB => " + msg;
     }
 
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -59,12 +62,13 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (this.channel == null || this.channel != ctx.channel())
             this.channel = ctx.channel();
-        checkEnvelope();
+        checkEnvelope(ctx);
         readMessage(ctx, msg);
     }
 
-    private void checkEnvelope() {
-        Envelope<AbstractRequest> requestEnvelope = getRequest();
+    private void checkEnvelope(ChannelHandlerContext ctx) {
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        Envelope<AbstractRequest> requestEnvelope = context.properties().envelope();
         if (requestEnvelope == null)
             throw new IllegalStateException("No request envelope is attached to this channel");
         if (requestEnvelope.content() == null)
@@ -96,7 +100,7 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     }
 
     protected void debug(Logger logger, Marker marker, String msg, Object... args) {
-        logger.debug(marker, String.format("%s (%-25s) INB => %s", NettyUtil.id(channel), getClass().getSimpleName(), msg), args);
+        logger.debug(marker, logtemplate.apply(channel, msg), args);
     }
 
     protected final void warn(String msg, Object... args) {
@@ -104,16 +108,7 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     }
 
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s (%-25s) INB => %s", NettyUtil.id(channel), getClass().getSimpleName(), msg), args);
-    }
-
-    protected final NettyChannelContext getContext() {
-        return NettyChannelContext.getContext(channel);
-    }
-
-    protected final Envelope<AbstractRequest> getRequest() {
-        assert channel != null;
-        return getContext().properties().envelope();
+        level.accept(logtemplate.apply(channel, msg), args);
     }
 
     protected void printField(String name, Object value) {

@@ -218,6 +218,8 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     public InetSocketAddress remoteAddress() {
+        if (channel.remoteAddress() == null)
+            return properties().envelope().recipient();
         return (InetSocketAddress) channel.remoteAddress();
     }
 

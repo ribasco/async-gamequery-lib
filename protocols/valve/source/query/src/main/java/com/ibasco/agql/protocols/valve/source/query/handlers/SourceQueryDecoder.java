@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.DecodeException;
 import com.ibasco.agql.core.transport.handlers.MessageInboundHandler;
 import static com.ibasco.agql.core.util.BitUtil.isSet;
@@ -51,7 +52,8 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     @Override
     public final void readMessage(final ChannelHandlerContext ctx, final Object msg) throws Exception {
-        final SourceQueryRequest request = (SourceQueryRequest) getRequest().content();
+        NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+        final SourceQueryRequest request = context.properties().request();
 
         Object out = msg;
         try {

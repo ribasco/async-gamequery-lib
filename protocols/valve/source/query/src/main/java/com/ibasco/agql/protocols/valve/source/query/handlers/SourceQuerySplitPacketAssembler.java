@@ -73,8 +73,9 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             switch ((ChannelEvent) evt) {
                 case RELEASED:
                 case CLOSED: {
-                    debug(log, ctx,"Channel event occured '{}'. Checking state of assembler", evt);
-                    checkAssemblerState(ctx);
+                    debug(log, ctx,"Channel event occured '{}'. Forcing reset of assembler", evt);
+                    //checkAssemblerState(ctx);
+                    this.assembler.reset();
                     break;
                 }
             }

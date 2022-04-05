@@ -55,19 +55,19 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     private final ByteBufAllocator allocator;
 
-    private SourceQuerySplitPacket[] packets;
+    private volatile SourceQuerySplitPacket[] packets;
 
-    private int packetId = -1;
+    private volatile int packetId = -1;
 
-    private int maxPacketSize = -1;
+    private volatile int maxPacketSize = -1;
 
-    private int packetCount = -1;
+    private volatile int packetCount = -1;
 
-    private int lastPacketNum = -1;
+    private volatile int lastPacketNum = -1;
 
-    private ByteBuf buffer;
+    private volatile ByteBuf buffer;
 
-    private boolean completed;
+    private volatile boolean completed;
 
     private final ChannelHandlerContext ctx;
 
@@ -90,7 +90,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         else {
             //is the packet within the same group we are currently collecting?
             if (splitPacket.getId() != packetId)
-                throw new IllegalStateException(String.format("Rejected split-packet. Expected packet id of %d but was %d", packetId, splitPacket.getId()));
+                throw new IllegalStateException(String.format("Rejected split-packet. Expected packet id of %d but was %d (Current packet count: %d)", packetId, splitPacket.getId(), packets.length));
             //has this packet been added already?
             if (Arrays.stream(packets).filter(Objects::nonNull).anyMatch(splitPacket::equals))
                 throw new IllegalStateException(String.format("Packet '%s' has already been added in this container", splitPacket));

@@ -63,12 +63,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     }
 
     @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        checkAssemblerState(ctx);
-        super.channelInactive(ctx);
-    }
-
-    @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         try {
             switch ((ChannelEvent) evt) {
@@ -88,7 +82,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         //if the channel was pre-maturely closed while we are still processing packets, make sure we reset it.
         if (this.assembler != null && this.assembler.isProcessing()) {
             debug("Channel has been pre-maturely released/closed and we have not received and processed the entire response from the server. " +
-                         "Forcing reset of assembler (Packets received: {}, Packets expected: {})", this.assembler.received(), this.assembler.count());
+                          "Forcing reset of assembler (Packets received: {}, Packets expected: {})", this.assembler.received(), this.assembler.count());
             this.assembler.reset();
             if (throwOnIncomplete != null && throwOnIncomplete) {
                 warn("Throwing exception");
@@ -107,8 +101,9 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
         assert assembler != null;
 
+        SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
+
         try {
-            SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
             debug("Collecting split-packet: {}", splitPacket);
             if (!assembler.add(splitPacket))
                 return;
@@ -126,6 +121,9 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             debug("=======================================================================================================================");
 
             ctx.fireChannelRead(packet.retain());
+        } catch (Exception ex) {
+            error("An error occured while attempting to re-assemble split packets. Releasing split-packet and resetting assembler (Assembler complete: {})", assembler.isComplete(), ex);
+            splitPacket.release();
         } finally {
             if (assembler.isComplete())
                 assembler.reset();

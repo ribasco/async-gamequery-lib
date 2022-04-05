@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
-import com.ibasco.agql.core.exceptions.PacketDecodeException;
 import com.ibasco.agql.core.util.ByteUtil;
 import com.ibasco.agql.core.util.NettyUtil;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
@@ -53,8 +52,8 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             SourceQueryPacket packet = SourceQueryPacketDecoderProvider.getDecoder(type).decode(msg);
             out.add(packet.retain());
             log.debug("{} INB => DECODED '{}' into \"{}\"", NettyUtil.id(ctx.channel()), msg.getClass().getSimpleName(), packet);
-        } catch (PacketDecodeException | InvalidPacketTypeException e) {
-            log.debug("{} INB => Failed to decode datagram packet into a SourceQueryPacket instance. Passing message to next handler", NettyUtil.id(ctx.channel()), e);
+        } catch (Throwable e) {
+            log.error("{} INB => Failed to decode datagram packet into a SourceQueryPacket instance. Passing message to next handler", NettyUtil.id(ctx.channel()), e);
             out.add(msg.resetReaderIndex().retain());
         }
     }

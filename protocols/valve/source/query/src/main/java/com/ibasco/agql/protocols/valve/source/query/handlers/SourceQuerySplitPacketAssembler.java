@@ -18,10 +18,8 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.PacketDecoder;
-import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.transport.handlers.MessageInboundHandler;
-import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySplitPacket;
@@ -30,6 +28,8 @@ import com.ibasco.agql.protocols.valve.source.query.packets.util.SourceQueryPack
 import com.ibasco.agql.protocols.valve.source.query.packets.util.SourceSplitPacketAssembler;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.util.Attribute;
+import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,32 +42,40 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQuerySplitPacketAssembler.class);
 
-    private SourceSplitPacketAssembler assembler;
+    //private SourceSplitPacketAssembler assembler;
 
-    /*private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
+    private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
 
     private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {
-        return ctx.channel().attr(ASSEMBLER).setIfAbsent(new SourceLazySplitPacketAssembler(ctx));
-    }*/
+        Attribute<SourceSplitPacketAssembler> attr = ctx.channel().attr(ASSEMBLER);
+        SourceSplitPacketAssembler assembler = attr.get();
+        if (assembler == null) {
+            assembler = new SourceLazySplitPacketAssembler(ctx);
+            attr.set(assembler);
+        }
+        return assembler;
+    }
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
         debug(log, ctx, "Initializing split-packet assembler");
-        this.assembler = new SourceLazySplitPacketAssembler(ctx);
+        //this.assembler = new SourceLazySplitPacketAssembler(ctx);
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         debug(log, ctx, "De-allocating split-packet assembler");
-        this.assembler.reset();
-        this.assembler = null;
+        //ctx.channel().attr(ASSEMBLER).set(null);
+        //this.assembler.reset();
+        //this.assembler = null;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        SourceSplitPacketAssembler assembler = getAssembler(ctx);
         //did we receive a timeout while we are still processing packets?
-        if (this.assembler != null && this.assembler.isProcessing()) {
+        if (assembler != null && assembler.isProcessing()) {
             NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
             debug(log, ctx, "An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
             assembler.reset();
@@ -81,14 +89,14 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             switch ((ChannelEvent) evt) {
                 case ACQUIRED: {
                     debug(log, ctx, "Channel acquired. Creating new assembler for channel '{}'", ctx.channel());
-                    this.assembler = new SourceLazySplitPacketAssembler(ctx);
+                    //this.assembler = new SourceLazySplitPacketAssembler(ctx);
                     break;
                 }
                 case RELEASED:
                 case CLOSED: {
                     debug(log, ctx, "Channel closed. Forcing reset of assembler", evt);
                     //checkAssemblerState(ctx);
-                    this.assembler.reset();
+                    getAssembler(ctx).reset();
                     break;
                 }
             }
@@ -97,7 +105,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         }
     }
 
-    private void checkAssemblerState(ChannelHandlerContext ctx) throws IncompletePacketException {
+    /*private void checkAssemblerState(ChannelHandlerContext ctx) throws IncompletePacketException {
         Boolean throwOnIncomplete = TransportOptions.REPORT_INCOMPLETE_PACKET.attr(ctx);
         if (assembler != null)
             debug(log, ctx, "Assembler: {}, Complete: {}, Processing: {}, Received packets: {}", assembler, assembler.isComplete(), assembler.isProcessing(), assembler.received());
@@ -111,7 +119,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             if (throwOnIncomplete != null && throwOnIncomplete)
                 throw new IncompletePacketException(assembler.received(), assembler.count(), assembler.dump());
         }
-    }
+    }*/
 
     @Override
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -120,6 +128,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             ctx.fireChannelRead(msg);
             return;
         }
+        SourceSplitPacketAssembler assembler = getAssembler(ctx);
         assert assembler != null;
         SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
         try {
@@ -138,6 +147,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     }
 
     private void reassembleAndDecode(ChannelHandlerContext ctx) throws Exception {
+        SourceSplitPacketAssembler assembler = getAssembler(ctx);
         debug(log, ctx, "=======================================================================================================================");
         debug(log, ctx, "Collected the required amounts of split-packets. Attempting to re-assemble (Packet Size: {})", assembler.received());
         debug(log, ctx, "=======================================================================================================================");
@@ -161,7 +171,8 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        assembler.reset();
+        getAssembler(ctx).reset();
+        ctx.channel().attr(ASSEMBLER).set(null);
     }
 
     @Override

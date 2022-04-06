@@ -60,10 +60,11 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
             Object decoded;
             //TODO: Should we process addressedenvelope instances so we can retrieve sender address information?
             if (msg instanceof ByteBufHolder) {
-                decoded = ((ByteBufHolder) msg).content();
+                ByteBufHolder bHolder = (ByteBufHolder) msg;
+                decoded = bHolder.content();
                 log.debug("{} INB => Passing decoded message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());
                 if (log.isDebugEnabled()) {
-                    log.debug("{} INB => Data Dump for '{}'\n{}", context.id(), context.properties().request(), NettyUtil.prettyHexDump(((ByteBufHolder) msg).content()));
+                    log.debug("{} INB => Data Dump for '{}'\n{}", context.id(), context.properties().request(), NettyUtil.prettyHexDump(bHolder.content()));
                 }
             } else {
                 decoded = msg;

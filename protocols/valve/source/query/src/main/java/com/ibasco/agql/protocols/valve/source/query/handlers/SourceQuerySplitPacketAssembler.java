@@ -79,9 +79,14 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         try {
             switch ((ChannelEvent) evt) {
+                case ACQUIRED: {
+                    debug(log, ctx, "Channel acquired. Creating new assembler for channel '{}'", ctx.channel());
+                    this.assembler = new SourceLazySplitPacketAssembler(ctx);
+                    break;
+                }
                 case RELEASED:
                 case CLOSED: {
-                    debug(log, ctx, "Channel event occured '{}'. Forcing reset of assembler", evt);
+                    debug(log, ctx, "Channel closed. Forcing reset of assembler", evt);
                     //checkAssemblerState(ctx);
                     this.assembler.reset();
                     break;

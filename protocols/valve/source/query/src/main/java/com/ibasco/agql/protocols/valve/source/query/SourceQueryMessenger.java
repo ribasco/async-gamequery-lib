@@ -20,6 +20,7 @@ import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
+import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
@@ -126,33 +127,8 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
-        //Verify that we have received all the rules
-        /*builder.handleResultIf(new CheckedPredicate<SourceQueryResponse>() {
-
-            @Override
-            public boolean test(SourceQueryResponse response) throws Throwable {
-                if (response instanceof SourceQueryRulesResponse) {
-                    SourceQueryRulesResponse rules = (SourceQueryRulesResponse) response;
-                    if (rules.getResult().size() != rules.getExpectedCount()) {
-                        System.err.printf("Did not get expected count for '%s'. Requesting retry (Expected: %d, Actual: %d, Request: %s)\n", response, rules.getExpectedCount(), rules.getResult().size(), response.getRequest());
-                        for (Map.Entry<String, String> entry : rules.getResult().entrySet()) {
-                            System.err.printf("> %-10s = %-10s\n", entry.getKey(), entry.getValue());
-                        }
-                        return true;
-                    }
-                }
-                System.out.printf("Response '%s' is OK. Completing request '%s'\n", response, response.getRequest());
-                return false;
-            }
-        });
-        builder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceQueryResponse>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<SourceQueryResponse> event) throws Throwable {
-                if (event.getLastResult() != null && event.getLastResult() instanceof SourceQueryRulesResponse) {
-                    System.out.printf("Retrying request '%s' (Last Response: %s)\n", event.getLastResult().getRequest(), event.getLastResult());
-                }
-            }
-        });*/
+        builder.handle(ReadTimeoutException.class);
+        builder.abortOn(MaxAttemptsReachedException.class);
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }
@@ -285,9 +261,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         private final SourceQueryRequest request;
 
+        private final int maxAttemptCount;
+
         private QueryContextSupplier(InetSocketAddress address, SourceQueryRequest request) {
             this.address = address;
             this.request = request;
+            this.maxAttemptCount = retryPolicy.getConfig().getMaxAttempts();
         }
 
         @Override
@@ -301,11 +280,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 if (error instanceof ResponseException) {
                     Throwable cause = ConcurrentUtil.unwrap(error);
                     NettyChannelContext ctx = ((ResponseException) error).getContext();
-                    int maxAttemptCount = retryPolicy.getConfig().getMaxAttempts();
                     int attemptCount = executionContext.getAttemptCount() + 1;
-                    if (attemptCount >= maxAttemptCount) {
+                    if (attemptCount >= maxAttemptCount)
                         throw new CompletionException(new MaxAttemptsReachedException(cause, ctx.properties().envelope().recipient(), ctx.properties().request(), attemptCount, maxAttemptCount));
-                    }
                     throw (ResponseException) error;
                 }
                 throw new CompletionException(ConcurrentUtil.unwrap(error));

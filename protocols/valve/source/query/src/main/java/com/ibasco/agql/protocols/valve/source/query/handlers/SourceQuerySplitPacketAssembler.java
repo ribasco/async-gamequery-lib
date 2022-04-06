@@ -42,8 +42,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQuerySplitPacketAssembler.class);
 
-    //private SourceSplitPacketAssembler assembler;
-
     private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
 
     private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {
@@ -59,23 +57,13 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
-        debug(log, ctx, "Initializing split-packet assembler");
-        //this.assembler = new SourceLazySplitPacketAssembler(ctx);
-    }
-
-    @Override
-    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        debug(log, ctx, "De-allocating split-packet assembler");
-        //ctx.channel().attr(ASSEMBLER).set(null);
-        //this.assembler.reset();
-        //this.assembler = null;
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         SourceSplitPacketAssembler assembler = getAssembler(ctx);
         //did we receive a timeout while we are still processing packets?
-        if (assembler != null && assembler.isProcessing()) {
+        if (assembler.isProcessing()) {
             NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
             debug(log, ctx, "An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
             assembler.reset();
@@ -95,7 +83,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
                 case RELEASED:
                 case CLOSED: {
                     debug(log, ctx, "Channel closed. Forcing reset of assembler", evt);
-                    //checkAssemblerState(ctx);
                     getAssembler(ctx).reset();
                     break;
                 }
@@ -105,22 +92,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         }
     }
 
-    /*private void checkAssemblerState(ChannelHandlerContext ctx) throws IncompletePacketException {
-        Boolean throwOnIncomplete = TransportOptions.REPORT_INCOMPLETE_PACKET.attr(ctx);
-        if (assembler != null)
-            debug(log, ctx, "Assembler: {}, Complete: {}, Processing: {}, Received packets: {}", assembler, assembler.isComplete(), assembler.isProcessing(), assembler.received());
-        else
-            debug(log, ctx, "Assembler not available");
-        //if the channel was pre-maturely closed while we are still processing packets, make sure we reset it.
-        if (this.assembler != null && this.assembler.isProcessing()) {
-            error(log, ctx, "Channel has been pre-maturely released/closed and we have not received and processed the entire response from the server. " +
-                    "Forcing reset of assembler (Packets received: {}, Packets expected: {})", this.assembler.received(), this.assembler.count());
-            this.assembler.reset();
-            if (throwOnIncomplete != null && throwOnIncomplete)
-                throw new IncompletePacketException(assembler.received(), assembler.count(), assembler.dump());
-        }
-    }*/
-
     @Override
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!(msg instanceof SourceQuerySplitPacket)) {
@@ -129,17 +100,17 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             return;
         }
         SourceSplitPacketAssembler assembler = getAssembler(ctx);
-        assert assembler != null;
         SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
         try {
-            debug(log, ctx, "Collecting split-packet: {}", splitPacket);
+            debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Collecting split-packet {} to assembler: {}", splitPacket, assembler);
             if (!assembler.add(splitPacket)) {
+                debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Added split-packet {} to assembler {}", splitPacket, assembler);
                 return;
             }
-            debug(log, ctx, "Collected all split-packets. Last packet received: {}", splitPacket);
+            debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Collected all split-packets. Last packet received: {}", splitPacket);
             reassembleAndDecode(ctx);
         } catch (Exception ex) {
-            error(log, ctx, "An error occured while attempting to re-assemble split packets. Releasing split-packet and resetting assembler (Assembler complete: {})", assembler.isComplete(), ex);
+            error(log, ctx, "[SPLIT-PACKET-ASSEMBLER] An error occured while attempting to re-assemble split packets. Releasing split-packet and resetting assembler (Assembler complete: {})", assembler.isComplete(), ex);
             splitPacket.release();
             assembler.reset();
             throw ex;

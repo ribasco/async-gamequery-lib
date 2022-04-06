@@ -581,7 +581,7 @@ public class SourceQueryExample extends BaseExample {
         private final Map<QueryType, QueryStatsCounter> stats = new ConcurrentHashMap<>();
 
         @Override
-        public synchronized void accept(QueryAggregate result, Throwable error) {
+        public void accept(QueryAggregate result, Throwable error) {
             if (error != null)
                 throw new CompletionException(ConcurrentUtil.unwrap(error));
 

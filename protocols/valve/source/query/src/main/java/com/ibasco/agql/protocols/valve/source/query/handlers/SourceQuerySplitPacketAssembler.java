@@ -44,16 +44,23 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private SourceSplitPacketAssembler assembler;
 
+    /*private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
+
+    private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {
+        return ctx.channel().attr(ASSEMBLER).setIfAbsent(new SourceLazySplitPacketAssembler(ctx));
+    }*/
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
-        debug(log, ctx,"Initializing split-packet assembler");
+        debug(log, ctx, "Initializing split-packet assembler");
         this.assembler = new SourceLazySplitPacketAssembler(ctx);
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
-        debug(log, ctx,"De-allocating split-packet assembler");
+        debug(log, ctx, "De-allocating split-packet assembler");
+        this.assembler.reset();
         this.assembler = null;
     }
 
@@ -74,7 +81,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             switch ((ChannelEvent) evt) {
                 case RELEASED:
                 case CLOSED: {
-                    debug(log, ctx,"Channel event occured '{}'. Forcing reset of assembler", evt);
+                    debug(log, ctx, "Channel event occured '{}'. Forcing reset of assembler", evt);
                     //checkAssemblerState(ctx);
                     this.assembler.reset();
                     break;
@@ -94,7 +101,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         //if the channel was pre-maturely closed while we are still processing packets, make sure we reset it.
         if (this.assembler != null && this.assembler.isProcessing()) {
             error(log, ctx, "Channel has been pre-maturely released/closed and we have not received and processed the entire response from the server. " +
-                          "Forcing reset of assembler (Packets received: {}, Packets expected: {})", this.assembler.received(), this.assembler.count());
+                    "Forcing reset of assembler (Packets received: {}, Packets expected: {})", this.assembler.received(), this.assembler.count());
             this.assembler.reset();
             if (throwOnIncomplete != null && throwOnIncomplete)
                 throw new IncompletePacketException(assembler.received(), assembler.count(), assembler.dump());
@@ -108,44 +115,48 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
             ctx.fireChannelRead(msg);
             return;
         }
-
         assert assembler != null;
         SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
-
         try {
             debug(log, ctx, "Collecting split-packet: {}", splitPacket);
             if (!assembler.add(splitPacket)) {
                 return;
             }
-
-            debug(log, ctx,"=======================================================================================================================");
-            debug(log, ctx,"Collected the required amounts of split-packets. Attempting to re-assemble (Packet Size: {})", assembler.received());
-            debug(log, ctx,"=======================================================================================================================");
-            final ByteBuf assembledPayload = assembler.getBuffer();
-            final int packetType = assembledPayload.readIntLE();
-            assert packetType == SourceQuery.SOURCE_PACKET_TYPE_SINGLE;
-            PacketDecoder<SourceQuerySinglePacket> factory = SourceQueryPacketDecoderProvider.getDecoder(packetType);
-            SourceQuerySinglePacket packet = factory.decode(assembledPayload);
-            debug(log, ctx,"=======================================================================================================================");
-            debug(log, ctx,"Successfully re-assembled split-packet to '{}'", packet);
-            debug(log, ctx,"=======================================================================================================================");
-
-            debug(log, ctx, "Passing assembled packet to the next handler: {}", packet);
-            ctx.fireChannelRead(packet.retain());
+            debug(log, ctx, "Collected all split-packets. Last packet received: {}", splitPacket);
+            reassembleAndDecode(ctx);
         } catch (Exception ex) {
             error(log, ctx, "An error occured while attempting to re-assemble split packets. Releasing split-packet and resetting assembler (Assembler complete: {})", assembler.isComplete(), ex);
             splitPacket.release();
-        } finally {
-            if (assembler.isComplete()) {
-                debug(log, ctx, "Assembler now in completed state. Resetting");
-                assembler.reset();
-            }
+            assembler.reset();
+            throw ex;
+        }
+    }
+
+    private void reassembleAndDecode(ChannelHandlerContext ctx) throws Exception {
+        debug(log, ctx, "=======================================================================================================================");
+        debug(log, ctx, "Collected the required amounts of split-packets. Attempting to re-assemble (Packet Size: {})", assembler.received());
+        debug(log, ctx, "=======================================================================================================================");
+        final ByteBuf assembledPayload = assembler.getBuffer();
+        final int packetType = assembledPayload.readIntLE();
+        assert packetType == SourceQuery.SOURCE_PACKET_TYPE_SINGLE;
+        PacketDecoder<SourceQuerySinglePacket> factory = SourceQueryPacketDecoderProvider.getDecoder(packetType);
+        SourceQuerySinglePacket packet = factory.decode(assembledPayload);
+        debug(log, ctx, "=======================================================================================================================");
+        debug(log, ctx, "Successfully re-assembled split-packet to '{}'", packet);
+        debug(log, ctx, "=======================================================================================================================");
+
+        debug(log, ctx, "Passing assembled packet to the next handler: {}", packet);
+        ctx.fireChannelRead(packet.retain());
+        if (assembler.isComplete()) {
+            debug(log, ctx, "Assembler now in completed state. Resetting");
+            assembler.reset();
         }
     }
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
+        assembler.reset();
     }
 
     @Override

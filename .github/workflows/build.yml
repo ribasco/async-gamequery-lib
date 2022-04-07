@@ -32,7 +32,7 @@ jobs:
           cache: maven
 
       - name: Build Java Project
-        run: mvn install -P'release' -Dgpg.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V --file pom.xml
+        run: mvn install -Dgpg.skip=true -DskipTests=true -B -V --file pom.xml
 
       - name: Unit Tests
         run: mvn test

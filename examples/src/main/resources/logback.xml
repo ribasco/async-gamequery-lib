@@ -55,7 +55,7 @@
             <onMismatch>ACCEPT</onMismatch>
         </filter>
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-25logger{0} - %msg %ex{2}%nopex%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} [%-20thread] %-6level %-32logger{0} - %msg %ex{2}%nopex%n</pattern>
         </encoder>
     </appender>
 

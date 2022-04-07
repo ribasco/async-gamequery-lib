@@ -30,7 +30,7 @@ jobs:
         run: echo ${{ steps.extract_branch.outputs.branch }}
 
       - name: Build Java Project
-        run: mvn install -P'release' -Dchangelist= -Dgpg.skip=true -Dlicense.skipUpdateLicense=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V --file pom.xml
+        run: mvn install -P'release' -Dchangelist= -Dlicense.skipUpdateLicense=true -DskipTests=true -B -V --file pom.xml
 
       - name: Unit Tests
         run: mvn test

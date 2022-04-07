@@ -20,7 +20,6 @@ import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
-import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
@@ -128,8 +127,8 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
-        builder.handle(ReadTimeoutException.class);
-        builder.abortOn(MaxAttemptsReachedException.class, RejectedExecutionException.class);
+        /*builder.handle(ReadTimeoutException.class);*/
+        builder.abortOn(RejectedExecutionException.class);
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }

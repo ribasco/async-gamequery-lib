@@ -92,12 +92,12 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         SourceSplitPacketAssembler assembler = getAssembler(ctx);
         SourceQuerySplitPacket splitPacket = (SourceQuerySplitPacket) msg;
         try {
-            debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Collecting split-packet {} to assembler: {}", splitPacket, assembler);
             if (!assembler.add(splitPacket)) {
                 debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Added split-packet {} to assembler {}", splitPacket, assembler);
                 return;
+            } else {
+                debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Added last split-packet {} to assembler {}. Assembling packets.", splitPacket, assembler);
             }
-            debug(log, ctx, "[SPLIT-PACKET-ASSEMBLER] Collected all split-packets. Last packet received: {}", splitPacket);
             reassembleAndDecode(ctx);
         } catch (Exception ex) {
             error(log, ctx, "[SPLIT-PACKET-ASSEMBLER] An error occured while attempting to re-assemble split packets. Releasing split-packet and resetting assembler (Assembler complete: {})", assembler.isComplete(), ex);

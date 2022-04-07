@@ -109,7 +109,7 @@ public class SourceQueryOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.createOption("queryFailsafeBackoffDelay", 3000L);
+    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.createOption("queryFailsafeBackoffDelay", 50L);
 
     /**
      * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5000 ms or 5 seconds)
@@ -127,7 +127,7 @@ public class SourceQueryOptions {
      * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
      * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
      */
-    public static final Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.createOption("queryFailsafeBackoffDelayFactor", 2d);
+    public static final Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.createOption("queryFailsafeBackoffDelayFactor", 1.5d);
 
     /**
      * Sets the max number of execution attempts to perform. -1 indicates no limit (Default is 3 attempts)

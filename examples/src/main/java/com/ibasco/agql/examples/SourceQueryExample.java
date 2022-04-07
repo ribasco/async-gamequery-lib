@@ -113,7 +113,7 @@ public class SourceQueryExample extends BaseExample {
                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 50)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3)
+                                                .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 10)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)

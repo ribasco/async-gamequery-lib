@@ -134,7 +134,7 @@ public class SourceQueryOptions {
      *
      * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("queryFailsafeMaxAttempts", 3);
+    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("queryFailsafeMaxAttempts", 10);
 
     /**
      * Delay between retries (In milliseconds. Use -1 to disable)

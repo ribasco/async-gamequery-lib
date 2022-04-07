@@ -18,6 +18,8 @@ package com.ibasco.agql.core.util;
 
 public class Strings {
 
+    public static final String EMPTY = "";
+
     public static boolean isBlank(String str) {
         return str == null || "".equals(str.trim());
     }
@@ -32,5 +34,9 @@ public class Strings {
                 return false;
         }
         return true;
+    }
+
+    public static String defaultIfEmpty(String value, String defaultValue) {
+        return isBlank(value) ? defaultValue : value;
     }
 }

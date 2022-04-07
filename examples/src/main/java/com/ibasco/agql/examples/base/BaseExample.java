@@ -16,9 +16,13 @@
 
 package com.ibasco.agql.examples.base;
 
+import com.ibasco.agql.core.Client;
 import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.util.ConcurrentUtil;
 import com.ibasco.agql.core.util.EncryptUtil;
+import com.ibasco.agql.core.util.Strings;
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.util.Properties;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
 
 @SuppressWarnings("SameParameterValue")
 abstract public class BaseExample implements Closeable {
@@ -112,8 +117,9 @@ abstract public class BaseExample implements Closeable {
         return promptInput(message, required, defaultReturnValue, null);
     }
 
+    private final Scanner userInput = new Scanner(System.in);
+
     protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        Scanner userInput = new Scanner(System.in);
         String returnValue;
         //perform some bit of magic to determine if the prompt is a password type
         boolean inputEmpty, isPassword = StringUtils.containsIgnoreCase(message, "password");
@@ -138,15 +144,15 @@ abstract public class BaseExample implements Closeable {
         do {
             if (!StringUtils.isEmpty(defaultValue)) {
                 if (isPassword) {
-                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, StringUtils.replaceAll(defaultValue, ".", "*"));
+                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, RegExUtils.replaceAll(defaultValue, ".", "*"));
                 } else
                     System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, defaultValue);
             } else {
                 System.out.printf("\033[0;33m%s\033[0m: ", message);
             }
             System.out.flush();
-            returnValue = StringUtils.defaultIfEmpty(userInput.nextLine(), defaultValue);
-            inputEmpty = StringUtils.isEmpty(returnValue);
+            returnValue = Strings.defaultIfEmpty(userInput.nextLine(), defaultValue);
+            inputEmpty = Strings.isBlank(returnValue);
         } while ((inputEmpty && ++retryCounter < 3) && required);
 
         //If the token is still empty, throw an error
@@ -172,4 +178,54 @@ abstract public class BaseExample implements Closeable {
         return returnValue;
     }
 
+    protected void close(Client client, String name) throws IOException {
+        System.out.printf("(CLOSE) \033[0;35mClosing \033[0;33m'%s'\033[0;35m client: \033[0m", name);
+        String status;
+        if (client != null) {
+            client.close();
+            status = "\033[0;32mOK\033[0m";
+        } else {
+            status = "\033[0;32mSKIPPED\033[0m";
+        }
+        ConcurrentUtil.sleepUninterrupted(500);
+        System.out.print(status);
+        System.out.println();
+    }
+
+    protected void close(ExecutorService executorService, String name) {
+        if (executorService == null)
+            return;
+        System.out.printf("(CLOSE) \033[0;35mClosing \033[0;33m'%s'\033[0;35m executor service: \033[0m", name);
+        String status;
+        if (ConcurrentUtil.shutdown(executorService)) {
+            status = "\033[0;32mOK\033[0m";
+        } else {
+            status = "\033[0;32mSKIPPED\033[0m";
+        }
+        ConcurrentUtil.sleepUninterrupted(100);
+        System.out.print(status);
+        System.out.println();
+    }
+
+    public final void clearConsole() {
+        ExampleRunner.clearConsole();
+    }
+
+    public static void printHeader(String msg, Object... args) {
+        if (Strings.isBlank(msg))
+            return;
+        int lineCount = msg.length() * 2;
+        printLine(lineCount);
+        System.out.printf("\033[0;33m" + msg + "\033[0m\n", args);
+        printLine(lineCount);
+    }
+
+    public static void printLine() {
+        printLine(130);
+    }
+
+    public static void printLine(int count) {
+        System.out.printf("\033[0;36m%s\033[0m\n", StringUtils.repeat('=', count));
+        System.out.flush();
+    }
 }

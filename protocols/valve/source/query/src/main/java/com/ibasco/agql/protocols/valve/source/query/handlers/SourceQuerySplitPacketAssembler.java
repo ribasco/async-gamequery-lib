@@ -44,16 +44,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
 
-    private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {
-        Attribute<SourceSplitPacketAssembler> attr = ctx.channel().attr(ASSEMBLER);
-        SourceSplitPacketAssembler assembler = attr.get();
-        if (assembler == null) {
-            assembler = new SourceLazySplitPacketAssembler(ctx);
-            attr.set(assembler);
-        }
-        return assembler;
-    }
-
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
@@ -125,6 +115,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         final ByteBuf assembledPayload = assembler.getBuffer();
         final int packetType = assembledPayload.readIntLE();
         assert packetType == SourceQuery.SOURCE_PACKET_TYPE_SINGLE;
+
         PacketDecoder<SourceQuerySinglePacket> factory = SourceQueryPacketDecoderProvider.getDecoder(packetType);
         SourceQuerySinglePacket packet = factory.decode(assembledPayload);
         debug(log, ctx, "=======================================================================================================================");
@@ -150,5 +141,15 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug(log, ctx, "Read Complete");
         super.channelReadComplete(ctx);
+    }
+
+    private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {
+        Attribute<SourceSplitPacketAssembler> attr = ctx.channel().attr(ASSEMBLER);
+        SourceSplitPacketAssembler assembler = attr.get();
+        if (assembler == null) {
+            assembler = new SourceLazySplitPacketAssembler(ctx);
+            attr.set(assembler);
+        }
+        return assembler;
     }
 }

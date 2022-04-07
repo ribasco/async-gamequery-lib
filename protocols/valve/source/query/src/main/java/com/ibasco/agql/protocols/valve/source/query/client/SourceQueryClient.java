@@ -62,7 +62,7 @@ import java.util.concurrent.TimeUnit;
  * Protocol</a>
  * @see SourceQueryOptions
  */
-public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse> {
+public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse<?>> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryClient.class);
 
@@ -581,7 +581,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     //</editor-fold>
 
     @Override
-    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse> createMessenger(Options options) {
+    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>> createMessenger(Options options) {
         return new SourceQueryMessenger(options);
     }
 }

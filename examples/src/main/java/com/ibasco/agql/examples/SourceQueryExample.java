@@ -287,23 +287,11 @@ public class SourceQueryExample extends BaseExample {
 
     @Override
     public void close() throws IOException {
-        if (queryClient != null) {
-            queryClient.close();
-            System.out.println("(CLOSE) \033[0;35mClosed query client\033[0m");
-        }
-        if (masterClient != null) {
-            masterClient.close();
-            System.out.println("(CLOSE) \033[0;35mClosed master client\033[0m");
-        }
-        if (ConcurrentUtil.shutdown(queryExecutor))
-            System.out.println("(CLOSE) \033[0;35mQuery executor gracefully shutdown\033[0m");
-        if (ConcurrentUtil.shutdown(masterExecutor))
-            System.out.println("(CLOSE) \033[0;35mMaster query executor gracefully shutdown\033[0m");
-    }
+        close(queryClient, "Query");
+        close(masterClient, "Master");
+        close(queryExecutor, "Query");
+        close(masterExecutor, "Master");
 
-    private static void printLine() {
-        System.out.println("\033[0;36m=================================================================================================================================\033[0m");
-        System.out.flush();
     }
 
     private void printConsoleBanner() {

@@ -57,12 +57,14 @@ public class ExampleRunner {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
                                                         {
                                                             try {
-                                                                log.info("Shutting down example");
+                                                                BaseExample.printLine();
+                                                                System.out.printf("(\033[0;31mSHUTDOWN\033[0m) \033[0;33mShutdown requested. Attempting to shutdown example \033[0;36m'%s'\033[0m\n", activeExample);
+                                                                BaseExample.printLine();
                                                                 if (this.activeExample != null && !closed) {
                                                                     this.activeExample.close();
                                                                 }
                                                             } catch (IOException e) {
-                                                                e.printStackTrace();
+                                                                e.printStackTrace(System.err);
                                                             }
                                                         }
         ));
@@ -88,23 +90,27 @@ public class ExampleRunner {
         }
     }
 
-
-
     private void runExample(String[] args, String exampleKey) throws Exception {
         if (this.examples.containsKey(exampleKey)) {
             try (BaseExample example = this.examples.get(exampleKey)) {
                 this.activeExample = example;
-                log.info("Running Example : {}", exampleKey);
+                clearConsole();
+                BaseExample.printHeader("Running example program '%s' (key: %s)", example.getClass().getSimpleName(), exampleKey);
+                System.out.println();
                 example.run(args);
             } finally {
-                log.info("Example closed");
+                System.out.println("Example closed");
                 closed = true;
             }
         }
     }
 
+    public static void clearConsole() {
+        System.out.print("\033[H\033[2J");
+        System.out.flush();
+    }
+
     public static void main(String[] args) throws Exception {
-        ExampleRunner runner = new ExampleRunner();
-        runner.processArguments(args);
+        new ExampleRunner().processArguments(args);
     }
 }

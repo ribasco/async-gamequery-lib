@@ -101,6 +101,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         this.packets[splitPacket.getPacketNumber()] = splitPacket;
         this.lastPacketNum = splitPacket.getPacketNumber();
         if (splitPacket.getPacketCount() == received()) {
+            log.debug("{} ASSEMBLER => Marking assembler as 'completed' (Received packets: {})", NettyUtil.id(ctx), received());
             this.completed = true;
             return true;
         }

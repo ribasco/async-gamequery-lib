@@ -25,10 +25,13 @@ import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
+import com.ibasco.agql.protocols.valve.source.query.exceptions.RconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdResponse;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -47,6 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class SourceRconExample extends BaseExample {
 
@@ -60,7 +64,11 @@ public class SourceRconExample extends BaseExample {
 
     private static final String[] COMMANDS = new String[] {"status", "sm plugins list", "cvarlist", "maps *", "meta list", "sm exts list", "sm version", "find sv", "help sv_cheats"};
 
+    private final ExecutorService commandExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory("command"));
+
     private final AtomicBoolean authenticated = new AtomicBoolean();
+
+    private final Map<String, Function<String[], CompletableFuture<CommandResponse>>> commandProcessors = new HashMap<>();
 
     /**
      * For internal testing purposes
@@ -71,6 +79,18 @@ public class SourceRconExample extends BaseExample {
 
     @Override
     public void run(String[] args) throws Exception {
+        //register command processors
+        commandProcessors.put("?", this::commandUsage);
+        commandProcessors.put("h", this::commandUsage);
+        commandProcessors.put("help", this::commandUsage);
+        commandProcessors.put("stats", this::commandStats);
+        commandProcessors.put("batch", this::commandBatch);
+        commandProcessors.put("quit", this::commandQuit);
+        commandProcessors.put("invalidate", this::commandInvalidate);
+        commandProcessors.put("newauth", this::commandAuthenticate);
+        commandProcessors.put("cleanup", this::commandCleanup);
+        commandProcessors.put("reauth", this::commandReauth);
+
         final Options rconOptions = OptionBuilder.newBuilder()
                                                  .option(TransportOptions.POOL_MAX_CONNECTIONS, 8)
                                                  .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
@@ -80,27 +100,21 @@ public class SourceRconExample extends BaseExample {
                                                  .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                  .option(TransportOptions.FAILSAFE_ENABLED, true)
                                                  .build();
-
         rconClient = new SourceRconClient(rconOptions);
         clearConsole();
-        printConsoleBanner();
-        runRconConsole();
+        printBanner();
+        runTerminal();
     }
 
     @Override
-    public void close() {
-        if (rconClient == null)
-            return;
-        try {
-            rconClient.close();
-            System.out.println("(CLOSE) \033[0;35mClosed rcon client\033[0m");
-        } catch (IOException ignored) {
-        }
+    public void close() throws IOException {
+        close(rconClient, "RCON");
+        close(commandExecutor, "Command");
     }
 
-    private void authenticate(Map<InetSocketAddress, String> auth) throws RconNotYetAuthException {
+    private void authenticateBatch(Map<InetSocketAddress, String> auth) throws RconNotYetAuthException {
         final Phaser phaser = new Phaser();
-        //authenticate
+        //authenticateBatch
         phaser.register();
         Map<InetSocketAddress, Boolean> result = new HashMap<>();
         for (Map.Entry<InetSocketAddress, String> server : auth.entrySet()) {
@@ -128,53 +142,25 @@ public class SourceRconExample extends BaseExample {
         phaser.arriveAndAwaitAdvance();
 
         if (result.containsValue(false)) {
-            result.entrySet().stream().filter(p -> !p.getValue()).forEach(e -> log.error("Server {} did not authenticate successfully", e.getKey()));
-            throw new RconNotYetAuthException("A server did not authenticate successfully", SourceRconAuthReason.NOT_AUTHENTICATED, null);
+            result.entrySet().stream().filter(p -> !p.getValue()).forEach(e -> log.error("Server {} did not authenticateBatch successfully", e.getKey()));
+            throw new RconNotYetAuthException("A server did not authenticateBatch successfully", SourceRconAuthReason.NOT_AUTHENTICATED, null);
         }
     }
 
-    private void printConsoleBanner() {
-        System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
-        System.out.println("\033[0;36m██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\033[0m");
-        System.out.println("\033[0;36m██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  \033[0m");
-        System.out.println("\033[0;36m██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  \033[0m");
-        System.out.println("\033[0;36m██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗\033[0m");
-        System.out.println("\033[0;36m╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\033[0m");
-        System.out.println("\033[0;36m                                               \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
-    }
-
-    public void runRconConsole() {
+    public void runTerminal() {
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
 
         serverAddress = new InetSocketAddress(address, port);
-        AtomicBoolean stop = new AtomicBoolean();
-        final BiConsumer<SourceRconCmdResponse, Throwable> handler = (res, error) -> {
-            if (error != null) {
-                Throwable cause = error instanceof CompletionException || error instanceof ExecutionException ? error.getCause() : error;
-                if (cause instanceof CancellationException) {
-                    stop.compareAndSet(false, true);
-                } else if (cause instanceof InvalidCredentialsException) {
-                    System.err.println(cause.getMessage());
-                    authenticated.set(false);
-                } else if (cause instanceof ParseException) {
-                    System.err.println(cause.getMessage());
-                } else {
-                    System.err.println("Error during execution of command: ");
-                    cause.printStackTrace(System.err);
-                }
-                return;
-            }
-            if (res != null) {
-                System.out.printf("\n\033[0;37m%s\033[0m\n", res.getResult());
-                log.debug(res.getResult());
-            }
-        };
+        boolean stop = false;
 
-        while (!stop.get()) {
+        //loop until stop is set
+        while (!stop) {
             if (!authenticated.get()) {
                 String password = promptInput("Password", true, "", "sourceRconPass");
-                System.out.printf("Connecting to server %s:%d, with password = %s\n", address, port, StringUtils.replaceAll(password, ".", "*"));
+                System.out.println();
+                System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
+                System.out.println();
                 try {
                     SourceRconAuthStatus status = rconClient.authenticate(serverAddress, password).join();
                     authenticated.set(status.isAuthenticated());
@@ -183,67 +169,88 @@ public class SourceRconExample extends BaseExample {
                 } catch (CompletionException e) {
                     Throwable cause = ConcurrentUtil.unwrap(e);
                     if (cause instanceof RconInvalidCredentialsException) {
-                        System.err.print("\nFailed to authenticate with server due to bad credentials\n");
+                        System.err.print("\nFailed to authenticateBatch with server due to bad credentials\n");
                         cause.printStackTrace(System.err);
                         authenticated.set(false);
                     } else {
-                        System.err.printf("\nAn unknown error occured while trying to authenticate with server (using password %s bytes)\n", password.length());
+                        System.err.printf("\nAn unknown error occured while trying to authenticateBatch with server (using password %s bytes)\n", password.length());
                         cause.printStackTrace(System.err);
                         throw e;
                     }
                 } catch (Throwable error) {
-                    System.err.println("Failed to authenticate with server");
+                    System.err.println("Failed to authenticateBatch with server");
                     error.printStackTrace(System.err);
                 }
                 continue;
             }
-            String promptText = String.format("\033[0;33m[%s:%d]:\033[0m ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
-            String cmd = promptInput(promptText, true);
-            parseCommand(cmd).whenComplete(handler).thenAccept(sourceRconCmdResponse -> System.out.print(promptText));
+
+            try {
+                CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
+                System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
+            } catch (Exception error) {
+                Throwable cause = ConcurrentUtil.unwrap(error);
+                if (cause instanceof CancellationException) {
+                    stop = true;
+                } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
+                    System.err.println(cause.getMessage());
+                    authenticated.set(false);
+                } else if (cause instanceof ParseException) {
+                    System.err.println(cause.getMessage());
+                } else {
+                    System.err.println("Error during execution of command: ");
+                    cause.printStackTrace(System.err);
+                }
+                System.out.flush();
+                //add a slight delay
+                ConcurrentUtil.sleepUninterrupted(100);
+            }
         }
 
         System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
         System.exit(0);
     }
 
-    private String promptRconInput() {
-        return promptInput(String.format("\n[%s:%d]: ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort()), true);
+    private CompletableFuture<String> promptUserInput() {
+        String promptText = String.format("\033[0;33m[%s:%d]\033[0m ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
+        return CompletableFuture.completedFuture(promptInput(promptText, true));
     }
 
-    private CompletableFuture<SourceRconCmdResponse> parseCommand(String command) {
+    private CompletableFuture<CommandResponse> parseCommand(String command) {
         if (command == null || command.trim().isEmpty())
             return ConcurrentUtil.failedFuture(new IllegalArgumentException("Command must not be empty"));
         command = command.trim();
-
+        //handle built-in commands
         if (command.startsWith("/")) {
             String[] args = StringUtils.splitByWholeSeparatorPreserveAllTokens(command, StringUtils.SPACE, 3);
-            if (command.startsWith("/help") || command.startsWith("/?") || command.startsWith("/h")) {
-                commandUsage();
-            } else if (command.startsWith("/stats")) {
-                rconClient.getStatistics().print(System.out::println);
-            } else if (command.startsWith("/batch")) {
-                return commandBatch(args);
-            } else if (command.startsWith("/quit")) {
-                return ConcurrentUtil.failedFuture(new CancellationException());
-            } else if (command.startsWith("/invalidate")) {
-                return commandInvalidate(args);
-            } else if (command.startsWith("/newauth")) {
-                return commandAuthenticate(args);
-            } else if (command.startsWith("/cleanup")) {
-                return commandCleanup(args);
-            } else if (command.startsWith("/reauth")) {
-                return commandReauth(args);
+            String name = RegExUtils.replaceAll(args[0], "/", Strings.EMPTY).trim();
+            if (commandProcessors.containsKey(name)) {
+                return commandProcessors.get(name).apply(args);
             } else {
-                return error(String.format("Unknown command '%s' (type /help for the commands available)", command));
+                return error("Unknown command '%s' (type /help for the commands available)", command);
             }
-            return CompletableFuture.completedFuture(null);
         }
-
-        //System.out.printf("Command '%s' sent\n", command);
-        return rconClient.exec(serverAddress, command);
+        //any command that does not start with '/' should be treated as an rcon command by default
+        else {
+            return commandRcon(new String[] {command});
+        }
     }
 
-    private CompletableFuture<SourceRconCmdResponse> commandReauth(String[] args) {
+    //<editor-fold desc="Console Command Handlers">
+    private CompletableFuture<CommandResponse> commandQuit(final String[] args) {
+        return error(new CancellationException());
+    }
+
+    private CompletableFuture<CommandResponse> commandStats(final String[] args) {
+        rconClient.getStatistics().print(System.out::println);
+        return success("", args[0]);
+    }
+
+    private CompletableFuture<CommandResponse> commandRcon(final String[] args) {
+        final String command = args[0];
+        return rconClient.exec(serverAddress, command).thenApply(r -> new CommandResponse(command, r.getResult()));
+    }
+
+    private CompletableFuture<CommandResponse> commandReauth(String[] args) {
         try {
             return rconClient.authenticate(serverAddress).thenCompose(s -> success("done", args[0]));
         } catch (RconNotYetAuthException e) {
@@ -251,24 +258,24 @@ public class SourceRconExample extends BaseExample {
         }
     }
 
-    private CompletableFuture<SourceRconCmdResponse> commandCleanup(String[] args) {
+    private CompletableFuture<CommandResponse> commandCleanup(String[] args) {
         rconClient.cleanup();
         return success("done", args[0]);
     }
 
-    private CompletableFuture<SourceRconCmdResponse> commandAuthenticate(String[] args) {
+    private CompletableFuture<CommandResponse> commandAuthenticate(String[] args) {
         authenticated.set(false);
         return success("done", args[0]);
     }
 
-    private CompletableFuture<SourceRconCmdResponse> commandInvalidate(String[] args) {
+    private CompletableFuture<CommandResponse> commandInvalidate(String[] args) {
         if (args.length < 1)
             return error("Arguments must be at least 1");
         rconClient.invalidate();
         return success("done", args[0]);
     }
 
-    private CompletableFuture<SourceRconCmdResponse> commandBatch(String[] args) {
+    private CompletableFuture<CommandResponse> commandBatch(String[] args) {
         if (args == null || args.length < 2)
             return ConcurrentUtil.failedFuture(new ParseException("Usage: /batch <amount> <command1>[;<command2>;<command3>]", 0));
         if (!"/batch".equalsIgnoreCase(args[0]))
@@ -282,7 +289,7 @@ public class SourceRconExample extends BaseExample {
         return executeBatch(count, cmd);
     }
 
-    private void commandUsage() {
+    private CompletableFuture<CommandResponse> commandUsage(String[] args) {
         System.out.println(line);
         System.out.println("List of Available Console Commands".toUpperCase());
         System.out.println(line);
@@ -291,15 +298,16 @@ public class SourceRconExample extends BaseExample {
         System.out.println("\033[0;34mHelp:\033[0m \033[0;36m/help, /h, /?\033[0m");
         System.out.println("\033[0;34mInvalidate connections:\033[0m \033[0;36m/invalidate\033[0m");
         System.out.println("\033[0;34mThread/Connection Statistics:\033[0m \033[0;36m/stats\033[0m");
-        System.out.println("\033[0;34mRe-authenticate with server with new password:\033[0m \033[0;36m/newauth\033[0m");
-        System.out.println("\033[0;34mRe-authenticate with server using registered password:\033[0m \033[0;36m/reauth\033[0m");
+        System.out.println("\033[0;34mRe-authenticateBatch with server with new password:\033[0m \033[0;36m/newauth\033[0m");
+        System.out.println("\033[0;34mRe-authenticateBatch with server using registered password:\033[0m \033[0;36m/reauth\033[0m");
         System.out.println("\033[0;34mCleanup unsused channels:\033[0m \033[0;36m/cleanup\033[0m");
         System.out.println("\033[0;34mQuit Console:\033[0m \033[0;36m/quit\033[0m");
-
+        return success("", args[0]);
     }
+    //</editor-fold>
 
-    private SourceRconCmdResponse successResponse(String msg, Object... args) {
-        return new SourceRconCmdResponse(0, "", String.format(msg, args), true);
+    private CommandResponse successResponse(String command, String msg, Object... args) {
+        return new CommandResponse(command, String.format(msg, args));
     }
 
     private void sendCommand(int count, InetSocketAddress address, BiConsumer<SourceRconCmdResponse, Throwable> handler, Phaser phaser) {
@@ -317,7 +325,7 @@ public class SourceRconExample extends BaseExample {
         phaser.arriveAndAwaitAdvance();
     }
 
-    private CompletableFuture<SourceRconCmdResponse> executeBatch(final int count, String command) {
+    private CompletableFuture<CommandResponse> executeBatch(final int count, final String command) {
         return CompletableFuture.runAsync(() -> {
 
             System.out.println(line);
@@ -342,23 +350,32 @@ public class SourceRconExample extends BaseExample {
                 handleResponse.printStats();
                 System.out.println(line);
             }
-        }).thenApply(unsusd -> successResponse("DONE: Executed a total of %d command(s) to %s", count, serverAddress));
+        }).thenApply(unsusd -> successResponse(command, "DONE: Executed a total of %d command(s) to %s", count, serverAddress));
     }
 
-    private CompletableFuture<SourceRconCmdResponse> success(String msg, String command) {
-        return CompletableFuture.completedFuture(new SourceRconCmdResponse(0, command, msg, true));
+    private CompletableFuture<CommandResponse> success(String msg, final String command) {
+        return CompletableFuture.completedFuture(new CommandResponse(command, msg));
     }
 
-    private <V> CompletableFuture<V> error(String msg) {
-        return ConcurrentUtil.failedFuture(new ParseException(msg, 0));
+    private <V> CompletableFuture<V> error(String msg, Object... args) {
+        return ConcurrentUtil.failedFuture(new ParseException(String.format(msg, args), 0));
     }
 
-    private void clearConsole() {
-        System.out.print("\033[H\033[2J");
-        System.out.flush();
+    private <V> CompletableFuture<V> error(Throwable error) {
+        return ConcurrentUtil.failedFuture(error);
     }
 
-    static class RconCommandHandler extends ResponseHandler<SourceRconCmdResponse> {
+    private void printBanner() {
+        System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
+        System.out.println("\033[0;36m██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\033[0m");
+        System.out.println("\033[0;36m██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  \033[0m");
+        System.out.println("\033[0;36m██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  \033[0m");
+        System.out.println("\033[0;36m██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗\033[0m");
+        System.out.println("\033[0;36m╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\033[0m");
+        System.out.println("\033[0;36m                                               \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
+    }
+
+    private static class RconCommandHandler extends ResponseHandler<SourceRconCmdResponse> {
 
         private final AtomicLong byteCounter = new AtomicLong();
 
@@ -442,6 +459,44 @@ public class SourceRconExample extends BaseExample {
             for (String command : commandCount.keySet()) {
                 print("Total successful '%s': %d", command, commandCount.get(command).success.get());
             }
+        }
+    }
+
+    private static class CommandException extends Exception {
+
+        private final String command;
+
+        private CommandException(String command, String message) {
+            super(message);
+            this.command = command;
+        }
+
+        public String getCommand() {
+            return command;
+        }
+    }
+
+    private static class CommandResponse {
+
+        private final String command;
+
+        private final String result;
+
+        private CommandResponse(String command, String result) {
+            this.command = command;
+            this.result = result;
+        }
+
+        public String getCommand() {
+            return command;
+        }
+
+        public boolean isEmptyResult() {
+            return Strings.isBlank(result);
+        }
+
+        public String getResult() {
+            return result;
         }
     }
 }

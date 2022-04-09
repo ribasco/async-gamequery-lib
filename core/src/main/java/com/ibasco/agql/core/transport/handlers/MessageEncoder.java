@@ -18,7 +18,7 @@ package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
 import io.netty.util.ReferenceCountUtil;
@@ -41,17 +41,17 @@ public class MessageEncoder extends MessageToMessageEncoder<Object> {
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
-        log.debug("{} OUT => Intercepted request of type '{}' ({})", NettyUtil.id(ctx.channel()), msg.getClass().getSimpleName(), msg);
+        log.debug("{} OUT => Intercepted request of type '{}' ({})", Netty.id(ctx.channel()), msg.getClass().getSimpleName(), msg);
 
         if (!(msg instanceof Envelope<?>)) {
-            log.debug("{} OUT => Passing message '{}' to the next handler", NettyUtil.id(ctx.channel()), msg.getClass().getSimpleName());
+            log.debug("{} OUT => Passing message '{}' to the next handler", Netty.id(ctx.channel()), msg.getClass().getSimpleName());
             out.add(msg);
             return;
         }
 
         Envelope<?> envelope = (Envelope<?>) msg;
         if (envelope.sender() == null) {
-            log.debug("{} OUT => Updated local address of envelope to '{}'", NettyUtil.id(ctx.channel()), ctx.channel().localAddress());
+            log.debug("{} OUT => Updated local address of envelope to '{}'", Netty.id(ctx.channel()), ctx.channel().localAddress());
             envelope.sender(ctx.channel().localAddress());
         }
 

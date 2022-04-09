@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.players;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
@@ -44,7 +44,7 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.readableBytes() > 0) {
             if (isDebugEnabled())
-                debug("PLAYERS Dump\n{}", NettyUtil.prettyHexDump(payload));
+                debug("PLAYERS Dump\n{}", Netty.prettyHexDump(payload));
 
             int playereCount = payload.readUnsignedByte();
             debug(log, "Decoding player payload data (Player count: {})", playereCount);
@@ -53,7 +53,7 @@ public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQuer
                     break;
                 debug(log, "Decoding player #{}", i);
                 short index = decodeField(i + ") Index", (short) -1, payload, ByteBuf::readUnsignedByte);
-                String name = decodeField(i + ") Name", "N/A", payload, buf -> NettyUtil.readString(buf, StandardCharsets.UTF_8));
+                String name = decodeField(i + ") Name", "N/A", payload, buf -> Netty.readString(buf, StandardCharsets.UTF_8));
                 int score = decodeField(i + ") Score", -1, payload, ByteBuf::readIntLE);
                 float duration = decodeField(i + ") Duration", -1f, payload, ByteBuf::readFloatLE);
                 playerList.add(new SourcePlayer(index, name, score, duration));

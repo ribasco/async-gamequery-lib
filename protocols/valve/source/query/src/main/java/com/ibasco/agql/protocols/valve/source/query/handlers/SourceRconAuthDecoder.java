@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconChannelContext;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
@@ -53,10 +53,15 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         final SourceRconPacket packet = (SourceRconPacket) msg;
         assert envelope != null;
 
+        if (!(request instanceof SourceRconAuthRequest)) {
+            warn("Expected 'SourceRconAuthRequest' but got '{}'. Skipping decode.", request.getClass());
+            return null;
+        }
+
         //Do nothing
         if (SourceRcon.isResponseValuePacket(packet)) {
             ByteBuf content = packet.content();
-            String body = NettyUtil.readString(content);
+            String body = Netty.readString(content);
             debug("Ignoring auth response packet (Packet Id: {}, Body: {})", packet.getId(), body);
             return null;
         }
@@ -68,18 +73,14 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         final int requestId = rconRequest.getRequestId();
         final boolean authenticated = packet.getId() != -1 && packet.getId() == requestId;
 
-        debug("Received AUTH response packet: {} (Content: {})", packet, NettyUtil.readString(packet.content()));
-
+        debug("Received AUTH response packet: {} (Content: {})", packet, Netty.readString(packet.content()));
         debug("Updated context authentication flag to '{}' (Packet Id [{}] == Request Id [{}])", authenticated, packet.getId(), rconRequest.getRequestId());
+
         //Ensure we are responding to the right request
-        if (request instanceof SourceRconAuthRequest) {
-            if (authenticated) {
-                return new SourceRconAuthResponse(requestId, true);
-            } else {
-                return new SourceRconAuthResponse(requestId, false, "Bad Password", true, null, SourceRconAuthReason.BAD_PASSWORD);
-            }
+        if (authenticated) {
+            return new SourceRconAuthResponse(true);
         } else {
-            return null;
+            return new SourceRconAuthResponse(false, "Bad Password", SourceRconAuthReason.BAD_PASSWORD);
         }
     }
 }

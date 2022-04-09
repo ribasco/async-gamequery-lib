@@ -42,18 +42,6 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
     private boolean terminatorReceived;
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        /*if (cause instanceof ReadTimeoutException) {
-            if (!addressSet.isEmpty()) {
-                debug("Timeout occured. Returning list of addresses (Total: {})", addressSet.size());
-                ctx.fireChannelRead(new MasterServerResponse(new Vector<>(addressSet)));
-                return;
-            }
-        }*/
-        ctx.fireExceptionCaught(cause);
-    }
-
-    @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
         if (!(request instanceof MasterServerRequest)) {
             return false;
@@ -80,7 +68,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
             try {
                 masterRequest.getCallback().accept(address, envelope.recipient(), null);
             } catch (Exception e) {
-                debug("Error thrown by the callback", e);
+                error("Error thrown by the callback", e);
             }
         }
         return null;

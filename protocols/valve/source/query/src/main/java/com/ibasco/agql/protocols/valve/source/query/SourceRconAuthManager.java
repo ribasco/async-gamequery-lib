@@ -59,6 +59,7 @@ import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+//TODO: Move all this to SourceRconMessenger
 /**
  * <p>The default Source RCON authentication manager. This also serves as a messenger proxy that allows rcon requests to passthrough.</p>
  *
@@ -102,7 +103,7 @@ public final class SourceRconAuthManager implements Closeable {
     public SourceRconAuthManager(SourceRconMessenger messenger, CredentialsStore credentialsStore) {
         this.messenger = Objects.requireNonNull(messenger, "Messenger cannot be null");
         if (credentialsStore == null)
-            credentialsStore = new SourceRconInMemoryCredentialsStore();
+            credentialsStore = new InMemoryCredentialsStore();
         this.credentialsStore = credentialsStore;
         this.jobScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-auth-job"));
         this.reauthenticate = messenger.getOrDefault(SourceRconOptions.REAUTHENTICATE);
@@ -161,7 +162,7 @@ public final class SourceRconAuthManager implements Closeable {
         final SourceRconChannelContext context = SourceRconChannelContext.getContext(channel);
         final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         try {
-            log.debug("{} AUTH => Registering channel '{}'", NettyUtil.id(channel), channel);
+            log.debug("{} AUTH => Registering channel '{}'", Netty.id(channel), channel);
             registry.register(channel);
             log.debug("{} AUTH => Successfully registered channel (Total: {}, Address: {}, Authenticated: {})", context.id(), registry.getChannels(address).size(), channel.remoteAddress(), isAuthenticated(channel));
 
@@ -251,7 +252,7 @@ public final class SourceRconAuthManager implements Closeable {
 
     private SourceRconResponse response(NettyChannelContext context, Throwable error) {
         if (error != null)
-            throw new CompletionException(ConcurrentUtil.unwrap(error));
+            throw new CompletionException(Errors.unwrap(error));
         assert context != null;
         try {
             return context.properties().response();
@@ -288,7 +289,7 @@ public final class SourceRconAuthManager implements Closeable {
 
     private SourceRconChannelContext invalidateOnError(SourceRconChannelContext context, Throwable error) {
         if (error != null) {
-            error = ConcurrentUtil.unwrap(error);
+            error = Errors.unwrap(error);
             if (error instanceof RconInvalidCredentialsException)
                 invalidate(((RconInvalidCredentialsException) error).getAddress());
             throw new CompletionException(error);
@@ -362,7 +363,7 @@ public final class SourceRconAuthManager implements Closeable {
     public void close() throws IOException {
         if (!jobScheduler.isShutdown()) {
             log.debug("AUTH (CLOSE) => Requesting graceful shutdown");
-            if (ConcurrentUtil.shutdown(jobScheduler)) {
+            if (Concurrency.shutdown(jobScheduler)) {
                 log.debug("AUTH (CLOSE) => Job scheduler shutdown gracefully");
             } else {
                 log.debug("AUTH (CLOSE) => Failed to shutdown job scheduler");
@@ -423,7 +424,7 @@ public final class SourceRconAuthManager implements Closeable {
                 if (force || (metadata.getAcquireCount() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
                     log.debug("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {}, Remaining: {})", ++ctr, channel, metadata.getAcquireCount(), metadata.getLastAcquiredDuration(), registry.isRegistered(channel), cRemaining);
                     final String id = channel.id().asShortText();
-                    NettyUtil.close(channel).thenAcceptAsync(unused -> log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id), channel.eventLoop());
+                    Netty.close(channel).thenAcceptAsync(unused -> log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id), channel.eventLoop());
                 }
             }
         }
@@ -474,7 +475,7 @@ public final class SourceRconAuthManager implements Closeable {
                 if (!(Number.class.isAssignableFrom(type())))
                     throw new IllegalStateException("Cannot incremement a stat that is not a number type");
                 //noinspection unchecked
-                return (V) NettyUtil.incrementAttrNumber(channel, this.key());
+                return (V) Netty.incrementAttrNumber(channel, this.key());
             }
         }
 
@@ -512,7 +513,7 @@ public final class SourceRconAuthManager implements Closeable {
     public class Statistics implements BiFunction<Channel, Throwable, Channel> {
 
         private final ChannelFutureListener REMOVE_ON_CLOSE = future -> {
-            log.debug("{} STATISTICS (CLEANUP) => Removing channel '{}'", NettyUtil.id(future.channel()), future.channel());
+            log.debug("{} STATISTICS (CLEANUP) => Removing channel '{}'", Netty.id(future.channel()), future.channel());
             remove(future.channel());
         };
 
@@ -532,7 +533,7 @@ public final class SourceRconAuthManager implements Closeable {
                 assert channel != null;
                 //reset attributes if channel was closed
                 if (!Metadata.Stats.ACQUIRE_COUNT.exists(channel)) {
-                    log.debug("{} STATISTICS => Initializing stats for channel '{}'", NettyUtil.id(channel), channel);
+                    log.debug("{} STATISTICS => Initializing stats for channel '{}'", Netty.id(channel), channel);
                     //remove entry on close
                     channel.closeFuture().addListener(REMOVE_ON_CLOSE);
                 }
@@ -579,7 +580,7 @@ public final class SourceRconAuthManager implements Closeable {
                 for (int j = 0; j < channels.size(); j++) {
                     Channel channel = channels.get(j);
                     Metadata metadata = getMetadata(channel);//counter.get(channel);
-                    print(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), SourceRconAuthManager.this.isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", TimeUtil.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), NettyUtil.getThreadName(channel));
+                    print(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), SourceRconAuthManager.this.isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", Time.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), Netty.getThreadName(channel));
                 }
             }
             print(output, LINE);
@@ -587,7 +588,7 @@ public final class SourceRconAuthManager implements Closeable {
 
         private void remove(Channel channel) {
             for (Metadata.Stats stat : Metadata.Stats.values()) {
-                log.debug("{} STATISTICS => Clearing stats for channel '{}'", NettyUtil.id(channel), channel);
+                log.debug("{} STATISTICS => Clearing stats for channel '{}'", Netty.id(channel), channel);
                 channel.attr(stat.key()).set(null);
             }
         }
@@ -643,7 +644,7 @@ public final class SourceRconAuthManager implements Closeable {
         @Override
         public CompletableFuture<SourceRconChannelContext> get(ExecutionContext<SourceRconChannelContext> context) throws Throwable {
             Credentials credentials = credentialsStore.get(address);
-            Throwable lastError = ConcurrentUtil.unwrap(context.getLastException());
+            Throwable lastError = Errors.unwrap(context.getLastException());
 
             //have we reached the maximum number of login attempts?
             if (lastError instanceof ChannelClosedException && context.getAttemptCount() >= (rconRequestRetryPolicy.getConfig().getMaxAttempts() - 1)) {

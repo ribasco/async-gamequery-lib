@@ -48,14 +48,14 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * Netty specific utilities
+ * Netty utility functions
  *
  * @author Rafael Luis Ibasco
  */
 @ApiStatus.Internal
-public class NettyUtil {
+public class Netty {
 
-    private static final Logger log = LoggerFactory.getLogger(NettyUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(Netty.class);
 
     public static final Function<LinkedList<ChannelInboundHandler>, ChannelHandler> INBOUND = LinkedList::pollFirst;
 
@@ -65,9 +65,9 @@ public class NettyUtil {
         if (eventLoop == null)
             throw new IllegalArgumentException("Event loop group is null");
         return channelFuture.thenApplyAsync(ChannelOutboundInvoker::deregister, eventLoop)
-                            .thenComposeAsync(NettyUtil::toCompletable, eventLoop)
+                            .thenComposeAsync(Netty::toCompletable, eventLoop)
                             .thenApplyAsync(eventLoop::register, eventLoop)
-                            .thenComposeAsync(NettyUtil::toCompletable, eventLoop);
+                            .thenComposeAsync(Netty::toCompletable, eventLoop);
     }
 
     public static <V> void notifyOnCompletion(ChannelFuture future, V completedValue, CompletableFuture<V> promise, ChannelFutureListener listener) {
@@ -103,7 +103,7 @@ public class NettyUtil {
             buf.markReaderIndex();
             buf.readBytes(tmp);
             String postfix = limit != buf.readableBytes() ? "..." : "";
-            logger.accept("{} : {}{}", new Object[] {msg, ByteUtil.toHexString(tmp), postfix});
+            logger.accept("{} : {}{}", new Object[] {msg, Bytes.toHexString(tmp), postfix});
         } finally {
             buf.resetReaderIndex();
         }
@@ -213,7 +213,7 @@ public class NettyUtil {
      */
     public static CompletableFuture<Void> release(Channel ch) {
         if (ch.eventLoop().isShutdown())
-            return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
+            return Concurrency.failedFuture(new RejectedExecutionException("Executor has shutdown"));
         if (ch instanceof PooledChannel) {
             return ((PooledChannel) ch).release();
         }
@@ -311,7 +311,7 @@ public class NettyUtil {
         } catch (NoSuchElementException ignored) {
         }
         ch.pipeline().addAfter(MessageEncoder.NAME, "writeTimeout", new WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS));
-        log.debug("{} TRANSPORT => Registered READ/WRITE Timeout Handlers", NettyUtil.id(ch));
+        log.debug("{} TRANSPORT => Registered READ/WRITE Timeout Handlers", Netty.id(ch));
     }
 
     public static String getType(ChannelHandler handler) {
@@ -332,7 +332,7 @@ public class NettyUtil {
         Attribute<?> attr = ch.attr(key);
         if (attr.get() != null) {
             attr.set(null);
-            log.debug("{} RESET => Cleared channel attribute '{}' (cleared: {})", NettyUtil.id(ch), key.name(), ch.attr(key).get() == null);
+            log.debug("{} RESET => Cleared channel attribute '{}' (cleared: {})", Netty.id(ch), key.name(), ch.attr(key).get() == null);
         }
     }
 
@@ -341,7 +341,7 @@ public class NettyUtil {
             if (future.isSuccess()) {
                 return CompletableFuture.completedFuture(future.getNow());
             } else {
-                return ConcurrentUtil.failedFuture(future.cause());
+                return Concurrency.failedFuture(future.cause());
             }
         } else {
             CompletableFuture<V> cFuture = new CompletableFuture<>();
@@ -371,7 +371,7 @@ public class NettyUtil {
                 assert channelFuture.channel() != null;
                 return CompletableFuture.supplyAsync(channelFuture::channel, channelFuture.channel().eventLoop());
             } else {
-                return ConcurrentUtil.failedFuture(channelFuture.cause(), channelFuture.channel() == null ? null : channelFuture.channel().eventLoop());
+                return Concurrency.failedFuture(channelFuture.cause(), channelFuture.channel() == null ? null : channelFuture.channel().eventLoop());
             }
         } else {
             CompletableFuture<Channel> cFuture = new CompletableFuture<>();
@@ -421,16 +421,15 @@ public class NettyUtil {
             charset = StandardCharsets.UTF_8;
 
         String data = buffer.readCharSequence(length, charset).toString();
-        //upon successful read, we need to advance the reader index by 1 so the next read operation
+        //advance the reader index by 1 so the next read operation
         //will not start on the previous null-byte, which might be interpreted as null/empty.
         if (buffer.isReadable())
-            buffer.skipBytes(1);
+            buffer.skipBytes(1); //skip null-terminating byte
         return data;
     }
 
     public static CompletableFuture<Void> close(Channel channel) {
         CompletableFuture<Void> cf = new CompletableFuture<>();
-
         ChannelFuture future = channel.close();
         if (future.isDone()) {
             if (future.isSuccess()) {

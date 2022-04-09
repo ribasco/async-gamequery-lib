@@ -82,12 +82,12 @@ public final class Platform {
             @Override
             public void run() {
                 if (DEFAULT_EXECUTOR != null) {
-                    if (ConcurrentUtil.shutdown(DEFAULT_EXECUTOR)) {
+                    if (Concurrency.shutdown(DEFAULT_EXECUTOR)) {
                         log.debug("PLATFORM => Default global executor has shutdown gracefully");
                     }
                 }
                 if (DEFAULT_EVENT_LOOP_GROUP != null) {
-                    if (ConcurrentUtil.shutdown(DEFAULT_EVENT_LOOP_GROUP)) {
+                    if (Concurrency.shutdown(DEFAULT_EVENT_LOOP_GROUP)) {
                         log.debug("PLATFORM => Default global event loop group has shutdown gracefully");
                     }
                 }
@@ -157,7 +157,7 @@ public final class Platform {
                 if (future.isSuccess()) {
                     new Thread(() -> {
                         log.debug("PLATFORM => Shutting down default global executor");
-                        ConcurrentUtil.shutdown(executor);
+                        Concurrency.shutdown(executor);
                     }, "agql-shutdown").start();
                 } else {
                     throw new IllegalStateException(future.cause());

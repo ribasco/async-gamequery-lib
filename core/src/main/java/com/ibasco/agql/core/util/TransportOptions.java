@@ -18,7 +18,6 @@ package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.enums.BufferAllocatorType;
-import com.ibasco.agql.core.exceptions.IncompletePacketException;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.ChannelHealthChecker;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
@@ -71,11 +70,6 @@ public final class TransportOptions {
      * Number of milliseconds to wait before we throw a WriteTimeoutException (Default: 5 seconds)
      */
     public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("writeTimeout", 5000, true, true);
-
-    /**
-     * When {@code true}, the transport will throw an {@link IncompletePacketException} if the split-packets received from the game server are in incomplete state.
-     */
-    public static final Option<Boolean> REPORT_INCOMPLETE_PACKET = Option.createOption("reportIncompletePacket", false, true);
 
     /**
      * The maximum number of milliseconds to wait before timing out on close channel operation
@@ -194,17 +188,12 @@ public final class TransportOptions {
      * @see #THREAD_EXECUTOR_SERVICE
      */
     public static final Option<Integer> THREAD_CORE_SIZE = Option.createOption("threadCorePoolSize", null);
-
-    /**
-     * When the number of threads is greater than the core, this is the maximum time that excess idle threads will wait for new tasks before terminating. Time unit is in milliseconds.
-     */
-    public static final Option<Long> THREAD_POOL_KEEP_ALIVE = Option.createOption("threadKeepAlive", Long.MAX_VALUE);
     //</editor-fold>
 
     //<editor-fold desc="Socket/Channel">
 
     /**
-     * Select a strategy to use in terms of allocating for netty's inbound/receive buffer. If you choose {@link BufferAllocatorType#FIXED}, make sure to also set an optimal value for the fixed  (Default is: FIXED)
+     * The strategy for allocating netty's inbound/outbound pooled buffers. If you choose {@link BufferAllocatorType#FIXED}, make sure to also set an optimal value for the buffer size (Default is: {@link BufferAllocatorType#FIXED})
      *
      * @see io.netty.channel.FixedRecvByteBufAllocator
      * @see io.netty.channel.AdaptiveRecvByteBufAllocator

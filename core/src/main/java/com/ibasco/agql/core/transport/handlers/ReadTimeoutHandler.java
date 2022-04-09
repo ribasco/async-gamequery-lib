@@ -18,7 +18,7 @@ package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
@@ -44,7 +44,7 @@ public class ReadTimeoutHandler extends IdleStateHandler {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         //do not throw timeout exceptions for channels with no request associated
         if (context.properties().envelope() == null || context.properties().responsePromise().isDone()) {
-            log.debug("{} INB => No request associated with channel. Not firing timeout", NettyUtil.id(ctx.channel()));
+            log.debug("{} INB => No request associated with channel. Not firing timeout", Netty.id(ctx.channel()));
             return;
         }
         readTimedOut(ctx);
@@ -52,7 +52,7 @@ public class ReadTimeoutHandler extends IdleStateHandler {
 
     protected void readTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {
-            log.debug("{} INB => Firing ReadTimeoutException (Time: {} ms)", NettyUtil.id(ctx.channel()), getReaderIdleTimeInMillis());
+            log.debug("{} INB => Firing ReadTimeoutException (Time: {} ms)", Netty.id(ctx.channel()), getReaderIdleTimeInMillis());
             ctx.fireExceptionCaught(ReadTimeoutException.INSTANCE);
             timeoutFired = true;
         }

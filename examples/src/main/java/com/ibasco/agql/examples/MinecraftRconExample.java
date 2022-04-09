@@ -19,17 +19,20 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.examples.base.BaseExample;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
-import org.apache.commons.lang3.StringUtils;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthResponse;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdResponse;
+import org.apache.commons.lang3.RegExUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
 
+//TODO: Merge with SourceRconExample
 public class MinecraftRconExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MinecraftRconExample.class);
@@ -61,7 +64,7 @@ public class MinecraftRconExample extends BaseExample {
 
     public void testRcon() throws InterruptedException {
         String address = promptInput("Please enter the minecraft server address", true, "", "mcRconIp");
-        int port = Integer.valueOf(promptInput("Please enter the server port", false, "25575", "mcRconPort"));
+        int port = promptInputInt("Please enter the server port", false, "25575", "mcRconPort");
 
         boolean authenticated = false;
 
@@ -69,10 +72,10 @@ public class MinecraftRconExample extends BaseExample {
 
         while (!authenticated) {
             String password = promptInput("Please enter the rcon password", true, "", "msRconPass");
-            log.info("Connecting to server {}:{}, with password = {}", address, port, StringUtils.replaceAll(password, ".", "*"));
-            SourceRconAuthStatus authStatus = mcRconClient.authenticate(serverAddress, password).join();
-            if (!authStatus.isAuthenticated()) {
-                log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
+            log.info("Connecting to server {}:{}, with password = {}", address, port, RegExUtils.replaceAll(password, ".", "*"));
+            SourceRconAuthResponse authResponse = mcRconClient.authenticate(serverAddress, password.getBytes(StandardCharsets.US_ASCII)).join();
+            if (!authResponse.isAuthenticated()) {
+                log.error("ERROR: Could not authenticate from server (Reason: {})", authResponse.getReason());
             } else
                 authenticated = true;
         }
@@ -90,11 +93,11 @@ public class MinecraftRconExample extends BaseExample {
         }
     }
 
-    private void handleResponse(String response, Throwable error) {
+    private void handleResponse(SourceRconCmdResponse response, Throwable error) {
         if (error != null) {
             log.error("Error occured while executing command: {}", error.getMessage());
             return;
         }
-        log.info("Received Reply: \n{}", response);
+        log.info("Received Reply: \n{}", response.getResult());
     }
 }

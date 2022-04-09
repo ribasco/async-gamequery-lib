@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.exceptions.WriteTimeoutException;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.ChannelHandlerContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +37,7 @@ public class WriteTimeoutHandler extends io.netty.handler.timeout.WriteTimeoutHa
     @Override
     protected void writeTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {
-            log.debug("{} OUT => Firing WriteTimeoutException", NettyUtil.id(ctx.channel()));
+            log.debug("{} OUT => Firing WriteTimeoutException", Netty.id(ctx.channel()));
             ctx.fireExceptionCaught(WriteTimeoutException.INSTANCE);
             timeoutFired = true;
         }

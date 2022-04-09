@@ -20,7 +20,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.Duration;
 
-public class TimeUtil {
+public class Time {
 
     public static String getTimeDesc(Duration duration) {
         return DurationFormatUtils.formatDuration(duration.toMillis(), "HH:mm:ss");

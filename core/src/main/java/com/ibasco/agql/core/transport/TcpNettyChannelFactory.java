@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
@@ -53,9 +53,9 @@ public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
         final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
         final InetSocketAddress localAddress = getResolver().resolveLocalAddress(data);
         if (localAddress != null) {
-            return NettyUtil.toCompletable(getBootstrap().clone().connect(remoteAddress, localAddress));
+            return Netty.toCompletable(getBootstrap().clone().connect(remoteAddress, localAddress));
         } else {
-            return NettyUtil.toCompletable(getBootstrap().clone().connect(remoteAddress));
+            return Netty.toCompletable(getBootstrap().clone().connect(remoteAddress));
         }
     }
 }

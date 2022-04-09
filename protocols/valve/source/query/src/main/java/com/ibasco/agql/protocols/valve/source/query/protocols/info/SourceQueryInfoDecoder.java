@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.protocols.info;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.*;
 import com.ibasco.agql.protocols.valve.source.query.handlers.SourceQueryAuthDecoder;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
@@ -58,12 +58,12 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             int undocumentedByte = buf.readUnsignedByte();
 
             if (isDebugEnabled())
-                debug("INFO Dump ({})\n{}", undocumentedByte, NettyUtil.prettyHexDump(buf));
+                debug("INFO Dump ({})\n{}", undocumentedByte, Netty.prettyHexDump(buf));
 
-            decodeField("name", buf, NettyUtil::readString, info::setName);
-            decodeField("mapName", buf, NettyUtil::readString, info::setMapName);
-            decodeField("gameDirectory", buf, NettyUtil::readString, info::setGameDirectory);
-            decodeField("gameDescription", buf, NettyUtil::readString, info::setGameDescription);
+            decodeField("name", buf, Netty::readString, info::setName);
+            decodeField("mapName", buf, Netty::readString, info::setMapName);
+            decodeField("gameDirectory", buf, Netty::readString, info::setGameDirectory);
+            decodeField("gameDescription", buf, Netty::readString, info::setGameDescription);
             decodeField("appId", buf, buf::readShortLE, info::setAppId, Short::intValue);
             decodeField("playerCount", buf, buf::readUnsignedByte, info::setNumOfPlayers, Short::intValue);
             decodeField("maxPlayerCount", buf, buf::readUnsignedByte, info::setMaxPlayers, Short::intValue);
@@ -72,7 +72,7 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             decodeField("operatingSystem", buf, READ_ASCII_BYTE_STR, info::setOperatingSystem);
             decodeField("isPrivateServer", buf, buf::readByte, info::setPrivateServer, IS_PRIVATE_SERVER);
             decodeField("isSecure", buf, buf::readByte, info::setSecure, IS_VAC);
-            decodeField("gameVersion", buf, NettyUtil::readString, info::setGameVersion);
+            decodeField("gameVersion", buf, Netty::readString, info::setGameVersion);
 
             //do we still have more bytes to process?
             if (!buf.isReadable()) {
@@ -84,8 +84,8 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             decodeFlag("edfServerPort", buf, flags, A2S_INFO_EDF_PORT, buf::readShortLE, null);
             decodeFlag("serverSteamId", buf, flags, A2S_INFO_EDF_STEAMID, buf::readLongLE, info::setServerId);
             decodeFlag("sourceTvPort", buf, flags, A2S_INFO_EDF_SOURCETV, buf::readShortLE, info::setTvPort, Short::intValue);
-            decodeFlag("sourceTvName", buf, flags, A2S_INFO_EDF_SOURCETV, NettyUtil::readString, info::setTvName);
-            decodeFlag("serverTags", buf, flags, A2S_INFO_EDF_TAGS, NettyUtil::readString, info::setServerTags);
+            decodeFlag("sourceTvName", buf, flags, A2S_INFO_EDF_SOURCETV, Netty::readString, info::setTvName);
+            decodeFlag("serverTags", buf, flags, A2S_INFO_EDF_TAGS, Netty::readString, info::setServerTags);
             decodeFlag("appId64", buf, flags, A2S_INFO_EDF_GAMEID, buf::readLongLE, info::setGameId);
         } else {
             debug("Received an empty INFO response");

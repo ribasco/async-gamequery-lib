@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.pool;
 
 import static com.ibasco.agql.core.transport.pool.NettyChannelPool.isPooled;
-import com.ibasco.agql.core.util.ConcurrentUtil;
+import com.ibasco.agql.core.util.Concurrency;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.util.Attribute;
@@ -288,7 +288,7 @@ public class DefaultPooledChannel extends PooledChannel {
     @Override
     public CompletableFuture<Void> release() {
         if (eventLoop().isShutdown())
-            return ConcurrentUtil.failedFuture(new RejectedExecutionException("Executor has shutdown"));
+            return Concurrency.failedFuture(new RejectedExecutionException("Executor has shutdown"));
         if (!isPooled(this))
             return CompletableFuture.completedFuture(null);
         final NettyChannelPool pool = getChannelPool();//NettyUtil.getChannelPool(this);

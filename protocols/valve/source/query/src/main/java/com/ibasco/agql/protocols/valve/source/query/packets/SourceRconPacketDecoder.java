@@ -19,8 +19,8 @@ package com.ibasco.agql.protocols.valve.source.query.packets;
 import com.ibasco.agql.core.PacketDecoder;
 import com.ibasco.agql.core.exceptions.MalformedPacketException;
 import com.ibasco.agql.core.exceptions.PacketDecodeException;
-import com.ibasco.agql.core.util.ByteUtil;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Bytes;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -90,7 +90,7 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
                 throw new PacketDecodeException("Invalid packet type: " + packetType);
             }
             if (log.isDebugEnabled())
-                debug(ctx, " [x] {} = YES (Actual: '{}', {}, {})", desc, SourceRcon.getPacketTypeName(packetType), packetType, ByteUtil.toHexString(packetType, ByteOrder.LITTLE_ENDIAN));
+                debug(ctx, " [x] {} = YES (Actual: '{}', {}, {})", desc, SourceRcon.getPacketTypeName(packetType), packetType, Bytes.toHexString(packetType, ByteOrder.LITTLE_ENDIAN));
 
             //Read and verify payload (body)
             desc = StringUtils.rightPad("Contains Body?", PAD_SIZE);
@@ -111,7 +111,7 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
                 if (log.isDebugEnabled()) {
                     byte[] body = new byte[bodyLength];
                     packetPayload.getBytes(packetPayload.readerIndex(), body, 0, bodyLength);
-                    debug(ctx, " [x] {} = YES (Length: {}, Body String: {}, Data: {})", desc, bodyLength, RegExUtils.replaceAll(StringUtils.truncate(new String(body), 30), "\n", "\\\\n"), ByteUtil.toHexString(body));
+                    debug(ctx, " [x] {} = YES (Length: {}, Body String: {}, Data: {})", desc, bodyLength, RegExUtils.replaceAll(StringUtils.truncate(new String(body), 30), "\n", "\\\\n"), Bytes.toHexString(body));
                 } else {
                     debug(ctx, " [x] {} = YES (Length: {})", desc, bodyLength);
                 }
@@ -130,15 +130,15 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
             desc = StringUtils.rightPad("Valid packet terminator?", PAD_SIZE);
             if (!SourceRcon.isValidTerminator(packetTerminator)) {
                 //malformed packet, throw an exception
-                throw new MalformedPacketException("Expected either a packet terminating byte or a NULL byte but was: " + ByteUtil.toHexString(packetTerminator));
+                throw new MalformedPacketException("Expected either a packet terminating byte or a NULL byte but was: " + Bytes.toHexString(packetTerminator));
             }
             if (log.isDebugEnabled())
-                debug(ctx, " [x] {} = YES (Packet Terminator = {} ({}))", desc, packetTerminator, ByteUtil.toHexString((byte) packetTerminator));
+                debug(ctx, " [x] {} = YES (Packet Terminator = {} ({}))", desc, packetTerminator, Bytes.toHexString((byte) packetTerminator));
 
             //At this point, we can now construct a packet
             desc = StringUtils.rightPad("Decode Result", PAD_SIZE);
             if (log.isDebugEnabled())
-                debug(ctx, " [x] {} = Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Payload Size = {}, Packet Terminator: {}", desc, packetSize, packetId, packetType, in.readableBytes(), bodyLength, ByteUtil.toHexString(packetTerminator));
+                debug(ctx, " [x] {} = Size = {}, Id = {}, Type = {}, Remaining Bytes = {}, Payload Size = {}, Packet Terminator: {}", desc, packetSize, packetId, packetType, in.readableBytes(), bodyLength, Bytes.toHexString(packetTerminator));
 
             SourceRconPacket packet = SourceRconPacketFactory.createPacket(packetSize, packetId, packetType, packetTerminator, packetPayload);
             desc = StringUtils.rightPad("Decoded Packet", PAD_SIZE);
@@ -154,6 +154,6 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
 
     private static void debug(ChannelHandlerContext ctx, String msg, Object... args) {
         if (log.isDebugEnabled())
-            log.debug(String.format("%s %s", NettyUtil.id(ctx), msg), args);
+            log.debug(String.format("%s %s", Netty.id(ctx), msg), args);
     }
 }

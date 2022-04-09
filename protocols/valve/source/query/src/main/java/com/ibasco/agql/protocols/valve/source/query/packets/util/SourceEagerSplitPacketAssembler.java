@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.packets.util;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySplitPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
@@ -90,7 +90,7 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         }
 
         //its already initialized
-        log.debug("{} ASSEMBLER => Adding packet: {} (Last Packet Number Received: {}, Count: {})", NettyUtil.id(ctx), splitPacket, lastPacketNum, received());
+        log.debug("{} ASSEMBLER => Adding packet: {} (Last Packet Number Received: {}, Count: {})", Netty.id(ctx), splitPacket, lastPacketNum, received());
 
         this.packets[splitPacket.getPacketNumber()] = splitPacket;
         this.lastPacketNum = splitPacket.getPacketNumber();
@@ -99,7 +99,7 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         int offset = splitPacket.getPacketNumber() * splitPacket.getPacketMaxSize();
         buffer.writerIndex(offset);
         buffer.writeBytes(splitPacket.content());
-        log.debug("{} ASSEMBLER => Writing packet to offset: {}", NettyUtil.id(ctx), offset);
+        log.debug("{} ASSEMBLER => Writing packet to offset: {}", Netty.id(ctx), offset);
         if (splitPacket.getPacketCount() == received()) {
             this.completed = true;
             return true;
@@ -145,13 +145,13 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
             this.buffer.release();
         this.buffer = null;
         this.completed = false;
-        log.debug("{} ASSEMBLER => Successfully reset assembler", NettyUtil.id(ctx));
+        log.debug("{} ASSEMBLER => Successfully reset assembler", Netty.id(ctx));
     }
 
     private void initialize(SourceQuerySplitPacket packet) {
         if (completed || this.packets != null)
             throw new IllegalStateException("Not yet in completed state");
-        log.debug("{} ASSEMBLER => Initializing packet container", NettyUtil.id(ctx));
+        log.debug("{} ASSEMBLER => Initializing packet container", Netty.id(ctx));
         this.packets = new SourceQuerySplitPacket[packet.getPacketCount()];
         this.packetId = packet.getId();
         this.maxPacketSize = packet.getPacketMaxSize();
@@ -159,7 +159,7 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         //pre-allocate buffer
         int bufferSize = maxPacketSize * packetCount;
         this.buffer = allocator.directBuffer(bufferSize);
-        log.debug("{} ASSEMBLER => Pre-allocated buffer with {} bytes", NettyUtil.id(ctx), bufferSize);
+        log.debug("{} ASSEMBLER => Pre-allocated buffer with {} bytes", Netty.id(ctx), bufferSize);
     }
 
     @Override

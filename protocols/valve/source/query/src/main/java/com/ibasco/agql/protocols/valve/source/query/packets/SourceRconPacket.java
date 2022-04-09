@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.packets;
 
 import com.ibasco.agql.core.AbstractPacket;
-import com.ibasco.agql.core.util.ByteUtil;
+import com.ibasco.agql.core.util.Bytes;
 import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -83,7 +83,7 @@ public class SourceRconPacket extends AbstractPacket implements Comparable<Sourc
                 .append("packet size", size)
                 .append("id", id)
                 .append("type", type)
-                .append("terminator", ByteUtil.toHexString(terminator));
+                .append("terminator", Bytes.toHexString(terminator));
     }
 
     @Override

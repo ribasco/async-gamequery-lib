@@ -53,14 +53,14 @@ public class UUID implements Serializable {
         intBytes[1] = data[2];
         intBytes[2] = data[4];
         intBytes[3] = data[6];
-        return Math.abs(ByteUtil.toIntegerLE(intBytes));
+        return Math.abs(Bytes.toIntegerLE(intBytes));
     }
 
     public int nextInteger() {
         byte[] intBytes = new byte[4];
         for (int i = 0; i < intBytes.length; i++)
             intBytes[i] = data[RandomUtils.nextInt(0, 8)];
-        return ByteUtil.toIntegerLE(intBytes);
+        return Bytes.toIntegerLE(intBytes);
     }
 
     @Override

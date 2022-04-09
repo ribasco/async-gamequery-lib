@@ -26,12 +26,11 @@ public final class SourceRconAuthResponse extends SourceRconResponse {
 
     private final SourceRconAuthReason reasonCode;
 
-    public SourceRconAuthResponse(int requestId, boolean authenticated) {
-        this(requestId, authenticated, null, true, null, null);
+    public SourceRconAuthResponse(boolean authenticated) {
+        this(authenticated, null, null);
     }
 
-    public SourceRconAuthResponse(int requestId, boolean authenticated, String reason, boolean success, Throwable error, SourceRconAuthReason reasonCode) {
-        super(requestId, success, error);
+    public SourceRconAuthResponse(boolean authenticated, String reason, SourceRconAuthReason reasonCode) {
         this.authenticated = authenticated;
         this.reason = reason;
         this.reasonCode = reasonCode;

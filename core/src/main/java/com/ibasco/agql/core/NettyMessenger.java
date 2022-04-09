@@ -218,7 +218,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * @return An {@link Envelope} containing the request and other details needed by the {@link Transport}
      */
     public final Envelope<R> newEnvelope(InetSocketAddress address, R request) {
-        log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", NettyUtil.id(request), request.getClass().getSimpleName(), request.id(), address);
+        log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", Netty.id(request), request.getClass().getSimpleName(), request.id(), address);
         return MessageEnvelopeBuilder.createNew()
                                      .fromAnyAddress()
                                      .recipient(address)

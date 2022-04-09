@@ -18,11 +18,10 @@ package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.core.Client;
 import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
-import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.util.EncryptUtil;
+import com.ibasco.agql.core.util.Concurrency;
+import com.ibasco.agql.core.util.Encryption;
 import com.ibasco.agql.core.util.Strings;
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +37,8 @@ abstract public class BaseExample implements Closeable {
     private static final Logger log = LoggerFactory.getLogger(BaseExample.class);
 
     private static final String EXAMPLE_PROP_FILE = "example.properties";
+
+    private final Scanner userInput = new Scanner(System.in);
 
     private final Properties exampleProps = new Properties();
 
@@ -95,12 +96,16 @@ abstract public class BaseExample implements Closeable {
         return promptInput(message, required, null);
     }
 
+    protected String promptInputPassword(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        return promptInput(message, required, defaultReturnValue, defaultProperty, true);
+    }
+
     protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue) {
         return promptInputBool(message, required, defaultReturnValue, null);
     }
 
     protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty);
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
         return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? BooleanUtils.toBoolean(tmpVal) : null;
     }
 
@@ -109,7 +114,7 @@ abstract public class BaseExample implements Closeable {
     }
 
     protected Integer promptInputInt(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty);
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
         return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? Integer.valueOf(tmpVal) : null;
     }
 
@@ -117,12 +122,14 @@ abstract public class BaseExample implements Closeable {
         return promptInput(message, required, defaultReturnValue, null);
     }
 
-    private final Scanner userInput = new Scanner(System.in);
-
     protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        return promptInput(message, required, defaultReturnValue, defaultProperty, StringUtils.containsIgnoreCase(message, "password"));
+    }
+
+    protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty, boolean isPassword) {
         String returnValue;
         //perform some bit of magic to determine if the prompt is a password type
-        boolean inputEmpty, isPassword = StringUtils.containsIgnoreCase(message, "password");
+        boolean inputEmpty;
         int retryCounter = 0;
         String defaultValue = defaultReturnValue;
 
@@ -132,7 +139,7 @@ abstract public class BaseExample implements Closeable {
                 try {
                     String defaultProp = getProp(defaultProperty);
                     if (!StringUtils.isEmpty(defaultProp))
-                        defaultValue = EncryptUtil.decrypt(defaultProp);
+                        defaultValue = Encryption.decrypt(defaultProp);
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }
@@ -144,7 +151,7 @@ abstract public class BaseExample implements Closeable {
         do {
             if (!StringUtils.isEmpty(defaultValue)) {
                 if (isPassword) {
-                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, RegExUtils.replaceAll(defaultValue, ".", "*"));
+                    System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, StringUtils.repeat('*', defaultValue.length() / 2));
                 } else
                     System.out.printf("\033[0;33m%s\033[0m \033[0;36m[%s]\033[0m: ", message, defaultValue);
             } else {
@@ -166,7 +173,7 @@ abstract public class BaseExample implements Closeable {
         if (!StringUtils.isEmpty(defaultProperty)) {
             if (isPassword) {
                 try {
-                    saveProp(defaultProperty, EncryptUtil.encrypt(returnValue));
+                    saveProp(defaultProperty, Encryption.encrypt(returnValue));
                 } catch (Exception e) {
                     throw new AsyncGameLibUncheckedException(e);
                 }
@@ -187,7 +194,7 @@ abstract public class BaseExample implements Closeable {
         } else {
             status = "\033[0;32mSKIPPED\033[0m";
         }
-        ConcurrentUtil.sleepUninterrupted(500);
+        Concurrency.sleepUninterrupted(500);
         System.out.print(status);
         System.out.println();
     }
@@ -197,12 +204,12 @@ abstract public class BaseExample implements Closeable {
             return;
         System.out.printf("(CLOSE) \033[0;35mClosing \033[0;33m'%s'\033[0;35m executor service: \033[0m", name);
         String status;
-        if (ConcurrentUtil.shutdown(executorService)) {
+        if (Concurrency.shutdown(executorService)) {
             status = "\033[0;32mOK\033[0m";
         } else {
             status = "\033[0;32mSKIPPED\033[0m";
         }
-        ConcurrentUtil.sleepUninterrupted(100);
+        Concurrency.sleepUninterrupted(100);
         System.out.print(status);
         System.out.println();
     }

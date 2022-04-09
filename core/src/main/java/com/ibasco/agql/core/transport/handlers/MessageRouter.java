@@ -20,7 +20,7 @@ import com.ibasco.agql.core.*;
 import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -52,7 +52,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         if (future.isSuccess()) {
             registerReadTimeoutHandler(ch);
         } else {
-            log.error("{} ROUTER => Error during read timout handler registration", NettyUtil.id(ch), future.cause());
+            log.error("{} ROUTER => Error during read timout handler registration", Netty.id(ch), future.cause());
             if (log.isDebugEnabled()) {
                 future.cause().printStackTrace(System.err);
             }
@@ -75,51 +75,54 @@ public class MessageRouter extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, @NotNull Object response) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
         final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         final Envelope<AbstractRequest> envelope = context.properties().envelope();
         if (context.messenger() == null)
             throw new IllegalStateException("Messenger not found for context: " + context);
         try {
             //send the response back to the messenger
-            if (response instanceof AbstractResponse) {
-                log.debug("{} ROUTER (INBOUND) => Response Received. Notifying messenger (Promise: {}, Request: {}, Response: {})", NettyUtil.id(context.channel()), context.properties().responsePromise(), envelope.content(), response);
-                context.receive((AbstractResponse) response);
+            if (msg instanceof AbstractResponse) {
+                log.debug("{} ROUTER (INBOUND) => Response Received. Notifying messenger (Promise: {}, Request: {}, Response: {})", Netty.id(context.channel()), context.properties().responsePromise(), envelope.content(), msg);
+                AbstractResponse response = (AbstractResponse) msg;
+                response.setAddress(context.remoteAddress());
+                response.setRequest(context.properties().request());
+                context.receive(response);
             } else {
                 //throw an error if we did not receive an AbstractResponse type
-                if (!isAccessible(response)) {
-                    context.receive(new NoMessageHandlerException(String.format("Resource '%s' is no longer accessible as it has already been released. No handlers available for this message (Reference count: %d, Context Id: %s)", response.getClass().getSimpleName(), ReferenceCountUtil.refCnt(response), context.id())));
+                if (!isAccessible(msg)) {
+                    context.receive(new NoMessageHandlerException(String.format("Resource '%s' is no longer accessible as it has already been released. No handlers available for this message (Reference count: %d, Context Id: %s)", msg.getClass().getSimpleName(), ReferenceCountUtil.refCnt(msg), context.id())));
                 } else {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
-                    if (response instanceof ByteBuf) {
-                        byte[] data =  NettyUtil.getBufferContentsAll((ByteBuf) response);
+                    if (msg instanceof ByteBuf) {
+                        byte[] data =  Netty.getBufferContentsAll((ByteBuf) msg);
                         cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
                     }
                     //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
-                    else if (response instanceof AbstractPacket) {
-                        byte[] data =  NettyUtil.getBufferContentsAll(((AbstractPacket) response).content());
+                    else if (msg instanceof AbstractPacket) {
+                        byte[] data =  Netty.getBufferContentsAll(((AbstractPacket) msg).content());
                         cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", data);
                     } else {
-                        cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", response.getClass().getSimpleName()));
+                        cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", msg.getClass().getSimpleName()));
                     }
                     //report back error
-                    Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", response.getClass().getSimpleName(), context.properties().request()), cause);
-                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), response.getClass().getSimpleName(), response.hashCode(), response, error);
+                    Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", msg.getClass().getSimpleName(), context.properties().request()), cause);
+                    log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), msg.getClass().getSimpleName(), msg.hashCode(), msg, error);
                     //if we have an invalid packet, dump the packet for the logs
                     if (cause instanceof InvalidPacketException)
-                        log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), response.getClass().getSimpleName(), context.properties().request(), NettyUtil.prettyHexDump(((InvalidPacketException) cause).getData()));
+                        log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), msg.getClass().getSimpleName(), context.properties().request(), Netty.prettyHexDump(((InvalidPacketException) cause).getData()));
                     context.receive(error);
                 }
             }
         } finally {
-            log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", context.id(), response.getClass().getSimpleName());
+            log.debug("{} ROUTER (INBOUND) => Releasing message '{}'", context.id(), msg.getClass().getSimpleName());
             try {
-                if (ReferenceCountUtil.release(response))
-                    log.debug("{} ROUTER (INBOUND) => Released reference counted message (Reference count remaining: {})", context.id(), ReferenceCountUtil.refCnt(response));
+                if (ReferenceCountUtil.release(msg))
+                    log.debug("{} ROUTER (INBOUND) => Released reference counted message (Reference count remaining: {})", context.id(), ReferenceCountUtil.refCnt(msg));
             } catch (IllegalReferenceCountException e) {
-                int refCnt = ReferenceCountUtil.refCnt(response);
-                log.warn("{} ROUTER (INBOUND) => Attempted to de-allocate resource '{}' but the resource has already been released. (Reference count: {})", context.id(), response, refCnt, e);
+                int refCnt = ReferenceCountUtil.refCnt(msg);
+                log.warn("{} ROUTER (INBOUND) => Attempted to de-allocate resource '{}' but the resource has already been released. (Reference count: {})", context.id(), msg, refCnt, e);
             }
         }
     }
@@ -143,13 +146,13 @@ public class MessageRouter extends ChannelDuplexHandler {
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
-        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", NettyUtil.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
+        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", Netty.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
     }
 
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelReadComplete();
-        log.debug("{} ROUTER (INBOUND) => Read Complete", NettyUtil.id(ctx.channel()));
+        log.debug("{} ROUTER (INBOUND) => Read Complete", Netty.id(ctx.channel()));
     }
 
     private static void registerReadTimeoutHandler(Channel channel) {
@@ -161,7 +164,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         Integer readTimeout = TransportOptions.READ_TIMEOUT.attr(channel);
         assert readTimeout != null;
         channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
-        log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", NettyUtil.id(channel), readTimeout);
+        log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", Netty.id(channel), readTimeout);
     }
 
     private static void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {

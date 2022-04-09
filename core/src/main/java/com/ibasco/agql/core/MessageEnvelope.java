@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 
 import java.net.SocketAddress;
 
@@ -74,6 +74,6 @@ public class MessageEnvelope<M extends Message> implements Envelope<M> {
     @Override
     public String toString() {
         String msgType = content() != null ? content().getClass().getSimpleName() : "N/A";
-        return String.format("Msg: %s, Type: %s, From: %s, To: %s", NettyUtil.id(this), msgType, sender(), recipient());
+        return String.format("Msg: %s, Type: %s, From: %s, To: %s", Netty.id(this), msgType, sender(), recipient());
     }
 }

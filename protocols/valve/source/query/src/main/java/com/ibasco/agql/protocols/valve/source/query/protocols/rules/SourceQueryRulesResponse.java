@@ -29,6 +29,9 @@ public class SourceQueryRulesResponse extends SourceQueryResponse<Map<String, St
         this.expectedCount = expectedCount;
     }
 
+    /**
+     * @return The total number of rules expected to be received.
+     */
     public final int getExpectedCount() {
         return expectedCount;
     }

@@ -22,7 +22,7 @@ import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.ChannelRegistry;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
@@ -46,9 +46,9 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
     private final ChannelFutureListener UNREGISTER_ON_CLOSE = future -> {
         final Channel channel = future.channel();
         if (unregister(channel)) {
-            log.debug("{} REGISTRY => Successfully unregistered channel: {}", NettyUtil.id(channel), channel);
+            log.debug("{} REGISTRY => Successfully unregistered channel: {}", Netty.id(channel), channel);
         } else {
-            log.debug("{} REGISTRY => Failed to unregister channel: {}", NettyUtil.id(channel), future.channel(), future.cause());
+            log.debug("{} REGISTRY => Failed to unregister channel: {}", Netty.id(channel), future.channel(), future.cause());
         }
     };
 
@@ -63,7 +63,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         if (!(channel.remoteAddress() instanceof InetSocketAddress))
             throw new ChannelRegistrationException(new UnsupportedAddressTypeException());
         synchronized (channels) {
-            log.debug("{} REGISTRY => Registering channel '{}'", NettyUtil.id(channel), channel);
+            log.debug("{} REGISTRY => Registering channel '{}'", Netty.id(channel), channel);
             final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
             if (!channels.put(address, channel))
                 throw new ChannelRegistrationException("Failed to register channel: " + channel);
@@ -86,7 +86,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
                 Map.Entry<InetSocketAddress, Channel> entry = it.next();
                 if (channel.id().equals(entry.getValue().id())) {
                     it.remove();
-                    log.debug("{} REGISTRY => Unregistered channel: {}", NettyUtil.id(entry.getValue()), entry.getValue());
+                    log.debug("{} REGISTRY => Unregistered channel: {}", Netty.id(entry.getValue()), entry.getValue());
                     return true;
                 }
             }

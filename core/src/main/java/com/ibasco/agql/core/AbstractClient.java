@@ -16,23 +16,18 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
-import dev.failsafe.event.EventListener;
-import dev.failsafe.event.ExecutionCompletedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.function.BiFunction;
 
 /**
  * Base implementation for all {@link Client} interfaces
@@ -53,8 +48,6 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     private final Options options;
 
     private Messenger<R, S> messenger;
-
-    private final ClientStatistics<S> statsCollector = new ClientStatistics<>();
 
     /**
      * Create a new client instance using the default configuration options.
@@ -87,7 +80,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");
         Objects.requireNonNull(request, "Request cannot be null");
-        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", NettyUtil.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
+        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", Netty.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
         return messenger().send(address, request);
     }
 
@@ -120,57 +113,5 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
             this.messenger = createMessenger(this.options);
         }
         return messenger;
-    }
-
-    public ClientStatistics<S> getClientStatistics() {
-        return statsCollector;
-    }
-
-    public static class ClientStatistics<S> {
-
-        public enum Stat {
-            RETRY,
-            SUCCESS,
-            FAIL,
-            ABORT,
-            SUCCESS_ATTEMPT,
-            RETRY_EXCEEDED
-        }
-
-        private final Map<Stat, Integer> counter = new HashMap<>();
-
-        private final EventListener<ExecutionCompletedEvent<S>> onFailure = event -> increment(Stat.FAIL);
-
-        private final EventListener<ExecutionCompletedEvent<S>> onSuccess = event -> {
-            if (event.isFirstAttempt())
-                increment(Stat.SUCCESS);
-            else
-                increment(Stat.SUCCESS_ATTEMPT);
-        };
-
-        private final EventListener<ExecutionCompletedEvent<S>> onRetry = event -> increment(Stat.RETRY);
-
-        private final EventListener<ExecutionCompletedEvent<S>> onAbort = event -> increment(Stat.ABORT);
-
-        private final EventListener<ExecutionCompletedEvent<S>> onRetriesExceeded = event -> increment(Stat.RETRY_EXCEEDED);
-
-        public Map<Stat, Integer> getValues() {
-            return new HashMap<>(counter);
-        }
-
-        public void reset() {
-            counter.clear();
-        }
-
-        private void increment(Stat key) {
-            counter.compute(key, new BiFunction<Stat, Integer, Integer>() {
-                @Override
-                public Integer apply(Stat stat, Integer integer) {
-                    if (integer == null)
-                        return 0;
-                    return integer + 1;
-                }
-            });
-        }
     }
 }

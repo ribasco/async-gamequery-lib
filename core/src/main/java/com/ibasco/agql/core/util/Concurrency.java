@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
 import java.util.concurrent.*;
 
 @ApiStatus.Internal
-public final class ConcurrentUtil {
+public final class Concurrency {
 
-    private static final Logger log = LoggerFactory.getLogger(ConcurrentUtil.class);
+    private static final Logger log = LoggerFactory.getLogger(Concurrency.class);
 
     public static <V> CompletionStage<V> wrap(CompletableFuture<V> future) {
         return future;
@@ -33,27 +33,6 @@ public final class ConcurrentUtil {
 
     public static <A, B> B combine(A a, B b) {
         return b;
-    }
-
-    public static Throwable unwrap(Throwable error) {
-        if (error == null)
-            return null;
-        if (error.getCause() != null)
-            return error.getCause();
-        return error;
-    }
-
-    public static void unwrapAndThrow(Throwable error) {
-        if (error == null)
-            return;
-        if (error instanceof CompletionException)
-            throw (CompletionException) error;
-        throw new CompletionException(error);
-    }
-
-    public static <U> U unwrapAndThrow(U s, Throwable error) {
-        unwrapAndThrow(error);
-        return s;
     }
 
     public static <V> CompletableFuture<V> failedFuture(Throwable error) {
@@ -69,11 +48,6 @@ public final class ConcurrentUtil {
         return CompletableFuture.supplyAsync(() -> {
             throw new CompletionException(error);
         }, executor);
-    }
-
-    public static <V> CompletableFuture<V> completeExceptionally(CompletableFuture<V> future, Throwable error) {
-        future.completeExceptionally(error);
-        return future;
     }
 
     /**

@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.handlers;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufHolder;
 import io.netty.channel.Channel;
@@ -49,7 +49,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
             log.debug("{} INB => Received incoming data but No VALID request found. It has either been cleared or has been marked as completed. Not propagating (Msg: {}, Request: {})", context.id(), msg, context.properties().envelope());
             if (msg instanceof ByteBuf && log.isDebugEnabled()) {
                 ByteBuf b = (ByteBuf) msg;
-                NettyUtil.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", context.id(), b.readableBytes()), b, 32);
+                Netty.dumpBuffer(log::debug, String.format("%s INB => Discarded packet (Size: %d)", context.id(), b.readableBytes()), b, 32);
             }
             ReferenceCountUtil.release(msg);
             return;
@@ -64,7 +64,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
                 decoded = bHolder.content();
                 log.debug("{} INB => Passing decoded message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());
                 if (log.isDebugEnabled()) {
-                    log.debug("{} INB => Data Dump for '{}'\n{}", context.id(), context.properties().request(), NettyUtil.prettyHexDump(bHolder.content()));
+                    log.debug("{} INB => Data Dump for '{}'\n{}", context.id(), context.properties().request(), Netty.prettyHexDump(bHolder.content()));
                 }
             } else {
                 decoded = msg;
@@ -81,7 +81,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         final Channel channel = ctx.channel();
         final NettyChannelContext context = NettyChannelContext.getContext(channel);
-        final String id = NettyUtil.id(channel);
+        final String id = Netty.id(channel);
         //Make sure we have a request associated, otherwise do not propagate
         if (hasInvalidRequest(channel)) {
             log.debug("{} INB => No VALID request found (Error: {}, Request: {})", id, cause.getClass().getSimpleName(), context.properties().envelope(), cause);

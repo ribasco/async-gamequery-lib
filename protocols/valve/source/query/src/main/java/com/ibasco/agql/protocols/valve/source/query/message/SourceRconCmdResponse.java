@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,26 +22,13 @@ public final class SourceRconCmdResponse extends SourceRconResponse {
 
     private final String result;
 
-    private final String command;
-
-    public SourceRconCmdResponse(int requestId, String command, String result, boolean success) {
-        this(requestId, command, result, success, null);
-    }
-
-    public SourceRconCmdResponse(int requestId, String command, String result, boolean success, Throwable error) {
-        super(requestId, success, error);
-        this.command = command;
+    public SourceRconCmdResponse(String result) {
         this.result = result;
     }
 
-    public SourceRconCmdResponse(SourceRconCmdResponse copy) {
-        super(copy.getRequestId(), copy.isSuccess(), copy.getError());
-        this.command = copy.command;
-        this.result = copy.result;
-    }
-
     public String getCommand() {
-        return command;
+        SourceRconCmdRequest request = (SourceRconCmdRequest) getRequest();
+        return request.getCommand();
     }
 
     public String getResult() {

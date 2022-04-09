@@ -17,8 +17,8 @@
 package com.ibasco.agql.protocols.valve.source.query.packets.util;
 
 import com.ibasco.agql.core.exceptions.PacketDecodeException;
-import com.ibasco.agql.core.util.CompressUtil;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Compression;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySplitPacket;
 import io.netty.buffer.ByteBuf;
@@ -97,11 +97,11 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         }
 
         //its already initialized
-        log.debug("{} ASSEMBLER => Adding packet: {} (Last Packet Number Received: {}, Count: {})", NettyUtil.id(ctx), splitPacket, lastPacketNum, received());
+        log.debug("{} ASSEMBLER => Adding packet: {} (Last Packet Number Received: {}, Count: {})", Netty.id(ctx), splitPacket, lastPacketNum, received());
         this.packets[splitPacket.getPacketNumber()] = splitPacket;
         this.lastPacketNum = splitPacket.getPacketNumber();
         if (splitPacket.getPacketCount() == received()) {
-            log.debug("{} ASSEMBLER => Marking assembler as 'completed' (Received packets: {})", NettyUtil.id(ctx), received());
+            log.debug("{} ASSEMBLER => Marking assembler as 'completed' (Received packets: {})", Netty.id(ctx), received());
             this.completed = true;
             return true;
         }
@@ -117,11 +117,11 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
     public ByteBuf getBuffer() {
         if (!this.completed)
             throw new IllegalStateException("Not yet in completed state");
-        log.debug("{} ASSEMBLER => Container is now in completed state (Total packets received: {})", NettyUtil.id(ctx), received());
+        log.debug("{} ASSEMBLER => Container is now in completed state (Total packets received: {})", Netty.id(ctx), received());
         try {
             validatePackets();
             this.buffer = reassemble();
-            log.debug("{} ASSEMBLER => Packet container is now in a valid state (Buffer: {})", NettyUtil.id(ctx), this.buffer);
+            log.debug("{} ASSEMBLER => Packet container is now in a valid state (Buffer: {})", Netty.id(ctx), this.buffer);
             return Objects.requireNonNull(this.buffer, "Buffer not yet available. Make sure to to check isComplete before accessing this method");
         } catch (PacketDecodeException e) {
             throw new IllegalStateException(e);
@@ -163,7 +163,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
             this.buffer.release();
         this.buffer = null;
         this.completed = false;
-        log.debug("{} ASSEMBLER => Successfully reset assembler", NettyUtil.id(ctx));
+        log.debug("{} ASSEMBLER => Successfully reset assembler", Netty.id(ctx));
     }
 
     @Override
@@ -192,10 +192,10 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
     private ByteBuf reassemble() throws PacketDecodeException {
         int totalPacketSize = packetStream.get().mapToInt(SourceQuerySplitPacket::getPacketSize).sum();
         int maxBufferSize = this.maxPacketSize * this.packetCount;
-        log.debug("{} ASSEMBLER => reassemble(-1): Total Size of received packets: {} (Max: {})", NettyUtil.id(ctx), totalPacketSize, maxBufferSize);
+        log.debug("{} ASSEMBLER => reassemble(-1): Total Size of received packets: {} (Max: {})", Netty.id(ctx), totalPacketSize, maxBufferSize);
         assert totalPacketSize > 0;
         ByteBuf buf = allocator.directBuffer(totalPacketSize);
-        log.debug("{} ASSEMBLER => reassemble(-1): Allocated single-type packet size to {} bytes", NettyUtil.id(ctx), totalPacketSize);
+        log.debug("{} ASSEMBLER => reassemble(-1): Allocated single-type packet size to {} bytes", Netty.id(ctx), totalPacketSize);
         for (int index = 0, packetsLength = packets.length; index < packetsLength; index++) {
             SourceQuerySplitPacket packet = packets[index];
             assert packet.content() != null;
@@ -210,13 +210,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
                     } finally {
                         if (payload != null) {
                             payload.release();
-                            log.debug("{} ASSEMBLER => reassemble(): Released allocated buffer used for decompression (Packet: {})", NettyUtil.id(ctx), packet);
+                            log.debug("{} ASSEMBLER => reassemble(): Released allocated buffer used for decompression (Packet: {})", Netty.id(ctx), packet);
                         }
                     }
                 } else {
                     buf.writeBytes(packet.content());
                 }
-                log.debug("{} ASSEMBLER => reassemble({}): {} (Remaining: {})", NettyUtil.id(ctx), index, packet, buf.writableBytes());
+                log.debug("{} ASSEMBLER => reassemble({}): {} (Remaining: {})", Netty.id(ctx), index, packet, buf.writableBytes());
             } finally {
                 packet.release();
             }
@@ -256,7 +256,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
             //store the decompressed data into dcPayload's backing buffer
             if (bzip2.read(dcPayload.array(), 0, dcPayload.writableBytes()) > 0) {
                 //Verify checksum
-                if (CompressUtil.getCrc32Checksum(dcPayload.array()) != packet.getCrcChecksum())
+                if (Compression.getCrc32Checksum(dcPayload.array()) != packet.getCrcChecksum())
                     throw new IOException("CRC32 checksum mismatch");
             } else {
                 throw new IOException("Failed to decompress packet data. Possibly corrupted");
@@ -279,13 +279,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         if (totalBytesReceived > maxBufferSize)
             throw new IllegalStateException(String.format("The total bytes received is larger than the maximum allowable size (Max: %d, Actual: %d)", maxBufferSize, totalBytesReceived));
 
-        log.debug("{} ASSEMBLER => All packets have been received and are in a valid state", NettyUtil.id(ctx));
+        log.debug("{} ASSEMBLER => All packets have been received and are in a valid state", Netty.id(ctx));
     }
 
     private void initialize(SourceQuerySplitPacket packet) {
         if (completed || this.packets != null)
             throw new IllegalStateException("Not yet in completed state");
-        log.debug("{} ASSEMBLER => Initializing packet container", NettyUtil.id(ctx));
+        log.debug("{} ASSEMBLER => Initializing packet container", Netty.id(ctx));
         this.packets = new SourceQuerySplitPacket[packet.getPacketCount()];
         this.packetId = packet.getId();
         this.maxPacketSize = packet.getPacketMaxSize();

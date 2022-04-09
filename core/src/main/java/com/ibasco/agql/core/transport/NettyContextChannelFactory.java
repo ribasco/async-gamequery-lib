@@ -19,7 +19,7 @@ package com.ibasco.agql.core.transport;
 import com.ibasco.agql.core.NettyChannelContext;
 import static com.ibasco.agql.core.transport.NettyChannelAttributes.CHANNEL_CONTEXT;
 import com.ibasco.agql.core.util.ImmutablePair;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.util.Attribute;
@@ -80,13 +80,13 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         NettyChannelContext context = attr.get();
         //no context available yet, create and initialize
         if (context == null) {
-            log.debug("{} CHANNEL_FACTORY ({}) => Initializing NEW context for channel '{}' with envelope '{}' (Event Loop: {})",NettyUtil.id(channel), getClass().getSimpleName(), channel, address, NettyUtil.getThreadName(channel));
+            log.debug("{} CHANNEL_FACTORY ({}) => Initializing NEW context for channel '{}' with envelope '{}' (Event Loop: {})", Netty.id(channel), getClass().getSimpleName(), channel, address, Netty.getThreadName(channel));
             context = contextFactory.create(channel);
             attr.set(context);
         } else {
             //If the references are not the same but points to the same underlying channel, then we need to recreate the context
             if (channel != context.channel() && channel.id().equals(context.channel().id())) {
-                log.debug("{} CHANNEL_FACTORY ({}) => Reference mismatch. Replacing channel context from '{}' to '{}'", NettyUtil.id(channel), getClass().getSimpleName(), context.channel(), channel);
+                log.debug("{} CHANNEL_FACTORY ({}) => Reference mismatch. Replacing channel context from '{}' to '{}'", Netty.id(channel), getClass().getSimpleName(), context.channel(), channel);
                 context = contextFactory.create(channel);
                 attr.set(context);
             } else {

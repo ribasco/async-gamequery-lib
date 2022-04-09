@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
 import com.ibasco.agql.core.Envelope;
-import static com.ibasco.agql.core.util.ByteUtil.toHexString;
+import static com.ibasco.agql.core.util.Bytes.toHexString;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;

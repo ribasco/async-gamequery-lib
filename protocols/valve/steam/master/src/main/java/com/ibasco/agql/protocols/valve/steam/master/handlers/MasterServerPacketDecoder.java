@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.steam.master.handlers;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerChannelContext;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
@@ -51,11 +51,11 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
         //ignore header
         if (MasterServer.isHeaderPacket(packet)) {
-            log.debug("{} MASTER => Ignoring HEADER packet: {}", NettyUtil.id(ctx.channel()), packet.getAddressString(true));
+            log.debug("{} MASTER => Ignoring HEADER packet: {}", Netty.id(ctx.channel()), packet.getAddressString(true));
             packet.release();
         } else {
             if (MasterServer.isTerminatingPacket(packet)) {
-                log.debug("{} MASTER => Received terminator packet: {}", NettyUtil.id(ctx.channel()), lastAddress);
+                log.debug("{} MASTER => Received terminator packet: {}", Netty.id(ctx.channel()), lastAddress);
             }
             out.add(packet);
         }
@@ -67,7 +67,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
             if (lastAddress == null)
                 return;
             MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
-            log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", NettyUtil.id(ctx.channel()), lastAddress);
+            log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", Netty.id(ctx.channel()), lastAddress);
             /*if (!MasterServer.isTerminatingAddress(lastAddress)) {
                int sendInterval = MasterServerOptions.REQUEST_DELAY.attr(ctx);
                 MasterServerRequest request = context.properties().request();

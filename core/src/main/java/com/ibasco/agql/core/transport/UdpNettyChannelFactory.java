@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -54,6 +54,6 @@ public class UdpNettyChannelFactory extends AbstractNettyChannelFactory {
         else
             bootstrap.localAddress(0);
         bootstrap.remoteAddress(remoteAddress);
-        return NettyUtil.toCompletable((connectionless) ? bootstrap.bind() : bootstrap.connect());
+        return Netty.toCompletable((connectionless) ? bootstrap.bind() : bootstrap.connect());
     }
 }

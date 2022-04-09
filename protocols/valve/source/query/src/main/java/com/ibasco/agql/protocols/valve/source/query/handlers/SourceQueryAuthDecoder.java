@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.ByteUtil;
+import com.ibasco.agql.core.util.Bytes;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.SourceChallengeException;
@@ -83,12 +83,12 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
             //if auto update is not set, throw an exception instead
             if (!request.isAutoUpdate()) {
                 debug("Auto-Update challenge is disabled. Exception will be thrown");
-                ctx.fireExceptionCaught(new SourceChallengeException(String.format("Server '%s' responded with a challenge number: '%d' (%s). Please re-send the request using the received challenge number.", envelope.recipient(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN)), challenge));
+                ctx.fireExceptionCaught(new SourceChallengeException(String.format("Server '%s' responded with a challenge number: '%d' (%s). Please re-send the request using the received challenge number.", envelope.recipient(), challenge, Bytes.toHexString(challenge, ByteOrder.LITTLE_ENDIAN)), challenge));
                 return null;
             }
             if (isDebugEnabled()) {
-                debug("Got challenge response: {} ({})", challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN));
-                debug("Resending '{}' request with challenge (Challenge: {} ({}), Destination: {})", request.getClass().getSimpleName(), challenge, ByteUtil.toHexString(challenge, ByteOrder.LITTLE_ENDIAN), context.properties().envelope().recipient());
+                debug("Got challenge response: {} ({})", challenge, Bytes.toHexString(challenge, ByteOrder.LITTLE_ENDIAN));
+                debug("Resending '{}' request with challenge (Challenge: {} ({}), Destination: {})", request.getClass().getSimpleName(), challenge, Bytes.toHexString(challenge, ByteOrder.LITTLE_ENDIAN), context.properties().envelope().recipient());
             }
             request.setChallenge(challenge);
             //resend auth request

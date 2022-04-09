@@ -123,7 +123,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     public final CompletableFuture<Channel> create(final Object data, EventLoop eventLoop) {
         if (eventLoop == null)
             return create(data);
-        return NettyUtil.useEventLoop(newChannel(data), eventLoop);
+        return Netty.useEventLoop(newChannel(data), eventLoop);
     }
 
     //<editor-fold desc="Public Methods">
@@ -169,7 +169,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     @Override
     public void close() throws IOException {
-        if (ConcurrentUtil.shutdown(eventLoopGroup, options.getOrDefault(TransportOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
+        if (Concurrency.shutdown(eventLoopGroup, options.getOrDefault(TransportOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
             log.debug("TRANSPORT (CLOSE) => Transport closed gracefully");
         } else {
             log.debug("TRANSPORT (CLOSE) => Shutdown interrupted");

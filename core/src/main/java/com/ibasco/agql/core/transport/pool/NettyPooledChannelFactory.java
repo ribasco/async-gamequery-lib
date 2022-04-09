@@ -20,7 +20,7 @@ package com.ibasco.agql.core.transport.pool;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryDecorator;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -71,7 +71,7 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
 
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
-        return NettyUtil.useEventLoop(create(data), eventLoop);
+        return Netty.useEventLoop(create(data), eventLoop);
     }
 
     public NettyChannelPoolFactory getChannelPoolFactory() {

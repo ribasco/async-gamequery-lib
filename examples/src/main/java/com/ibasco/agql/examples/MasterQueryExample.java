@@ -21,11 +21,13 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Vector;
@@ -57,7 +59,8 @@ public class MasterQueryExample extends BaseExample {
     public void listAllServers() {
         int appId = Integer.parseInt(promptInput("Please enter an App ID (optional | -1 default): ", true, "-1", "masterAppId"));
 
-        MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
+        //MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
+        final MasterServerFilter filter = buildServerFilter();
 
         if (appId > 0)
             filter.appId(appId);
@@ -75,11 +78,60 @@ public class MasterQueryExample extends BaseExample {
         }
     }
 
-    public void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
+    private void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
         if (addressSet.add(address)) {
             System.out.printf("\033[0;34mReceived Server Address :\033[0m \033[0;33m%s\033[0m\n", address);
         } else {
             System.out.printf("\033[0;31mReceived Server Address (DUPLICATE) : %s\033[0m\n", address);
         }
+    }
+
+    /**
+     * Create our server filter using {@link MasterServerFilter} builder
+     *
+     * @return The {@link MasterServerFilter} created from the user input
+     */
+    private MasterServerFilter buildServerFilter() {
+        System.out.println("Note: Type '\u001B[32mskip\u001B[0m' to exclude filter");
+
+        Integer appId = promptInputInt("List servers only from this app id (int)", false, null, "srcMasterAppId");
+        Boolean nonEmptyServers = promptInputBool("List only non-empty servers? (y/n)", false, null, "srcMasterEmptySvrs");
+        Boolean passwordProtected = promptInputBool("List password protected servers? (y/n)", false, null, "srcMasterPassProtect");
+        Boolean dedicatedServers = promptInputBool("List dedicated servers (y/n)", false, "y", "srcMasterDedicated");
+        String serverTags = promptInput("Specify public server tags (separated with comma)", false, null, "srcMasterServerTagsPublic");
+        String serverTagsHidden = promptInput("Specify hidden server tags (separated with comma)", false, null, "srcMasterServerTagsHidden");
+        Boolean whiteListedOnly = promptInputBool("Display only whitelisted servers? (y/n)", false, null, "srcMasterWhitelisted");
+
+        MasterServerFilter filter = MasterServerFilter.create();
+
+        if (whiteListedOnly != null)
+            filter.isWhitelisted(whiteListedOnly);
+        if (dedicatedServers != null)
+            filter.dedicated(dedicatedServers);
+        if (nonEmptyServers != null && nonEmptyServers)
+            filter.isEmpty(true);
+        if (passwordProtected != null)
+            filter.isPasswordProtected(passwordProtected);
+        if (serverTags != null) {
+            String[] serverTagsArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(serverTags, ",");
+            if (Arrays.stream(serverTagsArray).noneMatch(v -> "skip".trim().equalsIgnoreCase(v))) {
+                filter.gametypes(serverTagsArray);
+                for (String type : serverTagsArray) {
+                    System.out.printf(" * Added server tag filter: '%s'\n", type);
+                }
+            }
+        }
+        if (serverTagsHidden != null) {
+            String[] serverTagsHiddenArray = StringUtils.splitByWholeSeparatorPreserveAllTokens(serverTagsHidden, ",");
+            if (Arrays.stream(serverTagsHiddenArray).noneMatch(v -> "skip".trim().equalsIgnoreCase(v))) {
+                filter.gamedata(serverTagsHiddenArray);
+                for (String type : serverTagsHiddenArray) {
+                    System.out.printf(" * Added hidden server tag filter: %s\n", type);
+                }
+            }
+        }
+        if (appId != null && appId > 0)
+            filter.appId(appId);
+        return filter;
     }
 }

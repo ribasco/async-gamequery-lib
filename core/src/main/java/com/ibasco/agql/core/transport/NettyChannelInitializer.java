@@ -21,7 +21,7 @@ import com.ibasco.agql.core.transport.handlers.MessageDecoder;
 import com.ibasco.agql.core.transport.handlers.MessageEncoder;
 import com.ibasco.agql.core.transport.handlers.MessageRouter;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelInitializer;
@@ -55,7 +55,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
     }
 
     public static void channelClosed(Channel ch, Throwable error) {
-        log.debug("{} HANDLER => Channel closed (Error: {})", NettyUtil.id(ch), error == null ? "None" : error.getLocalizedMessage());
+        log.debug("{} HANDLER => Channel closed (Error: {})", Netty.id(ch), error == null ? "None" : error.getLocalizedMessage());
         ch.pipeline().fireUserEventTriggered(ChannelEvent.CLOSED);
     }
 
@@ -65,23 +65,23 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
         if (handlerInitializer != null) {
             synchronized (this) {
                 //register messenger specific inbound handlers
-                NettyUtil.registerHandlers(pipe, handlerInitializer::registerInboundHandlers, NettyUtil.INBOUND);
+                Netty.registerHandlers(pipe, handlerInitializer::registerInboundHandlers, Netty.INBOUND);
 
                 //terminating handler
                 pipe.addLast(MessageRouter.NAME, new MessageRouter());
 
                 //register messenger specific outbound handlers
-                NettyUtil.registerHandlers(pipe, handlerInitializer::registerOutboundHandlers, NettyUtil.OUTBOUND);
+                Netty.registerHandlers(pipe, handlerInitializer::registerOutboundHandlers, Netty.OUTBOUND);
             }
         }
         pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
 
         if (!NettyChannelPool.isPooled(ch)) {
-            log.debug("{} HANDLER => Channel is not pooled. Registering timeout handlers", NettyUtil.id(ch));
-            NettyUtil.registerTimeoutHandlers(ch);
+            log.debug("{} HANDLER => Channel is not pooled. Registering timeout handlers", Netty.id(ch));
+            Netty.registerTimeoutHandlers(ch);
         }
 
-        NettyUtil.printChannelPipeline(log, ch);
+        Netty.printChannelPipeline(log, ch);
     }
 
     public NettyChannelHandlerInitializer getHandlerInitializer() {

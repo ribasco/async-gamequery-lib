@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
 import com.ibasco.agql.core.transport.handlers.MessageInboundDecoder;
-import com.ibasco.agql.core.util.ByteUtil;
+import com.ibasco.agql.core.util.Bytes;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdRequest;
@@ -83,7 +83,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         if (SourceRcon.terminatorPacketEnabled(ctx) && SourceRcon.isTerminatorPacket(packet)) {
             assert SourceRcon.isInitialTerminatorPacket(packet);
             //should we mark for consolidation?
-            debug("Received initial terminator packet '{}' ({}). Marked for consolidation.", packet.getTerminator(), ByteUtil.toHexString(packet.getTerminator()));
+            debug("Received initial terminator packet '{}' ({}). Marked for consolidation.", packet.getTerminator(), Bytes.toHexString(packet.getTerminator()));
             markedForConsolidation = true;
             return null;
         } else {

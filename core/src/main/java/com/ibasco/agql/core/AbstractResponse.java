@@ -16,6 +16,8 @@
 
 package com.ibasco.agql.core;
 
+import org.jetbrains.annotations.ApiStatus;
+
 import java.net.InetSocketAddress;
 
 abstract public class AbstractResponse extends AbstractMessage {
@@ -33,7 +35,8 @@ abstract public class AbstractResponse extends AbstractMessage {
         return address;
     }
 
-    protected void setAddress(InetSocketAddress address) {
+    @ApiStatus.Internal
+    public void setAddress(InetSocketAddress address) {
         this.address = address;
     }
 
@@ -46,7 +49,8 @@ abstract public class AbstractResponse extends AbstractMessage {
         return request;
     }
 
-    protected void setRequest(AbstractRequest request) {
+    @ApiStatus.Internal
+    public void setRequest(AbstractRequest request) {
         this.request = request;
     }
 }

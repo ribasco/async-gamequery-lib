@@ -18,6 +18,12 @@ package com.ibasco.agql.protocols.valve.source.query.message;
 
 import com.ibasco.agql.protocols.valve.source.SourceResponse;
 
+/**
+ * Base class for all types of source query responses
+ *
+ * @param <T>
+ *         The underlying type of the response
+ */
 abstract public class SourceQueryResponse<T> extends SourceResponse {
 
     private final T result;
@@ -26,6 +32,9 @@ abstract public class SourceQueryResponse<T> extends SourceResponse {
         this.result = result;
     }
 
+    /**
+     * @return The result of the query
+     */
     public final T getResult() {
         return result;
     }

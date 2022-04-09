@@ -19,9 +19,9 @@ package com.ibasco.agql.protocols.valve.source.query.handlers;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.DecodeException;
 import com.ibasco.agql.core.transport.handlers.MessageInboundHandler;
-import static com.ibasco.agql.core.util.BitUtil.isSet;
+import static com.ibasco.agql.core.util.Bits.isSet;
 import com.ibasco.agql.core.util.Functions;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQueryPacket;
@@ -149,7 +149,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 debug("[O1] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            error("[O1] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
+            error("[O1] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
 
@@ -179,7 +179,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 debug("[O2] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
+            error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
 
@@ -205,7 +205,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 debug("[O4] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Throwable e) {
-            error("[O3] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
+            error("[O3] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
 
@@ -229,7 +229,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             writer.accept(toValue);
             debug("[O4] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
         } catch (Throwable e) {
-            error("[O4] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
+            error("[O4] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
 
@@ -246,7 +246,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             returnValue = decoder.apply(buf);
             debug("[O5] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, returnValue);
         } catch (Throwable e) {
-            error("[O5] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, NettyUtil.prettyHexDump(buf), e);
+            error("[O5] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
             returnValue = null;
         }
         returnValue = returnValue == null ? defaultValue : returnValue;

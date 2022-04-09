@@ -16,20 +16,11 @@
 
 package com.ibasco.agql.protocols.valve.source.query.exceptions;
 
-import com.ibasco.agql.core.exceptions.InvalidCredentialsException;
-
 import java.net.InetSocketAddress;
 
-public class RconInvalidCredentialsException extends InvalidCredentialsException {
-
-    private final InetSocketAddress address;
+public class RconInvalidCredentialsException extends RconAuthException {
 
     public RconInvalidCredentialsException(String message, InetSocketAddress address) {
-        super(message);
-        this.address = address;
-    }
-
-    public final InetSocketAddress getAddress() {
-        return address;
+        super(message, address);
     }
 }

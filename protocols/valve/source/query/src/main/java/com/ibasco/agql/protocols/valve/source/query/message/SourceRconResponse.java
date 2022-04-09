@@ -23,35 +23,6 @@ import java.net.InetSocketAddress;
 
 abstract public class SourceRconResponse extends SourceResponse {
 
-    private final int requestId;
-
-    private final boolean success;
-
-    private final Throwable error;
-
-    protected SourceRconResponse(int requestId, boolean success) {
-        this(requestId, success, null);
-    }
-
-    protected SourceRconResponse(int requestId, boolean succeess, Throwable error) {
-        this.requestId = requestId;
-        this.success = succeess;
-        this.error = error;
-    }
-    @Deprecated
-    //TODO: Remove
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public Throwable getError() {
-        return error;
-    }
-
-    public int getRequestId() {
-        return requestId;
-    }
-
     @Override
     public void setAddress(InetSocketAddress address) {
         super.setAddress(address);
@@ -60,6 +31,6 @@ abstract public class SourceRconResponse extends SourceResponse {
     @Override
     protected void buildToString(ToStringBuilder builder) {
         super.buildToString(builder);
-        builder.append("requestId", getRequestId());
+        builder.append("requestId", getRequest() != null ? getRequest().id() : "N/A");
     }
 }

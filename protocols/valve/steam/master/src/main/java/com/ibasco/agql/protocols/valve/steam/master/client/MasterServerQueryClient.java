@@ -51,7 +51,6 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * Create a new {@link MasterServerQueryClient} instance with the provided configuration options.
      *
      * @see OptionBuilder
-     * @since 0.2.0
      */
     public MasterServerQueryClient(Options options) {
         super(options);
@@ -83,7 +82,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @param filter
      *         A {@link MasterServerFilter} containing the filters to be applied in the query
      * @param callback
-     *         Accepts a {@link TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server
+     *         Accepts a {@link TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server. (Parameters: Server Address, Master Server Address, Exception)
      *
      * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector} containing the {@link InetSocketAddress} instances of the servers.
      *

@@ -25,7 +25,7 @@ import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.ConcurrentUtil;
+import com.ibasco.agql.core.util.Errors;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import com.ibasco.agql.protocols.valve.steam.master.exception.MasterServerTimeoutException;
@@ -115,7 +115,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
         //Did we receive an error?
         if (error != null) {
-            Throwable cause = ConcurrentUtil.unwrap(error);
+            Throwable cause = Errors.unwrap(error);
             log.debug("{} MASTER (RECEIVE) => Encountered an error during send", context.id(), cause);
             super.receive(context, response, cause);
             return;
@@ -343,7 +343,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
         private MasterServerResponse response(NettyChannelContext context, Throwable error) {
             if (error != null) {
-                Throwable cause = ConcurrentUtil.unwrap(error);
+                Throwable cause = Errors.unwrap(error);
                 if (cause instanceof ReadTimeoutException) {
                     MasterServerChannelContext ctx = getContext();
                     if (ctx != null) {

@@ -17,7 +17,7 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.AbstractNettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
-import com.ibasco.agql.core.util.ConcurrentUtil;
+import com.ibasco.agql.core.util.Errors;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.pool.ChannelPoolHandler;
@@ -239,7 +239,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
                 });
             }
         } catch (Throwable cause) {
-            closeAndFail(ch, ConcurrentUtil.unwrap(cause), promise);
+            closeAndFail(ch, Errors.unwrap(cause), promise);
         }
     }
 
@@ -249,7 +249,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
                 V res = trackedFuture.get();
                 promise.complete(res);
             } catch (Throwable e) {
-                promise.completeExceptionally(ConcurrentUtil.unwrap(e));
+                promise.completeExceptionally(Errors.unwrap(e));
             }
         } else {
             trackedFuture.whenComplete((res, error) -> {
@@ -265,7 +265,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         assert channel.eventLoop().inEventLoop();
 
         if (error != null)
-            throw new CompletionException(ConcurrentUtil.unwrap(error));
+            throw new CompletionException(Errors.unwrap(error));
         try {
             handler.channelAcquired(channel);
         } catch (Throwable handlerError) {
@@ -402,10 +402,10 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
             try {
                 closeChannel(channel);
             } catch (Throwable e) {
-                throw new CompletionException(ConcurrentUtil.unwrap(e));
+                throw new CompletionException(Errors.unwrap(e));
             }
         }
-        throw new CompletionException(ConcurrentUtil.unwrap(cause));
+        throw new CompletionException(Errors.unwrap(cause));
     }
 
     private void closeAndFail(Channel channel, Throwable cause, CompletableFuture<?> promise) {

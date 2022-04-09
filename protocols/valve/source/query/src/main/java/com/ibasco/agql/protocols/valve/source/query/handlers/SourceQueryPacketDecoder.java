@@ -16,8 +16,8 @@
 
 package com.ibasco.agql.protocols.valve.source.query.handlers;
 
-import com.ibasco.agql.core.util.ByteUtil;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Bytes;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.InvalidPacketTypeException;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQueryPacket;
@@ -34,6 +34,14 @@ import java.util.List;
  * Decodes a raw source query response ({@link ByteBuf}) into an instance of {@link SourceQueryPacket}.
  * The packet can be a single-type or a split-type. Split-type packets should be re-assembled back to a single-type packet by the next handlers
  *
+ * Simple workflow of data:
+ *
+ * <pre>
+ *
+ * INCOMING DATA ----> DECODE TO PACKET ----> ASSEMBLE/PROCESS PACKET(s) ---> CREATE RESPONSE
+ *
+ * </pre>
+ *
  * @author Rafael Luis Ibasco
  */
 public class SourceQueryPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
@@ -48,12 +56,12 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             int type = msg.readIntLE();
             //make sure we have a valid packet type
             if (!SourceQuery.isValidPacketType(type))
-                throw new InvalidPacketTypeException(type, String.format("Invalid source query packet type: %d (%s)", type, ByteUtil.toHexString(type)));
+                throw new InvalidPacketTypeException(type, String.format("Invalid source query packet type: %d (%s)", type, Bytes.toHexString(type)));
             SourceQueryPacket packet = SourceQueryPacketDecoderProvider.getDecoder(type).decode(msg);
             out.add(packet.retain());
-            log.debug("{} INB => DECODED '{}' into \"{}\"", NettyUtil.id(ctx.channel()), msg.getClass().getSimpleName(), packet);
+            log.debug("{} INB => DECODED '{}' into \"{}\"", Netty.id(ctx.channel()), msg.getClass().getSimpleName(), packet);
         } catch (Throwable e) {
-            log.error("{} INB => Failed to decode datagram packet into a SourceQueryPacket instance. Passing message to next handler", NettyUtil.id(ctx.channel()), e);
+            log.error("{} INB => Failed to decode datagram packet into a SourceQueryPacket instance. Passing message to next handler", Netty.id(ctx.channel()), e);
             out.add(msg.resetReaderIndex().retain());
         }
     }

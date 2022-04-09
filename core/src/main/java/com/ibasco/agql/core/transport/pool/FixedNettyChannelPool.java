@@ -16,8 +16,8 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
-import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Concurrency;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -264,13 +264,13 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         //noinspection unchecked
         channelAcquisitionGroup.terminationFuture().addListener((GenericFutureListener) future -> {
             if (future.isSuccess()) {
-                ConcurrentUtil.shutdown(executorService);
+                Concurrency.shutdown(executorService);
             } else {
                 throw new IllegalStateException(future.cause());
             }
         });
         this.executor = channelAcquisitionGroup.next();
-        log.debug("POOL => Using event loop '{}' for channel acquisition", NettyUtil.getThreadName((EventLoop) executor));
+        log.debug("POOL => Using event loop '{}' for channel acquisition", Netty.getThreadName((EventLoop) executor));
         this.maxConnections = maxConnections;
         this.maxPendingAcquires = maxPendingAcquires;
     }
@@ -550,7 +550,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
             // Ensure we dispatch this on another Thread as close0 will be called from the EventExecutor and we need
             // to ensure we will not block in a EventExecutor.
-            return NettyUtil.toCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
+            return Netty.toCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
                 FixedNettyChannelPool.super.close();
                 return null;
             }));

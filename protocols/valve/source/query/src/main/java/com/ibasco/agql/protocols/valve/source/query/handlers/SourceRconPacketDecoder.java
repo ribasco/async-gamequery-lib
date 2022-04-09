@@ -21,7 +21,7 @@ import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.PacketDecoder;
 import com.ibasco.agql.core.transport.enums.ChannelEvent;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconRequest;
@@ -310,6 +310,6 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
     }
 
     private static void debug(ChannelHandlerContext ctx, String msg, Object... args) {
-        log.debug(String.format("%s INB => %s", NettyUtil.id(ctx), msg), args);
+        log.debug(String.format("%s INB => %s", Netty.id(ctx), msg), args);
     }
 }

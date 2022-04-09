@@ -21,13 +21,13 @@ import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.query.ResponseHandler;
-import com.ibasco.agql.protocols.valve.source.query.SourceRconAuthStatus;
 import com.ibasco.agql.protocols.valve.source.query.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.client.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconInvalidCredentialsException;
 import com.ibasco.agql.protocols.valve.source.query.exceptions.RconNotYetAuthException;
+import com.ibasco.agql.protocols.valve.source.query.message.SourceRconAuthResponse;
 import com.ibasco.agql.protocols.valve.source.query.message.SourceRconCmdResponse;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang3.RandomUtils;
@@ -52,6 +52,11 @@ import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+/**
+ * Advanced examples for Source RCON
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconExample.class);
@@ -157,17 +162,17 @@ public class SourceRconExample extends BaseExample {
         //loop until stop is set
         while (!stop) {
             if (!authenticated.get()) {
-                String password = promptInput("Password", true, "", "sourceRconPass");
+                String password = promptInputPassword("Password", true, "", "sourceRconPass");
                 System.out.println();
                 System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
                 System.out.println();
                 try {
-                    SourceRconAuthStatus status = rconClient.authenticate(serverAddress, password).join();
-                    authenticated.set(status.isAuthenticated());
+                    SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
+                    authenticated.set(authResponse.isAuthenticated());
                     if (!authenticated.get())
-                        System.err.printf("Error authenticating with server: '%s'\n", status.getReason());
+                        System.err.printf("Error authenticating with server: '%s'\n", authResponse.getReason());
                 } catch (CompletionException e) {
-                    Throwable cause = ConcurrentUtil.unwrap(e);
+                    Throwable cause = Errors.unwrap(e);
                     if (cause instanceof RconInvalidCredentialsException) {
                         System.err.print("\nFailed to authenticateBatch with server due to bad credentials\n");
                         cause.printStackTrace(System.err);
@@ -188,7 +193,7 @@ public class SourceRconExample extends BaseExample {
                 CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
                 System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
             } catch (Exception error) {
-                Throwable cause = ConcurrentUtil.unwrap(error);
+                Throwable cause = Errors.unwrap(error);
                 if (cause instanceof CancellationException) {
                     stop = true;
                 } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
@@ -202,7 +207,7 @@ public class SourceRconExample extends BaseExample {
                 }
                 System.out.flush();
                 //add a slight delay
-                ConcurrentUtil.sleepUninterrupted(100);
+                Concurrency.sleepUninterrupted(100);
             }
         }
 
@@ -217,7 +222,7 @@ public class SourceRconExample extends BaseExample {
 
     private CompletableFuture<CommandResponse> parseCommand(String command) {
         if (command == null || command.trim().isEmpty())
-            return ConcurrentUtil.failedFuture(new IllegalArgumentException("Command must not be empty"));
+            return Concurrency.failedFuture(new IllegalArgumentException("Command must not be empty"));
         command = command.trim();
         //handle built-in commands
         if (command.startsWith("/")) {
@@ -247,7 +252,7 @@ public class SourceRconExample extends BaseExample {
 
     private CompletableFuture<CommandResponse> commandRcon(final String[] args) {
         final String command = args[0];
-        return rconClient.exec(serverAddress, command).thenApply(r -> new CommandResponse(command, r.getResult()));
+        return rconClient.execute(serverAddress, command).thenApply(r -> new CommandResponse(command, r.getResult()));
     }
 
     private CompletableFuture<CommandResponse> commandReauth(String[] args) {
@@ -277,7 +282,7 @@ public class SourceRconExample extends BaseExample {
 
     private CompletableFuture<CommandResponse> commandBatch(String[] args) {
         if (args == null || args.length < 2)
-            return ConcurrentUtil.failedFuture(new ParseException("Usage: /batch <amount> <command1>[;<command2>;<command3>]", 0));
+            return Concurrency.failedFuture(new ParseException("Usage: /batch <amount> <command1>[;<command2>;<command3>]", 0));
         if (!"/batch".equalsIgnoreCase(args[0]))
             return error("Invalid first argument");
         if (!StringUtils.isNumeric(args[1]))
@@ -314,7 +319,7 @@ public class SourceRconExample extends BaseExample {
         for (int i = 0; i < count; i++) {
             phaser.register();
             String command = COMMANDS[RandomUtils.nextInt(0, COMMANDS.length)];
-            rconClient.exec(address, command).whenComplete(handler);
+            rconClient.execute(address, command).whenComplete(handler);
         }
     }
 
@@ -340,7 +345,7 @@ public class SourceRconExample extends BaseExample {
                     String cmd1 = command;
                     if (cmd1 == null)
                         cmd1 = COMMANDS[RandomUtils.nextInt(0, COMMANDS.length)];
-                    rconClient.exec(serverAddress, cmd1).whenComplete(handleResponse);
+                    rconClient.execute(serverAddress, cmd1).whenComplete(handleResponse);
                 }
                 latch.await();
             } catch (InterruptedException e) {
@@ -358,11 +363,11 @@ public class SourceRconExample extends BaseExample {
     }
 
     private <V> CompletableFuture<V> error(String msg, Object... args) {
-        return ConcurrentUtil.failedFuture(new ParseException(String.format(msg, args), 0));
+        return Concurrency.failedFuture(new ParseException(String.format(msg, args), 0));
     }
 
     private <V> CompletableFuture<V> error(Throwable error) {
-        return ConcurrentUtil.failedFuture(error);
+        return Concurrency.failedFuture(error);
     }
 
     private void printBanner() {
@@ -447,15 +452,15 @@ public class SourceRconExample extends BaseExample {
                 return;
             //\033[0;37m
             //\033[0m
-            print("\033[0;35m%03d)\033[0m Processed a total of \033[1;35m% 6d\033[0m queries (\033[0;37mProgress:\033[0m \033[1;36m% 4.0f%%\033[0m, \033[0;37mSuccess:\033[0m \033[1;36m%05d, \033[0;37mFail:\033[0m \033[1;36m%05d, \033[0;37mBatch Size:\033[0m \033[1;36m%03d, \033[0;37mElapsed:\033[0m \033[1;36m%s, \033[0;37mLast Thread Used:\033[0m \033[1;36m%s\033[0m\033[0;37m)\033[0m", iteration.incrementAndGet(), total, getProgress(), success, fail, increment, TimeUtil.getTimeDesc(duration.toMillis(), true), Thread.currentThread().getName());
+            print("\033[0;35m%03d)\033[0m Processed a total of \033[1;35m% 6d\033[0m queries (\033[0;37mProgress:\033[0m \033[1;36m% 4.0f%%\033[0m, \033[0;37mSuccess:\033[0m \033[1;36m%05d, \033[0;37mFail:\033[0m \033[1;36m%05d, \033[0;37mBatch Size:\033[0m \033[1;36m%03d, \033[0;37mElapsed:\033[0m \033[1;36m%s, \033[0;37mLast Thread Used:\033[0m \033[1;36m%s\033[0m\033[0;37m)\033[0m", iteration.incrementAndGet(), total, getProgress(), success, fail, increment, Time.getTimeDesc(duration.toMillis(), true), Thread.currentThread().getName());
         }
 
         @Override
         public void printStats() {
             super.printStats();
             Duration duration = Duration.ofNanos(System.nanoTime() - startTime);
-            String sizeDesc = ByteUtil.getSizeDescriptionSI(byteCounter.get());
-            print("Total bytes received: %s (Duration: %s)", sizeDesc, TimeUtil.getTimeDesc(duration.toMillis()));
+            String sizeDesc = Bytes.getSizeDescriptionSI(byteCounter.get());
+            print("Total bytes received: %s (Duration: %s)", sizeDesc, Time.getTimeDesc(duration.toMillis()));
             for (String command : commandCount.keySet()) {
                 print("Total successful '%s': %d", command, commandCount.get(command).success.get());
             }

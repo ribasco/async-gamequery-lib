@@ -25,12 +25,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * A Messenger is responsible for:
+ * The following are characteristics/roles of a Messenger
  *
  * <ul>
- *     <li>Creating, Acquiring, Closing or Releasing a network resource (e.g. {@link Channel}/Connection)</li>
- *     <li>Prepare and initialize the request for {@link Transport}</li>
- *     <li>Process the response received from the remote server and route it back to the {@link Client}</li>
+ *     <li>Responsible for creating, acquiring, closing or releasing a network resource (e.g. {@link Channel}/Connection)</li>
+ *     <li>Prepares and initialize the request for {@link Transport}</li>
+ *     <li>Receives a response from the remote server, performs additional processing (if needed) and routes the response back to the {@link Client}</li>
+ *     <li>Has a 1 to 1 relationship with the {@link Client}</li>
  * </ul>
  *
  * @author Rafael Luis Ibasco

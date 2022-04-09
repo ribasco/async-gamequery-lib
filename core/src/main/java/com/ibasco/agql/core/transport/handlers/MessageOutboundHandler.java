@@ -19,7 +19,7 @@ package com.ibasco.agql.core.transport.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
@@ -116,7 +116,7 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     }
 
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s INB => %s", NettyUtil.id(channel), msg), args);
+        level.accept(String.format("%s INB => %s", Netty.id(channel), msg), args);
     }
 
 }

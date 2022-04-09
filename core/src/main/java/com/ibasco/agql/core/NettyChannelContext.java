@@ -25,7 +25,7 @@ import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -125,7 +125,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     public final String id() {
-        return NettyUtil.id(channel);
+        return Netty.id(channel);
     }
 
     public final Channel channel() {

@@ -69,7 +69,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         public void accept(ExecutionCompletedEvent<SourceQueryResponse<?>> event) throws Throwable {
             if (event.getException() instanceof MaxAttemptsReachedException) {
                 MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
-                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), TimeUtil.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
+                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
             } else {
                 log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {}, Error: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), simplify(event.getException()), event.getException());
             }
@@ -113,7 +113,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     }
 
     private RetryPolicy<SourceQueryResponse<?>> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<SourceQueryResponse<?>> builder = RetryPolicy.<SourceQueryResponse<?>>builder();
+        RetryPolicyBuilder<SourceQueryResponse<?>> builder = RetryPolicy.builder();
         Long retryDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_DELAY);
         Integer maxAttempts = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
         Boolean backOffEnabled = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED);
@@ -127,7 +127,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
-        /*builder.handle(ReadTimeoutException.class);*/
         builder.abortOn(RejectedExecutionException.class);
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
@@ -203,7 +202,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private CompletableFuture<SourceQueryResponse<?>> sendQuery(InetSocketAddress address, SourceQueryRequest request) {
         if (getExecutor().isShutdown() || getExecutor().isShuttingDown() || getExecutor().isTerminated())
-            return ConcurrentUtil.failedFuture(new RejectedExecutionException());
+            return Concurrency.failedFuture(new RejectedExecutionException());
         CompletableFuture<NettyChannelContext> contextFuture = acquireContext(new ImmutablePair<>(address, request));
         return contextFuture
                 .thenApply(NettyChannelContext::disableAutoRelease)
@@ -242,7 +241,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                     log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
                     throw responseEx;
                 } else {
-                    throw new CompletionException(ConcurrentUtil.unwrap(error));
+                    throw new CompletionException(Errors.unwrap(error));
                 }
             } else {
                 assert context != null;
@@ -280,14 +279,14 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         public SourceQueryResponse<?> handleTimeouts(SourceQueryResponse<?> response, Throwable error, ExecutionContext<SourceQueryResponse<?>> executionContext) {
             if (error != null) {
                 if (error instanceof ResponseException) {
-                    Throwable cause = ConcurrentUtil.unwrap(error);
+                    Throwable cause = Errors.unwrap(error);
                     NettyChannelContext ctx = ((ResponseException) error).getContext();
                     int attemptCount = executionContext.getAttemptCount() + 1;
                     if (attemptCount >= maxAttemptCount)
                         throw new CompletionException(new MaxAttemptsReachedException(cause, ctx.properties().envelope().recipient(), ctx.properties().request(), attemptCount, maxAttemptCount));
                     throw (ResponseException) error;
                 }
-                throw new CompletionException(ConcurrentUtil.unwrap(error));
+                throw new CompletionException(Errors.unwrap(error));
             }
             return response;
         }

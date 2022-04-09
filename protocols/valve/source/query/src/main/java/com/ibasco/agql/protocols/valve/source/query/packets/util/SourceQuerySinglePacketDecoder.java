@@ -18,7 +18,7 @@ package com.ibasco.agql.protocols.valve.source.query.packets.util;
 
 import com.ibasco.agql.core.PacketDecoder;
 import com.ibasco.agql.core.exceptions.PacketDecodeException;
-import com.ibasco.agql.core.util.ByteUtil;
+import com.ibasco.agql.core.util.Bytes;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQueryPacket;
 import com.ibasco.agql.protocols.valve.source.query.packets.SourceQuerySinglePacket;
@@ -43,7 +43,7 @@ public class SourceQuerySinglePacketDecoder implements PacketDecoder<SourceQuery
             throw new PacketDecodeException(String.format("Not enough bytes to process packet. Length must be greater than or equal to 2 (Size: %d)", data.readableBytes()));
         int header = data.readUnsignedByte();
         if (SourceQuery.isInvalidHeader(header))
-            throw new PacketDecodeException(String.format("Invalid source query request/response header: %d (%s)", header, ByteUtil.toHexString(header)));
+            throw new PacketDecodeException(String.format("Invalid source query request/response header: %d (%s)", header, Bytes.toHexString(header)));
         SourceQuerySinglePacket packet = new SourceQuerySinglePacket(data.slice());
         packet.setHeader(header);
         return packet;

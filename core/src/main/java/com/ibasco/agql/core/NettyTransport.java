@@ -19,8 +19,8 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.TransportWriteException;
 import com.ibasco.agql.core.exceptions.WriteInProgressException;
-import com.ibasco.agql.core.util.ConcurrentUtil;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.Channel;
@@ -62,7 +62,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             }
             assert !context.properties().writeInProgress();
         } catch (Throwable e) {
-            log.error("{} TRANSPORT => Error occured during write operation", NettyUtil.id(channel), e);
+            log.error("{} TRANSPORT => Error occured during write operation", Netty.id(channel), e);
         }
     };
 
@@ -70,8 +70,11 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     public NettyTransport(final Options options) {
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
-        if (log.isErrorEnabled())
-            ResourceLeakDetector.setLevel(getOrDefault(TransportOptions.RESOURCE_LEAK_DETECTOR_LEVEL));
+        if (log.isErrorEnabled()) {
+            ResourceLeakDetector.Level level = getOrDefault(TransportOptions.RESOURCE_LEAK_DETECTOR_LEVEL);
+            ResourceLeakDetector.setLevel(level);
+            log.debug("[INIT] TRANSPORT => Set ResourceLeakDetector level to '{}'", level.name());
+        }
     }
     //</editor-fold>
 
@@ -130,7 +133,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     private NettyChannelContext finalize(NettyChannelContext context, Throwable error) {
         if (error != null) {
             log.debug("TRANSPORT => Error during write operation", error);
-            throw new TransportWriteException("Failed to send request via transport", ConcurrentUtil.unwrap(error));
+            throw new TransportWriteException("Failed to send request via transport", Errors.unwrap(error));
         }
         if (context.channel() == null)
             throw new IllegalStateException("Channel is null");

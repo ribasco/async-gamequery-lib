@@ -35,7 +35,7 @@ import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.Objects;
 
-public class EncryptUtil {
+public class Encryption {
 
     private static final String worldsMostSecureUnhackableIvKey = "aGqLsOurc3querYs";
 
@@ -89,7 +89,7 @@ public class EncryptUtil {
     }
 
     public static String retrieveKey() {
-        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), EncryptUtil.worldsMostSecureUnhackableKey);
+        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), Encryption.worldsMostSecureUnhackableKey);
         return key;
     }
 

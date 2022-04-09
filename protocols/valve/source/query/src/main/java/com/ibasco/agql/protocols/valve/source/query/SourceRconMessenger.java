@@ -41,7 +41,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     public SourceRconMessenger(Options options) {
         super(options);
-        this.authManager = new SourceRconAuthManager(this, options.get(SourceRconOptions.CREDENTIALS_STORE, new SourceRconInMemoryCredentialsStore()));
+        this.authManager = new SourceRconAuthManager(this, options.get(SourceRconOptions.CREDENTIALS_STORE, new InMemoryCredentialsStore()));
     }
 
     @Override

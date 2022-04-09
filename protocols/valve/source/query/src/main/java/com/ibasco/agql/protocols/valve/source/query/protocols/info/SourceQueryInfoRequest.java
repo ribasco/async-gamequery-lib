@@ -17,11 +17,10 @@
 package com.ibasco.agql.protocols.valve.source.query.protocols.info;
 
 import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryAuthRequest;
-import org.jetbrains.annotations.ApiStatus;
 
 public class SourceQueryInfoRequest extends SourceQueryAuthRequest {
 
-    private boolean bypassChallenge;
+    private final boolean bypassChallenge;
 
     public SourceQueryInfoRequest() {
         this(null);
@@ -29,15 +28,10 @@ public class SourceQueryInfoRequest extends SourceQueryAuthRequest {
 
     public SourceQueryInfoRequest(Integer challenge) {
         super(challenge);
-        this.bypassChallenge = challenge == -1;
+        this.bypassChallenge = challenge != null && challenge == -1;
     }
 
     public final boolean isBypassChallenge() {
         return bypassChallenge;
-    }
-
-    @ApiStatus.Experimental
-    public final void setBypassChallenge(boolean bypassChallenge) {
-        this.bypassChallenge = bypassChallenge;
     }
 }

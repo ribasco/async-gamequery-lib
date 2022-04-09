@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.source.query.protocols.rules;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Pair;
 import com.ibasco.agql.core.util.Strings;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
@@ -43,15 +43,15 @@ public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryR
         //some servers send an empty info response packet, so we also return an empty response
         if (payload.isReadable()) {
             if (isDebugEnabled())
-                debug("RULES Dump\n{}", NettyUtil.prettyHexDump(payload));
+                debug("RULES Dump\n{}", Netty.prettyHexDump(payload));
             expectedCount = payload.readShortLE();
             for (int i = 0; i < expectedCount; i++) {
                 //make sure we have more data to read
                 if (!payload.isReadable())
                     break;
                 Pair<String, String> rule = new Pair<>();
-                decodeField("ruleName", payload, NettyUtil::readString, rule::setFirst, null);
-                decodeField("ruleValue", payload, NettyUtil::readString, rule::setSecond, null);
+                decodeField("ruleName", payload, Netty::readString, rule::setFirst, null);
+                decodeField("ruleValue", payload, Netty::readString, rule::setSecond, null);
                 if (!Strings.isBlank(rule.getFirst()) && !Strings.isBlank(rule.getSecond()))
                     rules.put(rule.getFirst(), rule.getSecond());
             }

@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.TransportOptions;
 import dev.failsafe.*;
 import dev.failsafe.function.ContextualSupplier;
@@ -69,7 +69,7 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
-        return NettyUtil.useEventLoop(create(data), eventLoop);
+        return Netty.useEventLoop(create(data), eventLoop);
     }
 
     @Override

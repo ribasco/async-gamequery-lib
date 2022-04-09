@@ -19,7 +19,7 @@ package com.ibasco.agql.core.transport.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.NettyUtil;
+import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -40,7 +40,7 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     private final BiFunction<Channel, String, String> logtemplate;
 
     protected MessageInboundHandler() {
-        this.logtemplate = (ch, msg) -> NettyUtil.id(ch) + " (" + getClass().getSimpleName() + ") INB => " + msg;
+        this.logtemplate = (ch, msg) -> Netty.id(ch) + " (" + getClass().getSimpleName() + ") INB => " + msg;
     }
 
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {

@@ -11,14 +11,15 @@ A game query library on steroids written for Java. This is an implementation of 
 
 Features
 -------------
-- Simple and easy to use API
+- Simple and easy to use API. 
 - Powered by [Netty](https://netty.io/). All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
-- Capable of handling multiple transactions at once. 
-    - Netty's off-heap pooled direct byte buffers (Less GC pressure)
+- Capable of handling multiple asynchronous transactions.
+- Efficient use of system resources
+    - Uses Netty's off-heap pooled direct byte buffers (Less GC pressure)
     - Thread and connection pooling support. Makes use of netty's event loop model (every transaction is run on the same thread).
-    - Takes advantage of platform specific native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
-- Configurability. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
-- Queries are [Failsafe](https://failsafe.dev/). Below are the default resilience policies supported by this library:
+    - Takes advantage of native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- Highly configurable. Clients can be easily tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Queries are [Failsafe](https://failsafe.dev/). Resilience policies are implemented to guarantee the delivery and receipt of requests sent to the server(s).
     - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
     - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
@@ -77,9 +78,9 @@ SourceQueryAggregate result = new SourceQueryAggregate(address);
 
 //Combining all queries in one call
 CompletableFuture<SourceQueryAggregate> resultFuture = CompletableFuture.completedFuture(result)
-                        .thenCombine(client.getServerInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
+                        .thenCombine(client.getInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
                         .thenCombine(client.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
-                        .thenCombine(client.getServerRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
+                        .thenCombine(client.getRules(address).handle(result.ofType(SourceQueryType.RULES)), Functions::selectFirst);
 
 //Display result
 resultFuture.whenComplete(new BiConsumer<SourceQueryAggregate, Throwable>() {

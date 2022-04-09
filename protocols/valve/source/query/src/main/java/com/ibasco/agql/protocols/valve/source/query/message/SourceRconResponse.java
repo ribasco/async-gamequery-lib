@@ -21,7 +21,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.net.InetSocketAddress;
 
-abstract public class SourceRconResponse extends SourceResponse {
+abstract public class SourceRconResponse<T> extends SourceResponse<T> {
+
+    protected SourceRconResponse(T result) {
+        super(result);
+    }
 
     @Override
     public void setAddress(InetSocketAddress address) {

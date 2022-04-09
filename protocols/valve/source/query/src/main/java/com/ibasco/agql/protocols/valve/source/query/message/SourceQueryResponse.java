@@ -24,18 +24,16 @@ import com.ibasco.agql.protocols.valve.source.SourceResponse;
  * @param <T>
  *         The underlying type of the response
  */
-abstract public class SourceQueryResponse<T> extends SourceResponse {
-
-    private final T result;
+abstract public class SourceQueryResponse<T> extends SourceResponse<T> {
 
     protected SourceQueryResponse(T result) {
-        this.result = result;
+        super(result);
     }
 
     /**
      * @return The result of the query
      */
     public final T getResult() {
-        return result;
+        return super.getResult();
     }
 }

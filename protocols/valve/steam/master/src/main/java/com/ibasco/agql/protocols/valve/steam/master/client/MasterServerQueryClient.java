@@ -29,6 +29,7 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 
 import java.net.InetSocketAddress;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 
@@ -66,10 +67,10 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *
      * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector} containing the {@link InetSocketAddress} instances of the servers.
      *
-     * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
+     * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
-    public CompletableFuture<Vector<InetSocketAddress>> getServerList(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
-        return getServerList(type, region, filter, null);
+    public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
+        return getServers(type, region, filter, null);
     }
 
     /**
@@ -86,9 +87,9 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *
      * @return A {@link CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link Vector} containing the {@link InetSocketAddress} instances of the servers.
      *
-     * @see #getServerList(MasterServerType, MasterServerRegion, MasterServerFilter)
+     * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
-    public CompletableFuture<Vector<InetSocketAddress>> getServerList(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
+    public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         MasterServerRequest request = new MasterServerRequest();
         request.setType(type);
         request.setRegion(region);

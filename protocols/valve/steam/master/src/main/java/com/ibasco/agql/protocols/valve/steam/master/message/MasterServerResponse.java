@@ -19,20 +19,15 @@ package com.ibasco.agql.protocols.valve.steam.master.message;
 import com.ibasco.agql.core.AbstractResponse;
 
 import java.net.InetSocketAddress;
-import java.util.Vector;
+import java.util.Set;
 
-public class MasterServerResponse extends AbstractResponse {
+public class MasterServerResponse extends AbstractResponse<Set<InetSocketAddress>> {
 
-    private Vector<InetSocketAddress> serverList;
-
-    public MasterServerResponse(Vector<InetSocketAddress> serverList) {
-        this.serverList = serverList;
+    public MasterServerResponse(Set<InetSocketAddress> serverList) {
+        super(serverList);
     }
 
-    public final Vector<InetSocketAddress> getServerList() {
-        if (this.serverList == null) {
-            this.serverList = new Vector<>();
-        }
-        return serverList;
+    public final Set<InetSocketAddress> getServerList() {
+        return super.getResult();
     }
 }

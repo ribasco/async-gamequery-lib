@@ -18,12 +18,10 @@ package com.ibasco.agql.protocols.valve.source.query.message;
 
 import org.apache.commons.lang3.StringUtils;
 
-public final class SourceRconCmdResponse extends SourceRconResponse {
-
-    private final String result;
+public final class SourceRconCmdResponse extends SourceRconResponse<String> {
 
     public SourceRconCmdResponse(String result) {
-        this.result = result;
+        super(result);
     }
 
     public String getCommand() {
@@ -31,8 +29,8 @@ public final class SourceRconCmdResponse extends SourceRconResponse {
         return request.getCommand();
     }
 
-    public String getResult() {
-        return result;
+    public final String getResult() {
+        return super.getResult();
     }
 
     @Override

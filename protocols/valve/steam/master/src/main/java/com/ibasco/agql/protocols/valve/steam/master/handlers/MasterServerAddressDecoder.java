@@ -31,7 +31,6 @@ import org.jetbrains.annotations.NotNull;
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
 public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
@@ -80,7 +79,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         if (!partialSet.isEmpty()) {
             MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
             context.properties().addressSet().addAll(partialSet);
-            ctx.fireChannelRead(new MasterServerPartialResponse(new Vector<>(partialSet), terminatorReceived, context.properties().lastSeedAddress()));
+            ctx.fireChannelRead(new MasterServerPartialResponse(new HashSet<>(partialSet), terminatorReceived, context.properties().lastSeedAddress()));
             partialSet.clear();
         }
         super.channelReadComplete(ctx);

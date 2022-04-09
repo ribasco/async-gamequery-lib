@@ -20,11 +20,21 @@ import org.jetbrains.annotations.ApiStatus;
 
 import java.net.InetSocketAddress;
 
-abstract public class AbstractResponse extends AbstractMessage {
+abstract public class AbstractResponse<T> extends AbstractMessage {
 
     private InetSocketAddress address;
 
     private AbstractRequest request;
+
+    private final T result;
+
+    protected AbstractResponse(T result) {
+        this.result = result;
+    }
+
+    protected T getResult() {
+        return result;
+    }
 
     /**
      * The sender address

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,20 +19,17 @@ package com.ibasco.agql.core;
 import io.netty.handler.codec.http.HttpStatusClass;
 import org.asynchttpclient.Response;
 
-abstract public class AbstractWebResponse extends AbstractResponse {
-
-    private final Response response;
+abstract public class AbstractWebResponse extends AbstractResponse<Response> {
 
     public AbstractWebResponse(Response response) {
-        //super((InetSocketAddress) response.getRemoteAddress(), (InetSocketAddress) response.getLocalAddress());
-        this.response = response;
+        super(response);
     }
 
     public HttpStatusClass getStatus() {
-        return HttpStatusClass.valueOf(this.response.getStatusCode());
+        return HttpStatusClass.valueOf(getMessage().getStatusCode());
     }
 
     public Response getMessage() {
-        return this.response;
+        return super.getResult();
     }
 }

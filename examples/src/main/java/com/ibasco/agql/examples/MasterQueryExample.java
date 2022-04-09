@@ -30,7 +30,6 @@ import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 
 public class MasterQueryExample extends BaseExample {
 
@@ -66,10 +65,10 @@ public class MasterQueryExample extends BaseExample {
             filter.appId(appId);
 
         log.info("Displaying Non-Empty servers for App Id: {}", (appId > 0) ? appId : "N/A");
-        Vector<InetSocketAddress> addresses = null;
+        Set<InetSocketAddress> addresses = null;
         try {
             addressSet.clear();
-            addresses = client.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+            addresses = client.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {

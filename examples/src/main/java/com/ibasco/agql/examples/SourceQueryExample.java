@@ -244,7 +244,7 @@ public class SourceQueryExample extends BaseExample {
         final AtomicInteger addressCtr = new AtomicInteger();
         phaser.register();
         //fetch server list and block the main thread until it completes
-        masterClient.getServerList(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
+        masterClient.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
                         if (error != null)
                             throw new CompletionException(Errors.unwrap(error));
                         queryServer(address, phaser).whenComplete(processor);

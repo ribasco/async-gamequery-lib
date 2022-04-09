@@ -46,7 +46,6 @@ import java.net.SocketException;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.Vector;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
@@ -136,7 +135,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             //have we reached the end of the response?
             if (partialResponse.isEndOfResponse()) {
                 //create a new response and notify the promise
-                masterContext.markSuccess(new MasterServerResponse(new Vector<>(addressSet)));
+                masterContext.markSuccess(new MasterServerResponse(new HashSet<>(addressSet)));
                 //Clear the address set
                 addressSet.clear();
             } else {
@@ -162,9 +161,9 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         Fallback<MasterServerResponse> fallbackPolicy = Fallback.builder((CheckedFunction<ExecutionAttemptedEvent<? extends MasterServerResponse>, MasterServerResponse>) event -> {
             if (event.getLastException() instanceof MasterServerTimeoutException) {
                 MasterServerTimeoutException timeoutException = (MasterServerTimeoutException) event.getLastException();
-                return new MasterServerResponse(new Vector<>(timeoutException.getAddresses()));
+                return new MasterServerResponse(new HashSet<>(timeoutException.getAddresses()));
             }
-            return new MasterServerResponse(new Vector<>());
+            return new MasterServerResponse(new HashSet<>());
         }).build();
 
         //retry policy
@@ -357,10 +356,10 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             MasterServerResponse response = context.properties().response();
             if (log.isDebugEnabled()) {
                 log.debug("Got Master Server List (Total: {})", response.getServerList().size());
-                Vector<InetSocketAddress> serverList = response.getServerList();
-                for (int i = 0; i < serverList.size(); i++) {
-                    InetSocketAddress address = serverList.get(i);
-                    log.debug("{}) {}", i + 1, address);
+                Set<InetSocketAddress> serverList = response.getServerList();
+                int ctr = 1;
+                for (InetSocketAddress addr : serverList) {
+                    log.debug("{}) {}", ctr++, addr);
                 }
             }
             return response;

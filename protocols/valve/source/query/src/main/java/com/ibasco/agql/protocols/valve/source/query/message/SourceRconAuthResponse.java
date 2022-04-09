@@ -18,9 +18,7 @@ package com.ibasco.agql.protocols.valve.source.query.message;
 
 import com.ibasco.agql.protocols.valve.source.query.enums.SourceRconAuthReason;
 
-public final class SourceRconAuthResponse extends SourceRconResponse {
-
-    private final boolean authenticated;
+public final class SourceRconAuthResponse extends SourceRconResponse<Boolean> {
 
     private final String reason;
 
@@ -31,13 +29,13 @@ public final class SourceRconAuthResponse extends SourceRconResponse {
     }
 
     public SourceRconAuthResponse(boolean authenticated, String reason, SourceRconAuthReason reasonCode) {
-        this.authenticated = authenticated;
+        super(authenticated);
         this.reason = reason;
         this.reasonCode = reasonCode;
     }
 
     public boolean isAuthenticated() {
-        return authenticated;
+        return super.getResult();
     }
 
     public String getReason() {

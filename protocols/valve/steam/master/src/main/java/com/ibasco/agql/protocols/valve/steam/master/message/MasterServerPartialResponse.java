@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.steam.master.message;
 
 import java.net.InetSocketAddress;
-import java.util.Vector;
+import java.util.Set;
 
 public class MasterServerPartialResponse extends MasterServerResponse {
 
@@ -25,7 +25,7 @@ public class MasterServerPartialResponse extends MasterServerResponse {
 
     private final InetSocketAddress lastSeedAddress;
 
-    public MasterServerPartialResponse(Vector<InetSocketAddress> serverList, boolean endOfResponse, InetSocketAddress lastSeedAddress) {
+    public MasterServerPartialResponse(Set<InetSocketAddress> serverList, boolean endOfResponse, InetSocketAddress lastSeedAddress) {
         super(serverList);
         this.endOfResponse = endOfResponse;
         this.lastSeedAddress = lastSeedAddress;

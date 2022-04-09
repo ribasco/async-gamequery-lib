@@ -29,6 +29,7 @@ public class SourceQueryInfoRequest extends SourceQueryAuthRequest {
 
     public SourceQueryInfoRequest(Integer challenge) {
         super(challenge);
+        this.bypassChallenge = challenge == -1;
     }
 
     public final boolean isBypassChallenge() {

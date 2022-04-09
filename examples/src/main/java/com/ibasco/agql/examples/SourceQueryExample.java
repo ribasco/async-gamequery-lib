@@ -141,7 +141,7 @@ public class SourceQueryExample extends BaseExample {
         final QueryAggregateProcessor processor = new QueryAggregateProcessor();
         final Phaser phaser = new Phaser();
 
-        int total;
+        AtomicInteger total = new AtomicInteger();
         start = System.currentTimeMillis();
         phaser.register();
         if (queryAllServers) {
@@ -150,7 +150,7 @@ public class SourceQueryExample extends BaseExample {
             printLine();
             System.out.printf("\033[1;36mFetching server list using filter \033[1;33m'%s'\033[0m\n", filter);
             printLine();
-            total = fetchServersAndQuery(filter, phaser, processor); //this will block until we have received all addresses
+            fetchServersAndQuery(filter, phaser, processor, total); //this will block until we have received all addresses
         } else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
             int iterations = promptInputInt("How many times should we repeat our queries? (int)", false, "1", "queryIterations");
@@ -159,7 +159,7 @@ public class SourceQueryExample extends BaseExample {
             start = System.currentTimeMillis();
             for (int i = 0; i < iterations; i++)
                 queryServer(address, phaser).whenComplete(processor).join();
-            total = 1;
+            total.set(1);
         }
         //wait for the registered parties (info, players and rules) to finish
         phaser.arriveAndAwaitAdvance();
@@ -174,7 +174,7 @@ public class SourceQueryExample extends BaseExample {
         System.out.flush();
 
         printLine();
-        System.out.printf("\033[1;33mTEST RESULTS (Total address processed: \033[0;36m%d\033[1;33m)\033[0m\n", total);
+        System.out.printf("\033[1;33mTEST RESULTS (Total address processed: \033[0;36m%d\033[1;33m)\033[0m\n", total.get());
         printLine();
         System.out.flush();
 
@@ -240,19 +240,17 @@ public class SourceQueryExample extends BaseExample {
      * @param filter
      *         {@link MasterServerFilter}
      */
-    private int fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, QueryAggregateProcessor processor) {
-        final AtomicInteger addressCtr = new AtomicInteger();
+    private void fetchServersAndQuery(final MasterServerFilter filter, final Phaser phaser, QueryAggregateProcessor processor, AtomicInteger counter) {
         phaser.register();
         //fetch server list and block the main thread until it completes
         masterClient.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, (address, sender, error) -> {
                         if (error != null)
                             throw new CompletionException(Errors.unwrap(error));
                         queryServer(address, phaser).whenComplete(processor);
-                        addressCtr.incrementAndGet();
+                        counter.incrementAndGet();
                     })
-                    .thenAccept(response -> System.out.printf("\033[0;33m[MASTER QUERY]: Completed fetching a total of \033[0;36m'%d'\033[0;33m addresses\033[0m\n", addressCtr.get()))
+                    .thenAccept(response -> System.out.printf("\033[0;33m[MASTER QUERY]: Completed fetching a total of \033[0;36m'%d'\033[0;33m addresses\033[0m\n", counter.get()))
                     .thenRun(phaser::arriveAndDeregister);
-        return addressCtr.get();
     }
 
     /**

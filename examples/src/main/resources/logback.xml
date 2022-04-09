@@ -90,5 +90,5 @@
     </root>
 
     <logger name="io.netty" level="error"/>
-    <logger name="com.ibasco" level="debug"/>
+    <logger name="com.ibasco" level="error"/>
 </configuration>

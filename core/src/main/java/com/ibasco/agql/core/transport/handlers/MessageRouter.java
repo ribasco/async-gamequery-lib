@@ -21,6 +21,7 @@ import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.Strings;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.*;
@@ -96,12 +97,16 @@ public class MessageRouter extends ChannelDuplexHandler {
                     Exception cause;
                     //If we get a raw ByteBuf instance, then we did not have any handlers available to process this packet. Possibly a malformed or unsupported packet response type.
                     if (msg instanceof ByteBuf) {
-                        byte[] data =  Netty.getBufferContentsAll((ByteBuf) msg);
+                        byte[] data = null;
+                        if (log.isDebugEnabled())
+                            data = Netty.getBufferContentsAll((ByteBuf) msg);
                         cause = new InvalidPacketException("Received a RAW unsupported/malformed packet from the server and no handlers were available to process it", data);
                     }
                     //If we get a raw Packet instance, this means we successfully decoded it, but no other handlers were available to process it. Why?
                     else if (msg instanceof AbstractPacket) {
-                        byte[] data =  Netty.getBufferContentsAll(((AbstractPacket) msg).content());
+                        byte[] data = null;
+                        if (log.isDebugEnabled())
+                            data = Netty.getBufferContentsAll(((AbstractPacket) msg).content());
                         cause = new InvalidPacketException("Received a decoded packet but no other handlers were available to process it to produce a desirable response", data);
                     } else {
                         cause = new IllegalStateException(String.format("Received unknown message type '%s' in response", msg.getClass().getSimpleName()));
@@ -110,8 +115,13 @@ public class MessageRouter extends ChannelDuplexHandler {
                     Exception error = new NoMessageHandlerException(String.format("No handlers found for message type '%s' (Request: %s)", msg.getClass().getSimpleName(), context.properties().request()), cause);
                     log.debug("{} ROUTER (INBOUND) => Fail! Expected a decoded response of type 'AbstractResponse' but got '{} ({})' instead (Details: {})", context.id(), msg.getClass().getSimpleName(), msg.hashCode(), msg, error);
                     //if we have an invalid packet, dump the packet for the logs
-                    if (cause instanceof InvalidPacketException)
-                        log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), msg.getClass().getSimpleName(), context.properties().request(), Netty.prettyHexDump(((InvalidPacketException) cause).getData()));
+                    if (cause instanceof InvalidPacketException) {
+                        String hexDump = Strings.EMPTY;
+                        if (log.isDebugEnabled()) {
+                            hexDump = Netty.prettyHexDump(((InvalidPacketException) cause).getData());
+                        }
+                        log.error("{} ROUTER (ERROR) => Packet Dump '{}' of request '{}'\n{}", context.id(), msg.getClass().getSimpleName(), context.properties().request(), hexDump);
+                    }
                     context.receive(error);
                 }
             }

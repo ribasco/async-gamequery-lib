@@ -1,7 +1,7 @@
 Changelog
 -------------
 
-0.2.0 - BIG UPDATE. A complete re-work of the core and source query/master modules.
+1.0.0 - A complete re-work of the core and source query/master modules.
 
 - **General Updates**
     - Completely re-worked on the core implementation from the ground up for improved performance, reliability and data integrity.
@@ -20,6 +20,9 @@ Changelog
     - Updated interactive examples
 
 - **Source RCON**
+    - Removed constructor SourceRconClient(boolean useTerminatorPackets)
+    - Updated authenticate signature to 'authenticate(InetSocketAddress address, byte[] password)'
+    - 
     - Failsafe Integration
         - Retry policy
             - Failed requests will be retried three times before it is completed exceptionally. This is mostly convenient for cases where a request fails due to the active connection being dropped by the remote server (password invalidated/change, changelevel was issued etc).

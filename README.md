@@ -13,21 +13,21 @@ Features
 -------------
 - Simple and easy to use API
 - Powered by [Netty](https://netty.io/). All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
-- Fast and memory efficient. Capable of handling multiple transactions at once. This is made possible by the following features:
+- Capable of handling multiple transactions at once. 
     - Netty's off-heap pooled direct byte buffers (Less GC pressure)
     - Thread and connection pooling support. Makes use of netty's event loop model (every transaction is run on the same thread).
-    - Use of native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
-- Configuration support. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limits etc)
-- [Failsafe](https://failsafe.dev/) Integration
-    - Retry Policy: A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
-    - Rate Limiter Policy: This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+    - Takes advantage of platform specific native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- Configurability. Clients can be tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Queries are [Failsafe](https://failsafe.dev/). Below are the default resilience policies supported by this library:
+    - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
+    - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
 Sample Usage
 -------------
 
 For more examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
 
-**Blocking**
+**Blocking Queries**
 
 ```java
 //query client
@@ -51,11 +51,13 @@ try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
 }
 ```
 
-**Non-Blocking**
+**Non-Blocking Queries**
+
+For more advanced usages, please refer to the examples provided by the project
 
 ```java
-//Use a custom executor. This is not really necessary as the library 
-//provides it's own default executor, this only serves an example.
+//Use a custom executor. This is not required as the library 
+//provides it's own default global executor shared across all clients, this only serves an example on how you can provide your own.
 ExecutorService customExecutor = Executors.newCachedThreadPool();
 
 //Example configuration
@@ -91,9 +93,9 @@ resultFuture.whenComplete(new BiConsumer<SourceQueryAggregate, Throwable>() {
 });
 ```
 
-RCON Demo Application
+RCON Demo
 
- The following image shows the rcon demo executing `500,000k` requests without errors (Specs: Intel i5 3.2Ghz processor, 8Gb ram, Ubuntu Linux OS).
+ The following image shows the rcon demo executing `500,000k` requests on a single server instance without errors (Specs: Intel i5 3.2Ghz processor, 8Gb ram, Ubuntu Linux OS).
 
 ![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
 

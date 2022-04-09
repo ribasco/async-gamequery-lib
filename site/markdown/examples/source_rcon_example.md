@@ -6,7 +6,7 @@ Examples of sending RCON commands to a Source Server.
 
 You only need to authenticate once.
 
-~~~
+~~~java
 SourceRconAuthStatus authStatus = sourceRconClient.authenticate(serverAddress, password).join();
 if (!authStatus.isAuthenticated()) {
     log.error("ERROR: Could not authenticate from server (Reason: {})", authStatus.getReason());
@@ -20,8 +20,8 @@ Example of sending a command to  a Source Server
 
 > Note: An exception will be thrown if you are not yet authenticated
 
-~~~
-InetSocketAddress address = new InetSocketAddress("192.168.1.13", 27015);
+~~~java
+InetSocketAddress address = new InetSocketAddress("<server ip address>", 27015);
 String command = "sm plugins list";
 
 try {

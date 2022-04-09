@@ -18,10 +18,12 @@ package com.ibasco.agql.protocols.valve.source.query;
 
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
+import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -29,11 +31,12 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Rafael Luis Ibasco
  */
-public class SourceRconInMemoryCredentialsStore implements CredentialsStore {
+@ApiStatus.Internal
+public class InMemoryCredentialsStore implements CredentialsStore {
 
-    private static final Logger log = LoggerFactory.getLogger(SourceRconInMemoryCredentialsStore.class);
+    private static final Logger log = LoggerFactory.getLogger(InMemoryCredentialsStore.class);
 
-    private final ConcurrentHashMap<InetSocketAddress, Credentials> credentials = new ConcurrentHashMap<>();
+    private final Map<InetSocketAddress, Credentials> credentials = new ConcurrentHashMap<>();
 
     @Override
     public Credentials get(InetSocketAddress address) {
@@ -42,19 +45,27 @@ public class SourceRconInMemoryCredentialsStore implements CredentialsStore {
 
     @Override
     public void add(InetSocketAddress address, byte[] passphrase) {
+        if (passphrase == null || passphrase.length == 0)
+            throw new IllegalArgumentException("Passphrase cannot be null or empty");
         final Credentials oldCredentials = credentials.put(address, new SourceRconCredentials(passphrase));
-        if (oldCredentials != null)
+        log.debug("CREDENTIALS_STORE => Registered new address '{}' with passphrase ({} bytes_", address, passphrase.length);
+        if (oldCredentials != null) {
             oldCredentials.invalidate();
+            log.debug("CREDENTIALS_STORE => Invalidated previous credentials for address '{}'", address);
+        }
     }
 
     @Override
     public void remove(InetSocketAddress address) {
-        credentials.remove(address);
+        if (credentials.remove(address) != null)
+            log.debug("CREDENTIALS_STORE => Unregistered credentials for address '{}'", address);
     }
 
     @Override
     public void clear() {
+        int size = credentials.size();
         credentials.clear();
+        log.debug("CREDENTIALS_STORE => Cleared a total of '{}' credentials", size);
     }
 
     @Override

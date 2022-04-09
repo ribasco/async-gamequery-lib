@@ -273,7 +273,7 @@ public class SourceQueryExample extends BaseExample {
         phaser.bulkRegister(3);
         //combining all three queries in one call
         return CompletableFuture.completedFuture(result)
-                                .thenCombine(queryClient.getInfo(address, -1).handle(QueryResponse.ofInfoType()), result::aggregate)
+                                .thenCombine(queryClient.getInfo(address).handle(QueryResponse.ofInfoType()), result::aggregate)
                                 .thenCombine(queryClient.getPlayers(address).handle(QueryResponse.ofPlayerType()), result::aggregate)
                                 .thenCombine(queryClient.getRules(address).handle(QueryResponse.ofRulesType()), result::aggregate);
     }

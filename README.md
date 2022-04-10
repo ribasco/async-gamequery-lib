@@ -15,12 +15,12 @@ Features
 - Powered by [Netty](https://netty.io/). All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
 - Capable of handling multiple asynchronous transactions.
 - Efficient use of system resources
-    - Uses Netty's off-heap pooled direct byte buffers (Less GC pressure)
-    - Thread and connection pooling support. Makes use of netty's event loop model (every transaction is run on the same thread).
+    - Uses off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Reduces GC pressure)
+    - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model (every transaction is run on the same thread).
     - Takes advantage of native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
 - Highly configurable. Clients can be easily tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
-- Queries are [Failsafe](https://failsafe.dev/). Resilience policies are implemented to guarantee the delivery and receipt of requests sent to the server(s).
-    - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration. This is convenient in cases where a connection is dropped by the server during a request.
+- Queries are [Failsafe](https://failsafe.dev/). Resilience [policies](https://failsafe.dev/policies/) have been implemented in these modules to guarantee the delivery and receipt of requests. 
+    - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration.
     - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
 Sample Usage
@@ -54,7 +54,7 @@ try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
 
 **Non-Blocking Queries**
 
-For more advanced usages, please refer to the examples provided by the project
+For more advanced usages, please refer to the examples provided by the project.
 
 ```java
 //Use a custom executor. This is not required as the library 
@@ -98,7 +98,9 @@ RCON Demo
 
  The following image shows the rcon demo executing `500,000k` requests on a single server instance without errors (Specs: Intel i5 3.2Ghz processor, 8Gb ram, Ubuntu Linux OS).
 
-![Source RCON Example Application](site/resources/images/agql-rcon-console.png)
+![Source RCON Example Application - 01](site/resources/images/agql-rcon-console-01.png)
+
+![Source RCON Example Application - 02](site/resources/images/agql-rcon-console-02.png)
 
 Project Resources
 -------------
@@ -148,7 +150,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -159,7 +161,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -170,7 +172,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-source-query</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -181,7 +183,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-webapi</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -191,7 +193,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
@@ -201,19 +203,19 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 **Supercell Clash of Clans Web API (Deprecated)**
 
-> **NOTE**: As of 0.2.0, this has been marked as deprecated and will be removed in the next major release
+> **NOTE**: As of 1.0.0, this has been marked as deprecated and will be removed in the next major release
 
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
-    <version>0.2.0</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 

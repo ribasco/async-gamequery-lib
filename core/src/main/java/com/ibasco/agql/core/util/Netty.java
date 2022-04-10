@@ -109,18 +109,6 @@ public class Netty {
         }
     }
 
-    /**
-     * Return a byte array contents of a {@link ByteBuf}
-     *
-     * @param buf
-     *         The {@link ByteBuf} to process
-     *
-     * @return A byte array containing the contents of the buffer
-     */
-    public static byte[] getBufferContents(ByteBuf buf) {
-        return getBufferContents(buf, null);
-    }
-
     public static String prettyHexDump(byte[] buf) {
         return prettyHexDump(Unpooled.copiedBuffer(buf));
     }
@@ -140,6 +128,18 @@ public class Netty {
             if (origIndex >= 0)
                 buf.readerIndex(origIndex);
         }
+    }
+
+    /**
+     * Return a byte array contents of a {@link ByteBuf}
+     *
+     * @param buf
+     *         The {@link ByteBuf} to process
+     *
+     * @return A byte array containing the contents of the buffer
+     */
+    public static byte[] getBufferContents(ByteBuf buf) {
+        return getBufferContents(buf, null);
     }
 
     /**

@@ -16,12 +16,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
-import com.ibasco.agql.protocols.valve.source.query.enums.SourceChallengeType;
-import com.ibasco.agql.protocols.valve.source.query.message.SourceQueryRequest;
-import com.ibasco.agql.protocols.valve.source.query.protocols.challenge.SourceQueryChallengeRequest;
-import com.ibasco.agql.protocols.valve.source.query.protocols.info.SourceQueryInfoRequest;
-import com.ibasco.agql.protocols.valve.source.query.protocols.players.SourceQueryPlayerRequest;
-import com.ibasco.agql.protocols.valve.source.query.protocols.rules.SourceQueryRulesRequest;
+import com.ibasco.agql.protocols.valve.source.query.challenge.SourceQueryChallengeRequest;
+import com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType;
+import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRequest;
+import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest;
+import com.ibasco.agql.protocols.valve.source.query.players.SourceQueryPlayerRequest;
+import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesRequest;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Marker;
 import org.slf4j.MarkerFactory;

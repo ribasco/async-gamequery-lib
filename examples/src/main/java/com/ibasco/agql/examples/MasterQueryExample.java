@@ -56,11 +56,8 @@ public class MasterQueryExample extends BaseExample {
     }
 
     public void listAllServers() {
-        int appId = Integer.parseInt(promptInput("Please enter an App ID (optional | -1 default): ", true, "-1", "masterAppId"));
-
-        //MasterServerFilter filter = MasterServerFilter.create().dedicated(true).isEmpty(false);
-        final MasterServerFilter filter = buildServerFilter();
-
+        Integer appId = promptInputInt("Please enter an App ID (optional | -1 default): ", true, "-1", "masterAppId");
+        final MasterServerFilter filter = buildServerFilter(appId);
         if (appId > 0)
             filter.appId(appId);
 
@@ -68,7 +65,7 @@ public class MasterQueryExample extends BaseExample {
         Set<InetSocketAddress> addresses = null;
         try {
             addressSet.clear();
-            addresses = client.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+            addresses = client.getServers(MasterServerType.GOLDSRC, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {
@@ -90,10 +87,10 @@ public class MasterQueryExample extends BaseExample {
      *
      * @return The {@link MasterServerFilter} created from the user input
      */
-    private MasterServerFilter buildServerFilter() {
+    private MasterServerFilter buildServerFilter(Integer appId) {
         System.out.println("Note: Type '\u001B[32mskip\u001B[0m' to exclude filter");
 
-        Integer appId = promptInputInt("List servers only from this app id (int)", false, null, "srcMasterAppId");
+        //Integer appId = promptInputInt("List servers only from this app id (int)", false, null, "srcMasterAppId");
         Boolean nonEmptyServers = promptInputBool("List only non-empty servers? (y/n)", false, null, "srcMasterEmptySvrs");
         Boolean passwordProtected = promptInputBool("List password protected servers? (y/n)", false, null, "srcMasterPassProtect");
         Boolean dedicatedServers = promptInputBool("List dedicated servers (y/n)", false, "y", "srcMasterDedicated");

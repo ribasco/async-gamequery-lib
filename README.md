@@ -18,11 +18,11 @@ Features
     - Uses off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Reduces GC pressure)
     - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model (every transaction is run on the same thread).
     - Takes advantage of native transports if available (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- RCON connections are internally managed, ensuring that connections remain in a valid state (alive and authenticated). Idle connections are automatically released/closed.
 - Highly configurable. Clients can be easily tweaked depending on your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
 - Queries are [Failsafe](https://failsafe.dev/). Resilience [policies](https://failsafe.dev/policies/) have been implemented in these modules to guarantee the delivery and receipt of requests. 
     - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration.
     - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
-- RCON connections are internally managed, ensuring that connections remain in a valid state (alive and authenticated). Idle connections are automatically released/closed.  
 
 Sample Usage
 -------------
@@ -97,7 +97,13 @@ resultFuture.whenComplete(new BiConsumer<SourceQueryAggregate, Throwable>() {
 
 RCON Demo
 
- The following image shows the rcon demo executing `500,000k` requests on a single server instance without errors (Specs: Intel i5 3.2Ghz processor, 8Gb ram, Ubuntu Linux OS).
+ The following image shows the rcon demo executing `500,000k` random commands on a single server instance without errors. 
+
+- Connection pool size: 10
+- Core pool size: 9 threads
+- Processor: Intel i5 3.2Ghz
+- Memory: 8 Gb 
+- OS: Ubuntu Linux 20.04
 
 ![Source RCON Example Application - 01](site/resources/images/agql-rcon-console-01.png)
 

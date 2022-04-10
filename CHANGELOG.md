@@ -20,6 +20,7 @@ Changelog
     - Updated interactive examples
 
 - **Source RCON**
+    - New artifact for this module `agql-source-rcon` 
     - Removed constructor SourceRconClient(boolean useTerminatorPackets)
     - Updated authenticate signature to 'authenticate(InetSocketAddress address, byte[] password)'
     - 
@@ -52,6 +53,7 @@ Changelog
     - **Deprecated** built-in challenge caching facilities. This will be removed in the next major update.
 
 - **Source Log Service**
+    - New artifact for this module `agql-source-log`
     - Fixed: Callback set via setter method is not applied (Issue #44)
     - Introduced new constructor arguments that accepts a custom ExecutorService
     - `listen()` now returns a CompletableFuture which is notified once the underlying connection of the service has been closd.

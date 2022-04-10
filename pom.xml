@@ -43,6 +43,34 @@
         <netty.version>4.1.75.Final</netty.version>
     </properties>
 
+    <!-- Profiles -->
+    <profiles>
+        <!-- Release profile (generate source, javadoc and sign artifacts -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- GPG -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                    </plugin>
+                    <!-- SOURCE -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                    </plugin>
+                    <!-- JAVADOC -->
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <!-- SCM -->
     <scm>
         <url>https://github.com/ribasco/async-gamequery-lib</url>
         <connection>scm:git:git://github.com/ribasco/async-gamequery-lib.git</connection>
@@ -50,6 +78,7 @@
         <tag>HEAD</tag>
     </scm>
 
+    <!-- Misc project information -->
     <developers>
         <developer>
             <id>ribasco</id>
@@ -86,67 +115,17 @@
     <modules>
         <module>core</module>
         <module>examples</module>
+        <!-- TODO: Deprecated. To be removed in future versions -->
         <module>protocols/supercell/clashofclans/webapi</module>
+        <module>protocols/valve/source/query</module>
+        <module>protocols/valve/source/rcon</module>
+        <module>protocols/valve/source/log</module>
         <module>protocols/valve/csgo/webapi</module>
         <module>protocols/valve/dota2/webapi</module>
-        <module>protocols/valve/source/query</module>
         <module>protocols/valve/steam/master</module>
         <module>protocols/valve/steam/webapi</module>
         <module>assembly</module>
     </modules>
-
-    <!-- Profiles -->
-    <profiles>
-        <!-- See https://stackoverflow.com/questions/59049980/maven-compiler-release-as-an-replacement-for-source-and-target -->
-        <profile>
-            <id>java-8-api</id>
-            <activation>
-                <jdk>[9,)</jdk>
-            </activation>
-            <properties>
-                <maven.compiler.release>8</maven.compiler.release>
-            </properties>
-        </profile>
-        <!-- Deploy to Sonatype -->
-        <profile>
-            <id>deploy-sonatype</id>
-            <distributionManagement>
-                <repository>
-                    <id>ossrh</id>
-                    <name>Sonatype Release Repository</name>
-                    <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-                </repository>
-                <snapshotRepository>
-                    <id>ossrh</id>
-                    <name>Sonatype Snapshots Repository</name>
-                    <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-                </snapshotRepository>
-            </distributionManagement>
-        </profile>
-        <!-- Release profile (generate source, javadoc and sign artifacts -->
-        <profile>
-            <id>release</id>
-            <build>
-                <plugins>
-                    <!-- GPG -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                    </plugin>
-                    <!-- SOURCE -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                    </plugin>
-                    <!-- JAVADOC -->
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-javadoc-plugin</artifactId>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 
     <!-- Reporting -->
     <reporting>
@@ -184,12 +163,6 @@
                             <report>aggregate</report>
                         </reports>
                     </reportSet>
-                    <!--<reportSet>
-                        <id>default</id>
-                        <reports>
-                            <report>javadoc-no-fork</report>
-                        </reports>
-                    </reportSet>-->
                 </reportSets>
             </plugin>
         </plugins>
@@ -573,6 +546,7 @@
         </plugins>
     </build>
 
+    <!-- Project Dependencies -->
     <dependencyManagement>
         <dependencies>
             <!-- Project Modules -->
@@ -611,34 +585,43 @@
                 <artifactId>agql-steam-webapi</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.ibasco.agql</groupId>
+                <artifactId>agql-source-rcon</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.ibasco.agql</groupId>
+                <artifactId>agql-source-log</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
-            <!-- Third Party Dependencies -->
+            <!-- SLF4J -->
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>1.7.32</version>
             </dependency>
+            <!-- Google Guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>[30.0-jre,)</version>
             </dependency>
+            <!-- Google GSON -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
                 <version>2.8.9</version>
             </dependency>
-            <dependency>
-                <groupId>org.asynchttpclient</groupId>
-                <artifactId>async-http-client</artifactId>
-                <version>2.12.3</version>
-            </dependency>
+            <!-- JUnit 5 -->
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
                 <version>5.8.2</version>
                 <scope>test</scope>
             </dependency>
+            <!-- Apache Commons -->
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -659,7 +642,6 @@
                 <artifactId>commons-cli</artifactId>
                 <version>1.5.0</version>
             </dependency>
-
             <!-- Netty -->
             <dependency>
                 <groupId>io.netty</groupId>
@@ -719,6 +701,19 @@
                 <version>23.0.0</version>
                 <scope>compile</scope>
             </dependency>
+            <!-- Async HTTP Client -->
+            <dependency>
+                <groupId>org.asynchttpclient</groupId>
+                <artifactId>async-http-client</artifactId>
+                <version>2.12.3</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>io.netty</groupId>
+                        <artifactId>*</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <!-- Failsafe -->
             <dependency>
                 <groupId>dev.failsafe</groupId>
                 <artifactId>failsafe</artifactId>

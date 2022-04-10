@@ -16,8 +16,10 @@
 
 package com.ibasco.agql.core.util;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.UnknownHostException;
 import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -52,5 +54,13 @@ public class Net {
         if (port == null)
             port = defaultPort;
         return new InetSocketAddress(ip, port);
+    }
+
+    public static InetAddress[] getAddresses(String host) {
+        try {
+            return InetAddress.getAllByName(host);
+        } catch (UnknownHostException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }

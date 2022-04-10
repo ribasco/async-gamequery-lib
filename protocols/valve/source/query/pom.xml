@@ -26,8 +26,8 @@
     </parent>
 
     <artifactId>agql-source-query</artifactId>
-    <name>AGQL - Valve - Source Query/Rcon</name>
-    <description>An implementation of the Valve Source Query/Rcon Protocol</description>
+    <name>AGQL - Valve - Source Query</name>
+    <description>An implementation of the Valve Source Query Protocol (A2S_INFO, A2S_PLAYER and A2S_RULES)</description>
     <packaging>jar</packaging>
 
     <dependencies>

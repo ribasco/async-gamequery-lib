@@ -22,6 +22,7 @@ Features
 - Queries are [Failsafe](https://failsafe.dev/). Resilience [policies](https://failsafe.dev/policies/) have been implemented in these modules to guarantee the delivery and receipt of requests. 
     - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration.
     - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+- RCON connections are internally managed, ensuring that connections remain in a valid state (alive and authenticated). Idle connections are automatically released/closed.  
 
 Sample Usage
 -------------
@@ -54,7 +55,7 @@ try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
 
 **Non-Blocking Queries**
 
-For more advanced usages, please refer to the examples provided by the project.
+Here is an example of composing all three server queries in one call. For more advanced usages, please refer to the examples provided by the project.
 
 ```java
 //Use a custom executor. This is not required as the library 

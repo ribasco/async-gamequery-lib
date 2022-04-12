@@ -19,22 +19,22 @@ set -e # Exit with nonzero exit code if anything fails
 
 if [ -z "$1" ]
   then
-    echo "Error: Missing Example Key. Please specify the example key. (e.g. source-query)"
-    echo " "
-    echo "===================================================================="
-    echo "List of available examples"
-    echo "===================================================================="
-    echo "- \u001B[36mSource Server Query Example\u001B[0m      (key: \u001B[33msource-query\u001B[0m)"
-    echo "- \u001B[36mMaster Server Query Example\u001B[0m      (key: \u001B[33mmaster-query\u001B[0m)"
-    echo "- \u001B[36mSource Rcon Example\u001B[0m              (key: \u001B[33msource-rcon\u001B[0m)"
-    echo "- \u001B[36mClash of Clans Web API Example\u001B[0m   (key: \u001B[33mcoc-webapi\u001B[0m)"
-    echo "- \u001B[36mCS:GO Web API Example\u001B[0m            (key: \u001B[33mcsgo-webapi\u001B[0m)"
-    echo "- \u001B[36mSteam Web API Example\u001B[0m            (key: \u001B[33msteam-webapi\u001B[0m)"
-    echo "- \u001B[36mSteam Storefront Web API Example\u001B[0m (key: \u001B[33msteam-store-webapi\u001B[0m)"
-    echo "- \u001B[36mSource Log Listener Example\u001B[0m      (key: \u001B[33msource-log\u001B[0m)"
-    echo "- \u001B[36mSteam Econ Web API Example\u001B[0m       (key: \u001B[33msteam-econ-webapi\u001B[0m)"
-    echo "- \u001B[36mMinecraft Rcon Example\u001B[0m           (key: \u001B[33mmc-rcon\u001B[0m)"
-    echo "- \u001B[36mDota2 Web API Example\u001B[0m            (key: \u001B[33mdota2-webapi\u001B[0m)"
+    echo -e "Error: Missing Example Key. Please specify the example key. (e.g. source-query)"
+    echo -e " "
+    echo -e "===================================================================="
+    echo -e "List of available examples"
+    echo -e "===================================================================="
+    echo -e "- \u001B[36mSource Server Query Example\u001B[0m      (key: \u001B[33msource-query\u001B[0m)"
+    echo -e "- \u001B[36mMaster Server Query Example\u001B[0m      (key: \u001B[33mmaster-query\u001B[0m)"
+    echo -e "- \u001B[36mSource Rcon Example\u001B[0m              (key: \u001B[33msource-rcon\u001B[0m)"
+    echo -e "- \u001B[36mClash of Clans Web API Example\u001B[0m   (key: \u001B[33mcoc-webapi\u001B[0m)"
+    echo -e "- \u001B[36mCS:GO Web API Example\u001B[0m            (key: \u001B[33mcsgo-webapi\u001B[0m)"
+    echo -e "- \u001B[36mSteam Web API Example\u001B[0m            (key: \u001B[33msteam-webapi\u001B[0m)"
+    echo -e "- \u001B[36mSteam Storefront Web API Example\u001B[0m (key: \u001B[33msteam-store-webapi\u001B[0m)"
+    echo -e "- \u001B[36mSource Log Listener Example\u001B[0m      (key: \u001B[33msource-log\u001B[0m)"
+    echo -e "- \u001B[36mSteam Econ Web API Example\u001B[0m       (key: \u001B[33msteam-econ-webapi\u001B[0m)"
+    echo -e "- \u001B[36mMinecraft Rcon Example\u001B[0m           (key: \u001B[33mmc-rcon\u001B[0m)"
+    echo -e "- \u001B[36mDota2 Web API Example\u001B[0m            (key: \u001B[33mdota2-webapi\u001B[0m)"
 
     exit 1
 fi

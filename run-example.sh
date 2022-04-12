@@ -24,21 +24,21 @@ if [ -z "$1" ]
     echo "===================================================================="
     echo "List of available examples"
     echo "===================================================================="
-    echo "- Source Server Query Example      (key: source-query)"
-    echo "- Master Server Query Example      (key: master-query)"
-    echo "- Source Rcon Example              (key: source-rcon)"
-    echo "- Clash of Clans Web API Example   (key: coc-webapi)"
-    echo "- CS:GO Web API Example            (key: csgo-webapi)"
-    echo "- Steam Web API Example            (key: steam-webapi)"
-    echo "- Steam Storefront Web API Example (key: steam-store-webapi)"
-    echo "- Source Log Listener Example      (key: source-log)"
-    echo "- Steam Econ Web API Example       (key: steam-econ-webapi)"
-    echo "- Minecraft Rcon Example           (key: mc-rcon)"
-    echo "- Dota2 Web API Example            (key: dota2-webapi)"
+    echo "- \u001B[36mSource Server Query Example\u001B[0m      (key: \u001B[33msource-query\u001B[0m)"
+    echo "- \u001B[36mMaster Server Query Example\u001B[0m      (key: \u001B[33mmaster-query\u001B[0m)"
+    echo "- \u001B[36mSource Rcon Example\u001B[0m              (key: \u001B[33msource-rcon\u001B[0m)"
+    echo "- \u001B[36mClash of Clans Web API Example\u001B[0m   (key: \u001B[33mcoc-webapi\u001B[0m)"
+    echo "- \u001B[36mCS:GO Web API Example\u001B[0m            (key: \u001B[33mcsgo-webapi\u001B[0m)"
+    echo "- \u001B[36mSteam Web API Example\u001B[0m            (key: \u001B[33msteam-webapi\u001B[0m)"
+    echo "- \u001B[36mSteam Storefront Web API Example\u001B[0m (key: \u001B[33msteam-store-webapi\u001B[0m)"
+    echo "- \u001B[36mSource Log Listener Example\u001B[0m      (key: \u001B[33msource-log\u001B[0m)"
+    echo "- \u001B[36mSteam Econ Web API Example\u001B[0m       (key: \u001B[33msteam-econ-webapi\u001B[0m)"
+    echo "- \u001B[36mMinecraft Rcon Example\u001B[0m           (key: \u001B[33mmc-rcon\u001B[0m)"
+    echo "- \u001B[36mDota2 Web API Example\u001B[0m            (key: \u001B[33mdota2-webapi\u001B[0m)"
 
     exit 1
 fi
 
 echo "Running example for ${1}"
 
-mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}"
+mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}" ${2}

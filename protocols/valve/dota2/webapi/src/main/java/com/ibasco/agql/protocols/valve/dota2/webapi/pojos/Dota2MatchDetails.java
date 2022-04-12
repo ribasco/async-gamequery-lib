@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2MatchDetails class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2MatchDetails {
 
     @SerializedName("players")
@@ -95,6 +100,8 @@ public class Dota2MatchDetails {
     private int direScore;
 
     /**
+     * <p>Getter for the field <code>players</code>.</p>
+     *
      * @return The players
      */
     public List<Dota2MatchPlayer> getPlayers() {
@@ -102,6 +109,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>players</code>.</p>
+     *
      * @param players
      *         The players
      */
@@ -110,6 +119,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>isRadiantWin.</p>
+     *
      * @return The radiantWin
      */
     public boolean isRadiantWin() {
@@ -117,6 +128,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>radiantWin</code>.</p>
+     *
      * @param radiantWin
      *         The radiant_win
      */
@@ -125,6 +138,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>duration</code>.</p>
+     *
      * @return The duration
      */
     public int getDuration() {
@@ -132,6 +147,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>duration</code>.</p>
+     *
      * @param duration
      *         The duration
      */
@@ -140,6 +157,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>preGameDuration</code>.</p>
+     *
      * @return The preGameDuration
      */
     public int getPreGameDuration() {
@@ -147,6 +166,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>preGameDuration</code>.</p>
+     *
      * @param preGameDuration
      *         The pre_game_duration
      */
@@ -155,6 +176,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>startTime</code>.</p>
+     *
      * @return The startTime
      */
     public int getStartTime() {
@@ -162,6 +185,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>startTime</code>.</p>
+     *
      * @param startTime
      *         The start_time
      */
@@ -170,6 +195,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>matchId</code>.</p>
+     *
      * @return The matchId
      */
     public long getMatchId() {
@@ -177,6 +204,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>matchId</code>.</p>
+     *
      * @param matchId
      *         The match_id
      */
@@ -185,6 +214,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>matchSeqNum</code>.</p>
+     *
      * @return The matchSeqNum
      */
     public int getMatchSeqNum() {
@@ -192,6 +223,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>matchSeqNum</code>.</p>
+     *
      * @param matchSeqNum
      *         The match_seq_num
      */
@@ -200,6 +233,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>towerStatusRadiant</code>.</p>
+     *
      * @return The towerStatusRadiant
      */
     public int getTowerStatusRadiant() {
@@ -207,6 +242,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>towerStatusRadiant</code>.</p>
+     *
      * @param towerStatusRadiant
      *         The tower_status_radiant
      */
@@ -215,6 +252,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>towerStatusDire</code>.</p>
+     *
      * @return The towerStatusDire
      */
     public int getTowerStatusDire() {
@@ -222,6 +261,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>towerStatusDire</code>.</p>
+     *
      * @param towerStatusDire
      *         The tower_status_dire
      */
@@ -230,6 +271,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>barracksStatusRadiant</code>.</p>
+     *
      * @return The barracksStatusRadiant
      */
     public int getBarracksStatusRadiant() {
@@ -237,6 +280,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>barracksStatusRadiant</code>.</p>
+     *
      * @param barracksStatusRadiant
      *         The barracks_status_radiant
      */
@@ -245,6 +290,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>barracksStatusDire</code>.</p>
+     *
      * @return The barracksStatusDire
      */
     public int getBarracksStatusDire() {
@@ -252,6 +299,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>barracksStatusDire</code>.</p>
+     *
      * @param barracksStatusDire
      *         The barracks_status_dire
      */
@@ -260,6 +309,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>cluster</code>.</p>
+     *
      * @return The cluster
      */
     public int getCluster() {
@@ -267,6 +318,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>cluster</code>.</p>
+     *
      * @param cluster
      *         The cluster
      */
@@ -275,6 +328,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>firstBloodTime</code>.</p>
+     *
      * @return The firstBloodTime
      */
     public int getFirstBloodTime() {
@@ -282,6 +337,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>firstBloodTime</code>.</p>
+     *
      * @param firstBloodTime
      *         The first_blood_time
      */
@@ -290,6 +347,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>lobbyType</code>.</p>
+     *
      * @return The lobbyType
      */
     public int getLobbyType() {
@@ -297,6 +356,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>lobbyType</code>.</p>
+     *
      * @param lobbyType
      *         The lobby_type
      */
@@ -305,6 +366,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>humanPlayers</code>.</p>
+     *
      * @return The humanPlayers
      */
     public int getHumanPlayers() {
@@ -312,6 +375,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>humanPlayers</code>.</p>
+     *
      * @param humanPlayers
      *         The human_players
      */
@@ -320,6 +385,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>leagueId</code>.</p>
+     *
      * @return The leagueId
      */
     public int getLeagueId() {
@@ -327,6 +394,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>leagueId</code>.</p>
+     *
      * @param leagueId
      *         The leagueId
      */
@@ -335,6 +404,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>positiveVotes</code>.</p>
+     *
      * @return The positiveVotes
      */
     public int getPositiveVotes() {
@@ -342,6 +413,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>positiveVotes</code>.</p>
+     *
      * @param positiveVotes
      *         The positive_votes
      */
@@ -350,6 +423,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>negativeVotes</code>.</p>
+     *
      * @return The negativeVotes
      */
     public int getNegativeVotes() {
@@ -357,6 +432,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>negativeVotes</code>.</p>
+     *
      * @param negativeVotes
      *         The negative_votes
      */
@@ -365,6 +442,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>gameMode</code>.</p>
+     *
      * @return The gameMode
      */
     public int getGameMode() {
@@ -372,6 +451,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>gameMode</code>.</p>
+     *
      * @param gameMode
      *         The game_mode
      */
@@ -380,6 +461,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>flags</code>.</p>
+     *
      * @return The flags
      */
     public int getFlags() {
@@ -387,6 +470,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>flags</code>.</p>
+     *
      * @param flags
      *         The flags
      */
@@ -395,6 +480,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>engine</code>.</p>
+     *
      * @return The engine
      */
     public int getEngine() {
@@ -402,6 +489,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>engine</code>.</p>
+     *
      * @param engine
      *         The engine
      */
@@ -410,6 +499,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>radiantScore</code>.</p>
+     *
      * @return The radiantScore
      */
     public int getRadiantScore() {
@@ -417,6 +508,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>radiantScore</code>.</p>
+     *
      * @param radiantScore
      *         The radiant_score
      */
@@ -425,6 +518,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Getter for the field <code>direScore</code>.</p>
+     *
      * @return The direScore
      */
     public int getDireScore() {
@@ -432,6 +527,8 @@ public class Dota2MatchDetails {
     }
 
     /**
+     * <p>Setter for the field <code>direScore</code>.</p>
+     *
      * @param direScore
      *         The dire_score
      */
@@ -439,6 +536,7 @@ public class Dota2MatchDetails {
         this.direScore = direScore;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

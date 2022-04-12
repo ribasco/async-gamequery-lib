@@ -22,26 +22,23 @@ import com.ibasco.agql.protocols.valve.source.query.common.exceptions.InvalidPac
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket;
 
 /**
- * A provider for {@link PacketDecoder}
+ * A provider for {@link com.ibasco.agql.core.PacketDecoder}
  *
  * @author Rafael Luis Ibasco
  */
 public final class SourceQueryPacketDecoderProvider {
 
     /**
-     * Get a singleton instance of a {@link PacketDecoder} based on the type provided.
+     * Get a singleton instance of a {@link com.ibasco.agql.core.PacketDecoder} based on the type provided.
      *
      * @param type
      *         The lookup header type
      * @param <T>
-     *         The concrete capture type of {@link PacketDecoder}
-     *
-     * @return A singleton instance of {@link PacketDecoder}
-     *
-     * @throws InvalidPacketTypeException
-     *         When the provided type is not recoognized/supported.
+     *         The concrete capture type of {@link com.ibasco.agql.core.PacketDecoder}
+     * @return A singleton instance of {@link com.ibasco.agql.core.PacketDecoder}
      * @see SourceQuery#SOURCE_PACKET_TYPE_SINGLE
      * @see SourceQuery#SOURCE_PACKET_TYPE_SPLIT
+     * @param <P> a P class
      */
     @SuppressWarnings("unchecked")
     public static <T extends PacketDecoder<P>, P extends SourceQueryPacket> T getDecoder(int type) {

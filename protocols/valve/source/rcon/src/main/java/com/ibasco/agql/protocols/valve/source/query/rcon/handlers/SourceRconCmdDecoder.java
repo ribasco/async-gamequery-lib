@@ -31,8 +31,14 @@ import io.netty.channel.ChannelHandlerContext;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * <p>SourceRconCmdDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconCmdDecoder extends MessageInboundDecoder {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
         if (!SourceRconCmdRequest.class.equals(request.getClass()))
@@ -42,6 +48,7 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
         return SourceRcon.isResponseValuePacket((SourceRconPacket) msg);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
         final SourceRconCmdRequest cmd = (SourceRconCmdRequest) request;

@@ -22,14 +22,25 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>SimpleNettyChannelPoolFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SimpleNettyChannelPoolFactory extends NettyChannelPoolFactory {
 
     private static final Logger log = LoggerFactory.getLogger(SimpleNettyChannelPoolFactory.class);
 
+    /**
+     * <p>Constructor for SimpleNettyChannelPoolFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public SimpleNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelPool create(InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
         NettyChannelPool pool = new SimpleNettyChannelPool(getChannelFactory(), getChannelPoolHandler(), getChannelHealthChecker(), false, NettyChannelPool.NONE);

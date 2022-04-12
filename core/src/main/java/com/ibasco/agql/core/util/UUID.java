@@ -22,6 +22,11 @@ import java.io.Serializable;
 import java.util.Base64;
 import java.util.Random;
 
+/**
+ * <p>UUID class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class UUID implements Serializable {
 
     private transient static Random sRand;
@@ -35,6 +40,11 @@ public class UUID implements Serializable {
         sRand = new Random();
     }
 
+    /**
+     * <p>create.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.util.UUID} object
+     */
     public static UUID create() {
         UUID id = new UUID();
         byte[] rbytes = new byte[8];
@@ -43,10 +53,20 @@ public class UUID implements Serializable {
         return id;
     }
 
+    /**
+     * <p>getBytes.</p>
+     *
+     * @return an array of {@link byte} objects
+     */
     public byte[] getBytes() {
         return data;
     }
 
+    /**
+     * <p>getInteger.</p>
+     *
+     * @return a int
+     */
     public int getInteger() {
         byte[] intBytes = new byte[4];
         intBytes[0] = data[0];
@@ -56,6 +76,11 @@ public class UUID implements Serializable {
         return Math.abs(Bytes.toIntegerLE(intBytes));
     }
 
+    /**
+     * <p>nextInteger.</p>
+     *
+     * @return a int
+     */
     public int nextInteger() {
         byte[] intBytes = new byte[4];
         for (int i = 0; i < intBytes.length; i++)
@@ -63,6 +88,7 @@ public class UUID implements Serializable {
         return Bytes.toIntegerLE(intBytes);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         if (dataStr == null) {

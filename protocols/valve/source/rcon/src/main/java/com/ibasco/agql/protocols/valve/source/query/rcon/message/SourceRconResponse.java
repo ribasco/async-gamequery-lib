@@ -21,17 +21,29 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>Abstract SourceRconResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class SourceRconResponse<T> extends AbstractResponse<T> {
 
+    /**
+     * <p>Constructor for SourceRconResponse.</p>
+     *
+     * @param result a T object
+     */
     protected SourceRconResponse(T result) {
         super(result);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setAddress(InetSocketAddress address) {
         super.setAddress(address);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void buildToString(ToStringBuilder builder) {
         super.buildToString(builder);

@@ -22,13 +22,20 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * <p>SourceQueryChallengeDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryChallengeDecoder extends SourceQueryDecoder<SourceQueryRequest> {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptPacket(SourceQueryMessage msg) {
         return msg.hasRequest(SourceQueryChallengeRequest.class) && msg.hasHeader(SourceQuery.SOURCE_QUERY_CHALLENGE_RES);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodePacket(ChannelHandlerContext ctx, SourceQueryRequest request, SourceQuerySinglePacket packet) {
         return new SourceQueryChallengeResponse(packet.content().readIntLE(), null);

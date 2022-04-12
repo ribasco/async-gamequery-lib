@@ -77,11 +77,15 @@ public class SourceRconExample extends BaseExample {
 
     /**
      * For internal testing purposes
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
      */
     public static void main(String[] args) throws Exception {
         new SourceRconExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         //register command processors
@@ -111,6 +115,7 @@ public class SourceRconExample extends BaseExample {
         runTerminal();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         close(rconClient, "RCON");
@@ -152,6 +157,9 @@ public class SourceRconExample extends BaseExample {
         }
     }
 
+    /**
+     * <p>runTerminal.</p>
+     */
     public void runTerminal() {
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));

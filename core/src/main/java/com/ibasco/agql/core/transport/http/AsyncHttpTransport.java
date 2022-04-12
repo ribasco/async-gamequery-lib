@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A wrapper class for the {@link AsyncHttpClient}
+ * A wrapper class for the {@link org.asynchttpclient.AsyncHttpClient}
  *
  * @author Rafael Luis Ibasco
  */
@@ -36,21 +36,29 @@ public final class AsyncHttpTransport implements Transport<Response, Request> {
 
     private static final Logger log = LoggerFactory.getLogger(AsyncHttpTransport.class);
 
+    /**
+     * <p>Constructor for AsyncHttpTransport.</p>
+     *
+     * @param transportConfig a {@link org.asynchttpclient.AsyncHttpClientConfig} object
+     */
     public AsyncHttpTransport(AsyncHttpClientConfig transportConfig) {
         this.httpClient = new DefaultAsyncHttpClient(transportConfig);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         httpClient.close();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Response> send(Request data) {
         log.debug("HTTP => Sending request {} via http transport", data);
         return httpClient.prepareRequest(data).execute().toCompletableFuture();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Options getOptions() {
         return null;

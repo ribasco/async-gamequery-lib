@@ -26,13 +26,20 @@ import io.netty.channel.socket.DatagramPacket;
 
 import java.util.List;
 
+/**
+ * <p>SourceQueryChallengeEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryChallengeEncoder extends SourceQueryEncoder<SourceQueryChallengeRequest> {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptQueryRequest(Class<? extends SourceQueryRequest> cls, Envelope<SourceQueryRequest> envelope) {
         return SourceQueryChallengeRequest.class.equals(cls);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeQueryRequest(ChannelHandlerContext ctx, Envelope<SourceQueryChallengeRequest> msg, List<Object> out) throws Exception {
         SourceQueryChallengeRequest request = msg.content();

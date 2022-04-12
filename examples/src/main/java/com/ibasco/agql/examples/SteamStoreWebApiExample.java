@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,16 +25,28 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 
+/**
+ * <p>SteamStoreWebApiExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SteamStoreWebApiExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SteamStoreWebApiExample.class);
 
     private SteamWebApiClient apiClient;
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         new SteamStoreWebApiExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         apiClient = new SteamWebApiClient();
@@ -52,6 +64,7 @@ public class SteamStoreWebApiExample extends BaseExample {
         log.info("Sale Details: {}", saleDetails);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (apiClient != null)

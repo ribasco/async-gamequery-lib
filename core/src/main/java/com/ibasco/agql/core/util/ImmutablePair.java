@@ -16,21 +16,42 @@
 
 package com.ibasco.agql.core.util;
 
+/**
+ * <p>ImmutablePair class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ImmutablePair<A, B> {
 
     private final A first;
 
     private final B second;
 
+    /**
+     * <p>Constructor for ImmutablePair.</p>
+     *
+     * @param first a A object
+     * @param second a B object
+     */
     public ImmutablePair(A first, B second) {
         this.first = first;
         this.second = second;
     }
 
+    /**
+     * <p>Getter for the field <code>first</code>.</p>
+     *
+     * @return a A object
+     */
     public A getFirst() {
         return first;
     }
 
+    /**
+     * <p>Getter for the field <code>second</code>.</p>
+     *
+     * @return a B object
+     */
     public B getSecond() {
         return second;
     }

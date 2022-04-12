@@ -24,56 +24,68 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * A registry/store for all managed netty based {@link Channel}. Implementation of this class must be thread-safe
+ * A registry/store for all managed netty based {@link io.netty.channel.Channel}. Implementation of this class must be thread-safe
  *
  * @author Rafael Luis Ibasco
  */
 public interface ChannelRegistry {
 
     /**
-     * Register a newly acquired {@link Channel}. This method is thread-safe.
+     * Register a newly acquired {@link io.netty.channel.Channel}. This method is thread-safe.
      *
      * @param channel
-     *         The {@link Channel} to be registered
-     *
-     * @throws ChannelRegistrationException
+     *         The {@link io.netty.channel.Channel} to be registered
+     * @throws com.ibasco.agql.core.exceptions.ChannelRegistrationException
      *         If the registration fails
      */
     void register(Channel channel) throws ChannelRegistrationException;
 
     /**
-     * Unregister a {@link Channel}. This method is thread-safe.
+     * Unregister a {@link io.netty.channel.Channel}. This method is thread-safe.
      *
      * @param channel
-     *         The {@link Channel} to be unregistered
-     *
-     * @return {@code true} if the {@link Channel} was successfuly unregistred.
+     *         The {@link io.netty.channel.Channel} to be unregistered
+     * @return {@code true} if the {@link io.netty.channel.Channel} was successfuly unregistred.
      */
     boolean unregister(Channel channel);
 
     /**
-     * Check if {@link Channel} is registered by this instance.
+     * Check if {@link io.netty.channel.Channel} is registered by this instance.
      *
      * @param channel
-     *         The {@link Channel} to check.
-     *
-     * @return {@code true} if the {@link Channel} is registered by this instance.
+     *         The {@link io.netty.channel.Channel} to check.
+     * @return {@code true} if the {@link io.netty.channel.Channel} is registered by this instance.
      */
     boolean isRegistered(Channel channel);
 
+    /**
+     * <p>getEntries.</p>
+     *
+     * @return a {@link java.util.Set} object
+     */
     Set<Map.Entry<InetSocketAddress, Channel>> getEntries();
 
+    /**
+     * <p>getAddresses.</p>
+     *
+     * @return a {@link java.util.Set} object
+     */
     Set<InetSocketAddress> getAddresses();
 
+    /**
+     * <p>getChannels.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     * @return a {@link java.util.Set} object
+     */
     Set<Channel> getChannels(InetSocketAddress address);
 
     /**
-     * The number of {@link Channel} registered for the specified {@link InetSocketAddress}
+     * The number of {@link io.netty.channel.Channel} registered for the specified {@link java.net.InetSocketAddress}
      *
      * @param address
-     *         The {@link InetSocketAddress} to lookup
-     *
-     * @return The total number of registered {@link Channel} for the specified address
+     *         The {@link java.net.InetSocketAddress} to lookup
+     * @return The total number of registered {@link io.netty.channel.Channel} for the specified address
      */
     int getCount(InetSocketAddress address);
 }

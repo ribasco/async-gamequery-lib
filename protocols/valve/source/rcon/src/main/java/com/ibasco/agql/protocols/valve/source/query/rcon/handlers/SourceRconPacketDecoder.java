@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 
 /**
  * <p>
- * Decodes a raw {@link ByteBuf} message into a {@link SourceRconPacket} type. This decoder will read and collect decoded packets until everything has been received from the server.
+ * Decodes a raw {@link io.netty.buffer.ByteBuf} message into a {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} type. This decoder will read and collect decoded packets until everything has been received from the server.
  * </p>
  * <blockquote>
  * When the server receives an auth request, it will respond with an empty {@code SERVERDATA_RESPONSE_VALUE}, followed immediately by a {@code SERVERDATA_AUTH_RESPONSE} indicating whether authentication succeeded or failed.
@@ -67,10 +67,14 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
 
     private boolean terminatorPacketsEnabled;
 
+    /**
+     * <p>Constructor for SourceRconPacketDecoder.</p>
+     */
     public SourceRconPacketDecoder() {
         setSingleDecode(false);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         Envelope<AbstractRequest> envelope = NettyChannelContext.getContext(ctx.channel()).properties().envelope();
@@ -216,6 +220,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         try {
@@ -236,6 +241,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         packets = null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         ChannelEvent cEvent = (ChannelEvent) evt;
@@ -247,18 +253,21 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         debug(ctx, "DECODER: START");
         super.channelRead(ctx, msg);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug(ctx, "DECODER: END");
         super.channelReadComplete(ctx);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         this.decoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketDecoder(ctx, SourceRconOptions.STRICT_MODE.attr(ctx));
@@ -266,6 +275,7 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         super.channelActive(ctx);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         reset(ctx, true);

@@ -23,7 +23,7 @@ import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySp
 import io.netty.buffer.ByteBuf;
 
 /**
- * A factory that decodes a payload identified as a split-type source query packet into {@link SourceQuerySplitPacket}
+ * A factory that decodes a payload identified as a split-type source query packet into {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySplitPacket}
  *
  * @author Rafael Luis Ibasco
  */
@@ -31,6 +31,7 @@ public class SourceQuerySplitPacketDecoder implements PacketDecoder<SourceQueryP
 
     static final SourceQuerySplitPacketDecoder INSTANCE = new SourceQuerySplitPacketDecoder();
 
+    /** {@inheritDoc} */
     @Override
     public SourceQueryPacket decode(ByteBuf buffer) throws PacketDecodeException {
         try {

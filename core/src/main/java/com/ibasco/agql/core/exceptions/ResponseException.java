@@ -20,15 +20,31 @@ import com.ibasco.agql.core.NettyChannelContext;
 
 import java.util.concurrent.CompletionException;
 
+/**
+ * <p>ResponseException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ResponseException extends CompletionException {
 
     private final NettyChannelContext context;
 
+    /**
+     * <p>Constructor for ResponseException.</p>
+     *
+     * @param cause a {@link java.lang.Throwable} object
+     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public ResponseException(Throwable cause, NettyChannelContext context) {
         super(cause);
         this.context = context;
     }
 
+    /**
+     * <p>Getter for the field <code>context</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public NettyChannelContext getContext() {
         return context;
     }

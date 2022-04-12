@@ -18,6 +18,11 @@ package com.ibasco.agql.protocols.valve.steam.master.enums;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>MasterServerType class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public enum MasterServerType {
     SOURCE(new InetSocketAddress("hl2master.steampowered.com", 27011)),
     GOLDSRC(new InetSocketAddress("hl1master.steampowered.com", 27010));
@@ -28,6 +33,11 @@ public enum MasterServerType {
         this.masterAddress = address;
     }
 
+    /**
+     * <p>Getter for the field <code>masterAddress</code>.</p>
+     *
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     public InetSocketAddress getMasterAddress() {
         return masterAddress;
     }

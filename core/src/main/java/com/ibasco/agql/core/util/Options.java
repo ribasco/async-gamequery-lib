@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * A special map for storing configuration {@link Option} instances.
+ * A special map for storing configuration {@link com.ibasco.agql.core.util.Option} instances.
  *
  * @author Rafael Luis Ibasco
  */
@@ -34,18 +34,39 @@ public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, O
 
     private final Map<Option<?>, OptionValue> options = new ConcurrentHashMap<>();
 
+    /**
+     * <p>Constructor for Options.</p>
+     */
     public Options() {
         this(null);
     }
 
+    /**
+     * <p>Constructor for Options.</p>
+     *
+     * @param group
+     *         a {@link java.lang.Class} object
+     */
     public Options(Class<?> group) {
         this.group = group;
     }
 
+    /**
+     * <p>Getter for the field <code>group</code>.</p>
+     *
+     * @return a {@link java.lang.Class} object
+     */
     public Class<?> getGroup() {
         return group;
     }
 
+    /**
+     * <p>isLocked.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @return a boolean
+     */
     public synchronized boolean isLocked(Option<?> option) {
         OptionValue optval = options.get(option);
         if (optval == null)
@@ -53,24 +74,70 @@ public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, O
         return optval.locked;
     }
 
+    /**
+     * <p>add.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a X object
+     * @param <X>
+     *         a X class
+     */
     public synchronized <X> void add(Option<X> option, X value) {
         add(option, value, false);
     }
 
+    /**
+     * <p>contains.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @return a boolean
+     */
     public boolean contains(Option<?> option) {
         return options.containsKey(option);
     }
 
+    /**
+     * <p>add.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a X object
+     * @param locked
+     *         a boolean
+     * @param <X>
+     *         a X class
+     */
     public synchronized <X> void add(Option<X> option, X value, boolean locked) {
         if (isLocked(option))
             throw new IllegalStateException(String.format("Option '%s' is locked. Cannot modify. (Locked by '%s')", option.getKey(), getGroup().getSimpleName()));
         options.put(option, new OptionValue(value, locked));
     }
 
+    /**
+     * <p>remove.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <X>
+     *         a X class
+     */
     public synchronized <X> void remove(Option<X> option) {
         options.remove(option);
     }
 
+    /**
+     * <p>Retrieve option value</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <X>
+     *         a The capturing type
+     * @return The value of the option
+     */
     public synchronized <X> X get(Option<X> option) {
         OptionValue optVal = options.get(option);
         if (optVal == null)
@@ -79,6 +146,17 @@ public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, O
         return (X) optVal.value;
     }
 
+    /**
+     * <p>get.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param defaultValue
+     *         a X object
+     * @param <X>
+     *         a X class
+     * @return a X object
+     */
     public synchronized <X> X get(Option<X> option, X defaultValue) {
         OptionValue optVal = options.get(option);
         if (optVal == null || optVal.value == null)
@@ -87,6 +165,15 @@ public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, O
         return (X) optVal.value;
     }
 
+    /**
+     * <p>getOrDefault.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <X>
+     *         a X class
+     * @return a X object
+     */
     public synchronized <X> X getOrDefault(Option<X> option) {
         OptionValue optVal = options.get(option);
         if (optVal == null || optVal.value == null) {
@@ -96,16 +183,29 @@ public final class Options implements Cloneable, Iterable<Map.Entry<Option<?>, O
         return (X) optVal.value;
     }
 
+    /**
+     * <p>clone.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.util.Options} object
+     * @throws java.lang.CloneNotSupportedException
+     *         if any.
+     */
     public Options clone() throws CloneNotSupportedException {
         Options clone = (Options) super.clone();
         clone.options.putAll(options);
         return clone;
     }
 
+    /**
+     * <p>size.</p>
+     *
+     * @return a int
+     */
     public synchronized int size() {
         return options.size();
     }
 
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Iterator<Map.Entry<Option<?>, Object>> iterator() {

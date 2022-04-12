@@ -23,6 +23,7 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.util.AttributeKey;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +35,7 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Base class for all {@link Channel} factories utilitizing netty's {@link Bootstrap}
+ * Base class for all {@link io.netty.channel.Channel} factories utilitizing netty's {@link io.netty.bootstrap.Bootstrap}
  *
  * @author Rafael Luis Ibasco
  */
@@ -55,7 +56,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     private final EventLoopGroup eventLoopGroup;
 
-    private final ExecutorService executorService;
+    private ExecutorService executorService;
 
     private NettyChannelInitializer channelInitializer;
 
@@ -73,10 +74,33 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
+
+    /**
+     * <p>Constructor for AbstractNettyChannelFactory.</p>
+     *
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     */
     protected AbstractNettyChannelFactory(final TransportType type, final Options options, final NettyPropertyResolver resolver) {
         this(type, options, resolver, null);
     }
 
+    /**
+     * <p>Constructor for AbstractNettyChannelFactory.</p>
+     *
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param initializer
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelInitializer} object
+     */
     protected AbstractNettyChannelFactory(final TransportType type, final Options options, final NettyPropertyResolver resolver, final NettyChannelInitializer initializer) {
         this.transportType = type;
         this.options = options;
@@ -84,7 +108,9 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
 
         //initialize event loop group
-        this.executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
+        this.executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE);
+        if (executorService == null)
+            executorService = Platform.getDefaultExecutor();
         this.eventLoopGroup = initializeEventLoopGroup(channelClass, executorService);
         this.channelInitializer = initializer == null ? new NettyChannelInitializer() : initializer;
 
@@ -92,33 +118,72 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     }
     //</editor-fold>
 
-    protected EventLoopGroup initializeEventLoopGroup(Class<? extends Channel> channelClass, ExecutorService executorService) {
+    /**
+     * <p>Initialize {@link EventLoopGroup}.</p>
+     *
+     * @param channelClass
+     *         a {@link java.lang.Class} object
+     * @param executorService
+     *         a {@link java.util.concurrent.ExecutorService} object
+     *
+     * @return a {@link io.netty.channel.EventLoopGroup} object
+     */
+    protected EventLoopGroup initializeEventLoopGroup(@NotNull Class<? extends Channel> channelClass, @NotNull ExecutorService executorService) {
         Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
-        //Attempt to determine the number of threads supported by the executor service
-        if (nThreads == null) {
-            if (executorService instanceof ThreadPoolExecutor) {
-                ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
-                nThreads = tpe.getCorePoolSize();
-            } else {
-                throw new IllegalStateException("Please specify a core pool size in the options (See TransportOptions.THREAD_CORE_SIZE)");
+        EventLoopGroup group;
+        //1. if the provided executor service is the default global executor, then we simply return the default global EventLoopGroup
+        //2. if the provided executor service is user-defined, then we create a new EventLoopGroup instance
+        if (Platform.isDefaultExecutor(executorService)) {
+            group = Platform.getDefaultEventLoopGroup();
+        } else {
+            //since we are dealing with a user provided executor service the option 'TransportOptions.THREAD_CORE_SIZE' is required
+            // unless we are able to automatically determine it's core pool size
+            //Attempt to determine the number of threads supported by the executor service
+            if (nThreads == null) {
+                if (executorService instanceof ThreadPoolExecutor) {
+                    ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
+                    nThreads = tpe.getCorePoolSize();
+                } else if (executorService instanceof AgqlManagedExecutorService) {
+                    ThreadPoolExecutor tpe = ((AgqlManagedExecutorService) executorService).getResource();
+                    nThreads = tpe.getCorePoolSize();
+                } else {
+                    throw new IllegalStateException("Please specify the core pool size for the  (See TransportOptions.THREAD_CORE_SIZE)");
+                }
             }
+            group = Platform.createEventLoopGroup(channelClass, executorService, nThreads);
         }
-        EventLoopGroup group = Platform.createEventLoopGroup(channelClass, executorService, nThreads);
+
         log.debug("CHANNEL_FACTORY (INIT) => Channel Class '{}'", channelClass);
         log.debug("CHANNEL_FACTORY (INIT) => Executor Service: '{}'", executorService);
         log.debug("CHANNEL_FACTORY (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
         return group;
     }
 
+    /**
+     * <p>newChannel.</p>
+     *
+     * @param data
+     *         a {@link java.lang.Object} object
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     abstract protected CompletableFuture<Channel> newChannel(final Object data);
 
+    /**
+     * <p>configureBootstrap.</p>
+     *
+     * @param bootstrap
+     *         a {@link io.netty.bootstrap.Bootstrap} object
+     */
     protected void configureBootstrap(Bootstrap bootstrap) {}
 
+    /** {@inheritDoc} */
     @Override
     public final CompletableFuture<Channel> create(final Object data) {
         return newChannel(data);
     }
 
+    /** {@inheritDoc} */
     @Override
     public final CompletableFuture<Channel> create(final Object data, EventLoop eventLoop) {
         if (eventLoop == null)
@@ -127,48 +192,61 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     }
 
     //<editor-fold desc="Public Methods">
+
+    /** {@inheritDoc} */
     @Override
     public TransportType getTransportType() {
         return transportType;
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelInitializer getChannelInitializer() {
         return channelInitializer;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setChannelInitializer(NettyChannelInitializer channelInitializer) {
         this.channelInitializer = channelInitializer;
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyPropertyResolver getResolver() {
         return resolver;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setResolver(NettyPropertyResolver resolver) {
         this.resolver = resolver;
     }
 
+    /** {@inheritDoc} */
     @Override
     public EventLoopGroup getExecutor() {
         return eventLoopGroup;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Bootstrap getBootstrap() {
         return bootstrap;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Options getOptions() {
         return options;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
+        //if the executor service is a managed resource, attempt to release it
+        ManagedResource.release(executorService);
+
         if (Concurrency.shutdown(eventLoopGroup, options.getOrDefault(TransportOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
             log.debug("TRANSPORT (CLOSE) => Transport closed gracefully");
         } else {
@@ -215,6 +293,11 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         }
     }
 
+    /**
+     * <p>createRecvByteBufAllocator.</p>
+     *
+     * @return a {@link io.netty.channel.RecvByteBufAllocator} object
+     */
     protected RecvByteBufAllocator createRecvByteBufAllocator() {
         BufferAllocatorType allocatorType = getOptions().getOrDefault(TransportOptions.SOCKET_RECVBUF_ALLOC_TYPE);
         log.debug("[INIT] Using a receive buffer allocator type of '{}'", allocatorType);

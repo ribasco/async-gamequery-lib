@@ -20,10 +20,17 @@ import com.ibasco.agql.core.Envelope;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>DefaultPropertyResolver class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultPropertyResolver implements NettyPropertyResolver {
 
+    /** Constant <code>INSTANCE</code> */
     public static final DefaultPropertyResolver INSTANCE = new DefaultPropertyResolver();
 
+    /** {@inheritDoc} */
     @Override
     public InetSocketAddress resolveRemoteAddress(Object data) {
         if (data == null)

@@ -16,15 +16,31 @@
 
 package com.ibasco.agql.core.exceptions;
 
+/**
+ * <p>InvalidPacketException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class InvalidPacketException extends ResponseProcessingException {
 
     private final byte[] data;
 
+    /**
+     * <p>Constructor for InvalidPacketException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param data an array of {@link byte} objects
+     */
     public InvalidPacketException(String message, byte[] data) {
         super(message);
         this.data = data;
     }
 
+    /**
+     * <p>Getter for the field <code>data</code>.</p>
+     *
+     * @return an array of {@link byte} objects
+     */
     public byte[] getData() {
         return data;
     }

@@ -31,6 +31,11 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * <p>MasterQueryExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterQueryExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MasterQueryExample.class);
@@ -39,10 +44,17 @@ public class MasterQueryExample extends BaseExample {
 
     private final Set<InetSocketAddress> addressSet = new HashSet<>();
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         new MasterQueryExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         client = new MasterServerQueryClient();
@@ -50,11 +62,15 @@ public class MasterQueryExample extends BaseExample {
         System.exit(0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         client.close();
     }
 
+    /**
+     * <p>listAllServers.</p>
+     */
     public void listAllServers() {
         Integer appId = promptInputInt("Please enter an App ID (optional | -1 default): ", true, "-1", "masterAppId");
         final MasterServerFilter filter = buildServerFilter(appId);
@@ -65,7 +81,7 @@ public class MasterQueryExample extends BaseExample {
         Set<InetSocketAddress> addresses = null;
         try {
             addressSet.clear();
-            addresses = client.getServers(MasterServerType.GOLDSRC, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+            addresses = client.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {

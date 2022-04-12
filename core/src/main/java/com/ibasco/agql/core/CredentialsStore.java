@@ -19,7 +19,7 @@ package com.ibasco.agql.core;
 import java.net.InetSocketAddress;
 
 /**
- * <p>A storage for {@link Credentials}</p>
+ * <p>A storage for {@link com.ibasco.agql.core.Credentials}</p>
  *
  * <p>
  * Note: Implementation of this interface must be thread-safe.
@@ -30,45 +30,43 @@ import java.net.InetSocketAddress;
 public interface CredentialsStore {
 
     /**
-     * Gets a {@link Credentials} from the storage.
+     * Gets a {@link com.ibasco.agql.core.Credentials} from the storage.
      *
      * @param address
-     *         The {@link InetSocketAddress} to be used for lookup
-     *
-     * @return The {@link Credentials} associated with the {@link InetSocketAddress}. {@code null} if no {@link Credentials} is present.
+     *         The {@link java.net.InetSocketAddress} to be used for lookup
+     * @return The {@link com.ibasco.agql.core.Credentials} associated with the {@link java.net.InetSocketAddress}. {@code null} if no {@link com.ibasco.agql.core.Credentials} is present.
      */
     Credentials get(InetSocketAddress address);
 
     /**
-     * Adds a valid {@link Credentials} to the registry
+     * Adds a valid {@link com.ibasco.agql.core.Credentials} to the registry
      *
      * @param address
-     *         The {@link InetSocketAddress} to register
+     *         The {@link java.net.InetSocketAddress} to register
      * @param passphrase
      *         The byte array containing the passphrase to be used for authentication
      */
     void add(InetSocketAddress address, byte[] passphrase);
 
     /**
-     * Clear {@link Credentials} for a specific address
+     * Clear {@link com.ibasco.agql.core.Credentials} for a specific address
      *
      * @param address
-     *         The {@link InetSocketAddress} to clear
+     *         The {@link java.net.InetSocketAddress} to clear
      */
     void remove(InetSocketAddress address);
 
     /**
-     * Clear all registered {@link Credentials}
+     * Clear all registered {@link com.ibasco.agql.core.Credentials}
      */
     void clear();
 
     /**
-     * Checks if a {@link Credentials} is registered for the specified address. Note: This only checks for the existence of a {@link Credentials} not the validity.
+     * Checks if a {@link com.ibasco.agql.core.Credentials} is registered for the specified address. Note: This only checks for the existence of a {@link com.ibasco.agql.core.Credentials} not the validity.
      *
      * @param address
-     *         The {@link InetSocketAddress} to check
-     *
-     * @return {@code true} if a {@link Credentials} is registered for the specified address.
+     *         The {@link java.net.InetSocketAddress} to check
+     * @return {@code true} if a {@link com.ibasco.agql.core.Credentials} is registered for the specified address.
      */
     boolean exists(InetSocketAddress address);
 }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
 
 /**
  * Return a list of games owned by the player
+ *
+ * @author Rafael Luis Ibasco
  */
 public class GetOwnedGames extends SteamPlayerServiceRequest {
+    /**
+     * <p>Constructor for GetOwnedGames.</p>
+     *
+     * @param apiVersion a int
+     * @param steamId a long
+     * @param includeAppInfo a boolean
+     * @param includePlayedFreeGames a boolean
+     */
     public GetOwnedGames(int apiVersion, long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
         super("GetOwnedGames", apiVersion);
         urlParam(SteamApiConstants.STEAM_URLPARAM_STEAMID, steamId);

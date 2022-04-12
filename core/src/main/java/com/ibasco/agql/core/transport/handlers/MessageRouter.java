@@ -37,12 +37,13 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
 
 /**
- * The last handler in the chain that is responsible for routing the response back to the {@link Messenger}
+ * The last handler in the chain that is responsible for routing the response back to the {@link com.ibasco.agql.core.Messenger}
  *
  * @author Rafael Luis Ibasco
  */
 public class MessageRouter extends ChannelDuplexHandler {
 
+    /** Constant <code>NAME="messageRouter"</code> */
     public static final String NAME = "messageRouter";
 
     private static final Logger log = LoggerFactory.getLogger(MessageRouter.class);
@@ -60,6 +61,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         }
     };
 
+    /** {@inheritDoc} */
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -75,6 +77,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         super.write(ctx, msg, promise);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) throws Exception {
         final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -141,6 +144,7 @@ public class MessageRouter extends ChannelDuplexHandler {
         return !(msg instanceof ReferenceCounted) || ReferenceCountUtil.refCnt(msg) > 0;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable error) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -153,12 +157,14 @@ public class MessageRouter extends ChannelDuplexHandler {
         context.receive(error);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
         log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", Netty.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.fireChannelReadComplete();

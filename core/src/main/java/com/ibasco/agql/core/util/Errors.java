@@ -19,12 +19,18 @@ package com.ibasco.agql.core.util;
 import java.util.concurrent.CompletionException;
 
 /**
- * Utilities for {@link Exception} handling
+ * Utilities for {@link java.lang.Exception} handling
  *
  * @author Rafael Luis Ibasco
  */
 public class Errors {
 
+    /**
+     * <p>unwrap.</p>
+     *
+     * @param error a {@link java.lang.Throwable} object
+     * @return a {@link java.lang.Throwable} object
+     */
     public static Throwable unwrap(Throwable error) {
         if (error == null)
             return null;
@@ -33,6 +39,11 @@ public class Errors {
         return error;
     }
 
+    /**
+     * <p>unwrapAndThrow.</p>
+     *
+     * @param error a {@link java.lang.Throwable} object
+     */
     public static void unwrapAndThrow(Throwable error) {
         if (error == null)
             return;
@@ -41,6 +52,14 @@ public class Errors {
         throw new CompletionException(error);
     }
 
+    /**
+     * <p>unwrapAndThrow.</p>
+     *
+     * @param s a U object
+     * @param error a {@link java.lang.Throwable} object
+     * @param <U> a U class
+     * @return a U object
+     */
     public static <U> U unwrapAndThrow(U s, Throwable error) {
         unwrapAndThrow(error);
         return s;

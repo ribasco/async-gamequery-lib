@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,11 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2ScoreboardTeamStats class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2ScoreboardTeamStats {
 
     @SerializedName("score")
@@ -46,6 +51,8 @@ public class Dota2ScoreboardTeamStats {
     private List<Dota2ScoreboardTeamAbility> abilities = new ArrayList<>();
 
     /**
+     * <p>Getter for the field <code>score</code>.</p>
+     *
      * @return The score
      */
     public int getScore() {
@@ -53,6 +60,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>score</code>.</p>
+     *
      * @param score
      *         The score
      */
@@ -61,6 +70,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>towerState</code>.</p>
+     *
      * @return The towerState
      */
     public int getTowerState() {
@@ -68,6 +79,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>towerState</code>.</p>
+     *
      * @param towerState
      *         The tower_state
      */
@@ -76,6 +89,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>barracksState</code>.</p>
+     *
      * @return The barracksState
      */
     public int getBarracksState() {
@@ -83,6 +98,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>barracksState</code>.</p>
+     *
      * @param barracksState
      *         The barracks_state
      */
@@ -91,6 +108,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>picks</code>.</p>
+     *
      * @return The picks
      */
     public List<Dota2ScoreboardTeamPicks> getPicks() {
@@ -98,6 +117,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>picks</code>.</p>
+     *
      * @param picks
      *         The picks
      */
@@ -106,6 +127,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>bans</code>.</p>
+     *
      * @return The bans
      */
     public List<Dota2ScoreboardTeamBan> getBans() {
@@ -113,6 +136,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>bans</code>.</p>
+     *
      * @param bans
      *         The bans
      */
@@ -121,6 +146,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>players</code>.</p>
+     *
      * @return The players
      */
     public List<Dota2ScoreboardPlayerStats> getPlayers() {
@@ -128,6 +155,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>players</code>.</p>
+     *
      * @param players
      *         The players
      */
@@ -136,6 +165,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Getter for the field <code>abilities</code>.</p>
+     *
      * @return The abilities
      */
     public List<Dota2ScoreboardTeamAbility> getAbilities() {
@@ -143,6 +174,8 @@ public class Dota2ScoreboardTeamStats {
     }
 
     /**
+     * <p>Setter for the field <code>abilities</code>.</p>
+     *
      * @param abilities
      *         The abilities
      */
@@ -150,6 +183,7 @@ public class Dota2ScoreboardTeamStats {
         this.abilities = abilities;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this);

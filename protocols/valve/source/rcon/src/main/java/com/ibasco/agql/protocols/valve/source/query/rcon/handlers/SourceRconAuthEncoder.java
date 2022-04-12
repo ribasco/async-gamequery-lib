@@ -24,13 +24,20 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 
+/**
+ * <p>SourceRconAuthEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconAuthEncoder extends MessageOutboundEncoder<SourceRconAuthRequest> {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(Class<SourceRconAuthRequest> requestClass, Envelope<SourceRconAuthRequest> envelope) throws Exception {
         return SourceRconAuthRequest.class.equals(requestClass);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeMessage(ChannelHandlerContext ctx, Envelope<SourceRconAuthRequest> msg, List<Object> out) throws Exception {
         final SourceRconAuthRequest request = msg.content();

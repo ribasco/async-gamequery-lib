@@ -26,25 +26,83 @@ import io.netty.channel.EventLoopGroup;
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>NettyChannelFactory interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public interface NettyChannelFactory extends Closeable {
 
+    /**
+     * <p>create.</p>
+     *
+     * @param data a {@link java.lang.Object} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     CompletableFuture<Channel> create(final Object data);
 
+    /**
+     * <p>create.</p>
+     *
+     * @param data a {@link java.lang.Object} object
+     * @param eventLoop a {@link io.netty.channel.EventLoop} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     CompletableFuture<Channel> create(final Object data, EventLoop eventLoop);
 
+    /**
+     * <p>getTransportType.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     */
     TransportType getTransportType();
 
+    /**
+     * <p>getChannelInitializer.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelInitializer} object
+     */
     NettyChannelInitializer getChannelInitializer();
 
+    /**
+     * <p>setChannelInitializer.</p>
+     *
+     * @param channelInitializer a {@link com.ibasco.agql.core.transport.NettyChannelInitializer} object
+     */
     void setChannelInitializer(NettyChannelInitializer channelInitializer);
 
+    /**
+     * <p>getResolver.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     */
     NettyPropertyResolver getResolver();
 
+    /**
+     * <p>setResolver.</p>
+     *
+     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     */
     void setResolver(NettyPropertyResolver resolver);
 
+    /**
+     * <p>getExecutor.</p>
+     *
+     * @return a {@link io.netty.channel.EventLoopGroup} object
+     */
     EventLoopGroup getExecutor();
 
+    /**
+     * <p>getBootstrap.</p>
+     *
+     * @return a {@link io.netty.bootstrap.Bootstrap} object
+     */
     Bootstrap getBootstrap();
 
+    /**
+     * <p>getOptions.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.util.Options} object
+     */
     Options getOptions();
 }

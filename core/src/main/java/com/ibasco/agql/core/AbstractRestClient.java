@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,11 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
+/**
+ * <p>Abstract AbstractRestClient class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class AbstractRestClient extends AsyncHttpClient {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractRestClient.class);
@@ -47,10 +52,10 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
     }
 
     /**
-     * Constructor accepting a {@link String} representing the authentication token for the provider
+     * Constructor accepting a {@link java.lang.String} representing the authentication token for the provider
      *
      * @param authToken
-     *         A {@link String} containing the authentication token for the provider
+     *         A {@link java.lang.String} containing the authentication token for the provider
      */
     public AbstractRestClient(String authToken) {
         super(null);
@@ -61,9 +66,9 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
     }
 
     /**
-     * <p>Factory method for creating the default {@link HttpMessenger}</p>
+     * {@inheritDoc}
      *
-     * @return A {@link HttpMessenger} instance
+     * <p>Factory method for creating the default {@link HttpMessenger}</p>
      */
     @Override
     protected HttpMessenger createMessenger(Options options) {
@@ -93,9 +98,9 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      * <p>Register custom content processors based on the value defined in the Content-Type header</p>
      *
      * @param contentType
-     *         A {@link String} Content-Type identifier
+     *         A {@link java.lang.String} Content-Type identifier
      * @param processor
-     *         The {@link ContentTypeProcessor} that will handle the response body conversion
+     *         The {@link com.ibasco.agql.core.transport.http.ContentTypeProcessor} that will handle the response body conversion
      */
     protected void registerContentTypeProcessor(String contentType, ContentTypeProcessor processor) {
         String type = parseContentType(contentType);
@@ -103,6 +108,11 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
         this.contentProcessorMap.put(type, processor);
     }
 
+    /**
+     * <p>removeContentTypeProcessor.</p>
+     *
+     * @param contentType a {@link java.lang.String} object
+     */
     protected void removeContentTypeProcessor(String contentType) {
         this.contentProcessorMap.remove(parseContentType(contentType));
     }
@@ -124,6 +134,7 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
         return contentType;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected CompletableFuture<AbstractWebResponse> send(AbstractWebRequest message) {
         //Before sending the request, make sure we make some last minute
@@ -138,28 +149,37 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      * <p>Override this method if the client requires authentication.</p>
      *
      * @param requestBuilder
-     *         The {@link RequestBuilder} containing the request parameters of the concrete {@link org.asynchttpclient.Request}
+     *         The {@link org.asynchttpclient.RequestBuilder} containing the request parameters of the concrete {@link org.asynchttpclient.Request}
      * @param authToken
-     *         A {@link String} representing the authetntication token to be passed to the provider
+     *         A {@link java.lang.String} representing the authetntication token to be passed to the provider
      */
     protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
         //Optional implementation
     }
 
     /**
-     * <p>A factory method that creates an {@link AbstractWebApiResponse} instance based on the Http {@link Response}</p>
+     * <p>A factory method that creates an {@link com.ibasco.agql.core.AbstractWebApiResponse} instance based on the Http {@link org.asynchttpclient.Response}</p>
      *
      * @param response
-     *         The Http {@link Response} received by the transport
-     *
-     * @return A Concrete implementation of {@link AbstractWebApiResponse}
+     *         The Http {@link org.asynchttpclient.Response} received by the transport
+     * @return A Concrete implementation of {@link com.ibasco.agql.core.AbstractWebApiResponse}
      */
     abstract protected AbstractWebApiResponse createWebApiResponse(Response response);
 
+    /**
+     * <p>Getter for the field <code>authToken</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getAuthToken() {
         return authToken;
     }
 
+    /**
+     * <p>Setter for the field <code>authToken</code>.</p>
+     *
+     * @param authToken a {@link java.lang.String} object
+     */
     public void setAuthToken(String authToken) {
         this.authToken = authToken;
     }

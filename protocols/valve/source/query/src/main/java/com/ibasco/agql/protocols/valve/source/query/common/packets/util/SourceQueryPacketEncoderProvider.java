@@ -16,6 +16,11 @@
 
 package com.ibasco.agql.protocols.valve.source.query.common.packets.util;
 
+/**
+ * <p>SourceQueryPacketEncoderProvider class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public final class SourceQueryPacketEncoderProvider {
 
 }

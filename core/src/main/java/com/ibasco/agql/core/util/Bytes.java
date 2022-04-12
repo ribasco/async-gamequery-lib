@@ -20,8 +20,19 @@ import java.nio.ByteOrder;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 
+/**
+ * <p>Bytes class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Bytes {
 
+    /**
+     * <p>getSizeDescriptionSI.</p>
+     *
+     * @param bytes a long
+     * @return a {@link java.lang.String} object
+     */
     public static String getSizeDescriptionSI(long bytes) {
         if (-1000 < bytes && bytes < 1000) {
             return bytes + " B";
@@ -34,6 +45,12 @@ public class Bytes {
         return String.format("%.1f %cB", bytes / 1000.0, ci.current());
     }
 
+    /**
+     * <p>getSizeDescriptionBin.</p>
+     *
+     * @param bytes a long
+     * @return a {@link java.lang.String} object
+     */
     public static String getSizeDescriptionBin(long bytes) {
         long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
         if (absB < 1024) {
@@ -49,6 +66,12 @@ public class Bytes {
         return String.format("%.1f %cB", value / 1024.0, ci.current());
     }
 
+    /**
+     * <p>toByteArray.</p>
+     *
+     * @param value a int
+     * @return an array of {@link byte} objects
+     */
     public static byte[] toByteArray(int value) {
         return new byte[] {
                 (byte) ((value >> 24) & 0xff),
@@ -58,6 +81,12 @@ public class Bytes {
         };
     }
 
+    /**
+     * <p>toByteArrayLE.</p>
+     *
+     * @param value a int
+     * @return an array of {@link byte} objects
+     */
     public static byte[] toByteArrayLE(int value) {
         return new byte[] {
                 (byte) (value & 0xff),
@@ -67,6 +96,12 @@ public class Bytes {
         };
     }
 
+    /**
+     * <p>toInteger.</p>
+     *
+     * @param bytes an array of {@link byte} objects
+     * @return a int
+     */
     public static int toInteger(byte[] bytes) {
         return ((bytes[0] & 0xFF) << 24) |
                 ((bytes[1] & 0xFF) << 16) |
@@ -74,6 +109,12 @@ public class Bytes {
                 ((bytes[3] & 0xFF));
     }
 
+    /**
+     * <p>toIntegerLE.</p>
+     *
+     * @param bytes an array of {@link byte} objects
+     * @return a int
+     */
     public static int toIntegerLE(byte[] bytes) {
         return ((bytes[3] & 0xFF) << 24) |
                 ((bytes[2] & 0xFF) << 16) |
@@ -81,10 +122,23 @@ public class Bytes {
                 ((bytes[0] & 0xFF));
     }
 
+    /**
+     * <p>toHexString.</p>
+     *
+     * @param data a int
+     * @return a {@link java.lang.String} object
+     */
     public static String toHexString(int data) {
         return toHexString(data, null);
     }
 
+    /**
+     * <p>toHexString.</p>
+     *
+     * @param data a int
+     * @param order a {@link java.nio.ByteOrder} object
+     * @return a {@link java.lang.String} object
+     */
     public static String toHexString(int data, ByteOrder order) {
         if (order == null)
             order = ByteOrder.nativeOrder();
@@ -94,6 +148,12 @@ public class Bytes {
             return toHexString(toByteArrayLE(data));
     }
 
+    /**
+     * <p>toHexString.</p>
+     *
+     * @param data a byte
+     * @return a {@link java.lang.String} object
+     */
     public static String toHexString(byte... data) {
         StringBuilder res = new StringBuilder();
         for (int i = 0; i < data.length; i++) {

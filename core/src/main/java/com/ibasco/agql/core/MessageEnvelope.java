@@ -20,6 +20,11 @@ import com.ibasco.agql.core.util.Netty;
 
 import java.net.SocketAddress;
 
+/**
+ * <p>MessageEnvelope class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MessageEnvelope<M extends Message> implements Envelope<M> {
 
     private SocketAddress sender;
@@ -28,49 +33,64 @@ public class MessageEnvelope<M extends Message> implements Envelope<M> {
 
     private M message;
 
+    /**
+     * <p>Constructor for MessageEnvelope.</p>
+     *
+     * @param message a M object
+     * @param sender a {@link java.net.SocketAddress} object
+     * @param recipient a {@link java.net.SocketAddress} object
+     */
     public MessageEnvelope(M message, SocketAddress sender, SocketAddress recipient/*, CompletableFuture<?> promise, Messenger<? extends SocketAddress, AbstractRequest, AbstractResponse> messenger*/) {
         this.message = message;
         this.sender = sender;
         this.recipient = recipient;
     }
 
+    /** {@inheritDoc} */
     @Override
     public M content() {
         return this.message;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void content(M content) {
         this.message = content;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <A extends SocketAddress> A recipient() {
         //noinspection unchecked
         return (A) this.recipient;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <A extends SocketAddress> void recipient(A recipient) {
         this.recipient = recipient;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <A extends SocketAddress> A sender() {
         //noinspection unchecked
         return (A) this.sender;
     }
 
+    /** {@inheritDoc} */
     @Override
     public <A extends SocketAddress> void sender(A sender) {
         this.sender = sender;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Envelope<M> get() {
         return this;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         String msgType = content() != null ? content().getClass().getSimpleName() : "N/A";

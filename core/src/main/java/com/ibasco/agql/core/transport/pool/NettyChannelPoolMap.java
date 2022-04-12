@@ -18,19 +18,30 @@ package com.ibasco.agql.core.transport.pool;
 
 import java.io.Closeable;
 
+/**
+ * <p>NettyChannelPoolMap interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public interface NettyChannelPoolMap<K, P extends NettyChannelPool> extends Closeable {
     /**
-     * Return the {@link NettyChannelPool} for the {@code code}. This will never return {@code null},
-     * but create a new {@link NettyChannelPool} if non exists for they requested {@code key}.
+     * Return the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} for the {@code code}. This will never return {@code null},
+     * but create a new {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} if non exists for they requested {@code key}.
      *
      * Please note that {@code null} keys are not allowed.
+     *
+     * @param key a K object
+     * @return a P object
      */
     P get(K key);
 
     /**
-     * Returns {@code true} if a {@link NettyChannelPool} exists for the given {@code key}.
+     * Returns {@code true} if a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} exists for the given {@code key}.
      *
      * Please note that {@code null} keys are not allowed.
+     *
+     * @param key a K object
+     * @return a boolean
      */
     boolean contains(K key);
 }

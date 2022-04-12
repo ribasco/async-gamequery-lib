@@ -23,24 +23,52 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * <p>MasterServerTimeoutException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerTimeoutException extends ReadTimeoutException {
 
     private final Set<InetSocketAddress> addresses;
 
+    /**
+     * <p>Constructor for MasterServerTimeoutException.</p>
+     *
+     * @param addresses a {@link java.util.Collection} object
+     */
     public MasterServerTimeoutException(Collection<InetSocketAddress> addresses) {
         this.addresses = new HashSet<>(addresses);
     }
 
+    /**
+     * <p>Constructor for MasterServerTimeoutException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param addresses a {@link java.util.Collection} object
+     */
     public MasterServerTimeoutException(String message, Collection<InetSocketAddress> addresses) {
         super(message);
         this.addresses = new HashSet<>(addresses);
     }
 
+    /**
+     * <p>Constructor for MasterServerTimeoutException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param addresses a {@link java.util.Collection} object
+     */
     public MasterServerTimeoutException(String message, Throwable cause, Collection<InetSocketAddress> addresses) {
         super(message, cause);
         this.addresses = new HashSet<>(addresses);
     }
 
+    /**
+     * <p>Getter for the field <code>addresses</code>.</p>
+     *
+     * @return a {@link java.util.Set} object
+     */
     public final Set<InetSocketAddress> getAddresses() {
         return addresses;
     }

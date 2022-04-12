@@ -35,14 +35,25 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedList;
 
+/**
+ * <p>SourceQueryChannelFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryChannelFactory extends NettyChannelFactoryInitializer {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryChannelFactory.class);
 
+    /**
+     * <p>Constructor for SourceQueryChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public SourceQueryChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerInboundHandlers(final LinkedList<ChannelInboundHandler> handlers) {
         log.debug("INIT => Registering Source Query INBOUND Handlers");
@@ -54,6 +65,7 @@ public class SourceQueryChannelFactory extends NettyChannelFactoryInitializer {
         handlers.addLast(new SourceQueryRulesDecoder());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerOutboundHandlers(final LinkedList<ChannelOutboundHandler> handlers) {
         log.debug("INIT => Registering Source Query OUTBOUND Handlers");

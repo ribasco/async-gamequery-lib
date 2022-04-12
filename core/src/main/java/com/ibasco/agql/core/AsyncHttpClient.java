@@ -27,13 +27,25 @@ import java.util.concurrent.CompletableFuture;
  */
 abstract class AsyncHttpClient extends AbstractClient<AbstractWebRequest, AbstractWebResponse> {
 
+    /**
+     * <p>Constructor for AsyncHttpClient.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     protected AsyncHttpClient(Options options) {
         super(options);
     }
 
+    /** {@inheritDoc} */
     @Override
     abstract protected HttpMessenger createMessenger(Options options);
 
+    /**
+     * <p>send.</p>
+     *
+     * @param message a {@link com.ibasco.agql.core.AbstractWebRequest} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     protected CompletableFuture<AbstractWebResponse> send(AbstractWebRequest message) {
         return getMessenger().send(null, message);
     }

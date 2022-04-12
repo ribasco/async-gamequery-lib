@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.ByteOrder;
 
+/**
+ * <p>SourceRconPacketDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> {
 
     private static final String LINE_SEPARATOR = StringUtils.repeat('=', 155);
@@ -47,11 +52,18 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
 
     private final boolean strict;
 
+    /**
+     * <p>Constructor for SourceRconPacketDecoder.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param strict a boolean
+     */
     public SourceRconPacketDecoder(ChannelHandlerContext ctx, boolean strict) {
         this.ctx = ctx;
         this.strict = strict;
     }
 
+    /** {@inheritDoc} */
     @Override
     public SourceRconPacket decode(ByteBuf in) throws PacketDecodeException {
         try {

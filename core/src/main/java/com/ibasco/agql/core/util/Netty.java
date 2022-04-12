@@ -57,10 +57,19 @@ public class Netty {
 
     private static final Logger log = LoggerFactory.getLogger(Netty.class);
 
+    /** Constant <code>INBOUND</code> */
     public static final Function<LinkedList<ChannelInboundHandler>, ChannelHandler> INBOUND = LinkedList::pollFirst;
 
+    /** Constant <code>OUTBOUND</code> */
     public static final Function<LinkedList<ChannelOutboundHandler>, ChannelHandler> OUTBOUND = LinkedList::pollLast;
 
+    /**
+     * <p>useEventLoop.</p>
+     *
+     * @param channelFuture a {@link java.util.concurrent.CompletableFuture} object
+     * @param eventLoop a {@link io.netty.channel.EventLoop} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static CompletableFuture<Channel> useEventLoop(CompletableFuture<Channel> channelFuture, EventLoop eventLoop) {
         if (eventLoop == null)
             throw new IllegalArgumentException("Event loop group is null");
@@ -70,6 +79,15 @@ public class Netty {
                             .thenComposeAsync(Netty::toCompletable, eventLoop);
     }
 
+    /**
+     * <p>notifyOnCompletion.</p>
+     *
+     * @param future a {@link io.netty.channel.ChannelFuture} object
+     * @param completedValue a V object
+     * @param promise a {@link java.util.concurrent.CompletableFuture} object
+     * @param listener a {@link io.netty.channel.ChannelFutureListener} object
+     * @param <V> a V class
+     */
     public static <V> void notifyOnCompletion(ChannelFuture future, V completedValue, CompletableFuture<V> promise, ChannelFutureListener listener) {
         if (future.isDone()) {
             if (future.isSuccess()) {
@@ -82,14 +100,35 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>register.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param group a {@link io.netty.channel.EventLoop} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static CompletableFuture<Channel> register(Channel channel, EventLoop group) {
         return toCompletable(group.register(channel));
     }
 
+    /**
+     * <p>deregister.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static CompletableFuture<Channel> deregister(Channel channel) {
         return toCompletable(channel.deregister());
     }
 
+    /**
+     * <p>dumpBuffer.</p>
+     *
+     * @param logger a {@link java.util.function.BiConsumer} object
+     * @param msg a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param limit a {@link java.lang.Integer} object
+     */
     public static void dumpBuffer(BiConsumer<String, Object[]> logger, String msg, ByteBuf buf, Integer limit) {
         if (buf == null) {
             logger.accept("{} = NULL", new Object[] {msg});
@@ -109,14 +148,33 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>prettyHexDump.</p>
+     *
+     * @param buf an array of {@link byte} objects
+     * @return a {@link java.lang.String} object
+     */
     public static String prettyHexDump(byte[] buf) {
         return prettyHexDump(Unpooled.copiedBuffer(buf));
     }
 
+    /**
+     * <p>prettyHexDump.</p>
+     *
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @return a {@link java.lang.String} object
+     */
     public static String prettyHexDump(ByteBuf buf) {
         return prettyHexDump(buf, true);
     }
 
+    /**
+     * <p>prettyHexDump.</p>
+     *
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param dumpAll a boolean
+     * @return a {@link java.lang.String} object
+     */
     public static String prettyHexDump(ByteBuf buf, boolean dumpAll) {
         int origIndex = -1;
         try {
@@ -131,11 +189,10 @@ public class Netty {
     }
 
     /**
-     * Return a byte array contents of a {@link ByteBuf}
+     * Return a byte array contents of a {@link io.netty.buffer.ByteBuf}
      *
      * @param buf
-     *         The {@link ByteBuf} to process
-     *
+     *         The {@link io.netty.buffer.ByteBuf} to process
      * @return A byte array containing the contents of the buffer
      */
     public static byte[] getBufferContents(ByteBuf buf) {
@@ -143,13 +200,12 @@ public class Netty {
     }
 
     /**
-     * Return a byte array contents of a {@link ByteBuf}
+     * Return a byte array contents of a {@link io.netty.buffer.ByteBuf}
      *
      * @param buf
-     *         The {@link ByteBuf} to process
+     *         The {@link io.netty.buffer.ByteBuf} to process
      * @param limit
      *         Limit the number of bytes to read or {@code null} to read the entire buffer
-     *
      * @return A byte array containing the contents of the buffer
      */
     public static byte[] getBufferContents(ByteBuf buf, Integer limit) {
@@ -166,6 +222,12 @@ public class Netty {
         return tmp;
     }
 
+    /**
+     * <p>getBufferContentsAll.</p>
+     *
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @return an array of {@link byte} objects
+     */
     public static byte[] getBufferContentsAll(ByteBuf buf) {
         int origReaderIndex = buf.readerIndex();
         buf.readerIndex(0);
@@ -180,6 +242,12 @@ public class Netty {
         return tmp;
     }
 
+    /**
+     * <p>printChannelPipeline.</p>
+     *
+     * @param log a {@link org.slf4j.Logger} object
+     * @param ch a {@link io.netty.channel.Channel} object
+     */
     public static synchronized void printChannelPipeline(Logger log, Channel ch) {
         if (!log.isDebugEnabled())
             return;
@@ -192,10 +260,22 @@ public class Netty {
         log.debug("{} ========================================================================================================================================================", id(ch));
     }
 
+    /**
+     * <p>getThreadName.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link java.lang.String} object
+     */
     public static String getThreadName(Channel channel) {
         return getThreadName(channel.eventLoop());
     }
 
+    /**
+     * <p>getThreadName.</p>
+     *
+     * @param eventLoop a {@link io.netty.channel.EventLoop} object
+     * @return a {@link java.lang.String} object
+     */
     public static String getThreadName(EventLoop eventLoop) {
         if (eventLoop instanceof SingleThreadEventLoop) {
             return ((SingleThreadEventLoop) eventLoop).threadProperties().name();
@@ -204,12 +284,11 @@ public class Netty {
     }
 
     /**
-     * Release a {@link Channel} from the pool (if applicable)
+     * Release a {@link io.netty.channel.Channel} from the pool (if applicable)
      *
      * @param ch
-     *         The {@link Channel} to be released
-     *
-     * @return A {@link CompletableFuture} that will be notified if the {@link Channel} has been successfully released or not
+     *         The {@link io.netty.channel.Channel} to be released
+     * @return A {@link java.util.concurrent.CompletableFuture} that will be notified if the {@link io.netty.channel.Channel} has been successfully released or not
      */
     public static CompletableFuture<Void> release(Channel ch) {
         if (ch.eventLoop().isShutdown())
@@ -223,17 +302,22 @@ public class Netty {
         return pool.release(ch);
     }
 
+    /**
+     * <p>id.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @return a {@link java.lang.String} object
+     */
     public static String id(ChannelHandlerContext ctx) {
         return id(ctx.channel());
     }
 
     /**
-     * Translate {@link Channel} to it's unique id string representation
+     * Translate {@link io.netty.channel.Channel} to it's unique id string representation
      *
      * @param ch
-     *         The {@link Channel} to translate
-     *
-     * @return A unique id string representation of the {@link Channel}
+     *         The {@link io.netty.channel.Channel} to translate
+     * @return A unique id string representation of the {@link io.netty.channel.Channel}
      */
     public static String id(Channel ch) {
         if (ch == null)
@@ -252,12 +336,11 @@ public class Netty {
     }
 
     /**
-     * Translates an {@link Envelope} instance to it's unique id string representation
+     * Translates an {@link com.ibasco.agql.core.Envelope} instance to it's unique id string representation
      *
      * @param envelope
-     *         The {@link Envelope} to translate
-     *
-     * @return A unique id string representation of the {@link Envelope}
+     *         The {@link com.ibasco.agql.core.Envelope} to translate
+     * @return A unique id string representation of the {@link com.ibasco.agql.core.Envelope}
      */
     public static String id(Envelope<?> envelope) {
         if (envelope == null)
@@ -271,8 +354,7 @@ public class Netty {
      *
      * @param message
      *         The message content to translate
-     *
-     * @return A unique id string representation of the {@link Envelope}
+     * @return A unique id string representation of the {@link com.ibasco.agql.core.Envelope}
      */
     public static String id(Object message) {
         if (message == null)
@@ -292,6 +374,14 @@ public class Netty {
     // 1) Populate handlers using the initializer
     // 2) extract the results from the deque
     // 3) transfer the extracted handlers from the deque to the channel pipeline in the order depicted by the extractor
+    /**
+     * <p>registerHandlers.</p>
+     *
+     * @param pipeline a {@link io.netty.channel.ChannelPipeline} object
+     * @param initializer a {@link java.util.function.Consumer} object
+     * @param extractStrategy a {@link java.util.function.Function} object
+     * @param <H> a H class
+     */
     public static <H extends ChannelHandler> void registerHandlers(ChannelPipeline pipeline, Consumer<LinkedList<H>> initializer, Function<LinkedList<H>, ChannelHandler> extractStrategy) {
         LinkedList<H> handlers = new LinkedList<>();
         initializer.accept(handlers);
@@ -301,6 +391,11 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>registerTimeoutHandlers.</p>
+     *
+     * @param ch a {@link io.netty.channel.Channel} object
+     */
     public static void registerTimeoutHandlers(Channel ch) {
         Integer writeTimeout = TransportOptions.WRITE_TIMEOUT.attr(ch);
         assert writeTimeout != null;
@@ -314,6 +409,12 @@ public class Netty {
         log.debug("{} TRANSPORT => Registered READ/WRITE Timeout Handlers", Netty.id(ch));
     }
 
+    /**
+     * <p>getType.</p>
+     *
+     * @param handler a {@link io.netty.channel.ChannelHandler} object
+     * @return a {@link java.lang.String} object
+     */
     public static String getType(ChannelHandler handler) {
         if (handler instanceof ChannelDuplexHandler) {
             return "BOTH    ";
@@ -326,6 +427,12 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>clearAttribute.</p>
+     *
+     * @param ch a {@link io.netty.channel.Channel} object
+     * @param key a {@link io.netty.util.AttributeKey} object
+     */
     public static void clearAttribute(Channel ch, AttributeKey<?> key) {
         if (!ch.hasAttr(key))
             return;
@@ -336,6 +443,13 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>toCompletable.</p>
+     *
+     * @param future a {@link io.netty.util.concurrent.Future} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <V> CompletableFuture<V> toCompletable(Future<V> future) {
         if (future.isDone()) {
             if (future.isSuccess()) {
@@ -358,12 +472,11 @@ public class Netty {
     }
 
     /**
-     * Converts a netty {@link ChannelFuture} to a {@link CompletableFuture}
+     * Converts a netty {@link io.netty.channel.ChannelFuture} to a {@link java.util.concurrent.CompletableFuture}
      *
      * @param channelFuture
-     *         The {@link ChannelFuture} to convert
-     *
-     * @return The converted {@link CompletableFuture}
+     *         The {@link io.netty.channel.ChannelFuture} to convert
+     * @return The converted {@link java.util.concurrent.CompletableFuture}
      */
     public static CompletableFuture<Channel> toCompletable(ChannelFuture channelFuture) {
         if (channelFuture.isDone()) {
@@ -386,6 +499,17 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>toCompletable.</p>
+     *
+     * @param future a C object
+     * @param success a {@link java.util.function.Supplier} object
+     * @param fail a {@link java.util.function.Supplier} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @param <C> a C class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <A, B, C extends Future<B>> CompletableFuture<A> toCompletable(C future, Supplier<A> success, Supplier<Throwable> fail) {
         CompletableFuture<A> cFuture = new CompletableFuture<>();
         if (future.isDone()) {
@@ -406,10 +530,23 @@ public class Netty {
         return cFuture;
     }
 
+    /**
+     * <p>readString.</p>
+     *
+     * @param buffer a {@link io.netty.buffer.ByteBuf} object
+     * @return a {@link java.lang.String} object
+     */
     public static String readString(ByteBuf buffer) {
         return readString(buffer, StandardCharsets.UTF_8);
     }
 
+    /**
+     * <p>readString.</p>
+     *
+     * @param buffer a {@link io.netty.buffer.ByteBuf} object
+     * @param charset a {@link java.nio.charset.Charset} object
+     * @return a {@link java.lang.String} object
+     */
     public static String readString(ByteBuf buffer, Charset charset) {
         int readable = buffer.readableBytes();
         if (readable <= 0)
@@ -428,6 +565,12 @@ public class Netty {
         return data;
     }
 
+    /**
+     * <p>close.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static CompletableFuture<Void> close(Channel channel) {
         CompletableFuture<Void> cf = new CompletableFuture<>();
         ChannelFuture future = channel.close();
@@ -450,7 +593,9 @@ public class Netty {
     }
 
     /**
-     * Attempt to release (if acquired from a {@link NettyChannelPool}) or close a channel
+     * Attempt to release (if acquired from a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}) or close a channel
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
      */
     public static void releaseOrClose(Channel channel) {
         if (channel == null) {
@@ -474,6 +619,14 @@ public class Netty {
         });
     }
 
+    /**
+     * <p>incrementAttrNumber.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param stat a {@link io.netty.util.AttributeKey} object
+     * @param <V> a V class
+     * @return a {@link java.lang.Number} object
+     */
     public static <V extends Number> Number incrementAttrNumber(Channel channel, AttributeKey<V> stat) {
         Attribute<V> attr = channel.attr(stat);
         Number oldValue = attr.get();
@@ -504,6 +657,14 @@ public class Netty {
         return newValue;
     }
 
+    /**
+     * <p>supplyAsync.</p>
+     *
+     * @param supplier a {@link java.util.function.Supplier} object
+     * @param eventLoop a {@link io.netty.channel.EventLoop} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <V> CompletableFuture<V> supplyAsync(Supplier<V> supplier, EventLoop eventLoop) {
         if (eventLoop.inEventLoop()) {
             return CompletableFuture.completedFuture(supplier.get());
@@ -512,17 +673,41 @@ public class Netty {
         }
     }
 
+    /**
+     * <p>applyAsync.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param func a {@link java.util.function.Function} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <V> CompletableFuture<V> applyAsync(Channel channel, Function<Channel, V> func) {
         if (channel.eventLoop().inEventLoop())
             return CompletableFuture.completedFuture(channel).thenApply(func);
         return applyAsync(CompletableFuture.completedFuture(channel), func);
     }
 
+    /**
+     * <p>applyAsync.</p>
+     *
+     * @param channelFuture a {@link java.util.concurrent.CompletableFuture} object
+     * @param func a {@link java.util.function.Function} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <V> CompletableFuture<V> applyAsync(CompletableFuture<Channel> channelFuture, Function<Channel, V> func) {
         //return channelFuture.thenCombine(CompletableFuture.completedFuture(func), Pair::new).thenCompose(pair -> CompletableFuture.completedFuture(pair.getFirst()).thenApplyAsync(pair.getSecond(), pair.getFirst().eventLoop()));
         return channelFuture.thenCompose(channel -> CompletableFuture.completedFuture(channel).thenApplyAsync(func, channel.eventLoop()));
     }
 
+    /**
+     * <p>composeAsync.</p>
+     *
+     * @param channelFuture a {@link java.util.concurrent.CompletableFuture} object
+     * @param func a {@link java.util.function.Function} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public static <V> CompletableFuture<V> composeAsync(CompletableFuture<Channel> channelFuture, Function<Channel, CompletionStage<V>> func) {
         return channelFuture.thenCompose(channel -> CompletableFuture.completedFuture(channel).thenComposeAsync(func, channel.eventLoop()));
     }

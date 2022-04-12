@@ -19,8 +19,6 @@ import static com.ibasco.agql.core.util.Functions.TRUE;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOutboundInvoker;
 import io.netty.util.AttributeKey;
-import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.Promise;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -28,7 +26,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Enhanced version of netty's {@link io.netty.channel.pool.ChannelPool} interface with {@link CompletableFuture} support.
+ * Enhanced version of netty's {@link io.netty.channel.pool.ChannelPool} interface with {@link java.util.concurrent.CompletableFuture} support.
  *
  * @author Rafael Luis Ibasco
  */
@@ -40,8 +38,10 @@ public interface NettyChannelPool extends Closeable {
         void onRelease(Channel channel);
     }
 
+    /** Constant <code>NONE</code> */
     ReleaseStrategy NONE = channel -> {};
 
+    /** Constant <code>DISCONNECT_ON_RELEASE</code> */
     ReleaseStrategy DISCONNECT_ON_RELEASE = ChannelOutboundInvoker::disconnect;
 
     /**
@@ -50,53 +50,66 @@ public interface NettyChannelPool extends Closeable {
     AttributeKey<NettyChannelPool> CHANNEL_POOL = AttributeKey.newInstance(NettyChannelPool.class.getName());
 
     /**
-     * Acquire a {@link Channel} from this {@link NettyChannelPool}. The returned {@link CompletableFuture} is notified once
+     * Acquire a {@link io.netty.channel.Channel} from this {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}. The returned {@link java.util.concurrent.CompletableFuture} is notified once
      * the acquire is successful and failed otherwise.
      *
-     * <strong>Its important that an acquired is always released to the pool again, even if the {@link Channel}
+     * <strong>Its important that an acquired is always released to the pool again, even if the {@link io.netty.channel.Channel}
      * is explicitly closed..</strong>
      *
      * @param remoteAddress
      *         The remote address to connect to
+     * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Channel> acquire(InetSocketAddress remoteAddress);
 
     /**
-     * Acquire a {@link Channel} from this {@link NettyChannelPool}. The returned {@link CompletableFuture} is notified once
+     * Acquire a {@link io.netty.channel.Channel} from this {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}. The returned {@link java.util.concurrent.CompletableFuture} is notified once
      * the acquire is successful and failed otherwise.
      *
-     * <strong>Its important that an acquired is always released to the pool again, even if the {@link Channel}
+     * <strong>Its important that an acquired is always released to the pool again, even if the {@link io.netty.channel.Channel}
      * is explicitly closed..</strong>
      *
      * @param remoteAddress
      *         The remote address to connect to
      * @param promise
-     *         The {@link CompletableFuture} that is notified once the acquire operation is complete.
+     *         The {@link java.util.concurrent.CompletableFuture} that is notified once the acquire operation is complete.
+     * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Channel> acquire(InetSocketAddress remoteAddress, final CompletableFuture<Channel> promise);
 
     /**
-     * Release a {@link Channel} back to this {@link NettyChannelPool}. The returned {@link Future} is notified once
-     * the release is successful and failed otherwise. When failed the {@link Channel} will automatically closed.
+     * Release a {@link io.netty.channel.Channel} back to this {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}. The returned {@link io.netty.util.concurrent.Future} is notified once
+     * the release is successful and failed otherwise. When failed the {@link io.netty.channel.Channel} will automatically closed.
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Void> release(Channel channel);
 
     /**
-     * Release a {@link Channel} back to this {@link NettyChannelPool}. The given {@link Promise} is notified once
-     * the release is successful and failed otherwise. When failed the {@link Channel} will automatically closed.
+     * Release a {@link io.netty.channel.Channel} back to this {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}. The given {@link io.netty.util.concurrent.Promise} is notified once
+     * the release is successful and failed otherwise. When failed the {@link io.netty.channel.Channel} will automatically closed.
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param promise a {@link java.util.concurrent.CompletableFuture} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Void> release(Channel channel, CompletableFuture<Void> promise);
 
 
+    /**
+     * <p>getSize.</p>
+     *
+     * @return a int
+     */
     int getSize();
 
     /**
-     * Attempts to release the {@link Channel} if it is pooleed.
+     * Attempts to release the {@link io.netty.channel.Channel} if it is pooleed.
      *
      * @param channel
-     *         The {@link Channel} to release
-     *
-     * @return A {@link CompletableFuture} which is notified once the operation is marked as completed. A value of {@code true} will be returned if the {@link Channel} was released, otherwise {@code false} if the {@link Channel} is not pooled or if the release operation was unsuccessful. The returned future will never complete exceptionally.
+     *         The {@link io.netty.channel.Channel} to release
+     * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the operation is marked as completed. A value of {@code true} will be returned if the {@link io.netty.channel.Channel} was released, otherwise {@code false} if the {@link io.netty.channel.Channel} is not pooled or if the release operation was unsuccessful. The returned future will never complete exceptionally.
      */
     static CompletableFuture<Boolean> tryRelease(Channel channel) {
         NettyChannelPool pool = getPool(channel);
@@ -106,12 +119,11 @@ public interface NettyChannelPool extends Closeable {
     }
 
     /**
-     * Retrieve the {@link NettyChannelPool} which was used to acquire the specified {@link Channel}
+     * Retrieve the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} which was used to acquire the specified {@link io.netty.channel.Channel}
      *
      * @param channel
-     *         The {@link Channel} to be used as lookup
-     *
-     * @return The {@link NettyChannelPool} or {@code null} if the {@link Channel} was not acquired from a {@link NettyChannelPool}
+     *         The {@link io.netty.channel.Channel} to be used as lookup
+     * @return The {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} or {@code null} if the {@link io.netty.channel.Channel} was not acquired from a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      */
     static NettyChannelPool getPool(Channel channel) {
         if (channel == null)
@@ -122,18 +134,18 @@ public interface NettyChannelPool extends Closeable {
     }
 
     /**
-     * Checks if the {@link Channel} is currectly pooled
+     * Checks if the {@link io.netty.channel.Channel} is currectly pooled
      *
      * @param channel
-     *         The {@link Channel} to be used as lookup
-     *
-     * @return {@code true} if the {@link Channel} has been acquired from a {@link NettyChannelPool}
+     *         The {@link io.netty.channel.Channel} to be used as lookup
+     * @return {@code true} if the {@link io.netty.channel.Channel} has been acquired from a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      */
     static boolean isPooled(Channel channel) {
         Objects.requireNonNull(channel, "Channel must not be null");
         return getPool(channel) != null;
     }
 
+    /** {@inheritDoc} */
     @Override
     void close();
 }

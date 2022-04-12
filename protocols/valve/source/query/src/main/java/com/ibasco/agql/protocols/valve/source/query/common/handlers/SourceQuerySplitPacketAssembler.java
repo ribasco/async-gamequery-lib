@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Re-assembles {@link SourceQuerySplitPacket} instances and converts it back to a single-type {@link SourceQuerySinglePacket} instance.
+ * Re-assembles {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySplitPacket} instances and converts it back to a single-type {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} instance.
  *
  * @author Rafael Luis Ibasco
  */
@@ -44,11 +44,13 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     private static final AttributeKey<SourceSplitPacketAssembler> ASSEMBLER = AttributeKey.valueOf("splitPacketAssembler");
 
+    /** {@inheritDoc} */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         SourceSplitPacketAssembler assembler = getAssembler(ctx);
@@ -61,6 +63,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         ctx.fireExceptionCaught(cause);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         try {
@@ -82,6 +85,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!(msg instanceof SourceQuerySplitPacket)) {
@@ -130,6 +134,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         super.channelInactive(ctx);
@@ -137,6 +142,7 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
         ctx.channel().attr(ASSEMBLER).set(null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug(log, ctx, "Read Complete");

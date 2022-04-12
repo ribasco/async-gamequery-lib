@@ -20,16 +20,40 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import java.time.Duration;
 
+/**
+ * <p>Time class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Time {
 
+    /**
+     * <p>getTimeDesc.</p>
+     *
+     * @param duration a {@link java.time.Duration} object
+     * @return a {@link java.lang.String} object
+     */
     public static String getTimeDesc(Duration duration) {
         return DurationFormatUtils.formatDuration(duration.toMillis(), "HH:mm:ss");
     }
 
+    /**
+     * <p>getTimeDesc.</p>
+     *
+     * @param millis a long
+     * @return a {@link java.lang.String} object
+     */
     public static String getTimeDesc(long millis) {
         return getTimeDesc(millis, false);
     }
 
+    /**
+     * <p>getTimeDesc.</p>
+     *
+     * @param millis a long
+     * @param shortDesc a boolean
+     * @return a {@link java.lang.String} object
+     */
     public static String getTimeDesc(long millis, boolean shortDesc) {
         return DurationFormatUtils.formatDuration(millis, "HH:mm:ss");
     }

@@ -28,14 +28,23 @@ import org.slf4j.LoggerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
+/**
+ * <p>SourceQueryPlayersDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryPlayersDecoder extends SourceQueryAuthDecoder<SourceQueryPlayerRequest> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryPlayersDecoder.class);
 
+    /**
+     * <p>Constructor for SourceQueryPlayersDecoder.</p>
+     */
     public SourceQueryPlayersDecoder() {
         super(SourceQueryPlayerRequest.class, SourceQuery.SOURCE_QUERY_PLAYER_RES);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryPlayerRequest request, SourceQuerySinglePacket packet) throws Exception {
         ByteBuf payload = packet.content();

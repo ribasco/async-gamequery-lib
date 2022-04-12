@@ -18,18 +18,34 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.message;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+/**
+ * <p>SourceRconCmdRequest class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconCmdRequest extends SourceRconRequest {
 
     private final String command;
 
+    /**
+     * <p>Constructor for SourceRconCmdRequest.</p>
+     *
+     * @param command a {@link java.lang.String} object
+     */
     public SourceRconCmdRequest(String command) {
         this.command = command;
     }
 
+    /**
+     * <p>Getter for the field <code>command</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public final String getCommand() {
         return command;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void buildToString(ToStringBuilder builder) {
         super.buildToString(builder);

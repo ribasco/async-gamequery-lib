@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,19 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamApiConstants;
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsRequest;
 
+/**
+ * <p>GetUserStatsForGame class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class GetUserStatsForGame extends SteamUserStatsRequest {
+    /**
+     * <p>Constructor for GetUserStatsForGame.</p>
+     *
+     * @param apiVersion a int
+     * @param steamId a long
+     * @param appId a int
+     */
     public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
         super("GetUserStatsForGame", apiVersion);
         urlParam(SteamApiConstants.STEAM_URLPARAM_STEAMID, steamId);

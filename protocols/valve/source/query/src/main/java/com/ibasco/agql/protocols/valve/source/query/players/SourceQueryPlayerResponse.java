@@ -20,8 +20,18 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 
 import java.util.List;
 
+/**
+ * <p>SourceQueryPlayerResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryPlayerResponse extends SourceQueryResponse<List<SourcePlayer>> {
 
+    /**
+     * <p>Constructor for SourceQueryPlayerResponse.</p>
+     *
+     * @param players a {@link java.util.List} object
+     */
     public SourceQueryPlayerResponse(List<SourcePlayer> players) {
         super(players);
     }

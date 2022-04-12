@@ -33,6 +33,11 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 //TODO: Merge with SourceRconExample
+/**
+ * <p>MinecraftRconExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MinecraftRconExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MinecraftRconExample.class);
@@ -41,11 +46,15 @@ public class MinecraftRconExample extends BaseExample {
 
     /**
      * For internal testing purposes
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
      */
     public static void main(String[] args) throws Exception {
         new MinecraftRconExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         //remember to set the terminator flag to false
@@ -54,6 +63,7 @@ public class MinecraftRconExample extends BaseExample {
         this.testRcon();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         try {
@@ -62,6 +72,11 @@ public class MinecraftRconExample extends BaseExample {
         }
     }
 
+    /**
+     * <p>testRcon.</p>
+     *
+     * @throws java.lang.InterruptedException if any.
+     */
     public void testRcon() throws InterruptedException {
         String address = promptInput("Please enter the minecraft server address", true, "", "mcRconIp");
         int port = promptInputInt("Please enter the server port", false, "25575", "mcRconPort");

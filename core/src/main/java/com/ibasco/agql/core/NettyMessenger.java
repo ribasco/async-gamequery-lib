@@ -21,7 +21,6 @@ import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
 import com.ibasco.agql.core.util.*;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.EventLoopGroup;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
@@ -54,6 +53,11 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
+    /**
+     * <p>Constructor for NettyMessenger.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     protected NettyMessenger(Options options) {
         if (options == null)
             options = new Options(getClass());
@@ -69,14 +73,25 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //</editor-fold>
 
     //<editor-fold desc="Abstract/Protected Methods">
+    /**
+     * <p>createChannelFactory.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     abstract protected NettyChannelFactory createChannelFactory();
 
+    /**
+     * <p>createFactoryProvider.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactoryProvider} object
+     */
     protected NettyChannelFactoryProvider createFactoryProvider() {
         return DEFAULT_FACTORY_PROVIDER;
     }
     //</editor-fold>
 
     //<editor-fold desc="Public methods">
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<S> send(InetSocketAddress address, R request) {
         if (address == null)
@@ -89,6 +104,13 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                 .thenCompose(NettyMessenger::response);
     }
 
+    /**
+     * <p>send.</p>
+     *
+     * @param context a C object
+     * @param <C> a C class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
         assert context != null;
         assert context.properties().request() != null;
@@ -107,10 +129,23 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
     //</editor-fold>
 
+    /**
+     * <p>transformProperties.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     * @param request a R object
+     * @return a {@link java.lang.Object} object
+     */
     protected Object transformProperties(InetSocketAddress address, R request) {
         return address;
     }
 
+    /**
+     * <p>acquireContext.</p>
+     *
+     * @param data a {@link java.lang.Object} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     protected CompletableFuture<NettyChannelContext> acquireContext(Object data) {
         if (data == null)
             throw new IllegalStateException("No data provided for channel acquisition");
@@ -138,6 +173,13 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return context;
     }
 
+    /**
+     * <p>attach.</p>
+     *
+     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     protected static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
         log.debug("{} MESSENGER => Attaching new request '{}' to context", context.id(), request);
         //update the request in envelope
@@ -150,12 +192,13 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * The method that will be called by the last {@link ChannelHandler} once a response has been received from the remote server.
+     * The method that will be called by the last {@link io.netty.channel.ChannelHandler} once a response has been received from the remote server.
      *
      * @param context
-     *         The {@link NettyChannelContext} contianing all the important transaction details.
+     *         The {@link com.ibasco.agql.core.NettyChannelContext} contianing all the important transaction details.
      * @param error
      *         The error that occured during send/receive operation. {@code null} if no error occured.
+     * @param response a {@link com.ibasco.agql.core.AbstractResponse} object
      */
     @ApiStatus.Internal
     protected void receive(@NotNull final NettyChannelContext context, AbstractResponse response, Throwable error) {
@@ -199,23 +242,20 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         }
     }
 
-    /**
-     * @return The underlying {@link Transport} used by this messenger
-     */
+    /** {@inheritDoc} */
     @Override
     public final NettyTransport getTransport() {
         return transport;
     }
 
     /**
-     * Packs the raw request into an envelope containing all the required details of the underlying {@link Transport}
+     * Packs the raw request into an envelope containing all the required details of the underlying {@link com.ibasco.agql.core.Transport}
      *
      * @param address
      *         The address of the destination
      * @param request
      *         The request to be delivered to the address
-     *
-     * @return An {@link Envelope} containing the request and other details needed by the {@link Transport}
+     * @return An {@link com.ibasco.agql.core.Envelope} containing the request and other details needed by the {@link com.ibasco.agql.core.Transport}
      */
     public final Envelope<R> newEnvelope(InetSocketAddress address, R request) {
         log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", Netty.id(request), request.getClass().getSimpleName(), request.id(), address);
@@ -226,16 +266,19 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                                      .build();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Options getOptions() {
         return this.options;
     }
 
+    /** {@inheritDoc} */
     @Override
     public final EventLoopGroup getExecutor() {
         return channelFactory.getExecutor();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (this.channelFactory != null)
@@ -245,11 +288,21 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
             transport.close();
     }
 
+    /**
+     * <p>Getter for the field <code>channelFactory</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public final NettyChannelFactory getChannelFactory() {
         return channelFactory;
     }
 
     //<editor-fold desc="Private/Protected Methods">
+    /**
+     * <p>Getter for the field <code>factoryProvider</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactoryProvider} object
+     */
     protected final NettyChannelFactoryProvider getFactoryProvider() {
         return factoryProvider;
     }
@@ -264,10 +317,18 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
      *
      * @param options
-     *         The {@link Options} instance holding the configuration data
+     *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
      */
     protected void configure(final Options options) {}
 
+    /**
+     * <p>lockedOption.</p>
+     *
+     * @param map a {@link com.ibasco.agql.core.util.Options} object
+     * @param option a {@link com.ibasco.agql.core.util.Option} object
+     * @param value a X object
+     * @param <X> a X class
+     */
     @SuppressWarnings("SameParameterValue")
     protected final <X> void lockedOption(Options map, Option<X> option, X value) {
         if (map.contains(option))
@@ -275,6 +336,14 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         map.add(option, value, true);
     }
 
+    /**
+     * <p>defaultOption.</p>
+     *
+     * @param map a {@link com.ibasco.agql.core.util.Options} object
+     * @param option a {@link com.ibasco.agql.core.util.Option} object
+     * @param value a X object
+     * @param <X> a X class
+     */
     protected final <X> void defaultOption(Options map, Option<X> option, X value) {
         if (!map.contains(option))
             map.add(option, value);

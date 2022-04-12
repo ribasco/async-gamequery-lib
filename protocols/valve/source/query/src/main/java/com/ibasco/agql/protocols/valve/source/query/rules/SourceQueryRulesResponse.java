@@ -20,16 +20,29 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 
 import java.util.Map;
 
+/**
+ * <p>SourceQueryRulesResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryRulesResponse extends SourceQueryResponse<Map<String, String>> {
 
     private final int expectedCount;
 
+    /**
+     * <p>Constructor for SourceQueryRulesResponse.</p>
+     *
+     * @param rules a {@link java.util.Map} object
+     * @param expectedCount a int
+     */
     public SourceQueryRulesResponse(Map<String, String> rules, int expectedCount) {
         super(rules);
         this.expectedCount = expectedCount;
     }
 
     /**
+     * <p>Getter for the field <code>expectedCount</code>.</p>
+     *
      * @return The total number of rules expected to be received.
      */
     public final int getExpectedCount() {

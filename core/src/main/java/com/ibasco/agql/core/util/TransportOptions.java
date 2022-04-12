@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.enums.BufferAllocatorType;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.pool.ChannelHealthChecker;
@@ -28,7 +27,7 @@ import org.jetbrains.annotations.ApiStatus;
 import java.util.concurrent.ExecutorService;
 
 /**
- * <p>A collection of global configuration {@link Option}s to be used by the underlying {@link Transport}</p>
+ * <p>A collection of global configuration {@link com.ibasco.agql.core.util.Option}s to be used by the underlying {@link com.ibasco.agql.core.Transport}</p>
  *
  * <h3>Sample usage:</h3>
  *
@@ -178,7 +177,6 @@ public final class TransportOptions {
      * </p>
      *
      * @see Platform#getDefaultExecutor()
-     * @see Platform#getDefaultEventLoopGroup()
      */
     public static final Option<ExecutorService> THREAD_EXECUTOR_SERVICE = Option.createOption("threadExecutorService", null);
 

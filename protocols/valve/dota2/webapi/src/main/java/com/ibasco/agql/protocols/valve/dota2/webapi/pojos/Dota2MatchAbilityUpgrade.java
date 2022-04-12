@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,11 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * <p>Dota2MatchAbilityUpgrade class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2MatchAbilityUpgrade {
 
     @SerializedName("ability")
@@ -30,6 +35,8 @@ public class Dota2MatchAbilityUpgrade {
     private int level;
 
     /**
+     * <p>Getter for the field <code>ability</code>.</p>
+     *
      * @return The ability
      */
     public int getAbility() {
@@ -37,6 +44,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
+     * <p>Setter for the field <code>ability</code>.</p>
+     *
      * @param ability
      *         The ability
      */
@@ -45,6 +54,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
+     * <p>Getter for the field <code>time</code>.</p>
+     *
      * @return The time
      */
     public int getTime() {
@@ -52,6 +63,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
+     * <p>Setter for the field <code>time</code>.</p>
+     *
      * @param time
      *         The time
      */
@@ -60,6 +73,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
+     * <p>Getter for the field <code>level</code>.</p>
+     *
      * @return The level
      */
     public int getLevel() {
@@ -67,6 +82,8 @@ public class Dota2MatchAbilityUpgrade {
     }
 
     /**
+     * <p>Setter for the field <code>level</code>.</p>
+     *
      * @param level
      *         The level
      */
@@ -74,6 +91,7 @@ public class Dota2MatchAbilityUpgrade {
         this.level = level;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

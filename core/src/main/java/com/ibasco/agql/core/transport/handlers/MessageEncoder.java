@@ -34,10 +34,12 @@ import java.util.List;
  */
 public class MessageEncoder extends MessageToMessageEncoder<Object> {
 
+    /** Constant <code>NAME="requestEncoder"</code> */
     public static final String NAME = "requestEncoder";
 
     private static final Logger log = LoggerFactory.getLogger(MessageEncoder.class);
 
+    /** {@inheritDoc} */
     @Override
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());

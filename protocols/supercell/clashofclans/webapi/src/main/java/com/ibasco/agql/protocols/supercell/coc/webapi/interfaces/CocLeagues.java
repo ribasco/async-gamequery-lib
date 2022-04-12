@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -50,15 +50,13 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Default Constructor</p>
      *
      * @param client
-     *         A {@link CocWebApiClient} instance
+     *         A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiClient} instance
      */
     public CocLeagues(CocWebApiClient client) {
         super(client);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void configureBuilder(GsonBuilder builder) {
         super.configureBuilder(builder);
@@ -68,7 +66,7 @@ public class CocLeagues extends CocWebApiInterface {
     /**
      * <p>Get list of leagues</p>
      *
-     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList() {
         return getLeagueList(-1);
@@ -78,9 +76,8 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get list of leagues</p>
      *
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
-     *
-     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     *         An {@link java.lang.Integer} limiting the number of records returned
+     * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit) {
         return getLeagueList(limit, -1, -1);
@@ -90,19 +87,18 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get list of leagues</p>
      *
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
+     *         An {@link java.lang.Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both.
      *         Otherwise use -1 to disregard.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note
      *         that only after or before can be specified for a request, not both. Otherwise use
      *         -1 to disregard.
-     *
-     * @return A {@link CompletableFuture} which contains a future result for a {@link List} of {@link CocLeague}
+     * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagues(VERSION_1, limit, before, after));
@@ -118,9 +114,8 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get league information</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
-     *
-     * @return A {@link CompletableFuture} containing a future result for {@link CocLeague}
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<CocLeague> getLeagueInfo(int leagueId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueInfo(VERSION_1, leagueId));
@@ -131,9 +126,8 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId) {
         return getLeagueSeasons(leagueId, -1);
@@ -143,11 +137,10 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     *         An {@link java.lang.Integer} limiting the number of records returned
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit) {
         return getLeagueSeasons(leagueId, limit, -1, -1);
@@ -157,19 +150,18 @@ public class CocLeagues extends CocWebApiInterface {
      * <p>Get league seasons. Note that league season information is available only for Legend League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
+     *         An {@link java.lang.Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note
      *         that only after or before can be specified for a request, not both. Otherwise use -1 to disregard.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocLeagueSeason}
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
         CompletableFuture<JsonObject> json = sendRequest(new GetLeagueSeasons(VERSION_1, leagueId, limit, before, after));
@@ -188,12 +180,10 @@ public class CocLeagues extends CocWebApiInterface {
      * League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param seasonId
-     *         An {@link Integer} representing a valid Clash of Clans Season Id
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
-     *
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans Season Id
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId) {
@@ -205,14 +195,12 @@ public class CocLeagues extends CocWebApiInterface {
      * League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param seasonId
-     *         An {@link Integer} representing a valid Clash of Clans Season Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans Season Id
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
-     *
+     *         An {@link java.lang.Integer} limiting the number of records returned
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit) {
@@ -224,22 +212,20 @@ public class CocLeagues extends CocWebApiInterface {
      * League.</p>
      *
      * @param leagueId
-     *         An {@link Integer} representing a valid Clash of Clans League Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param seasonId
-     *         An {@link Integer} representing a valid Clash of Clans Season Id
+     *         An {@link java.lang.Integer} representing a valid Clash of Clans Season Id
      * @param limit
-     *         An {@link Integer} limiting the number of records returned
+     *         An {@link java.lang.Integer} limiting the number of records returned
      * @param before
-     *         (optional) An {@link Integer} that indicates to return only items that occur before this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
      * @param after
-     *         (optional) An {@link Integer} that indicates to return only items that occur after this marker.
+     *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
-     *
-     * @return A {@link CompletableFuture} containing a future result for a {@link List} of {@link CocPlayerRankInfo}
-     *
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit, int before, int after) {

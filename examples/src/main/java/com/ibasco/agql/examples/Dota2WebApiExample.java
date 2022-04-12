@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,11 @@ import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>Dota2WebApiExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2WebApiExample extends BaseWebApiAuthExample {
 
     private static final Logger log = LoggerFactory.getLogger(Dota2WebApiExample.class);
@@ -36,10 +41,17 @@ public class Dota2WebApiExample extends BaseWebApiAuthExample {
 
     private Dota2WebApiClient apiClient;
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         new Dota2WebApiExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         apiClient = new Dota2WebApiClient(getToken("steam"));
@@ -127,6 +139,7 @@ public class Dota2WebApiExample extends BaseWebApiAuthExample {
         log.info("{} = {}", result.getClass().getSimpleName(), result);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         apiClient.close();

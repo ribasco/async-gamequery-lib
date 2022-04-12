@@ -87,6 +87,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         }
     };
 
+    /**
+     * <p>Constructor for SourceQueryMessenger.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     public SourceQueryMessenger(Options options) {
         super(options);
         this.failsafeEnabled = getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED);
@@ -145,6 +150,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return builder.build();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<SourceQueryResponse<?>> send(InetSocketAddress address, SourceQueryRequest request) {
         if (executor != null && failsafeEnabled) {
@@ -154,6 +160,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void configure(Options options) {
         //enable pooling by default
@@ -170,11 +177,13 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).
     // By overriding this, we then need to make sure to register a custom property resolver.
+    /** {@inheritDoc} */
     @Override
     protected Object transformProperties(InetSocketAddress address, SourceQueryRequest request) {
         return new ImmutablePair<>(address, request);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyChannelFactory createChannelFactory() {
         NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP_CONNLESS, getOptions(), new DefaultChannlContextFactory<>(this));
@@ -213,6 +222,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 .handle(this::response);
     }
 
+    /**
+     * <p>acquireSendPermit.</p>
+     *
+     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public NettyChannelContext acquireSendPermit(NettyChannelContext context) {
         if (!failsafeEnabled || rateLimiter == null)
             return context;

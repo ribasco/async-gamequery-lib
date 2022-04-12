@@ -19,15 +19,31 @@ package com.ibasco.agql.protocols.valve.source.query.challenge;
 import com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 
+/**
+ * <p>SourceQueryChallengeResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryChallengeResponse extends SourceQueryResponse<Integer> {
 
     private final SourceChallengeType type;
 
+    /**
+     * <p>Constructor for SourceQueryChallengeResponse.</p>
+     *
+     * @param challenge a {@link java.lang.Integer} object
+     * @param type a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
+     */
     public SourceQueryChallengeResponse(Integer challenge, SourceChallengeType type) {
         super(challenge);
         this.type = type;
     }
 
+    /**
+     * <p>Getter for the field <code>type</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
+     */
     public final SourceChallengeType getType() {
         return type;
     }

@@ -28,26 +28,39 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A netty based TCP {@link Channel} factory
+ * A netty based TCP {@link io.netty.channel.Channel} factory
  *
  * @author Rafael Luis Ibasco
  */
 public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
 
+    /**
+     * <p>Constructor for TcpNettyChannelFactory.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     public TcpNettyChannelFactory(final Options options) {
         this(options, null);
     }
 
+    /**
+     * <p>Constructor for TcpNettyChannelFactory.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     */
     public TcpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver) {
         super(TransportType.TCP, options, resolver);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void configureBootstrap(final Bootstrap bootstrap) {
         bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(TransportOptions.SOCKET_KEEP_ALIVE));
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected CompletableFuture<Channel> newChannel(final Object data) {
         final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);

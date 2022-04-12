@@ -95,18 +95,17 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
     /**
-     * Create a new {@link SourceRconClient} instance using the pre-defined configuration {@link Options} for this client
+     * Create a new {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
      */
     public SourceRconClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link SourceRconClient} instance using the provided configuration {@link Options}
+     * Create a new {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
      *
      * @param options
-     *         The user-defined {@link Options} containing the configuration settings to be used by this client.
-     *
+     *         The user-defined {@link com.ibasco.agql.core.util.Options} containing the configuration settings to be used by this client.
      * @see Options
      * @see OptionBuilder
      */
@@ -118,20 +117,16 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * <p>Sends an authentication request to the specified address. If successful, the credentials for the specified address will be registered and stored in-memory.</p>
      *
      * <blockquote>
-     * <strong>WARNING</strong>: <em>By default, the credentials stored in-memory are not encrypted, however you can implement and provide your own custom {@link CredentialsStore} which can be set via configuration.</em>
+     * <strong>WARNING</strong>: <em>By default, the credentials stored in-memory are not encrypted, however you can implement and provide your own custom {@link com.ibasco.agql.core.CredentialsStore} which can be set via configuration.</em>
      * </blockquote>
      *
      * @param address
      *         The address of the source server
      * @param passphrase
      *         The rcon passphrase in byte array form
-     *
-     * @return A {@link CompletableFuture} when completed, returns a {@link SourceRconAuthResponse} that holds the status of the
+     * @return A {@link java.util.concurrent.CompletableFuture} when completed, returns a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthResponse} that holds the status of the
      * authentication request.
-     *
-     * @throws RconAuthException
-     *         When authentication fails. You need to check the concrete type of the exception to determine the root cause of the failure.
-     * @throws IllegalArgumentException
+     * @throws java.lang.IllegalArgumentException
      *         When the address or password supplied is empty or null
      * @see SourceRconOptions#CREDENTIALS_STORE
      * @see CredentialsStore
@@ -148,12 +143,9 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      *
      * @param address
      *         The address of the source server
-     *
-     * @return A {@link CompletableFuture} when completed, returns a {@link SourceRconAuthResponse} which holds the status of the authentication request.
-     *
-     * @throws RconNotYetAuthException
-     *         If the specified address has not yet been authenticated by the remote server. Authenticate with {@link #authenticate(InetSocketAddress, byte[])}
+     * @return A {@link java.util.concurrent.CompletableFuture} when completed, returns a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthResponse} which holds the status of the authentication request.
      * @see #authenticate(InetSocketAddress, byte[])
+     * @throws com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException if any.
      */
     public CompletableFuture<SourceRconAuthResponse> authenticate(InetSocketAddress address) throws RconAuthException {
         if (!getAuthenticationProxy().isAuthenticated(address))
@@ -165,13 +157,11 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * <p>Sends a command request to the server</p>
      *
      * @param address
-     *         The {@link InetSocketAddress} of the source server
+     *         The {@link java.net.InetSocketAddress} of the source server
      * @param command
-     *         The {@link String} containing the command to be issued on the server
-     *
-     * @return A {@link CompletableFuture} which contains a response {@link String} returned by the server
-     *
-     * @throws RconAuthException
+     *         The {@link java.lang.String} containing the command to be issued on the server
+     * @return A {@link java.util.concurrent.CompletableFuture} which contains a response {@link java.lang.String} returned by the server
+     * @throws com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException
      *         If the address is not yet authenticated by the server.
      * @see #authenticate(InetSocketAddress, byte[])
      */
@@ -200,8 +190,7 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * so you will have to call {@link #authenticate(InetSocketAddress, byte[])} again.
      *
      * @param address
-     *         The {@link InetSocketAddress} to invalidate.
-     *
+     *         The {@link java.net.InetSocketAddress} to invalidate.
      * @see #authenticate(InetSocketAddress, byte[])
      */
     @ApiStatus.Experimental
@@ -213,16 +202,15 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * Checks if the specified address is authenticated
      *
      * @param address
-     *         An {@link InetSocketAddress} representing the server
-     *
+     *         An {@link java.net.InetSocketAddress} representing the server
      * @return {@code true} if the address has been successfully been authenticated by the remote server
-     *
      * @see #authenticate(InetSocketAddress, byte[])
      */
     public boolean isAuthenticated(InetSocketAddress address) {
         return getAuthenticationProxy().isAuthenticated(address);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected <V extends SourceRconResponse> CompletableFuture<V> send(InetSocketAddress address, SourceRconRequest request, Class<V> expectedResponse) {
         //generate a new rcon request id
@@ -231,12 +219,20 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
         return super.send(address, request, expectedResponse);
     }
 
+    /**
+     * <p>cleanup.</p>
+     */
     @ApiStatus.Experimental
     @ApiStatus.Internal
     public void cleanup() {
         getAuthenticationProxy().cleanup();
     }
 
+    /**
+     * <p>getStatistics.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconAuthManager.Statistics} object
+     */
     @ApiStatus.Experimental
     public SourceRconAuthManager.Statistics getStatistics() {
         return getAuthenticationProxy().getStatistics();
@@ -246,11 +242,13 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
         return getMessenger().getAuthManager();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected SourceRconMessenger getMessenger() {
         return (SourceRconMessenger) super.getMessenger();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyMessenger<SourceRconRequest, SourceRconResponse> createMessenger(Options options) {
         return new SourceRconMessenger(options);

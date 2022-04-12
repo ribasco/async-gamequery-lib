@@ -41,13 +41,14 @@ public interface Credentials {
      * The passphrase. If the credentials has been marked as invalidated, then an exception will be thrown.
      *
      * @return The passphrase in byte array format
-     *
-     * @throws InvalidCredentialsException
+     * @throws com.ibasco.agql.core.exceptions.InvalidCredentialsException
      *         when the credentials have been invalidated by the remote server.
      */
     byte[] getPassphrase() throws InvalidCredentialsException;
 
     /**
+     * <p>isEmpty.</p>
+     *
      * @return {@code true} if the passphrase is empty or {@code null}
      */
     default boolean isEmpty() {

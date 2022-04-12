@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,16 +28,28 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * <p>SteamEconItemsExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SteamEconItemsExample extends BaseWebApiAuthExample {
 
     private static final Logger log = LoggerFactory.getLogger(SteamEconItemsExample.class);
 
     private SteamWebApiClient client;
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         new SteamEconItemsExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         String authToken = getToken("steam");
@@ -79,10 +91,16 @@ public class SteamEconItemsExample extends BaseWebApiAuthExample {
         log.info("Store status = {}", status);
     }
 
+    /**
+     * <p>displayResult.</p>
+     *
+     * @param item a {@link java.lang.Object} object
+     */
     public static void displayResult(Object item) {
         log.info("{} = {}", item.getClass().getSimpleName(), item);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (client != null) {

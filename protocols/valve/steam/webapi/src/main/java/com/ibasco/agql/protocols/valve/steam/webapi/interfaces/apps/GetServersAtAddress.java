@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,8 +20,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamAppsRequest;
 
 /**
  * Created by raffy on 10/25/2016.
+ *
+ * @author Rafael Luis Ibasco
  */
 public class GetServersAtAddress extends SteamAppsRequest {
+    /**
+     * <p>Constructor for GetServersAtAddress.</p>
+     *
+     * @param version a int
+     * @param address a {@link java.lang.String} object
+     */
     public GetServersAtAddress(int version, String address) {
         super("GetServersAtAddress", version);
         urlParam("addr", address);

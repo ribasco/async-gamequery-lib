@@ -27,7 +27,7 @@ import io.netty.buffer.ByteBuf;
 import java.util.Objects;
 
 /**
- * Decodes a raw {@link ByteBuf} instance into a {@link SourceQuerySinglePacket} instance
+ * Decodes a raw {@link io.netty.buffer.ByteBuf} instance into a {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} instance
  *
  * @author Rafael Luis Ibasco
  */
@@ -35,6 +35,7 @@ public class SourceQuerySinglePacketDecoder implements PacketDecoder<SourceQuery
 
     static final SourceQuerySinglePacketDecoder INSTANCE = new SourceQuerySinglePacketDecoder();
 
+    /** {@inheritDoc} */
     @Override
     public SourceQueryPacket decode(ByteBuf data) throws PacketDecodeException {
         Objects.requireNonNull(data, "Payload is null");

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,18 +20,45 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * <p>GetClanRankingsForLoc class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetClanRankingsForLoc extends CocWebApiRequest {
 
+    /**
+     * <p>Constructor for GetClanRankingsForLoc.</p>
+     *
+     * @param apiVersion a int
+     * @param locationId a int
+     */
     public GetClanRankingsForLoc(int apiVersion, int locationId) {
         this(apiVersion, locationId, -1, -1, -1);
     }
 
+    /**
+     * <p>Constructor for GetClanRankingsForLoc.</p>
+     *
+     * @param apiVersion a int
+     * @param locationId a int
+     * @param limit a int
+     */
     public GetClanRankingsForLoc(int apiVersion, int locationId, int limit) {
         this(apiVersion, locationId, limit, -1, -1);
     }
 
+    /**
+     * <p>Constructor for GetClanRankingsForLoc.</p>
+     *
+     * @param apiVersion a int
+     * @param locationId a int
+     * @param limit a int
+     * @param before a int
+     * @param after a int
+     */
     public GetClanRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATION_CLAN_RANK, limit, before, after);
         property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);

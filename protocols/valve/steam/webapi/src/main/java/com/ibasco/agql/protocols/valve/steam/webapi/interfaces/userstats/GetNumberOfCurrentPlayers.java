@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,8 +21,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
 
 /**
  * Created by raffy on 10/26/2016.
+ *
+ * @author Rafael Luis Ibasco
  */
 public class GetNumberOfCurrentPlayers extends SteamUserStatsRequest {
+    /**
+     * <p>Constructor for GetNumberOfCurrentPlayers.</p>
+     *
+     * @param apiVersion a int
+     * @param appId a int
+     */
     public GetNumberOfCurrentPlayers(int apiVersion, int appId) {
         super("GetNumberOfCurrentPlayers", apiVersion);
         urlParam(SteamApiConstants.STEAM_URLPARAM_APPID, appId);

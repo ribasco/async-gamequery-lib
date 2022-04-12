@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2MatchTeamInfo class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2MatchTeamInfo {
     @SerializedName("name")
     private String name;
@@ -58,23 +63,45 @@ public class Dota2MatchTeamInfo {
 
     private List<Long> playerAccountIds = new ArrayList<>();
 
+    /**
+     * <p>Getter for the field <code>leagueIds</code>.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
     public List<Integer> getLeagueIds() {
         return leagueIds;
     }
 
+    /**
+     * <p>Setter for the field <code>leagueIds</code>.</p>
+     *
+     * @param leagueIds a {@link java.util.List} object
+     */
     public void setLeagueIds(List<Integer> leagueIds) {
         this.leagueIds = leagueIds;
     }
 
+    /**
+     * <p>Getter for the field <code>playerAccountIds</code>.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
     public List<Long> getPlayerAccountIds() {
         return playerAccountIds;
     }
 
+    /**
+     * <p>Setter for the field <code>playerAccountIds</code>.</p>
+     *
+     * @param playerAccountIds a {@link java.util.List} object
+     */
     public void setPlayerAccountIds(List<Long> playerAccountIds) {
         this.playerAccountIds = playerAccountIds;
     }
 
     /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
      * @return The name
      */
     public String getName() {
@@ -82,6 +109,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
      * @param name
      *         The name
      */
@@ -90,6 +119,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>tag</code>.</p>
+     *
      * @return The tag
      */
     public String getTag() {
@@ -97,6 +128,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>tag</code>.</p>
+     *
      * @param tag
      *         The tag
      */
@@ -105,6 +138,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>timeCreated</code>.</p>
+     *
      * @return The timeCreated
      */
     public long getTimeCreated() {
@@ -112,6 +147,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>timeCreated</code>.</p>
+     *
      * @param timeCreated
      *         The time_created
      */
@@ -120,6 +157,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>calibrationGamesRemaining</code>.</p>
+     *
      * @return The calibrationGamesRemaining
      */
     public int getCalibrationGamesRemaining() {
@@ -127,6 +166,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>calibrationGamesRemaining</code>.</p>
+     *
      * @param calibrationGamesRemaining
      *         The calibration_games_remaining
      */
@@ -135,6 +176,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>logo</code>.</p>
+     *
      * @return The logo
      */
     public long getLogo() {
@@ -142,6 +185,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>logo</code>.</p>
+     *
      * @param logo
      *         The logo
      */
@@ -150,6 +195,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>logoSponsor</code>.</p>
+     *
      * @return The logoSponsor
      */
     public long getLogoSponsor() {
@@ -157,6 +204,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>logoSponsor</code>.</p>
+     *
      * @param logoSponsor
      *         The logo_sponsor
      */
@@ -165,6 +214,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>countryCode</code>.</p>
+     *
      * @return The countryCode
      */
     public String getCountryCode() {
@@ -172,6 +223,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>countryCode</code>.</p>
+     *
      * @param countryCode
      *         The country_code
      */
@@ -180,6 +233,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>url</code>.</p>
+     *
      * @return The url
      */
     public String getUrl() {
@@ -187,6 +242,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>url</code>.</p>
+     *
      * @param url
      *         The url
      */
@@ -195,6 +252,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>gamesPlayed</code>.</p>
+     *
      * @return The gamesPlayed
      */
     public int getGamesPlayed() {
@@ -202,6 +261,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>gamesPlayed</code>.</p>
+     *
      * @param gamesPlayed
      *         The games_played
      */
@@ -210,6 +271,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Getter for the field <code>adminAccountId</code>.</p>
+     *
      * @return The adminAccountId
      */
     public long getAdminAccountId() {
@@ -217,6 +280,8 @@ public class Dota2MatchTeamInfo {
     }
 
     /**
+     * <p>Setter for the field <code>adminAccountId</code>.</p>
+     *
      * @param adminAccountId
      *         The admin_account_id
      */
@@ -224,6 +289,7 @@ public class Dota2MatchTeamInfo {
         this.adminAccountId = adminAccountId;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

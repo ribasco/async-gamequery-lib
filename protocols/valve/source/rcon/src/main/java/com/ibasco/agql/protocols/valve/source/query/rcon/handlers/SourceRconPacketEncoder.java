@@ -27,7 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Encodes {@link SourceRconPacket} instances into {@link ByteBuf}
+ * Encodes {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} instances into {@link io.netty.buffer.ByteBuf}
+ *
+ * @author Rafael Luis Ibasco
  */
 public class SourceRconPacketEncoder extends MessageToByteEncoder<SourceRconPacket> {
 
@@ -35,10 +37,14 @@ public class SourceRconPacketEncoder extends MessageToByteEncoder<SourceRconPack
 
     private final PacketEncoder<SourceRconPacket> encoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketEncoder();
 
+    /**
+     * <p>Constructor for SourceRconPacketEncoder.</p>
+     */
     public SourceRconPacketEncoder() {
         super(true);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encode(ChannelHandlerContext ctx, SourceRconPacket msg, ByteBuf out) throws Exception {
         ByteBuf encoded = null;

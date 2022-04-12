@@ -23,32 +23,61 @@ import java.net.InetSocketAddress;
 
 /**
  * A class representing a Raw Log Entry from a Source Server
+ *
+ * @author Rafael Luis Ibasco
  */
 public final class SourceLogEntry {
     private String message;
     private InetSocketAddress sourceAddress;
 
+    /**
+     * <p>Constructor for SourceLogEntry.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param sourceAddress a {@link java.net.InetSocketAddress} object
+     */
     public SourceLogEntry(String message, InetSocketAddress sourceAddress) {
         this.message = message;
         this.sourceAddress = sourceAddress;
     }
 
+    /**
+     * <p>Getter for the field <code>message</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getMessage() {
         return message;
     }
 
+    /**
+     * <p>Setter for the field <code>message</code>.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     */
     public void setMessage(String message) {
         this.message = message;
     }
 
+    /**
+     * <p>Getter for the field <code>sourceAddress</code>.</p>
+     *
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     public InetSocketAddress getSourceAddress() {
         return sourceAddress;
     }
 
+    /**
+     * <p>Setter for the field <code>sourceAddress</code>.</p>
+     *
+     * @param sourceAddress a {@link java.net.InetSocketAddress} object
+     */
     public void setSourceAddress(InetSocketAddress sourceAddress) {
         this.sourceAddress = sourceAddress;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)

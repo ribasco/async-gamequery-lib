@@ -18,21 +18,42 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.message;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * <p>SourceRconCmdResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public final class SourceRconCmdResponse extends SourceRconResponse<String> {
 
+    /**
+     * <p>Constructor for SourceRconCmdResponse.</p>
+     *
+     * @param result a {@link java.lang.String} object
+     */
     public SourceRconCmdResponse(String result) {
         super(result);
     }
 
+    /**
+     * <p>getCommand.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getCommand() {
         SourceRconCmdRequest request = (SourceRconCmdRequest) getRequest();
         return request.getCommand();
     }
 
+    /**
+     * <p>getResult.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public final String getResult() {
         return super.getResult();
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return String.format("%s = %s", super.toString(), StringUtils.truncate(getResult(), 32));

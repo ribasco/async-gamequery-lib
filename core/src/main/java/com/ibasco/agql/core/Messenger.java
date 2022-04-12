@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.Configurable;
-import io.netty.channel.Channel;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -28,19 +27,36 @@ import java.util.concurrent.Executor;
  * The following are characteristics/roles of a Messenger
  *
  * <ul>
- *     <li>Responsible for creating, acquiring, closing or releasing a network resource (e.g. {@link Channel}/Connection)</li>
- *     <li>Prepares and initialize the request for {@link Transport}</li>
- *     <li>Receives a response from the remote server, performs additional processing (if needed) and routes the response back to the {@link Client}</li>
- *     <li>Has a 1 to 1 relationship with the {@link Client}</li>
+ *     <li>Responsible for creating, acquiring, closing or releasing a network resource (e.g. {@link io.netty.channel.Channel}/Connection)</li>
+ *     <li>Prepares and initialize the request for {@link com.ibasco.agql.core.Transport}</li>
+ *     <li>Receives a response from the remote server, performs additional processing (if needed) and routes the response back to the {@link com.ibasco.agql.core.Client}</li>
+ *     <li>Has a 1 to 1 relationship with the {@link com.ibasco.agql.core.Client}</li>
  * </ul>
  *
  * @author Rafael Luis Ibasco
  */
 public interface Messenger<R extends AbstractRequest, S extends AbstractResponse> extends Closeable, Configurable {
 
+    /**
+     * <p>send.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     * @param request a R object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     CompletableFuture<S> send(InetSocketAddress address, R request);
 
+    /**
+     * <p>getTransport.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.Transport} object
+     */
     Transport<?, ?> getTransport();
 
+    /**
+     * <p>getExecutor.</p>
+     *
+     * @return a {@link java.util.concurrent.Executor} object
+     */
     Executor getExecutor();
 }

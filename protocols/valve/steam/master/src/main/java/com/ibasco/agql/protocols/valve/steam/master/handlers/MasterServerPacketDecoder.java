@@ -32,6 +32,11 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.util.List;
 
+/**
+ * <p>MasterServerPacketDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerPacketDecoder.class);
@@ -40,6 +45,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
     private InetSocketAddress lastAddress;
 
+    /** {@inheritDoc} */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
         //Do we have enough bytes to read an address packet?
@@ -61,6 +67,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         try {
@@ -98,6 +105,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
         return NettyChannelContext.getContext(ctx.channel()).properties().request();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         lastAddress = null;

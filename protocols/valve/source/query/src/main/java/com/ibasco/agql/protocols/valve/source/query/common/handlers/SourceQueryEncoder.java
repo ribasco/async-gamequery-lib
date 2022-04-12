@@ -24,25 +24,41 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.List;
 
 /**
- * A base class for encoding {@link Envelope} wrapped messages
+ * A base class for encoding {@link com.ibasco.agql.core.Envelope} wrapped messages
  *
  * @param <T>
- *         The underlying type of the {@link Envelope}'s content
- *
+ *         The underlying type of the {@link com.ibasco.agql.core.Envelope}'s content
  * @author Rafael Luis Ibasco
  */
 abstract public class SourceQueryEncoder<T extends SourceQueryRequest> extends MessageOutboundEncoder<T> {
 
+    /**
+     * <p>acceptQueryRequest.</p>
+     *
+     * @param cls a {@link java.lang.Class} object
+     * @param envelope a {@link com.ibasco.agql.core.Envelope} object
+     * @return a boolean
+     */
     abstract protected boolean acceptQueryRequest(Class<? extends SourceQueryRequest> cls, Envelope<SourceQueryRequest> envelope);
 
+    /**
+     * <p>encodeQueryRequest.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg a {@link com.ibasco.agql.core.Envelope} object
+     * @param out a {@link java.util.List} object
+     * @throws java.lang.Exception if any.
+     */
     abstract protected void encodeQueryRequest(ChannelHandlerContext ctx, Envelope<T> msg, List<Object> out) throws Exception;
 
+    /** {@inheritDoc} */
     @Override
     protected final boolean acceptMessage(Class<T> requestClass, Envelope<T> envelope) throws Exception {
         //noinspection unchecked
         return acceptQueryRequest(requestClass, (Envelope<SourceQueryRequest>) envelope);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected final void encodeMessage(ChannelHandlerContext ctx, Envelope<T> msg, List<Object> out) throws Exception {
         encodeQueryRequest(ctx, msg, out);

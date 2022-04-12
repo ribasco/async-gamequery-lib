@@ -31,8 +31,14 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacke
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
+/**
+ * <p>SourceRconAuthDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconAuthDecoder extends MessageInboundDecoder {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
         if (SourceRconCmdRequest.class.equals(request.getClass()) && (msg instanceof SourceRconPacket) && SourceRcon.isAuthResponsePacket((SourceRconPacket) msg))
@@ -45,6 +51,7 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         return SourceRcon.isResponseValuePacket(packet) || SourceRcon.isAuthResponsePacket(packet);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
         final SourceRconChannelContext context = SourceRconChannelContext.getContext(ctx.channel());

@@ -16,31 +16,65 @@
 
 package com.ibasco.agql.core.util;
 
+/**
+ * <p>Pair class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Pair<A, B> {
 
     private A first;
 
     private B second;
 
+    /**
+     * <p>Constructor for Pair.</p>
+     */
     public Pair() {}
 
+    /**
+     * <p>Constructor for Pair.</p>
+     *
+     * @param first a A object
+     * @param second a B object
+     */
     public Pair(A first, B second) {
         this.first = first;
         this.second = second;
     }
 
+    /**
+     * <p>Getter for the field <code>first</code>.</p>
+     *
+     * @return a A object
+     */
     public A getFirst() {
         return first;
     }
 
+    /**
+     * <p>Setter for the field <code>first</code>.</p>
+     *
+     * @param first a A object
+     */
     public void setFirst(A first) {
         this.first = first;
     }
 
+    /**
+     * <p>Getter for the field <code>second</code>.</p>
+     *
+     * @return a B object
+     */
     public B getSecond() {
         return second;
     }
 
+    /**
+     * <p>Setter for the field <code>second</code>.</p>
+     *
+     * @param second a B object
+     */
     public void setSecond(B second) {
         this.second = second;
     }

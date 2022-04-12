@@ -35,18 +35,34 @@ import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.Objects;
 
+/**
+ * <p>Encryption class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Encryption {
 
     private static final String worldsMostSecureUnhackableIvKey = "aGqLsOurc3querYs";
 
     private static final String worldsMostSecureUnhackableKey = "4EUv4wuTdnKEpwn3k5EYJU7Qha3mBGDx";
 
+    /**
+     * <p>encrypt.</p>
+     *
+     * @param plainText a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
+     */
     public static String encrypt(String plainText) {
         return encrypt(plainText, worldsMostSecureUnhackableKey);
     }
 
     /**
+     * <p>encrypt.</p>
+     *
      * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
+     * @param plainText a {@link java.lang.String} object
+     * @param secretKey a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
      */
     public static String encrypt(String plainText, String secretKey) {
         try {
@@ -61,12 +77,23 @@ public class Encryption {
         }
     }
 
+    /**
+     * <p>decrypt.</p>
+     *
+     * @param cipherText a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
+     */
     public static String decrypt(String cipherText) {
         return decrypt(cipherText, worldsMostSecureUnhackableKey);
     }
 
     /**
+     * <p>decrypt.</p>
+     *
      * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
+     * @param cipherText a {@link java.lang.String} object
+     * @param secretKey a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
      */
     public static String decrypt(String cipherText, String secretKey) {
         try {
@@ -88,11 +115,22 @@ public class Encryption {
         return new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
     }
 
+    /**
+     * <p>retrieveKey.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public static String retrieveKey() {
         String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), Encryption.worldsMostSecureUnhackableKey);
         return key;
     }
 
+    /**
+     * <p>padNullBytes.</p>
+     *
+     * @param text a {@link java.lang.String} object
+     * @return an array of {@link byte} objects
+     */
     public static byte[] padNullBytes(String text) {
         if (StringUtils.isEmpty(text))
             return null;

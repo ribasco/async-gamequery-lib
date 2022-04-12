@@ -35,6 +35,7 @@ import java.util.Objects;
 @ApiStatus.Internal
 public final class SourceRcon {
 
+    /** Constant <code>DEFAULT_THREAD_GROUP</code> */
     public static final ThreadGroup DEFAULT_THREAD_GROUP = Platform.creeateThreadGroup(SourceRcon.class);
 
     /**
@@ -87,7 +88,6 @@ public final class SourceRcon {
      *
      * @param requestId
      *         An integer representing an Rcon Request Id
-     *
      * @return <code>true</code> if the given id represents a terminator
      */
     public static boolean isTerminatorId(int requestId) {
@@ -98,8 +98,7 @@ public final class SourceRcon {
      * Check if packet is a valid terminator packet
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the packet is a terminator packet
      */
     public static boolean isTerminatorPacket(SourceRconPacket packet) {
@@ -111,8 +110,7 @@ public final class SourceRcon {
      * Check if the packet is the primary terminator packet (The first terminator packet sent after a request)
      *
      * @param packet
-     *         {@link SourceRconPacket} to check
-     *
+     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x0)
      */
     public static boolean isInitialTerminatorPacket(SourceRconPacket packet) {
@@ -123,8 +121,7 @@ public final class SourceRcon {
      * Check if the packet is the secondary terminator packet (The secondary terminator packet sent after a request)
      *
      * @param packet
-     *         {@link SourceRconPacket} to check
-     *
+     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x01)
      */
     public static boolean isSecondaryTerminatorPacket(SourceRconPacket packet) {
@@ -135,8 +132,7 @@ public final class SourceRcon {
      * Check if packet is an RCON Auth request packet
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if packet is a valid AUTH packet
      */
     public static boolean isAuthRequestPacket(SourceRconPacket packet) {
@@ -148,8 +144,7 @@ public final class SourceRcon {
      * Check if packet is an RCON auth response packet
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the packet is a valid auth response packet
      */
     public static boolean isAuthResponsePacket(SourceRconPacket packet) {
@@ -166,8 +161,7 @@ public final class SourceRcon {
      * Check if packet is a Command Response Packet
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the packet is a valid command response packet
      */
     public static boolean isCommandResponsePacket(SourceRconPacket packet) {
@@ -178,8 +172,7 @@ public final class SourceRcon {
      * Check if packet is an RCON response value packet
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
      * @return {@code true} if the packet is a valid response value packet
      */
     public static boolean isResponseValuePacket(SourceRconPacket packet) {
@@ -192,7 +185,6 @@ public final class SourceRcon {
      *
      * @param requestId
      *         An integer representing a request id
-     *
      * @return <code>true</code> if the given request id is within the valid range
      */
     public static boolean isValidRequestId(int requestId) {
@@ -213,7 +205,6 @@ public final class SourceRcon {
      *
      * @param terminator
      *         The terminator value
-     *
      * @return {@code true} if the value is a valid rcon terminators
      */
     public static boolean isValidTerminator(int terminator) {
@@ -224,8 +215,7 @@ public final class SourceRcon {
      * Convenience method to determine if terminator packets are enabled for the provided channel
      *
      * @param ctx
-     *         The {@link ChannelHandlerContext}
-     *
+     *         The {@link io.netty.channel.ChannelHandlerContext}
      * @return {@code true} if terminator packets are enabled
      */
     public static boolean terminatorPacketEnabled(ChannelHandlerContext ctx) {
@@ -234,12 +224,11 @@ public final class SourceRcon {
     }
 
     /**
-     * Get the name of the provided {@link SourceRconPacket}
+     * Get the name of the provided {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      *
      * @param packet
-     *         The {@link SourceRconPacket} to check
-     *
-     * @return The name of the {@link SourceRconPacket}
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     * @return The name of the {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static String getPacketTypeName(SourceRconPacket packet) {
         if (isAuthRequestPacket(packet)) {
@@ -257,6 +246,12 @@ public final class SourceRcon {
         }
     }
 
+    /**
+     * <p>getPacketTypeName.</p>
+     *
+     * @param type a int
+     * @return a {@link java.lang.String} object
+     */
     public static String getPacketTypeName(int type) {
         switch (type) {
             case RCON_TYPE_REQUEST_AUTH: {
@@ -274,10 +269,22 @@ public final class SourceRcon {
         }
     }
 
+    /**
+     * <p>createAuthRequest.</p>
+     *
+     * @param credentials a {@link com.ibasco.agql.core.Credentials} object
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest} object
+     */
     public static SourceRconAuthRequest createAuthRequest(Credentials credentials) {
         return createAuthRequest(credentials.getPassphrase());
     }
 
+    /**
+     * <p>createAuthRequest.</p>
+     *
+     * @param password an array of {@link byte} objects
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest} object
+     */
     public static SourceRconAuthRequest createAuthRequest(byte[] password) {
         if (password == null || password.length == 0)
             throw new IllegalStateException("Password must not be null or empty");

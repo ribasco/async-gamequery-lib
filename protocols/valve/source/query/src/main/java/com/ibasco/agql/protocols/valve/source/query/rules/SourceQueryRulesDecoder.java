@@ -28,13 +28,22 @@ import io.netty.channel.ChannelHandlerContext;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>SourceQueryRulesDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @SuppressWarnings({"SameParameterValue", "DuplicatedCode"})
 public class SourceQueryRulesDecoder extends SourceQueryAuthDecoder<SourceQueryRulesRequest> {
 
+    /**
+     * <p>Constructor for SourceQueryRulesDecoder.</p>
+     */
     public SourceQueryRulesDecoder() {
         super(SourceQueryRulesRequest.class, SourceQuery.SOURCE_QUERY_RULES_RES);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryRulesRequest request, SourceQuerySinglePacket msg) throws Exception {
         ByteBuf payload = msg.content();

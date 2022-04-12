@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2RealtimeServerStats class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2RealtimeServerStats {
 
     @SerializedName("match")
@@ -37,13 +42,17 @@ public class Dota2RealtimeServerStats {
     private boolean deltaFrame;
 
     /**
-     * @return A {@link Dota2ServerStatsMatch} instance
+     * <p>Getter for the field <code>match</code>.</p>
+     *
+     * @return A {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2ServerStatsMatch} instance
      */
     public Dota2ServerStatsMatch getMatch() {
         return match;
     }
 
     /**
+     * <p>Setter for the field <code>match</code>.</p>
+     *
      * @param match
      *         The match
      */
@@ -52,6 +61,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Getter for the field <code>teams</code>.</p>
+     *
      * @return The teams
      */
     public List<Dota2ServerStatsTeam> getTeams() {
@@ -59,6 +70,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Setter for the field <code>teams</code>.</p>
+     *
      * @param teams
      *         The teams
      */
@@ -67,6 +80,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Getter for the field <code>buildings</code>.</p>
+     *
      * @return The buildings
      */
     public List<Dota2ServerStatsBldg> getBuildings() {
@@ -74,6 +89,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Setter for the field <code>buildings</code>.</p>
+     *
      * @param buildings
      *         The buildings
      */
@@ -82,6 +99,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Getter for the field <code>graphData</code>.</p>
+     *
      * @return The graphData
      */
     public Dota2ServerStatsGraph getGraphData() {
@@ -89,6 +108,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Setter for the field <code>graphData</code>.</p>
+     *
      * @param graphData
      *         The graph_data
      */
@@ -97,6 +118,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>isDeltaFrame.</p>
+     *
      * @return The deltaFrame
      */
     public boolean isDeltaFrame() {
@@ -104,6 +127,8 @@ public class Dota2RealtimeServerStats {
     }
 
     /**
+     * <p>Setter for the field <code>deltaFrame</code>.</p>
+     *
      * @param deltaFrame
      *         The delta_frame
      */
@@ -111,6 +136,7 @@ public class Dota2RealtimeServerStats {
         this.deltaFrame = deltaFrame;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

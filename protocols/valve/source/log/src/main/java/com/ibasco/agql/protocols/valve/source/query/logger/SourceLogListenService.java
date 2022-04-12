@@ -17,13 +17,14 @@
 package com.ibasco.agql.protocols.valve.source.query.logger;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
+import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
-import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,6 +83,8 @@ public class SourceLogListenService implements Closeable {
 
     private final AtomicReference<Consumer<SourceLogEntry>> callbackRef = new AtomicReference<>();
 
+    private final ExecutorService executorService;
+
     /**
      * <p>Creates a new service that will listen to any ip address
      * and bind to a random local port number (Similar to 0.0.0.0)</p>
@@ -91,52 +94,55 @@ public class SourceLogListenService implements Closeable {
     }
 
     /**
-     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
+     * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
-     *         An {@link InetSocketAddress} where the listen service will bind or listen on
+     *         An {@link java.net.InetSocketAddress} where the listen service will bind or listen on
      */
     public SourceLogListenService(InetSocketAddress listenAddress) {
         this(listenAddress, null);
     }
 
     /**
-     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
+     * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
-     *         The {@link InetSocketAddress} to listen on
+     *         The {@link java.net.InetSocketAddress} to listen on
      * @param callback
-     *         The {@link Consumer} callback that will be notified once a log event has been received
+     *         The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> callback) {
         this(listenAddress, callback, null, 0, true);
     }
 
     /**
-     * <p>Creates a new listen service for the provided {@link InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
+     * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
      * @param listenAddress
-     *         The {@link InetSocketAddress} to listen on
+     *         The {@link java.net.InetSocketAddress} to listen on
      * @param callback
-     *         The {@link Consumer} callback that will be notified once a log event has been received
+     *         The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
      * @param executorService
-     *         The {@link ExecutorService} that will be used by the service. {@code null} to use the global executor provided by the library.
+     *         The {@link java.util.concurrent.ExecutorService} that will be used by the service. {@code null} to use the global executor provided by the library.
      * @param nThreads
-     *         The number of threads that will be used by the underlying {@link EventLoopGroup} (a special executor servicee used by netty). The value should normally be less than or equals to the core pool size of the executor service.
+     *         The number of threads that will be used by the underlying {@link io.netty.channel.EventLoopGroup} (a special executor servicee used by netty). The value should normally be less than or equals to the core pool size of the executor service.
      * @param useNative
      *         {@code true} if you prefer to use netty's <a href="https://netty.io/wiki/native-transports.html">native transports</a> over java's NIO (e.g. epoll on linux, kqueue on osx)
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> callback, ExecutorService executorService, int nThreads, boolean useNative) {
+        this.executorService = executorService;
         EventLoopGroup group;
-        if (executorService != null) {
-            //ensure arguments are available
-            if (nThreads < 0) {
-                log.debug("LOG SERVICE => Using default nThreads parameter = 0");
-                nThreads = 0;
-            }
-            group = Platform.createEventLoopGroup(executorService, nThreads, useNative);
-        } else {
+        if (executorService == null)
+            executorService = Platform.getDefaultExecutor();
+        //ensure arguments are available
+        if (nThreads < 0) {
+            log.debug("LOG SERVICE => Using default nThreads parameter = 0");
+            nThreads = 0;
+        }
+        if (Platform.isDefaultExecutor(executorService)) {
             group = Platform.getDefaultEventLoopGroup();
+        } else {
+            group = Platform.createEventLoopGroup(executorService, nThreads, useNative);
         }
         final Class<? extends Channel> channelClass = Platform.getChannelClass(TransportType.UDP, group);
         log.debug("LOG SERVICE => Executor: {}, Event loop group: {}, Channel class: {}, nThreads: {}, useNative: {}", executorService, group, channelClass, nThreads, useNative);
@@ -151,7 +157,7 @@ public class SourceLogListenService implements Closeable {
                 .group(group)
                 .handler(new ChannelInitializer<DatagramChannel>() {
                     @Override
-                    protected void initChannel(DatagramChannel ch) throws Exception {
+                    protected void initChannel(@NotNull DatagramChannel ch) throws Exception {
                         ch.pipeline().addLast(new SourceLogListenHandler());
                     }
                 });
@@ -160,7 +166,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Retrieve the callback assigned for Raw Log Events</p>
      *
-     * @return A {@link Consumer} representing the raw log event callback
+     * @return A {@link java.util.function.Consumer} representing the raw log event callback
      */
     public Consumer<SourceLogEntry> getLogEventCallback() {
         return callbackRef.get();
@@ -170,14 +176,16 @@ public class SourceLogListenService implements Closeable {
      * <p>Sets the callback for listening on Raw Log Events</p>
      *
      * @param callback
-     *         A {@link Consumer} callback for raw log events
+     *         A {@link java.util.function.Consumer} callback for raw log events
      */
     public void setLogEventCallback(Consumer<SourceLogEntry> callback) {
         this.callbackRef.set(callback);
     }
 
     /**
-     * @return The {@link InetSocketAddress} where the service is binded to
+     * <p>Getter for the field <code>listenAddress</code>.</p>
+     *
+     * @return The {@link java.net.InetSocketAddress} where the service is binded to
      */
     public InetSocketAddress getListenAddress() {
         return listenAddress;
@@ -187,9 +195,8 @@ public class SourceLogListenService implements Closeable {
      * Sets the listen address.
      *
      * @param listenAddress
-     *         The {@link InetSocketAddress} to listen on
-     *
-     * @throws IllegalStateException
+     *         The {@link java.net.InetSocketAddress} to listen on
+     * @throws java.lang.IllegalStateException
      *         If the service has been started already
      */
     public void setListenAddress(InetSocketAddress listenAddress) {
@@ -201,8 +208,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
-     * @return A {@link CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
-     *
+     * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      * @see #setListenAddress(InetSocketAddress)
      * @see #close()
      */
@@ -215,10 +221,8 @@ public class SourceLogListenService implements Closeable {
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
      * @param address
-     *         The {@link InetSocketAddress} to listen on
-     *
-     * @return A {@link CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
-     *
+     *         The {@link java.net.InetSocketAddress} to listen on
+     * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
      * @see #close()
      */
     public CompletableFuture<Void> listen(InetSocketAddress address) {
@@ -237,31 +241,12 @@ public class SourceLogListenService implements Closeable {
         return promise.whenComplete((unused, throwable) -> bindInProgress = false);
     }
 
-    /**
-     * <p>Tries to shutdown the listener gracefully</p>
-     *
-     * @deprecated Use {@link #close()} instead. This will be removed in future versions
-     */
-    @Deprecated
-    @ApiStatus.ScheduledForRemoval
-    public void shutdown() throws InterruptedException {
-        try {
-            close();
-        } catch (IOException e) {
-            log.debug("LOG SERVICE => ailed to shutdown executor group", e);
-        }
-    }
-
-    /**
-     * Calls the {@link #shutdown()} method
-     *
-     * @throws IOException
-     *         Thrown when an error occurs during shutdown
-     */
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         log.debug("LOG SERVICE => Reequesting to shutdown log service");
         group.shutdownGracefully(10, TransportOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
+        ManagedResource.release(executorService);
     }
 
     private void initialize(ChannelFuture future, CompletableFuture<Void> promise) {

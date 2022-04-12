@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,21 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * <p>GetLeagueInfo class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetLeagueInfo extends CocWebApiRequest {
 
+    /**
+     * <p>Constructor for GetLeagueInfo.</p>
+     *
+     * @param apiVersion a int
+     * @param leagueId a int
+     */
     public GetLeagueInfo(int apiVersion, int leagueId) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_INFO);
         property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);

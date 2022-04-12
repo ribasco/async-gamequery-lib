@@ -24,6 +24,11 @@ import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>FixedNettyChannelPoolFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
 
     private static final Logger log = LoggerFactory.getLogger(FixedNettyChannelPoolFactory.class);
@@ -36,6 +41,11 @@ public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
 
     private final int maxPendingAcquires;
 
+    /**
+     * <p>Constructor for FixedNettyChannelPoolFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public FixedNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);
         final Options options = channelFactory.getOptions();
@@ -45,6 +55,7 @@ public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
         this.maxPendingAcquires = options.getOrDefault(TransportOptions.POOL_ACQUIRE_MAX);
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelPool create(InetSocketAddress localAddress, InetSocketAddress remoteAddress) {
         NettyChannelPool pool = new FixedNettyChannelPool(getChannelFactory(), getChannelPoolHandler(), getChannelHealthChecker(), action, acquireTimeoutMillis, maxConnections, maxPendingAcquires, false, NettyChannelPool.NONE);

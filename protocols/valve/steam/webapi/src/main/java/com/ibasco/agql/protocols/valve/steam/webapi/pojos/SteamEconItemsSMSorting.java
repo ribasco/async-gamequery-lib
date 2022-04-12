@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,27 +23,53 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>SteamEconItemsSMSorting class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SteamEconItemsSMSorting {
     private List<SteamEconItemsSMSorter> sorters = new ArrayList<>();
     @SerializedName("sorting_prefabs")
     private List<SteamEconItemsSMSortingPrefab> sortingPrefabs = new ArrayList<>();
 
+    /**
+     * <p>Getter for the field <code>sorters</code>.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
     public List<SteamEconItemsSMSorter> getSorters() {
         return sorters;
     }
 
+    /**
+     * <p>Setter for the field <code>sorters</code>.</p>
+     *
+     * @param sorters a {@link java.util.List} object
+     */
     public void setSorters(List<SteamEconItemsSMSorter> sorters) {
         this.sorters = sorters;
     }
 
+    /**
+     * <p>Getter for the field <code>sortingPrefabs</code>.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
     public List<SteamEconItemsSMSortingPrefab> getSortingPrefabs() {
         return sortingPrefabs;
     }
 
+    /**
+     * <p>Setter for the field <code>sortingPrefabs</code>.</p>
+     *
+     * @param sortingPrefabs a {@link java.util.List} object
+     */
     public void setSortingPrefabs(List<SteamEconItemsSMSortingPrefab> sortingPrefabs) {
         this.sortingPrefabs = sortingPrefabs;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

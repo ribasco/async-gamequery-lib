@@ -20,12 +20,17 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.DefaultByteBufHolder;
 
 /**
- * Base class for {@link Packet}. Extends from Netty's {@link DefaultByteBufHolder}
+ * Base class for {@link com.ibasco.agql.core.Packet}. Extends from Netty's {@link io.netty.buffer.DefaultByteBufHolder}
  *
  * @author Rafael Luis Ibasco
  */
 abstract public class AbstractPacket extends DefaultByteBufHolder implements Packet {
 
+    /**
+     * <p>Constructor for AbstractPacket.</p>
+     *
+     * @param data a {@link io.netty.buffer.ByteBuf} object
+     */
     public AbstractPacket(ByteBuf data) {
         super(data);
     }

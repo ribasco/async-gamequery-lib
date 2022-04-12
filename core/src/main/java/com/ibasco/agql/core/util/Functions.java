@@ -28,32 +28,82 @@ import java.util.function.Function;
 @ApiStatus.Internal
 public class Functions {
 
+    /** Constant <code>TRUE</code> */
     public static final Function<Object, Boolean> TRUE = unused -> true;
 
+    /** Constant <code>FALSE</code> */
     public static final Function<Object, Boolean> FALSE = unused -> false;
 
+    /**
+     * <p>cast.</p>
+     *
+     * @param a a A object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @return a B object
+     */
     public static <A, B> B cast(A a) {
         //noinspection unchecked
         return (B) a;
     }
 
+    /**
+     * <p>convert.</p>
+     *
+     * @param b a B object
+     * @param <B> a B class
+     * @param <C> a C class
+     * @return a C object
+     */
     public static <B, C extends B> C convert(B b) {
         //noinspection unchecked
         return (C) b;
     }
 
+    /**
+     * <p>returnArg.</p>
+     *
+     * @param a a A object
+     * @param <A> a A class
+     * @return a A object
+     */
     public static <A> A returnArg(A a) {
         return a;
     }
 
+    /**
+     * <p>selectFirst.</p>
+     *
+     * @param a a A object
+     * @param b a B object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @return a A object
+     */
     public static <A, B> A selectFirst(A a, B b) {
         return a;
     }
 
+    /**
+     * <p>selectSecond.</p>
+     *
+     * @param a a A object
+     * @param b a B object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @return a B object
+     */
     public static <A, B> B selectSecond(A a, B b) {
         return b;
     }
 
+    /**
+     * <p>isTypeOf.</p>
+     *
+     * @param v a {@link java.lang.Object} object
+     * @param arr a {@link java.lang.Class} object
+     * @return a boolean
+     */
     public static boolean isTypeOf(Object v, Class<?>... arr) {
         if (arr == null || arr.length == 0)
             return false;

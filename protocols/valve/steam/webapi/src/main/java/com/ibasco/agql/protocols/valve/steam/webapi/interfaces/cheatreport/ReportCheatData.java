@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,7 +21,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData;
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamReportCheatRequest;
 import io.netty.handler.codec.http.HttpMethod;
 
+/**
+ * <p>ReportCheatData class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ReportCheatData extends SteamReportCheatRequest {
+    /**
+     * <p>Constructor for ReportCheatData.</p>
+     *
+     * @param cheatInfo a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData} object
+     * @param apiVersion a int
+     */
     public ReportCheatData(CheatData cheatInfo, int apiVersion) {
         super(SteamApiConstants.STEAM_METHOD_CHEATREPORTSVC_REPORTCHEATDATA, apiVersion);
         method(HttpMethod.POST);

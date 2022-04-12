@@ -26,7 +26,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A netty based UDP {@link Channel} factory
+ * A netty based UDP {@link io.netty.channel.Channel} factory
  *
  * @author Rafael Luis Ibasco
  */
@@ -34,15 +34,29 @@ public class UdpNettyChannelFactory extends AbstractNettyChannelFactory {
 
     private final boolean connectionless;
 
+    /**
+     * <p>Constructor for UdpNettyChannelFactory.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param connectionless a boolean
+     */
     public UdpNettyChannelFactory(final Options options, final boolean connectionless) {
         this(options, null, connectionless);
     }
 
+    /**
+     * <p>Constructor for UdpNettyChannelFactory.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param connectionless a boolean
+     */
     public UdpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver, final boolean connectionless) {
         super(TransportType.UDP, options, resolver);
         this.connectionless = connectionless;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected CompletableFuture<Channel> newChannel(final Object data) {
         final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);

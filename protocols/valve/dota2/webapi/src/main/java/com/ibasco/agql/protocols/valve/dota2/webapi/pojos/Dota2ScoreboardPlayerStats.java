@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,11 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * <p>Dota2ScoreboardPlayerStats class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2ScoreboardPlayerStats {
 
     @SerializedName("player_slot")
@@ -97,6 +102,8 @@ public class Dota2ScoreboardPlayerStats {
     private int netWorth;
 
     /**
+     * <p>Getter for the field <code>playerSlot</code>.</p>
+     *
      * @return The playerSlot
      */
     public int getPlayerSlot() {
@@ -104,6 +111,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>playerSlot</code>.</p>
+     *
      * @param playerSlot
      *         The player_slot
      */
@@ -112,6 +121,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>accountId</code>.</p>
+     *
      * @return The accountId
      */
     public int getAccountId() {
@@ -119,6 +130,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>accountId</code>.</p>
+     *
      * @param accountId
      *         The account_id
      */
@@ -127,6 +140,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>heroId</code>.</p>
+     *
      * @return The heroId
      */
     public int getHeroId() {
@@ -134,6 +149,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>heroId</code>.</p>
+     *
      * @param heroId
      *         The hero_id
      */
@@ -142,6 +159,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>kills</code>.</p>
+     *
      * @return The kills
      */
     public int getKills() {
@@ -149,6 +168,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>kills</code>.</p>
+     *
      * @param kills
      *         The kills
      */
@@ -157,6 +178,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>death</code>.</p>
+     *
      * @return The death
      */
     public int getDeath() {
@@ -164,6 +187,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>death</code>.</p>
+     *
      * @param death
      *         The death
      */
@@ -172,6 +197,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>assists</code>.</p>
+     *
      * @return The assists
      */
     public int getAssists() {
@@ -179,6 +206,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>assists</code>.</p>
+     *
      * @param assists
      *         The assists
      */
@@ -187,6 +216,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>lastHits</code>.</p>
+     *
      * @return The lastHits
      */
     public int getLastHits() {
@@ -194,6 +225,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>lastHits</code>.</p>
+     *
      * @param lastHits
      *         The last_hits
      */
@@ -202,6 +235,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>denies</code>.</p>
+     *
      * @return The denies
      */
     public int getDenies() {
@@ -209,6 +244,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>denies</code>.</p>
+     *
      * @param denies
      *         The denies
      */
@@ -217,6 +254,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>gold</code>.</p>
+     *
      * @return The gold
      */
     public int getGold() {
@@ -224,6 +263,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>gold</code>.</p>
+     *
      * @param gold
      *         The gold
      */
@@ -232,6 +273,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>level</code>.</p>
+     *
      * @return The level
      */
     public int getLevel() {
@@ -239,6 +282,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>level</code>.</p>
+     *
      * @param level
      *         The level
      */
@@ -247,6 +292,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>goldPerMin</code>.</p>
+     *
      * @return The goldPerMin
      */
     public int getGoldPerMin() {
@@ -254,6 +301,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>goldPerMin</code>.</p>
+     *
      * @param goldPerMin
      *         The gold_per_min
      */
@@ -262,6 +311,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>xpPerMin</code>.</p>
+     *
      * @return The xpPerMin
      */
     public int getXpPerMin() {
@@ -269,6 +320,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>xpPerMin</code>.</p>
+     *
      * @param xpPerMin
      *         The xp_per_min
      */
@@ -277,6 +330,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>ultimateState</code>.</p>
+     *
      * @return The ultimateState
      */
     public int getUltimateState() {
@@ -284,6 +339,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>ultimateState</code>.</p>
+     *
      * @param ultimateState
      *         The ultimate_state
      */
@@ -292,6 +349,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>ultimateCooldown</code>.</p>
+     *
      * @return The ultimateCooldown
      */
     public int getUltimateCooldown() {
@@ -299,6 +358,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>ultimateCooldown</code>.</p>
+     *
      * @param ultimateCooldown
      *         The ultimate_cooldown
      */
@@ -307,6 +368,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item0</code>.</p>
+     *
      * @return The item0
      */
     public int getItem0() {
@@ -314,6 +377,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item0</code>.</p>
+     *
      * @param item0
      *         The item0
      */
@@ -322,6 +387,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item1</code>.</p>
+     *
      * @return The item1
      */
     public int getItem1() {
@@ -329,6 +396,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item1</code>.</p>
+     *
      * @param item1
      *         The item1
      */
@@ -337,6 +406,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item2</code>.</p>
+     *
      * @return The item2
      */
     public int getItem2() {
@@ -344,6 +415,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item2</code>.</p>
+     *
      * @param item2
      *         The item2
      */
@@ -352,6 +425,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item3</code>.</p>
+     *
      * @return The item3
      */
     public int getItem3() {
@@ -359,6 +434,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item3</code>.</p>
+     *
      * @param item3
      *         The item3
      */
@@ -367,6 +444,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item4</code>.</p>
+     *
      * @return The item4
      */
     public int getItem4() {
@@ -374,6 +453,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item4</code>.</p>
+     *
      * @param item4
      *         The item4
      */
@@ -382,6 +463,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>item5</code>.</p>
+     *
      * @return The item5
      */
     public int getItem5() {
@@ -389,6 +472,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>item5</code>.</p>
+     *
      * @param item5
      *         The item5
      */
@@ -397,6 +482,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>respawnTimer</code>.</p>
+     *
      * @return The respawnTimer
      */
     public int getRespawnTimer() {
@@ -404,6 +491,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>respawnTimer</code>.</p>
+     *
      * @param respawnTimer
      *         The respawn_timer
      */
@@ -412,6 +501,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>positionX</code>.</p>
+     *
      * @return The positionX
      */
     public double getPositionX() {
@@ -419,6 +510,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>positionX</code>.</p>
+     *
      * @param positionX
      *         The position_x
      */
@@ -427,6 +520,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>positionY</code>.</p>
+     *
      * @return The positionY
      */
     public double getPositionY() {
@@ -434,6 +529,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>positionY</code>.</p>
+     *
      * @param positionY
      *         The position_y
      */
@@ -442,6 +539,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Getter for the field <code>netWorth</code>.</p>
+     *
      * @return The netWorth
      */
     public int getNetWorth() {
@@ -449,6 +548,8 @@ public class Dota2ScoreboardPlayerStats {
     }
 
     /**
+     * <p>Setter for the field <code>netWorth</code>.</p>
+     *
      * @param netWorth
      *         The net_worth
      */
@@ -456,6 +557,7 @@ public class Dota2ScoreboardPlayerStats {
         this.netWorth = netWorth;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

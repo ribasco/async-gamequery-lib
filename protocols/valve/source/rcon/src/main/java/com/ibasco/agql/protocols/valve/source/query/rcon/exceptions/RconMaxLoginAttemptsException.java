@@ -25,14 +25,32 @@ import java.net.InetSocketAddress;
  */
 public class RconMaxLoginAttemptsException extends RconAuthException {
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconMaxLoginAttemptsException(InetSocketAddress address) {
         super(address);
     }
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconMaxLoginAttemptsException(String message, InetSocketAddress address) {
         super(message, address);
     }
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconMaxLoginAttemptsException(String message, Throwable cause, InetSocketAddress address) {
         super(message, cause, address);
     }

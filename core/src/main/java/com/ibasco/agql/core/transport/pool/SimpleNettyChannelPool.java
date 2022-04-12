@@ -15,7 +15,6 @@
  */
 package com.ibasco.agql.core.transport.pool;
 
-import com.ibasco.agql.core.transport.AbstractNettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.Errors;
 import io.netty.channel.Channel;
@@ -57,12 +56,12 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     private final NettyChannelFactory channelFactory;
 
     /**
-     * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
+     * Creates a new instance using the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker#ACTIVE}.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      */
     @SuppressWarnings("unused")
     public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler) {
@@ -73,12 +72,12 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      */
     public SimpleNettyChannelPool(NettyChannelFactory channelFactory, final ChannelPoolHandler handler, ChannelHealthChecker healthCheck) {
         this(channelFactory, handler, healthCheck, true, null);
@@ -88,12 +87,12 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      * @param releaseHealthCheck
      *         will check channel health before offering back if this parameter set to {@code true};
      *         otherwise, channel health is only checked at acquisition time
@@ -108,17 +107,17 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      * @param releaseHealthCheck
      *         will check channel health before offering back if this parameter set to {@code true};
      *         otherwise, channel health is only checked at acquisition time
      * @param lastRecentUsed
-     *         {@code true} {@link Channel} selection will be LIFO, if {@code false} FIFO.
+     *         {@code true} {@link io.netty.channel.Channel} selection will be LIFO, if {@code false} FIFO.
      * @param releaseStrategy
      *         Default strategy to apply during release
      */
@@ -132,18 +131,18 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     /**
-     * The underlying {@link NettyChannelFactory} used to create new {@link Channel} instances.
+     * The underlying {@link com.ibasco.agql.core.transport.NettyChannelFactory} used to create new {@link io.netty.channel.Channel} instances.
      *
-     * @return A type of {@link AbstractNettyChannelFactory}
+     * @return A type of {@link com.ibasco.agql.core.transport.AbstractNettyChannelFactory}
      */
     public NettyChannelFactory getChannelFactory() {
         return channelFactory;
     }
 
     /**
-     * Returns the {@link ChannelPoolHandler} that will be notified for the different pool actions.
+     * Returns the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions.
      *
-     * @return the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     * @return the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      */
     @SuppressWarnings("unused")
     public ChannelPoolHandler getChannelPoolHandler() {
@@ -151,9 +150,9 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     /**
-     * Returns the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is healthy.
+     * Returns the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is healthy.
      *
-     * @return the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is healthy
+     * @return the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is healthy
      */
     @SuppressWarnings("unused")
     protected ChannelHealthChecker getChannelHealthChecker() {
@@ -171,11 +170,13 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return releaseHealthCheck;
     }
 
+    /** {@inheritDoc} */
     @Override
     public final CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress) {
         return acquire(remoteAddress, new CompletableFuture<>());
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
         return acquireHealthyFromPoolOrNew(remoteAddress, promise);
@@ -203,6 +204,12 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return promise;
     }
 
+    /**
+     * <p>newChannel.</p>
+     *
+     * @param remoteAddress a {@link java.net.InetSocketAddress} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     protected CompletableFuture<Channel> newChannel(InetSocketAddress remoteAddress) {
         return channelFactory.create(remoteAddress).thenCompose(this::initializeChannel);
     }
@@ -298,11 +305,13 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public final CompletableFuture<Void> release(Channel channel) {
         return release(channel, new CompletableFuture<>());
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Void> release(final Channel channel, final CompletableFuture<Void> promise) {
         try {
@@ -315,6 +324,7 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return promise;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int getSize() {
         return deque.size();
@@ -420,27 +430,33 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     /**
-     * Poll a {@link Channel} out of the internal storage to reuse it. This will return {@code null} if no
-     * {@link Channel} is ready to be reused.
+     * Poll a {@link io.netty.channel.Channel} out of the internal storage to reuse it. This will return {@code null} if no
+     * {@link io.netty.channel.Channel} is ready to be reused.
      * <p>
      * Subclasses may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
      * implementations of these methods needs to be thread-safe!
+     *
+     * @return a {@link io.netty.channel.Channel} object
      */
     protected Channel pollChannel() {
         return lastRecentUsed ? deque.pollLast() : deque.pollFirst();
     }
 
     /**
-     * Offer a {@link Channel} back to the internal storage. This will return {@code true} if the {@link Channel}
+     * Offer a {@link io.netty.channel.Channel} back to the internal storage. This will return {@code true} if the {@link io.netty.channel.Channel}
      * could be added, {@code false} otherwise.
      * <p>
      * Sub-classes may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
      * implementations of these methods needs to be thread-safe!
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a boolean
      */
     protected boolean offerChannel(Channel channel) {
         return deque.offer(channel);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         Channel channel;

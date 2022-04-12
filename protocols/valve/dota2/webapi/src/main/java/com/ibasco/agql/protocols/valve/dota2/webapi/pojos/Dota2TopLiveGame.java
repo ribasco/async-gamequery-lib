@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2TopLiveGame class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2TopLiveGame {
 
     @SerializedName("activate_time")
@@ -63,6 +68,8 @@ public class Dota2TopLiveGame {
     private int buildingState;
 
     /**
+     * <p>Getter for the field <code>activateTime</code>.</p>
+     *
      * @return The activateTime
      */
     public int getActivateTime() {
@@ -70,6 +77,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>activateTime</code>.</p>
+     *
      * @param activateTime
      *         The activate_time
      */
@@ -78,6 +87,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>deactivateTime</code>.</p>
+     *
      * @return The deactivateTime
      */
     public int getDeactivateTime() {
@@ -85,6 +96,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>deactivateTime</code>.</p>
+     *
      * @param deactivateTime
      *         The deactivate_time
      */
@@ -93,6 +106,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>serverSteamId</code>.</p>
+     *
      * @return The serverSteamId
      */
     public long getServerSteamId() {
@@ -100,6 +115,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>serverSteamId</code>.</p>
+     *
      * @param serverSteamId
      *         The server_steam_id
      */
@@ -108,6 +125,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>lobbyId</code>.</p>
+     *
      * @return The lobbyId
      */
     public long getLobbyId() {
@@ -115,6 +134,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>lobbyId</code>.</p>
+     *
      * @param lobbyId
      *         The lobby_id
      */
@@ -123,6 +144,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>leagueId</code>.</p>
+     *
      * @return The leagueId
      */
     public int getLeagueId() {
@@ -130,6 +153,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>leagueId</code>.</p>
+     *
      * @param leagueId
      *         The league_id
      */
@@ -138,6 +163,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>lobbyType</code>.</p>
+     *
      * @return The lobbyType
      */
     public int getLobbyType() {
@@ -145,6 +172,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>lobbyType</code>.</p>
+     *
      * @param lobbyType
      *         The lobby_type
      */
@@ -153,6 +182,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>gameTime</code>.</p>
+     *
      * @return The gameTime
      */
     public int getGameTime() {
@@ -160,6 +191,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>gameTime</code>.</p>
+     *
      * @param gameTime
      *         The game_time
      */
@@ -168,6 +201,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>delay</code>.</p>
+     *
      * @return The delay
      */
     public int getDelay() {
@@ -175,6 +210,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>delay</code>.</p>
+     *
      * @param delay
      *         The delay
      */
@@ -183,6 +220,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>spectators</code>.</p>
+     *
      * @return The spectators
      */
     public int getSpectators() {
@@ -190,6 +229,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>spectators</code>.</p>
+     *
      * @param spectators
      *         The spectators
      */
@@ -198,6 +239,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>gameMode</code>.</p>
+     *
      * @return The gameMode
      */
     public int getGameMode() {
@@ -205,6 +248,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>gameMode</code>.</p>
+     *
      * @param gameMode
      *         The game_mode
      */
@@ -213,6 +258,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>averageMmr</code>.</p>
+     *
      * @return The averageMmr
      */
     public int getAverageMmr() {
@@ -220,6 +267,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>averageMmr</code>.</p>
+     *
      * @param averageMmr
      *         The average_mmr
      */
@@ -228,6 +277,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>sortScore</code>.</p>
+     *
      * @return The sortScore
      */
     public int getSortScore() {
@@ -235,6 +286,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>sortScore</code>.</p>
+     *
      * @param sortScore
      *         The sort_score
      */
@@ -243,6 +296,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>lastUpdateTime</code>.</p>
+     *
      * @return The lastUpdateTime
      */
     public int getLastUpdateTime() {
@@ -250,6 +305,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>lastUpdateTime</code>.</p>
+     *
      * @param lastUpdateTime
      *         The last_update_time
      */
@@ -258,6 +315,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>radiantLead</code>.</p>
+     *
      * @return The radiantLead
      */
     public int getRadiantLead() {
@@ -265,6 +324,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>radiantLead</code>.</p>
+     *
      * @param radiantLead
      *         The radiant_lead
      */
@@ -273,6 +334,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>radiantScore</code>.</p>
+     *
      * @return The radiantScore
      */
     public int getRadiantScore() {
@@ -280,6 +343,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>radiantScore</code>.</p>
+     *
      * @param radiantScore
      *         The radiant_score
      */
@@ -288,6 +353,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>direScore</code>.</p>
+     *
      * @return The direScore
      */
     public int getDireScore() {
@@ -295,6 +362,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>direScore</code>.</p>
+     *
      * @param direScore
      *         The dire_score
      */
@@ -303,6 +372,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>players</code>.</p>
+     *
      * @return The players
      */
     public List<Dota2TopLiveGamePlayer> getPlayers() {
@@ -310,6 +381,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>players</code>.</p>
+     *
      * @param players
      *         The players
      */
@@ -318,6 +391,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Getter for the field <code>buildingState</code>.</p>
+     *
      * @return The buildingState
      */
     public int getBuildingState() {
@@ -325,6 +400,8 @@ public class Dota2TopLiveGame {
     }
 
     /**
+     * <p>Setter for the field <code>buildingState</code>.</p>
+     *
      * @param buildingState
      *         The building_state
      */
@@ -332,6 +409,7 @@ public class Dota2TopLiveGame {
         this.buildingState = buildingState;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

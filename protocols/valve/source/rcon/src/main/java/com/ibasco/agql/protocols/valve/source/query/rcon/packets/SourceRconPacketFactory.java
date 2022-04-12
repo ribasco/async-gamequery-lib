@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
 /**
- * A factory class for creating {@link SourceRconPacket} instances
+ * A factory class for creating {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} instances
  *
  * @author Rafael Luis Ibasco
  */
@@ -47,8 +47,7 @@ public final class SourceRconPacketFactory {
      *         The request id to be associated with this request
      * @param password
      *         The rcon password to use to authenticate with the server
-     *
-     * @return A {@link SourceRconPacket}
+     * @return A {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createAuth(final int id, byte[] password) {
         Objects.requireNonNull(password, "Password is null");
@@ -63,8 +62,7 @@ public final class SourceRconPacketFactory {
      *
      * @param id
      *         A positive integer indicating a successful authentication or -1 if authentication failed
-     *
-     * @return An authentication response packet wrapped in {@link SourceRconPacket}
+     * @return An authentication response packet wrapped in {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createAuthResponse(int id) {
         return createPacket(id, SourceRcon.RCON_TYPE_RESPONSE_AUTH, allocator.directBuffer(1).writeByte(0));
@@ -77,8 +75,7 @@ public final class SourceRconPacketFactory {
      *         A unique positive integer
      * @param command
      *         The command to be sent to the server
-     *
-     * @return A command request packet wrapped in {@link SourceRconPacket}
+     * @return A command request packet wrapped in {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createCommand(int id, String command) {
         Objects.requireNonNull(command, "Command is null");
@@ -94,9 +91,8 @@ public final class SourceRconPacketFactory {
      * @param id
      *         A positive or negative value
      * @param response
-     *         The message payload of the response in the form of a {@link String}
-     *
-     * @return A {@link SourceRconPacket}
+     *         The message payload of the response in the form of a {@link java.lang.String}
+     * @return A {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createResponseValue(int id, String response) {
         ByteBuf payload = allocator.directBuffer(response.length() + 1);
@@ -112,8 +108,7 @@ public final class SourceRconPacketFactory {
      *         A positive or negative value
      * @param payload
      *         The message payload of the response
-     *
-     * @return A {@link SourceRconPacket}
+     * @return A {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createResponseValue(int id, ByteBuf payload) {
         return createPacket(id, SourceRcon.RCON_TYPE_RESPONSE_VALUE, payload);
@@ -122,18 +117,36 @@ public final class SourceRconPacketFactory {
     /**
      * Create a new terminator packet. A terminator packet is a special type of response value packet which sent after every command issued to the server.
      *
-     * @return A special response value packet with an id of -1 wrapped in {@link SourceRconPacket}
+     * @return A special response value packet with an id of -1 wrapped in {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static SourceRconPacket createTerminator() {
         return createResponseValue(SourceRcon.RCON_TERMINATOR_RID, StringUtils.EMPTY);
     }
 
+    /**
+     * <p>createPacket.</p>
+     *
+     * @param id a int
+     * @param type a int
+     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} object
+     */
     public static SourceRconPacket createPacket(int id, int type, ByteBuf payload) {
         int size = payload.capacity() + 9;
         assert size >= 10;
         return createPacket(size, id, type, 0, payload);
     }
 
+    /**
+     * <p>createPacket.</p>
+     *
+     * @param size a int
+     * @param id a int
+     * @param type a int
+     * @param terminator a int
+     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} object
+     */
     public static SourceRconPacket createPacket(int size, int id, int type, int terminator, ByteBuf payload) {
         SourceRconPacket packet = new SourceRconPacket(type, payload);
         packet.setSize(size);

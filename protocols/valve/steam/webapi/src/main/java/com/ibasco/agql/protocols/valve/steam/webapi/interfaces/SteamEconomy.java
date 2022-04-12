@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,12 +38,20 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 10/26/2016.
+ *
+ * @author Rafael Luis Ibasco
  */
 public class SteamEconomy extends SteamWebApiInterface {
+    /**
+     * <p>Constructor for SteamEconomy.</p>
+     *
+     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     */
     public SteamEconomy(SteamWebApiClient client) {
         super(client);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void configureBuilder(GsonBuilder builder) {
         builder.registerTypeAdapter(new TypeToken<Map<String, SteamAssetClassInfo>>() {
@@ -51,10 +59,24 @@ public class SteamEconomy extends SteamWebApiInterface {
         builder.registerTypeAdapter(SteamAssetDescription.class, new SteamAssetDescDeserializer());
     }
 
+    /**
+     * <p>getAssetPrices.</p>
+     *
+     * @param appId a int
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamAssetPriceInfo>> getAssetPrices(int appId) {
         return getAssetPrices(appId, null, null);
     }
 
+    /**
+     * <p>getAssetPrices.</p>
+     *
+     * @param appId a int
+     * @param currency a {@link java.lang.String} object
+     * @param language a {@link java.lang.String} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamAssetPriceInfo>> getAssetPrices(int appId, String currency, String language) {
         CompletableFuture<JsonObject> json = sendRequest(new GetAssetPrices(VERSION_1, appId, currency, language));
         return json.thenApply(root -> {
@@ -70,10 +92,26 @@ public class SteamEconomy extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getAssetClassInfo.</p>
+     *
+     * @param appId a int
+     * @param language a {@link java.lang.String} object
+     * @param classIds a {@link java.util.List} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<Map<String, SteamAssetClassInfo>> getAssetClassInfo(int appId, String language, List<Long> classIds) {
         return getAssetClassInfo(appId, language, classIds.toArray(new Long[0]));
     }
 
+    /**
+     * <p>getAssetClassInfo.</p>
+     *
+     * @param appId a int
+     * @param language a {@link java.lang.String} object
+     * @param classIds a {@link java.lang.Long} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<Map<String, SteamAssetClassInfo>> getAssetClassInfo(int appId, String language, Long... classIds) {
         CompletableFuture<JsonObject> json = sendRequest(new GetAssetClassInfo(VERSION_1, appId, language, classIds));
         return json.thenApply(root -> {

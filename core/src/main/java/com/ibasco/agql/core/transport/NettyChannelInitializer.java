@@ -30,6 +30,11 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>NettyChannelInitializer class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class NettyChannelInitializer extends ChannelInitializer<Channel> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyChannelInitializer.class);
@@ -41,6 +46,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
         channelClosed(channel, future.cause());
     };
 
+    /** {@inheritDoc} */
     @Override
     protected void initChannel(@NotNull Channel ch) {
         try {
@@ -54,6 +60,12 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
         }
     }
 
+    /**
+     * <p>channelClosed.</p>
+     *
+     * @param ch a {@link io.netty.channel.Channel} object
+     * @param error a {@link java.lang.Throwable} object
+     */
     public static void channelClosed(Channel ch, Throwable error) {
         log.debug("{} HANDLER => Channel closed (Error: {})", Netty.id(ch), error == null ? "None" : error.getLocalizedMessage());
         ch.pipeline().fireUserEventTriggered(ChannelEvent.CLOSED);
@@ -63,7 +75,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
         final ChannelPipeline pipe = ch.pipeline();
         pipe.addLast(MessageDecoder.NAME, new MessageDecoder());
         if (handlerInitializer != null) {
-            synchronized (this) {
+            //synchronized (this) {
                 //register messenger specific inbound handlers
                 Netty.registerHandlers(pipe, handlerInitializer::registerInboundHandlers, Netty.INBOUND);
 
@@ -72,7 +84,7 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
 
                 //register messenger specific outbound handlers
                 Netty.registerHandlers(pipe, handlerInitializer::registerOutboundHandlers, Netty.OUTBOUND);
-            }
+            //}
         }
         pipe.addLast(MessageEncoder.NAME, new MessageEncoder());
 
@@ -84,10 +96,20 @@ public class NettyChannelInitializer extends ChannelInitializer<Channel> {
         Netty.printChannelPipeline(log, ch);
     }
 
+    /**
+     * <p>Getter for the field <code>handlerInitializer</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelHandlerInitializer} object
+     */
     public NettyChannelHandlerInitializer getHandlerInitializer() {
         return handlerInitializer;
     }
 
+    /**
+     * <p>Setter for the field <code>handlerInitializer</code>.</p>
+     *
+     * @param handlerInitializer a {@link com.ibasco.agql.core.transport.NettyChannelHandlerInitializer} object
+     */
     public void setHandlerInitializer(NettyChannelHandlerInitializer handlerInitializer) {
         this.handlerInitializer = handlerInitializer;
     }

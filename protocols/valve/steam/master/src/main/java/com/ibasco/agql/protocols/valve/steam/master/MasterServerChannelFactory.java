@@ -28,19 +28,31 @@ import io.netty.channel.ChannelOutboundHandler;
 
 import java.util.LinkedList;
 
+/**
+ * <p>MasterServerChannelFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerChannelFactory extends NettyChannelFactoryInitializer {
 
+    /**
+     * <p>Constructor for MasterServerChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public MasterServerChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
         setResolver(new DefaultPropertyResolver());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerInboundHandlers(LinkedList<ChannelInboundHandler> handlers) {
         handlers.addLast(new MasterServerPacketDecoder());
         handlers.addLast(new MasterServerAddressDecoder());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerOutboundHandlers(LinkedList<ChannelOutboundHandler> handlers) {
         handlers.addLast(new MasterServerRequestEncoder());

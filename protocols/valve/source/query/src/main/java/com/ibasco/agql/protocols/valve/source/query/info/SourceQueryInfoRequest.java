@@ -18,19 +18,37 @@ package com.ibasco.agql.protocols.valve.source.query.info;
 
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryAuthRequest;
 
+/**
+ * <p>SourceQueryInfoRequest class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryInfoRequest extends SourceQueryAuthRequest {
 
     private final boolean bypassChallenge;
 
+    /**
+     * <p>Constructor for SourceQueryInfoRequest.</p>
+     */
     public SourceQueryInfoRequest() {
         this(null);
     }
 
+    /**
+     * <p>Constructor for SourceQueryInfoRequest.</p>
+     *
+     * @param challenge a {@link java.lang.Integer} object
+     */
     public SourceQueryInfoRequest(Integer challenge) {
         super(challenge);
         this.bypassChallenge = challenge != null && challenge == -1;
     }
 
+    /**
+     * <p>isBypassChallenge.</p>
+     *
+     * @return a boolean
+     */
     public final boolean isBypassChallenge() {
         return bypassChallenge;
     }

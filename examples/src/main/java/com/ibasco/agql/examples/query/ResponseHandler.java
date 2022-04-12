@@ -25,6 +25,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
+/**
+ * <p>Abstract ResponseHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
 
     private static final Logger log = LoggerFactory.getLogger(ResponseHandler.class);
@@ -43,14 +48,32 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
 
     private Consumer<String> output;
 
+    /**
+     * <p>Constructor for ResponseHandler.</p>
+     *
+     * @param description a {@link java.lang.String} object
+     */
     protected ResponseHandler(String description) {
         this(description, (CountDownLatch) null);
     }
 
+    /**
+     * <p>Constructor for ResponseHandler.</p>
+     *
+     * @param description a {@link java.lang.String} object
+     * @param phaser a {@link java.util.concurrent.Phaser} object
+     */
     protected ResponseHandler(String description, Phaser phaser) {
         this(description, phaser, null);
     }
 
+    /**
+     * <p>Constructor for ResponseHandler.</p>
+     *
+     * @param description a {@link java.lang.String} object
+     * @param phaser a {@link java.util.concurrent.Phaser} object
+     * @param output a {@link java.util.function.Consumer} object
+     */
     protected ResponseHandler(String description, Phaser phaser, Consumer<String> output) {
         this.description = description;
         this.phaser = phaser;
@@ -60,10 +83,23 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
             this.output = output;
     }
 
+    /**
+     * <p>Constructor for ResponseHandler.</p>
+     *
+     * @param description a {@link java.lang.String} object
+     * @param latch a {@link java.util.concurrent.CountDownLatch} object
+     */
     protected ResponseHandler(String description, CountDownLatch latch) {
         this(description, latch, null);
     }
 
+    /**
+     * <p>Constructor for ResponseHandler.</p>
+     *
+     * @param description a {@link java.lang.String} object
+     * @param latch a {@link java.util.concurrent.CountDownLatch} object
+     * @param output a {@link java.util.function.Consumer} object
+     */
     protected ResponseHandler(String description, CountDownLatch latch, Consumer<String> output) {
         this.description = description;
         this.latch = latch;
@@ -74,20 +110,50 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
             this.output = output;
     }
 
+    /**
+     * <p>onSuccess.</p>
+     *
+     * @param res a T object
+     */
     abstract protected void onSuccess(T res);
 
+    /**
+     * <p>onStart.</p>
+     *
+     * @param res a T object
+     * @param error a {@link java.lang.Throwable} object
+     */
     protected void onStart(T res, Throwable error) {}
 
+    /**
+     * <p>onFail.</p>
+     *
+     * @param error a {@link java.lang.Throwable} object
+     */
     protected void onFail(Throwable error) {
         log.error(String.format("Error occured in: %s", getClass().getSimpleName()), error);
     }
 
+    /**
+     * <p>onDone.</p>
+     *
+     * @param res a T object
+     * @param error a {@link java.lang.Throwable} object
+     */
     protected void onDone(T res, Throwable error) {}
 
+    /**
+     * <p>Getter for the field <code>description</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getDescription() {
         return description;
     }
 
+    /**
+     * <p>reset.</p>
+     */
     public void reset() {
         this.phaser = null;
         this.latch = null;
@@ -95,6 +161,7 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
         this.failCount.set(0);
     }
 
+    /** {@inheritDoc} */
     @Override
     public synchronized final void accept(T res, Throwable error) {
         if (!started) {
@@ -125,31 +192,65 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
             latch.countDown();
     }
 
+    /**
+     * <p>Getter for the field <code>successCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getSuccessCount() {
         return successCount.get();
     }
 
+    /**
+     * <p>Getter for the field <code>failCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getFailCount() {
         return failCount.get();
     }
 
+    /**
+     * <p>getTotalCount.</p>
+     *
+     * @return a int
+     */
     public int getTotalCount() {
         return getSuccessCount() + getFailCount();
     }
 
+    /**
+     * <p>Getter for the field <code>output</code>.</p>
+     *
+     * @return a {@link java.util.function.Consumer} object
+     */
     public Consumer<String> getOutput() {
         return output;
     }
 
+    /**
+     * <p>Setter for the field <code>output</code>.</p>
+     *
+     * @param output a {@link java.util.function.Consumer} object
+     */
     public void setOutput(Consumer<String> output) {
         this.output = output;
     }
 
+    /**
+     * <p>printStats.</p>
+     */
     public void printStats() {
         print("Total records succesfully retrieved: %d", getSuccessCount());
         print("Total records in error: %d", getFailCount());
     }
 
+    /**
+     * <p>print.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void print(String msg, Object... args) {
         output.accept(String.format("[\033[0;33m%s]\033[0m: %s", getDescription(), String.format(msg, args)));
     }

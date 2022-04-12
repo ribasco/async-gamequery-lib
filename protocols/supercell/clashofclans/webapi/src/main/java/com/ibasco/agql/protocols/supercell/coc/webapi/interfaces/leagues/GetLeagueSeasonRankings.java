@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,10 +20,25 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 import org.jetbrains.annotations.ApiStatus;
 
+/**
+ * <p>GetLeagueSeasonRankings class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetLeagueSeasonRankings extends CocWebApiRequest {
 
+    /**
+     * <p>Constructor for GetLeagueSeasonRankings.</p>
+     *
+     * @param apiVersion a int
+     * @param leagueId a int
+     * @param seasonId a {@link java.lang.String} object
+     * @param limit a int
+     * @param before a int
+     * @param after a int
+     */
     public GetLeagueSeasonRankings(int apiVersion, int leagueId, String seasonId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASON_RANKINGS, limit, before, after);
         property(CocApiConstants.UF_PROP_LEAGUE_ID, leagueId);

@@ -35,7 +35,7 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * The netty transport driver, responsible for sending the messages to the provided {@link Channel}.
+ * The netty transport driver, responsible for sending the messages to the provided {@link io.netty.channel.Channel}.
  *
  * @author Rafael Luis Ibasco
  */
@@ -67,6 +67,11 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     };
 
     //<editor-fold desc="Default Constructor">
+    /**
+     * <p>Constructor for NettyTransport.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     public NettyTransport(final Options options) {
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
@@ -78,6 +83,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     }
     //</editor-fold>
 
+    /** {@inheritDoc} */
     @Override
     public final CompletableFuture<NettyChannelContext> send(final NettyChannelContext context) {
         checkContext(context);
@@ -148,9 +154,13 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             throw new IllegalStateException("No valid request attached to channel context: " + context);
     }
 
+    /** {@inheritDoc} */
     @Override
-    public void close() throws IOException {}
+    public void close() throws IOException {
 
+    }
+
+    /** {@inheritDoc} */
     @Override
     public final Options getOptions() {
         return options;

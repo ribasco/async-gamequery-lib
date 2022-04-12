@@ -30,7 +30,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Attaches a {@link NettyChannelContext} for each acquired/created {@link Channel}. Note that there is only one context assigned for each {@link Channel}.
+ * Attaches a {@link com.ibasco.agql.core.NettyChannelContext} for each acquired/created {@link io.netty.channel.Channel}. Note that there is only one context assigned for each {@link io.netty.channel.Channel}.
  *
  * @author Rafael Luis Ibasco
  */
@@ -41,15 +41,27 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
 
     private NettyChannelContextFactory contextFactory;
 
+    /**
+     * <p>Constructor for NettyContextChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public NettyContextChannelFactory(final NettyChannelFactory channelFactory) {
         this(channelFactory, null);
     }
 
+    /**
+     * <p>Constructor for NettyContextChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param contextFactory a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     */
     public NettyContextChannelFactory(final NettyChannelFactory channelFactory, final NettyChannelContextFactory contextFactory) {
         super(channelFactory);
         this.contextFactory = contextFactory;
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(final Object data) {
         checkContextFactory();
@@ -57,6 +69,7 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         return super.create(data).thenCombine(CompletableFuture.completedFuture(address), ImmutablePair::new).thenCompose(this::initializeEL);
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(final Object data, final EventLoop eventLoop) {
         checkContextFactory();
@@ -106,10 +119,20 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         return channel;
     }
 
+    /**
+     * <p>Getter for the field <code>contextFactory</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     */
     public final NettyChannelContextFactory getContextFactory() {
         return contextFactory;
     }
 
+    /**
+     * <p>Setter for the field <code>contextFactory</code>.</p>
+     *
+     * @param contextFactory a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     */
     public final void setContextFactory(NettyChannelContextFactory contextFactory) {
         this.contextFactory = contextFactory;
     }

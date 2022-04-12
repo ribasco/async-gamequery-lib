@@ -22,23 +22,46 @@ import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import io.netty.channel.Channel;
 
+/**
+ * <p>DefaultChannlContextFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultChannlContextFactory<M extends NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse>> implements NettyChannelContextFactory {
 
     private final M messenger;
 
+    /**
+     * <p>Constructor for DefaultChannlContextFactory.</p>
+     *
+     * @param messenger a M object
+     */
     public DefaultChannlContextFactory(M messenger) {
         this.messenger = messenger;
     }
 
+    /** {@inheritDoc} */
     @Override
     public final NettyChannelContext create(Channel channel) {
         return newChannelContext(channel, this.messenger);
     }
 
+    /**
+     * <p>Getter for the field <code>messenger</code>.</p>
+     *
+     * @return a M object
+     */
     public final M getMessenger() {
         return messenger;
     }
 
+    /**
+     * <p>newChannelContext.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param messenger a M object
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     protected NettyChannelContext newChannelContext(Channel channel, M messenger) {
         return new NettyChannelContext(channel, messenger);
     }

@@ -18,15 +18,31 @@ package com.ibasco.agql.core.exceptions;
 
 import io.netty.channel.Channel;
 
+/**
+ * <p>NoChannelContextException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class NoChannelContextException extends AsyncGameLibUncheckedException {
 
     private final Channel channel;
 
+    /**
+     * <p>Constructor for NoChannelContextException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param channel a {@link io.netty.channel.Channel} object
+     */
     public NoChannelContextException(String message, Channel channel) {
         super(message);
         this.channel = channel;
     }
 
+    /**
+     * <p>Getter for the field <code>channel</code>.</p>
+     *
+     * @return a {@link io.netty.channel.Channel} object
+     */
     public final Channel getChannel() {
         return channel;
     }

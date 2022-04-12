@@ -18,8 +18,19 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>RconAuthenticator interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @FunctionalInterface
 public interface RconAuthenticator {
 
+    /**
+     * <p>authenticate.</p>
+     *
+     * @param context a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconChannelContext} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     CompletableFuture<SourceRconChannelContext> authenticate(SourceRconChannelContext context);
 }

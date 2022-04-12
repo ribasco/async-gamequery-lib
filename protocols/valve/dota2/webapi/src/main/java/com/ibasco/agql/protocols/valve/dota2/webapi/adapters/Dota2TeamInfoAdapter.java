@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,7 +24,13 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchTeamInfo;
 
 import java.io.IOException;
 
+/**
+ * <p>Dota2TeamInfoAdapter class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
+    /** {@inheritDoc} */
     @Override
     public Dota2MatchTeamInfo read(JsonReader in) throws IOException {
         in.beginObject();
@@ -76,6 +82,7 @@ public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
         return teamInfo;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void write(JsonWriter out, Dota2MatchTeamInfo value) throws IOException {
         throw new AsyncGameLibUncheckedException("Not implemented");

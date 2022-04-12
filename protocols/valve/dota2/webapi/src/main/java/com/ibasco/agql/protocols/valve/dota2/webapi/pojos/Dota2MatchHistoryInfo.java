@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2MatchHistoryInfo class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2MatchHistoryInfo {
 
     @SerializedName("match_id")
@@ -49,6 +54,8 @@ public class Dota2MatchHistoryInfo {
     private List<Dota2MatchHistoryPlayer> players = new ArrayList<>();
 
     /**
+     * <p>Getter for the field <code>matchId</code>.</p>
+     *
      * @return The matchId
      */
     public long getMatchId() {
@@ -56,6 +63,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>matchId</code>.</p>
+     *
      * @param matchId
      *         The match_id
      */
@@ -64,6 +73,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>matchSeqNum</code>.</p>
+     *
      * @return The matchSeqNum
      */
     public int getMatchSeqNum() {
@@ -71,6 +82,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>matchSeqNum</code>.</p>
+     *
      * @param matchSeqNum
      *         The match_seq_num
      */
@@ -79,6 +92,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>startTime</code>.</p>
+     *
      * @return The startTime
      */
     public int getStartTime() {
@@ -86,6 +101,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>startTime</code>.</p>
+     *
      * @param startTime
      *         The start_time
      */
@@ -94,6 +111,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>lobbyType</code>.</p>
+     *
      * @return The lobbyType
      */
     public int getLobbyType() {
@@ -101,6 +120,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>lobbyType</code>.</p>
+     *
      * @param lobbyType
      *         The lobby_type
      */
@@ -109,6 +130,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>radiantTeamId</code>.</p>
+     *
      * @return The radiantTeamId
      */
     public int getRadiantTeamId() {
@@ -116,6 +139,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>radiantTeamId</code>.</p>
+     *
      * @param radiantTeamId
      *         The radiant_team_id
      */
@@ -124,6 +149,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>direTeamId</code>.</p>
+     *
      * @return The direTeamId
      */
     public int getDireTeamId() {
@@ -131,6 +158,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>direTeamId</code>.</p>
+     *
      * @param direTeamId
      *         The dire_team_id
      */
@@ -139,6 +168,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Getter for the field <code>players</code>.</p>
+     *
      * @return The players
      */
     public List<Dota2MatchHistoryPlayer> getPlayers() {
@@ -146,6 +177,8 @@ public class Dota2MatchHistoryInfo {
     }
 
     /**
+     * <p>Setter for the field <code>players</code>.</p>
+     *
      * @param players
      *         The players
      */
@@ -153,6 +186,7 @@ public class Dota2MatchHistoryInfo {
         this.players = players;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

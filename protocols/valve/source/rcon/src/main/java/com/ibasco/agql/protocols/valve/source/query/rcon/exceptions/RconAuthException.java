@@ -20,23 +20,51 @@ import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>RconAuthException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class RconAuthException extends AsyncGameLibUncheckedException {
 
     private final InetSocketAddress address;
 
+    /**
+     * <p>Constructor for RconAuthException.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconAuthException(InetSocketAddress address) {
         this(null, address);
     }
 
+    /**
+     * <p>Constructor for RconAuthException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconAuthException(String message, InetSocketAddress address) {
         this(message, null, address);
     }
 
+    /**
+     * <p>Constructor for RconAuthException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconAuthException(String message, Throwable cause, InetSocketAddress address) {
         super(message, cause);
         this.address = address;
     }
 
+    /**
+     * <p>Getter for the field <code>address</code>.</p>
+     *
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     public final InetSocketAddress getAddress() {
         return address;
     }

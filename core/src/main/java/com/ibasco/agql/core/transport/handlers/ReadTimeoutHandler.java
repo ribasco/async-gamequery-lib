@@ -28,16 +28,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>ReadTimeoutHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ReadTimeoutHandler extends IdleStateHandler {
 
     private static final Logger log = LoggerFactory.getLogger(ReadTimeoutHandler.class);
 
     private boolean timeoutFired;
 
+    /**
+     * <p>Constructor for ReadTimeoutHandler.</p>
+     *
+     * @param timeout a long
+     * @param unit a {@link java.util.concurrent.TimeUnit} object
+     */
     public ReadTimeoutHandler(long timeout, TimeUnit unit) {
         super(timeout, 0, 0, unit);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected final void channelIdle(ChannelHandlerContext ctx, IdleStateEvent evt) throws Exception {
         assert evt.state() == IdleState.READER_IDLE;
@@ -50,6 +62,12 @@ public class ReadTimeoutHandler extends IdleStateHandler {
         readTimedOut(ctx);
     }
 
+    /**
+     * <p>readTimedOut.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @throws java.lang.Exception if any.
+     */
     protected void readTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {
             log.debug("{} INB => Firing ReadTimeoutException (Time: {} ms)", Netty.id(ctx.channel()), getReaderIdleTimeInMillis());

@@ -23,7 +23,7 @@ import io.netty.buffer.ByteBuf;
 import java.nio.ByteOrder;
 
 /**
- * A single-type {@link SourceQueryPacket}
+ * A single-type {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket}
  *
  * @author Rafael Luis Ibasco
  */
@@ -31,18 +31,34 @@ public class SourceQuerySinglePacket extends SourceQueryPacket {
 
     private int header;
 
+    /**
+     * <p>Constructor for SourceQuerySinglePacket.</p>
+     *
+     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     */
     public SourceQuerySinglePacket(ByteBuf payload) {
         super(SourceQuery.SOURCE_PACKET_TYPE_SINGLE, payload);
     }
 
+    /**
+     * <p>Getter for the field <code>header</code>.</p>
+     *
+     * @return a int
+     */
     public final int getHeader() {
         return header;
     }
 
+    /**
+     * <p>Setter for the field <code>header</code>.</p>
+     *
+     * @param header a int
+     */
     public final void setHeader(int header) {
         this.header = header;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return String.format("'%s' Header: %s (%d)", getClass().getSimpleName(), Bytes.toHexString(header, ByteOrder.LITTLE_ENDIAN), header);

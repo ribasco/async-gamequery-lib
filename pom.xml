@@ -428,6 +428,10 @@
                     <configuration>
                         <failOnError>false</failOnError>
                         <failOnWarnings>false</failOnWarnings>
+                        <fixTags>author,since,param,return,throws,link</fixTags>
+                        <skippedModules>agql-lib-examples</skippedModules>
+                        <defaultAuthor>Rafael Luis Ibasco</defaultAuthor>
+                        <defaultVersion>${project.version}</defaultVersion>
                         <additionalOptions>-Xdoclint:none</additionalOptions>
                         <additionalJOption>-Xdoclint:none</additionalJOption>
                     </configuration>
@@ -542,13 +546,6 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <configuration>
-                    <skippedModules>agql-lib-examples</skippedModules>
-                </configuration>
             </plugin>
         </plugins>
     </build>

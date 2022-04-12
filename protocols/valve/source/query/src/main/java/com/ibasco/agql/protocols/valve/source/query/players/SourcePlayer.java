@@ -16,6 +16,11 @@
 
 package com.ibasco.agql.protocols.valve.source.query.players;
 
+/**
+ * <p>SourcePlayer class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourcePlayer {
 
     private final int index;
@@ -26,6 +31,14 @@ public class SourcePlayer {
 
     private final float duration;
 
+    /**
+     * <p>Constructor for SourcePlayer.</p>
+     *
+     * @param index a int
+     * @param name a {@link java.lang.String} object
+     * @param score a int
+     * @param duration a float
+     */
     public SourcePlayer(int index, String name, int score, float duration) {
         this.index = index;
         this.name = name;
@@ -33,18 +46,38 @@ public class SourcePlayer {
         this.duration = duration;
     }
 
+    /**
+     * <p>Getter for the field <code>index</code>.</p>
+     *
+     * @return a int
+     */
     public int getIndex() {
         return index;
     }
 
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * <p>Getter for the field <code>score</code>.</p>
+     *
+     * @return a int
+     */
     public int getScore() {
         return score;
     }
 
+    /**
+     * <p>Getter for the field <code>duration</code>.</p>
+     *
+     * @return a float
+     */
     public float getDuration() {
         return duration;
     }

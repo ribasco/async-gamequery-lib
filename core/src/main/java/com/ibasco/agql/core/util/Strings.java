@@ -16,14 +16,32 @@
 
 package com.ibasco.agql.core.util;
 
+/**
+ * <p>Strings class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Strings {
 
+    /** Constant <code>EMPTY=""</code> */
     public static final String EMPTY = "";
 
+    /**
+     * <p>isBlank.</p>
+     *
+     * @param str a {@link java.lang.String} object
+     * @return a boolean
+     */
     public static boolean isBlank(String str) {
         return str == null || "".equals(str.trim());
     }
 
+    /**
+     * <p>isNumeric.</p>
+     *
+     * @param str a {@link java.lang.String} object
+     * @return a boolean
+     */
     public static boolean isNumeric(String str) {
         if (isBlank(str)) {
             return false;
@@ -36,6 +54,13 @@ public class Strings {
         return true;
     }
 
+    /**
+     * <p>defaultIfEmpty.</p>
+     *
+     * @param value a {@link java.lang.String} object
+     * @param defaultValue a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
+     */
     public static String defaultIfEmpty(String value, String defaultValue) {
         return isBlank(value) ? defaultValue : value;
     }

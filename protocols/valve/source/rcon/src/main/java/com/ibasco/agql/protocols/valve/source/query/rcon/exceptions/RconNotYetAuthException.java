@@ -29,11 +29,23 @@ public class RconNotYetAuthException extends RconAuthException {
 
     private final SourceRconAuthReason reason;
 
+    /**
+     * <p>Constructor for RconNotYetAuthException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param reason a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconNotYetAuthException(String message, SourceRconAuthReason reason, InetSocketAddress address) {
         super(message, address);
         this.reason = reason;
     }
 
+    /**
+     * <p>Getter for the field <code>reason</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public final SourceRconAuthReason getReason() {
         return reason;
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,12 +24,17 @@ import com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData;
 
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>SteamCheatReportingService class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SteamCheatReportingService extends SteamWebApiInterface {
     /**
      * <p>Default Constructor</p>
      *
      * @param client
-     *         A {@link SteamWebApiClient} instance
+     *         A {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} instance
      */
     public SteamCheatReportingService(SteamWebApiClient client) {
         super(client);
@@ -39,9 +44,8 @@ public class SteamCheatReportingService extends SteamWebApiInterface {
      * <p>Reports cheat data to Valve</p>
      *
      * @param cheatData
-     *         {@link CheatData} containing all the required parameters
-     *
-     * @return A {@link CompletableFuture} returning a {@link Void} result
+     *         {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData} containing all the required parameters
+     * @return A {@link java.util.concurrent.CompletableFuture} returning a {@link java.lang.Void} result
      */
     public CompletableFuture<Boolean> reportCheatData(CheatData cheatData) {
         CompletableFuture<JsonObject> json = sendRequest(new ReportCheatData(cheatData, VERSION_1));

@@ -17,14 +17,15 @@
 package com.ibasco.agql.core.transport.pool;
 
 import io.netty.channel.Channel;
-import io.netty.channel.EventLoop;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Called before a {@link Channel} will be returned via {@link NettyChannelPool#acquire(InetSocketAddress)} or
- * {@link NettyChannelPool#acquire(InetSocketAddress, CompletableFuture)}.
+ * Called before a {@link io.netty.channel.Channel} will be returned via {@link com.ibasco.agql.core.transport.pool.NettyChannelPool#acquire(InetSocketAddress)} or
+ * {@link com.ibasco.agql.core.transport.pool.NettyChannelPool#acquire(InetSocketAddress, CompletableFuture)}.
+ *
+ * @author Rafael Luis Ibasco
  */
 public interface ChannelHealthChecker {
 
@@ -34,10 +35,13 @@ public interface ChannelHealthChecker {
     ChannelHealthChecker ACTIVE = channel -> channel.isActive() ? CompletableFuture.completedFuture(Boolean.TRUE) : CompletableFuture.completedFuture(Boolean.FALSE);
 
     /**
-     * Check if the given channel is healthy which means it can be used. The returned {@link CompletableFuture} is notified once
-     * the check is complete. If notified with {@link Boolean#TRUE} it can be used {@link Boolean#FALSE} otherwise.
+     * Check if the given channel is healthy which means it can be used. The returned {@link java.util.concurrent.CompletableFuture} is notified once
+     * the check is complete. If notified with {@link java.lang.Boolean#TRUE} it can be used {@link java.lang.Boolean#FALSE} otherwise.
      * <p>
-     * This method will be called by the {@link EventLoop} of the {@link Channel}.
+     * This method will be called by the {@link io.netty.channel.EventLoop} of the {@link io.netty.channel.Channel}.
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Boolean> isHealthy(Channel channel);
 }

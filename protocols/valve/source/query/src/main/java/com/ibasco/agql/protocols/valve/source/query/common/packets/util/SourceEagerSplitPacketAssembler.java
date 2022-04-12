@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Eager implementation of the {@link SourceSplitPacketAssembler}. The split-packet is decoded on-the-fly and the partial packet is then placed into a pre-allocated buffer
+ * Eager implementation of the {@link com.ibasco.agql.protocols.valve.source.query.common.packets.util.SourceSplitPacketAssembler}. The split-packet is decoded on-the-fly and the partial packet is then placed into a pre-allocated buffer
  * whose size is determined based on the initial parameters provided by the incoming split-packet(s). The pre-allocated buffer can then
  * be used as soon as it is marked as completed. Make sure to call {@link #reset()} after consuming the buffer.
  *
@@ -61,11 +61,17 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
 
     private int lastOffset = -1;
 
+    /**
+     * <p>Constructor for SourceEagerSplitPacketAssembler.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     */
     public SourceEagerSplitPacketAssembler(ChannelHandlerContext ctx) {
         this.ctx = ctx;
         this.allocator = ctx.alloc();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean add(SourceQuerySplitPacket splitPacket) {
         Objects.requireNonNull(splitPacket, "Packet cannot be null");
@@ -107,16 +113,19 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         return false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isComplete() {
         return this.completed;
     }
 
+    /** {@inheritDoc} */
     @Override
     public ByteBuf getBuffer() {
         return this.buffer;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int received() {
         if (this.packets == null)
@@ -129,11 +138,13 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         return count;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int count() {
         return this.packetCount;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void reset() {
         this.packets = null;
@@ -162,6 +173,7 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         log.debug("{} ASSEMBLER => Pre-allocated buffer with {} bytes", Netty.id(ctx), bufferSize);
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<ByteBuf> dump() {
         ArrayList<ByteBuf> packets = new ArrayList<>();

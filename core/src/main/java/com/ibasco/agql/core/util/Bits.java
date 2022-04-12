@@ -16,7 +16,19 @@
 
 package com.ibasco.agql.core.util;
 
+/**
+ * <p>Bits class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Bits {
+    /**
+     * <p>isSet.</p>
+     *
+     * @param flags a int
+     * @param flag a int
+     * @return a boolean
+     */
     public static boolean isSet(int flags, int flag) {
         return (flags & flag) == flag;
     }

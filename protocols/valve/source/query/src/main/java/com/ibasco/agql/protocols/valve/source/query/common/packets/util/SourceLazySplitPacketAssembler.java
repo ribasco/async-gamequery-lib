@@ -42,7 +42,7 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 /**
- * A lazy implementation of the {@link SourceSplitPacketAssembler}. Packets will only be re-assembled when {@link #getBuffer()} is
+ * A lazy implementation of the {@link com.ibasco.agql.protocols.valve.source.query.common.packets.util.SourceSplitPacketAssembler}. Packets will only be re-assembled when {@link #getBuffer()} is
  * called and the expected number of packets have been received.
  *
  * @author Rafael Luis Ibasco
@@ -71,11 +71,17 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     private final ChannelHandlerContext ctx;
 
+    /**
+     * <p>Constructor for SourceLazySplitPacketAssembler.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     */
     public SourceLazySplitPacketAssembler(ChannelHandlerContext ctx) {
         this.allocator = Objects.requireNonNull(ctx.alloc());
         this.ctx = ctx;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean add(SourceQuerySplitPacket splitPacket) {
         Objects.requireNonNull(splitPacket, "Packet cannot be null");
@@ -108,11 +114,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         return false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isComplete() {
         return this.completed;
     }
 
+    /** {@inheritDoc} */
     @Override
     public ByteBuf getBuffer() {
         if (!this.completed)
@@ -128,6 +136,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public int received() {
         if (this.packets == null)
@@ -140,11 +149,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         return count;
     }
 
+    /** {@inheritDoc} */
     @Override
     public int count() {
         return this.packetCount;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void reset() {
         //Fixed memory leak. MUST RELEASE INCOMPLETE PACKETS ON RESET
@@ -166,6 +177,7 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         log.debug("{} ASSEMBLER => Successfully reset assembler", Netty.id(ctx));
     }
 
+    /** {@inheritDoc} */
     @Override
     public List<ByteBuf> dump() {
         ArrayList<ByteBuf> packets = new ArrayList<>();

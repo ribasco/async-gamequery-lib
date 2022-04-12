@@ -68,6 +68,11 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     private static final CheckedPredicate<Throwable> TIMEOUT_ERROR = MasterServerMessenger::handleError;
 
+    /**
+     * <p>Constructor for MasterServerMessenger.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     public MasterServerMessenger(Options options) {
         super(options);
         initFailSafe(options, getExecutor());
@@ -79,9 +84,8 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
      * Sends a new request to the master server
      *
      * @param request
-     *         The {@link MasterServerRequest} containing the details of the request.
-     *
-     * @return A {@link CompletableFuture} which is notified once the request has been completed.
+     *         The {@link com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest} containing the details of the request.
+     * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been completed.
      */
     public CompletableFuture<MasterServerResponse> send(MasterServerRequest request) {
         if (this.requestExecutor != null) {
@@ -93,6 +97,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //</editor-fold>
 
     //<editor-fold desc="Protected Methods">
+    /** {@inheritDoc} */
     @Override
     protected void configure(Options options) {
         //we disable using native transports (e.g. epoll) by default. Per my tests, it seems NIO seems to be more reliable.
@@ -102,12 +107,14 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyChannelFactory createChannelFactory() {
         NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP, getOptions(), new MasterServerChannelContextFactory(this));
         return new MasterServerChannelFactory(channelFactory);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void receive(@NotNull NettyChannelContext context, AbstractResponse response, Throwable error) {
         final MasterServerChannelContext masterContext = (MasterServerChannelContext) context;

@@ -16,7 +16,10 @@
 
 package com.ibasco.agql.core;
 
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.reflect.types.CollectionParameterizedType;
 import io.netty.handler.codec.http.HttpStatusClass;
@@ -33,9 +36,10 @@ import java.util.concurrent.CompletableFuture;
  * <p>An API Interface containing a set/group of methods that are usually defined by the publisher</p>
  *
  * @param <C>
- *         Any class extending {@link AbstractRestClient}
+ *         Any class extending {@link com.ibasco.agql.core.AbstractRestClient}
  * @param <R>
- *         Any class extending {@link AbstractWebRequest}
+ *         Any class extending {@link com.ibasco.agql.core.AbstractWebRequest}
+ * @author Rafael Luis Ibasco
  */
 abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R extends AbstractWebApiRequest, S extends AbstractWebApiResponse<JsonElement>> {
 
@@ -50,13 +54,27 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
     /**
      * Used by the underlying concrete classes for api versioning
      */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
     public static final int VERSION_1 = 1, VERSION_2 = 2, VERSION_3 = 3;
 
     /**
      * <p>Default Constructor</p>
      *
      * @param client
-     *         A {@link AbstractRestClient} instance
+     *         A {@link com.ibasco.agql.core.AbstractRestClient} instance
      */
     public AbstractWebApiInterface(C client) {
         this.client = client;
@@ -65,7 +83,7 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
     /**
      * Lazy-Inititalization
      *
-     * @return A {@link Gson} instance
+     * @return A {@link com.google.gson.Gson} instance
      */
     protected Gson builder() {
         if (jsonBuilder == null) {
@@ -75,30 +93,45 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
         return jsonBuilder;
     }
 
+    /**
+     * <p>fromJson.</p>
+     *
+     * @param element a {@link com.google.gson.JsonElement} object
+     * @param typeOf a {@link java.lang.reflect.Type} object
+     * @param <V> a V class
+     * @return a V object
+     */
     protected <V> V fromJson(JsonElement element, Type typeOf) {
         return builder().fromJson(element, typeOf);
     }
 
+    /**
+     * <p>fromJson.</p>
+     *
+     * @param element a {@link com.google.gson.JsonElement} object
+     * @param classTypeOf a {@link java.lang.Class} object
+     * @param <V> a V class
+     * @return a V object
+     */
     protected <V> V fromJson(JsonElement element, Class<V> classTypeOf) {
         return builder().fromJson(element, classTypeOf);
     }
 
     /**
-     * <p>Similar to {@link #asCollectionOf(Class, String, JsonObject, Class, boolean)}  minus the Collection class argument. This also returns a {@link List} collection type instead.</p>
+     * <p>Similar to {@link #asCollectionOf(Class, String, JsonObject, Class, boolean)}  minus the Collection class argument. This also returns a {@link java.util.List} collection type instead.</p>
      *
      * @param itemType
-     *         The {@link Class} type of the item in the {@link Collection}
+     *         The {@link java.lang.Class} type of the item in the {@link java.util.Collection}
      * @param searchKey
-     *         The name of the {@link JsonArray} element that we will convert
+     *         The name of the {@link com.google.gson.JsonArray} element that we will convert
      * @param searchElement
-     *         The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     *         The {@link com.google.gson.JsonObject} that will be used to search for the {@link com.google.gson.JsonArray} element
      * @param strict
      *         If <code>true</code> an exception will be thrown if the listName is not found within the search element specified.
-     *         Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     *         Otherwise no exceptions will be raised and an empty {@link java.util.Collection} instance will be returned.
      * @param <A>
      *         The type of the List to be returned
-     *
-     * @return A {@link List} containing the parsed json entities
+     * @return A {@link java.util.List} containing the parsed json entities
      */
     protected <A> List<A> asListOf(Class itemType, String searchKey, JsonObject searchElement, boolean strict) {
         return asCollectionOf(itemType, searchKey, searchElement, ArrayList.class, strict);
@@ -108,19 +141,18 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
      * <p>A Utility function that retrieves the specified json element and converts it to a Parameterized {@link java.util.Collection} instance.</p>
      *
      * @param itemType
-     *         The {@link Class} type of the item in the {@link Collection}
+     *         The {@link java.lang.Class} type of the item in the {@link java.util.Collection}
      * @param searchKey
-     *         The name of the {@link JsonArray} element that we will convert
+     *         The name of the {@link com.google.gson.JsonArray} element that we will convert
      * @param searchElement
-     *         The {@link JsonObject} that will be used to search for the {@link JsonArray} element
+     *         The {@link com.google.gson.JsonObject} that will be used to search for the {@link com.google.gson.JsonArray} element
      * @param collectionClass
-     *         A {@link Class} representing the concrete implementation of the {@link Collection}
+     *         A {@link java.lang.Class} representing the concrete implementation of the {@link java.util.Collection}
      * @param strict
-     *         If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link Collection} instance will be returned.
+     *         If <code>true</code> an exception will be thrown if the listName is not found within the search element specified. Otherwise no exceptions will be raised and an empty {@link java.util.Collection} instance will be returned.
      * @param <A>
-     *         The internal type of the {@link Collection} to be returned
-     *
-     * @return A {@link Collection} containing the type specified by collectionClass argument
+     *         The internal type of the {@link java.util.Collection} to be returned
+     * @return A {@link java.util.Collection} containing the type specified by collectionClass argument
      */
     protected <A extends Collection> A asCollectionOf(Class itemType, String searchKey, JsonObject searchElement, Class<? extends Collection> collectionClass, boolean strict) {
         if (searchElement.has(searchKey) && searchElement.get(searchKey).isJsonArray()) {
@@ -137,9 +169,9 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
      * <p>Sends a requests to the internal client.</p>
      *
      * @param request
-     *         An instance of {@link AbstractWebRequest}
-     *
-     * @return A {@link CompletableFuture} that will hold the expected value once a response has been received by the server
+     *         An instance of {@link com.ibasco.agql.core.AbstractWebRequest}
+     * @return A {@link java.util.concurrent.CompletableFuture} that will hold the expected value once a response has been received by the server
+     * @param <A> a A class
      */
     protected <A> CompletableFuture<A> sendRequest(R request) {
         return client.send(request).whenComplete(this::handleError).thenApply(this::convertToJson);
@@ -149,7 +181,7 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
      * <p>Override this method if you need to perform additional configurations against the builder (e.g. Register custom deserializers)</p>
      *
      * @param builder
-     *         A {@link GsonBuilder} instance that will be accessed and configured by a concrete {@link AbstractWebApiInterface} implementation
+     *         A {@link com.google.gson.GsonBuilder} instance that will be accessed and configured by a concrete {@link com.ibasco.agql.core.AbstractWebApiInterface} implementation
      */
     protected void configureBuilder(GsonBuilder builder) {
         //no implementation
@@ -159,12 +191,9 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
      * The default error handler. Override this if needed.
      *
      * @param response
-     *         An instance of {@link AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
+     *         An instance of {@link com.ibasco.agql.core.AbstractWebApiResponse} or <code>null</code> if an exception was thrown.
      * @param error
-     *         A {@link Throwable} instance or <code>null</code> if no error has occured.
-     *
-     * @throws WebException
-     *         thrown if a server/client error occurs
+     *         A {@link java.lang.Throwable} instance or <code>null</code> if no error has occured.
      */
     protected void handleError(AbstractWebResponse response, Throwable error) {
         if (error != null)

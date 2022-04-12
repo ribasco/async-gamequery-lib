@@ -23,8 +23,6 @@ import static com.ibasco.agql.core.util.Bits.isSet;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRequest;
-import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
-import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket;
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,19 +35,34 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
- * A special decoder used for messages based on the Source Query Protocol. This handler Accepts either an instance of {@link SourceQueryPacket} or a {@link SourceQueryResponse}
+ * A special decoder used for messages based on the Source Query Protocol. This handler Accepts either an instance of {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket} or a {@link com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse}
  *
  * @param <T>
- *         The type of {@link SourceQueryRequest} this decoder will handle/process
- *
+ *         The type of {@link com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRequest} this decoder will handle/process
  * @author Rafael Luis Ibasco
  */
 abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends MessageInboundHandler {
 
+    /**
+     * <p>acceptPacket.</p>
+     *
+     * @param msg a {@link com.ibasco.agql.protocols.valve.source.query.common.handlers.SourceQueryDecoder.SourceQueryMessage} object
+     * @return a boolean
+     */
     abstract protected boolean acceptPacket(final SourceQueryMessage msg);
 
+    /**
+     * <p>decodePacket.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param request a T object
+     * @param msg a {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} object
+     * @return a {@link java.lang.Object} object
+     * @throws java.lang.Exception if any.
+     */
     abstract protected Object decodePacket(ChannelHandlerContext ctx, T request, final SourceQuerySinglePacket msg) throws Exception;
 
+    /** {@inheritDoc} */
     @Override
     public final void readMessage(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -95,18 +108,72 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     //<editor-fold desc="Utility Functions for Sub-classes">
+    /**
+     * <p>decodeFlag.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param flags a int
+     * @param flag a int
+     * @param reader a {@link java.util.function.Supplier} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeFlag(String name, ByteBuf buf, int flags, int flag, Supplier<A> reader, Consumer<B> writer) throws DecodeException {
         decodeFlag(name, buf, flags, flag, reader, writer, null);
     }
 
+    /**
+     * <p>decodeFlag.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param flags a int
+     * @param flag a int
+     * @param reader a {@link java.util.function.Supplier} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param transformer a {@link java.util.function.Function} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeFlag(String name, ByteBuf buf, int flags, int flag, Supplier<A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         decodeFlag(name, buf, flags, flag, buf1 -> reader.get(), writer, transformer);
     }
 
+    /**
+     * <p>decodeFlag.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param flags a int
+     * @param flag a int
+     * @param reader a {@link java.util.function.Function} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeFlag(String name, ByteBuf buf, int flags, int flag, Function<ByteBuf, A> reader, Consumer<B> writer) throws DecodeException {
         decodeFlag(name, buf, flags, flag, reader, writer, null);
     }
 
+    /**
+     * <p>decodeFlag.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param flags a int
+     * @param flag a int
+     * @param reader a {@link java.util.function.Function} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param transformer a {@link java.util.function.Function} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeFlag(String name, ByteBuf buf, int flags, int flag, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!isSet(flags, flag)) {
             debug("[O2] Flag '{}' not set. Skipping (Readable bytes: {})", name, buf.readableBytes());
@@ -133,18 +200,64 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
         }
     }
 
+    /**
+     * <p>decodeField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param reader a {@link java.util.function.Supplier} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeField(String name, ByteBuf buf, Supplier<A> reader, Consumer<B> writer) throws DecodeException {
         decodeField(name, buf, reader, writer, null);
     }
 
+    /**
+     * <p>decodeField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param reader a {@link java.util.function.Supplier} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param transformer a {@link java.util.function.Function} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeField(String name, ByteBuf buf, Supplier<A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         decodeField(name, buf, b -> reader.get(), writer, transformer);
     }
 
+    /**
+     * <p>decodeField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param reader a {@link java.util.function.Function} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer) throws DecodeException {
         decodeField(name, buf, reader, writer, null);
     }
 
+    /**
+     * <p>decodeField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param reader a {@link java.util.function.Function} object
+     * @param writer a {@link java.util.function.Consumer} object
+     * @param transformer a {@link java.util.function.Function} object
+     * @param <A> a A class
+     * @param <B> a B class
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <A, B> void decodeField(String name, ByteBuf buf, Function<ByteBuf, A> reader, Consumer<B> writer, Function<A, B> transformer) throws DecodeException {
         if (!buf.isReadable()) {
             error("[O1] Skipped decoding field '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());
@@ -167,6 +280,17 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
         }
     }
 
+    /**
+     * <p>decodeField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param defaultValue a V object
+     * @param buf a {@link io.netty.buffer.ByteBuf} object
+     * @param decoder a {@link java.util.function.Function} object
+     * @param <V> a V class
+     * @return a V object
+     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     */
     protected <V> V decodeField(String name, V defaultValue, ByteBuf buf, Function<ByteBuf, V> decoder) throws DecodeException {
         if (!buf.isReadable()) {
             error("[O2] Skipped decoding field '{}'. Not enough bytes, packet is incomplete. (Reader Index: {}, Readable Bytes: {})", name, buf.readerIndex(), buf.readableBytes());

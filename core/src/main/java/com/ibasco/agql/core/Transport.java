@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,12 +22,21 @@ import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
 /**
+ * <p>Transport interface.</p>
+ *
  * @param <S>
  *         The return type of the transport
  * @param <R>
  *         The parameter type accepted by {@link #send(Object)}
+ * @author Rafael Luis Ibasco
  */
 public interface Transport<S, R> extends Closeable, Configurable {
 
+    /**
+     * <p>send.</p>
+     *
+     * @param data a R object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     CompletableFuture<S> send(R data);
 }

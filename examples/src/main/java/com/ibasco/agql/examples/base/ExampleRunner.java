@@ -25,6 +25,11 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>ExampleRunner class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ExampleRunner {
 
     private static final Logger log = LoggerFactory.getLogger(ExampleRunner.class);
@@ -41,6 +46,9 @@ public class ExampleRunner {
 
     private volatile boolean closed;
 
+    /**
+     * <p>Constructor for ExampleRunner.</p>
+     */
     public ExampleRunner() {
         this.examples.put("source-query", new SourceQueryExample());
         this.examples.put("master-query", new MasterQueryExample());
@@ -105,11 +113,20 @@ public class ExampleRunner {
         }
     }
 
+    /**
+     * <p>clearConsole.</p>
+     */
     public static void clearConsole() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
     }
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         try {
             new ExampleRunner().processArguments(args);

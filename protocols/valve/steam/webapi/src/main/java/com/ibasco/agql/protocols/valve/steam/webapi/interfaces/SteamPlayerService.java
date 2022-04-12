@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,13 +35,27 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Created by raffy on 10/26/2016.
+ *
+ * @author Rafael Luis Ibasco
  */
 public class SteamPlayerService extends SteamWebApiInterface {
 
+    /**
+     * <p>Constructor for SteamPlayerService.</p>
+     *
+     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     */
     public SteamPlayerService(SteamWebApiClient client) {
         super(client);
     }
 
+    /**
+     * <p>getRecentlyPlayedGames.</p>
+     *
+     * @param steamId a long
+     * @param count a int
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamPlayerRecentPlayed>> getRecentlyPlayedGames(long steamId, int count) {
         CompletableFuture<JsonObject> json = sendRequest(new GetRecentlyPlayedGames(VERSION_1, steamId, count));
         return json.thenApply(root -> {
@@ -51,6 +65,14 @@ public class SteamPlayerService extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getOwnedGames.</p>
+     *
+     * @param steamId a long
+     * @param includeAppInfo a boolean
+     * @param includePlayedFreeGames a boolean
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamPlayerOwnedGame>> getOwnedGames(long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
         CompletableFuture<JsonObject> json = sendRequest(new GetOwnedGames(VERSION_1, steamId, includeAppInfo, includePlayedFreeGames));
         return json.thenApply(root -> {
@@ -61,6 +83,12 @@ public class SteamPlayerService extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getBadges.</p>
+     *
+     * @param steamId a long
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<SteamPlayerBadgeInfo> getBadges(long steamId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetBadges(VERSION_1, steamId));
         return json.thenApply(root -> {
@@ -69,10 +97,23 @@ public class SteamPlayerService extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getCommunityBadgeProgress.</p>
+     *
+     * @param steamId a long
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamQuestStatus>> getCommunityBadgeProgress(long steamId) {
         return getCommunityBadgeProgress(steamId, -1);
     }
 
+    /**
+     * <p>getCommunityBadgeProgress.</p>
+     *
+     * @param steamId a long
+     * @param badgeId a int
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamQuestStatus>> getCommunityBadgeProgress(long steamId, int badgeId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetCommunityBadgeProgress(VERSION_1, steamId, badgeId));
         return json.thenApply(root -> {
@@ -84,11 +125,24 @@ public class SteamPlayerService extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getSteamLevel.</p>
+     *
+     * @param steamId a long
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<Integer> getSteamLevel(long steamId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetSteamLevel(VERSION_1, steamId));
         return json.thenApply(root -> root.getAsJsonObject("response").getAsJsonPrimitive("player_level").getAsInt());
     }
 
+    /**
+     * <p>getSteamGameLenderId.</p>
+     *
+     * @param steamId a long
+     * @param appId a int
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<String> getSteamGameLenderId(long steamId, int appId) {
         CompletableFuture<JsonObject> json = sendRequest(new GetSteamGameLenderId(VERSION_1, steamId, appId));
         return json.thenApply(root -> root.getAsJsonObject("response").getAsJsonPrimitive("lender_steamid").getAsString());

@@ -27,6 +27,11 @@ import io.netty.channel.socket.DatagramPacket;
 
 import java.util.List;
 
+/**
+ * <p>Abstract SourceQueryAuthEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class SourceQueryAuthEncoder<T extends SourceQueryAuthRequest> extends SourceQueryEncoder<T> {
 
     private final Class<T> requestClass;
@@ -37,25 +42,47 @@ abstract public class SourceQueryAuthEncoder<T extends SourceQueryAuthRequest> e
 
     private static final int DEFAULT_INITIAL_CAPACITY = 9;
 
+    /**
+     * <p>Constructor for SourceQueryAuthEncoder.</p>
+     *
+     * @param requestClass a {@link java.lang.Class} object
+     * @param requestHeader a int
+     */
     protected SourceQueryAuthEncoder(Class<T> requestClass, int requestHeader) {
         this(requestClass, requestHeader, DEFAULT_INITIAL_CAPACITY);
     }
 
+    /**
+     * <p>Constructor for SourceQueryAuthEncoder.</p>
+     *
+     * @param requestClass a {@link java.lang.Class} object
+     * @param requestHeader a int
+     * @param initialCapacity a int
+     */
     protected SourceQueryAuthEncoder(Class<T> requestClass, int requestHeader, int initialCapacity) {
         this.requestClass = requestClass;
         this.requestHeader = requestHeader;
         this.initialCapacity = initialCapacity;
     }
 
+    /**
+     * <p>encodeChallenge.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param request a T object
+     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     */
     protected void encodeChallenge(ChannelHandlerContext ctx, T request, ByteBuf payload) {
         payload.writeIntLE(request.getChallenge() == null ? -1 : request.getChallenge());
     }
 
+    /** {@inheritDoc} */
     @Override
     protected final boolean acceptQueryRequest(Class<? extends SourceQueryRequest> cls, Envelope<SourceQueryRequest> envelope) {
         return this.requestClass.equals(cls) && SourceQueryAuthRequest.class.isAssignableFrom(cls);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeQueryRequest(ChannelHandlerContext ctx, Envelope<T> msg, List<Object> out) throws Exception {
         ByteBuf payload = ctx.alloc().directBuffer(this.initialCapacity);

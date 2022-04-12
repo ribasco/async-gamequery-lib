@@ -18,8 +18,19 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.exceptions;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>RconInvalidCredentialsException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class RconInvalidCredentialsException extends RconAuthException {
 
+    /**
+     * <p>Constructor for RconInvalidCredentialsException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param address a {@link java.net.InetSocketAddress} object
+     */
     public RconInvalidCredentialsException(String message, InetSocketAddress address) {
         super(message, address);
     }

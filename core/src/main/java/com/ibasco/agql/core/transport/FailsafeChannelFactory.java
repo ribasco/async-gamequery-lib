@@ -38,7 +38,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.RejectedExecutionException;
 
 /**
- * Adds {@link Failsafe} support for the underlying {@link NettyChannelFactory}.
+ * Adds {@link dev.failsafe.Failsafe} support for the underlying {@link com.ibasco.agql.core.transport.NettyChannelFactory}.
  *
  * @author Rafael Luis Ibasco
  */
@@ -54,18 +54,30 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final FailsafeExecutor<Channel> acquireExecutor;
 
+    /**
+     * <p>Constructor for FailsafeChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
         this.acquireExecutor = Failsafe.with(newRetryPolicy()).with(channelFactory.getExecutor());
     }
 
+    /**
+     * <p>configureRetryPolicy.</p>
+     *
+     * @param builder a {@link dev.failsafe.RetryPolicyBuilder} object
+     */
     protected void configureRetryPolicy(RetryPolicyBuilder<Channel> builder) {}
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
         return acquireExecutor.getStageAsync(getContextualSupplier(data));
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
         return Netty.useEventLoop(create(data), eventLoop);
@@ -79,14 +91,14 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
                           .onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
                               @Override
                               public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
-                                  System.err.printf("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)\n", event.getLastException(), event.getAttemptCount());
+                                  //System.err.printf("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)\n", event.getLastException(), event.getAttemptCount());
                                   log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
                               }
                           })
                           .onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
                               @Override
                               public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                                  System.err.printf("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)\n", event.getException(), event.getAttemptCount());
+                                  //System.err.printf("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)\n", event.getException(), event.getAttemptCount());
                               }
                           })
                           //.onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A"))

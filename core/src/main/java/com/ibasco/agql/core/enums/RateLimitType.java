@@ -51,7 +51,7 @@ public enum RateLimitType {
     /**
      * Returns the builder function for creating the type of Rate Limiter
      *
-     * @return A {@link BiFunction}
+     * @return A {@link java.util.function.BiFunction}
      */
     public BiFunction<Long, Duration, RateLimiterBuilder<?>> getBuilder() {
         return function;

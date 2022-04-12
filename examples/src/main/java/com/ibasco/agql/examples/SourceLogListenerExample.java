@@ -25,9 +25,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
+/**
+ * <p>SourceLogListenerExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceLogListenerExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenerExample.class);
@@ -35,25 +38,31 @@ public class SourceLogListenerExample extends BaseExample {
     private SourceLogListenService logListenService;
 
     private static void processLogData(SourceLogEntry message) {
-        if (message.getMessage().contains("say") || message.getMessage().contains("say_team"))
-            log.info("{}", message.getMessage());
+        System.out.printf("\u001B[36m%s:\u001B[0m %s\n", message.getSourceAddress(), message.getMessage());
     }
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         new SourceLogListenerExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         String address = promptInput("Please enter server address to listen on: ", true, null, "listenAddress");
-        int port = Integer.parseInt(promptInput("Please enter the server port (default: 27500) : ", false, "27500"));
-        ScheduledExecutorService executorService = Executors.newScheduledThreadPool(5);
-        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData, executorService, 0, true);
-        log.info("Listening to {}:{}", address, port);
+        int port = promptInputInt("Please enter the server port (default: 27500) : ", false, "27500");
+        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
         CompletableFuture<Void> f = logListenService.listen();
         f.join();
+        System.out.println("Log service has been closed");
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         logListenService.close();

@@ -33,7 +33,7 @@ import java.nio.channels.UnsupportedAddressTypeException;
 import java.util.*;
 
 /**
- * Default implementation for {@link ChannelRegistry}. Uses a {@link SetMultimap} to store managed netty based {@link Channel} instances.
+ * Default implementation for {@link com.ibasco.agql.core.ChannelRegistry}. Uses a {@link com.google.common.collect.SetMultimap} to store managed netty based {@link io.netty.channel.Channel} instances.
  *
  * @author Rafael Luis Ibasco
  */
@@ -52,6 +52,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     };
 
+    /** {@inheritDoc} */
     @Override
     public void register(Channel channel) throws ChannelRegistrationException {
         assert channel.eventLoop().inEventLoop();
@@ -71,6 +72,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean unregister(Channel channel) {
         if (channel == null)
@@ -94,6 +96,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isRegistered(Channel channel) {
         if (channel == null)
@@ -107,6 +110,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         return false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Set<Map.Entry<InetSocketAddress, Channel>> getEntries() {
         synchronized (channels) {
@@ -114,6 +118,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Set<InetSocketAddress> getAddresses() {
         synchronized (channels) {
@@ -121,6 +126,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public Set<Channel> getChannels(InetSocketAddress address) {
         synchronized (channels) {
@@ -128,6 +134,7 @@ public class SourceRconChannelRegistry implements ChannelRegistry {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public int getCount(InetSocketAddress address) {
         synchronized (channels) {

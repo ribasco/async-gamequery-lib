@@ -32,6 +32,11 @@ import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * <p>MasterServerAddressDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
     private Set<InetSocketAddress> fullSet;
@@ -40,6 +45,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
     private boolean terminatorReceived;
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
         if (!(request instanceof MasterServerRequest)) {
@@ -48,6 +54,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         return msg instanceof MasterServerAddressPacket;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -73,6 +80,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug("MASTER => CHANNEL READ COMPLETE (Terminator received: {}, Last Seed Address: {})", terminatorReceived);
@@ -85,6 +93,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         super.channelReadComplete(ctx);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         debug("MASTER => Initializing Address Set");
@@ -93,6 +102,7 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         terminatorReceived = false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
         partialSet = null;

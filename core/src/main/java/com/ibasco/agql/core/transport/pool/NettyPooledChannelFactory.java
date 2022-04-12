@@ -33,7 +33,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * A decorator for {@link NettyChannelFactory} which adds support for {@link Channel} pooling.
+ * A decorator for {@link com.ibasco.agql.core.transport.NettyChannelFactory} which adds support for {@link io.netty.channel.Channel} pooling.
  *
  * @author Rafael Luis Ibasco
  */
@@ -46,10 +46,10 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
     private final NettyChannelPoolFactory channelPoolFactory;
 
     /**
-     * Creates a new instance using the provided {@link NettyChannelFactory}. A default {@link NettyChannelPoolFactoryProvider} will be used to obtain a {@link NettyChannelPoolFactory}
+     * Creates a new instance using the provided {@link com.ibasco.agql.core.transport.NettyChannelFactory}. A default {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactoryProvider} will be used to obtain a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory}
      *
      * @param channelFactory
-     *         The {@link NettyChannelFactory} that will be used to create {@link Channel} instances
+     *         The {@link com.ibasco.agql.core.transport.NettyChannelFactory} that will be used to create {@link io.netty.channel.Channel} instances
      */
     public NettyPooledChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
@@ -60,6 +60,7 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
         log.debug("[INIT] POOL => Using channel pool map '{}'", this.channelPoolMap);
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
         final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
@@ -69,24 +70,37 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
         return pool.acquire(remoteAddress);
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
         return Netty.useEventLoop(create(data), eventLoop);
     }
 
+    /**
+     * <p>Getter for the field <code>channelPoolFactory</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
+     */
     public NettyChannelPoolFactory getChannelPoolFactory() {
         return this.channelPoolFactory;
     }
 
+    /**
+     * <p>getChannelFactory.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public NettyChannelFactory getChannelFactory() {
         return this.channelPoolFactory.getChannelFactory();
     }
 
+    /** {@inheritDoc} */
     @Override
     public EventLoopGroup getExecutor() {
         return channelPoolFactory.getChannelFactory().getExecutor();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         this.channelPoolMap.close();

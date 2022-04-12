@@ -21,10 +21,16 @@ import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>DefaultNettyChannelPoolFactoryProvider class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultNettyChannelPoolFactoryProvider implements NettyChannelPoolFactoryProvider {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultNettyChannelPoolFactoryProvider.class);
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelPoolFactory getFactory(final ChannelPoolType type, final NettyChannelFactory channelFactory) {
         NettyChannelPoolFactory poolFactory;

@@ -19,18 +19,34 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.message;
 import com.ibasco.agql.core.AbstractRequest;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
+/**
+ * <p>Abstract SourceRconRequest class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class SourceRconRequest extends AbstractRequest {
 
     private int requestId;
 
+    /**
+     * <p>Getter for the field <code>requestId</code>.</p>
+     *
+     * @return a int
+     */
     public int getRequestId() {
         return requestId;
     }
 
+    /**
+     * <p>Setter for the field <code>requestId</code>.</p>
+     *
+     * @param requestId a int
+     */
     public void setRequestId(int requestId) {
         this.requestId = requestId;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void buildToString(ToStringBuilder builder) {
         super.buildToString(builder);

@@ -19,22 +19,44 @@ package com.ibasco.agql.protocols.valve.steam.master.message;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
+/**
+ * <p>MasterServerPartialResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerPartialResponse extends MasterServerResponse {
 
     private final boolean endOfResponse;
 
     private final InetSocketAddress lastSeedAddress;
 
+    /**
+     * <p>Constructor for MasterServerPartialResponse.</p>
+     *
+     * @param serverList a {@link java.util.Set} object
+     * @param endOfResponse a boolean
+     * @param lastSeedAddress a {@link java.net.InetSocketAddress} object
+     */
     public MasterServerPartialResponse(Set<InetSocketAddress> serverList, boolean endOfResponse, InetSocketAddress lastSeedAddress) {
         super(serverList);
         this.endOfResponse = endOfResponse;
         this.lastSeedAddress = lastSeedAddress;
     }
 
+    /**
+     * <p>Getter for the field <code>lastSeedAddress</code>.</p>
+     *
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     public final InetSocketAddress getLastSeedAddress() {
         return lastSeedAddress;
     }
 
+    /**
+     * <p>isEndOfResponse.</p>
+     *
+     * @return a boolean
+     */
     public final boolean isEndOfResponse() {
         return endOfResponse;
     }

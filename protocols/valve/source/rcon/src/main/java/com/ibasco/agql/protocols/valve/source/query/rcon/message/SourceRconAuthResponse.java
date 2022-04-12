@@ -18,30 +18,62 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.message;
 
 import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
 
+/**
+ * <p>SourceRconAuthResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public final class SourceRconAuthResponse extends SourceRconResponse<Boolean> {
 
     private final String reason;
 
     private final SourceRconAuthReason reasonCode;
 
+    /**
+     * <p>Constructor for SourceRconAuthResponse.</p>
+     *
+     * @param authenticated a boolean
+     */
     public SourceRconAuthResponse(boolean authenticated) {
         this(authenticated, null, null);
     }
 
+    /**
+     * <p>Constructor for SourceRconAuthResponse.</p>
+     *
+     * @param authenticated a boolean
+     * @param reason a {@link java.lang.String} object
+     * @param reasonCode a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public SourceRconAuthResponse(boolean authenticated, String reason, SourceRconAuthReason reasonCode) {
         super(authenticated);
         this.reason = reason;
         this.reasonCode = reasonCode;
     }
 
+    /**
+     * <p>isAuthenticated.</p>
+     *
+     * @return a boolean
+     */
     public boolean isAuthenticated() {
         return super.getResult();
     }
 
+    /**
+     * <p>Getter for the field <code>reason</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
     public String getReason() {
         return reason;
     }
 
+    /**
+     * <p>Getter for the field <code>reasonCode</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public SourceRconAuthReason getReasonCode() {
         return reasonCode;
     }

@@ -29,6 +29,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.function.BiConsumer;
 
+/**
+ * <p>Abstract MessageOutboundHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapter {
 
     private final Logger log;
@@ -39,20 +44,38 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
 
     private final Class<?> filterMessageType;
 
+    /**
+     * <p>Constructor for MessageOutboundHandler.</p>
+     */
     protected MessageOutboundHandler() {
         this(null, null);
     }
 
+    /**
+     * <p>Constructor for MessageOutboundHandler.</p>
+     *
+     * @param filterRequestClass a {@link java.lang.Class} object
+     * @param filterMessageType a {@link java.lang.Class} object
+     */
     protected MessageOutboundHandler(Class<? extends AbstractRequest> filterRequestClass, Class<?> filterMessageType) {
         this.log = LoggerFactory.getLogger(this.getClass());
         this.filterRequestClass = filterRequestClass;
         this.filterMessageType = filterMessageType;
     }
 
+    /**
+     * <p>writeMessage.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg a {@link java.lang.Object} object
+     * @param promise a {@link io.netty.channel.ChannelPromise} object
+     * @throws java.lang.Exception if any.
+     */
     protected void writeMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ctx.write(msg, promise);
     }
 
+    /** {@inheritDoc} */
     @Override
     public final void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ensureValidState();
@@ -67,12 +90,14 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
         writeMessage(ctx, msg, promise);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
         this.channel = ctx.channel();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         this.channel = null;
@@ -86,35 +111,82 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
             throw new IllegalStateException("Request envelope's content is null");
     }
 
+    /**
+     * <p>getContext.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     protected final NettyChannelContext getContext() {
         assert channel != null;
         return NettyChannelContext.getContext(channel);
     }
 
+    /**
+     * <p>getRequest.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.Envelope} object
+     */
     protected final Envelope<AbstractRequest> getRequest() {
         return getContext().properties().envelope();
     }
 
+    /**
+     * <p>trace.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void trace(String msg, Object... args) {
         log(msg, log::trace, args);
     }
 
+    /**
+     * <p>error.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void error(String msg, Object... args) {
         log(msg, log::error, args);
     }
 
+    /**
+     * <p>info.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void info(String msg, Object... args) {
         log(msg, log::info, args);
     }
 
+    /**
+     * <p>debug.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void debug(String msg, Object... args) {
         log(msg, log::debug, args);
     }
 
+    /**
+     * <p>warn.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void warn(String msg, Object... args) {
         log(msg, log::warn, args);
     }
 
+    /**
+     * <p>log.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param level a {@link java.util.function.BiConsumer} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
         level.accept(String.format("%s INB => %s", Netty.id(channel), msg), args);
     }

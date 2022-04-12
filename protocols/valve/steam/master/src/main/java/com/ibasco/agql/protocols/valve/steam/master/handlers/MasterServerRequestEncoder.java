@@ -26,13 +26,20 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 
+/**
+ * <p>MasterServerRequestEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerRequestEncoder extends MessageOutboundEncoder<MasterServerRequest> {
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(Class<MasterServerRequest> requestClass, Envelope<MasterServerRequest> envelope) throws Exception {
         return MasterServerRequest.class.equals(requestClass);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeMessage(ChannelHandlerContext ctx, Envelope<MasterServerRequest> msg, List<Object> out) throws Exception {
         MasterServerRequest request = msg.content();

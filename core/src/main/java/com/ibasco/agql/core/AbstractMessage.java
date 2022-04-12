@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,15 +22,22 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 
 import java.util.Objects;
 
+/**
+ * <p>Abstract AbstractMessage class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class AbstractMessage implements Message {
 
     private final UUID id = UUID.create();
 
+    /** {@inheritDoc} */
     @Override
     public final UUID id() {
         return id;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -39,15 +46,22 @@ abstract public class AbstractMessage implements Message {
         return id().equals(that.id());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(id());
     }
 
+    /**
+     * <p>buildToString.</p>
+     *
+     * @param builder a {@link org.apache.commons.lang3.builder.ToStringBuilder} object
+     */
     protected void buildToString(ToStringBuilder builder) {
         builder.append("id", this.id());
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);

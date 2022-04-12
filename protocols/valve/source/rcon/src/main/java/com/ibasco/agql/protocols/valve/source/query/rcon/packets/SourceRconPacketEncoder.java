@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Encodes a {@link SourceRconPacket} into a {@link ByteBuf} instance which can then be sent over the transport
+ * Encodes a {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} into a {@link io.netty.buffer.ByteBuf} instance which can then be sent over the transport
  *
  * @author Rafael Luis Ibasco
  */
@@ -35,14 +35,23 @@ public class SourceRconPacketEncoder implements PacketEncoder<SourceRconPacket> 
 
     private final ByteBufAllocator allocator;
 
+    /**
+     * <p>Constructor for SourceRconPacketEncoder.</p>
+     */
     public SourceRconPacketEncoder() {
         this(null);
     }
 
+    /**
+     * <p>Constructor for SourceRconPacketEncoder.</p>
+     *
+     * @param allocator a {@link io.netty.buffer.ByteBufAllocator} object
+     */
     public SourceRconPacketEncoder(ByteBufAllocator allocator) {
         this.allocator = allocator == null ? PooledByteBufAllocator.DEFAULT : allocator;
     }
 
+    /** {@inheritDoc} */
     @Override
     public ByteBuf encode(SourceRconPacket packet) throws PacketEncodeException {
         try {

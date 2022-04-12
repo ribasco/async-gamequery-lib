@@ -18,11 +18,24 @@ package com.ibasco.agql.protocols.valve.source.query.rules;
 
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryAuthRequest;
 
+/**
+ * <p>SourceQueryRulesRequest class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryRulesRequest extends SourceQueryAuthRequest {
 
+    /**
+     * <p>Constructor for SourceQueryRulesRequest.</p>
+     */
     public SourceQueryRulesRequest() {
     }
 
+    /**
+     * <p>Constructor for SourceQueryRulesRequest.</p>
+     *
+     * @param challenge a {@link java.lang.Integer} object
+     */
     public SourceQueryRulesRequest(Integer challenge) {
         super(challenge);
     }

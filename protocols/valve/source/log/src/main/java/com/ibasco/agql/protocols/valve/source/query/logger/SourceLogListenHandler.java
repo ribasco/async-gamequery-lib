@@ -37,6 +37,7 @@ public class SourceLogListenHandler extends SimpleChannelInboundHandler<Datagram
 
     static final AttributeKey<AtomicReference<Consumer<SourceLogEntry>>> CALLBACK = AttributeKey.newInstance("sourceLogCallback");
 
+    /** {@inheritDoc} */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg) throws Exception {
         ByteBuf data = msg.content();

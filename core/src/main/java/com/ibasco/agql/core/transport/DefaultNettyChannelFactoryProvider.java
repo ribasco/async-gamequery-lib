@@ -21,8 +21,14 @@ import com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.TransportOptions;
 
+/**
+ * <p>DefaultNettyChannelFactoryProvider class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultNettyChannelFactoryProvider implements NettyChannelFactoryProvider {
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelFactory getFactory(final TransportType type, final Options options) {
         if (options == null)
@@ -44,11 +50,13 @@ public class DefaultNettyChannelFactoryProvider implements NettyChannelFactoryPr
         return factory;
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyContextChannelFactory getContextualFactory(final TransportType type, final Options options) {
         return getContextualFactory(type, options, null);
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyContextChannelFactory getContextualFactory(final TransportType type, final Options options, NettyChannelContextFactory contextFactory) {
         if (options == null)

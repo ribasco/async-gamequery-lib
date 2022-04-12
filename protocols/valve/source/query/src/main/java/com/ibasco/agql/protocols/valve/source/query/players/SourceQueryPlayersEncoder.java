@@ -19,8 +19,16 @@ package com.ibasco.agql.protocols.valve.source.query.players;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.common.handlers.SourceQueryAuthEncoder;
 
+/**
+ * <p>SourceQueryPlayersEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryPlayersEncoder extends SourceQueryAuthEncoder<SourceQueryPlayerRequest> {
 
+    /**
+     * <p>Constructor for SourceQueryPlayersEncoder.</p>
+     */
     public SourceQueryPlayersEncoder() {
         super(SourceQueryPlayerRequest.class, SourceQuery.SOURCE_QUERY_PLAYER_REQ);
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,12 +26,28 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Abstract Dota2WebApiInterface class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class Dota2WebApiInterface extends AbstractWebApiInterface<SteamWebApiClient, Dota2WebApiRequest, Dota2WebApiResponse> {
 
+    /**
+     * <p>Constructor for Dota2WebApiInterface.</p>
+     *
+     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     */
     public Dota2WebApiInterface(SteamWebApiClient client) {
         super(client);
     }
 
+    /**
+     * <p>getValidResult.</p>
+     *
+     * @param json a {@link com.google.gson.JsonObject} object
+     * @return a {@link com.google.gson.JsonObject} object
+     */
     protected JsonObject getValidResult(JsonObject json) {
         JsonObject result = json.getAsJsonObject("result");
         if (result != null)
@@ -39,10 +55,20 @@ abstract public class Dota2WebApiInterface extends AbstractWebApiInterface<Steam
         throw new Dota2WebException(String.format("The response either did not contain the desired result or the server responded in error. (JSON = %s)", json));
     }
 
+    /**
+     * <p>asCollectionOf.</p>
+     *
+     * @param type a {@link java.lang.Class} object
+     * @param listName a {@link java.lang.String} object
+     * @param root a {@link com.google.gson.JsonObject} object
+     * @param <T> a T class
+     * @return a {@link java.util.List} object
+     */
     protected <T> List<T> asCollectionOf(Class type, String listName, JsonObject root) {
         return asListOf(type, listName, root, false);
     }
 
+    /** {@inheritDoc} */
     @SuppressWarnings("all")
     protected <T> List<T> asListOf(Class type, String listName, JsonObject root, boolean strict) {
         //Process json

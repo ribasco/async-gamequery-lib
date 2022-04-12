@@ -34,7 +34,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 
 /**
- * The default {@link RconAuthenticator}.
+ * The default {@link com.ibasco.agql.protocols.valve.source.query.rcon.RconAuthenticator}.
  *
  * @author Rafael Luis Ibasco
  */
@@ -50,11 +50,18 @@ public class SourceRconAuthenticator implements RconAuthenticator {
 
     static final String NOT_YET_AUTH_MSG = "Address '%s' has not yet been authenticated by the server. Use authenticate()";
 
+    /**
+     * <p>Constructor for SourceRconAuthenticator.</p>
+     *
+     * @param credentialsStore a {@link com.ibasco.agql.core.CredentialsStore} object
+     * @param reauthenticate a boolean
+     */
     public SourceRconAuthenticator(CredentialsStore credentialsStore, boolean reauthenticate) {
         this.credentialsStore = credentialsStore;
         this.reauthenticate = reauthenticate;
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<SourceRconChannelContext> authenticate(SourceRconChannelContext context) {
         //check request type

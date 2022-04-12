@@ -20,12 +20,23 @@ import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
 import io.netty.channel.Channel;
 
+/**
+ * <p>MasterServerChannelContextFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerChannelContextFactory extends DefaultChannlContextFactory<MasterServerMessenger> {
 
+    /**
+     * <p>Constructor for MasterServerChannelContextFactory.</p>
+     *
+     * @param messenger a {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger} object
+     */
     public MasterServerChannelContextFactory(MasterServerMessenger messenger) {
         super(messenger);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyChannelContext newChannelContext(Channel channel, MasterServerMessenger messenger) {
         return new MasterServerChannelContext(channel, messenger);

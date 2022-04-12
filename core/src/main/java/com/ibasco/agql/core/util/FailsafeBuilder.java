@@ -16,10 +16,8 @@
 
 package com.ibasco.agql.core.util;
 
-import dev.failsafe.Failsafe;
-
 /**
- * A convenience class that assists in building {@link Failsafe} policies and executors
+ * A convenience class that assists in building {@link dev.failsafe.Failsafe} policies and executors
  *
  * @author Rafael Luis Ibasco
  */
@@ -29,6 +27,11 @@ public class FailsafeBuilder {
 
     }
 
+    /**
+     * <p>newBuilder.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.util.FailsafeBuilder} object
+     */
     public static FailsafeBuilder newBuilder() {
         return new FailsafeBuilder();
     }

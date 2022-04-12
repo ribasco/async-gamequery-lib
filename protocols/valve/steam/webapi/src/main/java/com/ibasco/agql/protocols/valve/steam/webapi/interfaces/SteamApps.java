@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -40,15 +40,27 @@ import java.util.concurrent.CompletableFuture;
 
 /**
  * Contains the methods for the ISteamApps interface
+ *
+ * @author Rafael Luis Ibasco
  */
 public class SteamApps extends SteamWebApiInterface {
 
     private static final Logger log = LoggerFactory.getLogger(SteamApps.class);
 
+    /**
+     * <p>Constructor for SteamApps.</p>
+     *
+     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     */
     public SteamApps(SteamWebApiClient client) {
         super(client);
     }
 
+    /**
+     * <p>getAppList.</p>
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamApp>> getAppList() {
         CompletableFuture<JsonObject> json = sendRequest(new GetAppList(VERSION_2));
         return json.thenApply((JsonObject element) -> {
@@ -61,10 +73,23 @@ public class SteamApps extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getServersAtAddress.</p>
+     *
+     * @param address a {@link java.lang.String} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     * @throws java.net.UnknownHostException if any.
+     */
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(String address) throws UnknownHostException {
         return getServersAtAddress(InetAddress.getByName(address));
     }
 
+    /**
+     * <p>getServersAtAddress.</p>
+     *
+     * @param address a {@link java.net.InetAddress} object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(InetAddress address) {
         CompletableFuture<JsonObject> json = sendRequest(new GetServersAtAddress(1, address.getHostAddress()));
         return json.thenApply(root -> {
@@ -80,6 +105,13 @@ public class SteamApps extends SteamWebApiInterface {
         });
     }
 
+    /**
+     * <p>getServerUpdateStatus.</p>
+     *
+     * @param version a int
+     * @param appId a int
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     public CompletableFuture<ServerUpdateStatus> getServerUpdateStatus(int version, int appId) {
         CompletableFuture<JsonObject> updateStatusFuture = sendRequest(new UpToDateCheck(1, version, appId));
         return updateStatusFuture.thenApply(root -> builder().fromJson(root.getAsJsonObject("response"), ServerUpdateStatus.class));

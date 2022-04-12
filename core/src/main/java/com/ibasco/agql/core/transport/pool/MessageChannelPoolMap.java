@@ -16,7 +16,6 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import io.netty.channel.pool.ChannelPoolMap;
 import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
@@ -35,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * A custom {@link ChannelPoolMap} implementation that allows a custom pool key to be used for {@link NettyChannelPool} lookup.
+ * A custom {@link io.netty.channel.pool.ChannelPoolMap} implementation that allows a custom pool key to be used for {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} lookup.
  *
  * @author Rafael Luis Ibasco
  */
@@ -47,10 +46,16 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
 
     private final NettyPooledChannelFactory pooledChannelFactory;
 
+    /**
+     * <p>Constructor for MessageChannelPoolMap.</p>
+     *
+     * @param pooledChannelFactory a {@link com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory} object
+     */
     public MessageChannelPoolMap(final NettyPooledChannelFactory pooledChannelFactory) {
         this.pooledChannelFactory = pooledChannelFactory;
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelPool get(Object data) {
         final InetSocketAddress remoteAddress = getResolver().resolveRemoteAddress(data);
@@ -68,11 +73,13 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return pool;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean contains(Object data) {
         return map.containsKey(getResolver().resolvePoolKey(data));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         for (Object key : map.keySet()) {
@@ -82,6 +89,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         getChannelPoolFactory().getChannelFactory().close();
     }
 
+    /** {@inheritDoc} */
     @NotNull
     @Override
     public Iterator<Map.Entry<Object, NettyChannelPool>> iterator() {
@@ -117,10 +125,20 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         }
     }
 
+    /**
+     * <p>getChannelPoolFactory.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
+     */
     public NettyChannelPoolFactory getChannelPoolFactory() {
         return pooledChannelFactory.getChannelPoolFactory();
     }
 
+    /**
+     * <p>getResolver.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyPoolPropertyResolver} object
+     */
     public NettyPoolPropertyResolver getResolver() {
         if (!(pooledChannelFactory.getResolver() instanceof NettyPoolPropertyResolver))
             throw new IllegalStateException("Property resolver must be a type of " + NettyPoolPropertyResolver.class.getSimpleName());

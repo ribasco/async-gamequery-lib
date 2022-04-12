@@ -33,21 +33,37 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * <p>SourceRconMessenger class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
     private final SourceRconAuthManager authManager;
 
+    /**
+     * <p>Constructor for SourceRconMessenger.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     */
     public SourceRconMessenger(Options options) {
         super(options);
         this.authManager = new SourceRconAuthManager(this, options.get(SourceRconOptions.CREDENTIALS_STORE, new InMemoryCredentialsStore()));
     }
 
+    /**
+     * <p>Getter for the field <code>authManager</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconAuthManager} object
+     */
     public SourceRconAuthManager getAuthManager() {
         return authManager;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void configure(final Options options) {
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
@@ -56,17 +72,20 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         defaultOption(options, TransportOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyChannelFactory createChannelFactory() {
         final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
         return new SourceRconChannelFactory(channelFactory);
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<SourceRconResponse> send(InetSocketAddress address, SourceRconRequest request) {
         return authManager.send(address, request);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         try {

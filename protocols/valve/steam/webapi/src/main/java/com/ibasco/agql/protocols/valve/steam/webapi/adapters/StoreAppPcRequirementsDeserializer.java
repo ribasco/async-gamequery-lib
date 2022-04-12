@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,9 +25,11 @@ import java.lang.reflect.Type;
  * Special handler for properties that can either be an object or array.
  *
  * @see <a href="https://github.com/ribasco/async-gamequery-lib/issues/12">Issue #12</a>
+ * @author Rafael Luis Ibasco
  */
 public class StoreAppPcRequirementsDeserializer implements JsonDeserializer<StoreAppPcRequirements> {
 
+    /** {@inheritDoc} */
     @Override
     public StoreAppPcRequirements deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
         StoreAppPcRequirements requirements = new StoreAppPcRequirements();

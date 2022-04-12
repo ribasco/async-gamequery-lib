@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -38,7 +38,7 @@ public class CocPlayers extends CocWebApiInterface {
      * <p>Default Constructor</p>
      *
      * @param client
-     *         A {@link CocWebApiClient} instance
+     *         A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiClient} instance
      */
     public CocPlayers(CocWebApiClient client) {
         super(client);
@@ -48,9 +48,8 @@ public class CocPlayers extends CocWebApiInterface {
      * <p>Retrieve a detailed information about a Player</p>
      *
      * @param playerTag
-     *         A unique player {@link String} identifier followed by a hashtag
-     *
-     * @return A {@link CompletableFuture} containing a future result of {@link CocPlayerDetailedInfo}
+     *         A unique player {@link java.lang.String} identifier followed by a hashtag
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerDetailedInfo}
      */
     public CompletableFuture<CocPlayerDetailedInfo> getPlayerInfo(String playerTag) {
         CompletableFuture<JsonObject> json = sendRequest(new GetPlayerInfo(VERSION_1, playerTag));

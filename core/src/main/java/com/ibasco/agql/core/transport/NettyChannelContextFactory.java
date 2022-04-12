@@ -19,8 +19,19 @@ package com.ibasco.agql.core.transport;
 import com.ibasco.agql.core.NettyChannelContext;
 import io.netty.channel.Channel;
 
+/**
+ * <p>NettyChannelContextFactory interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @FunctionalInterface
 public interface NettyChannelContextFactory {
 
+    /**
+     * <p>create.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     NettyChannelContext create(Channel channel);
 }

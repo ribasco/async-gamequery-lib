@@ -25,8 +25,14 @@ import io.netty.channel.ChannelHandlerContext;
 
 import java.util.List;
 
+/**
+ * <p>SourceRconCmdEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconCmdEncoder extends MessageOutboundEncoder<SourceRconCmdRequest> {
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeMessage(ChannelHandlerContext ctx, Envelope<SourceRconCmdRequest> msg, List<Object> out) throws Exception {
         boolean useTerminatorPacket = SourceRcon.terminatorPacketEnabled(ctx); //ctx.channel().attr(SourceRconOptions.USE_TERMINATOR_PACKET.toAttributeKey()).get();

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+/**
+ * <p>CocWebApiExample class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocWebApiExample extends BaseWebApiAuthExample {
@@ -39,14 +44,26 @@ public class CocWebApiExample extends BaseWebApiAuthExample {
 
     private CocWebApiClient client;
 
+    /**
+     * <p>displayListResults.</p>
+     *
+     * @param list a {@link java.util.List} object
+     * @param <T> a T class
+     */
     public static <T> void displayListResults(List<T> list) {
         list.forEach(o -> log.info("{}", o.toString()));
     }
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     */
     public static void main(String[] args) {
         new CocWebApiExample().run(args);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) {
         String token = getToken("supercell");
@@ -85,6 +102,7 @@ public class CocWebApiExample extends BaseWebApiAuthExample {
         players.getPlayerInfo("#J0PYGCG").thenAccept(p -> log.info("Player Info: {}", p)).join();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (client != null)

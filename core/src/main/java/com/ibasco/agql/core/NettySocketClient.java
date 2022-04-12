@@ -30,10 +30,9 @@ import java.util.Objects;
  * A netty based socket client.
  *
  * @param <R>
- *         A type of {@link AbstractRequest}
+ *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
- *         A type of {@link AbstractResponse}
- *
+ *         A type of {@link com.ibasco.agql.core.AbstractResponse}
  * @author Rafael Luis Ibasco
  */
 abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse> extends AbstractClient<R, S> {
@@ -53,8 +52,7 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
      * Create a new client instance using the provided configuration options.
      *
      * @param options
-     *         The {@link Options} containing the configuration options that will be used by the client
-     *
+     *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
      * @see OptionBuilder
      */
     protected NettySocketClient(Options options) {
@@ -62,26 +60,31 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
         log.debug("[{}] CLIENT => Initialzied new client '{}' with ID '{}'", id.getInteger(), getClass().getSimpleName(), id().getInteger());
     }
 
+    /** {@inheritDoc} */
     @Override
     abstract protected NettyMessenger<R, S> createMessenger(Options options);
     //</editor-fold>
 
+    /** {@inheritDoc} */
     @Override
     protected NettyMessenger<R, S> getMessenger() {
         return (NettyMessenger<R, S>) super.getMessenger();
     }
 
+    /** {@inheritDoc} */
     @Override
     public EventLoopGroup getExecutor() {
         return (EventLoopGroup) super.getExecutor();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         log.debug("[{}] CLIENT => Closing '{}'", id.getInteger(), getClass().getSimpleName());
         super.close();
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -90,6 +93,7 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
         return id.equals(that.id);
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(id);

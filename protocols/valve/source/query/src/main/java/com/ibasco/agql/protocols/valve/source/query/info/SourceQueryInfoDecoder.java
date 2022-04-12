@@ -27,6 +27,11 @@ import io.netty.channel.ChannelHandlerContext;
 import java.nio.charset.StandardCharsets;
 import java.util.function.Function;
 
+/**
+ * <p>SourceQueryInfoDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @SuppressWarnings({"DuplicatedCode", "SameParameterValue"})
 public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryInfoRequest> {
 
@@ -36,10 +41,14 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
     private static final Function<Byte, Boolean> IS_PRIVATE_SERVER = byteVal -> byteVal != 0;
 
+    /**
+     * <p>Constructor for SourceQueryInfoDecoder.</p>
+     */
     public SourceQueryInfoDecoder() {
         super(SourceQueryInfoRequest.class, SOURCE_QUERY_INFO_RES);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeQueryPacket(ChannelHandlerContext ctx, SourceQueryInfoRequest request, SourceQuerySinglePacket packet) throws Exception {
         NettyChannelContext context  = NettyChannelContext.getContext(ctx.channel());

@@ -37,7 +37,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Re-assembles all {@link SourceRconPacket} split-packet back into a single {@link SourceRconPacket} instance.
+ * Re-assembles all {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} split-packet back into a single {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} instance.
  *
  * <blockquote>
  * <h4>Note</h4>
@@ -54,6 +54,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
 
     private boolean markedForConsolidation;
 
+    /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
         //make sure the originating request is a 'Execute Command' request
@@ -69,6 +70,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
 
     private int counter;
 
+    /** {@inheritDoc} */
     @Override
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
         assert msg instanceof SourceRconPacket;
@@ -99,6 +101,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         return null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         //if terminator packets are enabled, check terminate flag,
@@ -164,6 +167,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
         if (!(evt instanceof ChannelEvent)) {
@@ -176,6 +180,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         markedForConsolidation = false;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         debug("channelActive() : Resetting container");
@@ -183,6 +188,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         ctx.fireChannelActive();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
         debug("channelInactive() : Resetting container");
@@ -190,6 +196,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         ctx.fireChannelInactive();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         debug("exceptionCaught() : Resetting container");

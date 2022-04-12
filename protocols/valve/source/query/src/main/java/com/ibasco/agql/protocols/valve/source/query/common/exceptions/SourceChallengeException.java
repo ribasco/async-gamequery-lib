@@ -27,11 +27,22 @@ public class SourceChallengeException extends AsyncGameLibUncheckedException {
 
     private final int challenge;
 
+    /**
+     * <p>Constructor for SourceChallengeException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param challenge a int
+     */
     public SourceChallengeException(String message, int challenge) {
         super(message);
         this.challenge = challenge;
     }
 
+    /**
+     * <p>Getter for the field <code>challenge</code>.</p>
+     *
+     * @return a int
+     */
     public int getChallenge() {
         return challenge;
     }

@@ -46,74 +46,160 @@ public class SourceQuerySplitPacket extends SourceQueryPacket implements Compara
 
     private boolean compressed;
 
+    /**
+     * <p>Constructor for SourceQuerySplitPacket.</p>
+     *
+     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     */
     public SourceQuerySplitPacket(ByteBuf payload) {
         super(SourceQuery.SOURCE_PACKET_TYPE_SPLIT, payload);
     }
 
+    /**
+     * <p>Getter for the field <code>id</code>.</p>
+     *
+     * @return a int
+     */
     public int getId() {
         return id;
     }
 
+    /**
+     * <p>Setter for the field <code>id</code>.</p>
+     *
+     * @param id a int
+     */
     public void setId(int id) {
         this.id = id;
     }
 
+    /**
+     * <p>Getter for the field <code>packetCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getPacketCount() {
         return packetCount;
     }
 
+    /**
+     * <p>Setter for the field <code>packetCount</code>.</p>
+     *
+     * @param packetCount a int
+     */
     public void setPacketCount(int packetCount) {
         this.packetCount = packetCount;
     }
 
+    /**
+     * <p>Getter for the field <code>packetNumber</code>.</p>
+     *
+     * @return a int
+     */
     public int getPacketNumber() {
         return packetNumber;
     }
 
+    /**
+     * <p>Setter for the field <code>packetNumber</code>.</p>
+     *
+     * @param packetNumber a int
+     */
     public void setPacketNumber(int packetNumber) {
         this.packetNumber = packetNumber;
     }
 
+    /**
+     * <p>Getter for the field <code>packetSize</code>.</p>
+     *
+     * @return a int
+     */
     public int getPacketSize() {
         return packetSize;
     }
 
+    /**
+     * <p>Setter for the field <code>packetSize</code>.</p>
+     *
+     * @param packetSize a int
+     */
     public void setPacketSize(int packetSize) {
         this.packetSize = packetSize;
     }
 
+    /**
+     * <p>Getter for the field <code>packetMaxSize</code>.</p>
+     *
+     * @return a int
+     */
     public int getPacketMaxSize() {
         return packetMaxSize;
     }
 
+    /**
+     * <p>Setter for the field <code>packetMaxSize</code>.</p>
+     *
+     * @param packetMaxSize a int
+     */
     public void setPacketMaxSize(int packetMaxSize) {
         this.packetMaxSize = packetMaxSize;
     }
 
+    /**
+     * <p>Getter for the field <code>decompressedSize</code>.</p>
+     *
+     * @return a {@link java.lang.Integer} object
+     */
     public Integer getDecompressedSize() {
         return decompressedSize;
     }
 
+    /**
+     * <p>Setter for the field <code>decompressedSize</code>.</p>
+     *
+     * @param decompressedSize a {@link java.lang.Integer} object
+     */
     public void setDecompressedSize(Integer decompressedSize) {
         this.decompressedSize = decompressedSize;
     }
 
+    /**
+     * <p>Getter for the field <code>crcChecksum</code>.</p>
+     *
+     * @return a {@link java.lang.Integer} object
+     */
     public Integer getCrcChecksum() {
         return crcChecksum;
     }
 
+    /**
+     * <p>Setter for the field <code>crcChecksum</code>.</p>
+     *
+     * @param crcChecksum a {@link java.lang.Integer} object
+     */
     public void setCrcChecksum(Integer crcChecksum) {
         this.crcChecksum = crcChecksum;
     }
 
+    /**
+     * <p>isCompressed.</p>
+     *
+     * @return a boolean
+     */
     public boolean isCompressed() {
         return compressed;
     }
 
+    /**
+     * <p>Setter for the field <code>compressed</code>.</p>
+     *
+     * @param compressed a boolean
+     */
     public void setCompressed(boolean compressed) {
         this.compressed = compressed;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -123,11 +209,13 @@ public class SourceQuerySplitPacket extends SourceQueryPacket implements Compara
         return getId() == that.getId() && getPacketNumber() == that.getPacketNumber();
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(super.hashCode(), getId(), getPacketNumber());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int compareTo(SourceQuerySplitPacket o) {
         return Comparator.comparingInt(SourceQuerySplitPacket::getId)
@@ -135,6 +223,7 @@ public class SourceQuerySplitPacket extends SourceQueryPacket implements Compara
                          .compare(this, o);
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return String.format("[SPLIT-PACKET] ID: %d, NO: %d, COUNT: %d, SIZE: %d, MAX SIZE: %d, COMPRESSED: %s", getId(), getPacketNumber(), getPacketCount(), getPacketSize(), getPacketMaxSize(), isCompressed());

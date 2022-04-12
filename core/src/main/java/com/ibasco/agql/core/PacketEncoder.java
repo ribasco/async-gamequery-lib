@@ -20,25 +20,22 @@ import com.ibasco.agql.core.exceptions.PacketEncodeException;
 import io.netty.buffer.ByteBuf;
 
 /**
- * Encodes {@link Packet} instances it's {@link ByteBuf} representation.
+ * Encodes {@link com.ibasco.agql.core.Packet} instances it's {@link io.netty.buffer.ByteBuf} representation.
  *
  * @param <P>
- *         The type of {@link Packet}
- *
+ *         The type of {@link com.ibasco.agql.core.Packet}
  * @author Rafael Luis Ibasco
  */
 @FunctionalInterface
 public interface PacketEncoder<P extends Packet> {
 
     /**
-     * Encodes a {@link Packet} into a {@link ByteBuf}
+     * Encodes a {@link com.ibasco.agql.core.Packet} into a {@link io.netty.buffer.ByteBuf}
      *
      * @param packet
-     *         The {@link Packet} to be encoded
-     *
-     * @return The encoded {@link ByteBuf}
-     *
-     * @throws PacketEncodeException
+     *         The {@link com.ibasco.agql.core.Packet} to be encoded
+     * @return The encoded {@link io.netty.buffer.ByteBuf}
+     * @throws com.ibasco.agql.core.exceptions.PacketEncodeException
      *         When an error occurs during the encoding process
      */
     ByteBuf encode(P packet) throws PacketEncodeException;

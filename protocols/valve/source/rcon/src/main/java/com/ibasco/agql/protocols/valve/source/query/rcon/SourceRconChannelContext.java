@@ -40,11 +40,13 @@ public final class SourceRconChannelContext extends NettyChannelContext {
         super(channel, messenger);
     }
 
+    /** {@inheritDoc} */
     @Override
     public SourceRconMessenger messenger() {
         return (SourceRconMessenger) super.messenger();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Properties newProperties(Properties copy) {
         if (copy instanceof RconProperties)
@@ -52,27 +54,32 @@ public final class SourceRconChannelContext extends NettyChannelContext {
         return new RconProperties();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<SourceRconChannelContext> send() {
         //noinspection unchecked
         return super.send().thenCompose(NettyChannelContext::composedFuture);
     }
 
+    /** {@inheritDoc} */
     @Override
     public RconProperties properties() {
         return (RconProperties) super.properties();
     }
 
+    /** {@inheritDoc} */
     @Override
     public SourceRconChannelContext save() {
         return (SourceRconChannelContext) super.save();
     }
 
+    /** {@inheritDoc} */
     @Override
     public SourceRconChannelContext restore() {
         return (SourceRconChannelContext) super.restore();
     }
 
+    /** {@inheritDoc} */
     public static SourceRconChannelContext getContext(Channel channel) {
         return (SourceRconChannelContext) NettyChannelContext.getContext(channel);
     }

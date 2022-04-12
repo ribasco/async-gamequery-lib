@@ -51,10 +51,24 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     private final EventLoopGroup eventLoopGroup;
 
+    /**
+     * <p>Constructor for HttpMessenger.</p>
+     *
+     * @param responseFactory
+     *         a {@link java.util.function.Function} object
+     */
     public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory) {
         this(responseFactory, new Options(HttpMessenger.class));
     }
 
+    /**
+     * <p>Constructor for HttpMessenger.</p>
+     *
+     * @param responseFactory
+     *         a {@link java.util.function.Function} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     */
     public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory, Options options) {
         this.options = options;
         this.eventLoopGroup = initializeEventLoopGroup();
@@ -67,7 +81,9 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
     }
 
     private EventLoopGroup initializeEventLoopGroup() {
-        ExecutorService executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
+        ExecutorService executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE);
+        if (executorService == null)
+            executorService = Platform.getDefaultExecutor();
         Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
         //Attempt to determine the number of threads supported by the executor service
         if (nThreads == null) {
@@ -84,11 +100,13 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         return group;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         transport.close();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<AbstractWebResponse> send(InetSocketAddress address, AbstractWebRequest request) {
         log.debug("Sending request with url : {}", request.getMessage().getUri());
@@ -97,16 +115,19 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         return res.thenApply(responseFactory);
     }
 
+    /** {@inheritDoc} */
     @Override
     public AsyncHttpTransport getTransport() {
         return transport;
     }
 
+    /** {@inheritDoc} */
     @Override
     public EventLoopGroup getExecutor() {
         return this.eventLoopGroup;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Options getOptions() {
         return options;

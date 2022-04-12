@@ -22,18 +22,50 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
 
+/**
+ * <p>Abstract MessageInboundDecoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class MessageInboundDecoder extends MessageInboundHandler {
 
     private boolean suppressLog;
 
+    /**
+     * <p>acceptMessage.</p>
+     *
+     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param msg a {@link java.lang.Object} object
+     * @return a boolean
+     */
     abstract protected boolean acceptMessage(AbstractRequest request, final Object msg);
 
+    /**
+     * <p>decodeMessage.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param msg a {@link java.lang.Object} object
+     * @return a {@link java.lang.Object} object
+     * @throws java.lang.Exception if any.
+     */
     abstract protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, final Object msg) throws Exception;
 
+    /**
+     * <p>beforeDecode.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     */
     protected void beforeDecode(ChannelHandlerContext ctx) {}
 
+    /**
+     * <p>afterDecode.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     */
     protected void afterDecode(ChannelHandlerContext ctx) {}
 
+    /** {@inheritDoc} */
     @Override
     public final void readMessage(final ChannelHandlerContext ctx, final Object msg) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -73,10 +105,20 @@ abstract public class MessageInboundDecoder extends MessageInboundHandler {
         }
     }
 
+    /**
+     * <p>Setter for the field <code>suppressLog</code>.</p>
+     *
+     * @param suppressLog a boolean
+     */
     protected void setSuppressLog(boolean suppressLog) {
         this.suppressLog = suppressLog;
     }
 
+    /**
+     * <p>isSuppressLog.</p>
+     *
+     * @return a boolean
+     */
     protected boolean isSuppressLog() {
         return suppressLog;
     }

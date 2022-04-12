@@ -25,6 +25,11 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
+/**
+ * <p>Abstract PooledChannel class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class PooledChannel implements Channel {
 
     private static final Logger log = LoggerFactory.getLogger(PooledChannel.class);
@@ -65,7 +70,17 @@ abstract public class PooledChannel implements Channel {
         });
     }
 
+    /**
+     * <p>getChannelPool.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} object
+     */
     abstract public NettyChannelPool getChannelPool();
 
+    /**
+     * <p>release.</p>
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     abstract public CompletableFuture<Void> release();
 }

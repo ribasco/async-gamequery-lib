@@ -20,6 +20,11 @@ import com.ibasco.agql.core.AbstractRequest;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>MaxAttemptsReachedException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MaxAttemptsReachedException extends AsyncGameLibUncheckedException {
 
     private final int attemptCount;
@@ -30,6 +35,15 @@ public class MaxAttemptsReachedException extends AsyncGameLibUncheckedException 
 
     private final AbstractRequest request;
 
+    /**
+     * <p>Constructor for MaxAttemptsReachedException.</p>
+     *
+     * @param cause a {@link java.lang.Throwable} object
+     * @param remoteAddress a {@link java.net.InetSocketAddress} object
+     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param attemptCount a int
+     * @param maxAttemptCount a int
+     */
     public MaxAttemptsReachedException(Throwable cause, InetSocketAddress remoteAddress, AbstractRequest request, int attemptCount, int maxAttemptCount) {
         super(cause);
         this.remoteAddress = remoteAddress;
@@ -38,18 +52,38 @@ public class MaxAttemptsReachedException extends AsyncGameLibUncheckedException 
         this.maxAttemptCount = maxAttemptCount;
     }
 
+    /**
+     * <p>Getter for the field <code>remoteAddress</code>.</p>
+     *
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     public InetSocketAddress getRemoteAddress() {
         return remoteAddress;
     }
 
+    /**
+     * <p>Getter for the field <code>request</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.AbstractRequest} object
+     */
     public AbstractRequest getRequest() {
         return request;
     }
 
+    /**
+     * <p>Getter for the field <code>attemptCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getAttemptCount() {
         return attemptCount;
     }
 
+    /**
+     * <p>Getter for the field <code>maxAttemptCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getMaxAttemptCount() {
         return maxAttemptCount;
     }

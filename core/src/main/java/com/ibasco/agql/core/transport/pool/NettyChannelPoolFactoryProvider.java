@@ -19,10 +19,23 @@ package com.ibasco.agql.core.transport.pool;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 
+/**
+ * <p>NettyChannelPoolFactoryProvider interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @FunctionalInterface
 public interface NettyChannelPoolFactoryProvider {
 
+    /** Constant <code>DEFAULT</code> */
     NettyChannelPoolFactoryProvider DEFAULT = new DefaultNettyChannelPoolFactoryProvider();
 
+    /**
+     * <p>getFactory.</p>
+     *
+     * @param type a {@link com.ibasco.agql.core.transport.enums.ChannelPoolType} object
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
+     */
     NettyChannelPoolFactory getFactory(ChannelPoolType type, NettyChannelFactory channelFactory);
 }

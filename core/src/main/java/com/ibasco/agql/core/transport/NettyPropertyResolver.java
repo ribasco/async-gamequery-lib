@@ -19,25 +19,29 @@ package com.ibasco.agql.core.transport;
 import java.net.InetSocketAddress;
 
 /**
- * Accepts an {@link Object} instance and attempts to resolve the required address propreties.
+ * Accepts an {@link java.lang.Object} instance and attempts to resolve the required address propreties.
  *
  * @author Rafael Luis Ibasco
  */
 public interface NettyPropertyResolver {
 
     /**
-     * Resolves the remote {@link InetSocketAddress} of the recipient
+     * Resolves the remote {@link java.net.InetSocketAddress} of the recipient
      *
      * @param data
-     *         The {@link Object} containing the remote {@link InetSocketAddress} of the recipient
-     *
-     * @return The remote {@link InetSocketAddress} of the recipient
-     *
-     * @throws IllegalStateException
+     *         The {@link java.lang.Object} containing the remote {@link java.net.InetSocketAddress} of the recipient
+     * @return The remote {@link java.net.InetSocketAddress} of the recipient
+     * @throws java.lang.IllegalStateException
      *         If the address could not be resolved
      */
     InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException;
 
+    /**
+     * <p>resolveLocalAddress.</p>
+     *
+     * @param data a {@link java.lang.Object} object
+     * @return a {@link java.net.InetSocketAddress} object
+     */
     default InetSocketAddress resolveLocalAddress(Object data) {
         //use system assigned local address, so return null
         return null;

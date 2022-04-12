@@ -30,6 +30,11 @@ import org.slf4j.Marker;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 
+/**
+ * <p>Abstract MessageInboundHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @SuppressWarnings("unused")
 abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter {
 
@@ -39,25 +44,38 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     private final BiFunction<Channel, String, String> logtemplate;
 
+    /**
+     * <p>Constructor for MessageInboundHandler.</p>
+     */
     protected MessageInboundHandler() {
         this.logtemplate = (ch, msg) -> Netty.id(ch) + " (" + getClass().getSimpleName() + ") INB => " + msg;
     }
 
+    /**
+     * <p>readMessage.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg a {@link java.lang.Object} object
+     * @throws java.lang.Exception if any.
+     */
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
         ctx.fireChannelRead(msg);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         ensureNotSharable();
         this.channel = ctx.channel();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         this.channel = null;
     }
 
+    /** {@inheritDoc} */
     @Override
     public final void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (this.channel == null || this.channel != ctx.channel())
@@ -75,54 +93,141 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
             throw new IllegalStateException("Request envelope's content is null");
     }
 
+    /**
+     * <p>isDebugEnabled.</p>
+     *
+     * @return a boolean
+     */
     protected boolean isDebugEnabled() {
         return log.isDebugEnabled();
     }
 
+    /**
+     * <p>trace.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void trace(String msg, Object... args) {
         log(msg, log::trace, args);
     }
 
+    /**
+     * <p>error.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void error(String msg, Object... args) {
         log(msg, log::error, args);
     }
 
+    /**
+     * <p>error.</p>
+     *
+     * @param logger a {@link org.slf4j.Logger} object
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void error(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
         log(msg, ctx, logger::error, args);
     }
 
+    /**
+     * <p>info.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void info(String msg, Object... args) {
         log(msg, log::info, args);
     }
 
+    /**
+     * <p>debug.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void debug(String msg, Object... args) {
         log(msg, log::debug, args);
     }
 
+    /**
+     * <p>debug.</p>
+     *
+     * @param logger a {@link org.slf4j.Logger} object
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void debug(Logger logger, String msg, Object... args) {
         log(msg, logger::debug, args);
     }
 
+    /**
+     * <p>debug.</p>
+     *
+     * @param logger a {@link org.slf4j.Logger} object
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void debug(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
         log(msg, ctx, logger::debug, args);
     }
 
+    /**
+     * <p>debug.</p>
+     *
+     * @param logger a {@link org.slf4j.Logger} object
+     * @param marker a {@link org.slf4j.Marker} object
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected void debug(Logger logger, Marker marker, String msg, Object... args) {
         logger.debug(marker, logtemplate.apply(channel, msg), args);
     }
 
+    /**
+     * <p>warn.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void warn(String msg, Object... args) {
         log(msg, log::warn, args);
     }
 
+    /**
+     * <p>log.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param level a {@link java.util.function.BiConsumer} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
         level.accept(logtemplate.apply(channel, msg), args);
     }
 
+    /**
+     * <p>log.</p>
+     *
+     * @param msg a {@link java.lang.String} object
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param level a {@link java.util.function.BiConsumer} object
+     * @param args a {@link java.lang.Object} object
+     */
     protected final void log(String msg, ChannelHandlerContext ctx, BiConsumer<String, Object[]> level, Object... args) {
         level.accept(logtemplate.apply(ctx.channel(), msg), args);
     }
 
+    /**
+     * <p>printField.</p>
+     *
+     * @param name a {@link java.lang.String} object
+     * @param value a {@link java.lang.Object} object
+     */
     protected void printField(String name, Object value) {
         debug(String.format("    %-15s: ", name));
         if (value instanceof Number) {

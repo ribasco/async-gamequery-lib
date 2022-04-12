@@ -18,8 +18,18 @@ package com.ibasco.agql.protocols.valve.source.query.info;
 
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 
+/**
+ * <p>SourceQueryInfoResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQueryInfoResponse extends SourceQueryResponse<SourceServer> {
 
+    /**
+     * <p>Constructor for SourceQueryInfoResponse.</p>
+     *
+     * @param sourceServer a {@link com.ibasco.agql.protocols.valve.source.query.info.SourceServer} object
+     */
     public SourceQueryInfoResponse(SourceServer sourceServer) {
         super(sourceServer);
     }

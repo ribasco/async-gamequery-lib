@@ -28,42 +28,64 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * <p>MasterServerChannelContext class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerChannelContext extends NettyChannelContext {
 
+    /**
+     * <p>Constructor for MasterServerChannelContext.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     * @param messenger a {@link com.ibasco.agql.core.NettyMessenger} object
+     */
     public MasterServerChannelContext(Channel channel, NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger) {
         super(channel, messenger);
     }
 
+    /**
+     * <p>Constructor for MasterServerChannelContext.</p>
+     *
+     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     protected MasterServerChannelContext(NettyChannelContext context) {
         super(context);
     }
 
+    /** {@inheritDoc} */
     @Override
     public MasterServerMessenger messenger() {
         return (MasterServerMessenger) super.messenger();
     }
 
+    /** {@inheritDoc} */
     @Override
     public MasterServerProperties properties() {
         return (MasterServerProperties) super.properties();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<MasterServerChannelContext> send() {
         //noinspection unchecked
         return (CompletableFuture<MasterServerChannelContext>) super.send();
     }
 
+    /** {@inheritDoc} */
     @Override
     public MasterServerChannelContext save() {
         return (MasterServerChannelContext) super.save();
     }
 
+    /** {@inheritDoc} */
     @Override
     public MasterServerChannelContext restore() {
         return (MasterServerChannelContext) super.restore();
     }
 
+    /** {@inheritDoc} */
     @Override
     protected Properties newProperties(Properties copy) {
         if (copy instanceof MasterServerProperties)
@@ -71,6 +93,7 @@ public class MasterServerChannelContext extends NettyChannelContext {
         return new MasterServerProperties();
     }
 
+    /** {@inheritDoc} */
     public static MasterServerChannelContext getContext(Channel channel) {
         return (MasterServerChannelContext) NettyChannelContext.getContext(channel);
     }

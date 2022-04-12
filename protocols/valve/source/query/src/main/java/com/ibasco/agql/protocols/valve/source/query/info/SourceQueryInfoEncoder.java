@@ -22,16 +22,20 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 
 /**
- * Encodes a {@link SourceQueryInfoRequest} to it's datagram packet form
+ * Encodes a {@link com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest} to it's datagram packet form
  *
  * @author Rafael Luis Ibasco
  */
 public class SourceQueryInfoEncoder extends SourceQueryAuthEncoder<SourceQueryInfoRequest> {
 
+    /**
+     * <p>Constructor for SourceQueryInfoEncoder.</p>
+     */
     public SourceQueryInfoEncoder() {
         super(SourceQueryInfoRequest.class, SourceQuery.SOURCE_QUERY_INFO_REQ, 1400);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void encodeChallenge(ChannelHandlerContext ctx, SourceQueryInfoRequest request, ByteBuf payload) {
         payload.writeBytes(SourceQuery.SOURCE_QUERY_INFO_PAYLOAD.getBytes());

@@ -24,16 +24,28 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+/**
+ * <p>WriteTimeoutHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class WriteTimeoutHandler extends io.netty.handler.timeout.WriteTimeoutHandler {
 
     private static final Logger log = LoggerFactory.getLogger(WriteTimeoutHandler.class);
 
     private boolean timeoutFired;
 
+    /**
+     * <p>Constructor for WriteTimeoutHandler.</p>
+     *
+     * @param timeout a long
+     * @param unit a {@link java.util.concurrent.TimeUnit} object
+     */
     public WriteTimeoutHandler(long timeout, TimeUnit unit) {
         super(timeout, unit);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected void writeTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {

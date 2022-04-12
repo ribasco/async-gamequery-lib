@@ -21,14 +21,25 @@ import com.ibasco.agql.core.transport.NettyPropertyResolver;
 
 import java.net.InetSocketAddress;
 
+/**
+ * <p>DefaultPoolPropertyResolver class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultPoolPropertyResolver implements NettyPoolPropertyResolver {
 
     private final NettyPropertyResolver propertyResolver;
 
+    /**
+     * <p>Constructor for DefaultPoolPropertyResolver.</p>
+     *
+     * @param propertyResolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     */
     public DefaultPoolPropertyResolver(NettyPropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Object resolvePoolKey(Object data) {
         if (data == null)
@@ -41,11 +52,13 @@ public class DefaultPoolPropertyResolver implements NettyPoolPropertyResolver {
             throw new IllegalStateException("Unsupported key type: " + data.getClass());
     }
 
+    /** {@inheritDoc} */
     @Override
     public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
         return propertyResolver.resolveRemoteAddress(data);
     }
 
+    /** {@inheritDoc} */
     @Override
     public InetSocketAddress resolveLocalAddress(Object data) {
         return propertyResolver.resolveLocalAddress(data);

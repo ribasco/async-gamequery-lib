@@ -37,10 +37,12 @@ import org.slf4j.LoggerFactory;
  */
 public class MessageDecoder extends ChannelInboundHandlerAdapter {
 
+    /** Constant <code>NAME="responseDecoder"</code> */
     public static final String NAME = "responseDecoder";
 
     private static final Logger log = LoggerFactory.getLogger(MessageDecoder.class);
 
+    /** {@inheritDoc} */
     @Override
     public void channelRead(ChannelHandlerContext ctx, @NotNull Object msg) {
         final NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
@@ -77,6 +79,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         final Channel channel = ctx.channel();

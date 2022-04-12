@@ -21,12 +21,27 @@ import com.ibasco.agql.core.AbstractResponse;
 import java.net.InetSocketAddress;
 import java.util.Set;
 
+/**
+ * <p>MasterServerResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class MasterServerResponse extends AbstractResponse<Set<InetSocketAddress>> {
 
+    /**
+     * <p>Constructor for MasterServerResponse.</p>
+     *
+     * @param serverList a {@link java.util.Set} object
+     */
     public MasterServerResponse(Set<InetSocketAddress> serverList) {
         super(serverList);
     }
 
+    /**
+     * <p>getServerList.</p>
+     *
+     * @return a {@link java.util.Set} object
+     */
     public final Set<InetSocketAddress> getServerList() {
         return super.getResult();
     }

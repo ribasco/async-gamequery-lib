@@ -1,11 +1,11 @@
 /*
- * Copyright 2022-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -33,7 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @param <T>
  *         The underlying type of the option value
- *
  * @author Rafael Luis Ibasco
  */
 public final class Option<T> {
@@ -55,9 +54,9 @@ public final class Option<T> {
     //</editor-fold>
 
     /**
-     * Returns a read-only {@link Map} of all the avialable options in this library
+     * Returns a read-only {@link java.util.Map} of all the avialable options in this library
      *
-     * @return A read-only {@link Map} containing all the options created
+     * @return A read-only {@link java.util.Map} containing all the options created
      */
     public static Collection<Option<?>> getOptions() {
         return Collections.unmodifiableCollection(optionMap.values());
@@ -79,20 +78,26 @@ public final class Option<T> {
     }
 
     /**
-     * @return The unique key associated with this {@link Option}
+     * <p>Getter for the field <code>key</code>.</p>
+     *
+     * @return The unique key associated with this {@link com.ibasco.agql.core.util.Option}
      */
     public String getKey() {
         return key;
     }
 
     /**
-     * @return The default value assciated with this {@link Option}
+     * <p>Getter for the field <code>defaultValue</code>.</p>
+     *
+     * @return The default value assciated with this {@link com.ibasco.agql.core.util.Option}
      */
     public T getDefaultValue() {
         return defaultValue;
     }
 
     /**
+     * <p>isChannelAttribute.</p>
+     *
      * @return {@code true} if this option is also a channel attribute
      */
     public boolean isChannelAttribute() {
@@ -100,6 +105,8 @@ public final class Option<T> {
     }
 
     /**
+     * <p>isAutoCreate.</p>
+     *
      * @return {@code true} if autoCreate flag is set.
      */
     public boolean isAutoCreate() {
@@ -107,7 +114,9 @@ public final class Option<T> {
     }
 
     /**
-     * @return An {@link AttributeKey} instance of this option
+     * <p>toAttributeKey.</p>
+     *
+     * @return An {@link io.netty.util.AttributeKey} instance of this option
      */
     public AttributeKey<T> toAttributeKey() {
         if (!channelAttribute)
@@ -119,7 +128,7 @@ public final class Option<T> {
      * A convenient method for modifying a channel's attribute
      *
      * @param context
-     *         The {@link ChannelHandlerContext} whose {@link Channel} will be updated
+     *         The {@link io.netty.channel.ChannelHandlerContext} whose {@link io.netty.channel.Channel} will be updated
      * @param value
      *         The value to be modified
      */
@@ -131,7 +140,7 @@ public final class Option<T> {
      * A convenient method for modifying a channel's attribute
      *
      * @param channel
-     *         The {@link Channel} that will be updated
+     *         The {@link io.netty.channel.Channel} that will be updated
      * @param value
      *         The value to be modified
      */
@@ -145,8 +154,7 @@ public final class Option<T> {
      * A convenient method for retrieving a channel's attribute associated with this option
      *
      * @param context
-     *         The {@link ChannelHandlerContext} whos {@link Channel} will be queried using the attribute associated with this option.
-     *
+     *         The {@link io.netty.channel.ChannelHandlerContext} whos {@link io.netty.channel.Channel} will be queried using the attribute associated with this option.
      * @return The value of the attribute
      */
     public T attr(ChannelHandlerContext context) {
@@ -159,8 +167,7 @@ public final class Option<T> {
      * A convenient method for retrieving a channel's attribute associated with this option
      *
      * @param channel
-     *         The {@link Channel} that will be queried using the attribute associated with this option.
-     *
+     *         The {@link io.netty.channel.Channel} that will be queried using the attribute associated with this option.
      * @return The value of the attribute
      */
     public T attr(Channel channel) {
@@ -171,68 +178,64 @@ public final class Option<T> {
     }
 
     /**
-     * Creates a singleton instance of an {@link Option} based on the key provided
+     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided
      *
      * @param key
      *         The unique key of the option
      * @param <V>
-     *         The underlying type of the {@link Option}
-     *
-     * @return A singleton {@link Option} instance
+     *         The underlying type of the {@link com.ibasco.agql.core.util.Option}
+     * @return A singleton {@link com.ibasco.agql.core.util.Option} instance
      */
     public static <V> Option<V> createOption(String key) {
         return createOption(key, null);
     }
 
     /**
-     * Creates a singleton instance of an {@link Option} based on the key provided
+     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided
      *
      * @param key
      *         The unique key of the option
      * @param defaultValue
-     *         The default value for this {@link Option}
+     *         The default value for this {@link com.ibasco.agql.core.util.Option}
      * @param <V>
-     *         The underlying type of the {@link Option}
-     *
-     * @return A singleton {@link Option} instance
+     *         The underlying type of the {@link com.ibasco.agql.core.util.Option}
+     * @return A singleton {@link com.ibasco.agql.core.util.Option} instance
      */
     public static <V> Option<V> createOption(String key, V defaultValue) {
         return createOption(key, defaultValue, false);
     }
 
     /**
-     * Creates a singleton instance of an {@link Option} based on the key provided
+     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided
      *
      * @param key
      *         The unique key of the option
      * @param defaultValue
-     *         The default value for this {@link Option}
+     *         The default value for this {@link com.ibasco.agql.core.util.Option}
      * @param <V>
-     *         The underlying type of the {@link Option}
+     *         The underlying type of the {@link com.ibasco.agql.core.util.Option}
      * @param channelAttribute
      *         {@code true} if this option should be added as a default channel attribute
-     *
-     * @return A singleton {@link Option} instance based on the key provided.
+     * @return A singleton {@link com.ibasco.agql.core.util.Option} instance based on the key provided.
      */
     public static <V> Option<V> createOption(String key, V defaultValue, boolean channelAttribute) {
         return createOption(key, defaultValue, channelAttribute, false);
     }
 
     /**
-     * Creates a singleton instance of an {@link Option} based on the key provided
+     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided
      *
      * @param key
      *         The unique key of the option
      * @param defaultValue
-     *         The default value for this {@link Option}
+     *         The default value for this {@link com.ibasco.agql.core.util.Option}
      * @param <V>
-     *         The underlying type of the {@link Option}
+     *         The underlying type of the {@link com.ibasco.agql.core.util.Option}
      * @param channelAttribute
      *         {@code true} if this option should be added as a default channel attribute
      * @param autoCreate
-     *         If {@code true}, the channel attribute will be automatically initialized in the underlying {@link Channel} regardless whether or not it is explicitly set by the client. This is only applicable when channelAttribute is set to {@code true}.
-     *
-     * @return A singleton {@link Option} instance based on the key provided.
+     *         If {@code true}, the channel attribute will be automatically initialized in the underlying {@link io.netty.channel.Channel} regardless whether or not it is explicitly set by the client. This is only applicable when channelAttribute is set to {@code true}.
+     * @return A singleton {@link com.ibasco.agql.core.util.Option} instance based on the key provided.
      */
     public static <V> Option<V> createOption(String key, V defaultValue, boolean channelAttribute, boolean autoCreate) {
         if (optionMap.containsKey(key))
@@ -244,6 +247,7 @@ public final class Option<T> {
         return (Option<V>) optionMap.computeIfAbsent(key, s -> new Option<V>(key, defaultValue, channelAttribute, autoCreate));
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -252,6 +256,7 @@ public final class Option<T> {
         return getKey().equals(option.getKey());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Objects.hash(getKey());

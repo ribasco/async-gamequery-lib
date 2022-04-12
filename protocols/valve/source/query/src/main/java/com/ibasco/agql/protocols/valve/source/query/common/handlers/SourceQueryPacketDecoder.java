@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 
 /**
- * Decodes a raw source query response ({@link ByteBuf}) into an instance of {@link SourceQueryPacket}.
+ * Decodes a raw source query response ({@link io.netty.buffer.ByteBuf}) into an instance of {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket}.
  * The packet can be a single-type or a split-type. Split-type packets should be re-assembled back to a single-type packet by the next handlers
  *
  * Simple workflow of data:
@@ -48,6 +48,7 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryPacketDecoder.class);
 
+    /** {@inheritDoc} */
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf msg, List<Object> out) {
         try {

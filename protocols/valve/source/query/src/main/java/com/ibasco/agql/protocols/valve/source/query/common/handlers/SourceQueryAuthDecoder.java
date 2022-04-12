@@ -38,7 +38,6 @@ import java.util.Objects;
  *
  * @param <T>
  *         The underlying source query request type supporting challenge-response implementation
- *
  * @author Rafael Luis Ibasco
  */
 abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> extends SourceQueryDecoder<T> {
@@ -47,13 +46,29 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
 
     private final int responseHeader;
 
+    /**
+     * <p>Constructor for SourceQueryAuthDecoder.</p>
+     *
+     * @param requestClass a {@link java.lang.Class} object
+     * @param responseHeader a int
+     */
     protected SourceQueryAuthDecoder(Class<T> requestClass, int responseHeader) {
         this.requestClass = Objects.requireNonNull(requestClass, "Request class not provided");
         this.responseHeader = responseHeader;
     }
 
+    /**
+     * <p>decodeQueryPacket.</p>
+     *
+     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param request a T object
+     * @param msg a {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} object
+     * @return a {@link java.lang.Object} object
+     * @throws java.lang.Exception if any.
+     */
     abstract protected Object decodeQueryPacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket msg) throws Exception;
 
+    /** {@inheritDoc} */
     @Override
     protected final boolean acceptPacket(SourceQueryMessage msg) {
         //some servers throw an empty info response for any type of requests (info, players and rules) so as long as we get a matching request AND the header and packet is empty, then we accept it
@@ -66,6 +81,7 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
         return accept;
     }
 
+    /** {@inheritDoc} */
     @Override
     protected final Object decodePacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket packet) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -21,6 +21,11 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * <p>Dota2TeamMemberDetails class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2TeamMemberDetails {
 
     @SerializedName("account_id")
@@ -37,6 +42,8 @@ public class Dota2TeamMemberDetails {
     private boolean sub;
 
     /**
+     * <p>Getter for the field <code>accountId</code>.</p>
+     *
      * @return The accountId
      */
     public long getAccountId() {
@@ -44,6 +51,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>Setter for the field <code>accountId</code>.</p>
+     *
      * @param accountId
      *         The account_id
      */
@@ -52,6 +61,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>Getter for the field <code>timeJoined</code>.</p>
+     *
      * @return The timeJoined
      */
     public long getTimeJoined() {
@@ -59,6 +70,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>Setter for the field <code>timeJoined</code>.</p>
+     *
      * @param timeJoined
      *         The time_joined
      */
@@ -67,6 +80,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>isAdmin.</p>
+     *
      * @return The admin
      */
     public boolean isAdmin() {
@@ -74,6 +89,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>Setter for the field <code>admin</code>.</p>
+     *
      * @param admin
      *         The admin
      */
@@ -82,6 +99,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>isSub.</p>
+     *
      * @return The sub
      */
     public boolean isSub() {
@@ -89,6 +108,8 @@ public class Dota2TeamMemberDetails {
     }
 
     /**
+     * <p>Setter for the field <code>sub</code>.</p>
+     *
      * @param sub
      *         The sub
      */
@@ -96,6 +117,7 @@ public class Dota2TeamMemberDetails {
         this.sub = sub;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

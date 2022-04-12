@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -20,6 +20,11 @@ import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+/**
+ * <p>Dota2ServerStatsPlayer class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2ServerStatsPlayer {
     @SerializedName("accountId")
     private long accountId;
@@ -51,6 +56,8 @@ public class Dota2ServerStatsPlayer {
     private double y;
 
     /**
+     * <p>Getter for the field <code>accountId</code>.</p>
+     *
      * @return The accountId
      */
     public long getAccountId() {
@@ -58,6 +65,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>accountId</code>.</p>
+     *
      * @param accountId
      *         The accountId
      */
@@ -66,6 +75,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>playerid</code>.</p>
+     *
      * @return The playerid
      */
     public int getPlayerid() {
@@ -73,6 +84,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>playerid</code>.</p>
+     *
      * @param playerid
      *         The playerid
      */
@@ -81,6 +94,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
      * @return The name
      */
     public String getName() {
@@ -88,6 +103,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
      * @param name
      *         The name
      */
@@ -96,6 +113,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>team</code>.</p>
+     *
      * @return The team
      */
     public int getTeam() {
@@ -103,6 +122,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>team</code>.</p>
+     *
      * @param team
      *         The team
      */
@@ -111,6 +132,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>heroid</code>.</p>
+     *
      * @return The heroid
      */
     public int getHeroid() {
@@ -118,6 +141,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>heroid</code>.</p>
+     *
      * @param heroid
      *         The heroid
      */
@@ -126,6 +151,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>level</code>.</p>
+     *
      * @return The level
      */
     public int getLevel() {
@@ -133,6 +160,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>level</code>.</p>
+     *
      * @param level
      *         The level
      */
@@ -141,6 +170,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>killCount</code>.</p>
+     *
      * @return The killCount
      */
     public int getKillCount() {
@@ -148,6 +179,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>killCount</code>.</p>
+     *
      * @param killCount
      *         The kill_count
      */
@@ -156,6 +189,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>deathCount</code>.</p>
+     *
      * @return The deathCount
      */
     public int getDeathCount() {
@@ -163,6 +198,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>deathCount</code>.</p>
+     *
      * @param deathCount
      *         The death_count
      */
@@ -171,6 +208,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>assistsCount</code>.</p>
+     *
      * @return The assistsCount
      */
     public int getAssistsCount() {
@@ -178,6 +217,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>assistsCount</code>.</p>
+     *
      * @param assistsCount
      *         The assists_count
      */
@@ -186,6 +227,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>deniesCount</code>.</p>
+     *
      * @return The deniesCount
      */
     public int getDeniesCount() {
@@ -193,6 +236,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>deniesCount</code>.</p>
+     *
      * @param deniesCount
      *         The denies_count
      */
@@ -201,6 +246,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>lhCount</code>.</p>
+     *
      * @return The lhCount
      */
     public int getLhCount() {
@@ -208,6 +255,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>lhCount</code>.</p>
+     *
      * @param lhCount
      *         The lh_count
      */
@@ -216,6 +265,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>gold</code>.</p>
+     *
      * @return The gold
      */
     public int getGold() {
@@ -223,6 +274,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>gold</code>.</p>
+     *
      * @param gold
      *         The gold
      */
@@ -231,6 +284,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>x</code>.</p>
+     *
      * @return The x
      */
     public double getX() {
@@ -238,6 +293,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>x</code>.</p>
+     *
      * @param x
      *         The x
      */
@@ -246,6 +303,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>y</code>.</p>
+     *
      * @return The y
      */
     public double getY() {
@@ -253,6 +312,8 @@ public class Dota2ServerStatsPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>y</code>.</p>
+     *
      * @param y
      *         The y
      */
@@ -260,6 +321,7 @@ public class Dota2ServerStatsPlayer {
         this.y = y;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

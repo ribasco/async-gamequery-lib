@@ -24,10 +24,21 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * <p>Net class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Net {
 
     private static final Pattern PATTERN_IP = Pattern.compile("(?<ip>\\b(?:[0-9]{1,3}\\.){3}[0-9]{1,3}\\b)|\\:(?<port>\\d*)");
 
+    /**
+     * <p>hostString.</p>
+     *
+     * @param address a {@link java.net.SocketAddress} object
+     * @return a {@link java.lang.String} object
+     */
     public static String hostString(SocketAddress address) {
         if (address == null)
             return "N/A";
@@ -37,6 +48,14 @@ public class Net {
         return address.toString();
     }
 
+    /**
+     * <p>parseAddress.</p>
+     *
+     * @param address a {@link java.lang.String} object
+     * @param defaultPort a int
+     * @return a {@link java.net.InetSocketAddress} object
+     * @throws java.text.ParseException if any.
+     */
     public static InetSocketAddress parseAddress(String address, int defaultPort) throws ParseException {
         if (address == null || address.trim().equalsIgnoreCase(""))
             throw new ParseException("Address cannot be blank", 0);
@@ -56,6 +75,12 @@ public class Net {
         return new InetSocketAddress(ip, port);
     }
 
+    /**
+     * <p>getAddresses.</p>
+     *
+     * @param host a {@link java.lang.String} object
+     * @return an array of {@link java.net.InetAddress} objects
+     */
     public static InetAddress[] getAddresses(String host) {
         try {
             return InetAddress.getAllByName(host);

@@ -27,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Default In-Memory {@link CredentialsStore}
+ * Default In-Memory {@link com.ibasco.agql.core.CredentialsStore}
  *
  * @author Rafael Luis Ibasco
  */
@@ -38,11 +38,13 @@ public class InMemoryCredentialsStore implements CredentialsStore {
 
     private final Map<InetSocketAddress, Credentials> credentials = new ConcurrentHashMap<>();
 
+    /** {@inheritDoc} */
     @Override
     public Credentials get(InetSocketAddress address) {
         return credentials.get(address);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void add(InetSocketAddress address, byte[] passphrase) {
         if (passphrase == null || passphrase.length == 0)
@@ -55,12 +57,14 @@ public class InMemoryCredentialsStore implements CredentialsStore {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void remove(InetSocketAddress address) {
         if (credentials.remove(address) != null)
             log.debug("CREDENTIALS_STORE => Unregistered credentials for address '{}'", address);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void clear() {
         int size = credentials.size();
@@ -68,6 +72,7 @@ public class InMemoryCredentialsStore implements CredentialsStore {
         log.debug("CREDENTIALS_STORE => Cleared a total of '{}' credentials", size);
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean exists(InetSocketAddress address) {
         return credentials.containsKey(address);

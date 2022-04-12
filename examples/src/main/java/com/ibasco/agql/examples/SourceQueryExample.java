@@ -73,8 +73,17 @@ public class SourceQueryExample extends BaseExample {
 
     private Boolean skipServersInError;
 
+    /**
+     * <p>Constructor for SourceQueryExample.</p>
+     */
     public SourceQueryExample() {}
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args an array of {@link java.lang.String} objects
+     * @throws java.lang.Exception if any.
+     */
     public static void main(String[] args) throws Exception {
         SourceQueryExample example = new SourceQueryExample();
         example.run(args);
@@ -90,6 +99,7 @@ public class SourceQueryExample extends BaseExample {
                                                                             new LinkedBlockingQueue<>(),
                                                                             new DefaultThreadFactory("query"));
 
+    /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         try {
@@ -114,7 +124,7 @@ public class SourceQueryExample extends BaseExample {
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
                                                 .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
-                                                .option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor)
+                                                //.option(TransportOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
                                                 .option(TransportOptions.READ_TIMEOUT, 5000)
                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
@@ -124,7 +134,7 @@ public class SourceQueryExample extends BaseExample {
             // - Provide a custom executor for master client. We are responsible for shutting down this executor, not the library.
             Options masterOptions = OptionBuilder.newBuilder()
                                                  .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                 .option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor)
+                                                 //.option(TransportOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
                                                  .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runQueries();
@@ -134,6 +144,11 @@ public class SourceQueryExample extends BaseExample {
         }
     }
 
+    /**
+     * <p>runQueries.</p>
+     *
+     * @throws java.lang.Exception if any.
+     */
     public void runQueries() throws Exception {
         Boolean queryAllServers = promptInputBool("Query all available servers? (y/n)", true, "y", "queryAllServers");
         long start, end;
@@ -276,6 +291,7 @@ public class SourceQueryExample extends BaseExample {
                                 .thenCombine(queryClient.getRules(address).handle(QueryResponse.ofRulesType()), result::aggregate);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         close(queryClient, "Query");

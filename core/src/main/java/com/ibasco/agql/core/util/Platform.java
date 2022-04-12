@@ -48,6 +48,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.*;
+import java.util.function.Supplier;
 
 /**
  * Platform specific implementation
@@ -59,11 +60,11 @@ public final class Platform {
 
     private static final Logger log = LoggerFactory.getLogger(Platform.class);
 
+    /** Constant <code>DEFAULT_THREAD_SIZE=Runtime.getRuntime().availableProcessors() + 1</code> */
     public static final int DEFAULT_THREAD_SIZE = Runtime.getRuntime().availableProcessors() + 1;
 
+    /** Constant <code>DEFAULT_THREAD_GROUP</code> */
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
-
-    private static ThreadPoolExecutor DEFAULT_EXECUTOR;
 
     private static ThreadFactory DEFAULT_THREAD_FACTORY;
 
@@ -75,27 +76,38 @@ public final class Platform {
 
     private static final List<Queue<Runnable>> TASK_QUEUE_LIST = new ArrayList<>();
 
+    private static final String GLOBAL_DEFAULT_EXECUTOR_KEY = "globalDefaultExecutor";
+
+    private static final Supplier<AgqlManagedExecutorService> DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(DEFAULT_THREAD_SIZE, Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
+
+    //initialize resource provider for the default global executor service
+    private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER);
+
     private Platform() {}
 
     static {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                if (DEFAULT_EXECUTOR != null) {
-                    if (Concurrency.shutdown(DEFAULT_EXECUTOR)) {
-                        log.debug("PLATFORM => Default global executor has shutdown gracefully");
-                    }
-                }
-                if (DEFAULT_EVENT_LOOP_GROUP != null) {
-                    if (Concurrency.shutdown(DEFAULT_EVENT_LOOP_GROUP)) {
-                        log.debug("PLATFORM => Default global event loop group has shutdown gracefully");
-                    }
-                }
-            }
-        });
+        //ensure shutdown is called
+        Runtime.getRuntime().addShutdownHook(new Thread(Platform::shutdown));
         log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
     }
 
+    /**
+     * Perform a graceful shutdown. This will attempt to shutdown the internal default global executors provided the library.
+     */
+    public static void shutdown() {
+        ExecutorService defaultExecutor = getDefaultExecutor();
+        if (defaultExecutor != null) {
+            if (Concurrency.shutdown(defaultExecutor)) {
+                log.debug("PLATFORM => Default global executor has shutdown gracefully");
+            }
+        }
+    }
+
+    /**
+     * <p>getDefaultQueue.</p>
+     *
+     * @return a {@link java.util.concurrent.BlockingQueue} object
+     */
     public static synchronized BlockingQueue<Runnable> getDefaultQueue() {
         if (DEFAULT_QUEUE == null) {
             DEFAULT_QUEUE = new LinkedBlockingQueue<>();
@@ -104,7 +116,9 @@ public final class Platform {
     }
 
     /**
-     * @return The default {@link ThreadFactory} used by this library
+     * <p>getDefaultThreadFactory.</p>
+     *
+     * @return The default {@link java.util.concurrent.ThreadFactory} used by this library
      */
     public static synchronized ThreadFactory getDefaultThreadFactory() {
         if (DEFAULT_THREAD_FACTORY == null)
@@ -113,44 +127,44 @@ public final class Platform {
     }
 
     /**
-     * Check if the specified {@link Executor} is a shared global executor provided by the library
+     * Check if the specified {@link java.util.concurrent.Executor} is a shared global executor provided by the library
      *
      * @param executor
-     *         The {@link Executor} to check
+     *         The {@link java.util.concurrent.Executor} to check
      *
-     * @return {@code true} if the {@link Executor} is global
+     * @return {@code true} if the {@link java.util.concurrent.Executor} is global
      */
-    public static boolean isGlobal(Executor executor) {
+    public static boolean isDefaultExecutor(Executor executor) {
         if (executor == null)
             return false;
-        return DEFAULT_EXECUTOR == executor || DEFAULT_EVENT_LOOP_GROUP == executor;
-    }
-
-    /**
-     * The global {@link ExecutorService} used by all clients by default. This is shutdown automatically
-     *
-     * @return The default global {@link ExecutorService}
-     */
-    public static synchronized ThreadPoolExecutor getDefaultExecutor() {
-        if (DEFAULT_EXECUTOR == null) {
-            DEFAULT_EXECUTOR = new ThreadPoolExecutor(DEFAULT_THREAD_SIZE,
-                                                      Integer.MAX_VALUE,
-                                                      Long.MAX_VALUE,
-                                                      TimeUnit.MILLISECONDS,
-                                                      getDefaultQueue(),
-                                                      getDefaultThreadFactory());
+        AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
+        try {
+            return svc == executor || svc.getResource() == executor;
+        } finally {
+            svc.release();
         }
-        return DEFAULT_EXECUTOR;
     }
 
     /**
-     * The global {@link EventLoopGroup} shared across all clients by default. Upon shutdown, the default executor will also be automatically closed.
+     * <p>
+     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default (FOR INTERNAL USE ONLY, USE AT YOUR OWN RISK).
+     * </p>
      *
-     * @return The global {@link EventLoopGroup}
+     * @return The default global {@link java.util.concurrent.ExecutorService}
+     */
+    @ApiStatus.Internal
+    public static ExecutorService getDefaultExecutor() {
+        return DEFAULT_EXECUTOR_PROVIDER.acquire(GLOBAL_DEFAULT_EXECUTOR_KEY);
+    }
+
+    /**
+     * The global {@link io.netty.channel.EventLoopGroup} shared across all clients by default. Upon shutdown, the default executor will also be automatically closed.
+     *
+     * @return The global {@link io.netty.channel.EventLoopGroup}
      */
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
-            final ThreadPoolExecutor executor = getDefaultExecutor();
+            final ThreadPoolExecutor executor = ((AgqlManagedExecutorService) getDefaultExecutor()).getResource();
             DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), true);
             //noinspection unchecked
             DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
@@ -167,14 +181,37 @@ public final class Platform {
         return DEFAULT_EVENT_LOOP_GROUP;
     }
 
+    /**
+     * <p>getDefaultPoolSize.</p>
+     *
+     * @return a int
+     */
     public static int getDefaultPoolSize() {
-        return getDefaultExecutor().getCorePoolSize();
+        return DEFAULT_THREAD_SIZE;
     }
 
+    /**
+     * <p>creeateThreadGroup.</p>
+     *
+     * @param cls
+     *         a {@link java.lang.Class} object
+     *
+     * @return a {@link java.lang.ThreadGroup} object
+     */
     public static ThreadGroup creeateThreadGroup(Class<?> cls) {
         return creeateThreadGroup(cls, null);
     }
 
+    /**
+     * <p>creeateThreadGroup.</p>
+     *
+     * @param cls
+     *         a {@link java.lang.Class} object
+     * @param parent
+     *         a {@link java.lang.ThreadGroup} object
+     *
+     * @return a {@link java.lang.ThreadGroup} object
+     */
     public static ThreadGroup creeateThreadGroup(Class<?> cls, ThreadGroup parent) {
         String name = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(cls.getSimpleName()), "-").toLowerCase();
         if (parent == null) {
@@ -184,6 +221,11 @@ public final class Platform {
         }
     }
 
+    /**
+     * <p>getTaskQueueList.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
     public static List<Queue<Runnable>> getTaskQueueList() {
         return TASK_QUEUE_LIST;
     }
@@ -201,16 +243,16 @@ public final class Platform {
     }
 
     /**
-     * Creates a new {@link EventLoopGroup} instance. The default is {@link NioEventLoopGroup}
+     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
      *
      * @param executor
-     *         The {@link Executor} to be used by the {@link EventLoopGroup}
+     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
      * @param nThreads
-     *         The number of threads to be used by the {@link EventLoopGroup}. If a custom {@link Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
      * @param useNative
      *         {@code true} to use native transports when available (e.g. epoll for linux, kqueue for osx).
      *
-     * @return A new {@link EventLoopGroup} instance
+     * @return A new {@link io.netty.channel.EventLoopGroup} instance
      */
     public static EventLoopGroup createEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
         EventLoopGroup elg = null;
@@ -228,20 +270,20 @@ public final class Platform {
     }
 
     /**
-     * Creates a new {@link EventLoopGroup} instance. The default is {@link NioEventLoopGroup}
+     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
      *
      * @param channelClass
-     *         The netty channel {@link Class} that will be used as a referece to lookup the {@link EventLoopGroup}
+     *         The netty channel {@link java.lang.Class} that will be used as a referece to lookup the {@link io.netty.channel.EventLoopGroup}
      * @param executor
-     *         The {@link Executor} to be used by the {@link EventLoopGroup}
+     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
      * @param nThreads
-     *         The number of threads to be used by the {@link EventLoopGroup}. If a custom {@link Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
      *
-     * @return A new {@link EventLoopGroup} instance
+     * @return A new {@link io.netty.channel.EventLoopGroup} instance
      *
-     * @throws IllegalStateException
+     * @throws java.lang.IllegalStateException
      *         If channelClass is not supported
-     * @throws IllegalArgumentException
+     * @throws java.lang.IllegalArgumentException
      *         If channelClass is {@code null}
      */
     public static EventLoopGroup createEventLoopGroup(Class<? extends Channel> channelClass, Executor executor, int nThreads) {
@@ -258,6 +300,16 @@ public final class Platform {
         }
     }
 
+    /**
+     * <p>Retrieves the channel class based on the provided {@link EventLoopGroup}.</p>
+     *
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param group
+     *         a {@link io.netty.channel.EventLoopGroup} object
+     *
+     * @return a {@link java.lang.Class} object
+     */
     public static Class<? extends Channel> getChannelClass(TransportType type, EventLoopGroup group) {
         Objects.requireNonNull(type, "Transport type not specified");
         Objects.requireNonNull(group, "Event Loop Group must not be null");
@@ -272,6 +324,16 @@ public final class Platform {
         }
     }
 
+    /**
+     * <p>Retrieves the channel class based on the detected platform</p>
+     *
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param useNativeTransport
+     *         a boolean
+     *
+     * @return a {@link java.lang.Class} object
+     */
     public static Class<? extends Channel> getChannelClass(TransportType type, boolean useNativeTransport) {
         Class<? extends Channel> channelClass = null;
         if (useNativeTransport) {

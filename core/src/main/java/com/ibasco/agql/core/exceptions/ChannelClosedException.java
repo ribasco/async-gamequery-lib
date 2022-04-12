@@ -27,20 +27,43 @@ public class ChannelClosedException extends AsyncGameLibCheckedException {
 
     private final Channel channel;
 
+    /**
+     * <p>Constructor for ChannelClosedException.</p>
+     *
+     * @param channel a {@link io.netty.channel.Channel} object
+     */
     public ChannelClosedException(Channel channel) {
         this(null, channel);
     }
 
+    /**
+     * <p>Constructor for ChannelClosedException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param channel a {@link io.netty.channel.Channel} object
+     */
     public ChannelClosedException(String message, Channel channel) {
         super(message);
         this.channel = channel;
     }
 
+    /**
+     * <p>Constructor for ChannelClosedException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param channel a {@link io.netty.channel.Channel} object
+     */
     public ChannelClosedException(String message, Throwable cause, Channel channel) {
         super(message, cause);
         this.channel = channel;
     }
 
+    /**
+     * <p>Getter for the field <code>channel</code>.</p>
+     *
+     * @return a {@link io.netty.channel.Channel} object
+     */
     public final Channel getChannel() {
         return channel;
     }

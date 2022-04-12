@@ -35,8 +35,7 @@ abstract public class SourceQueryPacket extends AbstractPacket {
      * @param type
      *         The type of this packet. Single (0xFFFFFFFF or -1) or Split-packet (0xFFFFFFFE or -2).
      * @param data
-     *         The underlying payload of this packet wrapped in {@link ByteBuf}
-     *
+     *         The underlying payload of this packet wrapped in {@link io.netty.buffer.ByteBuf}
      * @see SourceQuery#SOURCE_PACKET_TYPE_SINGLE
      * @see SourceQuery#SOURCE_PACKET_TYPE_SPLIT
      */
@@ -46,10 +45,9 @@ abstract public class SourceQueryPacket extends AbstractPacket {
     }
 
     /**
-     * The type of this {@link SourceQueryPacket}
+     * The type of this {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket}
      *
      * @return The type of this packet. Single (0xFFFFFFFF or -1) or Split-packet (0xFFFFFFFE or -2).
-     *
      * @see SourceQuery#SOURCE_PACKET_TYPE_SINGLE
      * @see SourceQuery#SOURCE_PACKET_TYPE_SPLIT
      */

@@ -35,6 +35,11 @@ public enum SourceChallengeType {
         this.header = header;
     }
 
+    /**
+     * <p>Getter for the field <code>header</code>.</p>
+     *
+     * @return a int
+     */
     public int getHeader() {
         return header;
     }

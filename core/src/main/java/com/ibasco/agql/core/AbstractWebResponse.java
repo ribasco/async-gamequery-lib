@@ -19,16 +19,36 @@ package com.ibasco.agql.core;
 import io.netty.handler.codec.http.HttpStatusClass;
 import org.asynchttpclient.Response;
 
+/**
+ * <p>Abstract AbstractWebResponse class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class AbstractWebResponse extends AbstractResponse<Response> {
 
+    /**
+     * <p>Constructor for AbstractWebResponse.</p>
+     *
+     * @param response a {@link org.asynchttpclient.Response} object
+     */
     public AbstractWebResponse(Response response) {
         super(response);
     }
 
+    /**
+     * <p>getStatus.</p>
+     *
+     * @return a {@link io.netty.handler.codec.http.HttpStatusClass} object
+     */
     public HttpStatusClass getStatus() {
         return HttpStatusClass.valueOf(getMessage().getStatusCode());
     }
 
+    /**
+     * <p>getMessage.</p>
+     *
+     * @return a {@link org.asynchttpclient.Response} object
+     */
     public Response getMessage() {
         return super.getResult();
     }

@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,8 @@ import java.util.Set;
 
 /**
  * A Builder class for Clan Search Criteria
+ *
+ * @author Rafael Luis Ibasco
  */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
@@ -32,9 +34,9 @@ public class CocSearchCriteria {
     private final Map<String, Object> criteria = new HashMap<>();
 
     /**
-     * <p>A factory method to create a {@link CocSearchCriteria} instance</p>
+     * <p>A factory method to create a {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance</p>
      *
-     * @return A {@link CocSearchCriteria} instance
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public static CocSearchCriteria create() {
         return new CocSearchCriteria();
@@ -46,9 +48,8 @@ public class CocSearchCriteria {
      * Name search parameter is interpreted as wild card search, so it may appear anywhere in the clan name.
      * </p>
      *
-     * @param name
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param name a {@link java.lang.String} object
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria name(String name) {
         criteria.put("name", name);
@@ -58,9 +59,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by clan war frequency</p>
      *
-     * @param frequency
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param frequency a {@link com.ibasco.agql.protocols.supercell.coc.webapi.enums.CocWarFrequency} object
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria warFrequency(CocWarFrequency frequency) {
         criteria.put("warFrequency", frequency.getCode());
@@ -70,9 +70,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by clan location identifier. For list of available locations, refer to getLocations operation.</p>
      *
-     * @param locationId
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param locationId a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria locationId(int locationId) {
         criteria.put("locationId", locationId);
@@ -82,9 +81,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum amount of clan members.</p>
      *
-     * @param minMembers
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param minMembers a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minMembers(int minMembers) {
         criteria.put("minMembers", minMembers);
@@ -94,9 +92,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by maximum amount of clan members.</p>
      *
-     * @param maxMembers
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param maxMembers a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria maxMembers(int maxMembers) {
         criteria.put("maxMembers", maxMembers);
@@ -106,9 +103,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum amount of clan points.</p>
      *
-     * @param minClanPoints
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param minClanPoints a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minClanPoints(int minClanPoints) {
         criteria.put("minClanPoints", minClanPoints);
@@ -118,9 +114,8 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum clan level.</p>
      *
-     * @param minClanLevel
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param minClanLevel a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minClanLevel(int minClanLevel) {
         criteria.put("minClanLevel", minClanLevel);
@@ -130,9 +125,8 @@ public class CocSearchCriteria {
     /**
      * <p>Limit the number of items returned in the response.</p>
      *
-     * @param limit
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param limit a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria limit(int limit) {
         criteria.put("limit", limit);
@@ -146,9 +140,8 @@ public class CocSearchCriteria {
      * Note that only after or before can be specified for a request, not both.
      * </p>
      *
-     * @param after
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param after a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria after(int after) {
         criteria.put("after", after);
@@ -162,9 +155,8 @@ public class CocSearchCriteria {
      * Note that only after or before can be specified for a request, not both.
      * </p>
      *
-     * @param before
-     *
-     * @return A {@link CocSearchCriteria} instance
+     * @param before a int
+     * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria before(int before) {
         criteria.put("before", before);
@@ -174,7 +166,7 @@ public class CocSearchCriteria {
     /**
      * <p>Returns the underlying set containing all the search criterias</p>
      *
-     * @return A {@link Set} containing all the search criterias wrapped within a {@link java.util.Map.Entry}
+     * @return A {@link java.util.Set} containing all the search criterias wrapped within a {@link java.util.Map.Entry}
      */
     public Set<Map.Entry<String, Object>> getCriteriaSet() {
         return criteria.entrySet();

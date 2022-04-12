@@ -18,7 +18,18 @@ package com.ibasco.agql.core.util;
 
 import java.util.zip.CRC32;
 
+/**
+ * <p>Compression class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Compression {
+    /**
+     * <p>getCrc32Checksum.</p>
+     *
+     * @param data an array of {@link byte} objects
+     * @return a long
+     */
     public static long getCrc32Checksum(byte[] data) {
         CRC32 crc32 = new CRC32();
         crc32.update(data);

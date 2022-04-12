@@ -16,23 +16,55 @@
 
 package com.ibasco.agql.core.exceptions;
 
+/**
+ * <p>NoMessageHandlerException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class NoMessageHandlerException extends AsyncGameLibCheckedException {
 
+    /**
+     * <p>Constructor for NoMessageHandlerException.</p>
+     */
     public NoMessageHandlerException() {
     }
 
+    /**
+     * <p>Constructor for NoMessageHandlerException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     */
     public NoMessageHandlerException(String message) {
         super(message);
     }
 
+    /**
+     * <p>Constructor for NoMessageHandlerException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     */
     public NoMessageHandlerException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * <p>Constructor for NoMessageHandlerException.</p>
+     *
+     * @param cause a {@link java.lang.Throwable} object
+     */
     public NoMessageHandlerException(Throwable cause) {
         super(cause);
     }
 
+    /**
+     * <p>Constructor for NoMessageHandlerException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param enableSuppression a boolean
+     * @param writableStackTrace a boolean
+     */
     public NoMessageHandlerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

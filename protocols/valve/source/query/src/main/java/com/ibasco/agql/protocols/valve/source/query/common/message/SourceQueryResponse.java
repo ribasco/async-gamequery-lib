@@ -23,14 +23,22 @@ import com.ibasco.agql.core.AbstractResponse;
  *
  * @param <T>
  *         The underlying type of the response
+ * @author Rafael Luis Ibasco
  */
 abstract public class SourceQueryResponse<T> extends AbstractResponse<T> {
 
+    /**
+     * <p>Constructor for SourceQueryResponse.</p>
+     *
+     * @param result a T object
+     */
     protected SourceQueryResponse(T result) {
         super(result);
     }
 
     /**
+     * <p>getResult.</p>
+     *
      * @return The result of the query
      */
     public final T getResult() {

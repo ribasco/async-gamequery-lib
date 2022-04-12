@@ -16,23 +16,55 @@
 
 package com.ibasco.agql.core.exceptions;
 
+/**
+ * <p>ChannelRegistrationException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class ChannelRegistrationException extends AsyncGameLibCheckedException {
 
+    /**
+     * <p>Constructor for ChannelRegistrationException.</p>
+     */
     public ChannelRegistrationException() {
     }
 
+    /**
+     * <p>Constructor for ChannelRegistrationException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     */
     public ChannelRegistrationException(String message) {
         super(message);
     }
 
+    /**
+     * <p>Constructor for ChannelRegistrationException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     */
     public ChannelRegistrationException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * <p>Constructor for ChannelRegistrationException.</p>
+     *
+     * @param cause a {@link java.lang.Throwable} object
+     */
     public ChannelRegistrationException(Throwable cause) {
         super(cause);
     }
 
+    /**
+     * <p>Constructor for ChannelRegistrationException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     * @param enableSuppression a boolean
+     * @param writableStackTrace a boolean
+     */
     public ChannelRegistrationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }

@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 import java.util.LinkedList;
 
 /**
- * A special channel factory which decorates an exiting {@link NettyChannelFactory} and ensures that the acquired/created {@link io.netty.channel.Channel} is fully authenticated by the remote server
+ * A special channel factory which decorates an exiting {@link com.ibasco.agql.core.transport.NettyChannelFactory} and ensures that the acquired/created {@link io.netty.channel.Channel} is fully authenticated by the remote server
  *
  * @author Rafael Luis Ibasco
  */
@@ -37,11 +37,17 @@ public final class SourceRconChannelFactory extends NettyChannelFactoryInitializ
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconChannelFactory.class);
 
+    /**
+     * <p>Constructor for SourceRconChannelFactory.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     public SourceRconChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
         setResolver(new DefaultPoolPropertyResolver(new DefaultPropertyResolver()));
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerInboundHandlers(final LinkedList<ChannelInboundHandler> handlers) {
         handlers.addLast(new SourceRconPacketDecoder());
@@ -50,6 +56,7 @@ public final class SourceRconChannelFactory extends NettyChannelFactoryInitializ
         handlers.addLast(new SourceRconCmdDecoder());
     }
 
+    /** {@inheritDoc} */
     @Override
     public void registerOutboundHandlers(final LinkedList<ChannelOutboundHandler> handlers) {
         handlers.addLast(new SourceRconAuthEncoder());

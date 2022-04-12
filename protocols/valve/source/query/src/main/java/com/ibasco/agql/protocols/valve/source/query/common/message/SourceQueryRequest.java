@@ -18,6 +18,11 @@ package com.ibasco.agql.protocols.valve.source.query.common.message;
 
 import com.ibasco.agql.core.AbstractRequest;
 
+/**
+ * <p>Abstract SourceQueryRequest class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 abstract public class SourceQueryRequest extends AbstractRequest {
 
 }

@@ -40,60 +40,76 @@ abstract public class NettyChannelFactoryDecorator implements NettyChannelFactor
 
     private final NettyChannelFactory channelFactory;
 
+    /**
+     * <p>Constructor for NettyChannelFactoryDecorator.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     protected NettyChannelFactoryDecorator(final NettyChannelFactory channelFactory) {
         this.channelFactory = Objects.requireNonNull(channelFactory, "Channel factory must not be null");
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
         return this.channelFactory.create(data);
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
         return this.channelFactory.create(data, eventLoop);
     }
 
+    /** {@inheritDoc} */
     @Override
     public EventLoopGroup getExecutor() {
         return this.channelFactory.getExecutor();
     }
 
+    /** {@inheritDoc} */
     @Override
     public TransportType getTransportType() {
         return this.channelFactory.getTransportType();
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyChannelInitializer getChannelInitializer() {
         return this.channelFactory.getChannelInitializer();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setChannelInitializer(NettyChannelInitializer channelInitializer) {
         this.channelFactory.setChannelInitializer(channelInitializer);
     }
 
+    /** {@inheritDoc} */
     @Override
     public NettyPropertyResolver getResolver() {
         return this.channelFactory.getResolver();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void setResolver(NettyPropertyResolver resolver) {
         this.channelFactory.setResolver(resolver);
     }
 
+    /** {@inheritDoc} */
     @Override
     public Bootstrap getBootstrap() {
         return this.channelFactory.getBootstrap();
     }
 
+    /** {@inheritDoc} */
     @Override
     public Options getOptions() {
         return this.channelFactory.getOptions();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         this.channelFactory.close();

@@ -85,15 +85,15 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-pool"));
 
     /**
-     * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
+     * Creates a new instance using the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker#ACTIVE}.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param maxConnections
      *         the number of maximal active connections, once this is reached new tries to acquire
-     *         a {@link Channel} will be delayed until a connection is returned to the pool again.
+     *         a {@link io.netty.channel.Channel} will be delayed until a connection is returned to the pool again.
      */
     @SuppressWarnings("unused")
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
@@ -102,15 +102,15 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     }
 
     /**
-     * Creates a new instance using the {@link ChannelHealthChecker#ACTIVE}.
+     * Creates a new instance using the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker#ACTIVE}.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param maxConnections
      *         the number of maximal active connections, once this is reached new tries to
-     *         acquire a {@link Channel} will be delayed until a connection is returned to the
+     *         acquire a {@link io.netty.channel.Channel} will be delayed until a connection is returned to the
      *         pool again.
      * @param maxPendingAcquires
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
@@ -125,21 +125,21 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      * @param action
-     *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} to use or {@code null} if non should be used.
      *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
-     *         the {@link AcquireTimeoutAction} takes place.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} takes place.
      * @param maxConnections
      *         the number of maximal active connections, once this is reached new tries to
-     *         acquire a {@link Channel} will be delayed until a connection is returned to the
+     *         acquire a {@link io.netty.channel.Channel} will be delayed until a connection is returned to the
      *         pool again.
      * @param maxPendingAcquires
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
@@ -157,21 +157,21 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      * @param action
-     *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} to use or {@code null} if non should be used.
      *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
-     *         the {@link AcquireTimeoutAction} takes place.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} takes place.
      * @param maxConnections
      *         the number of maximal active connections, once this is reached new tries to
-     *         acquire a {@link Channel} will be delayed until a connection is returned to the
+     *         acquire a {@link io.netty.channel.Channel} will be delayed until a connection is returned to the
      *         pool again.
      * @param maxPendingAcquires
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
@@ -179,6 +179,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * @param releaseHealthCheck
      *         will check channel health before offering back if this parameter set to
      *         {@code true}.
+     * @param releaseStrategy a ReleaseStrategy object
      */
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
@@ -192,21 +193,21 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * Creates a new instance.
      *
      * @param channelFactory
-     *         callback which returns a {@link CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link Channel}
+     *         callback which returns a {@link java.util.concurrent.CompletableFuture}, when transitions to a complete state, the future returns a new connected {@link io.netty.channel.Channel}
      * @param handler
-     *         the {@link ChannelPoolHandler} that will be notified for the different pool actions
+     *         the {@link io.netty.channel.pool.ChannelPoolHandler} that will be notified for the different pool actions
      * @param healthCheck
-     *         the {@link ChannelHealthChecker} that will be used to check if a {@link Channel} is
-     *         still healthy when obtain from the {@link NettyChannelPool}
+     *         the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker} that will be used to check if a {@link io.netty.channel.Channel} is
+     *         still healthy when obtain from the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool}
      * @param action
-     *         the {@link AcquireTimeoutAction} to use or {@code null} if non should be used.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} to use or {@code null} if non should be used.
      *         In this case {@code acquireTimeoutMillis} must be {@code -1}.
      * @param acquireTimeoutMillis
      *         the time (in milliseconds) after which an pending acquire must complete or
-     *         the {@link AcquireTimeoutAction} takes place.
+     *         the {@link com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction} takes place.
      * @param maxConnections
      *         the number of maximal active connections, once this is reached new tries to
-     *         acquire a {@link Channel} will be delayed until a connection is returned to the
+     *         acquire a {@link io.netty.channel.Channel} will be delayed until a connection is returned to the
      *         pool again.
      * @param maxPendingAcquires
      *         the maximum number of pending acquires. Once this is exceed acquire tries will
@@ -215,7 +216,8 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         will check channel health before offering back if this parameter set to
      *         {@code true}.
      * @param lastRecentUsed
-     *         {@code true} {@link Channel} selection will be LIFO, if {@code false} FIFO.
+     *         {@code true} {@link io.netty.channel.Channel} selection will be LIFO, if {@code false} FIFO.
+     * @param releaseStrategy a ReleaseStrategy object
      */
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
@@ -276,12 +278,17 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         this.maxPendingAcquires = maxPendingAcquires;
     }
 
-    /** Returns the number of acquired channels that this pool thinks it has. */
+    /**
+     * Returns the number of acquired channels that this pool thinks it has.
+     *
+     * @return a int
+     */
     @SuppressWarnings("unused")
     public int getTotalAcquiredChannels() {
         return acquiredChannelCount.get();
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, final CompletableFuture<Channel> promise) {
         try {
@@ -339,6 +346,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         promise.completeExceptionally(new IllegalStateException("Too many outstanding acquire operations"));
     }
 
+    /** {@inheritDoc} */
     @Override
     public CompletableFuture<Void> release(final Channel channel, final CompletableFuture<Void> promise) {
         ObjectUtil.checkNotNull(promise, "promise");
@@ -503,6 +511,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() {
         try {
@@ -517,9 +526,9 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
     }
 
     /**
-     * Closes the pool in an async manner.
+     * {@inheritDoc}
      *
-     * @return Future which represents completion of the close task
+     * Closes the pool in an async manner.
      */
     @Override
     public CompletableFuture<Void> closeAsync() {

@@ -22,20 +22,27 @@ import io.netty.channel.ChannelOutboundHandler;
 import java.util.LinkedList;
 
 /**
- * A special {@link NettyChannelFactoryDecorator} which allows concrete sub-classes to register inbound and outbound {@link io.netty.channel.ChannelHandler}s.
+ * A special {@link com.ibasco.agql.core.transport.NettyChannelFactoryDecorator} which allows concrete sub-classes to register inbound and outbound {@link io.netty.channel.ChannelHandler}s.
  *
  * @author Rafael Luis Ibasco
  */
 abstract public class NettyChannelFactoryInitializer extends NettyChannelFactoryDecorator implements NettyChannelHandlerInitializer {
 
+    /**
+     * <p>Constructor for NettyChannelFactoryInitializer.</p>
+     *
+     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
     protected NettyChannelFactoryInitializer(NettyChannelFactory channelFactory) {
         super(channelFactory);
         channelFactory.getChannelInitializer().setHandlerInitializer(this);
     }
 
+    /** {@inheritDoc} */
     @Override
     abstract public void registerInboundHandlers(final LinkedList<ChannelInboundHandler> handlers);
 
+    /** {@inheritDoc} */
     @Override
     abstract public void registerOutboundHandlers(final LinkedList<ChannelOutboundHandler> handlers);
 }

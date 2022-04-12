@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2MatchPlayer class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2MatchPlayer {
 
     @SerializedName("account_id")
@@ -81,6 +86,8 @@ public class Dota2MatchPlayer {
     private List<Dota2MatchAbilityUpgrade> abilityUpgrades = new ArrayList<>();
 
     /**
+     * <p>Getter for the field <code>accountId</code>.</p>
+     *
      * @return The accountId
      */
     public long getAccountId() {
@@ -88,6 +95,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>accountId</code>.</p>
+     *
      * @param accountId
      *         The account_id
      */
@@ -96,6 +105,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>playerSlot</code>.</p>
+     *
      * @return The playerSlot
      */
     public int getPlayerSlot() {
@@ -103,6 +114,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>playerSlot</code>.</p>
+     *
      * @param playerSlot
      *         The player_slot
      */
@@ -111,6 +124,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>heroId</code>.</p>
+     *
      * @return The heroId
      */
     public int getHeroId() {
@@ -118,6 +133,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>heroId</code>.</p>
+     *
      * @param heroId
      *         The hero_id
      */
@@ -126,6 +143,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item0</code>.</p>
+     *
      * @return The item0
      */
     public int getItem0() {
@@ -133,6 +152,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item0</code>.</p>
+     *
      * @param item0
      *         The item_0
      */
@@ -141,6 +162,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item1</code>.</p>
+     *
      * @return The item1
      */
     public int getItem1() {
@@ -148,6 +171,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item1</code>.</p>
+     *
      * @param item1
      *         The item_1
      */
@@ -156,6 +181,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item2</code>.</p>
+     *
      * @return The item2
      */
     public int getItem2() {
@@ -163,6 +190,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item2</code>.</p>
+     *
      * @param item2
      *         The item_2
      */
@@ -171,6 +200,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item3</code>.</p>
+     *
      * @return The item3
      */
     public int getItem3() {
@@ -178,6 +209,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item3</code>.</p>
+     *
      * @param item3
      *         The item_3
      */
@@ -186,6 +219,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item4</code>.</p>
+     *
      * @return The item4
      */
     public int getItem4() {
@@ -193,6 +228,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item4</code>.</p>
+     *
      * @param item4
      *         The item_4
      */
@@ -201,6 +238,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>item5</code>.</p>
+     *
      * @return The item5
      */
     public int getItem5() {
@@ -208,6 +247,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>item5</code>.</p>
+     *
      * @param item5
      *         The item_5
      */
@@ -216,6 +257,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>kills</code>.</p>
+     *
      * @return The kills
      */
     public int getKills() {
@@ -223,6 +266,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>kills</code>.</p>
+     *
      * @param kills
      *         The kills
      */
@@ -231,6 +276,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>deaths</code>.</p>
+     *
      * @return The deaths
      */
     public int getDeaths() {
@@ -238,6 +285,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>deaths</code>.</p>
+     *
      * @param deaths
      *         The deaths
      */
@@ -246,6 +295,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>assists</code>.</p>
+     *
      * @return The assists
      */
     public int getAssists() {
@@ -253,6 +304,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>assists</code>.</p>
+     *
      * @param assists
      *         The assists
      */
@@ -261,6 +314,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>leaverStatus</code>.</p>
+     *
      * @return The leaverStatus
      */
     public int getLeaverStatus() {
@@ -268,6 +323,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>leaverStatus</code>.</p>
+     *
      * @param leaverStatus
      *         The leaver_status
      */
@@ -276,6 +333,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>lastHits</code>.</p>
+     *
      * @return The lastHits
      */
     public int getLastHits() {
@@ -283,6 +342,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>lastHits</code>.</p>
+     *
      * @param lastHits
      *         The last_hits
      */
@@ -291,6 +352,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>denies</code>.</p>
+     *
      * @return The denies
      */
     public int getDenies() {
@@ -298,6 +361,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>denies</code>.</p>
+     *
      * @param denies
      *         The denies
      */
@@ -306,6 +371,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>goldPerMin</code>.</p>
+     *
      * @return The goldPerMin
      */
     public int getGoldPerMin() {
@@ -313,6 +380,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>goldPerMin</code>.</p>
+     *
      * @param goldPerMin
      *         The gold_per_min
      */
@@ -321,6 +390,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>xpPerMin</code>.</p>
+     *
      * @return The xpPerMin
      */
     public int getXpPerMin() {
@@ -328,6 +399,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>xpPerMin</code>.</p>
+     *
      * @param xpPerMin
      *         The xp_per_min
      */
@@ -336,6 +409,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>level</code>.</p>
+     *
      * @return The level
      */
     public int getLevel() {
@@ -343,6 +418,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>level</code>.</p>
+     *
      * @param level
      *         The level
      */
@@ -351,6 +428,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>heroDamage</code>.</p>
+     *
      * @return The heroDamage
      */
     public int getHeroDamage() {
@@ -358,6 +437,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>heroDamage</code>.</p>
+     *
      * @param heroDamage
      *         The hero_damage
      */
@@ -366,6 +447,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>towerDamage</code>.</p>
+     *
      * @return The towerDamage
      */
     public int getTowerDamage() {
@@ -373,6 +456,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>towerDamage</code>.</p>
+     *
      * @param towerDamage
      *         The tower_damage
      */
@@ -381,6 +466,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>heroHealing</code>.</p>
+     *
      * @return The heroHealing
      */
     public int getHeroHealing() {
@@ -388,6 +475,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>heroHealing</code>.</p>
+     *
      * @param heroHealing
      *         The hero_healing
      */
@@ -396,6 +485,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>gold</code>.</p>
+     *
      * @return The gold
      */
     public int getGold() {
@@ -403,6 +494,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>gold</code>.</p>
+     *
      * @param gold
      *         The gold
      */
@@ -411,6 +504,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>goldSpent</code>.</p>
+     *
      * @return The goldSpent
      */
     public int getGoldSpent() {
@@ -418,6 +513,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>goldSpent</code>.</p>
+     *
      * @param goldSpent
      *         The gold_spent
      */
@@ -426,6 +523,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>scaledHeroDamage</code>.</p>
+     *
      * @return The scaledHeroDamage
      */
     public int getScaledHeroDamage() {
@@ -433,6 +532,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>scaledHeroDamage</code>.</p>
+     *
      * @param scaledHeroDamage
      *         The scaled_hero_damage
      */
@@ -441,6 +542,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>scaledTowerDamage</code>.</p>
+     *
      * @return The scaledTowerDamage
      */
     public int getScaledTowerDamage() {
@@ -448,6 +551,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>scaledTowerDamage</code>.</p>
+     *
      * @param scaledTowerDamage
      *         The scaled_tower_damage
      */
@@ -456,6 +561,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>scaledHeroHealing</code>.</p>
+     *
      * @return The scaledHeroHealing
      */
     public int getScaledHeroHealing() {
@@ -463,6 +570,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>scaledHeroHealing</code>.</p>
+     *
      * @param scaledHeroHealing
      *         The scaled_hero_healing
      */
@@ -471,6 +580,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Getter for the field <code>abilityUpgrades</code>.</p>
+     *
      * @return The abilityUpgrades
      */
     public List<Dota2MatchAbilityUpgrade> getAbilityUpgrades() {
@@ -478,6 +589,8 @@ public class Dota2MatchPlayer {
     }
 
     /**
+     * <p>Setter for the field <code>abilityUpgrades</code>.</p>
+     *
      * @param abilityUpgrades
      *         The ability_upgrades
      */
@@ -485,6 +598,7 @@ public class Dota2MatchPlayer {
         this.abilityUpgrades = abilityUpgrades;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

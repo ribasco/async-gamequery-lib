@@ -22,12 +22,23 @@ import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySi
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 
+/**
+ * <p>SourceQuerySinglePacketEncoder class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceQuerySinglePacketEncoder extends AbstractPacketEncoder<SourceQuerySinglePacket> {
 
+    /**
+     * <p>Constructor for SourceQuerySinglePacketEncoder.</p>
+     *
+     * @param allocator a {@link io.netty.buffer.ByteBufAllocator} object
+     */
     public SourceQuerySinglePacketEncoder(ByteBufAllocator allocator) {
         super(allocator);
     }
 
+    /** {@inheritDoc} */
     @Override
     public ByteBuf encode(SourceQuerySinglePacket packet) throws PacketEncodeException {
         ByteBuf buffer = getAllocator().directBuffer();

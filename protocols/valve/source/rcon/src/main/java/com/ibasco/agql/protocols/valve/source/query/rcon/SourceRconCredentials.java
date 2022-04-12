@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 
 /**
- * Default implementation for {@link Credentials}
+ * Default implementation for {@link com.ibasco.agql.core.Credentials}
  *
  * @author Rafael Luis Ibasco
  */
@@ -37,6 +37,11 @@ public final class SourceRconCredentials implements Credentials {
 
     private boolean valid;
 
+    /**
+     * <p>Constructor for SourceRconCredentials.</p>
+     *
+     * @param passphrase an array of {@link byte} objects
+     */
     public SourceRconCredentials(byte[] passphrase) {
         if (passphrase == null || passphrase.length == 0)
             throw new IllegalStateException("Passphrase cannot be null or empty");
@@ -44,6 +49,7 @@ public final class SourceRconCredentials implements Credentials {
         this.valid = true;
     }
 
+    /** {@inheritDoc} */
     @Override
     public byte[] getPassphrase() {
         if (!this.valid)
@@ -51,6 +57,7 @@ public final class SourceRconCredentials implements Credentials {
         return this.passphrase;
     }
 
+    /** {@inheritDoc} */
     @Override
     public void invalidate() {
         if (this.valid) {
@@ -58,11 +65,13 @@ public final class SourceRconCredentials implements Credentials {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean isValid() {
         return valid;
     }
 
+    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -71,6 +80,7 @@ public final class SourceRconCredentials implements Credentials {
         return Arrays.equals(getPassphrase(), that.getPassphrase());
     }
 
+    /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Arrays.hashCode(getPassphrase());

@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,7 +19,19 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2ApiConstants;
 import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
 
+/**
+ * <p>GetMatchHistoryBySequenceNum class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class GetMatchHistoryBySequenceNum extends Dota2MatchRequest {
+    /**
+     * <p>Constructor for GetMatchHistoryBySequenceNum.</p>
+     *
+     * @param apiVersion a int
+     * @param startSeqNum a int
+     * @param matchesRequested a int
+     */
     public GetMatchHistoryBySequenceNum(int apiVersion, int startSeqNum, int matchesRequested) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETMATCHHISTORYBYSEQNUM, apiVersion, null);
         urlParam("start_at_match_seq_num", startSeqNum);

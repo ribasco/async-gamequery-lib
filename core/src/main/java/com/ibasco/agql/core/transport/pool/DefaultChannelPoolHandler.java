@@ -33,6 +33,11 @@ import org.slf4j.LoggerFactory;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
+/**
+ * <p>DefaultChannelPoolHandler class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
 
     private static final Logger log = LoggerFactory.getLogger(DefaultChannelPoolHandler.class);
@@ -48,6 +53,11 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
 
     private final ChannelHandler defaultChannelHandler;
 
+    /**
+     * <p>Constructor for DefaultChannelPoolHandler.</p>
+     *
+     * @param bootstrap a {@link io.netty.bootstrap.Bootstrap} object
+     */
     public DefaultChannelPoolHandler(final Bootstrap bootstrap) {
         Objects.requireNonNull(bootstrap, "Bootstrap cannot be null");
         assert bootstrap.config().handler() != null;
@@ -61,6 +71,7 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
         });
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelCreated(Channel ch) {
         log.debug("{} HANDLER => Channel Created", Netty.id(ch));
@@ -68,12 +79,14 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
         ch.pipeline().addFirst("initializer", defaultChannelHandler);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelAcquired(Channel ch) {
         log.debug("{} HANDLER => Channel Acquired. (Local Address: '{}', Remote Address: '{}') ({})", Netty.id(ch), Net.hostString(ch.localAddress()), Net.hostString(ch.remoteAddress()), NettyChannelPool.isPooled(ch) ? "POOLED" : "NOT POOLED");
         ch.pipeline().fireUserEventTriggered(ChannelEvent.ACQUIRED);
     }
 
+    /** {@inheritDoc} */
     @Override
     public void channelReleased(Channel ch) {
         log.debug("{} HANDLER => Channel Released (Active: {}, Open: {}, Registered: {})", Netty.id(ch), ch.isActive(), ch.isOpen(), ch.isRegistered());

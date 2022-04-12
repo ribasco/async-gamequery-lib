@@ -22,14 +22,25 @@ import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>SourceRconChannelContextFactory class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SourceRconChannelContextFactory extends DefaultChannlContextFactory<SourceRconMessenger> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconChannelContextFactory.class);
 
+    /**
+     * <p>Constructor for SourceRconChannelContextFactory.</p>
+     *
+     * @param messenger a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger} object
+     */
     public SourceRconChannelContextFactory(final SourceRconMessenger messenger) {
         super(messenger);
     }
 
+    /** {@inheritDoc} */
     @Override
     protected NettyChannelContext newChannelContext(Channel channel, SourceRconMessenger messenger) {
         return new SourceRconChannelContext(channel, messenger);

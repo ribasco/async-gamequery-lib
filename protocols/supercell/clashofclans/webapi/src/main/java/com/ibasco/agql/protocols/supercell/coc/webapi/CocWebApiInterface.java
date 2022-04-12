@@ -1,11 +1,11 @@
 /*
- * Copyright 2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -28,6 +28,11 @@ import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>Abstract CocWebApiInterface class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 abstract public class CocWebApiInterface
@@ -39,17 +44,16 @@ abstract public class CocWebApiInterface
      * <p>Default Constructor</p>
      *
      * @param client
-     *         A {@link CocWebApiClient} instance
+     *         A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiClient} instance
      */
     public CocWebApiInterface(CocWebApiClient client) {
         super(client);
     }
 
     /**
-     * Handle Error Events
+     * {@inheritDoc}
      *
-     * @param res
-     * @param error
+     * Handle Error Events
      */
     @Override
     protected void handleError(AbstractWebResponse res, Throwable error) {

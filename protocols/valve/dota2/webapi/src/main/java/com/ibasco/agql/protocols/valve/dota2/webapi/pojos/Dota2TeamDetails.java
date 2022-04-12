@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -24,6 +24,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2TeamDetails class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2TeamDetails {
 
     @SerializedName("members")
@@ -94,6 +99,8 @@ public class Dota2TeamDetails {
     private List<String> recentMatchIds = new ArrayList<>();
 
     /**
+     * <p>Getter for the field <code>members</code>.</p>
+     *
      * @return The members
      */
     public List<Dota2TeamMemberDetails> getMembers() {
@@ -101,6 +108,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>members</code>.</p>
+     *
      * @param members
      *         The members
      */
@@ -109,6 +118,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>teamId</code>.</p>
+     *
      * @return The teamId
      */
     public int getTeamId() {
@@ -116,6 +127,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>teamId</code>.</p>
+     *
      * @param teamId
      *         The team_id
      */
@@ -124,6 +137,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
      * @return The name
      */
     public String getName() {
@@ -131,6 +146,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
      * @param name
      *         The name
      */
@@ -139,6 +156,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>tag</code>.</p>
+     *
      * @return The tag
      */
     public String getTag() {
@@ -146,6 +165,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>tag</code>.</p>
+     *
      * @param tag
      *         The tag
      */
@@ -154,6 +175,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>timeCreated</code>.</p>
+     *
      * @return The timeCreated
      */
     public int getTimeCreated() {
@@ -161,6 +184,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>timeCreated</code>.</p>
+     *
      * @param timeCreated
      *         The time_created
      */
@@ -169,6 +194,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>isPro.</p>
+     *
      * @return The pro
      */
     public boolean isPro() {
@@ -176,6 +203,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>pro</code>.</p>
+     *
      * @param pro
      *         The pro
      */
@@ -184,6 +213,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>isLocked.</p>
+     *
      * @return The locked
      */
     public boolean isLocked() {
@@ -191,6 +222,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>locked</code>.</p>
+     *
      * @param locked
      *         The locked
      */
@@ -199,6 +232,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>ugcLogo</code>.</p>
+     *
      * @return The ugcLogo
      */
     public String getUgcLogo() {
@@ -206,6 +241,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>ugcLogo</code>.</p>
+     *
      * @param ugcLogo
      *         The ugc_logo
      */
@@ -214,6 +251,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>ugcBaseLogo</code>.</p>
+     *
      * @return The ugcBaseLogo
      */
     public String getUgcBaseLogo() {
@@ -221,6 +260,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>ugcBaseLogo</code>.</p>
+     *
      * @param ugcBaseLogo
      *         The ugc_base_logo
      */
@@ -229,6 +270,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>ugcBannerLogo</code>.</p>
+     *
      * @return The ugcBannerLogo
      */
     public String getUgcBannerLogo() {
@@ -236,6 +279,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>ugcBannerLogo</code>.</p>
+     *
      * @param ugcBannerLogo
      *         The ugc_banner_logo
      */
@@ -244,6 +289,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>ugcSponsorLogo</code>.</p>
+     *
      * @return The ugcSponsorLogo
      */
     public String getUgcSponsorLogo() {
@@ -251,6 +298,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>ugcSponsorLogo</code>.</p>
+     *
      * @param ugcSponsorLogo
      *         The ugc_sponsor_logo
      */
@@ -259,6 +308,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>countryCode</code>.</p>
+     *
      * @return The countryCode
      */
     public String getCountryCode() {
@@ -266,6 +317,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>countryCode</code>.</p>
+     *
      * @param countryCode
      *         The country_code
      */
@@ -274,6 +327,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>url</code>.</p>
+     *
      * @return The url
      */
     public String getUrl() {
@@ -281,6 +336,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>url</code>.</p>
+     *
      * @param url
      *         The url
      */
@@ -289,6 +346,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>wins</code>.</p>
+     *
      * @return The wins
      */
     public int getWins() {
@@ -296,6 +355,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>wins</code>.</p>
+     *
      * @param wins
      *         The wins
      */
@@ -304,6 +365,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>losses</code>.</p>
+     *
      * @return The losses
      */
     public int getLosses() {
@@ -311,6 +374,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>losses</code>.</p>
+     *
      * @param losses
      *         The losses
      */
@@ -319,6 +384,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>rank</code>.</p>
+     *
      * @return The rank
      */
     public int getRank() {
@@ -326,6 +393,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>rank</code>.</p>
+     *
      * @param rank
      *         The rank
      */
@@ -334,6 +403,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>calibrationGamesRemaining</code>.</p>
+     *
      * @return The calibrationGamesRemaining
      */
     public int getCalibrationGamesRemaining() {
@@ -341,6 +412,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>calibrationGamesRemaining</code>.</p>
+     *
      * @param calibrationGamesRemaining
      *         The calibration_games_remaining
      */
@@ -349,6 +422,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>gamesPlayedTotal</code>.</p>
+     *
      * @return The gamesPlayedTotal
      */
     public int getGamesPlayedTotal() {
@@ -356,6 +431,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>gamesPlayedTotal</code>.</p>
+     *
      * @param gamesPlayedTotal
      *         The games_played_total
      */
@@ -364,6 +441,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>gamesPlayedMatchmaking</code>.</p>
+     *
      * @return The gamesPlayedMatchmaking
      */
     public int getGamesPlayedMatchmaking() {
@@ -371,6 +450,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>gamesPlayedMatchmaking</code>.</p>
+     *
      * @param gamesPlayedMatchmaking
      *         The games_played_matchmaking
      */
@@ -379,6 +460,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>leaguesParticipated</code>.</p>
+     *
      * @return The leaguesParticipated
      */
     public List<Integer> getLeaguesParticipated() {
@@ -386,6 +469,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>leaguesParticipated</code>.</p>
+     *
      * @param leaguesParticipated
      *         The leagues_participated
      */
@@ -394,6 +479,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>topMatchIds</code>.</p>
+     *
      * @return The topMatchIds
      */
     public List<String> getTopMatchIds() {
@@ -401,6 +488,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>topMatchIds</code>.</p>
+     *
      * @param topMatchIds
      *         The top_match_ids
      */
@@ -409,6 +498,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Getter for the field <code>recentMatchIds</code>.</p>
+     *
      * @return The recentMatchIds
      */
     public List<String> getRecentMatchIds() {
@@ -416,6 +507,8 @@ public class Dota2TeamDetails {
     }
 
     /**
+     * <p>Setter for the field <code>recentMatchIds</code>.</p>
+     *
      * @param recentMatchIds
      *         The recent_match_ids
      */
@@ -423,6 +516,7 @@ public class Dota2TeamDetails {
         this.recentMatchIds = recentMatchIds;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

@@ -30,13 +30,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * Base implementation for all {@link Client} interfaces
+ * Base implementation for all {@link com.ibasco.agql.core.Client} interfaces
  *
  * @param <R>
- *         A type of {@link AbstractRequest}
+ *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
- *         A type of {@link AbstractResponse}
- *
+ *         A type of {@link com.ibasco.agql.core.AbstractResponse}
  * @author Rafael Luis Ibasco.
  */
 abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
@@ -60,8 +59,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      * Create a new client instance using the provided configuration options.
      *
      * @param options
-     *         The {@link Options} containing the configuration options that will be used by the client
-     *
+     *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
      * @see OptionBuilder
      * @see Options
      */
@@ -71,12 +69,34 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
         this.options = options;
     }
 
+    /**
+     * <p>createMessenger.</p>
+     *
+     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @return a {@link com.ibasco.agql.core.Messenger} object
+     */
     abstract protected Messenger<R, S> createMessenger(Options options);
 
+    /**
+     * <p>send.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     * @param request a R object
+     * @param expectedResponse a {@link java.lang.Class} object
+     * @param <V> a V class
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
         return send(address, request).thenApply(expectedResponse::cast);
     }
 
+    /**
+     * <p>send.</p>
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
+     * @param request a R object
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
     protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");
         Objects.requireNonNull(request, "Request cannot be null");
@@ -84,20 +104,28 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
         return messenger().send(address, request);
     }
 
+    /** {@inheritDoc} */
     @Override
     public UUID id() {
         return id;
     }
 
+    /** {@inheritDoc} */
     @Override
     public Executor getExecutor() {
         return messenger().getExecutor();
     }
 
+    /**
+     * <p>Getter for the field <code>messenger</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.Messenger} object
+     */
     protected Messenger<R, S> getMessenger() {
         return messenger();
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (messenger == null)

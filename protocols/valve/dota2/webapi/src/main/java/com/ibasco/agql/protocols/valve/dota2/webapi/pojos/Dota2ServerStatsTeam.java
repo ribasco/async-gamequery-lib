@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -23,6 +23,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * <p>Dota2ServerStatsTeam class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class Dota2ServerStatsTeam {
 
     @SerializedName("team_number")
@@ -39,6 +44,8 @@ public class Dota2ServerStatsTeam {
     private List<Dota2ServerStatsPlayer> players = new ArrayList<Dota2ServerStatsPlayer>();
 
     /**
+     * <p>Getter for the field <code>teamNumber</code>.</p>
+     *
      * @return The teamNumber
      */
     public int getTeamNumber() {
@@ -46,6 +53,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>teamNumber</code>.</p>
+     *
      * @param teamNumber
      *         The team_number
      */
@@ -54,6 +63,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Getter for the field <code>teamId</code>.</p>
+     *
      * @return The teamId
      */
     public int getTeamId() {
@@ -61,6 +72,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>teamId</code>.</p>
+     *
      * @param teamId
      *         The team_id
      */
@@ -69,6 +82,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Getter for the field <code>teamName</code>.</p>
+     *
      * @return The teamName
      */
     public String getTeamName() {
@@ -76,6 +91,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>teamName</code>.</p>
+     *
      * @param teamName
      *         The team_name
      */
@@ -84,6 +101,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Getter for the field <code>teamLogo</code>.</p>
+     *
      * @return The teamLogo
      */
     public String getTeamLogo() {
@@ -91,6 +110,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>teamLogo</code>.</p>
+     *
      * @param teamLogo
      *         The team_logo
      */
@@ -99,6 +120,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Getter for the field <code>score</code>.</p>
+     *
      * @return The score
      */
     public int getScore() {
@@ -106,6 +129,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>score</code>.</p>
+     *
      * @param score
      *         The score
      */
@@ -114,6 +139,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Getter for the field <code>players</code>.</p>
+     *
      * @return The players
      */
     public List<Dota2ServerStatsPlayer> getPlayers() {
@@ -121,6 +148,8 @@ public class Dota2ServerStatsTeam {
     }
 
     /**
+     * <p>Setter for the field <code>players</code>.</p>
+     *
      * @param players
      *         The players
      */
@@ -128,6 +157,7 @@ public class Dota2ServerStatsTeam {
         this.players = players;
     }
 
+    /** {@inheritDoc} */
     @Override
     public String toString() {
         return ToStringBuilder.reflectionToString(this, ToStringStyle.NO_CLASS_NAME_STYLE);

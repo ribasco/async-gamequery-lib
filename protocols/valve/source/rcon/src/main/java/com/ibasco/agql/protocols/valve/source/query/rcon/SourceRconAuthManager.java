@@ -108,7 +108,8 @@ public final class SourceRconAuthManager implements Closeable {
      * Create a new authentication proxy
      *
      * @param messenger
-     *         The {@link SourceRconMessenger} that is used to relay the messages sent
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger} that is used to relay the messages sent
+     * @param credentialsStore a {@link com.ibasco.agql.core.CredentialsStore} object
      */
     public SourceRconAuthManager(SourceRconMessenger messenger, CredentialsStore credentialsStore) {
         this.messenger = Objects.requireNonNull(messenger, "Messenger cannot be null");
@@ -119,25 +120,7 @@ public final class SourceRconAuthManager implements Closeable {
         this.reauthenticate = messenger.getOrDefault(SourceRconOptions.REAUTHENTICATE);
         this.authenticator = new SourceRconAuthenticator(credentialsStore, reauthenticate);
 
-        this.circuitBreakerPolicy = CircuitBreaker.<SourceRconChannelContext>builder()
-                                                  .handle(ConnectException.class)
-                                                  .onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
-                                                      @Override
-                                                      public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                                                          System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
-                                                      }
-                                                  })
-                                                  .onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
-                                                      @Override
-                                                      public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                                                          System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
-                                                      }
-                                                  })
-                                                  .withFailureThreshold(3, 10)
-                                                  .withSuccessThreshold(3)
-                                                  .withDelay(Duration.ofMinutes(1))
-                                                  .build();
-
+        this.circuitBreakerPolicy = buildCircuitBreakerPolicy();
         this.retryPolicy = buildRetryPolicy();
         this.executor = Failsafe.with(retryPolicy, circuitBreakerPolicy).with(messenger.getExecutor());
         this.channelFactory = (SourceRconChannelFactory) messenger.getChannelFactory();
@@ -149,13 +132,13 @@ public final class SourceRconAuthManager implements Closeable {
         circuitBreakerBuilder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
             @Override
             public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
+                //System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
             }
         });
         circuitBreakerBuilder.onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
             @Override
             public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
+                //System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
             }
         });
         circuitBreakerBuilder.withFailureThreshold(3, 10);
@@ -189,14 +172,29 @@ public final class SourceRconAuthManager implements Closeable {
         return retryPolicyBuilder.build();
     }
 
+    /**
+     * <p>isReauthenticate.</p>
+     *
+     * @return a boolean
+     */
     public boolean isReauthenticate() {
         return reauthenticate;
     }
 
+    /**
+     * <p>Getter for the field <code>registry</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.ChannelRegistry} object
+     */
     public ChannelRegistry getRegistry() {
         return registry;
     }
 
+    /**
+     * <p>Getter for the field <code>credentialsStore</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.CredentialsStore} object
+     */
     public CredentialsStore getCredentialsStore() {
         return credentialsStore;
     }
@@ -250,11 +248,10 @@ public final class SourceRconAuthManager implements Closeable {
     }
 
     /**
-     * Checks if the specified {@link InetSocketAddress} has been previously authenticated.
+     * Checks if the specified {@link java.net.InetSocketAddress} has been previously authenticated.
      *
      * @param address
-     *         The {@link InetSocketAddress} to check
-     *
+     *         The {@link java.net.InetSocketAddress} to check
      * @return {@code true} if the address has been previously authenticated.
      */
     public boolean isAuthenticated(InetSocketAddress address) {
@@ -299,8 +296,7 @@ public final class SourceRconAuthManager implements Closeable {
      *         The destination address
      * @param request
      *         The request to be sent to the server
-     *
-     * @return A {@link CompletableFuture} which is notified once a response has been received from the server
+     * @return A {@link java.util.concurrent.CompletableFuture} which is notified once a response has been received from the server
      */
     public CompletableFuture<SourceRconResponse> send(final InetSocketAddress address, final SourceRconRequest request) {
         Objects.requireNonNull(address, "Address must not be null");
@@ -367,6 +363,11 @@ public final class SourceRconAuthManager implements Closeable {
         return context;
     }
 
+    /**
+     * <p>Getter for the field <code>statistics</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconAuthManager.Statistics} object
+     */
     @ApiStatus.Experimental
     @ApiStatus.Internal
     public Statistics getStatistics() {
@@ -391,7 +392,7 @@ public final class SourceRconAuthManager implements Closeable {
      * Invalidates all registered addresses and all of it's associated connections.
      *
      * @param onlyConnections
-     *         {@code true} if we should only invalidate the {@link Channel}'s for the specified address.
+     *         {@code true} if we should only invalidate the {@link io.netty.channel.Channel}'s for the specified address.
      */
     public void invalidate(boolean onlyConnections) {
         for (InetSocketAddress address : registry.getAddresses())
@@ -399,17 +400,19 @@ public final class SourceRconAuthManager implements Closeable {
     }
 
     /**
-     * Invalidate both credentials and all it's {@link Channel}'s associated with it
+     * Invalidate both credentials and all it's {@link io.netty.channel.Channel}'s associated with it
+     *
+     * @param address a {@link java.net.InetSocketAddress} object
      */
     public void invalidate(InetSocketAddress address) {
         invalidate(address, false);
     }
 
     /**
-     * Invalidate the credentials and/or the {@link Channel}'s associated with it
+     * Invalidate the credentials and/or the {@link io.netty.channel.Channel}'s associated with it
      *
      * @param address
-     *         The {@link InetSocketAddress} to invalidate
+     *         The {@link java.net.InetSocketAddress} to invalidate
      * @param connectionsOnly
      *         {@code true} if we should only also invalidate the connections associated with the specified address. Credentials will remain valid.
      */
@@ -429,6 +432,7 @@ public final class SourceRconAuthManager implements Closeable {
         }
     }
 
+    /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
         if (!jobScheduler.isShutdown()) {
@@ -629,7 +633,7 @@ public final class SourceRconAuthManager implements Closeable {
             print(output, "Max Pending Acquires: %d", messenger.getOrDefault(TransportOptions.POOL_ACQUIRE_MAX));
             print(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
             EventLoopGroup eventLoopGroup = messenger.getExecutor();
-            print(output, "Executor Service: %s (Default executor: %s)", eventLoopGroup, (eventLoopGroup == Platform.getDefaultEventLoopGroup()) ? "YES" : "NO");
+            print(output, "Executor Service: %s", eventLoopGroup);
 
             print(output, LINE);
             print(output, "\033[0;33mEvent Loop Group: (Group: %s)\033[0m", eventLoopGroup);

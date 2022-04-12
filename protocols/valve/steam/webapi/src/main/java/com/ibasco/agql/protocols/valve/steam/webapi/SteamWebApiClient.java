@@ -1,11 +1,11 @@
 /*
- * Copyright 2018-2022 Asynchronous Game Query Library
+ * Copyright (c) 2022 Asynchronous Game Query Library
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -22,6 +22,11 @@ import org.asynchttpclient.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>SteamWebApiClient class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class SteamWebApiClient extends AbstractRestClient {
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiClient.class);
 
@@ -32,22 +37,23 @@ public class SteamWebApiClient extends AbstractRestClient {
         super("");
     }
 
+    /**
+     * <p>Constructor for SteamWebApiClient.</p>
+     *
+     * @param apiToken a {@link java.lang.String} object
+     */
     public SteamWebApiClient(String apiToken) {
         super(apiToken);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected SteamWebApiResponse createWebApiResponse(Response response) {
         log.debug("Creating Response for : {}", response);
         return new SteamWebApiResponse(response);
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    /** {@inheritDoc} */
     @Override
     protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
         requestBuilder.addQueryParam("key", authToken);

@@ -16,15 +16,34 @@
 
 package com.ibasco.agql.core.exceptions;
 
+/**
+ * <p>PacketDecodeException class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class PacketDecodeException extends DecodeException {
 
+    /**
+     * <p>Constructor for PacketDecodeException.</p>
+     */
     public PacketDecodeException() {
     }
 
+    /**
+     * <p>Constructor for PacketDecodeException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     */
     public PacketDecodeException(String message) {
         super(message);
     }
 
+    /**
+     * <p>Constructor for PacketDecodeException.</p>
+     *
+     * @param message a {@link java.lang.String} object
+     * @param cause a {@link java.lang.Throwable} object
+     */
     public PacketDecodeException(String message, Throwable cause) {
         super(message, cause);
     }

@@ -97,7 +97,6 @@ public interface ManagedResource<T> extends Closeable {
             return -1;
         int count = ((ManagedResource<?>) resource).release(releaseCount);
         LoggerFactory.getLogger(ManagedResource.class).debug("MANAGED_RESOURCE => Releasing resource {} (New reference count: {})", resource, count);
-        //System.out.printf("Released managed resource: %s, New reference count: %d\n", resource, count);
         return count;
     }
 }

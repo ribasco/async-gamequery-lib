@@ -37,6 +37,7 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.RejectedExecutionHandlers;
 import io.netty.util.internal.PlatformDependent;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
@@ -83,12 +84,52 @@ public final class Platform {
     //initialize resource provider for the default global executor service
     private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER);
 
+    private static final String PROP_USE_NATIVE = "useNativeTransport";
+
+    private static final String PROP_OUTPUT_DEBUG = "outputDebugConsole";
+
+    private static final boolean useNativeTransport;
+
+    private static final boolean outputDebugConsole;
+
     private Platform() {}
 
     static {
+        outputDebugConsole = readBoolProperty(PROP_OUTPUT_DEBUG, false);
+        useNativeTransport = readBoolProperty(PROP_USE_NATIVE, true);
+
         //ensure shutdown is called
         Runtime.getRuntime().addShutdownHook(new Thread(Platform::shutdown));
         log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
+    }
+
+    public static void println(String msg, Object... args) {
+        if (!outputDebugConsole)
+            return;
+        System.out.printf("\u001B[32m[info]\u001B[0m " + (msg) + "%n", args);
+    }
+
+    public static void error(String msg, Object... args) {
+        if (!outputDebugConsole)
+            return;
+        System.err.printf("\u001B[31m[error]\u001B[0m " + (msg) + "%n", args);
+    }
+
+    private static boolean readBoolProperty(String property, boolean defaultValue) {
+        try {
+            String value = System.getProperty(property);
+            //note: native transports are used by default, unless disabled via JVM property
+            boolean boolValue = (value == null) ? defaultValue : BooleanUtils.toBoolean(value);
+            println("Property: %s = %s", property, boolValue);
+            return boolValue;
+        } catch (Exception e) {
+            error("WARNING: Failed to read system property '%s'. Defaulting to 'true' (Reason: %s)", property, e.getMessage());
+            return defaultValue;
+        }
+    }
+
+    public static boolean useNativeTransport() {
+        return useNativeTransport;
     }
 
     /**
@@ -164,19 +205,24 @@ public final class Platform {
      */
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
-            final ThreadPoolExecutor executor = ((AgqlManagedExecutorService) getDefaultExecutor()).getResource();
-            DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), true);
-            //noinspection unchecked
-            DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
-                if (future.isSuccess()) {
-                    new Thread(() -> {
-                        log.debug("PLATFORM => Shutting down default global executor");
-                        Concurrency.shutdown(executor);
-                    }, "agql-shutdown").start();
-                } else {
-                    throw new IllegalStateException(future.cause());
-                }
-            });
+             AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
+            try {
+                final ThreadPoolExecutor executor = svc.getResource();
+                DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), useNativeTransport());
+                //noinspection unchecked
+                DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
+                    if (future.isSuccess()) {
+                        new Thread(() -> {
+                            log.debug("PLATFORM => Shutting down default global executor");
+                            Concurrency.shutdown(executor);
+                        }, "agql-shutdown").start();
+                    } else {
+                        throw new IllegalStateException(future.cause());
+                    }
+                });
+            } finally {
+                svc.release();
+            }
         }
         return DEFAULT_EVENT_LOOP_GROUP;
     }
@@ -328,9 +374,21 @@ public final class Platform {
      * <p>Retrieves the channel class based on the detected platform</p>
      *
      * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType}
+     *
+     * @return a {@link java.lang.Class} object
+     */
+    public static Class<? extends Channel> getChannelClass(TransportType type) {
+        return getChannelClass(type, useNativeTransport());
+    }
+
+    /**
+     * <p>Retrieves the channel class based on the detected platform</p>
+     *
+     * @param type
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
      * @param useNativeTransport
-     *         a boolean
+     *         {@code true} to use native transport
      *
      * @return a {@link java.lang.Class} object
      */

@@ -105,7 +105,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.transportType = type;
         this.options = options;
         this.resolver = resolver == null ? DefaultPropertyResolver.INSTANCE : resolver;
-        this.channelClass = Platform.getChannelClass(type, options.getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
+        this.channelClass = Platform.getChannelClass(type);
 
         //initialize event loop group
         this.executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE);
@@ -131,7 +131,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     protected EventLoopGroup initializeEventLoopGroup(@NotNull Class<? extends Channel> channelClass, @NotNull ExecutorService executorService) {
         Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
         EventLoopGroup group;
-        //1. if the provided executor service is the default global executor, then we simply return the default global EventLoopGroup
+        //1. if the executor service is the default global executor, then we simply return the default global EventLoopGroup
         //2. if the provided executor service is user-defined, then we create a new EventLoopGroup instance
         if (Platform.isDefaultExecutor(executorService)) {
             group = Platform.getDefaultEventLoopGroup();

@@ -94,7 +94,7 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
                 throw new IllegalStateException("Please specify a core pool size in the options (See TransportOptions.THREAD_CORE_SIZE)");
             }
         }
-        EventLoopGroup group = Platform.createEventLoopGroup(executorService, nThreads, getOptions().getOrDefault(TransportOptions.USE_NATIVE_TRANSPORT));
+        EventLoopGroup group = Platform.isDefaultExecutor(executorService) ? Platform.getDefaultEventLoopGroup() : Platform.createEventLoopGroup(executorService, nThreads, Platform.useNativeTransport());
         log.debug("HTTP_MESSENGER (INIT) => Executor Service: '{}'", executorService);
         log.debug("HTTP_MESSENGER (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
         return group;

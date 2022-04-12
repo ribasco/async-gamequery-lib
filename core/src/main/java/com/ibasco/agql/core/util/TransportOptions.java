@@ -164,12 +164,6 @@ public final class TransportOptions {
     //<editor-fold desc="Concurrency">
 
     /**
-     * When enabled, the library will attempt to utilize platform specific transport(s) (e.g. epoll for linux or kqueue for mac osx)
-     * otherwise the default java NIO transport will be used.
-     */
-    public static final Option<Boolean> USE_NATIVE_TRANSPORT = Option.createOption("useNativeTransport", true);
-
-    /**
      * A custom {@link ExecutorService} that will be used by the client. Set to {@code null} to use the global executor provided by the library which is shared across all clients by default. (Default: {@code null})
      *
      * <p>

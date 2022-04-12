@@ -60,6 +60,7 @@ abstract public class AbstractManagedResource<T> implements ManagedResource<T> {
     /** {@inheritDoc} */
     @Override
     public int release(int releaseCount) {
+        Platform.println("Attempting to release resource '%s' (Release Count: %d, Current Reference Count: %d)", this, releaseCount, getReferenceCount());
         int currentCount = referenceCount.get();
         if (currentCount <= 0)
             throw new IllegalStateException("Resource has already been released");
@@ -67,6 +68,7 @@ abstract public class AbstractManagedResource<T> implements ManagedResource<T> {
         if (referenceCount.compareAndSet(currentCount, newCount)) {
             if (newCount <= 0) {
                 try {
+                    Platform.println("Reference count of resource '%s' has reached 0. Attempting to close", this);
                     close();
                 } catch (IOException e) {
                     throw new IllegalStateException(e);

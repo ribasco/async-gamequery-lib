@@ -32,6 +32,7 @@ import static io.netty.util.internal.ObjectUtil.checkPositive;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayDeque;
@@ -474,7 +475,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                         // Since the pool is closed, we have no choice but to close the channel
                         channel.close();
                     }
-                    originalPromise.completeExceptionally(new IllegalStateException("FixedChannelPool was closed"));
+                    originalPromise.completeExceptionally(new IllegalStateException(new IOException("FixedChannelPool was closed")));
                     return;
                 }
 

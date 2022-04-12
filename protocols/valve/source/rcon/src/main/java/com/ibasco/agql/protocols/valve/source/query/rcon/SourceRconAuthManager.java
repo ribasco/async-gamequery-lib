@@ -22,10 +22,12 @@ import com.ibasco.agql.core.CredentialsStore;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
+import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.FailsafeChannelFactory;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconInvalidCredentialsException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconMaxLoginAttemptsException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconNotYetAuthException;
@@ -33,12 +35,16 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthR
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconResponse;
-import dev.failsafe.ExecutionContext;
-import dev.failsafe.Failsafe;
-import dev.failsafe.FailsafeExecutor;
-import dev.failsafe.RetryPolicy;
+import dev.failsafe.*;
+import dev.failsafe.event.CircuitBreakerStateChangedEvent;
+import dev.failsafe.event.EventListener;
+import dev.failsafe.event.ExecutionAttemptedEvent;
+import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.SingleThreadEventLoop;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutor;
@@ -50,6 +56,7 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.time.Duration;
@@ -60,6 +67,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 //TODO: Move all this to SourceRconMessenger
+
 /**
  * <p>The default Source RCON authentication manager. This also serves as a messenger proxy that allows rcon requests to passthrough.</p>
  *
@@ -90,7 +98,9 @@ public final class SourceRconAuthManager implements Closeable {
 
     private final RconAuthenticator authenticator;
 
-    private final RetryPolicy<SourceRconChannelContext> rconRequestRetryPolicy;
+    private final RetryPolicy<SourceRconChannelContext> retryPolicy;
+
+    private final CircuitBreaker<SourceRconChannelContext> circuitBreakerPolicy;
 
     private final FailsafeExecutor<SourceRconChannelContext> executor;
 
@@ -105,18 +115,78 @@ public final class SourceRconAuthManager implements Closeable {
         if (credentialsStore == null)
             credentialsStore = new InMemoryCredentialsStore();
         this.credentialsStore = credentialsStore;
-        this.jobScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-auth-job"));
+        this.jobScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-jobs-auth"));
         this.reauthenticate = messenger.getOrDefault(SourceRconOptions.REAUTHENTICATE);
         this.authenticator = new SourceRconAuthenticator(credentialsStore, reauthenticate);
 
-        this.rconRequestRetryPolicy = RetryPolicy.<SourceRconChannelContext>builder()
-                                                 .abortOn(ConnectTimeoutException.class)
-                                                 .withDelay(Duration.ofSeconds(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_DELAY)))
-                                                 .withMaxAttempts(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_MAX_ATTEMPTS))
-                                                 .build();
+        this.circuitBreakerPolicy = CircuitBreaker.<SourceRconChannelContext>builder()
+                                                  .handle(ConnectException.class)
+                                                  .onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+                                                      @Override
+                                                      public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
+                                                          System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
+                                                      }
+                                                  })
+                                                  .onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+                                                      @Override
+                                                      public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
+                                                          System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
+                                                      }
+                                                  })
+                                                  .withFailureThreshold(3, 10)
+                                                  .withSuccessThreshold(3)
+                                                  .withDelay(Duration.ofMinutes(1))
+                                                  .build();
 
-        this.executor = Failsafe.with(rconRequestRetryPolicy).with(messenger.getExecutor());
+        this.retryPolicy = buildRetryPolicy();
+        this.executor = Failsafe.with(retryPolicy, circuitBreakerPolicy).with(messenger.getExecutor());
         this.channelFactory = (SourceRconChannelFactory) messenger.getChannelFactory();
+    }
+
+    private CircuitBreaker<SourceRconChannelContext> buildCircuitBreakerPolicy() {
+        CircuitBreakerBuilder<SourceRconChannelContext> circuitBreakerBuilder = CircuitBreaker.builder();
+        circuitBreakerBuilder.handle(ConnectException.class);
+        circuitBreakerBuilder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+            @Override
+            public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
+                System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
+            }
+        });
+        circuitBreakerBuilder.onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+            @Override
+            public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
+                System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
+            }
+        });
+        circuitBreakerBuilder.withFailureThreshold(3, 10);
+        circuitBreakerBuilder.withSuccessThreshold(3);
+        circuitBreakerBuilder.withDelay(Duration.ofMinutes(1));
+        return circuitBreakerBuilder.build();
+    }
+
+    private RetryPolicy<SourceRconChannelContext> buildRetryPolicy() {
+        boolean failsafeEnabled = messenger.getOrDefault(TransportOptions.FAILSAFE_ENABLED);
+        RetryPolicyBuilder<SourceRconChannelContext> retryPolicyBuilder = RetryPolicy.<SourceRconChannelContext>builder();
+        retryPolicyBuilder.handleIf(e -> {
+            Throwable error = Errors.unwrap(e);
+            return error instanceof TimeoutException || error instanceof ChannelClosedException;
+        });
+        retryPolicyBuilder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceRconChannelContext>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<SourceRconChannelContext> event) throws Throwable {
+                System.err.printf("[RCON] Retrying (error: %s, attempts: %d))\n", event.getLastException(), event.getAttemptCount());
+            }
+        });
+        retryPolicyBuilder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
+            @Override
+            public void accept(ExecutionCompletedEvent<SourceRconChannelContext> event) throws Throwable {
+                System.err.printf("[RCON] Retries exceeded (Attempts: %d, Last result: '%s', Last Error: %s)\n", event.getAttemptCount(), event.getResult(), event.getException());
+            }
+        });
+        retryPolicyBuilder.abortOn(RconAuthException.class, ConnectException.class);
+        retryPolicyBuilder.withDelay(Duration.ofSeconds(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_DELAY)));
+        retryPolicyBuilder.withMaxAttempts(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_MAX_ATTEMPTS));
+        return retryPolicyBuilder.build();
     }
 
     public boolean isReauthenticate() {
@@ -647,14 +717,14 @@ public final class SourceRconAuthManager implements Closeable {
             Throwable lastError = Errors.unwrap(context.getLastException());
 
             //have we reached the maximum number of login attempts?
-            if (lastError instanceof ChannelClosedException && context.getAttemptCount() >= (rconRequestRetryPolicy.getConfig().getMaxAttempts() - 1)) {
+            if (lastError instanceof ChannelClosedException && context.getAttemptCount() >= (retryPolicy.getConfig().getMaxAttempts() - 1)) {
                 SourceRconChannelContext ctx = SourceRconChannelContext.getContext(((ChannelClosedException) lastError).getChannel());
                 if (ctx.properties().request() instanceof SourceRconAuthRequest) {
                     if (credentials != null && credentials.isValid()) {
                         credentials.invalidate();
                         throw new RconInvalidCredentialsException(String.format(SourceRconAuthenticator.INVALID_CREDENTIALS_MSG, address), address);
                     }
-                    throw new RconMaxLoginAttemptsException("Failed to authenticate with server. Maximum number of login attempts has been reached (" + rconRequestRetryPolicy.getConfig().getMaxAttempts() + ")", address);
+                    throw new RconMaxLoginAttemptsException("Failed to authenticate with server. Maximum number of login attempts has been reached (" + retryPolicy.getConfig().getMaxAttempts() + ")", address);
                 }
             }
 

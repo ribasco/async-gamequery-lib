@@ -159,60 +159,64 @@ public class SourceRconExample extends BaseExample {
         serverAddress = new InetSocketAddress(address, port);
         boolean stop = false;
 
-        //loop until stop is set
-        while (!stop) {
-            if (!authenticated.get()) {
-                String password = promptInputPassword("Password", true, "", "sourceRconPass");
-                System.out.println();
-                System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
-                System.out.println();
-                try {
-                    SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
-                    authenticated.set(authResponse.isAuthenticated());
-                    if (!authenticated.get())
-                        System.err.printf("Error authenticating with server: '%s'\n", authResponse.getReason());
-                } catch (CompletionException e) {
-                    Throwable cause = Errors.unwrap(e);
-                    if (cause instanceof RconInvalidCredentialsException) {
-                        System.err.print("\nFailed to authenticateBatch with server due to bad credentials\n");
-                        cause.printStackTrace(System.err);
-                        authenticated.set(false);
-                    } else {
-                        System.err.printf("\nAn unknown error occured while trying to authenticateBatch with server (using password %s bytes)\n", password.length());
-                        cause.printStackTrace(System.err);
-                        throw e;
+        try {
+            //loop until stop is set
+            while (!stop) {
+                if (!authenticated.get()) {
+                    String password = promptInputPassword("Password", true, "", "sourceRconPass");
+                    System.out.println();
+                    System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
+                    System.out.println();
+                    try {
+                        SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
+                        authenticated.set(authResponse.isAuthenticated());
+                        if (!authenticated.get())
+                            System.err.printf("Error authenticating with server: '%s'\n", authResponse.getReason());
+                    } catch (CompletionException e) {
+                        Throwable cause = Errors.unwrap(e);
+                        try {
+                            if (cause instanceof RconInvalidCredentialsException) {
+                                System.err.print("Failed to authenticate with server due to bad credentials\n");
+                                //cause.printStackTrace(System.err);
+                            } else {
+                                System.err.printf("An error occured while attempting to authenticate with server '%s' (using password %s bytes)\n", serverAddress, password.length());
+                                //cause.printStackTrace(System.err);
+                                throw e;
+                            }
+                        } finally {
+                            authenticated.set(false);
+                        }
+                    } catch (Throwable error) {
+                        System.err.println("Failed to authenticateBatch with server");
+                        error.printStackTrace(System.err);
                     }
-                } catch (Throwable error) {
-                    System.err.println("Failed to authenticateBatch with server");
-                    error.printStackTrace(System.err);
+                    continue;
                 }
-                continue;
-            }
 
-            try {
-                CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
-                System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
-            } catch (Exception error) {
-                Throwable cause = Errors.unwrap(error);
-                if (cause instanceof CancellationException) {
-                    stop = true;
-                } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
-                    System.err.println(cause.getMessage());
-                    authenticated.set(false);
-                } else if (cause instanceof ParseException) {
-                    System.err.println(cause.getMessage());
-                } else {
-                    System.err.println("Error during execution of command: ");
-                    cause.printStackTrace(System.err);
+                try {
+                    CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
+                    System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
+                } catch (Exception error) {
+                    Throwable cause = Errors.unwrap(error);
+                    if (cause instanceof CancellationException) {
+                        stop = true;
+                    } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
+                        System.err.println(cause.getMessage());
+                        authenticated.set(false);
+                    } else if (cause instanceof ParseException) {
+                        System.err.println(cause.getMessage());
+                    } else {
+                        System.err.println("Error during execution of command: ");
+                        cause.printStackTrace(System.err);
+                    }
+                    System.out.flush();
+                    //add a slight delay
+                    Concurrency.sleepUninterrupted(100);
                 }
-                System.out.flush();
-                //add a slight delay
-                Concurrency.sleepUninterrupted(100);
             }
+        } finally {
+            System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
         }
-
-        System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
-        System.exit(0);
     }
 
     private CompletableFuture<String> promptUserInput() {

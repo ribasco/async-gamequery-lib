@@ -1,5 +1,7 @@
 ## Source Log Listen Service
 
+This module allows you to receive server log events in real-time
+
 ### Configuration
 
 To start receiving log messages, you need to make sure you register the `<ip:port>` on the game server. 
@@ -9,7 +11,7 @@ Do this either by directly issuing the rcon command `logaddress_add <ip:port>` o
 
 To start listening to log messages immediately, just pass a callback that will process the log statements. Its as simple as that.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~java
 static void main(String[] args) {
     SourceLogListenService logListenService = new SourceLogListenService();
     logListenService.setLogEventCallback(SourceLogMonitorEx::processLogData)
@@ -19,10 +21,10 @@ static void main(String[] args) {
 static void processLogData(SourceLogEntry message) {
     log.info("Got Data : {}", message);
 }
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~
 
 If you use the default constructor, the service will bind itself to a random local port number and will listen to any ip address. If you need to bind to a specific ip/port, then just pass an `InetSocketAddress` to the constructor.
 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~java
 SourceLogListenService logListenService = new SourceLogListenService(new InetSocketAddress("192.168.1.12", 43813);
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~

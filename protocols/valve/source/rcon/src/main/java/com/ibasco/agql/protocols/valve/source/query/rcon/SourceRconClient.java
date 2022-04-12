@@ -95,18 +95,19 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
     /**
-     * Create a new rcon client instance. By default, terminating packets are sent after every command
+     * Create a new {@link SourceRconClient} instance using the pre-defined configuration {@link Options} for this client
      */
     public SourceRconClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link SourceRconClient} using the provided configuration options.
+     * Create a new {@link SourceRconClient} instance using the provided configuration {@link Options}
      *
      * @param options
-     *         The {@link Options} containing the configuration settings specific for this instance
+     *         The user-defined {@link Options} containing the configuration settings to be used by this client.
      *
+     * @see Options
      * @see OptionBuilder
      */
     public SourceRconClient(Options options) {

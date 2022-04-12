@@ -42,15 +42,19 @@ import java.util.concurrent.CompletableFuture;
 public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
 
     /**
-     * Create a new {@link MasterServerQueryClient} client instance using the default configuration options.
+     * Create a new {@link MasterServerQueryClient} instance using the pre-defined configuration {@link Options} for this client
      */
     public MasterServerQueryClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link MasterServerQueryClient} instance with the provided configuration options.
+     * Create a new {@link MasterServerQueryClient} instance using the provided configuration {@link Options}
      *
+     * @param options
+     *         The user-defined {@link Options} containing the configuration settings to be used by this client.
+     *
+     * @see Options
      * @see OptionBuilder
      */
     public MasterServerQueryClient(Options options) {

@@ -20,7 +20,7 @@ Usage examples for Steam Web API Interfaces 
 
 **Get a list of available Steam Apps**
 
-~~~
+~~~java
 steamApps.getAppList().exceptionally(throwable -> {
     log.error("Error Occured", throwable);
     return new ArrayList<>();
@@ -29,7 +29,7 @@ steamApps.getAppList().exceptionally(throwable -> {
 
 **Get a list of servers based on the address specified**
 
-~~~
+~~~java
 steamApps.getServersAtAddress(InetAddress.getByName("103.28.55.237"))
 .exceptionally(throwable -> {
     log.error("Error occured", throwable);
@@ -41,7 +41,7 @@ steamApps.getServersAtAddress(InetAddress.getByName("103.28.55.237"))
 
 **Get a server's update status**
 
-~~~
+~~~java
 steamApps.getServerUpdateStatus(2146, 550).thenAccept(new Consumer<ServerUpdateStatus>() {
     @Override
     public void accept(ServerUpdateStatus serverUpdateStatus) {
@@ -54,35 +54,35 @@ steamApps.getServerUpdateStatus(2146, 550).thenAccept(new Consumer<ServerUpdateS
 
 **Get Player Items**
 
-~~~
+~~~java
 List<SteamEconPlayerItem> playerItems = steamEconItems.getPlayerItems(730, 76561197960761020L, SteamEconItems.VERSION_1).get();
 log.info("Player Items: {}", playerItems);
 ~~~
 
 **Get Schema**
 
-~~~
+~~~java
 SteamEconSchema schema = steamEconItems.getSchema(440).join();
 log.info("Schema: {}", schema);
 ~~~
 
 **Get Schema URL**
 
-~~~
+~~~java
 String schemaUrl = steamEconItems.getSchemaUrl(440).join();
 log.info("Schema URL : {}", schemaUrl);
 ~~~
 
 **Get Store Metadata**
 
-~~~
+~~~java
 SteamEconItemsStoreMeta storeMedaData = steamEconItems.getStoreMetadata(440).join();
 log.info("Store Meta Data: {}", storeMedaData);
 ~~~
 
 **Get Store Status**
 
-~~~
+~~~java
 Integer storeStatus = steamEconItems.getStoreStatus(440).join();
 log.info("Store Status: {}", storeStatus);
 ~~~
@@ -91,7 +91,7 @@ log.info("Store Status: {}", storeStatus);
 
 **Get Asset Prices**
 
-~~~
+~~~java
 steamEconomy.getAssetPrices(730).thenAccept(new Consumer<List<SteamAssetPriceInfo>>() {
     @Override
     public void accept(List<SteamAssetPriceInfo> steamAssetPriceInfos) {
@@ -108,7 +108,7 @@ steamEconomy.getAssetPrices(730).thenAccept(new Consumer<List<SteamAssetPriceInf
 
 **Get Asset Class Info**
 
-~~~
+~~~java
 steamEconomy.getAssetClassInfo(730, "en", 186150629L, 506856209L, 506856210L, 903185406L,
         613589849L, 613589850L, 613589851L, 613589852L, 613589853L, 613589854L, 613589855L).thenAccept(new Consumer<Map<String, SteamAssetClassInfo>>() {
     @Override
@@ -124,7 +124,7 @@ steamEconomy.getAssetClassInfo(730, "en", 186150629L, 506856209L, 506856210L, 90
 
 **Get News for App**
 
-~~~
+~~~java
 steamNews.getNewsForApp(550).thenAccept(new Consumer<List<SteamNewsItem>>() {
     @Override
     public void accept(List<SteamNewsItem> steamNewsItems) {
@@ -142,7 +142,7 @@ steamNews.getNewsForApp(550).thenAccept(new Consumer<List<SteamNewsItem>>() {
 
 **Get Recently Played Games**
 
-~~~
+~~~java
 playerService.getRecentlyPlayedGames(76561198010872093L, 500).thenAccept(new Consumer<List<SteamPlayerRecentPlayed>>() {
     @Override
     public void accept(List<SteamPlayerRecentPlayed> steamPlayerRecentPlayeds) {
@@ -158,7 +158,7 @@ playerService.getRecentlyPlayedGames(76561198010872093L, 500).thenAccept(new Con
 
 **Get Badges**
 
-~~~
+~~~java
 playerService.getBadges(76561198010872093L).thenAccept(new Consumer<SteamPlayerBadgeInfo>() {
     @Override
     public void accept(SteamPlayerBadgeInfo steamPlayerBadgeInfo) {
@@ -175,7 +175,7 @@ playerService.getBadges(76561198010872093L).thenAccept(new Consumer<SteamPlayerB
 
 **Get Community Badge Progress**
 
-~~~
+~~~java
 playerService.getCommunityBadgeProgress(76561198010872093L, 1).thenAccept(new Consumer<List<SteamQuestStatus>>() {
     @Override
     public void accept(List<SteamQuestStatus> steamQuestStatuses) {
@@ -192,7 +192,7 @@ playerService.getCommunityBadgeProgress(76561198010872093L, 1).thenAccept(new Co
 
 **Get Steam Level**
 
-~~~
+~~~java
 playerService.getSteamLevel(76561198010872093L).thenAccept(new Consumer<Integer>() {
     @Override
     public void accept(Integer integer) {
@@ -203,7 +203,7 @@ playerService.getSteamLevel(76561198010872093L).thenAccept(new Consumer<Integer>
 
 **Get Steam Game Lender ID**
 
-~~~
+~~~java
 playerService.getSteamGameLenderId(76561198010872093L, 550).thenAccept(new Consumer<String>() {
     @Override
     public void accept(String s) {
@@ -216,35 +216,35 @@ playerService.getSteamGameLenderId(76561198010872093L, 550).thenAccept(new Consu
 
 **Get Store App Details**
 
-~~~
+~~~java
 StoreAppDetails storeAppDetails = storeFront.getAppDetails(550).join();
 log.info("Storefront App Details: {}", storeAppDetails);
 ~~~
 
 **Get Featured Apps**
 
-~~~
+~~~java
 StoreFeaturedApps featuredApps = storeFront.getFeaturedApps().join();
 log.info("Featured Apps: {}", featuredApps);
 ~~~
 
 **Get Featured Categories**
 
-~~~
+~~~java
 StoreFeaturedCategories featuredCategories = storeFront.getFeaturedCategories().join();
 log.info("Featured Categories: {}", featuredCategories);
 ~~~
 
 **Get Package Details**
 
-~~~
+~~~java
 StorePackageDetails packageDetails = storeFront.getPackageDetails(54029).join();
 log.info("Package Details: {}", packageDetails);
 ~~~
 
 **Get Sale Details**
 
-~~~
+~~~java
 StoreSaleDetails storeSaleDetails = storeFront.getSaleDetails(0).join();
 log.info("Sale Details: {}", storeSaleDetails);
 ~~~
@@ -253,7 +253,7 @@ log.info("Sale Details: {}", storeSaleDetails);
 
 **Get Friend List**
 
-~~~
+~~~java
 steamUser.getFriendList(76561198010872093L, "friend").thenAccept(new Consumer<List<SteamFriend>>() {
     @Override
     public void accept(List<SteamFriend> steamFriends) {
@@ -269,7 +269,7 @@ steamUser.getFriendList(76561198010872093L, "friend").thenAccept(new Consumer<Li
 
 **Get Player Bans**
 
-~~~
+~~~java
 steamUser.getPlayerBans(76561198010872093L).thenAccept(new Consumer<List<SteamBanStatus>>() {
     @Override
     public void accept(List<SteamBanStatus> steamBanStatuses) {
@@ -285,7 +285,7 @@ steamUser.getPlayerBans(76561198010872093L).thenAccept(new Consumer<List<SteamBa
 
 **Get Player Profiles**
 
-~~~
+~~~java
 steamUser.getPlayerProfiles(76561198010872093L).thenAccept(new Consumer<List<SteamPlayerProfile>>() {
     @Override
     public void accept(List<SteamPlayerProfile> steamPlayerProfiles) {
@@ -296,7 +296,7 @@ steamUser.getPlayerProfiles(76561198010872093L).thenAccept(new Consumer<List<Ste
 
 **Get User Group List**
 
-~~~
+~~~java
 steamUser.getUserGroupList(76561198010872093L).thenAccept(steamGroupIds -> {
     steamGroupIds.forEach(new Consumer<SteamGroupId>() {
         @Override
@@ -309,7 +309,7 @@ steamUser.getUserGroupList(76561198010872093L).thenAccept(steamGroupIds -> {
 
 **Get Steam Id From Vanity URL**
 
-~~~
+~~~java
 steamUser.getSteamIdFromVanityUrl("zenmast3r", VanityUrlType.DEFAULT).thenAccept(new Consumer<Long>() {
     @Override
     public void accept(Long aLong) {
@@ -322,7 +322,7 @@ steamUser.getSteamIdFromVanityUrl("zenmast3r", VanityUrlType.DEFAULT).thenAccept
 
 **Get Global Achievement Percentage for App**
 
-~~~
+~~~java
 steamUserStats.getGlobalAchievementPercentagesForApp(550).thenAccept(new Consumer<List<SteamGameAchievement>>() {
     @Override
     public void accept(List<SteamGameAchievement> steamGameAchievements) {
@@ -338,7 +338,7 @@ steamUserStats.getGlobalAchievementPercentagesForApp(550).thenAccept(new Consume
 
 **Get Schema For Game**
 
-~~~
+~~~java
 steamUserStats.getSchemaForGame(550).thenAccept(steamGameStatsSchemaInfo -> {
     log.info("Achievement Schemas : {}", steamGameStatsSchemaInfo.getAchievementSchemaList().size());
     log.info("Stats Schemas : {}", steamGameStatsSchemaInfo.getStatsSchemaList().size());
@@ -359,7 +359,7 @@ steamUserStats.getSchemaForGame(550).thenAccept(steamGameStatsSchemaInfo -> {
 
 **Get Total Number of Current Players for Game**
 
-~~~
+~~~java
 steamUserStats.getNumberOfCurrentPlayers(550).thenAccept(new Consumer<Integer>() {
     @Override
     public void accept(Integer integer) {
@@ -370,7 +370,7 @@ steamUserStats.getNumberOfCurrentPlayers(550).thenAccept(new Consumer<Integer>()
 
 **Get Player Achievements**
 
-~~~
+~~~java
 steamUserStats.getPlayerAchievements(76561198010872093L, 550).thenAccept(new Consumer<List<SteamPlayerAchievement>>() {
     @Override
     public void accept(List<SteamPlayerAchievement> steamPlayerAchievements) {
@@ -387,7 +387,7 @@ steamUserStats.getPlayerAchievements(76561198010872093L, 550).thenAccept(new Con
 
 **Get User Stats for Game**
 
-~~~
+~~~java
 steamUserStats.getUserStatsForGame(76561198010872093L, 550).thenAccept(new Consumer<SteamPlayerStats>() {
     @Override
     public void accept(SteamPlayerStats playerStats) {

@@ -16,17 +16,19 @@
 
 package com.ibasco.agql.core.transport;
 
+import com.ibasco.agql.core.util.Errors;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.TransportOptions;
 import dev.failsafe.*;
+import dev.failsafe.event.EventListener;
+import dev.failsafe.event.ExecutionAttemptedEvent;
+import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
-import io.netty.channel.ConnectTimeoutException;
 import io.netty.channel.EventLoop;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -52,11 +54,8 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final FailsafeExecutor<Channel> acquireExecutor;
 
-    //private final ScheduledExecutorService acquireScheduler;
-
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        //this.acquireScheduler = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-acquire"));
         this.acquireExecutor = Failsafe.with(newRetryPolicy()).with(channelFactory.getExecutor());
     }
 
@@ -72,23 +71,25 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         return Netty.useEventLoop(create(data), eventLoop);
     }
 
-    @Override
-    public void close() throws IOException {
-        super.close();
-        /*try {
-            super.close();
-        } finally {
-            log.debug("CHANNEL_FACTORY ({}) => Shutting down acquire scheduler", getClass().getSimpleName());
-            ConcurrentUtil.shutdown(acquireScheduler);
-        }*/
-    }
-
     private RetryPolicy<Channel> newRetryPolicy() {
         RetryPolicyBuilder<Channel> retryPolicyBuilder = RetryPolicy.builder();
-        retryPolicyBuilder.handle(ConnectTimeoutException.class, ConnectException.class)
+        retryPolicyBuilder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException)
                           .abortIf(channel -> channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown())
                           .abortOn(RejectedExecutionException.class)
-                          .onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A"))
+                          .onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
+                              @Override
+                              public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
+                                  System.err.printf("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)\n", event.getLastException(), event.getAttemptCount());
+                                  log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
+                              }
+                          })
+                          .onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
+                              @Override
+                              public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                                  System.err.printf("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)\n", event.getException(), event.getAttemptCount());
+                              }
+                          })
+                          //.onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A"))
                           .withMaxAttempts(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_MAX_CONNECT))
                           .withBackoff(
                                   Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN))

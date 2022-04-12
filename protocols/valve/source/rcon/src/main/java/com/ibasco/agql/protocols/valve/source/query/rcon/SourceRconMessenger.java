@@ -44,6 +44,10 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         this.authManager = new SourceRconAuthManager(this, options.get(SourceRconOptions.CREDENTIALS_STORE, new InMemoryCredentialsStore()));
     }
 
+    public SourceRconAuthManager getAuthManager() {
+        return authManager;
+    }
+
     @Override
     protected void configure(final Options options) {
         defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
@@ -61,10 +65,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     @Override
     public CompletableFuture<SourceRconResponse> send(InetSocketAddress address, SourceRconRequest request) {
         return authManager.send(address, request);
-    }
-
-    public SourceRconAuthManager getAuthManager() {
-        return authManager;
     }
 
     @Override

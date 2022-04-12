@@ -125,18 +125,19 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     //<editor-fold desc="Public Constructors">
 
     /**
-     * Create a new {@link SourceQueryClient} instance using the default {@link Options} configured for this module
+     * Create a new {@link SourceQueryClient} instance using the pre-defined configuration {@link Options} for this client
      */
     public SourceQueryClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link SourceQueryClient} instance using the provided user-defined configuration options
+     * Create a new {@link SourceQueryClient} instance using the provided configuration {@link Options}
      *
      * @param options
-     *         The {@link Options} containing the configuration options for this client
+     *         The user-defined {@link Options} containing the configuration settings to be used by this client.
      *
+     * @see Options
      * @see OptionBuilder
      */
     public SourceQueryClient(Options options) {

@@ -57,10 +57,10 @@ public class ExampleRunner {
         Runtime.getRuntime().addShutdownHook(new Thread(() ->
                                                         {
                                                             try {
-                                                                BaseExample.printLine();
-                                                                System.out.printf("(\033[0;31mSHUTDOWN\033[0m) \033[0;33mShutdown requested. Attempting to shutdown example \033[0;36m'%s'\033[0m\n", activeExample);
-                                                                BaseExample.printLine();
                                                                 if (this.activeExample != null && !closed) {
+                                                                    BaseExample.printLine();
+                                                                    System.out.printf("(\033[0;31mSHUTDOWN\033[0m) \033[0;33mShutdown requested. Attempting to shutdown example \033[0;36m'%s'\033[0m\n", activeExample);
+                                                                    BaseExample.printLine();
                                                                     this.activeExample.close();
                                                                 }
                                                             } catch (IOException e) {
@@ -99,7 +99,7 @@ public class ExampleRunner {
                 System.out.println();
                 example.run(args);
             } finally {
-                System.out.println("Example closed");
+                System.out.println("(CLOSE) \033[0;35mExample program closed\033[0m");
                 closed = true;
             }
         }
@@ -111,6 +111,11 @@ public class ExampleRunner {
     }
 
     public static void main(String[] args) throws Exception {
-        new ExampleRunner().processArguments(args);
+        try {
+            new ExampleRunner().processArguments(args);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
     }
 }

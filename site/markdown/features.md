@@ -1,11 +1,17 @@
 Features
 ========
 
-- Implments Valve's RCON, Query and Steam Web API Protocols. Compatible with most steam based games.
-- All operations are asynchronous (non-blocking i/o)
-- Takes advantage of netty's event loop model and pooled off-heap buffers allowing for high-performance, high throughput concurrent transactions.
-- Built-in connection and thread pooling facilities.
-- Configurable clients. Provides a fluent API for defining user specific configuration options (e.g. providing custom executor, setting connection pooling strategy, setting rate limit parameters etc)
+- Simple and easy to use API.
+- All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
+- Capable of handling large volumes of transactions
+- Efficient use of system resources
+    - Uses off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Reduces GC pressure)
+    - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model (each transaction is guaranteed to only run in one thread).
+    - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- Highly configurable. Clients can be easily configured to satisfy developer's requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Queries are [Failsafe](https://failsafe.dev/) (excluding web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of requests. Below are the policies available by default.
+    - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration.
+    - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
 
 Web API Implementations
 -----------------------

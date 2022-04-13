@@ -39,6 +39,6 @@ if [ -z "$1" ]
     exit 1
 fi
 
-echo "Running example for ${1}"
+echo -e "\u001B[36mRunning example for '\u001B[33m${1}\u001B[0m\ \u001B[32m(${@:2})\u001B[0m"
 
-mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}" ${2}
+mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}" "${@:2}"

@@ -21,10 +21,11 @@ import org.slf4j.LoggerFactory;
 import java.io.Closeable;
 
 /**
- * A reference counted resource that will be automatically closed once the count reaches zero.
+ * A reference counted resource that will be automatically closed once the count reaches zero. Particularly useful in cases where we provide a static global resource shared across all clients.
  *
  * @param <T>
  *         The underlying type of the managed resource
+ *
  * @author Rafael Luis Ibasco
  */
 public interface ManagedResource<T> extends Closeable {

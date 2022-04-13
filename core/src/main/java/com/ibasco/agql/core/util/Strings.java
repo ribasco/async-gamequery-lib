@@ -29,7 +29,9 @@ public class Strings {
     /**
      * <p>isBlank.</p>
      *
-     * @param str a {@link java.lang.String} object
+     * @param str
+     *         a {@link java.lang.String} object
+     *
      * @return a boolean
      */
     public static boolean isBlank(String str) {
@@ -39,7 +41,9 @@ public class Strings {
     /**
      * <p>isNumeric.</p>
      *
-     * @param str a {@link java.lang.String} object
+     * @param str
+     *         a {@link java.lang.String} object
+     *
      * @return a boolean
      */
     public static boolean isNumeric(String str) {
@@ -57,11 +61,15 @@ public class Strings {
     /**
      * <p>defaultIfEmpty.</p>
      *
-     * @param value a {@link java.lang.String} object
-     * @param defaultValue a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.String} object
+     * @param defaultValue
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     public static String defaultIfEmpty(String value, String defaultValue) {
         return isBlank(value) ? defaultValue : value;
     }
+
 }

@@ -124,7 +124,7 @@ public class AgqlManagedExecutorService extends AbstractManagedResource<ThreadPo
     @Override
     public void close() throws IOException {
         try {
-            Platform.println("Shutting down executor service '%s' (Reference count: %d)", this, getReferenceCount());
+            Console.println("Shutting down executor service '%s' (Reference count: %d)", this, getReferenceCount());
             Concurrency.shutdown(getResource());
         } finally {
             if (getReferenceCount() > 0)

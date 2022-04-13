@@ -17,6 +17,7 @@
 package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
+import static com.ibasco.agql.core.util.Console.*;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultSelectStrategyFactory;
 import io.netty.channel.EventLoopGroup;
@@ -62,7 +63,7 @@ public final class Platform {
     private static final Logger log = LoggerFactory.getLogger(Platform.class);
 
     /** Constant <code>DEFAULT_THREAD_SIZE=Runtime.getRuntime().availableProcessors() + 1</code> */
-    public static final int DEFAULT_THREAD_SIZE = Runtime.getRuntime().availableProcessors() + 1;
+    public static final int DEFAULT_CORE_POOL_SIZE;
 
     /** Constant <code>DEFAULT_THREAD_GROUP</code> */
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
@@ -79,57 +80,58 @@ public final class Platform {
 
     private static final String GLOBAL_DEFAULT_EXECUTOR_KEY = "globalDefaultExecutor";
 
-    private static final Supplier<AgqlManagedExecutorService> DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(DEFAULT_THREAD_SIZE, Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
+    private static final Supplier<AgqlManagedExecutorService> DEFAULT_EXECUTOR_SUPPLIER;
 
     //initialize resource provider for the default global executor service
-    private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER);
+    private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER;
 
-    private static final String PROP_USE_NATIVE = "useNativeTransport";
+    private static final String PROP_USE_NATIVE = "agql.nativeTransport";
 
-    private static final String PROP_OUTPUT_DEBUG = "outputDebugConsole";
+    private static final String PROP_VERBOSE = "agql.verbose";
 
-    private static final boolean useNativeTransport;
+    private static final String PROP_CORE_POOL_SIZE = "agql.corePoolSize";
 
-    private static final boolean outputDebugConsole;
+    private static final boolean USE_NATIVE_TRANSPORT;
+
+    private static final boolean VERBOSE;
 
     private Platform() {}
 
     static {
-        outputDebugConsole = readBoolProperty(PROP_OUTPUT_DEBUG, false);
-        useNativeTransport = readBoolProperty(PROP_USE_NATIVE, true);
+        VERBOSE = readBoolProperty(PROP_VERBOSE, false);
+        USE_NATIVE_TRANSPORT = readBoolProperty(PROP_USE_NATIVE, true); //note: native transports are used by default, unless disabled via JVM property
+        DEFAULT_CORE_POOL_SIZE = readIntProperty(PROP_CORE_POOL_SIZE, Runtime.getRuntime().availableProcessors() + 1);
+        DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(DEFAULT_CORE_POOL_SIZE, Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
+        DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER); //provider for default executor service
+
+        println(color(ANSI_BLUE, "======================================================================"));
+        println(color(ANSI_CYAN, "Default global properties"));
+        println(color(ANSI_BLUE, "======================================================================"));
+        printProperty("Verbose", isVerbose());
+        printProperty("Native Transport Enabled", useNativeTransport());
+        printProperty("Default core pool size", getDefaultPoolSize());
+        println(color(ANSI_BLUE, "======================================================================"));
 
         //ensure shutdown is called
         Runtime.getRuntime().addShutdownHook(new Thread(Platform::shutdown));
         log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
     }
 
-    public static void println(String msg, Object... args) {
-        if (!outputDebugConsole)
-            return;
-        System.out.printf("\u001B[32m[info]\u001B[0m " + (msg) + "%n", args);
+    private static void printProperty(String name, Object value) {
+        println("%s: %s", color(ANSI_CYAN, "%-25s", true, name), color(ANSI_YELLOW, "%s", true, value));
     }
 
-    public static void error(String msg, Object... args) {
-        if (!outputDebugConsole)
-            return;
-        System.err.printf("\u001B[31m[error]\u001B[0m " + (msg) + "%n", args);
+    public static boolean isVerbose() {
+        return VERBOSE;
     }
 
-    private static boolean readBoolProperty(String property, boolean defaultValue) {
-        try {
-            String value = System.getProperty(property);
-            //note: native transports are used by default, unless disabled via JVM property
-            boolean boolValue = (value == null) ? defaultValue : BooleanUtils.toBoolean(value);
-            println("Property: %s = %s", property, boolValue);
-            return boolValue;
-        } catch (Exception e) {
-            error("WARNING: Failed to read system property '%s'. Defaulting to 'true' (Reason: %s)", property, e.getMessage());
-            return defaultValue;
-        }
-    }
-
+    /**
+     * <p>useNativeTransport.</p>
+     *
+     * @return a boolean
+     */
     public static boolean useNativeTransport() {
-        return useNativeTransport;
+        return USE_NATIVE_TRANSPORT;
     }
 
     /**
@@ -188,12 +190,17 @@ public final class Platform {
 
     /**
      * <p>
-     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default (FOR INTERNAL USE ONLY, USE AT YOUR OWN RISK).
+     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link ThreadPoolExecutor} cast the return value to ({@link AgqlManagedExecutorService} and call {@link AgqlManagedExecutorService#getResource()}.
      * </p>
+     * <blockquote>
+     * <strong>NOTE:</strong> The executor service returned by this function is reference counted (See {@link ManagedResource}). Every invocation will increase it's reference count. So make sure to call {@link ManagedResource#release()} the on the resource after use.
+     * </blockquote>
      *
      * @return The default global {@link java.util.concurrent.ExecutorService}
+     *
+     * @see ManagedResource
+     * @see ManagedResource#release()
      */
-    @ApiStatus.Internal
     public static ExecutorService getDefaultExecutor() {
         return DEFAULT_EXECUTOR_PROVIDER.acquire(GLOBAL_DEFAULT_EXECUTOR_KEY);
     }
@@ -205,7 +212,7 @@ public final class Platform {
      */
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
-             AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
+            AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
             try {
                 final ThreadPoolExecutor executor = svc.getResource();
                 DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), useNativeTransport());
@@ -233,7 +240,7 @@ public final class Platform {
      * @return a int
      */
     public static int getDefaultPoolSize() {
-        return DEFAULT_THREAD_SIZE;
+        return DEFAULT_CORE_POOL_SIZE;
     }
 
     /**
@@ -347,7 +354,7 @@ public final class Platform {
     }
 
     /**
-     * <p>Retrieves the channel class based on the provided {@link EventLoopGroup}.</p>
+     * <p>Retrieves the channel class based on the provided {@link io.netty.channel.EventLoopGroup}.</p>
      *
      * @param type
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
@@ -430,5 +437,33 @@ public final class Platform {
             }
         }
         return channelClass;
+    }
+
+    static boolean readBoolProperty(String property, boolean defaultValue) {
+        String value = readProperty(property);
+        return (value == null) ? defaultValue : BooleanUtils.toBoolean(value);
+    }
+
+    static int readIntProperty(String property, int defaultValue) {
+        String value = readProperty(property);
+        if (value != null && !Strings.isNumeric(value.trim()))
+            throw new IllegalArgumentException("Value is not numeric: " + property);
+        return value == null ? defaultValue : Integer.parseInt(value.trim());
+    }
+
+    private static String readProperty(String property) {
+        return readProperty(property, null);
+    }
+
+    private static String readProperty(String property, String defaultValue) {
+        try {
+            String value = System.getProperty(property);
+            if (value == null)
+                return defaultValue;
+            return value;
+        } catch (Exception e) {
+            error("WARNING: Failed to read system property '%s'. Defaulting to 'true' (Reason: %s)", property, e.getMessage());
+            return defaultValue;
+        }
     }
 }

@@ -119,7 +119,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     //</editor-fold>
 
     /**
-     * <p>Initialize {@link EventLoopGroup}.</p>
+     * <p>Initialize {@link io.netty.channel.EventLoopGroup}.</p>
      *
      * @param channelClass
      *         a {@link java.lang.Class} object
@@ -164,7 +164,6 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
      *
      * @param data
      *         a {@link java.lang.Object} object
-     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     abstract protected CompletableFuture<Channel> newChannel(final Object data);

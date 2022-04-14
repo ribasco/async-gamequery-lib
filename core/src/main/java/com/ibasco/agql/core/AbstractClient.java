@@ -36,24 +36,18 @@ import java.util.concurrent.Executor;
  *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
  *         A type of {@link com.ibasco.agql.core.AbstractResponse}
+ *
  * @author Rafael Luis Ibasco.
  */
-abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
+abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse, O extends Options> implements Client {
 
     private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
 
     private final UUID id = UUID.create();
 
-    private final Options options;
+    private final O options;
 
-    private Messenger<R, S> messenger;
-
-    /**
-     * Create a new client instance using the default configuration options.
-     */
-    protected AbstractClient() {
-        this(null);
-    }
+    private Messenger<R, S, O> messenger;
 
     /**
      * Create a new client instance using the provided configuration options.
@@ -63,19 +57,19 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      * @see OptionBuilder
      * @see Options
      */
-    protected AbstractClient(Options options) {
-        if (options == null)
-            options = new Options(this.getClass());
+    protected AbstractClient(O options) {
         this.options = options;
     }
 
     /**
      * <p>createMessenger.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     *
      * @return a {@link com.ibasco.agql.core.Messenger} object
      */
-    abstract protected Messenger<R, S> createMessenger(Options options);
+    abstract protected Messenger<R, S, O> createMessenger(O options);
 
     /**
      * <p>send.</p>
@@ -121,7 +115,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      *
      * @return a {@link com.ibasco.agql.core.Messenger} object
      */
-    protected Messenger<R, S> getMessenger() {
+    protected Messenger<R, S, O> getMessenger() {
         return messenger();
     }
 
@@ -136,7 +130,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     /**
      * @return Returns an existing instance of the messenger. If no instance exists yet, initialize then return
      */
-    private Messenger<R, S> messenger() {
+    private Messenger<R, S, O> messenger() {
         if (this.messenger == null) {
             this.messenger = createMessenger(this.options);
         }

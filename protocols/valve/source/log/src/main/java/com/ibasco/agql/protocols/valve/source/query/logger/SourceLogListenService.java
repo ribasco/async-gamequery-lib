@@ -17,9 +17,9 @@
 package com.ibasco.agql.protocols.valve.source.query.logger;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
+import com.ibasco.agql.core.util.GlobalOptions;
 import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Platform;
-import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
@@ -245,7 +245,7 @@ public class SourceLogListenService implements Closeable {
     @Override
     public void close() throws IOException {
         log.debug("LOG SERVICE => Reequesting to shutdown log service");
-        group.shutdownGracefully(10, TransportOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
+        group.shutdownGracefully(10, GlobalOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
         ManagedResource.release(executorService);
     }
 

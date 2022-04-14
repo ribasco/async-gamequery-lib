@@ -52,7 +52,7 @@ import java.util.concurrent.RejectedExecutionException;
  *
  * @author Rafael Luis Ibasco
  */
-public final class SourceQueryMessenger extends NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>> {
+public final class SourceQueryMessenger extends NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>, SourceQueryOptions> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
@@ -90,15 +90,17 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     /**
      * <p>Constructor for SourceQueryMessenger.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    public SourceQueryMessenger(Options options) {
+    public SourceQueryMessenger(SourceQueryOptions options) {
         super(options);
-        this.failsafeEnabled = getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED);
-        initFailSafe(options);
+        //note: use getOptions() instead of options, to guarante that we do not receive a null value in case developer did not provide a user-defined options.
+        this.failsafeEnabled = getOptions().getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED);
+        initFailSafe(getOptions());
     }
 
-    private void initFailSafe(final Options options) {
+    private void initFailSafe(final SourceQueryOptions options) {
         if (!failsafeEnabled)
             return;
 
@@ -117,7 +119,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         this.executor = Failsafe.with(policies).with(getExecutor());
     }
 
-    private RetryPolicy<SourceQueryResponse<?>> buildRetryPolicy(final Options options) {
+    private RetryPolicy<SourceQueryResponse<?>> buildRetryPolicy(final SourceQueryOptions options) {
         RetryPolicyBuilder<SourceQueryResponse<?>> builder = RetryPolicy.builder();
         Long retryDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_DELAY);
         Integer maxAttempts = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
@@ -137,7 +139,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return builder.build();
     }
 
-    private RateLimiter<SourceQueryResponse<?>> buildRateLimiterPolicy(final Options options) {
+    private RateLimiter<SourceQueryResponse<?>> buildRateLimiterPolicy(final SourceQueryOptions options) {
         Long maxExecutions = options.getOrDefault(SourceQueryOptions.FAILSAFE_RATELIMIT_MAX_EXEC);
         Long periodMs = options.getOrDefault(SourceQueryOptions.FAILSAFE_RATELIMIT_PERIOD);
         Long maxWaitTimeMs = options.getOrDefault(SourceQueryOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME);
@@ -162,12 +164,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     /** {@inheritDoc} */
     @Override
-    protected void configure(Options options) {
+    protected void configure(SourceQueryOptions options) {
         //enable pooling by default
-        defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
-        defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
-        defaultOption(options, TransportOptions.POOL_MAX_CONNECTIONS, Platform.getDefaultPoolSize());
-        defaultOption(options, TransportOptions.READ_TIMEOUT, 10000);
+        defaultOption(options, GlobalOptions.CONNECTION_POOLING, false);
+        defaultOption(options, GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
+        defaultOption(options, GlobalOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
+        defaultOption(options, GlobalOptions.READ_TIMEOUT, 10000);
         //default rate limiting options
         defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false);
         defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
@@ -207,6 +209,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             }
         });
         return new SourceQueryChannelFactory(channelFactory);
+    }
+
+    @Override
+    protected SourceQueryOptions createOptions() {
+        return new SourceQueryOptions();//OptionBuilder.newBuilder(SourceQueryOptions.class).build();
     }
 
     private CompletableFuture<SourceQueryResponse<?>> sendQuery(InetSocketAddress address, SourceQueryRequest request) {

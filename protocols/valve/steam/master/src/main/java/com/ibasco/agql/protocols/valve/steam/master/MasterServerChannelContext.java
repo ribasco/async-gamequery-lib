@@ -20,6 +20,7 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
@@ -38,10 +39,12 @@ public class MasterServerChannelContext extends NettyChannelContext {
     /**
      * <p>Constructor for MasterServerChannelContext.</p>
      *
-     * @param channel a {@link io.netty.channel.Channel} object
-     * @param messenger a {@link com.ibasco.agql.core.NettyMessenger} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     * @param messenger
+     *         a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public MasterServerChannelContext(Channel channel, NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger) {
+    public MasterServerChannelContext(Channel channel, NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger) {
         super(channel, messenger);
     }
 
@@ -123,6 +126,7 @@ public class MasterServerChannelContext extends NettyChannelContext {
         }
 
         public void lastSeedAddress(InetSocketAddress lastSeedAddress) {
+            assert inEventLoop();
             this.lastSeedAddress.getAndSet(lastSeedAddress);
         }
 

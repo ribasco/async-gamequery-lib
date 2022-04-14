@@ -16,6 +16,10 @@
 
 package com.ibasco.agql.core.util;
 
+import dev.failsafe.CircuitBreakerBuilder;
+import dev.failsafe.RateLimiterBuilder;
+import dev.failsafe.RetryPolicyBuilder;
+
 /**
  * A convenience class that assists in building {@link dev.failsafe.Failsafe} policies and executors
  *
@@ -23,16 +27,50 @@ package com.ibasco.agql.core.util;
  */
 public class FailsafeBuilder {
 
-    private FailsafeBuilder() {
+    private static final String RETRY_DELAY = "retryDelay";
 
+    private static final String RETRY_MAX_ATTEMPTS = "retryMaxAttempts";
+
+    private static final String RETRY_BACKOFF_ENABLED = "retryBackOffEnabled";
+
+    private static final String RETRY_BACKOFF_DELAY = "retryBackoffDelay";
+
+    private static final String RETRY_BACKOFF_MAX_DELAY = "retryBackoffMaxDelay";
+
+    private static final String RETRY_BACKOFF_DELAY_FACTOR = "retryBackoffDelayFactor";
+
+    private FailsafeBuilder() {}
+
+    public static <T> RateLimiterBuilder<T> rateLimiterBuilder(Options options) {
+        return null;
     }
 
-    /**
-     * <p>newBuilder.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.util.FailsafeBuilder} object
-     */
-    public static FailsafeBuilder newBuilder() {
-        return new FailsafeBuilder();
+    public static <T> CircuitBreakerBuilder<T> circuitBreakerBuilder(Options options) {
+        return null;
+    }
+
+    public static <T> RetryPolicyBuilder<T> retryPolicyBuilder(Options options) {
+
+
+        /*RetryPolicyBuilder<T> builder = RetryPolicy.builder();
+
+        Long retryDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_DELAY);
+        Integer maxAttempts = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
+        Boolean backOffEnabled = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED);
+
+        if (retryDelay != null)
+            builder.withDelay(Duration.ofMillis(retryDelay));
+        if (maxAttempts != null)
+            builder.withMaxAttempts(maxAttempts);
+        if (backOffEnabled != null && backOffEnabled) {
+            Long backoffDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY);
+            Long backoffMaxDelay = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY);
+            Double backoffDelayFactor = options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
+            builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
+        }
+        builder.abortOn(RejectedExecutionException.class);
+        builder.onRetriesExceeded(retryExceededListener);
+        return builder;*/
+        return null;
     }
 }

@@ -96,7 +96,7 @@ public final class Concurrency {
     public static boolean shutdown(ExecutorService executorService) {
         if (executorService == null)
             return false;
-        return shutdown(executorService, TransportOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.MILLISECONDS);
+        return shutdown(executorService, GlobalOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.MILLISECONDS);
     }
 
     /**

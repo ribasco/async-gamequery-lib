@@ -22,8 +22,7 @@ import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
-import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.TransportOptions;
+import com.ibasco.agql.core.util.GlobalOptions;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconResponse;
 import org.slf4j.Logger;
@@ -38,7 +37,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest, SourceRconResponse> {
+public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest, SourceRconResponse, SourceRconOptions> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconMessenger.class);
 
@@ -47,10 +46,14 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     /**
      * <p>Constructor for SourceRconMessenger.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    public SourceRconMessenger(Options options) {
+    public SourceRconMessenger(SourceRconOptions options) {
         super(options);
+        if (options == null)
+            options = getOptions();
+        assert options != null;
         this.authManager = new SourceRconAuthManager(this, options.get(SourceRconOptions.CREDENTIALS_STORE, new InMemoryCredentialsStore()));
     }
 
@@ -65,11 +68,11 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     /** {@inheritDoc} */
     @Override
-    protected void configure(final Options options) {
-        defaultOption(options, TransportOptions.POOL_TYPE, ChannelPoolType.FIXED);
+    protected void configure(final SourceRconOptions options) {
+        defaultOption(options, GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED);
         defaultOption(options, SourceRconOptions.USE_TERMINATOR_PACKET, true);
         defaultOption(options, SourceRconOptions.STRICT_MODE, false);
-        defaultOption(options, TransportOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+        defaultOption(options, GlobalOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
     }
 
     /** {@inheritDoc} */
@@ -77,6 +80,11 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     protected NettyChannelFactory createChannelFactory() {
         final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
         return new SourceRconChannelFactory(channelFactory);
+    }
+
+    @Override
+    protected SourceRconOptions createOptions() {
+        return new SourceRconOptions();//OptionBuilder.newBuilder(SourceRconOptions.class).build();
     }
 
     /** {@inheritDoc} */

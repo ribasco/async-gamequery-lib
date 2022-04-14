@@ -48,6 +48,16 @@ public class Console {
         return colorStr + String.format(format, args) + (reset ? ANSI_RESET : "");
     }
 
+    public static void printLine() {
+        printLine(null);
+    }
+
+    public static void printLine(String color) {
+        if (color == null)
+            color = ANSI_BLUE;
+        println(color(color, "------------------------------------------------------------------------------------------------------------------"));
+    }
+
     /**
      * <p>println.</p>
      *
@@ -57,9 +67,9 @@ public class Console {
      *         a {@link Object} object
      */
     public static void println(String msg, Object... args) {
-        if (!Platform.isVerbose())
+        if (!Properties.isVerbose())
             return;
-        System.out.printf("\u001B[32m[info]\u001B[0m " + (msg) + "%n", args);
+        System.out.printf(color(ANSI_GREEN, "[%-11s] ", true, Thread.currentThread().getName()) + msg + "%n", args);
     }
 
     /**
@@ -71,9 +81,13 @@ public class Console {
      *         a {@link Object} object
      */
     public static void error(String msg, Object... args) {
-        if (!Platform.isVerbose())
+        if (!Properties.isVerbose())
             return;
-        System.err.printf("\u001B[31m[error]\u001B[0m " + (msg) + "%n", args);
+        Object[] merged = args != null && args.length > 0 ? new Object[args.length + 1] : new Object[1];
+        merged[0] = Thread.currentThread().getName().toLowerCase();
+        if (args != null)
+            System.arraycopy(args, 0, merged, 1, args.length);
+        System.err.printf("[%-11s]\u001B[37m " + color(ANSI_RESET, msg) + "\u001B[0m%n", merged);
     }
 
 }

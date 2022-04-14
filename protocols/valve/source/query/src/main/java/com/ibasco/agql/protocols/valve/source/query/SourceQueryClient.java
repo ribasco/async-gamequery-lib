@@ -115,11 +115,10 @@ import java.util.concurrent.CompletableFuture;
  * </pre>
  *
  * @author Rafael Luis Ibasco
- * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query
- * Protocol</a>
+ * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query Protocol</a>
  * @see SourceQueryOptions
  */
-public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse<?>> {
+public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse<?>, SourceQueryOptions> {
 
     //<editor-fold desc="Public Constructors">
 
@@ -135,11 +134,16 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *
      * @param options
      *         The user-defined {@link com.ibasco.agql.core.util.Options} containing the configuration settings to be used by this client.
+     *
      * @see Options
      * @see OptionBuilder
      */
-    public SourceQueryClient(Options options) {
+    public SourceQueryClient(SourceQueryOptions options) {
         super(options);
+    }
+
+    public static OptionBuilder<SourceQueryOptions> newOptionBuilder() {
+        return OptionBuilder.newBuilder(SourceQueryOptions.class);
     }
     //</editor-fold>
 
@@ -148,7 +152,9 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the ip address and port number information of the target server
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link java.util.concurrent.CompletableFuture} returns a value of {@link com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse} which provides additional details on the server.
+     *
      * @see #getInfo(InetSocketAddress, Integer)
      */
     public CompletableFuture<SourceQueryInfoResponse> getInfo(InetSocketAddress address) {
@@ -162,7 +168,9 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
      *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically. This is similar to calling {@link #getInfo(InetSocketAddress)}.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link java.util.concurrent.CompletableFuture} returns a value of {@link com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse} which provides additional details on the server
+     *
      * @see <a href="https://steamcommunity.com/discussions/forum/14/2974028351344359625/?ctp=2">Changes to A2S_INFO protocol</a>
      * @see <a href="https://store.steampowered.com/oldnews/78652">Steam Client Updates as of 12/08/2020</a>
      */
@@ -175,7 +183,9 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link java.util.concurrent.CompletableFuture} returns a value of {@link com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesResponse} which provides additional details on the response.
+     *
      * @see #getRules(InetSocketAddress, Integer)
      * @see #getChallenge(InetSocketAddress, SourceChallengeType)
      */
@@ -194,7 +204,9 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
      *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getRules(InetSocketAddress)})
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the future returns a value of {@link com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesResponse} which provides additional details on the response.
+     *
      * @see #getRules(InetSocketAddress, Integer)
      */
     public CompletableFuture<SourceQueryRulesResponse> getRules(InetSocketAddress address, Integer challenge) {
@@ -208,6 +220,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param type
      *         The {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} enumeration which identifies the type of server challenge.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} returning a value of {@link java.lang.Integer} representing the server challenge number
      */
     public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
@@ -221,8 +234,10 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that contains a {@link java.util.List} of {@link com.ibasco.agql.protocols.valve.source.query.players.SourcePlayer} currently residing on
      * the server
+     *
      * @see #getPlayers(InetSocketAddress, Integer)
      */
     public CompletableFuture<SourceQueryPlayerResponse> getPlayers(InetSocketAddress address) {
@@ -237,8 +252,10 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
      *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getPlayers(InetSocketAddress)})
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that contains a {@link java.util.List} of {@link com.ibasco.agql.protocols.valve.source.query.players.SourcePlayer} currently residing on
      * the server
+     *
      * @see #getPlayers(InetSocketAddress)
      * @see #getChallenge(InetSocketAddress, SourceChallengeType)
      */
@@ -248,7 +265,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>> createMessenger(Options options) {
+    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>, SourceQueryOptions> createMessenger(SourceQueryOptions options) {
         return new SourceQueryMessenger(options);
     }
 }

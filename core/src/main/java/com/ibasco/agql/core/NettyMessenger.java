@@ -36,14 +36,14 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-abstract public class NettyMessenger<R extends AbstractRequest, S extends AbstractResponse> implements Messenger<R, S> {
+abstract public class NettyMessenger<R extends AbstractRequest, S extends AbstractResponse, O extends Options> implements Messenger<R, S, O> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyMessenger.class);
 
     private static final NettyChannelFactoryProvider DEFAULT_FACTORY_PROVIDER = new DefaultNettyChannelFactoryProvider();
 
     //<editor-fold desc="Class Members">
-    private final Options options;
+    private final O options;
 
     private final NettyTransport transport;
 
@@ -53,14 +53,16 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //</editor-fold>
 
     //<editor-fold desc="Constructor">
+
     /**
      * <p>Constructor for NettyMessenger.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    protected NettyMessenger(Options options) {
+    protected NettyMessenger(O options) {
         if (options == null)
-            options = new Options(getClass());
+            options = createOptions();
         //Apply messenger specific configuration parameters
         configure(options);
         //Initialize members
@@ -73,12 +75,15 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //</editor-fold>
 
     //<editor-fold desc="Abstract/Protected Methods">
+
     /**
      * <p>createChannelFactory.</p>
      *
      * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     abstract protected NettyChannelFactory createChannelFactory();
+
+    abstract protected O createOptions();
 
     /**
      * <p>createFactoryProvider.</p>
@@ -268,7 +273,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
 
     /** {@inheritDoc} */
     @Override
-    public Options getOptions() {
+    public O getOptions() {
         return this.options;
     }
 
@@ -319,18 +324,22 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
      */
-    protected void configure(final Options options) {}
+    protected void configure(final O options) {}
 
     /**
      * <p>lockedOption.</p>
      *
-     * @param map a {@link com.ibasco.agql.core.util.Options} object
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param value a X object
-     * @param <X> a X class
+     * @param map
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a X object
+     * @param <X>
+     *         a X class
      */
     @SuppressWarnings("SameParameterValue")
-    protected final <X> void lockedOption(Options map, Option<X> option, X value) {
+    protected final <X> void lockedOption(O map, Option<X> option, X value) {
         if (map.contains(option))
             map.remove(option);
         map.add(option, value, true);
@@ -339,12 +348,16 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     /**
      * <p>defaultOption.</p>
      *
-     * @param map a {@link com.ibasco.agql.core.util.Options} object
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param value a X object
-     * @param <X> a X class
+     * @param map
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a X object
+     * @param <X>
+     *         a X class
      */
-    protected final <X> void defaultOption(Options map, Option<X> option, X value) {
+    protected final <X> void defaultOption(O map, Option<X> option, X value) {
         if (!map.contains(option))
             map.add(option, value);
     }

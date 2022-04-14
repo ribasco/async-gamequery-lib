@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.steam.master.client;
+package com.ibasco.agql.protocols.valve.steam.master;
 
 import com.ibasco.agql.core.NettySocketClient;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.functions.TriConsumer;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger;
-import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
@@ -38,25 +35,30 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  * @see MasterServerOptions
  */
-public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
+public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse, MasterServerOptions> {
 
     /**
-     * Create a new {@link com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
+     * Create a new {@link MasterServerQueryClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
      */
     public MasterServerQueryClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
+     * Create a new {@link MasterServerQueryClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
      *
      * @param options
      *         The user-defined {@link com.ibasco.agql.core.util.Options} containing the configuration settings to be used by this client.
+     *
      * @see Options
      * @see OptionBuilder
      */
-    public MasterServerQueryClient(Options options) {
+    public MasterServerQueryClient(MasterServerOptions options) {
         super(options);
+    }
+
+    public static OptionBuilder<MasterServerOptions> newOptionBuilder() {
+        return OptionBuilder.newBuilder(MasterServerOptions.class);
     }
 
     /**
@@ -66,9 +68,12 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion} value that specifies which server region the master server should return
      * @param filter
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
+     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
-     * @param type a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
      */
     public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
         return getServers(type, region, filter, null);
@@ -85,7 +90,9 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
      * @param callback
      *         Accepts a {@link com.ibasco.agql.core.util.functions.TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server. (Parameters: Server Address, Master Server Address, Exception)
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
+     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
     public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
@@ -99,13 +106,13 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
 
     /** {@inheritDoc} */
     @Override
-    protected MasterServerMessenger getMessenger() {
-        return (MasterServerMessenger) super.getMessenger();
+    protected MasterServerMessenger createMessenger(MasterServerOptions options) {
+        return new MasterServerMessenger(options);
     }
 
     /** {@inheritDoc} */
     @Override
-    protected MasterServerMessenger createMessenger(Options options) {
-        return new MasterServerMessenger(options);
+    protected MasterServerMessenger getMessenger() {
+        return (MasterServerMessenger) super.getMessenger();
     }
 }

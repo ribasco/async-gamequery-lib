@@ -18,6 +18,7 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
+import com.ibasco.agql.core.util.AbstractOptions;
 import com.ibasco.agql.core.util.Option;
 import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketAssembler;
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket;
@@ -29,7 +30,7 @@ import java.net.InetSocketAddress;
  *
  * @author Rafael Luis Ibasco
  */
-public final class SourceRconOptions {
+public final class SourceRconOptions extends AbstractOptions {
 
     /**
      * <p>

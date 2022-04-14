@@ -397,7 +397,7 @@ public class Netty {
      * @param ch a {@link io.netty.channel.Channel} object
      */
     public static void registerTimeoutHandlers(Channel ch) {
-        Integer writeTimeout = TransportOptions.WRITE_TIMEOUT.attr(ch);
+        Integer writeTimeout = GlobalOptions.WRITE_TIMEOUT.attr(ch);
         assert writeTimeout != null;
         //read default channel attributes
         try {

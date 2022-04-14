@@ -17,8 +17,8 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
+import com.ibasco.agql.core.util.GlobalOptions;
 import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.TransportOptions;
 import io.netty.channel.pool.ChannelPoolHandler;
 
 import java.net.InetSocketAddress;
@@ -46,7 +46,7 @@ abstract public class NettyChannelPoolFactory {
         final Options options = Objects.requireNonNull(channelFactory, "Channel factory must not be null").getOptions();
         this.channelFactory = channelFactory;
         this.channelPoolHandler = new DefaultChannelPoolHandler(channelFactory.getBootstrap());
-        this.channelHealthChecker = options.getOrDefault(TransportOptions.POOL_CHANNEL_HEALTH_CHECKER);
+        this.channelHealthChecker = options.getOrDefault(GlobalOptions.POOL_CHANNEL_HEALTH_CHECKER);
     }
 
     /**

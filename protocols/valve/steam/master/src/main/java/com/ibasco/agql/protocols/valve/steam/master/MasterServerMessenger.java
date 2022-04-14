@@ -26,8 +26,7 @@ import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.Errors;
-import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.TransportOptions;
+import com.ibasco.agql.core.util.GlobalOptions;
 import com.ibasco.agql.protocols.valve.steam.master.exception.MasterServerTimeoutException;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialResponse;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
@@ -56,7 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Rafael Luis Ibasco
  */
-public final class MasterServerMessenger extends NettyMessenger<MasterServerRequest, MasterServerResponse> {
+public final class MasterServerMessenger extends NettyMessenger<MasterServerRequest, MasterServerResponse, MasterServerOptions> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerMessenger.class);
 
@@ -71,11 +70,12 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     /**
      * <p>Constructor for MasterServerMessenger.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    public MasterServerMessenger(Options options) {
+    public MasterServerMessenger(MasterServerOptions options) {
         super(options);
-        initFailSafe(options, getExecutor());
+        initFailSafe(getOptions(), getExecutor());
     }
 
     //<editor-fold desc="Public Methods">
@@ -97,14 +97,15 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //</editor-fold>
 
     //<editor-fold desc="Protected Methods">
+
     /** {@inheritDoc} */
     @Override
-    protected void configure(Options options) {
+    protected void configure(MasterServerOptions options) {
         //we disable using native transports (e.g. epoll) by default. Per my tests, it seems NIO seems to be more reliable.
         //This can still be overriden by the developer
-        //defaultOption(options, TransportOptions.USE_NATIVE_TRANSPORT, false);
-        defaultOption(options, TransportOptions.CONNECTION_POOLING, false);
-        defaultOption(options, TransportOptions.READ_TIMEOUT, 8000);
+        //defaultOption(options, GlobalOptions.USE_NATIVE_TRANSPORT, false);
+        defaultOption(options, GlobalOptions.CONNECTION_POOLING, false);
+        defaultOption(options, GlobalOptions.READ_TIMEOUT, 8000);
     }
 
     /** {@inheritDoc} */
@@ -112,6 +113,11 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     protected NettyChannelFactory createChannelFactory() {
         NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP, getOptions(), new MasterServerChannelContextFactory(this));
         return new MasterServerChannelFactory(channelFactory);
+    }
+
+    @Override
+    protected MasterServerOptions createOptions() {
+        return new MasterServerOptions();//OptionBuilder.newBuilder(MasterServerOptions.class).build();
     }
 
     /** {@inheritDoc} */
@@ -160,8 +166,9 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //</editor-fold>
 
     //<editor-fold desc="Failsafe">
-    private void initFailSafe(final Options options, final ScheduledExecutorService executor) {
-        if (!getOrDefault(MasterServerOptions.FAILSAFE_ENABLED))
+    private void initFailSafe(final MasterServerOptions options, final ScheduledExecutorService executor) {
+        assert options != null;
+        if (!options.getOrDefault(MasterServerOptions.FAILSAFE_ENABLED))
             return;
 
         //initialize failsafe policies
@@ -190,7 +197,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             this.requestExecutor.with(executor);
     }
 
-    private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
+    private RetryPolicy<MasterServerResponse> buildRetryPolicy(final MasterServerOptions options) {
         RetryPolicyBuilder<MasterServerResponse> builder = RetryPolicy.<MasterServerResponse>builder().handleIf(TIMEOUT_ERROR);
 
         Long retryDelayMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_DELAY);
@@ -211,7 +218,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         return builder.build();
     }
 
-    private RateLimiter<MasterServerChannelContext> buildRateLimiterPolicy(final Options options) {
+    private RateLimiter<MasterServerChannelContext> buildRateLimiterPolicy(final MasterServerOptions options) {
         Long maxExecutions = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_EXEC);
         Long periodMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_PERIOD);
         Long maxWaitTimeMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME);

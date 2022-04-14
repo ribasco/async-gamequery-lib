@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.time.Duration;
@@ -75,16 +76,6 @@ public class SourceRconExample extends BaseExample {
 
     private final Map<String, Function<String[], CompletableFuture<CommandResponse>>> commandProcessors = new HashMap<>();
 
-    /**
-     * For internal testing purposes
-     *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
-     */
-    public static void main(String[] args) throws Exception {
-        new SourceRconExample().run(args);
-    }
-
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
@@ -100,17 +91,24 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("cleanup", this::commandCleanup);
         commandProcessors.put("reauth", this::commandReauth);
 
-        final Options rconOptions = OptionBuilder.newBuilder()
-                                                 .option(TransportOptions.POOL_MAX_CONNECTIONS, 8)
-                                                 .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
-                                                 .option(SourceRconOptions.STRICT_MODE, false)
-                                                 .option(TransportOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                 .option(TransportOptions.CONNECTION_POOLING, true)
-                                                 .option(TransportOptions.POOL_TYPE, ChannelPoolType.FIXED)
-                                                 .option(TransportOptions.FAILSAFE_ENABLED, true)
-                                                 .build();
+        final SourceRconOptions rconOptions = SourceRconClient.newOptionBuilder()
+                                                              .option(GlobalOptions.POOL_MAX_CONNECTIONS, 8)
+                                                              .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
+                                                              .option(SourceRconOptions.STRICT_MODE, false)
+                                                              .option(GlobalOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
+                                                              .option(GlobalOptions.CONNECTION_POOLING, true)
+                                                              .option(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                              .option(GlobalOptions.FAILSAFE_ENABLED, true)
+                                                              .build();
         rconClient = new SourceRconClient(rconOptions);
-        clearConsole();
+
+        Set<Option<?>> opts = Option.getOptions().get(rconOptions.getClass());
+        for (Option<?> opt : opts) {
+
+            Console.println("Option: %s = %s", opt.getKey(), opt.getDefaultValue());
+        }
+
+        //clearConsole();
         printBanner();
         runTerminal();
     }
@@ -182,17 +180,16 @@ public class SourceRconExample extends BaseExample {
                             System.err.printf("Error authenticating with server: '%s'\n", authResponse.getReason());
                     } catch (CompletionException e) {
                         Throwable cause = Errors.unwrap(e);
-                        try {
-                            if (cause instanceof RconInvalidCredentialsException) {
-                                System.err.print("Failed to authenticate with server due to bad credentials\n");
-                                //cause.printStackTrace(System.err);
-                            } else {
-                                System.err.printf("An error occured while attempting to authenticate with server '%s' (using password %s bytes)\n", serverAddress, password.length());
-                                //cause.printStackTrace(System.err);
-                                throw e;
-                            }
-                        } finally {
+                        if (cause instanceof RconInvalidCredentialsException) {
+                            System.err.print("Failed to authenticate with server due to bad credentials\n");
                             authenticated.set(false);
+                        } else if (cause instanceof ConnectException) {
+                            System.err.printf("ERROR: Failed to connect to server '%s' (Reason: %s)\n", address, cause.getMessage());
+                            stop = true;
+                            continue;
+                        } else {
+                            System.err.printf("ERROR: Failed to authenticate with server '%s' using password with '%s' bytes (Reason: %s)\n", serverAddress, password.length(), cause);
+                            throw e;
                         }
                     } catch (Throwable error) {
                         System.err.println("Failed to authenticateBatch with server");
@@ -450,8 +447,8 @@ public class SourceRconExample extends BaseExample {
 
         @Override
         protected void onFail(Throwable error) {
-            System.err.println("[CONSOLE] Failed to execute rcon commmand");
-            error.printStackTrace(System.err);
+            System.err.printf("[CONSOLE] Failed to execute rcon commmand (Error: %s)\n", error.getMessage());
+            //error.printStackTrace(System.err);
         }
 
         @Override

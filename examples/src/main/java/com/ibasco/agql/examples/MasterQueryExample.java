@@ -18,7 +18,7 @@ package com.ibasco.agql.examples;
 
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
-import com.ibasco.agql.protocols.valve.steam.master.client.MasterServerQueryClient;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import org.apache.commons.lang3.StringUtils;

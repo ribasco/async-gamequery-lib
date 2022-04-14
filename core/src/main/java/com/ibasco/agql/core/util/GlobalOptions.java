@@ -38,8 +38,8 @@ import java.util.concurrent.ExecutorService;
  *                                                            new LinkedBlockingQueue<>(),
  *                                                            new DefaultThreadFactory("agql-query"));
  *  Options queryOptions = OptionBuilder.newBuilder()
- *                                      .option(TransportOptions.READ_TIMEOUT, 3000)
- *                                      .option(TransportOptions.THREAD_EXECUTOR_SERVICE, executor)
+ *                                      .option(GlobalOptions.READ_TIMEOUT, 3000)
+ *                                      .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, executor)
  *                                      .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
  *                                      .build();
  *
@@ -51,29 +51,29 @@ import java.util.concurrent.ExecutorService;
  * @see Option
  * @see OptionBuilder
  */
-public final class TransportOptions {
+public final class GlobalOptions extends AbstractOptions {
 
     //<editor-fold desc="General">
 
     /**
      * Monitor resource usage leaks. Set the desired {@link ResourceLeakDetector}
      */
-    public static final Option<ResourceLeakDetector.Level> RESOURCE_LEAK_DETECTOR_LEVEL = Option.createOption("resourceLeakDetectorLevel", ResourceLeakDetector.Level.PARANOID);
+    public static final Option<ResourceLeakDetector.Level> RESOURCE_LEAK_DETECTOR_LEVEL = Option.createOption("globalResourceLeakDetectorLevel", ResourceLeakDetector.Level.PARANOID);
 
     /**
      * Number of milliseconds to wait before we throw a ReadTimeoutException (Default: 5 seconds)
      */
-    public static final Option<Integer> READ_TIMEOUT = Option.createOption("readTimeOut", 5000, true, true);
+    public static final Option<Integer> READ_TIMEOUT = Option.createOption("globalReadTimeOut", 5000, true, true);
 
     /**
      * Number of milliseconds to wait before we throw a WriteTimeoutException (Default: 5 seconds)
      */
-    public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("writeTimeout", 5000, true, true);
+    public static final Option<Integer> WRITE_TIMEOUT = Option.createOption("globalWriteTimeout", 5000, true, true);
 
     /**
      * The maximum number of milliseconds to wait before timing out on close channel operation
      */
-    public static final Option<Integer> CLOSE_TIMEOUT = Option.createOption("closeTimeout", 3000);
+    public static final Option<Integer> CLOSE_TIMEOUT = Option.createOption("globalCloseTimeout", 3000);
     //</editor-fold>
 
     //<editor-fold desc="Connection Pooling">
@@ -82,7 +82,7 @@ public final class TransportOptions {
      * The {@link ChannelHealthChecker} that is used by the {@link io.netty.channel.pool.ChannelPool} implementation to check if the {@link io.netty.channel.Channel} can be acquired.
      */
     @ApiStatus.Internal
-    public static final Option<ChannelHealthChecker> POOL_CHANNEL_HEALTH_CHECKER = Option.createOption("channelHealthChecker", ChannelHealthChecker.ACTIVE);
+    public static final Option<ChannelHealthChecker> POOL_CHANNEL_HEALTH_CHECKER = Option.createOption("globalChannelHealthChecker", ChannelHealthChecker.ACTIVE);
 
     /**
      * The action that will be executed once an acquire timeout is thrown
@@ -90,7 +90,7 @@ public final class TransportOptions {
      * @see com.ibasco.agql.core.transport.pool.FixedNettyChannelPool.AcquireTimeoutAction
      */
     @ApiStatus.Internal
-    public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.createOption("acquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+    public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.createOption("globalAcquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
 
     /**
      * The maximum number of milliseconds to wait before a timeout is triggered during {@link io.netty.channel.Channel} acquisition.
@@ -98,7 +98,7 @@ public final class TransportOptions {
      * @see io.netty.channel.pool.FixedChannelPool
      * @see ChannelPoolType
      */
-    public static final Option<Integer> POOL_ACQUIRE_TIMEOUT = Option.createOption("acquireTimeout", Integer.MAX_VALUE);
+    public static final Option<Integer> POOL_ACQUIRE_TIMEOUT = Option.createOption("globalAcquireTimeout", Integer.MAX_VALUE);
 
     /**
      * Maximum number of allowed pending acquires. If the limit is reached, an exception is thrown for {@link io.netty.channel.Channel}
@@ -106,7 +106,7 @@ public final class TransportOptions {
      * @see io.netty.channel.pool.FixedChannelPool
      * @see ChannelPoolType
      */
-    public static final Option<Integer> POOL_ACQUIRE_MAX = Option.createOption("maxPendingAcquires", Integer.MAX_VALUE);
+    public static final Option<Integer> POOL_ACQUIRE_MAX = Option.createOption("globalMaxPendingAcquires", Integer.MAX_VALUE);
 
     /**
      * Maximum number of connections to be maintained in the channel/connection pool. This option is only applicable when {@link #POOL_TYPE} is set to {@link ChannelPoolType#FIXED}
@@ -114,7 +114,7 @@ public final class TransportOptions {
      * @see io.netty.channel.pool.FixedChannelPool
      * @see ChannelPoolType
      */
-    public static final Option<Integer> POOL_MAX_CONNECTIONS = Option.createOption("maxPooledConnections", 1, false, false);
+    public static final Option<Integer> POOL_MAX_CONNECTIONS = Option.createOption("globalMaxPooledConnections", 1, false, false);
 
     /**
      * The type of {@link io.netty.channel.pool.ChannelPool} implementation to use (bounded or unbounded)
@@ -122,12 +122,12 @@ public final class TransportOptions {
      * @see ChannelPoolType#ADAPTIVE
      * @see ChannelPoolType#FIXED
      */
-    public static final Option<ChannelPoolType> POOL_TYPE = Option.createOption("poolType", ChannelPoolType.ADAPTIVE, false, false);
+    public static final Option<ChannelPoolType> POOL_TYPE = Option.createOption("globalPoolType", ChannelPoolType.ADAPTIVE, false, false);
 
     /**
      * Set to {@code true} to enable channel/connection pooling
      */
-    public static final Option<Boolean> CONNECTION_POOLING = Option.createOption("pooling", true, false, false);
+    public static final Option<Boolean> CONNECTION_POOLING = Option.createOption("globalPooling", true, false, false);
     //</editor-fold>
 
     //<editor-fold desc="Failsafe Integration">
@@ -137,28 +137,28 @@ public final class TransportOptions {
      *
      * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
-    public static final Option<Boolean> FAILSAFE_ENABLED = Option.createOption("failSafeEnabled", true, false, false);
+    public static final Option<Boolean> FAILSAFE_ENABLED = Option.createOption("globalFailSafeEnabled", true, false, false);
 
     /**
      * The maximum number of connection attempts for acquiring a {@link io.netty.channel.Channel} / Connection
      *
      * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
-    public static final Option<Integer> FAILSAFE_ACQUIRE_MAX_CONNECT = Option.createOption("failSafeMaxConnectAttempts", 3, false, false);
+    public static final Option<Integer> FAILSAFE_ACQUIRE_MAX_CONNECT = Option.createOption("globalFailSafeMaxConnectAttempts", 3, false, false);
 
     /**
      * Sets the minimum delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by a factor of 2.
      *
      * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
-    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MIN = Option.createOption("failSafeBackoffMin", 1);
+    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MIN = Option.createOption("globalFailSafeBackoffMin", 1);
 
     /**
      * Sets the maximum delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by a factor of 2.
      *
      * @see com.ibasco.agql.core.transport.FailsafeChannelFactory
      */
-    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MAX = Option.createOption("failSafeBackoffMax", 5);
+    public static final Option<Integer> FAILSAFE_ACQUIRE_BACKOFF_MAX = Option.createOption("globalFailSafeBackoffMax", 5);
     //</editor-fold>
 
     //<editor-fold desc="Concurrency">
@@ -172,14 +172,14 @@ public final class TransportOptions {
      *
      * @see Platform#getDefaultExecutor()
      */
-    public static final Option<ExecutorService> THREAD_EXECUTOR_SERVICE = Option.createOption("threadExecutorService", null);
+    public static final Option<ExecutorService> THREAD_EXECUTOR_SERVICE = Option.createOption("globalThreadExecutorService", null);
 
     /**
      * The number of threads to be used by the internal {@link EventLoopGroup}. This is usually less than or equals to the core pool size of the {@link ExecutorService} provided (Default: {@code null}).
      *
      * @see #THREAD_EXECUTOR_SERVICE
      */
-    public static final Option<Integer> THREAD_CORE_SIZE = Option.createOption("threadCorePoolSize", null);
+    public static final Option<Integer> THREAD_CORE_SIZE = Option.createOption("globalThreadCorePoolSize", null);
     //</editor-fold>
 
     //<editor-fold desc="Socket/Channel">
@@ -191,7 +191,7 @@ public final class TransportOptions {
      * @see io.netty.channel.AdaptiveRecvByteBufAllocator
      * @see #SOCKET_ALLOC_FIXED_SIZE
      */
-    public static final Option<BufferAllocatorType> SOCKET_RECVBUF_ALLOC_TYPE = Option.createOption("recvBufferAllocatorType", BufferAllocatorType.FIXED);
+    public static final Option<BufferAllocatorType> SOCKET_RECVBUF_ALLOC_TYPE = Option.createOption("globalRecvBufferAllocatorType", BufferAllocatorType.FIXED);
 
     /**
      * The fixed receive buffer size to allocate during channel initialization. Please note this is only applicable if {@link #SOCKET_RECVBUF_ALLOC_TYPE} is set to {@link BufferAllocatorType#FIXED} (Default is: 9216 bytes)
@@ -200,7 +200,7 @@ public final class TransportOptions {
      * @see BufferAllocatorType
      * @see #SOCKET_RECVBUF_ALLOC_TYPE
      */
-    public static final Option<Integer> SOCKET_ALLOC_FIXED_SIZE = Option.createOption("recvAllocFixedSize", 9216);
+    public static final Option<Integer> SOCKET_ALLOC_FIXED_SIZE = Option.createOption("globalRecvAllocFixedSize", 9216);
 
     /**
      * As per netty: the initial buffer size when no feed back was received. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 2048 bytes)
@@ -208,7 +208,7 @@ public final class TransportOptions {
      * @see #SOCKET_RECVBUF_ALLOC_TYPE
      * @see BufferAllocatorType
      */
-    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_INIT_SIZE = Option.createOption("recvAllocAdaptiveInitSize", 2048);
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_INIT_SIZE = Option.createOption("globalRecvAllocAdaptiveInitSize", 2048);
 
     /**
      * As per netty: the inclusive lower bound of the expected buffer size. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 64 bytes)
@@ -216,7 +216,7 @@ public final class TransportOptions {
      * @see #SOCKET_RECVBUF_ALLOC_TYPE
      * @see BufferAllocatorType
      */
-    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MIN_SIZE = Option.createOption("recvAllocAdaptiveMinSize", 64);
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MIN_SIZE = Option.createOption("globalRecvAllocAdaptiveMinSize", 64);
 
     /**
      * As per netty: the inclusive upper bound of the expected buffer size. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 65536 bytes)
@@ -224,27 +224,27 @@ public final class TransportOptions {
      * @see #SOCKET_RECVBUF_ALLOC_TYPE
      * @see BufferAllocatorType
      */
-    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MAX_SIZE = Option.createOption("recvAllocAdaptiveMaxSize", 65536);
+    public static final Option<Integer> SOCKET_ALLOC_ADAPTIVE_MAX_SIZE = Option.createOption("globalRecvAllocAdaptiveMaxSize", 65536);
 
     /**
      * A channel option that specifies the total per-socket buffer space reserved for sends
      */
-    public static final Option<Integer> SOCKET_SNDBUF = Option.createOption("sndBuf", 1048576);
+    public static final Option<Integer> SOCKET_SNDBUF = Option.createOption("globalSndBuf", 1048576);
 
     /**
      * A channel option that specifies the total per-socket buffer space reserved for receives
      */
-    public static final Option<Integer> SOCKET_RECVBUF = Option.createOption("recvBuf", 1048576);
+    public static final Option<Integer> SOCKET_RECVBUF = Option.createOption("globalRecvBuf", 1048576);
 
     /**
      * A channel option, when enabled, allows the application to enable keep-alive packets for a socket connection.
      */
-    public static final Option<Boolean> SOCKET_KEEP_ALIVE = Option.createOption("keepAlive", true);
+    public static final Option<Boolean> SOCKET_KEEP_ALIVE = Option.createOption("globalKeepAlive", true);
 
     /**
      * The connection timeout value
      */
-    public static final Option<Integer> SOCKET_CONNECT_TIMEOUT = Option.createOption("connectTimeoutMillis", 3000);
+    public static final Option<Integer> SOCKET_CONNECT_TIMEOUT = Option.createOption("globalConnectTimeoutMillis", 3000);
 
     //</editor-fold>
 }

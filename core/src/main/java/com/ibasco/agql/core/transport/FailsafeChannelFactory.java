@@ -16,9 +16,10 @@
 
 package com.ibasco.agql.core.transport;
 
+import com.ibasco.agql.core.util.Console;
 import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.GlobalOptions;
 import com.ibasco.agql.core.util.Netty;
-import com.ibasco.agql.core.util.TransportOptions;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
@@ -54,27 +55,27 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final FailsafeExecutor<Channel> acquireExecutor;
 
+    private final RetryPolicy<Channel> retryPolicy;
+
+    private final CircuitBreaker<Channel> circuitBreakerPolicy;
+
     /**
      * <p>Constructor for FailsafeChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        this.acquireExecutor = Failsafe.with(newRetryPolicy()).with(channelFactory.getExecutor());
+        this.retryPolicy = buildRetryPolicy();
+        this.circuitBreakerPolicy = buildCircuitBreakerPolicy();
+        this.acquireExecutor = Failsafe.with(retryPolicy, circuitBreakerPolicy).with(channelFactory.getExecutor());
     }
-
-    /**
-     * <p>configureRetryPolicy.</p>
-     *
-     * @param builder a {@link dev.failsafe.RetryPolicyBuilder} object
-     */
-    protected void configureRetryPolicy(RetryPolicyBuilder<Channel> builder) {}
 
     /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
-        return acquireExecutor.getStageAsync(getContextualSupplier(data));
+        return acquireExecutor.getStageAsync(new ChannelSupplier(getResolver().resolveRemoteAddress(data)));//getContextualSupplier(data);
     }
 
     /** {@inheritDoc} */
@@ -83,32 +84,42 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         return Netty.useEventLoop(create(data), eventLoop);
     }
 
-    private RetryPolicy<Channel> newRetryPolicy() {
-        RetryPolicyBuilder<Channel> retryPolicyBuilder = RetryPolicy.builder();
-        retryPolicyBuilder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException)
-                          .abortIf(channel -> channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown())
-                          .abortOn(RejectedExecutionException.class)
-                          .onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
-                              @Override
-                              public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
-                                  //System.err.printf("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)\n", event.getLastException(), event.getAttemptCount());
-                                  log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
-                              }
-                          })
-                          .onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
-                              @Override
-                              public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                                  //System.err.printf("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)\n", event.getException(), event.getAttemptCount());
-                              }
-                          })
-                          //.onRetry(event -> log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A"))
-                          .withMaxAttempts(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_MAX_CONNECT))
-                          .withBackoff(
-                                  Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN))
-                                  , Duration.ofSeconds(getOptions().getOrDefault(TransportOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX))
-                          );
-        configureRetryPolicy(retryPolicyBuilder);
-        return retryPolicyBuilder.build();
+    private CircuitBreaker<Channel> buildCircuitBreakerPolicy() {
+        CircuitBreakerBuilder<Channel> builder = CircuitBreaker.builder();
+        builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
+        builder.withFailureThreshold(3, 10);
+        builder.withSuccessThreshold(1);
+        builder.withDelay(Duration.ofSeconds(5));
+        return builder.build();
+    }
+
+    private RetryPolicy<Channel> buildRetryPolicy() {
+        RetryPolicyBuilder<Channel> builder = RetryPolicy.builder();
+        builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
+        builder.abortIf(channel -> channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown());
+        builder.abortOn(RejectedExecutionException.class);
+        builder.onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
+                Console.error("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
+                log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
+            }
+        });
+        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<Channel>>() {
+            @Override
+            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                Console.error("[CONNECT] Retriex Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
+            }
+        });
+        builder.onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
+            @Override
+            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                Console.error("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
+            }
+        });
+        builder.withMaxAttempts(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_MAX_CONNECT));
+        builder.withBackoff(Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN)), Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX)));
+        return builder.build();
     }
 
     private ChannelSupplier getContextualSupplier(final Object data) {

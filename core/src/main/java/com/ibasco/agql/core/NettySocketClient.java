@@ -33,9 +33,10 @@ import java.util.Objects;
  *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
  *         A type of {@link com.ibasco.agql.core.AbstractResponse}
+ *
  * @author Rafael Luis Ibasco
  */
-abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse> extends AbstractClient<R, S> {
+abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse, O extends Options> extends AbstractClient<R, S, O> {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -53,22 +54,23 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
      *
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
+     *
      * @see OptionBuilder
      */
-    protected NettySocketClient(Options options) {
+    protected NettySocketClient(O options) {
         super(options);
         log.debug("[{}] CLIENT => Initialzied new client '{}' with ID '{}'", id.getInteger(), getClass().getSimpleName(), id().getInteger());
     }
 
     /** {@inheritDoc} */
     @Override
-    abstract protected NettyMessenger<R, S> createMessenger(Options options);
+    abstract protected NettyMessenger<R, S, O> createMessenger(O options);
     //</editor-fold>
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<R, S> getMessenger() {
-        return (NettyMessenger<R, S>) super.getMessenger();
+    protected NettyMessenger<R, S, O> getMessenger() {
+        return (NettyMessenger<R, S, O>) super.getMessenger();
     }
 
     /** {@inheritDoc} */
@@ -89,7 +91,7 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof NettySocketClient)) return false;
-        NettySocketClient<?, ?> that = (NettySocketClient<?, ?>) o;
+        NettySocketClient<?, ?, ?> that = (NettySocketClient<?, ?, ?>) o;
         return id.equals(that.id);
     }
 

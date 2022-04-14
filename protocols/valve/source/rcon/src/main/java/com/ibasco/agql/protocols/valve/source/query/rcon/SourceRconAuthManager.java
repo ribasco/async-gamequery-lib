@@ -127,49 +127,52 @@ public final class SourceRconAuthManager implements Closeable {
     }
 
     private CircuitBreaker<SourceRconChannelContext> buildCircuitBreakerPolicy() {
-        CircuitBreakerBuilder<SourceRconChannelContext> circuitBreakerBuilder = CircuitBreaker.builder();
-        circuitBreakerBuilder.handle(ConnectException.class);
-        circuitBreakerBuilder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+        CircuitBreakerBuilder<SourceRconChannelContext> builder = CircuitBreaker.builder();
+        builder.handleIf(e -> {
+            Throwable cause = Errors.unwrap(e);
+            return cause instanceof TimeoutException || cause instanceof io.netty.handler.timeout.TimeoutException;
+        });
+        builder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
             @Override
             public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                //System.err.printf("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
+                Console.error("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
             }
         });
-        circuitBreakerBuilder.onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
+        builder.onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
             @Override
             public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                //System.err.printf("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
+                Console.error("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
             }
         });
-        circuitBreakerBuilder.withFailureThreshold(3, 10);
-        circuitBreakerBuilder.withSuccessThreshold(3);
-        circuitBreakerBuilder.withDelay(Duration.ofMinutes(1));
-        return circuitBreakerBuilder.build();
+        builder.withFailureThreshold(3, 10);
+        builder.withSuccessThreshold(3);
+        builder.withDelay(Duration.ofMinutes(1));
+        return builder.build();
     }
 
     private RetryPolicy<SourceRconChannelContext> buildRetryPolicy() {
-        boolean failsafeEnabled = messenger.getOrDefault(TransportOptions.FAILSAFE_ENABLED);
-        RetryPolicyBuilder<SourceRconChannelContext> retryPolicyBuilder = RetryPolicy.<SourceRconChannelContext>builder();
-        retryPolicyBuilder.handleIf(e -> {
+        boolean failsafeEnabled = messenger.getOrDefault(GlobalOptions.FAILSAFE_ENABLED);
+        RetryPolicyBuilder<SourceRconChannelContext> builder = RetryPolicy.<SourceRconChannelContext>builder();
+        builder.handleIf(e -> {
             Throwable error = Errors.unwrap(e);
             return error instanceof TimeoutException || error instanceof ChannelClosedException;
         });
-        retryPolicyBuilder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceRconChannelContext>>() {
+        builder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceRconChannelContext>>() {
             @Override
             public void accept(ExecutionAttemptedEvent<SourceRconChannelContext> event) throws Throwable {
                 System.err.printf("[RCON] Retrying (error: %s, attempts: %d))\n", event.getLastException(), event.getAttemptCount());
             }
         });
-        retryPolicyBuilder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
+        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
             @Override
             public void accept(ExecutionCompletedEvent<SourceRconChannelContext> event) throws Throwable {
                 System.err.printf("[RCON] Retries exceeded (Attempts: %d, Last result: '%s', Last Error: %s)\n", event.getAttemptCount(), event.getResult(), event.getException());
             }
         });
-        retryPolicyBuilder.abortOn(RconAuthException.class, ConnectException.class);
-        retryPolicyBuilder.withDelay(Duration.ofSeconds(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_DELAY)));
-        retryPolicyBuilder.withMaxAttempts(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_MAX_ATTEMPTS));
-        return retryPolicyBuilder.build();
+        builder.abortOn(RconAuthException.class, ConnectException.class);
+        builder.withDelay(Duration.ofSeconds(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_DELAY)));
+        builder.withMaxAttempts(messenger.getOrDefault(SourceRconOptions.FAILSAFE_RETRY_MAX_ATTEMPTS));
+        return builder.build();
     }
 
     /**
@@ -627,10 +630,10 @@ public final class SourceRconAuthManager implements Closeable {
             print(output, LINE);
             print(output, "Channel Statistics");
             print(output, LINE);
-            print(output, "Connection pooling enabled: %s", messenger.getOrDefault(TransportOptions.CONNECTION_POOLING));
-            print(output, "Max Pooled Connections: %d", messenger.getOrDefault(TransportOptions.POOL_MAX_CONNECTIONS));
+            print(output, "Connection pooling enabled: %s", messenger.getOrDefault(GlobalOptions.CONNECTION_POOLING));
+            print(output, "Max Pooled Connections: %d", messenger.getOrDefault(GlobalOptions.POOL_MAX_CONNECTIONS));
             print(output, "Max Core Pool Size: %d", getCorePoolSize(messenger.getExecutor()));
-            print(output, "Max Pending Acquires: %d", messenger.getOrDefault(TransportOptions.POOL_ACQUIRE_MAX));
+            print(output, "Max Pending Acquires: %d", messenger.getOrDefault(GlobalOptions.POOL_ACQUIRE_MAX));
             print(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
             EventLoopGroup eventLoopGroup = messenger.getExecutor();
             print(output, "Executor Service: %s", eventLoopGroup);

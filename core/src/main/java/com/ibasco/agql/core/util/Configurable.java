@@ -21,14 +21,14 @@ package com.ibasco.agql.core.util;
  *
  * @author Rafael Luis Ibasco
  */
-public interface Configurable {
+public interface Configurable<T extends Options> {
 
     /**
      * <p>getOptions.</p>
      *
      * @return a {@link com.ibasco.agql.core.util.Options} object
      */
-    Options getOptions();
+    T getOptions();
 
     /**
      * <p>getOrDefault.</p>

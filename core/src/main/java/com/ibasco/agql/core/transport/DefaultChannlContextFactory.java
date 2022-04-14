@@ -20,6 +20,7 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 
 /**
@@ -27,14 +28,15 @@ import io.netty.channel.Channel;
  *
  * @author Rafael Luis Ibasco
  */
-public class DefaultChannlContextFactory<M extends NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse>> implements NettyChannelContextFactory {
+public class DefaultChannlContextFactory<M extends NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options>> implements NettyChannelContextFactory {
 
     private final M messenger;
 
     /**
      * <p>Constructor for DefaultChannlContextFactory.</p>
      *
-     * @param messenger a M object
+     * @param messenger
+     *         a M object
      */
     public DefaultChannlContextFactory(M messenger) {
         this.messenger = messenger;

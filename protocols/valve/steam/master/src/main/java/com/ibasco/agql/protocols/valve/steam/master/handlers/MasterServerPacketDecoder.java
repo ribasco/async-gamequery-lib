@@ -22,10 +22,10 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerChannelContext;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
-import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerQueryPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,30 +75,11 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
                 return;
             MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
             log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", Netty.id(ctx.channel()), lastAddress);
-            /*if (!MasterServer.isTerminatingAddress(lastAddress)) {
-               int sendInterval = MasterServerOptions.REQUEST_DELAY.attr(ctx);
-                MasterServerRequest request = context.properties().request();
-                log.debug("Scheduling: {} (Interval: {})", lastAddress, request.getRequestDelay());
-                ctx.channel().eventLoop().schedule(() -> sendRequest(ctx, lastAddress), request.getRequestDelay(), TimeUnit.MILLISECONDS);
-            } else {
-                log.debug("{} MASTER => Terminating packet received: {}", NettyUtil.id(ctx.channel()), lastAddress);
-            }*/
             //update seed address in context
             context.properties().lastSeedAddress(lastAddress);
         } finally {
             ctx.fireChannelReadComplete();
         }
-    }
-
-    private void sendRequest(ChannelHandlerContext ctx, InetSocketAddress address) {
-        MasterServerRequest request = getRequest(ctx);
-        MasterServerQueryPacket packet = new MasterServerQueryPacket();
-        packet.setType(MasterServer.SOURCE_MASTER_TYPE);
-        packet.setRegion(request.getRegion().getHeader());
-        packet.setAddress(address.getAddress().getHostAddress() + ":" + address.getPort()); //set the address seed
-        packet.setFilter(request.getFilter().toString());
-        log.debug("Sending request using '{}' as seed", address);
-        ctx.channel().writeAndFlush(packet);
     }
 
     private MasterServerRequest getRequest(ChannelHandlerContext ctx) {
@@ -107,7 +88,7 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
 
     /** {@inheritDoc} */
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
+    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         lastAddress = null;
         super.channelActive(ctx);
     }

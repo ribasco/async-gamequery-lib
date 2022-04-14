@@ -108,7 +108,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.channelClass = Platform.getChannelClass(type);
 
         //initialize event loop group
-        this.executorService = options.get(TransportOptions.THREAD_EXECUTOR_SERVICE);
+        this.executorService = options.get(GlobalOptions.THREAD_EXECUTOR_SERVICE);
         if (executorService == null)
             executorService = Platform.getDefaultExecutor();
         this.eventLoopGroup = initializeEventLoopGroup(channelClass, executorService);
@@ -129,14 +129,14 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
      * @return a {@link io.netty.channel.EventLoopGroup} object
      */
     protected EventLoopGroup initializeEventLoopGroup(@NotNull Class<? extends Channel> channelClass, @NotNull ExecutorService executorService) {
-        Integer nThreads = getOptions().get(TransportOptions.THREAD_CORE_SIZE);
+        Integer nThreads = getOptions().get(GlobalOptions.THREAD_CORE_SIZE);
         EventLoopGroup group;
         //1. if the executor service is the default global executor, then we simply return the default global EventLoopGroup
         //2. if the provided executor service is user-defined, then we create a new EventLoopGroup instance
         if (Platform.isDefaultExecutor(executorService)) {
             group = Platform.getDefaultEventLoopGroup();
         } else {
-            //since we are dealing with a user provided executor service the option 'TransportOptions.THREAD_CORE_SIZE' is required
+            //since we are dealing with a user provided executor service the option 'GlobalOptions.THREAD_CORE_SIZE' is required
             // unless we are able to automatically determine it's core pool size
             //Attempt to determine the number of threads supported by the executor service
             if (nThreads == null) {
@@ -147,7 +147,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
                     ThreadPoolExecutor tpe = ((AgqlManagedExecutorService) executorService).getResource();
                     nThreads = tpe.getCorePoolSize();
                 } else {
-                    throw new IllegalStateException("Please specify the core pool size for the  (See TransportOptions.THREAD_CORE_SIZE)");
+                    throw new IllegalStateException("Please specify the core pool size for the  (See GlobalOptions.THREAD_CORE_SIZE)");
                 }
             }
             group = Platform.createEventLoopGroup(channelClass, executorService, nThreads);
@@ -246,7 +246,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         //if the executor service is a managed resource, attempt to release it
         ManagedResource.release(executorService);
 
-        if (Concurrency.shutdown(eventLoopGroup, options.getOrDefault(TransportOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
+        if (Concurrency.shutdown(eventLoopGroup, options.getOrDefault(GlobalOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
             log.debug("TRANSPORT (CLOSE) => Transport closed gracefully");
         } else {
             log.debug("TRANSPORT (CLOSE) => Shutdown interrupted");
@@ -273,13 +273,13 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
 
     private void configureDefaultOptions() {
         //Default channel options
-        bootstrap.option(ChannelOption.SO_SNDBUF, getOptions().getOrDefault(TransportOptions.SOCKET_SNDBUF))
-                 .option(ChannelOption.SO_RCVBUF, getOptions().getOrDefault(TransportOptions.SOCKET_RECVBUF))
+        bootstrap.option(ChannelOption.SO_SNDBUF, getOptions().getOrDefault(GlobalOptions.SOCKET_SNDBUF))
+                 .option(ChannelOption.SO_RCVBUF, getOptions().getOrDefault(GlobalOptions.SOCKET_RECVBUF))
                  .option(ChannelOption.RCVBUF_ALLOCATOR, createRecvByteBufAllocator())
                  .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                  .option(ChannelOption.WRITE_BUFFER_WATER_MARK, WriteBufferWaterMark.DEFAULT)
                  .option(ChannelOption.AUTO_READ, true)
-                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getOptions().getOrDefault(TransportOptions.SOCKET_CONNECT_TIMEOUT));
+                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, getOptions().getOrDefault(GlobalOptions.SOCKET_CONNECT_TIMEOUT));
 
         if (log.isDebugEnabled()) {
             int ctr = 0;
@@ -298,18 +298,18 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
      * @return a {@link io.netty.channel.RecvByteBufAllocator} object
      */
     protected RecvByteBufAllocator createRecvByteBufAllocator() {
-        BufferAllocatorType allocatorType = getOptions().getOrDefault(TransportOptions.SOCKET_RECVBUF_ALLOC_TYPE);
+        BufferAllocatorType allocatorType = getOptions().getOrDefault(GlobalOptions.SOCKET_RECVBUF_ALLOC_TYPE);
         log.debug("[INIT] Using a receive buffer allocator type of '{}'", allocatorType);
         switch (allocatorType) {
             case ADAPTIVE: {
-                int initSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_INIT_SIZE);
-                int minSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_MIN_SIZE);
-                int maxSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_ADAPTIVE_MAX_SIZE);
+                int initSize = getOptions().getOrDefault(GlobalOptions.SOCKET_ALLOC_ADAPTIVE_INIT_SIZE);
+                int minSize = getOptions().getOrDefault(GlobalOptions.SOCKET_ALLOC_ADAPTIVE_MIN_SIZE);
+                int maxSize = getOptions().getOrDefault(GlobalOptions.SOCKET_ALLOC_ADAPTIVE_MAX_SIZE);
                 log.debug("[INIT] Adaptive Allocator Parameters (Init Size: {}, Min Size: {}, Max Size: {})", initSize, minSize, maxSize);
                 return new AdaptiveRecvByteBufAllocator(minSize, initSize, maxSize);
             }
             case FIXED: {
-                int fixedSize = getOptions().getOrDefault(TransportOptions.SOCKET_ALLOC_FIXED_SIZE);
+                int fixedSize = getOptions().getOrDefault(GlobalOptions.SOCKET_ALLOC_FIXED_SIZE);
                 log.debug("[INIT] Fixed Allocator Parameters (Size: {})", fixedSize);
                 return new FixedRecvByteBufAllocator(fixedSize);
             }
@@ -325,7 +325,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Auto initializing channel attributes whose autoCreate flag is set");
         log.debug("===================================================================================================================");
         if (Option.getOptions().size() > 0) {
-            for (Option<?> option : Option.getOptions()) {
+            for (Option<?> option : Option.getOptions().values()) {
                 if (option.isChannelAttribute() && option.isAutoCreate()) {
                     log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Attribute: '{}' (Default Value: {})", ++ctr, option.getKey(), option.getDefaultValue());
                     //noinspection unchecked

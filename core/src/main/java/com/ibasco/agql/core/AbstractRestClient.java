@@ -19,7 +19,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.JsonContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.XmlContentTypeProcessor;
-import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.HttpOptions;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
@@ -71,7 +71,7 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      * <p>Factory method for creating the default {@link HttpMessenger}</p>
      */
     @Override
-    protected HttpMessenger createMessenger(Options options) {
+    protected HttpMessenger createMessenger(HttpOptions options) {
         Function<Response, AbstractWebApiResponse> responseFactory = this::createWebApiResponse;
         return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor));
     }

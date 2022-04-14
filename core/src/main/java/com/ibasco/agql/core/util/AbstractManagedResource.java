@@ -61,7 +61,7 @@ abstract public class AbstractManagedResource<T> implements ManagedResource<T> {
     @Override
     public int release(int releaseCount) {
         int currentCount = referenceCount.get();
-        Console.println("(%s) Requested to release resource '%s' (Subtrahend: %d, Old Ref Count: %d, New Ref Count: %d)", Thread.currentThread().getName(), this, releaseCount, currentCount, currentCount - releaseCount);
+        Console.println("Requested to release resource '%s' (Subtrahend: %d, Old Ref Count: %d, New Ref Count: %d)", this, releaseCount, currentCount, currentCount - releaseCount);
         if (currentCount <= 0)
             throw new IllegalStateException("Resource has already been released");
         int newCount = Math.max(currentCount - releaseCount, 0);

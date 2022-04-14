@@ -26,6 +26,7 @@ import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -55,7 +56,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
     private final Channel channel;
 
-    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger;
+    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger;
 
     private final Deque<Properties> propertiesStack = new ArrayDeque<>(10);
 
@@ -90,10 +91,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>Constructor for NettyChannelContext.</p>
      *
-     * @param channel a {@link io.netty.channel.Channel} object
-     * @param messenger a {@link com.ibasco.agql.core.NettyMessenger} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     * @param messenger
+     *         a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public NettyChannelContext(final Channel channel, final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger) {
+    public NettyChannelContext(final Channel channel, final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger) {
         if (channel == null)
             throw new IllegalArgumentException("Channel must not be null");
         if (!channel.isActive())
@@ -174,7 +177,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @return a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger() {
+    public NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger() {
         return this.messenger;
     }
 

@@ -33,7 +33,6 @@ if [ -z "$1" ]
     echo -e "- \u001B[36mSteam Storefront Web API Example\u001B[0m (key: \u001B[33msteam-store-webapi\u001B[0m)"
     echo -e "- \u001B[36mSource Log Listener Example\u001B[0m      (key: \u001B[33msource-log\u001B[0m)"
     echo -e "- \u001B[36mSteam Econ Web API Example\u001B[0m       (key: \u001B[33msteam-econ-webapi\u001B[0m)"
-    echo -e "- \u001B[36mMinecraft Rcon Example\u001B[0m           (key: \u001B[33mmc-rcon\u001B[0m)"
     echo -e "- \u001B[36mDota2 Web API Example\u001B[0m            (key: \u001B[33mdota2-webapi\u001B[0m)"
 
     exit 1

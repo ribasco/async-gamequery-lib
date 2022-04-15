@@ -50,7 +50,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     private final O options;
 
     //private Messenger<R, S, O> messenger;
-    private AtomicReference<Messenger<R, S, O>> messenger = new AtomicReference<>();
+    private final AtomicReference<Messenger<R, S, O>> messenger = new AtomicReference<>();
 
     /**
      * Create a new client instance using the provided configuration options.

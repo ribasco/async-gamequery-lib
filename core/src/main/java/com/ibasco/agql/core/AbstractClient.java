@@ -16,10 +16,7 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.Netty;
-import com.ibasco.agql.core.util.OptionBuilder;
-import com.ibasco.agql.core.util.Options;
-import com.ibasco.agql.core.util.UUID;
+import com.ibasco.agql.core.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +25,7 @@ import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Base implementation for all {@link com.ibasco.agql.core.Client} interfaces
@@ -41,19 +39,25 @@ import java.util.concurrent.Executor;
  */
 abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse, O extends Options> implements Client {
 
+    static {
+        Platform.initialize();
+    }
+
     private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
 
     private final UUID id = UUID.create();
 
     private final O options;
 
-    private Messenger<R, S, O> messenger;
+    //private Messenger<R, S, O> messenger;
+    private AtomicReference<Messenger<R, S, O>> messenger = new AtomicReference<>();
 
     /**
      * Create a new client instance using the provided configuration options.
      *
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
+     *
      * @see OptionBuilder
      * @see Options
      */
@@ -74,10 +78,15 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     /**
      * <p>send.</p>
      *
-     * @param address a {@link java.net.InetSocketAddress} object
-     * @param request a R object
-     * @param expectedResponse a {@link java.lang.Class} object
-     * @param <V> a V class
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param request
+     *         a R object
+     * @param expectedResponse
+     *         a {@link java.lang.Class} object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
@@ -85,11 +94,14 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * <p>send.</p>
+     * <p>Send request to messenger</p>
      *
-     * @param address a {@link java.net.InetSocketAddress} object
-     * @param request a R object
-     * @return a {@link java.util.concurrent.CompletableFuture} object
+     * @param address
+     *         The {@link java.net.InetSocketAddress} destination
+     * @param request
+     *         The {@link AbstractRequest} to be sent
+     *
+     * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received.
      */
     protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");
@@ -122,6 +134,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
+        Messenger<R, S, O> messenger = this.messenger.get();
         if (messenger == null)
             return;
         messenger.close();
@@ -131,8 +144,13 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      * @return Returns an existing instance of the messenger. If no instance exists yet, initialize then return
      */
     private Messenger<R, S, O> messenger() {
-        if (this.messenger == null) {
-            this.messenger = createMessenger(this.options);
+        Messenger<R, S, O> messenger = this.messenger.get();
+        if (messenger == null) {
+            //Console.println("Initializing messenger");
+            messenger = createMessenger(this.options);
+            if (!this.messenger.compareAndSet(null, messenger)) {
+                return this.messenger.get();
+            }
         }
         return messenger;
     }

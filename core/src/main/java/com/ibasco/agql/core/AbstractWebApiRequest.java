@@ -17,7 +17,7 @@
 package com.ibasco.agql.core;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.StrSubstitutor;
+import org.apache.commons.text.StringSubstitutor;
 import org.asynchttpclient.Request;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,7 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
 
     private final Map<String, String> baseUrlParams;
 
-    private final StrSubstitutor substitutor;
+    private final StringSubstitutor substitutor;
 
     private int apiVersion;
 
@@ -52,7 +52,7 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     public AbstractWebApiRequest(int apiVersion) {
         this.apiVersion = apiVersion;
         this.baseUrlParams = new HashMap<>();
-        this.substitutor = new StrSubstitutor(this.baseUrlParams);
+        this.substitutor = new StringSubstitutor(this.baseUrlParams);
     }
 
     /**

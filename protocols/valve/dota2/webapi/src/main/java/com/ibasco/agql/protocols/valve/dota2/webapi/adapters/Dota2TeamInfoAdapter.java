@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.adapters;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchTeamInfo;
 
 import java.io.IOException;
@@ -85,6 +85,6 @@ public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
     /** {@inheritDoc} */
     @Override
     public void write(JsonWriter out, Dota2MatchTeamInfo value) throws IOException {
-        throw new AsyncGameLibUncheckedException("Not implemented");
+        throw new AgqlRuntimeException("Not implemented");
     }
 }

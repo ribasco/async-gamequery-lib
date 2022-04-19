@@ -20,7 +20,6 @@ import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
-import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
@@ -44,7 +43,7 @@ public class MasterServerChannelContext extends NettyChannelContext {
      * @param messenger
      *         a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public MasterServerChannelContext(Channel channel, NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger) {
+    public MasterServerChannelContext(Channel channel, NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger) {
         super(channel, messenger);
     }
 

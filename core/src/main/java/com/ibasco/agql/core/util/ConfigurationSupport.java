@@ -17,24 +17,20 @@
 package com.ibasco.agql.core.util;
 
 /**
- * <p>Configurable interface.</p>
+ * <p>Adds configuration support</p>
  *
  * @author Rafael Luis Ibasco
  */
-public interface Configurable<T extends Options> {
-
-    /**
-     * <p>getOptions.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.util.Options} object
-     */
-    T getOptions();
+public interface ConfigurationSupport {
 
     /**
      * <p>getOrDefault.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option) {
@@ -44,9 +40,13 @@ public interface Configurable<T extends Options> {
     /**
      * <p>getOrDefault.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param defaultValue a V object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param defaultValue
+     *         a V object
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option, V defaultValue) {
@@ -54,22 +54,39 @@ public interface Configurable<T extends Options> {
     }
 
     /**
+     * <p>getOptions.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.util.Options} object
+     */
+    Options getOptions();
+
+    /**
      * <p>get.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     default <V> V get(Option<V> option) {
         return getOptions().get(option);
     }
 
+    default <V> V get(Option<V> option, V defaultValue) {
+        return getOptions().get(option, defaultValue);
+    }
+
     /**
      * <p>set.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param value a V object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a V object
+     * @param <V>
+     *         a V class
      */
     default <V> void set(Option<V> option, V value) {
         getOptions().add(option, value);
@@ -78,19 +95,24 @@ public interface Configurable<T extends Options> {
     /**
      * <p>lock.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param value a V object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param value
+     *         a V object
+     * @param <V>
+     *         a V class
      */
     default <V> void lock(Option<V> option, V value) {
-        getOptions().add(option, value,true);
+        getOptions().add(option, value, true);
     }
 
     /**
      * <p>unlock.</p>
      *
-     * @param option a {@link com.ibasco.agql.core.util.Option} object
-     * @param <V> a V class
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param <V>
+     *         a V class
      */
     default <V> void unlock(Option<V> option) {
         if (!getOptions().isLocked(option))

@@ -19,7 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * <p>RconAuthenticator interface.</p>
+ * <p>An rcon authenticator. Ensures that the connection is authenticated by the game server</p>
  *
  * @author Rafael Luis Ibasco
  */

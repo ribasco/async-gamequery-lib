@@ -90,7 +90,7 @@ import java.util.concurrent.CompletableFuture;
  * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol">Source RCON Protocol Specifications</a>
  * @see SourceRconOptions
  */
-public final class SourceRconClient extends NettySocketClient<SourceRconRequest, SourceRconResponse, SourceRconOptions> {
+public final class SourceRconClient extends NettySocketClient<SourceRconRequest, SourceRconResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconClient.class);
 
@@ -110,11 +110,11 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * @see Options
      * @see OptionBuilder
      */
-    public SourceRconClient(SourceRconOptions options) {
+    public SourceRconClient(Options options) {
         super(options);
     }
 
-    public static OptionBuilder<SourceRconOptions> newOptionBuilder() {
+    public static OptionBuilder<SourceRconOptions> newOptionsBuilder() {
         return OptionBuilder.newBuilder(SourceRconOptions.class);
     }
 
@@ -167,13 +167,9 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * @see #authenticate(InetSocketAddress, byte[])
      */
     public CompletableFuture<SourceRconAuthResponse> authenticate(InetSocketAddress address) throws RconAuthException {
-        if (!getAuthenticationProxy().isAuthenticated(address))
-            throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), SourceRconAuthReason.NOT_AUTHENTICATED, address);
+        if (!getMessenger().isAuthenticated(address))
+            throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), null, address, SourceRconAuthReason.NOT_AUTHENTICATED);
         return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class);
-    }
-
-    private SourceRconAuthManager getAuthenticationProxy() {
-        return getMessenger().getAuthManager();
     }
 
     /**
@@ -191,8 +187,8 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * @see #authenticate(InetSocketAddress, byte[])
      */
     public CompletableFuture<SourceRconCmdResponse> execute(InetSocketAddress address, String command) throws RconAuthException {
-        if (!getAuthenticationProxy().isAuthenticated(address))
-            return Concurrency.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address), SourceRconAuthReason.NOT_AUTHENTICATED, address));
+        if (!getMessenger().isAuthenticated(address))
+            return Concurrency.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address), null, address, SourceRconAuthReason.NOT_AUTHENTICATED));
         return send(address, new SourceRconCmdRequest(command), SourceRconCmdResponse.class);
     }
 
@@ -207,7 +203,7 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      */
     @ApiStatus.Experimental
     public void invalidate() {
-        getAuthenticationProxy().invalidate(true);
+        getMessenger().invalidate(true);
     }
 
     /**
@@ -221,7 +217,7 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      */
     @ApiStatus.Experimental
     public void invalidate(InetSocketAddress address) {
-        getAuthenticationProxy().invalidate(address);
+        getMessenger().invalidate(address);
     }
 
     /**
@@ -235,7 +231,7 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * @see #authenticate(InetSocketAddress, byte[])
      */
     public boolean isAuthenticated(InetSocketAddress address) {
-        return getAuthenticationProxy().isAuthenticated(address);
+        return getMessenger().isAuthenticated(address);
     }
 
     /**
@@ -244,22 +240,22 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     @ApiStatus.Experimental
     @ApiStatus.Internal
     public void cleanup() {
-        getAuthenticationProxy().cleanup();
+        getMessenger().cleanup();
     }
 
     /**
      * <p>getStatistics.</p>
      *
-     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconAuthManager.Statistics} object
+     * @return a {@link SourceRconMessenger.Statistics} object
      */
     @ApiStatus.Experimental
-    public SourceRconAuthManager.Statistics getStatistics() {
-        return getAuthenticationProxy().getStatistics();
+    public SourceRconMessenger.Statistics getStatistics() {
+        return getMessenger().getStatistics();
     }
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<SourceRconRequest, SourceRconResponse, SourceRconOptions> createMessenger(SourceRconOptions options) {
+    protected NettyMessenger<SourceRconRequest, SourceRconResponse> createMessenger(Options options) {
         return new SourceRconMessenger(options);
     }
 

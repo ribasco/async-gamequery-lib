@@ -26,7 +26,6 @@ import com.ibasco.agql.core.transport.pool.NettyChannelPool;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.MessageEnvelopeBuilder;
 import com.ibasco.agql.core.util.Netty;
-import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
@@ -56,7 +55,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
     private final Channel channel;
 
-    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger;
+    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger;
 
     private final Deque<Properties> propertiesStack = new ArrayDeque<>(10);
 
@@ -96,7 +95,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      * @param messenger
      *         a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public NettyChannelContext(final Channel channel, final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger) {
+    public NettyChannelContext(final Channel channel, final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger) {
         if (channel == null)
             throw new IllegalArgumentException("Channel must not be null");
         if (!channel.isActive())
@@ -115,7 +114,8 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>Constructor for NettyChannelContext.</p>
      *
-     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     protected NettyChannelContext(NettyChannelContext context) {
         this.channel = context.channel;
@@ -136,12 +136,15 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>composedFuture.</p>
+     * <p>Returns a {@link CompletableFuture} that returns this context once the response has been marked as completed.</p>
      *
-     * @param <C> a C class
-     * @return a {@link java.util.concurrent.CompletableFuture} object
+     * @param <C>
+     *         A captured type of {@link NettyChannelContext}
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} returning this context instance once response has been received.
      */
     public final <C extends NettyChannelContext> CompletableFuture<C> composedFuture() {
+        assert properties().responsePromise() != null;
         return (CompletableFuture<C>) future().thenCombineAsync(properties().responsePromise(), Functions::selectFirst, eventLoop());
     }
 
@@ -177,7 +180,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @return a {@link com.ibasco.agql.core.NettyMessenger} object
      */
-    public NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse, ? extends Options> messenger() {
+    public NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger() {
         return this.messenger;
     }
 
@@ -233,7 +236,9 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>markSuccess.</p>
      *
-     * @param response a {@link com.ibasco.agql.core.AbstractResponse} object
+     * @param response
+     *         a {@link com.ibasco.agql.core.AbstractResponse} object
+     *
      * @return a boolean
      */
     public final boolean markSuccess(AbstractResponse response) {
@@ -244,7 +249,8 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>markInError.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
+     * @param error
+     *         a {@link java.lang.Throwable} object
      */
     public final void markInError(Throwable error) {
         checkResponse();
@@ -263,7 +269,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
         try {
             this.messenger.receive(this, response, null);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("{} CONTEXT => Messenger receive() has thrown an error", id(), e);
             markInError(e);
         }
@@ -280,7 +286,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
             throw new IllegalStateException("No messenger is assigned to this channel context: " + this);
         try {
             this.messenger.receive(this, null, error);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("{} CONTEXT => Messenger receive() has thrown an error", id(), e);
             markInError(e);
         }
@@ -289,8 +295,11 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>exists.</p>
      *
-     * @param key a {@link io.netty.util.AttributeKey} object
-     * @param <V> a V class
+     * @param key
+     *         a {@link io.netty.util.AttributeKey} object
+     * @param <V>
+     *         a V class
+     *
      * @return a boolean
      */
     public final <V> boolean exists(AttributeKey<V> key) {
@@ -300,8 +309,11 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>get.</p>
      *
-     * @param key a {@link io.netty.util.AttributeKey} object
-     * @param <V> a V class
+     * @param key
+     *         a {@link io.netty.util.AttributeKey} object
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     public final <V> V get(AttributeKey<V> key) {
@@ -311,9 +323,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>set.</p>
      *
-     * @param key a {@link io.netty.util.AttributeKey} object
-     * @param value a V object
-     * @param <V> a V class
+     * @param key
+     *         a {@link io.netty.util.AttributeKey} object
+     * @param value
+     *         a V object
+     * @param <V>
+     *         a V class
      */
     public final <V> void set(AttributeKey<V> key, V value) {
         this.channel.attr(key).set(value);
@@ -354,7 +369,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<? extends NettyChannelContext> send() {
-        return messenger.send(this).thenCompose(NettyChannelContext::composedFuture);
+        return messenger.send(this);//.thenCompose(NettyChannelContext::composedFuture);
     }
 
     /**
@@ -388,7 +403,9 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>newProperties.</p>
      *
-     * @param copy a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
+     * @param copy
+     *         a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
+     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
      */
     protected Properties newProperties(Properties copy) {
@@ -409,6 +426,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to retrieve the context from
+     *
      * @return The {@link com.ibasco.agql.core.NettyChannelContext} associated with the {@link io.netty.channel.Channel}
      */
     public static NettyChannelContext getContext(Channel channel) {
@@ -423,7 +441,9 @@ public class NettyChannelContext implements Closeable, Cloneable {
     /**
      * <p>attach.</p>
      *
-     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     public NettyChannelContext attach(AbstractRequest request) {
@@ -442,7 +462,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>disableAutoRelease.</p>
+     * <p>Disable auto-release of context</p>
      *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
@@ -452,7 +472,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>disableWriteTimeout.</p>
+     * <p>Disable write timeouts</p>
      *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
@@ -462,7 +482,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>disableReadTimeout.</p>
+     * <p>Disable read timeouts.</p>
      *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
@@ -471,7 +491,9 @@ public class NettyChannelContext implements Closeable, Cloneable {
         return this;
     }
 
-    /** {@inheritDoc} */
+    /**
+     * Close or release the underlying {@link Channel} of this context. If the {@link Channel} is not pooled, it will call {@link Channel#close()} otherwise it will attempt to call release to return it back to the pool.
+     */
     @Override
     public void close() {
         if (NettyChannelPool.isPooled(channel))
@@ -614,7 +636,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
                 return null;
             try {
                 return (V) responsePromise.getNow(null);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 log.debug("{} CONTEXT => Failed to retrieve response value due to an error", id(), e);
                 return null;
             }

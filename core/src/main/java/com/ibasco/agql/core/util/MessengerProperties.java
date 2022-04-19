@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.exceptions;
+package com.ibasco.agql.core.util;
 
-/**
- * <p>PacketSizeLimitException class.</p>
- *
- * @author Rafael Luis Ibasco
- */
-public class PacketSizeLimitException extends RuntimeException {
+import java.lang.annotation.*;
 
-    /**
-     * <p>Constructor for PacketSizeLimitException.</p>
-     */
-    public PacketSizeLimitException() {
-    }
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = ElementType.TYPE)
+public @interface MessengerProperties {
 
-    /**
-     * <p>Constructor for PacketSizeLimitException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     */
-    public PacketSizeLimitException(String message) {
-        super(message);
-    }
+    Class<? extends Options> optionClass();
 }

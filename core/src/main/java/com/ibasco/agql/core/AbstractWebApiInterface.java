@@ -239,6 +239,6 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
             else if (processedElement.isJsonArray())
                 return (A) processedElement.getAsJsonArray();
         }
-        throw new AsyncGameLibUncheckedException("No parsed content found for response" + response);
+        throw new AgqlRuntimeException("No parsed content found for response" + response);
     }
 }

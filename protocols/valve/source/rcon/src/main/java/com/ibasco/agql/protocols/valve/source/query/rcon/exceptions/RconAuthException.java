@@ -16,7 +16,8 @@
 
 package com.ibasco.agql.protocols.valve.source.query.rcon.exceptions;
 
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
 
 import java.net.InetSocketAddress;
 
@@ -25,47 +26,31 @@ import java.net.InetSocketAddress;
  *
  * @author Rafael Luis Ibasco
  */
-public class RconAuthException extends AsyncGameLibUncheckedException {
+public class RconAuthException extends RconException {
 
-    private final InetSocketAddress address;
+    private final SourceRconAuthReason reason;
 
-    /**
-     * <p>Constructor for RconAuthException.</p>
-     *
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconAuthException(InetSocketAddress address) {
-        this(null, address);
+    public RconAuthException(AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
+        super(request, address);
+        this.reason = reason;
     }
 
-    /**
-     * <p>Constructor for RconAuthException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconAuthException(String message, InetSocketAddress address) {
-        this(message, null, address);
+    public RconAuthException(String message, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
+        super(message, request, address);
+        this.reason = reason;
     }
 
-    /**
-     * <p>Constructor for RconAuthException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconAuthException(String message, Throwable cause, InetSocketAddress address) {
-        super(message, cause);
-        this.address = address;
+    public RconAuthException(String message, Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
+        super(message, cause, request, address);
+        this.reason = reason;
     }
 
-    /**
-     * <p>Getter for the field <code>address</code>.</p>
-     *
-     * @return a {@link java.net.InetSocketAddress} object
-     */
-    public final InetSocketAddress getAddress() {
-        return address;
+    public RconAuthException(Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
+        super(cause, request, address);
+        this.reason = reason;
+    }
+
+    public SourceRconAuthReason getReason() {
+        return reason;
     }
 }

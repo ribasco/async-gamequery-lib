@@ -14,20 +14,14 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.transport.http.processors;
+package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
-import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
+import java.lang.annotation.*;
 
-/**
- * <p>XmlContentTypeProcessor class.</p>
- *
- * @author Rafael Luis Ibasco
- */
-public class XmlContentTypeProcessor extends ContentTypeProcessor {
-    /** {@inheritDoc} */
-    @Override
-    protected Object processContent(String body) {
-        throw new AgqlRuntimeException("Not yet implemented");
-    }
+@Documented
+@Retention(value = RetentionPolicy.RUNTIME)
+@Target(value = ElementType.TYPE)
+public @interface Inherit {
+
+    Class<? extends Options>[] options();
 }

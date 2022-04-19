@@ -29,7 +29,7 @@ public enum SourceRconAuthReason {
     /**
      * Credentials supplied is invalid
      */
-    BAD_PASSWORD,
+    INVALID_CREDENTIALS,
     /**
      * Connection has been dropped by the remote server
      */

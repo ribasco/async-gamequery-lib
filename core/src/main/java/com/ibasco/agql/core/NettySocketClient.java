@@ -36,7 +36,7 @@ import java.util.Objects;
  *
  * @author Rafael Luis Ibasco
  */
-abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse, O extends Options> extends AbstractClient<R, S, O> {
+abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse> extends AbstractClient<R, S> {
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -57,20 +57,20 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
      *
      * @see OptionBuilder
      */
-    protected NettySocketClient(O options) {
+    protected NettySocketClient(Options options) {
         super(options);
         log.debug("[{}] CLIENT => Initialzied new client '{}' with ID '{}'", id.getInteger(), getClass().getSimpleName(), id().getInteger());
     }
 
     /** {@inheritDoc} */
     @Override
-    abstract protected NettyMessenger<R, S, O> createMessenger(O options);
+    abstract protected NettyMessenger<R, S> createMessenger(Options options);
     //</editor-fold>
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<R, S, O> getMessenger() {
-        return (NettyMessenger<R, S, O>) super.getMessenger();
+    protected NettyMessenger<R, S> getMessenger() {
+        return (NettyMessenger<R, S>) super.getMessenger();
     }
 
     /** {@inheritDoc} */
@@ -91,7 +91,7 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof NettySocketClient)) return false;
-        NettySocketClient<?, ?, ?> that = (NettySocketClient<?, ?, ?>) o;
+        NettySocketClient<?, ?> that = (NettySocketClient<?, ?>) o;
         return id.equals(that.id);
     }
 

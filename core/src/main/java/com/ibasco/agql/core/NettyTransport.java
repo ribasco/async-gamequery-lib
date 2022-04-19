@@ -17,7 +17,7 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelClosedException;
-import com.ibasco.agql.core.exceptions.TransportWriteException;
+import com.ibasco.agql.core.exceptions.TransportException;
 import com.ibasco.agql.core.exceptions.WriteInProgressException;
 import com.ibasco.agql.core.util.Errors;
 import com.ibasco.agql.core.util.GlobalOptions;
@@ -49,9 +49,8 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
 
     private static final ChannelFutureListener COMPLETE_ON_WRITE = future -> {
         final Channel channel = future.channel();
-        NettyChannelContext context;
+        final NettyChannelContext context = NettyChannelContext.getContext(channel);
         try {
-            context = NettyChannelContext.getContext(channel);
             assert context.channel().id().equals(channel.id());
             if (future.isSuccess()) {
                 log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", context.id());
@@ -61,8 +60,10 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
                 context.properties().endWrite(future.cause());
             }
             assert !context.properties().writeInProgress();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("{} TRANSPORT => Error occured during write operation", Netty.id(channel), e);
+            if (context.properties().writeInProgress())
+                context.properties().endWrite(e);
         }
     };
 
@@ -129,7 +130,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             } else {
                 writeFuture.addListener(COMPLETE_ON_WRITE);
             }
-        } catch (Throwable error) {
+        } catch (Exception error) {
             log.debug("{} TRANSPORT => Error occured during writeAndNotify operation", context.id(), error);
             context.properties().endWrite(error);
         }
@@ -139,7 +140,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
     private NettyChannelContext finalize(NettyChannelContext context, Throwable error) {
         if (error != null) {
             log.debug("TRANSPORT => Error during write operation", error);
-            throw new TransportWriteException("Failed to send request via transport", Errors.unwrap(error));
+            throw new TransportException("Failed to send request via transport", Errors.unwrap(error));
         }
         if (context.channel() == null)
             throw new IllegalStateException("Channel is null");

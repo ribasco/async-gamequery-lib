@@ -73,7 +73,7 @@ public class MessageDecoder extends ChannelInboundHandlerAdapter {
                 log.debug("{} INB => Passing message ({}) to the next handler(s)", context.id(), decoded.getClass().getSimpleName());
             }
             ctx.fireChannelRead(decoded);
-        } catch (Throwable ex) {
+        } catch (Exception ex) {
             log.error(String.format("%s INB => Error occured during initialization", context.id()), ex);
             ctx.fireExceptionCaught(ex);
         }

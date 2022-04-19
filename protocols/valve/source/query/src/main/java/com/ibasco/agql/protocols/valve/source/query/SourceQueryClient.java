@@ -118,7 +118,7 @@ import java.util.concurrent.CompletableFuture;
  * @see <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query Protocol</a>
  * @see SourceQueryOptions
  */
-public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse<?>, SourceQueryOptions> {
+public final class SourceQueryClient extends NettySocketClient<SourceQueryRequest, SourceQueryResponse<?>> {
 
     //<editor-fold desc="Public Constructors">
 
@@ -265,7 +265,7 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>, SourceQueryOptions> createMessenger(SourceQueryOptions options) {
+    protected NettyMessenger<SourceQueryRequest, SourceQueryResponse<?>> createMessenger(Options options) {
         return new SourceQueryMessenger(options);
     }
 }

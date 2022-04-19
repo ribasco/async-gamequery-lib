@@ -16,10 +16,13 @@
 
 package com.ibasco.agql.core.util;
 
+import io.netty.channel.EventLoopGroup;
+import io.netty.util.concurrent.EventExecutor;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Iterator;
 import java.util.concurrent.*;
 
 /**
@@ -35,8 +38,11 @@ public final class Concurrency {
     /**
      * <p>wrap.</p>
      *
-     * @param future a {@link java.util.concurrent.CompletableFuture} object
-     * @param <V> a V class
+     * @param future
+     *         a {@link java.util.concurrent.CompletableFuture} object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletionStage} object
      */
     public static <V> CompletionStage<V> wrap(CompletableFuture<V> future) {
@@ -46,10 +52,15 @@ public final class Concurrency {
     /**
      * <p>combine.</p>
      *
-     * @param a a A object
-     * @param b a B object
-     * @param <A> a A class
-     * @param <B> a B class
+     * @param a
+     *         a A object
+     * @param b
+     *         a B object
+     * @param <A>
+     *         a A class
+     * @param <B>
+     *         a B class
+     *
      * @return a B object
      */
     public static <A, B> B combine(A a, B b) {
@@ -59,8 +70,11 @@ public final class Concurrency {
     /**
      * <p>failedFuture.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
-     * @param <V> a V class
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error) {
@@ -70,9 +84,13 @@ public final class Concurrency {
     /**
      * <p>failedFuture.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
-     * @param executor a {@link java.util.concurrent.Executor} object
-     * @param <V> a V class
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     * @param executor
+     *         a {@link java.util.concurrent.Executor} object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error, Executor executor) {
@@ -91,6 +109,7 @@ public final class Concurrency {
      *
      * @param executorService
      *         The {@link java.util.concurrent.ExecutorService} to shutdown
+     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService) {
@@ -108,6 +127,7 @@ public final class Concurrency {
      *         The timeout value to wait for a successful termination
      * @param timeUnit
      *         The {@link java.util.concurrent.TimeUnit} of the timeout value
+     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService, final int timeout, final TimeUnit timeUnit) {
@@ -137,12 +157,39 @@ public final class Concurrency {
     /**
      * <p>sleepUninterrupted.</p>
      *
-     * @param milliseconds a int
+     * @param milliseconds
+     *         a int
      */
     public static void sleepUninterrupted(int milliseconds) {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException ignored) {
+        }
+    }
+
+    /**
+     * Retrieve the core pool size of an executor (if available)
+     *
+     * @param executor
+     *         The {@link Executor} to check
+     *
+     * @return An integer representing the number of threads available for the {@link Executor}
+     */
+    public static int getCorePoolSize(Executor executor) {
+        if (executor instanceof ThreadPoolExecutor) {
+            ThreadPoolExecutor tpe = (ThreadPoolExecutor) executor;
+            return tpe.getCorePoolSize();
+        } else if (executor instanceof EventLoopGroup) {
+            EventLoopGroup elg = (EventLoopGroup) executor;
+            Iterator<EventExecutor> it = elg.iterator();
+            int ctr = 0;
+            while (it.hasNext()) {
+                it.next();
+                ctr++;
+            }
+            return ctr;
+        } else {
+            return -1;
         }
     }
 }

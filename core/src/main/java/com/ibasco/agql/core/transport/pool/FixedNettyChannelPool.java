@@ -297,7 +297,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
             } else {
                 executor.execute(() -> acquireEL(remoteAddress, promise));
             }
-        } catch (Throwable cause) {
+        } catch (Exception cause) {
             promise.completeExceptionally(cause);
         }
         return promise;
@@ -337,7 +337,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
                 assert pendingAcquireCount > 0;
             }
-        } catch (Throwable cause) {
+        } catch (Exception cause) {
             promise.completeExceptionally(cause);
         }
     }
@@ -371,7 +371,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                     }
                     promise.completeExceptionally(error);
                 }
-            } catch (Throwable cause) {
+            } catch (Exception cause) {
                 promise.completeExceptionally(cause);
             }
         }, executor);
@@ -497,7 +497,7 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
                     }
                     originalPromise.completeExceptionally(error);
                 }
-            } catch (Throwable cause) {
+            } catch (Exception cause) {
                 originalPromise.completeExceptionally(cause);
             }
         }

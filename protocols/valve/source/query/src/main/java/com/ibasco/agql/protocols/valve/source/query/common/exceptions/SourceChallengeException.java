@@ -16,22 +16,24 @@
 
 package com.ibasco.agql.protocols.valve.source.query.common.exceptions;
 
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 
 /**
  * Thrown when a server requires a new/updated challenge number
  *
  * @author Rafael Luis Ibasco
  */
-public class SourceChallengeException extends AsyncGameLibUncheckedException {
+public class SourceChallengeException extends AgqlRuntimeException {
 
     private final int challenge;
 
     /**
      * <p>Constructor for SourceChallengeException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param challenge a int
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param challenge
+     *         a int
      */
     public SourceChallengeException(String message, int challenge) {
         super(message);

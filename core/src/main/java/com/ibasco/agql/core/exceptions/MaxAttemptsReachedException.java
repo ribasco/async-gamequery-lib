@@ -25,7 +25,7 @@ import java.net.InetSocketAddress;
  *
  * @author Rafael Luis Ibasco
  */
-public class MaxAttemptsReachedException extends AsyncGameLibUncheckedException {
+public class MaxAttemptsReachedException extends AgqlRuntimeException {
 
     private final int attemptCount;
 

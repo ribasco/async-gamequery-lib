@@ -21,50 +21,59 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class AsyncGameLibCheckedException extends Exception {
+public class AgqlException extends Exception {
+
     /**
      * <p>Constructor for AsyncGameLibCheckedException.</p>
      */
-    public AsyncGameLibCheckedException() {
+    public AgqlException() {
     }
 
     /**
      * <p>Constructor for AsyncGameLibCheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
-    public AsyncGameLibCheckedException(String message) {
+    public AgqlException(String message) {
         super(message);
     }
 
     /**
      * <p>Constructor for AsyncGameLibCheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
-    public AsyncGameLibCheckedException(String message, Throwable cause) {
+    public AgqlException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
      * <p>Constructor for AsyncGameLibCheckedException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
-    public AsyncGameLibCheckedException(Throwable cause) {
+    public AgqlException(Throwable cause) {
         super(cause);
     }
 
     /**
      * <p>Constructor for AsyncGameLibCheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
-    public AsyncGameLibCheckedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public AgqlException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

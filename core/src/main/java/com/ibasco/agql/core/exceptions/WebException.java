@@ -21,7 +21,7 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class WebException extends AsyncGameLibUncheckedException {
+public class WebException extends AgqlRuntimeException {
 
     private int statusCode;
 

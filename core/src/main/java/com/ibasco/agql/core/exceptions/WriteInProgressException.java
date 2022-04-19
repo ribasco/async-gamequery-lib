@@ -21,12 +21,13 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class WriteInProgressException extends TransportWriteException {
+public class WriteInProgressException extends TransportException {
 
     /**
      * <p>Constructor for WriteInProgressException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public WriteInProgressException(String message) {
         super(message);

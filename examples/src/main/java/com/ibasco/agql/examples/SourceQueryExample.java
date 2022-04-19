@@ -91,20 +91,6 @@ public class SourceQueryExample extends BaseExample {
      */
     public SourceQueryExample() {}
 
-    /**
-     * <p>main.</p>
-     *
-     * @param args
-     *         an array of {@link java.lang.String} objects
-     *
-     * @throws java.lang.Exception
-     *         if any.
-     */
-    public static void main(String[] args) throws Exception {
-        SourceQueryExample example = new SourceQueryExample();
-        example.run(args);
-    }
-
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
@@ -197,7 +183,6 @@ public class SourceQueryExample extends BaseExample {
         //wait for the registered parties (info, players and rules) to finish
         phaser.arriveAndAwaitAdvance();
         end = System.currentTimeMillis() - start;
-
         printLine();
         if (end < 1) {
             System.out.printf("\033[0;33mTEST COMPLETED  in \033[0;36m%03d\033[0;33m seconds\033[0m\n", Duration.ofMillis(end).getSeconds());
@@ -347,7 +332,7 @@ public class SourceQueryExample extends BaseExample {
     }
 
     /**
-     * A resposne container for a specific {@link QueryType} which stores both {@link SourceQueryResponse} and {@link Throwable} values (whichever is returned).
+     * A response container for a specific {@link QueryType} which stores both {@link SourceQueryResponse} and {@link Throwable} values (whichever is returned).
      */
     private static class QueryResponse<T> {
 

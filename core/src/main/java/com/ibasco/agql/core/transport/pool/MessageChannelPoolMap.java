@@ -96,7 +96,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return new ReadOnlyIterator<>(map.entrySet().iterator());
     }
 
-    private synchronized Future<Boolean> removeAsyncIfSupported(Object key) {
+    private Future<Boolean> removeAsyncIfSupported(Object key) {
         NettyChannelPool pool = map.remove(checkNotNull(key, "key"));
         if (pool != null) {
             final Promise<Boolean> removePromise = GlobalEventExecutor.INSTANCE.newPromise();
@@ -112,7 +112,7 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return GlobalEventExecutor.INSTANCE.newSucceededFuture(Boolean.FALSE);
     }
 
-    private synchronized static Future<Void> poolCloseAsyncIfSupported(NettyChannelPool pool) {
+    private static Future<Void> poolCloseAsyncIfSupported(NettyChannelPool pool) {
         if (pool instanceof SimpleChannelPool) {
             return ((SimpleChannelPool) pool).closeAsync();
         } else {

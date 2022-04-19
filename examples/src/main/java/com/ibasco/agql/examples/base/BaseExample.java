@@ -17,7 +17,7 @@
 package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.core.Client;
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import com.ibasco.agql.core.util.Concurrency;
 import com.ibasco.agql.core.util.Encryption;
 import com.ibasco.agql.core.util.Strings;
@@ -27,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
@@ -68,7 +69,7 @@ abstract public class BaseExample implements Closeable {
         // First try loading from the current directory
         try {
             File f = new File(EXAMPLE_PROP_FILE);
-            is = new FileInputStream(f);
+            is = Files.newInputStream(f.toPath());
         } catch (Exception e) {
             is = null;
         }
@@ -244,7 +245,7 @@ abstract public class BaseExample implements Closeable {
                     if (!StringUtils.isEmpty(defaultProp))
                         defaultValue = Encryption.decrypt(defaultProp);
                 } catch (Exception e) {
-                    throw new AsyncGameLibUncheckedException(e);
+                    throw new AgqlRuntimeException(e);
                 }
             } else {
                 defaultValue = getProp(defaultProperty);
@@ -278,7 +279,7 @@ abstract public class BaseExample implements Closeable {
                 try {
                     saveProp(defaultProperty, Encryption.encrypt(returnValue));
                 } catch (Exception e) {
-                    throw new AsyncGameLibUncheckedException(e);
+                    throw new AgqlRuntimeException(e);
                 }
             } else {
                 saveProp(defaultProperty, returnValue);

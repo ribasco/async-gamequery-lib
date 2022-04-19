@@ -18,18 +18,21 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
-import com.ibasco.agql.core.util.AbstractOptions;
-import com.ibasco.agql.core.util.Option;
+import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketAssembler;
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket;
 
 import java.net.InetSocketAddress;
 
 /**
- * Options for the Source Rcon client
+ * Configuration options container for the Source RCON module.
  *
  * @author Rafael Luis Ibasco
+ * @see OptionBuilder
+ * @see Options
+ * @see SourceRconClient
  */
+@Inherit(options = FailsafeOptions.class)
 public final class SourceRconOptions extends AbstractOptions {
 
     /**
@@ -43,66 +46,110 @@ public final class SourceRconOptions extends AbstractOptions {
      * <br />
      * <h3>Detailed description</h3>
      * <p>
-     * When enabled, an empty <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#SERVERDATA_RESPONSE_VALUE">rcon response packet</a> is sent after every command. The game server will then mirror it back
+     * If enabled, an empty <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#SERVERDATA_RESPONSE_VALUE">rcon response packet</a> is sent after every command. The game server will then mirror it back
      * at the end of the response, followed by an additional terminator packet with a terminating byte equals to 1 (0x01). This is mostly useful for large response packets that are sent in smaller chunks by the server, which would then
      * have to be re-assembled by the library back into a single {@link SourceRconPacket} instance.
      * <p/>
-     * Please note that some games such as <a href="https://wiki.vg/RCON">Minecraft</a> do not support this mode as it does not echo back the empty terminator packets it receives. If that is the case, then this configuration option should be left <strong>disabled</strong>. A special heuristics will be used instead to determine the end of the response.
+     * Keep in mind that some games such as <a href="https://wiki.vg/RCON">Minecraft</a> do not support "terminator packets" as it does not echo back the <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses">response packets</a> receives. So if the game server does not support this,  then this configuration option should be <strong>disabled</strong>. A special heuristics will be used instead to determine the end of the response.
      *
      * @see <a href="https://developer.valvesoftware.com/wiki/Source_RCON_Protocol#Multiple-packet_Responses">Multi-Packet Responses</a>
      * @see SourceRconPacket
      * @see SourceRconPacketAssembler
      */
-    public static final Option<Boolean> USE_TERMINATOR_PACKET = Option.createOption("rconUseTerminatorPackets", true, true);
+    public static final Option<Boolean> USE_TERMINATOR_PACKET = Option.create("rconUseTerminatorPackets", true, true);
 
     /**
      * Enable strict mode. When {@code false} the library will attempt to recover from malformed/corrupted packets.
      * Please note that disabling this option does not always guarantee that the decode process would succeed.
      */
-    public static final Option<Boolean> STRICT_MODE = Option.createOption("rconStrictMode", true, true, true);
+    public static final Option<Boolean> STRICT_MODE = Option.create("rconStrictMode", true, true, true);
 
     /**
      * Automatically send a re-authentication request if the connection is no longer valid. This applies only to authenticated and registered addresses (registered via {@link SourceRconClient#authenticate(InetSocketAddress, byte[])}).
      */
-    public static final Option<Boolean> REAUTHENTICATE = Option.createOption("rconReauth", true, true, true);
+    public static final Option<Boolean> REAUTHENTICATE = Option.create("rconReauth", true, true, true);
 
     /**
      * The {@link CredentialsStore} to be used by the rcon authentication module. Default is {@link InMemoryCredentialsStore}.
      *
      * @see Credentials
      * @see CredentialsStore
-     * @see SourceRconAuthManager
+     * @see SourceRconMessenger
      */
-    public static final Option<CredentialsStore> CREDENTIALS_STORE = Option.createOption("rconCredentialsStore", null);
+    public static final Option<CredentialsStore> CREDENTIALS_STORE = Option.create("rconCredentialsStore", null);
 
     /**
      * Automatically close inactive channels/connections once it has reached the threshold value (value is in seconds). Set to -1 to disable.
      */
-    public static final Option<Integer> CLOSE_INACTIVE_CHANNELS = Option.createOption("rconClosedUnused", 30);
+    public static final Option<Integer> CLOSE_INACTIVE_CHANNELS = Option.create("rconClosedUnused", 30);
 
     /**
-     * Number of seconds to check for inactive {@link io.netty.channel.Channel}'s/connections
+     * Number of seconds to check for inactive {@link io.netty.channel.Channel}'s/connections (Unit: Seconds, Default Value: 1 sec)
      *
      * @see #CLOSE_INACTIVE_CHANNELS
      */
-    public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.createOption("rconInactiveCheckInterval", 1);
+    public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.create("rconInactiveCheckInterval", 1);
 
     /**
-     * When enabled, registered {@link Credentials} will automatically be invalidated when the connection is abruptly dropped by the remote server.
+     * Enable retry policy
+     *
+     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
+     * @see #FAILSAFE_RETRY_MAX_ATTEMPTS
+     * @see <a href="https://failsafe.dev/retry/">Failsafe's Retry Policy</a>
      */
-    public static final Option<Boolean> INVALIDATE_ON_CLOSE = Option.createOption("rconInvalidateOnClose", true);
+    public static final Option<Boolean> FAILSAFE_RETRY_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RETRY_ENABLED, true);
+
+    /**
+     * Delay between retries (In milliseconds. Use -1 to disable. Default is 1000ms)
+     *
+     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
+     */
+    public static final Option<Long> FAILSAFE_RETRY_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_DELAY, 1000L);
+
+    /**
+     * Enable Failsafe's Retry Backoff Feature
+     *
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
+     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
+     */
+    public static final Option<Boolean> FAILSAFE_RETRY_BACKOFF_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+
+    /**
+     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays.
+     *
+     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
+     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
+     */
+    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+
+    /**
+     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5000 ms or 5 seconds)
+     *
+     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
+     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
+     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
+     */
+    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_MAX_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+
+    /**
+     * Sets the delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5.0)
+     *
+     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
+     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
+     */
+    public static final Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
 
     /**
      * Sets the max number of execution attempts to perform. -1 indicates no limit (Default is 3 attempts)
      *
      * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
-    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.createOption("rconFailsafeMaxAttempts", 3);
-
-    /**
-     * Delay between retries (In milliseconds. Use -1 to disable)
-     *
-     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
-     */
-    public static final Option<Integer> FAILSAFE_RETRY_DELAY = Option.createOption("rconFailsafeDelayInterval", 1);
+    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.create(FailsafeProperties.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
 }

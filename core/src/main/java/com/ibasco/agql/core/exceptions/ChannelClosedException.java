@@ -18,19 +18,22 @@ package com.ibasco.agql.core.exceptions;
 
 import io.netty.channel.Channel;
 
+import java.io.IOException;
+
 /**
  * Thrown when the channel/connction was closed before the request is marked as oompleted
  *
  * @author Rafael Luis Ibasco
  */
-public class ChannelClosedException extends AsyncGameLibCheckedException {
+public class ChannelClosedException extends IOException {
 
     private final Channel channel;
 
     /**
      * <p>Constructor for ChannelClosedException.</p>
      *
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
      */
     public ChannelClosedException(Channel channel) {
         this(null, channel);

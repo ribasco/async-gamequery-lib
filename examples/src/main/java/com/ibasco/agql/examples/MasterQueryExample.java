@@ -65,7 +65,7 @@ public class MasterQueryExample extends BaseExample {
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        client.close();
+        close(client, "Master");
     }
 
     /**

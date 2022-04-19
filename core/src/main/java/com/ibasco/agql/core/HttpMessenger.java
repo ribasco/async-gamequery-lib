@@ -40,7 +40,7 @@ import java.util.function.Function;
  *
  * @author Rafael Luis Ibasco
  */
-public final class HttpMessenger implements Messenger<AbstractWebRequest, AbstractWebResponse, HttpOptions> {
+public final class HttpMessenger implements Messenger<AbstractWebRequest, AbstractWebResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(HttpMessenger.class);
 

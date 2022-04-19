@@ -36,12 +36,12 @@ public class OptionBuilder<T extends Options> {
     }
 
     /**
-     * <p>newBuilder.</p>
+     * <p>Creates a new option container based on the provided {@link Options} class.</p>
      *
      * @param group
-     *         a {@link java.lang.Class} object
+     *         any {@link java.lang.Class} implementing {@link Options}
      *
-     * @return a {@link com.ibasco.agql.core.util.OptionBuilder} object
+     * @return An {@link com.ibasco.agql.core.util.OptionBuilder} instance for the specified {@link Options} class
      */
     public static <C extends Options, O extends OptionBuilder<C>> OptionBuilder<C> newBuilder(Class<C> group) {
         return new OptionBuilder<>(group);

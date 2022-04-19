@@ -61,7 +61,7 @@ public class SourceQueryPacketDecoder extends MessageToMessageDecoder<ByteBuf> {
             SourceQueryPacket packet = SourceQueryPacketDecoderProvider.getDecoder(type).decode(msg);
             out.add(packet.retain());
             log.debug("{} INB => DECODED '{}' into \"{}\"", Netty.id(ctx.channel()), msg.getClass().getSimpleName(), packet);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             log.error("{} INB => Failed to decode datagram packet into a SourceQueryPacket instance. Passing message to next handler", Netty.id(ctx.channel()), e);
             out.add(msg.resetReaderIndex().retain());
         }

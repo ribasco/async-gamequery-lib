@@ -21,7 +21,7 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class ChannelRegistrationException extends AsyncGameLibCheckedException {
+public class ChannelRegistrationException extends AgqlException {
 
     /**
      * <p>Constructor for ChannelRegistrationException.</p>

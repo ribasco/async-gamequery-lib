@@ -24,181 +24,132 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 /**
- * Base class for all {@link Option} containers. This is thread-safe.
+ * Base class for all {@link Option} containers
  *
  * @author Rafael Luis Ibasco
  */
 abstract public class AbstractOptions implements Options {
 
-    private final Map<Option<?>, AbstractOptions.OptionValue> options = new ConcurrentHashMap<>();
+    private final Map<Option<?>, OptionValue> options = new ConcurrentHashMap<>();
 
-    /**
-     * <p>add.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param value
-     *         a X object
-     * @param <X>
-     *         a X class
-     */
+    //Map Entry<Option<?>, OptionValue> to Entry<Option<?>, Object>
+    private static final Function<Map.Entry<Option<?>, OptionValue>, Map.Entry<Option<?>, Object>> OPTION_ENTRIES = new Function<Map.Entry<Option<?>, OptionValue>, Map.Entry<Option<?>, Object>>() {
+        @Override
+        public Map.Entry<Option<?>, Object> apply(Map.Entry<Option<?>, OptionValue> oldEntry) {
+            return new Map.Entry<Option<?>, Object>() {
+                @Override
+                public Option<?> getKey() {
+                    return oldEntry.getKey();
+                }
+
+                @Override
+                public Object getValue() {
+                    return oldEntry.getValue().value;
+                }
+
+                @Override
+                public Object setValue(Object value) {
+                    OptionValue oldOptVal = oldEntry.getValue();
+                    oldEntry.setValue(new OptionValue(value, oldOptVal.locked));
+                    return oldOptVal.value;
+                }
+            };
+        }
+    };
+
+    protected AbstractOptions() {
+
+    }
+
+    /** {@inheritDoc} */
     @Override
     public <X> void add(Option<X> option, X value) {
         add(option, value, false);
     }
 
-    /**
-     * <p>add.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param value
-     *         a X object
-     * @param locked
-     *         a boolean
-     * @param <X>
-     *         a X class
-     */
+    /** {@inheritDoc} */
     @Override
     public <X> void add(Option<X> option, X value, boolean locked) {
-        if (isLocked(option))
-            throw new IllegalStateException(String.format("Option '%s' is locked. Cannot modify. (Locked by '%s')", option.getKey(), getClass().getSimpleName()));
-        options.put(option, new AbstractOptions.OptionValue(value, locked));
+        checkOption(option);
+        options.put(option, new OptionValue(value, locked));
     }
 
-    /**
-     * <p>isLocked.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     *
-     * @return a boolean
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean isLocked(Option<?> option) {
-        AbstractOptions.OptionValue optval = options.get(option);
+        OptionValue optval = options.get(option);
         if (optval == null)
             return false;
         return optval.locked;
     }
 
-    /**
-     * <p>contains.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     *
-     * @return a boolean
-     */
+    /** {@inheritDoc} */
     @Override
     public boolean contains(Option<?> option) {
         return options.containsKey(option);
     }
 
-    /**
-     * <p>remove.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param <X>
-     *         a X class
-     */
+    /** {@inheritDoc} */
     @Override
-    public synchronized <X> void remove(Option<X> option) {
+    public <X> void remove(Option<X> option) {
         options.remove(option);
     }
 
-    /**
-     * <p>Retrieve option value</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param <X>
-     *         a The capturing type
-     *
-     * @return The value of the option
-     */
+    /** {@inheritDoc} */
     @Override
-    public synchronized <X> X get(Option<X> option) {
-        AbstractOptions.OptionValue optVal = options.get(option);
-        if (optVal == null)
+    public <X> X get(Option<X> option) {
+        OptionValue optVal = options.get(option);
+        if (optVal == null) {
+
             return null;
+        }
         //noinspection unchecked
         return (X) optVal.value;
     }
 
-    /**
-     * <p>get.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param defaultValue
-     *         a X object
-     * @param <X>
-     *         a X class
-     *
-     * @return a X object
-     */
+    /** {@inheritDoc} */
     @Override
     public <X> X get(Option<X> option, X defaultValue) {
-        AbstractOptions.OptionValue optVal = options.get(option);
+        OptionValue optVal = options.get(option);
         if (optVal == null || optVal.value == null)
             return defaultValue == null ? option.getDefaultValue() : defaultValue;
         //noinspection unchecked
         return (X) optVal.value;
     }
 
-    /**
-     * <p>getOrDefault.</p>
-     *
-     * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
-     * @param <X>
-     *         a X class
-     *
-     * @return a X object
-     */
+    /** {@inheritDoc} */
     @Override
     public <X> X getOrDefault(Option<X> option) {
-        AbstractOptions.OptionValue optVal = options.get(option);
+        OptionValue optVal = options.get(option);
         if (optVal == null || optVal.value == null)
             return option.getDefaultValue();
         //noinspection unchecked
         return (X) optVal.value;
     }
 
-    /**
-     * <p>size.</p>
-     *
-     * @return a int
-     */
+    /** {@inheritDoc} */
     @Override
     public int size() {
         return options.size();
+    }
+
+    private void checkOption(Option<?> option) {
+        if (option == null)
+            throw new IllegalArgumentException("Option must not be null");
+        if (isLocked(option))
+            throw new IllegalStateException(String.format("Option '%s' is locked. Cannot modify. (Locked by '%s')", option.getKey(), getClass().getSimpleName()));
+
+        if (!option.getOwner().equals(getClass()) && !option.getOwner().equals(GlobalOptions.class)) {
+            Console.println("Option %s, Declaring Class: %s, Enclosing Class: %s", option.getFieldName(), option.getOwner(), option.getClass().getEnclosingClass());
+            throw new IllegalStateException(String.format("Option '%s' (%s) is not allowed on this container (only options declared by this container are allowed, unless it is a global type)", option.getKey(), option.getFieldName()));
+        }
     }
 
     /** {@inheritDoc} */
     @NotNull
     @Override
     public Iterator<Map.Entry<Option<?>, Object>> iterator() {
-        return options.entrySet().stream().map((Function<Map.Entry<Option<?>, AbstractOptions.OptionValue>, Map.Entry<Option<?>, Object>>) oldEntry -> new Map.Entry<Option<?>, Object>() {
-            @Override
-            public Option<?> getKey() {
-                return oldEntry.getKey();
-            }
-
-            @Override
-            public Object getValue() {
-                return oldEntry.getValue().value;
-            }
-
-            @Override
-            public Object setValue(Object value) {
-                AbstractOptions.OptionValue oldOptVal = oldEntry.getValue();
-                oldEntry.setValue(new AbstractOptions.OptionValue(value, oldOptVal.locked));
-                return oldOptVal.value;
-            }
-        }).iterator();
+        return options.entrySet().stream().map(OPTION_ENTRIES).iterator();
     }
 
     private static class OptionValue {

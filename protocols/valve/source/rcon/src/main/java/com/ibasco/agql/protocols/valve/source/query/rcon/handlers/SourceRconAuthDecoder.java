@@ -87,7 +87,7 @@ public class SourceRconAuthDecoder extends MessageInboundDecoder {
         if (authenticated) {
             return new SourceRconAuthResponse(true);
         } else {
-            return new SourceRconAuthResponse(false, "Bad Password", SourceRconAuthReason.BAD_PASSWORD);
+            return new SourceRconAuthResponse(false, "Bad Password", SourceRconAuthReason.INVALID_CREDENTIALS);
         }
     }
 }

@@ -37,7 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Rafael Luis Ibasco.
  */
-abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse, O extends Options> implements Client {
+abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
 
     static {
         Platform.initialize();
@@ -47,10 +47,10 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
 
     private final UUID id = UUID.create();
 
-    private final O options;
+    private final Options options;
 
     //private Messenger<R, S, O> messenger;
-    private final AtomicReference<Messenger<R, S, O>> messenger = new AtomicReference<>();
+    private final AtomicReference<Messenger<R, S>> messenger = new AtomicReference<>();
 
     /**
      * Create a new client instance using the provided configuration options.
@@ -61,7 +61,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      * @see OptionBuilder
      * @see Options
      */
-    protected AbstractClient(O options) {
+    protected AbstractClient(Options options) {
         this.options = options;
     }
 
@@ -73,7 +73,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      *
      * @return a {@link com.ibasco.agql.core.Messenger} object
      */
-    abstract protected Messenger<R, S, O> createMessenger(O options);
+    abstract protected Messenger<R, S> createMessenger(Options options);
 
     /**
      * <p>send.</p>
@@ -127,14 +127,14 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      *
      * @return a {@link com.ibasco.agql.core.Messenger} object
      */
-    protected Messenger<R, S, O> getMessenger() {
+    protected Messenger<R, S> getMessenger() {
         return messenger();
     }
 
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        Messenger<R, S, O> messenger = this.messenger.get();
+        Messenger<R, S> messenger = this.messenger.get();
         if (messenger == null)
             return;
         messenger.close();
@@ -143,8 +143,8 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     /**
      * @return Returns an existing instance of the messenger. If no instance exists yet, initialize then return
      */
-    private Messenger<R, S, O> messenger() {
-        Messenger<R, S, O> messenger = this.messenger.get();
+    private Messenger<R, S> messenger() {
+        Messenger<R, S> messenger = this.messenger.get();
         if (messenger == null) {
             //Console.println("Initializing messenger");
             messenger = createMessenger(this.options);

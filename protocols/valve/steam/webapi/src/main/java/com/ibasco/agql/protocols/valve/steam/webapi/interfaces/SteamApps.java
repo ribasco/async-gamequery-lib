@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.apps.GetAppList;
@@ -101,7 +101,7 @@ public class SteamApps extends SteamWebApiInterface {
                 }.getType();
                 return builder().fromJson(serverList, serverListType);
             }
-            throw new AsyncGameLibUncheckedException("Server returned an invalid response");
+            throw new AgqlRuntimeException("Server returned an invalid response");
         });
     }
 

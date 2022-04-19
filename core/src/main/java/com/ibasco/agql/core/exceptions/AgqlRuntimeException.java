@@ -21,50 +21,59 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class AsyncGameLibUncheckedException extends RuntimeException {
+public class AgqlRuntimeException extends RuntimeException {
+
     /**
      * <p>Constructor for AsyncGameLibUncheckedException.</p>
      */
-    public AsyncGameLibUncheckedException() {
+    public AgqlRuntimeException() {
     }
 
     /**
      * <p>Constructor for AsyncGameLibUncheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
-    public AsyncGameLibUncheckedException(String message) {
+    public AgqlRuntimeException(String message) {
         super(message);
     }
 
     /**
      * <p>Constructor for AsyncGameLibUncheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
-    public AsyncGameLibUncheckedException(String message, Throwable cause) {
+    public AgqlRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
      * <p>Constructor for AsyncGameLibUncheckedException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
-    public AsyncGameLibUncheckedException(Throwable cause) {
+    public AgqlRuntimeException(Throwable cause) {
         super(cause);
     }
 
     /**
      * <p>Constructor for AsyncGameLibUncheckedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
-    public AsyncGameLibUncheckedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
+    public AgqlRuntimeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
     }
 }

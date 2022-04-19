@@ -21,7 +21,7 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class DecodeException extends AsyncGameLibCheckedException {
+public class DecodeException extends AgqlException {
 
     /**
      * <p>Constructor for DecodeException.</p>

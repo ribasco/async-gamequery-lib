@@ -16,36 +16,55 @@
 
 package com.ibasco.agql.core.exceptions;
 
-import com.ibasco.agql.core.NettyChannelContext;
+import com.ibasco.agql.core.AbstractRequest;
 
-import java.util.concurrent.CompletionException;
+import java.net.InetSocketAddress;
 
 /**
- * <p>ResponseException class.</p>
+ * Exception thrown when there is an error that occured in the transaction.
  *
  * @author Rafael Luis Ibasco
  */
-public class ResponseException extends CompletionException {
+public class ResponseException extends AgqlRuntimeException {
 
-    private final NettyChannelContext context;
+    private final AbstractRequest request;
 
-    /**
-     * <p>Constructor for ResponseException.</p>
-     *
-     * @param cause a {@link java.lang.Throwable} object
-     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
-     */
-    public ResponseException(Throwable cause, NettyChannelContext context) {
-        super(cause);
-        this.context = context;
+    private final InetSocketAddress remoteAddress;
+
+    public ResponseException(AbstractRequest request, InetSocketAddress remoteAddress) {
+        this.request = request;
+        this.remoteAddress = remoteAddress;
     }
 
-    /**
-     * <p>Getter for the field <code>context</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
-     */
-    public NettyChannelContext getContext() {
-        return context;
+    public ResponseException(String message, AbstractRequest request, InetSocketAddress remoteAddress) {
+        super(message);
+        this.request = request;
+        this.remoteAddress = remoteAddress;
+    }
+
+    public ResponseException(String message, Throwable cause, AbstractRequest request, InetSocketAddress remoteAddress) {
+        super(message, cause);
+        this.request = request;
+        this.remoteAddress = remoteAddress;
+    }
+
+    public ResponseException(Throwable cause, AbstractRequest request, InetSocketAddress remoteAddress) {
+        super(cause);
+        this.request = request;
+        this.remoteAddress = remoteAddress;
+    }
+
+    public ResponseException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, AbstractRequest request, InetSocketAddress remoteAddress) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.request = request;
+        this.remoteAddress = remoteAddress;
+    }
+
+    public AbstractRequest getRequest() {
+        return request;
+    }
+
+    public InetSocketAddress getRemoteAddress() {
+        return remoteAddress;
     }
 }

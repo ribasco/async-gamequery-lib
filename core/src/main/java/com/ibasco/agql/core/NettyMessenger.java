@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.exceptions.ResponseException;
+import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
@@ -36,14 +36,14 @@ import java.util.concurrent.CompletableFuture;
  *
  * @author Rafael Luis Ibasco
  */
-abstract public class NettyMessenger<R extends AbstractRequest, S extends AbstractResponse, O extends Options> implements Messenger<R, S, O> {
+abstract public class NettyMessenger<R extends AbstractRequest, S extends AbstractResponse> implements Messenger<R, S> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyMessenger.class);
 
     private static final NettyChannelFactoryProvider DEFAULT_FACTORY_PROVIDER = new DefaultNettyChannelFactoryProvider();
 
     //<editor-fold desc="Class Members">
-    private final O options;
+    private final Options options;
 
     private final NettyTransport transport;
 
@@ -60,9 +60,14 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * @param options
      *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    protected NettyMessenger(O options) {
-        if (options == null)
-            options = createOptions();
+    protected NettyMessenger(Options options) {
+        if (options == null) {
+            if (!getClass().isAnnotationPresent(MessengerProperties.class))
+                throw new IllegalStateException("Missing MessengerProperties annotation for class " + getClass());
+            MessengerProperties properties = getClass().getDeclaredAnnotation(MessengerProperties.class);
+            options = OptionBuilder.newBuilder(properties.optionClass()).build();//createOptions();
+        }
+        assert options != null;
         //Apply messenger specific configuration parameters
         configure(options);
         //Initialize members
@@ -77,13 +82,12 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //<editor-fold desc="Abstract/Protected Methods">
 
     /**
-     * <p>createChannelFactory.</p>
+     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
      *
-     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param options
+     *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
      */
-    abstract protected NettyChannelFactory createChannelFactory();
-
-    abstract protected O createOptions();
+    protected void configure(final Options options) {}
 
     /**
      * <p>createFactoryProvider.</p>
@@ -96,6 +100,15 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //</editor-fold>
 
     //<editor-fold desc="Public methods">
+
+    /**
+     * <p>createChannelFactory.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     */
+    abstract protected NettyChannelFactory createChannelFactory();
+    //</editor-fold>
+
     /** {@inheritDoc} */
     @Override
     public CompletableFuture<S> send(InetSocketAddress address, R request) {
@@ -110,45 +123,68 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * <p>send.</p>
+     * <p>Send context to the underlying {@link Transport}</p>
      *
-     * @param context a C object
-     * @param <C> a C class
+     * @param context
+     *         The context containing the transaction details
+     * @param <C>
+     *         A type of {@link NettyChannelContext}
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
+     *
+     * @throws MessengerException
+     *         If any error occurs during read/write operations. This wraps the underlying context that was used for the transaction.
      */
-    public <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
+    public final <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
         assert context != null;
         assert context.properties().request() != null;
         log.debug("{} MESSENGER => Preparing context for transport (Request: {})", context.id(), context.properties().request());
+        CompletableFuture<C> future;
         if (context.inEventLoop()) {
-            return context.future()
-                          .thenApply(NettyMessenger::initialize)
-                          .thenCompose(transport::send)
-                          .thenApply(Functions::convert);
+            future = context.future()
+                            .thenApply(NettyMessenger::initialize)
+                            .thenCompose(transport::send)
+                            .thenCompose(NettyChannelContext::composedFuture)
+                            .thenApply(Functions::convert);
         } else {
-            return context.future()
-                          .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
-                          .thenComposeAsync(transport::send, context.eventLoop())
-                          .thenApplyAsync(Functions::convert, context.eventLoop());
+            future = context.future()
+                            .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
+                            .thenComposeAsync(transport::send, context.eventLoop())
+                            .thenComposeAsync(NettyChannelContext::composedFuture, context.eventLoop())
+                            .thenApplyAsync(Functions::convert, context.eventLoop());
         }
+        //- use handle so we don't complete exceptionally yet as we need to wrap this into a MessageException
+        return future.handle(Functions::selectSecond).thenCombine(CompletableFuture.completedFuture(context), this::wrapException);
     }
-    //</editor-fold>
 
     /**
-     * <p>transformProperties.</p>
+     * Wrap an exception to a {@link MessengerException}
      *
-     * @param address a {@link java.net.InetSocketAddress} object
-     * @param request a R object
-     * @return a {@link java.lang.Object} object
+     * @param error
+     *         The exception to be wrapped
+     * @param context
+     *         The {@link NettyChannelContext} associated with this exception
+     * @param <C>
+     *         A captured type of a {@link NettyChannelContext}
+     *
+     * @return The underlying {@link NettyChannelContext} used for this transaction
      */
-    protected Object transformProperties(InetSocketAddress address, R request) {
-        return address;
+    private <C extends NettyChannelContext> C wrapException(Throwable error, C context) {
+        assert context != null;
+        //wrap all exceptions with MessageException
+        if (error != null) {
+            Throwable cause = Errors.unwrap(error);
+            throw new MessengerException(cause, context);
+        }
+        return context;
     }
 
     /**
-     * <p>acquireContext.</p>
+     * <p>Acquire context</p>
      *
-     * @param data a {@link java.lang.Object} object
+     * @param data
+     *         a {@link java.lang.Object} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     protected CompletableFuture<NettyChannelContext> acquireContext(Object data) {
@@ -157,32 +193,28 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return channelFactory.create(data).thenApply(NettyChannelContext::getContext);
     }
 
-    private static NettyChannelContext initialize(final NettyChannelContext context) {
-        assert context.inEventLoop();
-
-        //Check request
-        if (context.properties().envelope() == null)
-            throw new IllegalStateException("No request is attached to the channel");
-
-        //Update sender address
-        if (context.channel().localAddress() != null && (context.channel().localAddress() != context.properties().envelope().sender()))
-            context.properties().envelope().sender(context.channel().localAddress());
-        else
-            log.debug("{} MESSENGER => Local address not updated for envelope {}", context.id(), context.properties().envelope());
-
-        //Reset context properties/promises if necessary
-        if (context.properties().responsePromise() != null && context.properties().responsePromise().isDone()) {
-            log.debug("{} MESSENGER => Resetting response promise for request '{}'", context.id(), context.properties().request());
-            context.properties().reset();
-        }
-        return context;
+    /**
+     * <p>transformProperties.</p>
+     *
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param request
+     *         a R object
+     *
+     * @return a {@link java.lang.Object} object
+     */
+    protected Object transformProperties(InetSocketAddress address, R request) {
+        return address;
     }
 
     /**
-     * <p>attach.</p>
+     * <p>Attach a request to the context</p>
      *
-     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
-     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     protected static NettyChannelContext attach(NettyChannelContext context, AbstractRequest request) {
@@ -196,6 +228,39 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return context.properties().responsePromise();
     }
 
+    private static NettyChannelContext initialize(final NettyChannelContext context) {
+        assert context.inEventLoop();
+
+        //Ensure envelope is not null
+        if (context.properties().envelope() == null)
+            throw new IllegalStateException("No request is attached to the channel");
+
+        //Ensure that envelope's sender address is up to date
+        if (context.channel().localAddress() != null && (context.channel().localAddress() != context.properties().envelope().sender()))
+            context.properties().envelope().sender(context.channel().localAddress());
+        else
+            log.debug("{} MESSENGER => Local address not updated for envelope {}", context.id(), context.properties().envelope());
+
+        //Reset context properties/promises if necessary
+        if (context.properties().responsePromise() != null && context.properties().responsePromise().isDone()) {
+            log.debug("{} MESSENGER => Resetting response promise for request '{}'", context.id(), context.properties().request());
+            context.properties().reset();
+        }
+        return context;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public final NettyTransport getTransport() {
+        return transport;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public final EventLoopGroup getExecutor() {
+        return channelFactory.getExecutor();
+    }
+
     /**
      * The method that will be called by the last {@link io.netty.channel.ChannelHandler} once a response has been received from the remote server.
      *
@@ -203,15 +268,16 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      *         The {@link com.ibasco.agql.core.NettyChannelContext} contianing all the important transaction details.
      * @param error
      *         The error that occured during send/receive operation. {@code null} if no error occured.
-     * @param response a {@link com.ibasco.agql.core.AbstractResponse} object
+     * @param response
+     *         The decoded {@link com.ibasco.agql.core.AbstractResponse} received
      */
     @ApiStatus.Internal
     protected void receive(@NotNull final NettyChannelContext context, AbstractResponse response, Throwable error) {
         final Envelope<R> envelope = context.properties().envelope();
         final CompletableFuture<S> promise = context.properties().responsePromise();
+
         assert context.channel().eventLoop().inEventLoop();
-        if (promise == null)
-            throw new IllegalStateException("Response promise not initialized");
+        assert promise != null;
 
         if (response != null) {
             //Update address
@@ -231,7 +297,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
             }
             if (error != null) {
                 log.error("{} MESSENGER => [ERROR] Received response in error (Request: '{}', Error: {})", context.id(), envelope, error.getClass().getSimpleName(), error);
-                context.markInError(new ResponseException(error, context));
+                context.markInError(error);
             } else {
                 assert response != null;
                 if (response.getAddress() == null)
@@ -241,47 +307,19 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                     log.debug("{} MESSENGER => [SUCCESS] Received response successfully (Request: '{}')", context.id(), envelope);
             }
             assert promise.isDone();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             if (!promise.isDone())
-                promise.completeExceptionally(e);
+                promise.completeExceptionally(e); //new ResponseException(e, context)
         }
     }
 
     /** {@inheritDoc} */
     @Override
-    public final NettyTransport getTransport() {
-        return transport;
-    }
-
-    /**
-     * Packs the raw request into an envelope containing all the required details of the underlying {@link com.ibasco.agql.core.Transport}
-     *
-     * @param address
-     *         The address of the destination
-     * @param request
-     *         The request to be delivered to the address
-     * @return An {@link com.ibasco.agql.core.Envelope} containing the request and other details needed by the {@link com.ibasco.agql.core.Transport}
-     */
-    public final Envelope<R> newEnvelope(InetSocketAddress address, R request) {
-        log.debug("{} SEND => Packaging request '{} (id: {})' for '{}'", Netty.id(request), request.getClass().getSimpleName(), request.id(), address);
-        return MessageEnvelopeBuilder.createNew()
-                                     .fromAnyAddress()
-                                     .recipient(address)
-                                     .message(request)
-                                     .build();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public O getOptions() {
+    public Options getOptions() {
         return this.options;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public final EventLoopGroup getExecutor() {
-        return channelFactory.getExecutor();
-    }
+    //<editor-fold desc="Private/Protected Methods">
 
     /** {@inheritDoc} */
     @Override
@@ -302,7 +340,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return channelFactory;
     }
 
-    //<editor-fold desc="Private/Protected Methods">
     /**
      * <p>Getter for the field <code>factoryProvider</code>.</p>
      *
@@ -312,22 +349,8 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return factoryProvider;
     }
 
-    private static <V extends AbstractResponse> CompletableFuture<V> fromResponse(final NettyChannelContext context) {
-        assert context.properties().responsePromise() != null;
-        //assert context.properties().responsePromise().isDone();
-        return context.properties().responsePromise();
-    }
-
     /**
-     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
-     *
-     * @param options
-     *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
-     */
-    protected void configure(final O options) {}
-
-    /**
-     * <p>lockedOption.</p>
+     * <p>Lock an option and prevent future updates for this option</p>
      *
      * @param map
      *         a {@link com.ibasco.agql.core.util.Options} object
@@ -339,7 +362,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      *         a X class
      */
     @SuppressWarnings("SameParameterValue")
-    protected final <X> void lockedOption(O map, Option<X> option, X value) {
+    protected final <X> void lockedOption(Options map, Option<X> option, X value) {
         if (map.contains(option))
             map.remove(option);
         map.add(option, value, true);
@@ -357,7 +380,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * @param <X>
      *         a X class
      */
-    protected final <X> void defaultOption(O map, Option<X> option, X value) {
+    protected final <X> void defaultOption(Options map, Option<X> option, X value) {
         if (!map.contains(option))
             map.add(option, value);
     }

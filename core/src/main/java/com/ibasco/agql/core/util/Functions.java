@@ -35,12 +35,16 @@ public class Functions {
     public static final Function<Object, Boolean> FALSE = unused -> false;
 
     /**
-     * <p>cast.</p>
+     * <p>Cast argument to it's returning type</p>
      *
-     * @param a a A object
-     * @param <A> a A class
-     * @param <B> a B class
-     * @return a B object
+     * @param a
+     *         a A object
+     * @param <A>
+     *         The captured type of the parameter
+     * @param <B>
+     *         The captured return type
+     *
+     * @return The casted instance
      */
     public static <A, B> B cast(A a) {
         //noinspection unchecked
@@ -48,11 +52,15 @@ public class Functions {
     }
 
     /**
-     * <p>convert.</p>
+     * <p>Cast argument into the captured type</p>
      *
-     * @param b a B object
-     * @param <B> a B class
-     * @param <C> a C class
+     * @param b
+     *         a B object
+     * @param <B>
+     *         a B class
+     * @param <C>
+     *         a C class
+     *
      * @return a C object
      */
     public static <B, C extends B> C convert(B b) {
@@ -63,8 +71,11 @@ public class Functions {
     /**
      * <p>returnArg.</p>
      *
-     * @param a a A object
-     * @param <A> a A class
+     * @param a
+     *         a A object
+     * @param <A>
+     *         a A class
+     *
      * @return a A object
      */
     public static <A> A returnArg(A a) {
@@ -72,12 +83,17 @@ public class Functions {
     }
 
     /**
-     * <p>selectFirst.</p>
+     * <p>Select first argument of the function and return it</p>
      *
-     * @param a a A object
-     * @param b a B object
-     * @param <A> a A class
-     * @param <B> a B class
+     * @param a
+     *         a A object
+     * @param b
+     *         a B object
+     * @param <A>
+     *         a A class
+     * @param <B>
+     *         a B class
+     *
      * @return a A object
      */
     public static <A, B> A selectFirst(A a, B b) {
@@ -85,12 +101,17 @@ public class Functions {
     }
 
     /**
-     * <p>selectSecond.</p>
+     * <p>Select second argument of the function and return it</p>
      *
-     * @param a a A object
-     * @param b a B object
-     * @param <A> a A class
-     * @param <B> a B class
+     * @param a
+     *         a A object
+     * @param b
+     *         a B object
+     * @param <A>
+     *         a A class
+     * @param <B>
+     *         a B class
+     *
      * @return a B object
      */
     public static <A, B> B selectSecond(A a, B b) {
@@ -100,8 +121,11 @@ public class Functions {
     /**
      * <p>isTypeOf.</p>
      *
-     * @param v a {@link java.lang.Object} object
-     * @param arr a {@link java.lang.Class} object
+     * @param v
+     *         a {@link java.lang.Object} object
+     * @param arr
+     *         a {@link java.lang.Class} object
+     *
      * @return a boolean
      */
     public static boolean isTypeOf(Object v, Class<?>... arr) {

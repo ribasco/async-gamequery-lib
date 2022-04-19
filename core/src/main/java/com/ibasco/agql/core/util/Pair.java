@@ -73,9 +73,16 @@ public class Pair<A, B> {
     /**
      * <p>Setter for the field <code>second</code>.</p>
      *
-     * @param second a B object
+     * @param second
+     *         a B object
      */
     public void setSecond(B second) {
         this.second = second;
+    }
+
+    public Pair<A, B> setBoth(A first, B second) {
+        this.first = first;
+        this.second = second;
+        return this;
     }
 }

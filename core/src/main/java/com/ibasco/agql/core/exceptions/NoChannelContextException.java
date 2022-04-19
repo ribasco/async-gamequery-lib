@@ -23,15 +23,17 @@ import io.netty.channel.Channel;
  *
  * @author Rafael Luis Ibasco
  */
-public class NoChannelContextException extends AsyncGameLibUncheckedException {
+public class NoChannelContextException extends AgqlRuntimeException {
 
     private final Channel channel;
 
     /**
      * <p>Constructor for NoChannelContextException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
      */
     public NoChannelContextException(String message, Channel channel) {
         super(message);

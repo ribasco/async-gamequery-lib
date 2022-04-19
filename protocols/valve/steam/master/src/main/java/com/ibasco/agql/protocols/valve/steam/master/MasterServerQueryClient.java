@@ -35,7 +35,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  * @see MasterServerOptions
  */
-public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse, MasterServerOptions> {
+public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
 
     /**
      * Create a new {@link MasterServerQueryClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
@@ -106,7 +106,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
 
     /** {@inheritDoc} */
     @Override
-    protected MasterServerMessenger createMessenger(MasterServerOptions options) {
+    protected MasterServerMessenger createMessenger(Options options) {
         return new MasterServerMessenger(options);
     }
 

@@ -64,13 +64,13 @@ public final class Platform {
     /** Constant <code>DEFAULT_THREAD_GROUP</code> */
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
 
-    private static ThreadFactory DEFAULT_THREAD_FACTORY;
+    private static volatile ThreadFactory DEFAULT_THREAD_FACTORY;
 
-    private static EventLoopGroup DEFAULT_EVENT_LOOP_GROUP;
+    private static volatile EventLoopGroup DEFAULT_EVENT_LOOP_GROUP;
 
-    private static EventLoopTaskQueueFactory DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
+    private static volatile EventLoopTaskQueueFactory DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
 
-    private static BlockingQueue<Runnable> DEFAULT_QUEUE;
+    private static volatile BlockingQueue<Runnable> DEFAULT_QUEUE;
 
     private static final List<Queue<Runnable>> TASK_QUEUE_LIST = new ArrayList<>();
 
@@ -81,37 +81,55 @@ public final class Platform {
     //initialize resource provider for the default global executor service
     private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER;
 
+    private static volatile boolean initialized;
+
+    private static final Object lock = new Object();
+
     private Platform() {}
 
     static {
-        //this is redundant, but necessary to ensure that the static block initializer of Properties is called first
-        boolean verbose = Properties.isVerbose();
-        if (verbose)
-            Console.println("Initializing Platform");
-
         DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
         DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER); //provider for default executor service
+    }
 
-        //we initialize options from here to ensure the order of initialization
-        Option.initialize();
+    public static void initialize() {
+        if (initialized)
+            return;
+        initialized = true;
+        try {
+            //this is redundant, but necessary to ensure that the static block initializer of Properties is called first
+            boolean verbose = Properties.isVerbose();
+            if (verbose)
+                Console.println("Initializing Platform");
 
-        if (verbose) {
-            printLine();
-            println(color(ANSI_BLUE, "Library Default Properties"));
-            printLine();
-            printProperty("Verbose", "true");
-            printProperty("Native Transport Enabled", Properties.useNativeTransport());
-            printProperty("Default core pool size", Properties.getDefaultPoolSize());
-            printLine();
+            //we initialize options from here to ensure the order of initialization
+            Option.initialize();
+            //once we have created all available options, update it's field names via reflection
+            Option.updateFieldNames();
+            //global
+            GlobalOptions.getContainer();
+
+            if (verbose) {
+                printLine();
+                println(color(BLUE, "Library Default Properties"));
+                printLine();
+                printProperty("Verbose", "true");
+                printProperty("Native Transport Enabled", Properties.useNativeTransport());
+                printProperty("Default core pool size", Properties.getDefaultPoolSize());
+                printLine();
+            }
+
+            //ensure shutdown is called
+            Runtime.getRuntime().addShutdownHook(new Thread(Platform::shutdown));
+            log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
+        } catch (Exception e) {
+            initialized = false;
+            throw new RuntimeException(e);
         }
-
-        //ensure shutdown is called
-        Runtime.getRuntime().addShutdownHook(new Thread(Platform::shutdown));
-        log.debug("PLATFORM => Registered global shutdown hook for shared executor service(s)");
     }
 
     private static void printProperty(String name, Object value) {
-        println("%s: %s", color(ANSI_CYAN, "%-25s", true, name), color(ANSI_YELLOW, "%s", true, value));
+        println("%s: %s", color(CYAN, "%-25s", true, name), color(YELLOW, "%s", true, value));
     }
 
     /**
@@ -131,9 +149,13 @@ public final class Platform {
      *
      * @return a {@link java.util.concurrent.BlockingQueue} object
      */
-    public static synchronized BlockingQueue<Runnable> getDefaultQueue() {
+    public static BlockingQueue<Runnable> getDefaultQueue() {
         if (DEFAULT_QUEUE == null) {
-            DEFAULT_QUEUE = new LinkedBlockingQueue<>();
+            synchronized (lock) {
+                if (DEFAULT_QUEUE == null) {
+                    DEFAULT_QUEUE = new LinkedBlockingQueue<>();
+                }
+            }
         }
         return DEFAULT_QUEUE;
     }
@@ -143,9 +165,14 @@ public final class Platform {
      *
      * @return The default {@link java.util.concurrent.ThreadFactory} used by this library
      */
-    public static synchronized ThreadFactory getDefaultThreadFactory() {
-        if (DEFAULT_THREAD_FACTORY == null)
-            DEFAULT_THREAD_FACTORY = new DefaultThreadFactory("agql-el", false, Thread.NORM_PRIORITY, DEFAULT_THREAD_GROUP);
+    public static ThreadFactory getDefaultThreadFactory() {
+        if (DEFAULT_THREAD_FACTORY == null) {
+            synchronized (lock) {
+                if (DEFAULT_THREAD_FACTORY == null) {
+                    DEFAULT_THREAD_FACTORY = new DefaultThreadFactory("agql-el", false, Thread.NORM_PRIORITY, DEFAULT_THREAD_GROUP);
+                }
+            }
+        }
         return DEFAULT_THREAD_FACTORY;
     }
 
@@ -192,23 +219,27 @@ public final class Platform {
      */
     public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
-            AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
-            try {
-                final ThreadPoolExecutor executor = svc.getResource();
-                DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), Properties.useNativeTransport());
-                //noinspection unchecked
-                DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
-                    if (future.isSuccess()) {
-                        new Thread(() -> {
-                            log.debug("PLATFORM => Shutting down default global executor");
-                            Concurrency.shutdown(executor);
-                        }, "agql-shutdown").start();
-                    } else {
-                        throw new IllegalStateException(future.cause());
+            synchronized (lock) {
+                if (DEFAULT_EVENT_LOOP_GROUP == null) {
+                    AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
+                    try {
+                        final ThreadPoolExecutor executor = svc.getResource();
+                        DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), Properties.useNativeTransport());
+                        //noinspection unchecked
+                        DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
+                            if (future.isSuccess()) {
+                                new Thread(() -> {
+                                    log.debug("PLATFORM => Shutting down default global executor");
+                                    Concurrency.shutdown(executor);
+                                }, "agql-shutdown").start();
+                            } else {
+                                throw new IllegalStateException(future.cause());
+                            }
+                        });
+                    } finally {
+                        svc.release();
                     }
-                });
-            } finally {
-                svc.release();
+                }
             }
         }
         return DEFAULT_EVENT_LOOP_GROUP;
@@ -256,12 +287,16 @@ public final class Platform {
 
     private static EventLoopTaskQueueFactory getEventLoopTaskQueueFactory() {
         if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
-            DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY = maxCapacity -> {
-                Queue<Runnable> queue = maxCapacity == Integer.MAX_VALUE ? PlatformDependent.newMpscQueue() : PlatformDependent.newMpscQueue(maxCapacity);
-                log.debug("Creating new task queue: {} ({})", queue, queue.hashCode());
-                TASK_QUEUE_LIST.add(queue);
-                return queue;
-            };
+            synchronized (lock) {
+                if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
+                    DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY = maxCapacity -> {
+                        Queue<Runnable> queue = maxCapacity == Integer.MAX_VALUE ? PlatformDependent.newMpscQueue() : PlatformDependent.newMpscQueue(maxCapacity);
+                        log.debug("Creating new task queue: {} ({})", queue, queue.hashCode());
+                        TASK_QUEUE_LIST.add(queue);
+                        return queue;
+                    };
+                }
+            }
         }
         return DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
     }

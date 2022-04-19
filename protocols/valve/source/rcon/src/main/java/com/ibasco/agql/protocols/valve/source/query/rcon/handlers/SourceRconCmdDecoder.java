@@ -53,6 +53,7 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
     protected Object decodeMessage(ChannelHandlerContext ctx, AbstractRequest request, Object msg) {
         final SourceRconCmdRequest cmd = (SourceRconCmdRequest) request;
         final SourceRconPacket packet = (SourceRconPacket) msg;
+        final InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         final ByteBuf payload = packet.content();
         SourceRconCmdResponse response;
 
@@ -63,11 +64,11 @@ public class SourceRconCmdDecoder extends MessageInboundDecoder {
         //Make sure we are still authenticated.
         if (!context.properties().authenticated()) {
             debug("NOT_AUTH: Authentication flag is not set (Address: {})", ctx.channel().remoteAddress());
-            ctx.fireExceptionCaught(new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), SourceRconAuthReason.INVALIDATED, (InetSocketAddress) ctx.channel().remoteAddress()));
+            ctx.fireExceptionCaught(new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", "Re-authentication required"), cmd, address, SourceRconAuthReason.INVALIDATED));
             return null;
         } else if (result != null && result.contains("Bad Password")) {
             debug("NOT_AUTH: Found empty or not authenticated response");
-            ctx.fireExceptionCaught(new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", result), SourceRconAuthReason.BAD_PASSWORD, (InetSocketAddress) ctx.channel().remoteAddress()));
+            ctx.fireExceptionCaught(new RconNotYetAuthException(String.format("Not yet authenticated (Reason: %s)", result), cmd, address, SourceRconAuthReason.INVALID_CREDENTIALS));
             return null;
         } else {
             response = new SourceRconCmdResponse(result);

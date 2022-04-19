@@ -21,7 +21,7 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class NoMessageHandlerException extends AsyncGameLibCheckedException {
+public class NoMessageHandlerException extends AgqlException {
 
     /**
      * <p>Constructor for NoMessageHandlerException.</p>

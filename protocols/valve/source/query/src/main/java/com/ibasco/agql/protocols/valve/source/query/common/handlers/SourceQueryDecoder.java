@@ -195,7 +195,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 writer.accept(toValue);
                 debug("[O2] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
@@ -275,7 +275,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 writer.accept(toValue);
                 debug("[O1] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
-        } catch (Throwable e) {
+        } catch (Exception e) {
             error("[O1] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
         }
     }
@@ -303,7 +303,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             bytesBefore = buf.readableBytes();
             returnValue = decoder.apply(buf);
             debug("[O2] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, returnValue);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             error("[O2] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
             returnValue = null;
         }

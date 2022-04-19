@@ -286,7 +286,7 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
             }
             splitPackets = null;
             debug("Split packet container has been reset");
-        } catch (Throwable e) {
+        } catch (Exception e) {
             debug("Failed to reset split packet container", e);
         }
     }

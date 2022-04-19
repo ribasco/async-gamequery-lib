@@ -21,7 +21,8 @@ package com.ibasco.agql.core.exceptions;
  *
  * @author Rafael Luis Ibasco
  */
-public class TimeoutException extends AsyncGameLibUncheckedException {
+public class TimeoutException extends AgqlRuntimeException {
+
     /**
      * <p>Constructor for TimeoutException.</p>
      */

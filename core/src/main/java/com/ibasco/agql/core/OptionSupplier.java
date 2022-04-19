@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core.exceptions;
+package com.ibasco.agql.core;
 
-/**
- * <p>NotYetImplementedException class.</p>
- *
- * @author Rafael Luis Ibasco
- */
-public class NotYetImplementedException extends AsyncGameLibUncheckedException {
-    /**
-     * <p>Constructor for NotYetImplementedException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     */
-    public NotYetImplementedException(String message) {
-        super(message);
+import com.ibasco.agql.core.util.Option;
+
+import java.util.function.Supplier;
+
+public interface OptionSupplier<T> extends Supplier<Option<T>> {
+
+    @Override
+    default Option<T> get() {
+        return null;
     }
 }

@@ -16,22 +16,24 @@
 
 package com.ibasco.agql.protocols.valve.source.query.common.exceptions;
 
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 
 /**
  * <p>InvalidPacketTypeException class.</p>
  *
  * @author Rafael Luis Ibasco
  */
-public class InvalidPacketTypeException extends AsyncGameLibUncheckedException {
+public class InvalidPacketTypeException extends AgqlRuntimeException {
 
     private final int type;
 
     /**
      * <p>Constructor for InvalidPacketTypeException.</p>
      *
-     * @param type a int
-     * @param message a {@link java.lang.String} object
+     * @param type
+     *         a int
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public InvalidPacketTypeException(int type, String message) {
         super(message);

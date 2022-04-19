@@ -16,10 +16,7 @@
 
 package com.ibasco.agql.core.transport;
 
-import com.ibasco.agql.core.util.Console;
-import com.ibasco.agql.core.util.Errors;
-import com.ibasco.agql.core.util.GlobalOptions;
-import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.*;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
@@ -27,12 +24,13 @@ import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
+import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
-import java.time.Duration;
+import java.net.SocketException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -57,7 +55,7 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final RetryPolicy<Channel> retryPolicy;
 
-    private final CircuitBreaker<Channel> circuitBreakerPolicy;
+    private final CircuitBreaker<Channel> circuitBreaker;
 
     /**
      * <p>Constructor for FailsafeChannelFactory.</p>
@@ -67,9 +65,10 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
      */
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        this.retryPolicy = buildRetryPolicy();
-        this.circuitBreakerPolicy = buildCircuitBreakerPolicy();
-        this.acquireExecutor = Failsafe.with(retryPolicy, circuitBreakerPolicy).with(channelFactory.getExecutor());
+        Options globalOptions = GlobalOptions.getContainer();
+        this.retryPolicy = buildRetryPolicy(globalOptions);
+        this.circuitBreaker = buildCircuitBreakerPolicy(globalOptions);
+        this.acquireExecutor = Failsafe.with(retryPolicy, circuitBreaker).with(getExecutor()); //circuitBreaker
     }
 
     /** {@inheritDoc} */
@@ -84,19 +83,19 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         return Netty.useEventLoop(create(data), eventLoop);
     }
 
-    private CircuitBreaker<Channel> buildCircuitBreakerPolicy() {
-        CircuitBreakerBuilder<Channel> builder = CircuitBreaker.builder();
+    private CircuitBreaker<Channel> buildCircuitBreakerPolicy(final Options options) {
+        CircuitBreakerBuilder<Channel> builder = FailsafeBuilder.buildCircuitBreaker(options);
         builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
-        builder.withFailureThreshold(3, 10);
-        builder.withSuccessThreshold(1);
-        builder.withDelay(Duration.ofSeconds(5));
         return builder.build();
     }
 
-    private RetryPolicy<Channel> buildRetryPolicy() {
-        RetryPolicyBuilder<Channel> builder = RetryPolicy.builder();
-        builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
-        builder.abortIf(channel -> channel.eventLoop().isShutdown() || channel.eventLoop().isShuttingDown());
+    private RetryPolicy<Channel> buildRetryPolicy(final Options options) {
+        RetryPolicyBuilder<Channel> builder = FailsafeBuilder.buildRetryPolicy(options);
+        builder.handleIf(e -> Errors.unwrap(e) instanceof SocketException); //handle all instances of socket related exceptions
+        builder.abortIf(channel -> {
+            EventLoopGroup group = channel.eventLoop().parent();
+            return group.isShutdown() || group.isShuttingDown() || group.isTerminated();
+        });
         builder.abortOn(RejectedExecutionException.class);
         builder.onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
             @Override
@@ -108,17 +107,30 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<Channel>>() {
             @Override
             public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Retriex Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
+                Console.error("[CONNECT] Retries Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
             }
         });
         builder.onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
             @Override
             public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Unable to connect to server (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
+                Console.error("[CONNECT] Unable to connect to server. All attempts have failed. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
             }
         });
-        builder.withMaxAttempts(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_MAX_CONNECT));
-        builder.withBackoff(Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN)), Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX)));
+        builder.onAbort(new EventListener<ExecutionCompletedEvent<Channel>>() {
+            @Override
+            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                Console.colorize().red().text("[CONNECT]").white().textln("Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).print();
+                //Console.error("[CONNECT] Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
+            }
+        });
+        builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<Channel>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
+                Console.error("[CONNECT] Failed Attempt (Error: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
+            }
+        });
+        //builder.withMaxAttempts(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_MAX_CONNECT));
+        //builder.withBackoff(Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN)), Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX)));
         return builder.build();
     }
 

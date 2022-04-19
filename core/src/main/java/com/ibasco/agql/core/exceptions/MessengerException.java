@@ -16,55 +16,80 @@
 
 package com.ibasco.agql.core.exceptions;
 
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.NettyChannelContext;
+import org.jetbrains.annotations.ApiStatus;
+
+import java.net.InetSocketAddress;
+
 /**
- * <p>MessengerException class.</p>
+ * <p>Represents a transaction error. Provides the underlying context that was used for the transaction. This should not be made available to the user. Concrete messengers should wrap this exception to avoid exposing the context to the user.</p>
  *
- * @author Rafael Luis Ibasco
+ * @author Rafael Luis Ibasco.
  */
-public class MessengerException extends AsyncGameLibUncheckedException {
-    /**
-     * <p>Constructor for MessengerException.</p>
-     */
-    public MessengerException() {
+@ApiStatus.Internal
+public class MessengerException extends AgqlRuntimeException {
+
+    private final NettyChannelContext context;
+
+    public MessengerException(NettyChannelContext context) {
+        this.context = context;
     }
 
-    /**
-     * <p>Constructor for MessengerException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     */
-    public MessengerException(String message) {
+    public MessengerException(String message, NettyChannelContext context) {
         super(message);
+        this.context = context;
     }
 
-    /**
-     * <p>Constructor for MessengerException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     */
-    public MessengerException(String message, Throwable cause) {
+    public MessengerException(String message, Throwable cause, NettyChannelContext context) {
         super(message, cause);
+        this.context = context;
     }
 
-    /**
-     * <p>Constructor for MessengerException.</p>
-     *
-     * @param cause a {@link java.lang.Throwable} object
-     */
-    public MessengerException(Throwable cause) {
+    public MessengerException(Throwable cause, NettyChannelContext context) {
         super(cause);
+        this.context = context;
+    }
+
+    public MessengerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, NettyChannelContext context) {
+        super(message, cause, enableSuppression, writableStackTrace);
+        this.context = context;
     }
 
     /**
-     * <p>Constructor for MessengerException.</p>
+     * The originating request of the transaction
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @return A request of type {@link AbstractRequest}
      */
-    public MessengerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public <R extends AbstractRequest> R getRequest() {
+        return context.properties().request();
+    }
+
+    /**
+     * The local address of the connection used for this transaction
+     *
+     * @return An {@link InetSocketAddress} containing the host and port
+     */
+    public final InetSocketAddress getLocalAddress() {
+        return context.localAddress();
+    }
+
+    /**
+     * The remote address of the connection used for this transaction
+     *
+     * @return An {@link InetSocketAddress} containing the host and port
+     */
+    public final InetSocketAddress getRemoteAddress() {
+        return context.remoteAddress();
+    }
+
+    /**
+     * The underlying {@link NettyChannelContext} used for this transaction.
+     *
+     * @return The {@link NettyChannelContext} that was used for this transaction. {@code null} if the exception occured before a context has been acquired.
+     */
+    public final <C extends NettyChannelContext> C getContext() {
+        //noinspection unchecked
+        return (C) this.context;
     }
 }

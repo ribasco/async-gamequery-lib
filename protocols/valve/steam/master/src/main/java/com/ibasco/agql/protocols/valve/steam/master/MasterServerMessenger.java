@@ -19,14 +19,12 @@ package com.ibasco.agql.protocols.valve.steam.master;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
-import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.Errors;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.steam.master.exception.MasterServerTimeoutException;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialResponse;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
@@ -36,13 +34,13 @@ import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.CheckedPredicate;
 import dev.failsafe.function.ContextualSupplier;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -55,9 +53,12 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Rafael Luis Ibasco
  */
-public final class MasterServerMessenger extends NettyMessenger<MasterServerRequest, MasterServerResponse, MasterServerOptions> {
+@MessengerProperties(optionClass = MasterServerOptions.class)
+public final class MasterServerMessenger extends NettyMessenger<MasterServerRequest, MasterServerResponse> {
 
     private static final Logger log = LoggerFactory.getLogger(MasterServerMessenger.class);
+
+    private static final CheckedPredicate<Throwable> TIMEOUT_ERROR = MasterServerMessenger::handleError;
 
     private FailsafeExecutor<MasterServerResponse> requestExecutor;
 
@@ -65,26 +66,74 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     private RateLimiter<MasterServerChannelContext> rateLimiter;
 
-    private static final CheckedPredicate<Throwable> TIMEOUT_ERROR = MasterServerMessenger::handleError;
-
     /**
      * <p>Constructor for MasterServerMessenger.</p>
      *
      * @param options
      *         a {@link com.ibasco.agql.core.util.Options} object
      */
-    public MasterServerMessenger(MasterServerOptions options) {
+    public MasterServerMessenger(Options options) {
         super(options);
         initFailSafe(getOptions(), getExecutor());
     }
 
     //<editor-fold desc="Public Methods">
 
+    //<editor-fold desc="Failsafe">
+    private void initFailSafe(final Options options, final ScheduledExecutorService executor) {
+        assert options != null;
+        if (!options.getOrDefault(MasterServerOptions.FAILSAFE_ENABLED))
+            return;
+
+        //initialize failsafe policies
+        Fallback<MasterServerResponse> fallbackPolicy = Fallback.builder((CheckedFunction<ExecutionAttemptedEvent<? extends MasterServerResponse>, MasterServerResponse>) event -> {
+            if (event.getLastException() instanceof MasterServerTimeoutException) {
+                MasterServerTimeoutException timeoutException = (MasterServerTimeoutException) event.getLastException();
+                return new MasterServerResponse(new HashSet<>(timeoutException.getAddresses()));
+            }
+            return new MasterServerResponse(new HashSet<>());
+        }).build();
+
+        //retry policy
+        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_ENABLED)) {
+            this.retryPolicy = buildRetryPolicy(options);
+        }
+        //rate limiter
+        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_ENABLED)) {
+            this.rateLimiter = buildRateLimiterPolicy(options);
+        }
+        //initialize executors
+        this.requestExecutor = Failsafe.with(fallbackPolicy);
+        //Add retry policy (optional)
+        if (retryPolicy != null)
+            this.requestExecutor = requestExecutor.compose(retryPolicy);
+        if (executor != null)
+            this.requestExecutor.with(executor);
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Protected Methods">
+
+    private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
+        RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(options);
+        return builder.build();
+    }
+
+    private RateLimiter<MasterServerChannelContext> buildRateLimiterPolicy(final Options options) {
+        RateLimiterBuilder<MasterServerChannelContext> rateLimiterBuilder = FailsafeBuilder.buildRateLimiter(options);
+        return rateLimiterBuilder.build();
+    }
+
+    private static boolean handleError(Throwable e) {
+        return e instanceof TimeoutException || e instanceof SocketException;
+    }
+
     /**
      * Sends a new request to the master server
      *
      * @param request
      *         The {@link com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest} containing the details of the request.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been completed.
      */
     public CompletableFuture<MasterServerResponse> send(MasterServerRequest request) {
@@ -96,11 +145,9 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     }
     //</editor-fold>
 
-    //<editor-fold desc="Protected Methods">
-
     /** {@inheritDoc} */
     @Override
-    protected void configure(MasterServerOptions options) {
+    protected void configure(Options options) {
         //we disable using native transports (e.g. epoll) by default. Per my tests, it seems NIO seems to be more reliable.
         //This can still be overriden by the developer
         //defaultOption(options, GlobalOptions.USE_NATIVE_TRANSPORT, false);
@@ -114,11 +161,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP, getOptions(), new MasterServerChannelContextFactory(this));
         return new MasterServerChannelFactory(channelFactory);
     }
-
-    @Override
-    protected MasterServerOptions createOptions() {
-        return new MasterServerOptions();//OptionBuilder.newBuilder(MasterServerOptions.class).build();
-    }
+    //</editor-fold>
 
     /** {@inheritDoc} */
     @Override
@@ -163,76 +206,6 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             throw new IllegalStateException("Unsupported response type:" + response);
         }
     }
-    //</editor-fold>
-
-    //<editor-fold desc="Failsafe">
-    private void initFailSafe(final MasterServerOptions options, final ScheduledExecutorService executor) {
-        assert options != null;
-        if (!options.getOrDefault(MasterServerOptions.FAILSAFE_ENABLED))
-            return;
-
-        //initialize failsafe policies
-        Fallback<MasterServerResponse> fallbackPolicy = Fallback.builder((CheckedFunction<ExecutionAttemptedEvent<? extends MasterServerResponse>, MasterServerResponse>) event -> {
-            if (event.getLastException() instanceof MasterServerTimeoutException) {
-                MasterServerTimeoutException timeoutException = (MasterServerTimeoutException) event.getLastException();
-                return new MasterServerResponse(new HashSet<>(timeoutException.getAddresses()));
-            }
-            return new MasterServerResponse(new HashSet<>());
-        }).build();
-
-        //retry policy
-        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_ENABLED)) {
-            this.retryPolicy = buildRetryPolicy(options);
-        }
-        //rate limiter
-        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_ENABLED)) {
-            this.rateLimiter = buildRateLimiterPolicy(options);
-        }
-        //initialize executors
-        this.requestExecutor = Failsafe.with(fallbackPolicy);
-        //Add retry policy (optional)
-        if (retryPolicy != null)
-            this.requestExecutor = requestExecutor.compose(retryPolicy);
-        if (executor != null)
-            this.requestExecutor.with(executor);
-    }
-
-    private RetryPolicy<MasterServerResponse> buildRetryPolicy(final MasterServerOptions options) {
-        RetryPolicyBuilder<MasterServerResponse> builder = RetryPolicy.<MasterServerResponse>builder().handleIf(TIMEOUT_ERROR);
-
-        Long retryDelayMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_DELAY);
-        Integer maxAttempts = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_MAX_ATTEMPTS);
-        Boolean backOffEnabled = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_BACKOFF_ENABLED);
-        Long backoffDelay = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_BACKOFF_DELAY);
-        Long backoffMaxDelay = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY);
-        Double backoffDelayFactor = options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR);
-
-        if (maxAttempts != null)
-            builder.withMaxAttempts(maxAttempts);
-        if (backOffEnabled != null && backOffEnabled)
-            builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
-        if (retryDelayMs != null && retryDelayMs > 0)
-            builder.withDelay(Duration.ofMillis(retryDelayMs));
-
-        log.debug("MASTER (FAILSAFE) => Building 'RetryPolicy' (Delay: {}, Max Attempts: {}, Backoff: {}, Back-Off Delay: {}, Back-Off Max Delay: {}, Back-Off Delay Factor: {})", (retryDelayMs != null && retryDelayMs > 0) ? retryDelayMs : "Disabled", maxAttempts, backOffEnabled, backoffDelay, backoffMaxDelay, backoffDelayFactor);
-        return builder.build();
-    }
-
-    private RateLimiter<MasterServerChannelContext> buildRateLimiterPolicy(final MasterServerOptions options) {
-        Long maxExecutions = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_EXEC);
-        Long periodMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_PERIOD);
-        Long maxWaitTimeMs = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME);
-        RateLimitType rateLimitType = options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE);
-
-        log.debug("MASTER (FAILSAFE) => Building 'RateLimiter' (Max executions: {}, Period: {}ms, Max Wait Time: {}ms, Rate Limit Type: {})", maxExecutions, periodMs, maxWaitTimeMs, rateLimitType.name());
-        //noinspection unchecked
-        RateLimiterBuilder<MasterServerChannelContext> rateLimiterBuilder = (RateLimiterBuilder<MasterServerChannelContext>) rateLimitType.getBuilder().apply(maxExecutions, Duration.ofMillis(periodMs));
-        if (maxWaitTimeMs != null && maxWaitTimeMs > 0) {
-            rateLimiterBuilder.withMaxWaitTime(Duration.ofMillis(maxWaitTimeMs));
-        }
-        return rateLimiterBuilder.build();
-    }
-    //</editor-fold>
 
     /**
      * Sends a request for a new batch of addresses to be collected. Requests are rate-limited by default unless deactivated by configuration.
@@ -257,6 +230,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         if (rateLimiter != null) {
             try {
                 log.debug("{} MASTER => Acquiring permit", context.id());
+                Console.println("%s (RATE LIMITER) Acquiring permit (Max rate: %s sec(s))", context.id(), DurationFormatUtils.formatDuration(rateLimiter.getConfig().getMaxRate().toMillis(), "HH:mm:ss"));
                 rateLimiter.acquirePermit();
                 context.send();
             } catch (InterruptedException e) {
@@ -268,17 +242,13 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         log.debug("{} MASTER (REQUEST) => Sent next batch request with seed address '{}' to master server '{}' (Rate Limited: {})", context.id(), request.getAddress(), context.remoteAddress(), rateLimiter != null ? "Yes" : "No");
     }
 
-    private static boolean handleError(Throwable e) {
-        return e instanceof TimeoutException || e instanceof SocketException;
-    }
-
     private class MasterServerContextualSupplier implements ContextualSupplier<MasterServerResponse, CompletableFuture<MasterServerResponse>> {
 
         private final MasterServerRequest request;
 
-        private InetSocketAddress masterAddress;
-
         private final AtomicReference<MasterServerChannelContext> currentContext = new AtomicReference<>();
+
+        private InetSocketAddress masterAddress;
 
         private int index;
 
@@ -315,6 +285,17 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
                     .handle(this::response);
         }
 
+        private MasterServerChannelContext getContext() {
+            return currentContext.get();
+        }
+
+        private InetSocketAddress nextMasterAddress() {
+            InetSocketAddress[] addresses = MasterServer.getCachedMasterAddress(request.getType(), false);
+            if (index > (addresses.length - 1))
+                this.index = 0;
+            return addresses[index++];
+        }
+
         private CompletableFuture<NettyChannelContext> acquire(ExecutionContext<MasterServerResponse> executionContext) {
             final MasterServerChannelContext currentContext = getContext();
 
@@ -339,19 +320,12 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             }
         }
 
-        public CompletableFuture<NettyChannelContext> copyProperties(final NettyChannelContext context) {
-            return CompletableFuture.supplyAsync(() -> {
-                MasterServerChannelContext oldContext = getContext();
-                MasterServerChannelContext newContext = (MasterServerChannelContext) context;
-                log.debug("{} MASTER => Copying previously collected addresses from context '{}' to '{}' (Total addresses to copy: {})", context.id(), oldContext.id(), context.id(), oldContext.properties().addressSet().size());
-                newContext.properties().addressSet().addAll(new HashSet<>(oldContext.properties().addressSet()));
-                newContext.properties().lastSeedAddress(oldContext.properties().lastSeedAddress());
-                return newContext;
-            }, context.eventLoop());
-        }
-
-        private MasterServerChannelContext getContext() {
-            return currentContext.get();
+        private NettyChannelContext updateContext(NettyChannelContext context) {
+            final MasterServerChannelContext currentContext = getContext();
+            if ((context == currentContext) && (currentContext != null && currentContext.isValid()))
+                return context;
+            this.currentContext.set((MasterServerChannelContext) context);
+            return context;
         }
 
         private MasterServerResponse response(NettyChannelContext context, Throwable error) {
@@ -379,19 +353,15 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
             return response;
         }
 
-        private NettyChannelContext updateContext(NettyChannelContext context) {
-            final MasterServerChannelContext currentContext = getContext();
-            if ((context == currentContext) && (currentContext != null && currentContext.isValid()))
-                return context;
-            this.currentContext.set((MasterServerChannelContext) context);
-            return context;
-        }
-
-        private InetSocketAddress nextMasterAddress() {
-            InetSocketAddress[] addresses = MasterServer.getCachedMasterAddress(request.getType(), false);
-            if (index > (addresses.length - 1))
-                this.index = 0;
-            return addresses[index++];
+        public CompletableFuture<NettyChannelContext> copyProperties(final NettyChannelContext context) {
+            return CompletableFuture.supplyAsync(() -> {
+                MasterServerChannelContext oldContext = getContext();
+                MasterServerChannelContext newContext = (MasterServerChannelContext) context;
+                log.debug("{} MASTER => Copying previously collected addresses from context '{}' to '{}' (Total addresses to copy: {})", context.id(), oldContext.id(), context.id(), oldContext.properties().addressSet().size());
+                newContext.properties().addressSet().addAll(new HashSet<>(oldContext.properties().addressSet()));
+                newContext.properties().lastSeedAddress(oldContext.properties().lastSeedAddress());
+                return newContext;
+            }, context.eventLoop());
         }
 
         private void onCompletion(MasterServerResponse response, Throwable throwable) {

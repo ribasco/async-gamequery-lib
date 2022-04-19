@@ -16,6 +16,9 @@
 
 package com.ibasco.agql.protocols.valve.source.query.rcon.exceptions;
 
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
+
 import java.net.InetSocketAddress;
 
 /**
@@ -25,33 +28,39 @@ import java.net.InetSocketAddress;
  */
 public class RconMaxLoginAttemptsException extends RconAuthException {
 
-    /**
-     * <p>Constructor for RconMaxLoginAttemptsException.</p>
-     *
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconMaxLoginAttemptsException(InetSocketAddress address) {
-        super(address);
+    private final int attemptCount;
+
+    private final int maxAttemptCount;
+
+    public RconMaxLoginAttemptsException(AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
+        super(request, address, reason);
+        this.attemptCount = attemptCount;
+        this.maxAttemptCount = maxAttemptCount;
     }
 
-    /**
-     * <p>Constructor for RconMaxLoginAttemptsException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconMaxLoginAttemptsException(String message, InetSocketAddress address) {
-        super(message, address);
+    public RconMaxLoginAttemptsException(String message, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
+        super(message, request, address, reason);
+        this.attemptCount = attemptCount;
+        this.maxAttemptCount = maxAttemptCount;
     }
 
-    /**
-     * <p>Constructor for RconMaxLoginAttemptsException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public RconMaxLoginAttemptsException(String message, Throwable cause, InetSocketAddress address) {
-        super(message, cause, address);
+    public RconMaxLoginAttemptsException(String message, Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
+        super(message, cause, request, address, reason);
+        this.attemptCount = attemptCount;
+        this.maxAttemptCount = maxAttemptCount;
+    }
+
+    public RconMaxLoginAttemptsException(Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
+        super(cause, request, address, reason);
+        this.attemptCount = attemptCount;
+        this.maxAttemptCount = maxAttemptCount;
+    }
+
+    public int getAttemptCount() {
+        return attemptCount;
+    }
+
+    public int getMaxAttemptCount() {
+        return maxAttemptCount;
     }
 }

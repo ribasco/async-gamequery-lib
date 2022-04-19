@@ -44,7 +44,9 @@ public class MasterServerPacketEncoder extends MessageToByteEncoder<MasterServer
         out.writeByte(0);
         out.writeCharSequence(packet.getFilter(), StandardCharsets.US_ASCII);
         out.writeByte(0);
-        log.debug("Sent packet: {}", packet);
-        log.debug(ByteBufUtil.prettyHexDump(out));
+        if (log.isDebugEnabled()) {
+            log.debug("Sent packet: {}", packet);
+            log.debug(ByteBufUtil.prettyHexDump(out));
+        }
     }
 }

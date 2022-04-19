@@ -17,54 +17,31 @@
 package com.ibasco.agql.core.exceptions;
 
 /**
- * <p>TransportException class.</p>
+ * <p>TransportWriteException class.</p>
  *
  * @author Rafael Luis Ibasco
  */
-public class TransportException extends AsyncGameLibCheckedException {
-    /**
-     * <p>Constructor for TransportException.</p>
-     */
-    public TransportException() {
-    }
+public class TransportException extends AgqlRuntimeException {
 
     /**
-     * <p>Constructor for TransportException.</p>
+     * <p>Constructor for TransportWriteException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public TransportException(String message) {
-        super(message);
+        this(message, null);
     }
 
     /**
-     * <p>Constructor for TransportException.</p>
+     * <p>Constructor for TransportWriteException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public TransportException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * <p>Constructor for TransportException.</p>
-     *
-     * @param cause a {@link java.lang.Throwable} object
-     */
-    public TransportException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * <p>Constructor for TransportException.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
-     */
-    public TransportException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
     }
 }

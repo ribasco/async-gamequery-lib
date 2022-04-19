@@ -66,7 +66,7 @@ public class SourceQuerySplitPacketDecoder implements PacketDecoder<SourceQueryP
             packet.setDecompressedSize(decompressedSize);
             packet.setCrcChecksum(crcChecksum);
             return packet;
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new PacketDecodeException("Failed to decode ByteBuf into SourceQuerySplitPacket", e);
         }
     }

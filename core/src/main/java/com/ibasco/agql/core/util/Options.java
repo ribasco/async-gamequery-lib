@@ -18,10 +18,8 @@ package com.ibasco.agql.core.util;
 
 import java.util.Map;
 
-//TODO: Convert this to abstract class, use this as a replacement for OptionContainer
-
 /**
- * A special map for storing configuration {@link com.ibasco.agql.core.util.Option} instances. Implementation of this must be thread-safe.
+ * A container for configuration {@link com.ibasco.agql.core.util.Option} instances. Implementation of this must be thread-safe.
  *
  * @author Rafael Luis Ibasco
  */
@@ -110,7 +108,7 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
     <X> X get(Option<X> option, X defaultValue);
 
     /**
-     * <p>Retrieve the option value</p>
+     * <p>Retrieve the option value. If missing, the default value defined by the Option will be returned instead</p>
      *
      * @param option
      *         a {@link com.ibasco.agql.core.util.Option} object

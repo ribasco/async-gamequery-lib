@@ -16,8 +16,7 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.Configurable;
-import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.ConfigurationSupport;
 
 import java.io.Closeable;
 import java.net.InetSocketAddress;
@@ -36,10 +35,10 @@ import java.util.concurrent.Executor;
  *
  * @author Rafael Luis Ibasco
  */
-public interface Messenger<R extends AbstractRequest, S extends AbstractResponse, O extends Options> extends Closeable, Configurable<O> {
+public interface Messenger<R extends AbstractRequest, S extends AbstractResponse> extends Closeable, ConfigurationSupport {
 
     /**
-     * <p>send.</p>
+     * <p>Send request to the underlying {@link Transport}</p>
      *
      * @param address
      *         a {@link java.net.InetSocketAddress} object
@@ -51,14 +50,14 @@ public interface Messenger<R extends AbstractRequest, S extends AbstractResponse
     CompletableFuture<S> send(InetSocketAddress address, R request);
 
     /**
-     * <p>getTransport.</p>
+     * <p>The underlying {@link Transport} used by this instance</p>
      *
      * @return a {@link com.ibasco.agql.core.Transport} object
      */
     Transport<?, ?> getTransport();
 
     /**
-     * <p>getExecutor.</p>
+     * <p>The {@link Executor} utilized by this messenger</p>
      *
      * @return a {@link java.util.concurrent.Executor} object
      */

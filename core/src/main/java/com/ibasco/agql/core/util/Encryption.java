@@ -16,7 +16,7 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.exceptions.AsyncGameLibUncheckedException;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.crypto.BadPaddingException;
@@ -73,7 +73,7 @@ public class Encryption {
             cipher.init(Cipher.ENCRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes(StandardCharsets.UTF_8)));
             return Base64.getEncoder().encodeToString((cipher.doFinal(Objects.requireNonNull(padNullBytes(plainText)))));
         } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-            throw new AsyncGameLibUncheckedException(e);
+            throw new AgqlRuntimeException(e);
         }
     }
 
@@ -105,7 +105,7 @@ public class Encryption {
             byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
             return new String(cipher.doFinal(cipherBytes), StandardCharsets.UTF_8);
         } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-            throw new AsyncGameLibUncheckedException(e);
+            throw new AgqlRuntimeException(e);
         }
     }
 
@@ -141,7 +141,7 @@ public class Encryption {
                 bos.write(0);
             }
         } catch (IOException e) {
-            throw new AsyncGameLibUncheckedException(e);
+            throw new AgqlRuntimeException(e);
         }
         return bos.toByteArray();
     }

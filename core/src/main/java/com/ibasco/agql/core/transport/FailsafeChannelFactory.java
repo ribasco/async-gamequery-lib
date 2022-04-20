@@ -22,9 +22,9 @@ import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.event.ExecutionCompletedEvent;
-import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
@@ -76,7 +76,7 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
     /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
-        return acquireExecutor.getStageAsync(new ChannelSupplier(getResolver().resolveRemoteAddress(data)));//getContextualSupplier(data);
+        return acquireExecutor.getStageAsync(getContextualSupplier(data));
     }
 
     /** {@inheritDoc} */
@@ -86,15 +86,12 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
     }
 
     private Fallback<Channel> buildFallbackPolicy(final Options options) {
-        FallbackBuilder<Channel> builder = Fallback.builderOfException(new CheckedFunction<ExecutionAttemptedEvent<? extends Channel>, Exception>() {
-            @Override
-            public Exception apply(ExecutionAttemptedEvent<? extends Channel> event) throws Throwable {
-                if (event.getLastException() instanceof CircuitBreakerOpenException) {
-                    CircuitBreakerOpenException openException = (CircuitBreakerOpenException) event.getLastException();
-                    return new RejectedRequestException("The internal circuit-breaker has been OPENED. Temporarily not accepting any more requests", openException.getCause());
-                }
-                return new CompletionException(Errors.unwrap(event.getLastException()));
+        FallbackBuilder<Channel> builder = Fallback.builderOfException(event -> {
+            if (event.getLastException() instanceof CircuitBreakerOpenException) {
+                CircuitBreakerOpenException openException = (CircuitBreakerOpenException) event.getLastException();
+                return new RejectedRequestException("The internal circuit-breaker has been OPENED. Temporarily not accepting any more requests", openException.getCause());
             }
+            return new CompletionException(Errors.unwrap(event.getLastException()));
         });
         return builder.build();
     }
@@ -167,7 +164,23 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         @Override
         public CompletableFuture<Channel> get(ExecutionContext<Channel> context) throws Throwable {
             log.debug("CHANNEL_FACTORY ({}) => Acquiring channel for address '{}' (Supplier: {}, Attempt: {}, Executions: {}, Last Result: {}, Last Failure: {})", FailsafeChannelFactory.class.getSimpleName(), address, this, context.getAttemptCount(), context.getExecutionCount(), context.getLastResult(), context.getLastException());
-            return FailsafeChannelFactory.super.create(address);
+            CompletableFuture<Channel> channelFuture = FailsafeChannelFactory.super.create(address);
+            channelFuture.thenAccept(this::removeOnClose);
+            return channelFuture;
+        }
+
+        private void removeOnClose(Channel channel) {
+            if (channel.closeFuture().isDone()) {
+                if (supplierMap.remove(address) != null) {
+                    log.debug("CHANNEL_FACTORY ({}) => Removed channel supplier entry from cache for address '{}'", Netty.id(channel), address);
+                }
+            } else {
+                channel.closeFuture().addListener((ChannelFutureListener) future -> {
+                    if (supplierMap.remove(address) != null) {
+                        log.debug("CHANNEL_FACTORY ({}) => Removed channel supplier entry from cache for address '{}'", Netty.id(future.channel()), address);
+                    }
+                });
+            }
         }
     }
 }

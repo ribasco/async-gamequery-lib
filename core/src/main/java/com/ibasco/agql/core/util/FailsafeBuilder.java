@@ -53,11 +53,13 @@ public class FailsafeBuilder {
         RateLimiterBuilder<T> builder = (RateLimiterBuilder<T>) rateLimitType.getBuilder().apply(maxExecutions, Duration.ofMillis(periodMs));
         if (maxWaitTimeMs != null)
             builder.withMaxWaitTime(Duration.ofMillis(maxWaitTimeMs));
-        Console.println("Building 'RATE LIMIT POLICY' from '%s'", options.getClass().getSimpleName());
-        Console.println(">> Max Executions: %d", maxExecutions);
-        Console.println(">> Period: %d", periodMs);
-        Console.println(">> Max Wait Time: %s", maxWaitTimeMs);
-        Console.println(">> Rate Limit Type: %s", rateLimitType);
+        if (Properties.isVerbose()) {
+            Console.println("Building 'RATE LIMIT POLICY' from '%s'", options.getClass().getSimpleName());
+            Console.println(">> Max Executions: %d", maxExecutions);
+            Console.println(">> Period: %d", periodMs);
+            Console.println(">> Max Wait Time: %s", maxWaitTimeMs);
+            Console.println(">> Rate Limit Type: %s", rateLimitType);
+        }
         //attachGlobalListeners(builder);
         return builder;
     }
@@ -86,14 +88,14 @@ public class FailsafeBuilder {
             Double backoffDelayFactor = findValue(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, mergedOptions);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
-
-        Console.println("Building 'RETRY POLICY' from '%s'", options.getClass().getSimpleName());
-        Console.println(">> Retry delay: %d", retryDelay);
-        Console.println(">> Max attempts: %d", maxAttempts);
-        Console.println(">> Backoff Enabled: %s", backOffEnabled);
-        Console.println(">> Backoff Delay: %d", backoffDelay);
-        Console.println(">> Backoff Max Delay: %d", backoffMaxDelay);
-
+        if (Properties.isVerbose()) {
+            Console.println("Building 'RETRY POLICY' from '%s'", options.getClass().getSimpleName());
+            Console.println(">> Retry delay: %d", retryDelay);
+            Console.println(">> Max attempts: %d", maxAttempts);
+            Console.println(">> Backoff Enabled: %s", backOffEnabled);
+            Console.println(">> Backoff Delay: %d", backoffDelay);
+            Console.println(">> Backoff Max Delay: %d", backoffMaxDelay);
+        }
         //attachGlobalListeners(builder);
         return builder;
     }
@@ -113,11 +115,13 @@ public class FailsafeBuilder {
         Integer failureThresholdingCapacity = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, mergedOptions);
         Integer successThreshold = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, mergedOptions);
 
-        Console.println("Building 'CIRCUIT BREAKER POLICY' for '%s'", options.getClass().getSimpleName());
-        Console.println(">> Delay: %d", delay);
-        Console.println(">> Failure Threshold: %d", failureThreshold);
-        Console.println(">> Failure Thresholding Capacity: %d", failureThresholdingCapacity);
-        Console.println(">> Success Threshold: %d", successThreshold);
+        if (Properties.isVerbose()) {
+            Console.println("Building 'CIRCUIT BREAKER POLICY' for '%s'", options.getClass().getSimpleName());
+            Console.println(">> Delay: %d", delay);
+            Console.println(">> Failure Threshold: %d", failureThreshold);
+            Console.println(">> Failure Thresholding Capacity: %d", failureThresholdingCapacity);
+            Console.println(">> Success Threshold: %d", successThreshold);
+        }
 
         builder.withFailureThreshold(failureThreshold, failureThresholdingCapacity);
         builder.withSuccessThreshold(successThreshold);

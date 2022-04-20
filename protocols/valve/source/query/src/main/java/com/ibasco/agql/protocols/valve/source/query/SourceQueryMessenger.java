@@ -19,10 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
-import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
-import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
-import com.ibasco.agql.core.exceptions.MessengerException;
-import com.ibasco.agql.core.exceptions.TimeoutException;
+import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
@@ -154,6 +151,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                     return new MessengerException(maxAttemptException, mException.getContext());
                 }
                 return mException;
+            } else if (event.getLastException() instanceof CircuitBreakerOpenException) {
+                CircuitBreakerOpenException openException = (CircuitBreakerOpenException) event.getLastException();
+                return new RejectedRequestException("The internal circuit-breaker has been OPENED. Temporarily not accepting any more requests", openException.getCause());
             }
             return new CompletionException(Errors.unwrap(event.getLastException()));
         }).build();

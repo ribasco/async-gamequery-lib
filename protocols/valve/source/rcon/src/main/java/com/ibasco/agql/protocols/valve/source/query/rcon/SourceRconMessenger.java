@@ -16,7 +16,10 @@
 
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
-import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.ChannelRegistry;
+import com.ibasco.agql.core.Credentials;
+import com.ibasco.agql.core.CredentialsStore;
+import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.transport.FailsafeChannelFactory;
@@ -26,6 +29,7 @@ import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
+import com.ibasco.agql.core.util.Properties;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.*;
@@ -34,11 +38,7 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRe
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconResponse;
 import dev.failsafe.*;
-import dev.failsafe.event.CircuitBreakerStateChangedEvent;
-import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
-import dev.failsafe.event.ExecutionCompletedEvent;
-import dev.failsafe.function.CheckedBiPredicate;
 import dev.failsafe.function.CheckedFunction;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -118,35 +118,21 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         this.reauthenticate = getOrDefault(SourceRconOptions.REAUTHENTICATE);
         this.authenticator = new SourceRconAuthenticator(credentialsStore, reauthenticate);
         this.channelFactory = (SourceRconChannelFactory) getChannelFactory();
-        this.circuitBreakerPolicy = buildCircuitBreakerPolicy();
+        final Options rconOptions = getOptions();
+        this.circuitBreakerPolicy = buildCircuitBreakerPolicy(rconOptions);
         this.fallbackPolicy = buildFallbackPolicy();
-        this.retryPolicy = buildRetryPolicy(getOptions());
+        this.retryPolicy = buildRetryPolicy(rconOptions);
         this.executor = Failsafe.with(fallbackPolicy, retryPolicy, circuitBreakerPolicy).with(getExecutor());
     }
     //</editor-fold>
 
     //<editor-fold desc="Failsafe Policy Builder">
-    private CircuitBreaker<SourceRconChannelContext> buildCircuitBreakerPolicy() {
-        CircuitBreakerBuilder<SourceRconChannelContext> builder = CircuitBreaker.builder();
+    private CircuitBreaker<SourceRconChannelContext> buildCircuitBreakerPolicy(final Options options) {
+        CircuitBreakerBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildCircuitBreaker(options);
         builder.handleIf(e -> {
             Throwable cause = Errors.unwrap(e);
             return cause instanceof TimeoutException || cause instanceof io.netty.handler.timeout.TimeoutException;
         });
-        builder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
-            @Override
-            public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                Console.error("CIRCUIT BREAKER IS NOW OPEN (Previous State: %s)\n", event.getPreviousState());
-            }
-        });
-        builder.onHalfOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
-            @Override
-            public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
-                Console.error("CIRCUIT BREAKER IS NOW HALF-OPEN (Previous State: %s)\n", event.getPreviousState());
-            }
-        });
-        builder.withFailureThreshold(3, 10);
-        builder.withSuccessThreshold(3);
-        builder.withDelay(Duration.ofMinutes(1));
         return builder.build();
     }
 
@@ -181,36 +167,27 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                     } else {
                         newException = mException;
                     }
-                } else if (error instanceof ResponseException) {
-                    Console.error("GOT RESPONSE EXCEPTION: %s", error);
-                    newException = new CompletionException(cause);
+                } else if (event.getLastException() instanceof CircuitBreakerOpenException) {
+                    CircuitBreakerOpenException openException = (CircuitBreakerOpenException) event.getLastException();
+                    return new RejectedRequestException("The internal circuit-breaker has been OPENED. Temporarily not accepting any more requests", openException.getCause());
                 } else {
                     newException = new CompletionException(cause);
                 }
-                Console.colorize().blue().text("[RCON] ").reset()
-                       .text(">> Applying fallback policy for exception (Last Error: %s, New Error: %s, Last Result: %s, Attempts: %d)", event.getLastException(), newException, event.getLastResult(), event.getAttemptCount())
-                       .println();
                 return newException;
             }
         });
         return builder.build();
     }
 
-    private RetryPolicy<SourceRconChannelContext> buildRetryPolicy(Options options) {
+    private RetryPolicy<SourceRconChannelContext> buildRetryPolicy(final Options options) {
         RetryPolicyBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildRetryPolicy(options);
-        builder.abortIf(new CheckedBiPredicate<SourceRconChannelContext, Throwable>() {
-            @Override
-            public boolean test(SourceRconChannelContext context, Throwable error) throws Throwable {
-                return error instanceof RconAuthException || Errors.unwrap(error) instanceof ConnectException;
-            }
-        });
+        builder.abortIf((context, error) -> error instanceof RconAuthException || Errors.unwrap(error) instanceof ConnectException);
         builder.handleIf(e -> {
             Throwable error = Errors.unwrap(e);
             return error instanceof TimeoutException || error instanceof IOException;
         });
-        builder.onRetry(new EventListener<ExecutionAttemptedEvent<SourceRconChannelContext>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<SourceRconChannelContext> event) throws Throwable {
+        if (Properties.isVerbose()) {
+            builder.onRetry(event -> {
                 //Console.println("[RCON] Retrying (error: %s, attempts: %d))", event.getLastException(), event.getAttemptCount());
                 Console.colorize().blue().text("[RCON] ").reset()
                        .text(">> Last request ").red().text("FAILED").reset()
@@ -219,36 +196,14 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                        .text("Last Error: %s, Attempts: %d", event.getLastException(), event.getAttemptCount())
                        .text(")")
                        .println();
-            }
-        });
-        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<SourceRconChannelContext> event) throws Throwable {
+            });
+            builder.onRetriesExceeded(event -> {
                 //Console.println("[RCON] Retries exceeded (Attempts: %d, Last result: '%s', Last Error: %s)\n", event.getAttemptCount(), event.getResult(), event.getException());
                 Console.colorize().blue().text("[RCON] ").reset().text(">> Retries ").yellow().text("EXCEEDED").reset().text(" (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).println();
-            }
-        });
-        builder.onFailure(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<SourceRconChannelContext> event) throws Throwable {
-                AbstractRequest request = null;
-                InetSocketAddress address = null;
-                if (event.getException() instanceof MessengerException) {
-                    MessengerException ex = (MessengerException) event.getException();
-                    request = ex.getRequest();
-                    address = ex.getLocalAddress();
-                }
-
-                //Console.error("[RCON] Request Failed (Attempts: %d, Error: %s, Request: %s, Address: %s)", event.getAttemptCount(), event.getException(), request, address);
-                Console.colorize().blue().text("[RCON] ").reset().text(">> Request now in ").red().text("FAILED").reset().text(" state. Reporting exception back to client. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).println();
-            }
-        });
-        builder.onAbort(new EventListener<ExecutionCompletedEvent<SourceRconChannelContext>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<SourceRconChannelContext> event) throws Throwable {
-                Console.colorize().blue().text("[RCON] ").reset().text(">> Request ").red().text("ABORTED").reset().text(" due to failure (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).println();
-            }
-        });
+            });
+            builder.onFailure(event -> Console.colorize().blue().text("[RCON] ").reset().text(">> Request now in ").red().text("FAILED").reset().text(" state. Reporting exception back to client. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).println());
+            builder.onAbort(event -> Console.colorize().blue().text("[RCON] ").reset().text(">> Request ").red().text("ABORTED").reset().text(" due to failure (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).println());
+        }
         return builder.build();
     }
     //</editor-fold>
@@ -256,9 +211,9 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     //<editor-fold desc="Getters">
 
     /**
-     * <p>isReauthenticate.</p>
+     * <p>Check if reauthenticate flag is set</p>
      *
-     * @return a boolean
+     * @return {@code true} if automatic re-authentication is enabled.
      */
     public boolean isReauthenticate() {
         return reauthenticate;
@@ -807,16 +762,11 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             try {
                 if (error != null) {
                     Throwable cause = Errors.unwrap(error);
-                    /* //this is no longer needed
-                    if (error instanceof MessengerException) {
-                        MessengerException ex = (MessengerException) error;
-                        context = ex.getContext();
-                    }*/
-                    if (cause instanceof RconException) {
+                    //we wrap every error with RconException
+                    if (cause instanceof RconException)
                         throw (RconException) cause;
-                    } else {
+                    else
                         throw new RconException(cause, request, address);
-                    }
                 }
                 assert context != null && context == getContext();
                 return context.properties().response();
@@ -825,21 +775,26 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                 //its possible that the context variable would be null in certain occasions. Even though we have not confirmed this yet, better to be safe than sorry
                 SourceRconChannelContext ctx = getContext(); //if this returns null, then at least we know that the context was not successfully acquired, so we do nothing.
                 if (ctx != null) {
-                    //Console.colorize().green().text("[RCON-CLEANUP]: ").white().text("Closing context '%s'", context).println();
                     ctx.close();
+                } else if (error instanceof MessengerException) {
+                    MessengerException ex = (MessengerException) error;
+                    if (ex.getContext() != null)
+                        ex.getContext().close();
                 }
             }
         }
 
         private CompletableFuture<SourceRconChannelContext> execute(ExecutionContext<SourceRconChannelContext> context) throws Throwable {
-            Console.colorize().blue().text("[RCON] ")
-                   .reset().text("[%s] ", Thread.currentThread().getName())
-                   .reset().text("[%02d] Sending request ", context.getAttemptCount())
-                   .cyan().text("'%s'", request).reset()
-                   .text(" to address ")
-                   .cyan().text("'%s'", address).reset()
-                   .text(" (Last Error: %s)", context.getLastException())
-                   .println();
+            if (Properties.isVerbose()) {
+                Console.colorize().blue().text("[RCON] ")
+                       .reset().text("[%s] ", Thread.currentThread().getName())
+                       .reset().text("[%02d] Sending request ", context.getAttemptCount())
+                       .cyan().text("'%s'", request).reset()
+                       .text(" to address ")
+                       .cyan().text("'%s'", address).reset()
+                       .text(" (Last Error: %s)", context.getLastException())
+                       .println();
+            }
             Credentials credentials = credentialsStore.get(address);
             log.debug("AUTH => Sending RCON Request '{}' to address '{}' (Valid Credentials: {}, Attempts: {}, Cancelled: {}, Last Failure: {}, Last Result: {})", request, address, credentials != null && credentials.isValid(), context.getAttemptCount(), context.isCancelled(), context.getLastException(), context.getLastResult());
             return acquire().thenCompose(method);

@@ -43,7 +43,7 @@ public class BlockingQueryExample {
         // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
         Options queryOptions = OptionBuilder.newBuilder()
                                             .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
-                                            .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
 
         //You can instantiate the client from the try-with block as it implements the java.io.Closeable interface
@@ -75,7 +75,7 @@ public class NonBlockingQueryExample {
         // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
         Options queryOptions = OptionBuilder.newBuilder()
                                             .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                            .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
 
         //create a countdown latch with value of 1 since we are only expecting to receive 1 result
@@ -140,7 +140,7 @@ public class NonBlockingQueryExample {
         // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
         Options queryOptions = OptionBuilder.newBuilder()
                                             .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                            .option(TransportOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
         //Instantiate the client (constructor argument is optional)
         SourceQueryClient client = new SourceQueryClient(queryOptions);

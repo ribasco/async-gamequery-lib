@@ -16,11 +16,13 @@
 
 package com.ibasco.agql.core.transport;
 
+import com.ibasco.agql.core.exceptions.RejectedRequestException;
 import com.ibasco.agql.core.util.*;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.event.ExecutionCompletedEvent;
+import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -31,17 +33,14 @@ import org.slf4j.LoggerFactory;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.*;
 
 /**
  * Adds {@link dev.failsafe.Failsafe} support for the underlying {@link com.ibasco.agql.core.transport.NettyChannelFactory}.
  *
  * @author Rafael Luis Ibasco
  */
-@SuppressWarnings("unused")
+@SuppressWarnings({"unused", "FieldCanBeLocal"})
 public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private static final Logger log = LoggerFactory.getLogger(FailsafeChannelFactory.class);
@@ -57,6 +56,8 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
 
     private final CircuitBreaker<Channel> circuitBreaker;
 
+    private final Fallback<Channel> fallbackPolicy;
+
     /**
      * <p>Constructor for FailsafeChannelFactory.</p>
      *
@@ -66,9 +67,10 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
         Options globalOptions = GlobalOptions.getContainer();
+        this.fallbackPolicy = buildFallbackPolicy(globalOptions);
         this.retryPolicy = buildRetryPolicy(globalOptions);
         this.circuitBreaker = buildCircuitBreakerPolicy(globalOptions);
-        this.acquireExecutor = Failsafe.with(retryPolicy, circuitBreaker).with(getExecutor()); //circuitBreaker
+        this.acquireExecutor = Failsafe.with(fallbackPolicy, retryPolicy, circuitBreaker).with(getExecutor());
     }
 
     /** {@inheritDoc} */
@@ -81,6 +83,20 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
         return Netty.useEventLoop(create(data), eventLoop);
+    }
+
+    private Fallback<Channel> buildFallbackPolicy(final Options options) {
+        FallbackBuilder<Channel> builder = Fallback.builderOfException(new CheckedFunction<ExecutionAttemptedEvent<? extends Channel>, Exception>() {
+            @Override
+            public Exception apply(ExecutionAttemptedEvent<? extends Channel> event) throws Throwable {
+                if (event.getLastException() instanceof CircuitBreakerOpenException) {
+                    CircuitBreakerOpenException openException = (CircuitBreakerOpenException) event.getLastException();
+                    return new RejectedRequestException("The internal circuit-breaker has been OPENED. Temporarily not accepting any more requests", openException.getCause());
+                }
+                return new CompletionException(Errors.unwrap(event.getLastException()));
+            }
+        });
+        return builder.build();
     }
 
     private CircuitBreaker<Channel> buildCircuitBreakerPolicy(final Options options) {
@@ -97,38 +113,40 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
             return group.isShutdown() || group.isShuttingDown() || group.isTerminated();
         });
         builder.abortOn(RejectedExecutionException.class);
-        builder.onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
-                log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
-            }
-        });
-        builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<Channel>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Retries Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
-            }
-        });
-        builder.onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Unable to connect to server. All attempts have failed. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
-            }
-        });
-        builder.onAbort(new EventListener<ExecutionCompletedEvent<Channel>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                Console.colorize().red().text("[CONNECT]").white().textln("Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).print();
-                //Console.error("[CONNECT] Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
-            }
-        });
-        builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<Channel>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
-                Console.error("[CONNECT] Failed Attempt (Error: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
-            }
-        });
+        if (Properties.isVerbose()) {
+            builder.onRetry(new EventListener<ExecutionAttemptedEvent<Channel>>() {
+                @Override
+                public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
+                    Console.error("[CONNECT] Retrying connect (Reason: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
+                    log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
+                }
+            });
+            builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<Channel>>() {
+                @Override
+                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                    Console.error("[CONNECT] Retries Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
+                }
+            });
+            builder.onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
+                @Override
+                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                    Console.error("[CONNECT] Unable to connect to server. All attempts have failed. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
+                }
+            });
+            builder.onAbort(new EventListener<ExecutionCompletedEvent<Channel>>() {
+                @Override
+                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
+                    Console.colorize().red().text("[CONNECT]").white().textln("Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).print();
+                    //Console.error("[CONNECT] Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
+                }
+            });
+            builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<Channel>>() {
+                @Override
+                public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
+                    Console.error("[CONNECT] Failed Attempt (Error: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
+                }
+            });
+        }
         //builder.withMaxAttempts(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_MAX_CONNECT));
         //builder.withBackoff(Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN)), Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX)));
         return builder.build();

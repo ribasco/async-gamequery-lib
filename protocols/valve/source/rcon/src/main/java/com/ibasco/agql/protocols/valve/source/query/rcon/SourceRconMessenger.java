@@ -430,8 +430,8 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         } else {
             throw new IllegalStateException("Invalid rcon request");
         }
-        final RconRequestDetails details = new RconRequestDetails(address, request, method);
-        return failSafeExecute(details).handle(details::collect);
+        final RequestContext details = new RequestContext(address, request, method);
+        return failSafeExecute(details).handle(details::collectAndRelease);
     }
 
     private CompletableFuture<SourceRconChannelContext> sendAuthRequest(final SourceRconChannelContext context) {
@@ -492,7 +492,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         }
     }
 
-    private CompletableFuture<SourceRconChannelContext> failSafeExecute(final RconRequestDetails request) {
+    private CompletableFuture<SourceRconChannelContext> failSafeExecute(final RequestContext request) {
         return executor.getStageAsync(request::execute);
     }
 
@@ -787,54 +787,59 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     }
     //</editor-fold>
 
-    private class RconRequestDetails {
+    private class RequestContext {
 
         private final InetSocketAddress address;
 
         private final SourceRconRequest request;
 
+        private WeakReference<SourceRconChannelContext> contextRef;
+
         private final Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method;
 
-        RconRequestDetails(InetSocketAddress address, SourceRconRequest request, Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method) {
+        private RequestContext(InetSocketAddress address, SourceRconRequest request, Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method) {
             this.address = address;
             this.request = request;
             this.method = method;
         }
 
-        private SourceRconResponse collect(SourceRconChannelContext context, Throwable error) {
+        private SourceRconResponse collectAndRelease(SourceRconChannelContext context, Throwable error) {
             try {
                 if (error != null) {
-                    //Console.colorize().red().text("[MESSENGER HANDLER]: ").white().text("%s", error).println();
                     Throwable cause = Errors.unwrap(error);
+                    /* //this is no longer needed
                     if (error instanceof MessengerException) {
                         MessengerException ex = (MessengerException) error;
                         context = ex.getContext();
-                    }
+                    }*/
                     if (cause instanceof RconException) {
                         throw (RconException) cause;
                     } else {
                         throw new RconException(cause, request, address);
                     }
                 }
+                assert context != null && context == getContext();
                 return context.properties().response();
             } finally {
-                if (context != null) {
+                //note: we use getContext() instead of context to ensure we always have the reference for context.
+                //its possible that the context variable would be null in certain occasions. Even though we have not confirmed this yet, better to be safe than sorry
+                SourceRconChannelContext ctx = getContext(); //if this returns null, then at least we know that the context was not successfully acquired, so we do nothing.
+                if (ctx != null) {
                     //Console.colorize().green().text("[RCON-CLEANUP]: ").white().text("Closing context '%s'", context).println();
-                    context.close();
+                    ctx.close();
                 }
             }
         }
 
         private CompletableFuture<SourceRconChannelContext> execute(ExecutionContext<SourceRconChannelContext> context) throws Throwable {
-            /*Console.colorize().blue().text("[RCON] ")
+            Console.colorize().blue().text("[RCON] ")
                    .reset().text("[%s] ", Thread.currentThread().getName())
                    .reset().text("[%02d] Sending request ", context.getAttemptCount())
                    .cyan().text("'%s'", request).reset()
                    .text(" to address ")
                    .cyan().text("'%s'", address).reset()
                    .text(" (Last Error: %s)", context.getLastException())
-                   .println();*/
-
+                   .println();
             Credentials credentials = credentialsStore.get(address);
             log.debug("AUTH => Sending RCON Request '{}' to address '{}' (Valid Credentials: {}, Attempts: {}, Cancelled: {}, Last Failure: {}, Last Result: {})", request, address, credentials != null && credentials.isValid(), context.getAttemptCount(), context.isCancelled(), context.getLastException(), context.getLastResult());
             return acquire().thenCompose(method);
@@ -847,11 +852,22 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
          */
         private CompletableFuture<SourceRconChannelContext> acquire() {
             CompletableFuture<Channel> channelFuture = channelFactory.create(address);
+            channelFuture.thenAccept(this::updateContext);
             return channelFuture
                     .thenCompose(SourceRconMessenger.this::register)
                     .handle(statistics)
                     .thenApply(SourceRconChannelContext::getContext)
                     .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
+        }
+
+        private void updateContext(Channel channel) {
+            this.contextRef = new WeakReference<>(SourceRconChannelContext.getContext(channel));
+        }
+
+        private SourceRconChannelContext getContext() {
+            if (this.contextRef == null)
+                return null;
+            return this.contextRef.get();
         }
 
         private SourceRconChannelContext initializeContext(SourceRconChannelContext context, SourceRconRequest request) {

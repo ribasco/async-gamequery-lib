@@ -35,7 +35,9 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
+import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.event.ExecutionCompletedEvent;
+import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.ContextualSupplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,17 +59,17 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
-    private FailsafeExecutor<SourceQueryResponse<?>> executor;
+    private FailsafeExecutor<NettyChannelContext> executor;
 
-    private RateLimiter<SourceQueryResponse<?>> rateLimiter;
+    private RateLimiter<NettyChannelContext> rateLimiter;
 
-    private RetryPolicy<SourceQueryResponse<?>> retryPolicy;
+    private RetryPolicy<NettyChannelContext> retryPolicy;
 
     private final boolean failsafeEnabled;
 
-    private final EventListener<ExecutionCompletedEvent<SourceQueryResponse<?>>> retryExceededListener = new EventListener<ExecutionCompletedEvent<SourceQueryResponse<?>>>() {
+    private final EventListener<ExecutionCompletedEvent<NettyChannelContext>> retryExceededListener = new EventListener<ExecutionCompletedEvent<NettyChannelContext>>() {
         @Override
-        public void accept(ExecutionCompletedEvent<SourceQueryResponse<?>> event) throws Throwable {
+        public void accept(ExecutionCompletedEvent<NettyChannelContext> event) throws Throwable {
             if (event.getException() instanceof MaxAttemptsReachedException) {
                 MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
                 log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
@@ -120,7 +122,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         if (!failsafeEnabled)
             return;
 
-        final List<Policy<SourceQueryResponse<?>>> policies = new ArrayList<>();
+        final List<Policy<NettyChannelContext>> policies = new ArrayList<>();
+
+        //fallback policy
+        Fallback<NettyChannelContext> fallbackPolicy = buildFallbackPolicy(options);
+        policies.add(fallbackPolicy);
 
         //retry policy
         if (options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_ENABLED)) {
@@ -131,42 +137,50 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         if (options.getOrDefault(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED)) {
             this.rateLimiter = buildRateLimiterPolicy(options);
         }
+
         //Initialize executor
         this.executor = Failsafe.with(policies).with(getExecutor());
     }
 
-    private RetryPolicy<SourceQueryResponse<?>> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<SourceQueryResponse<?>> builder = FailsafeBuilder.buildRetryPolicy(options);
+    private Fallback<NettyChannelContext> buildFallbackPolicy(final Options options) {
+        return Fallback.builderOfException((CheckedFunction<ExecutionAttemptedEvent<? extends NettyChannelContext>, Exception>) event -> {
+            int maxAttempts = retryPolicy.getConfig().getMaxAttempts();
+            if (event.getLastException() instanceof MessengerException) {
+                MessengerException mException = (MessengerException) event.getLastException();
+                Throwable cause = Errors.unwrap(mException);
+                if (cause instanceof TimeoutException && event.getAttemptCount() >= maxAttempts) {
+                    //re-wrap the messenger exception and change the cause to MaxAttemptsReachedException
+                    MaxAttemptsReachedException maxAttemptException = new MaxAttemptsReachedException(cause, mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), maxAttempts);
+                    return new MessengerException(maxAttemptException, mException.getContext());
+                }
+                return mException;
+            }
+            return new CompletionException(Errors.unwrap(event.getLastException()));
+        }).build();
+    }
+
+    private RetryPolicy<NettyChannelContext> buildRetryPolicy(final Options options) {
+        RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(options);
         builder.abortOn(RejectedExecutionException.class);
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }
 
-    private RateLimiter<SourceQueryResponse<?>> buildRateLimiterPolicy(final Options options) {
-        RateLimiterBuilder<SourceQueryResponse<?>> builder = FailsafeBuilder.buildRateLimiter(options);
+    private RateLimiter<NettyChannelContext> buildRateLimiterPolicy(final Options options) {
+        RateLimiterBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRateLimiter(options);
         return builder.build();
     }
 
     /** {@inheritDoc} */
     @Override
     public CompletableFuture<SourceQueryResponse<?>> send(InetSocketAddress address, SourceQueryRequest request) {
-        if (executor != null && failsafeEnabled) {
-            return executor.getStageAsync(new QueryContextSupplier(address, request));
-        } else {
-            return sendQuery(address, request);
-        }
-    }
-
-    private CompletableFuture<SourceQueryResponse<?>> sendQuery(InetSocketAddress address, SourceQueryRequest request) {
-        if (getExecutor().isShutdown() || getExecutor().isShuttingDown() || getExecutor().isTerminated())
-            return Concurrency.failedFuture(new RejectedExecutionException());
-        CompletableFuture<NettyChannelContext> contextFuture = acquireContext(new ImmutablePair<>(address, request));
-        return contextFuture
-                .thenApply(NettyChannelContext::disableAutoRelease)
-                .thenCombine(CompletableFuture.completedFuture(request), SourceQueryMessenger::attach)
-                .thenApply(this::acquireSendPermit)
-                .thenCompose(super::send)
-                .handle(this::response);
+        CompletableFuture<NettyChannelContext> future;
+        RequestContext query = new RequestContext(address, request);
+        if (executor != null && failsafeEnabled)
+            future = executor.getStageAsync((ContextualSupplier<NettyChannelContext, CompletableFuture<NettyChannelContext>>) query::execute);
+        else
+            future = query.execute();
+        return future.handle(query::completion);
     }
 
     //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).
@@ -186,54 +200,91 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
-    /**
-     * <p>Acquire a send permit. If no permits available, this method will block until there is one</p>
-     *
-     * @param context
-     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
-     *
-     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
-     */
-    public NettyChannelContext acquireSendPermit(NettyChannelContext context) {
-        if (!failsafeEnabled || rateLimiter == null)
-            return context;
-        try {
-            log.debug("{} MESSENGER => (SourceQueryMessenger) Acquiring send permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
-            rateLimiter.acquirePermit();
-            log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
-            return context;
-        } catch (InterruptedException e) {
-            log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request(), e);
-            throw new AgqlRuntimeException(e);
+    private class RequestContext {
+
+        private final InetSocketAddress address;
+
+        private final SourceQueryRequest request;
+
+        private NettyChannelContext context;
+
+        private RequestContext(InetSocketAddress address, SourceQueryRequest request) {
+            this.address = address;
+            this.request = request;
         }
-    }
 
-    private static NettyChannelContext attach(NettyChannelContext context, SourceQueryRequest request) {
-        context.attach(request);
-        return context;
-    }
+        private void initialize(NettyChannelContext context) {
+            setContext(context);
+            context.disableAutoRelease();
+            context.attach(request);
+        }
 
-    private SourceQueryResponse<?> response(NettyChannelContext context, Throwable error) {
-        try {
-            if (error != null) {
-                if (error instanceof MessengerException) {
-                    MessengerException ex = (MessengerException) error;
-                    context = ex.getContext();
-                    log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
-                    throw ex;
-                } else {
-                    throw new CompletionException(Errors.unwrap(error));
-                }
-            } else {
-                assert context != null;
-                SourceQueryResponse<?> response = context.properties().response();
-                if (response == null)
-                    throw new IllegalStateException("Missing response: " + context);
-                return response;
+        public CompletableFuture<NettyChannelContext> execute() {
+            if (getExecutor().isShutdown() || getExecutor().isShuttingDown() || getExecutor().isTerminated())
+                return Concurrency.failedFuture(new RejectedExecutionException());
+            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(this);
+            contextFuture.thenAccept(this::initialize);
+            return contextFuture
+                    .thenApply(this::acquirePermit)
+                    .thenCompose(SourceQueryMessenger.super::send);
+        }
+
+        public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> context) {
+            return execute();
+        }
+
+        /**
+         * <p>Acquire a send permit. If no permits available, this method will block until there is one</p>
+         *
+         * @param context
+         *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+         *
+         * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+         */
+        private NettyChannelContext acquirePermit(NettyChannelContext context) {
+            if (!failsafeEnabled || rateLimiter == null)
+                return context;
+            try {
+                log.debug("{} MESSENGER => (SourceQueryMessenger) Acquiring send permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
+                rateLimiter.acquirePermit();
+                log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
+                return context;
+            } catch (InterruptedException e) {
+                log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request(), e);
+                throw new AgqlRuntimeException(e);
             }
-        } finally {
-            if (context != null)
-                context.close();
+        }
+
+        private void setContext(NettyChannelContext context) {
+            this.context = context;
+        }
+
+        private InetSocketAddress getAddress() {
+            return address;
+        }
+
+        private SourceQueryResponse<?> completion(NettyChannelContext context, Throwable error) {
+            try {
+                if (error != null) {
+                    Exception cause = (Exception) Errors.unwrap(error);
+                    if (error instanceof MessengerException) {
+                        context = ((MessengerException) error).getContext();
+                        log.debug("{} MESSENGER (SourceQueryMessenger) => Releasing context '{}' in error", context.id(), context, error);
+                    }
+                    throw new CompletionException(cause);
+                } else {
+                    assert context != null;
+                    SourceQueryResponse<?> response = context.properties().response();
+                    if (response == null)
+                        throw new IllegalStateException("Missing response: " + context);
+                    return response;
+                }
+            } finally {
+                if (this.context != null) {
+                    assert this.context == context;
+                    this.context.close();
+                }
+            }
         }
     }
 
@@ -253,50 +304,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         @Override
         public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
-            if (data instanceof ImmutablePair<?, ?>) {
-                //noinspection unchecked
-                ImmutablePair<InetSocketAddress, SourceQueryRequest> pair = (ImmutablePair<InetSocketAddress, SourceQueryRequest>) data;
-                return pair.getFirst();
+            if (data instanceof RequestContext) {
+                return ((RequestContext) data).getAddress();
             } else {
                 return defaultResolver.resolveRemoteAddress(data);
             }
-        }
-    }
-
-    private class QueryContextSupplier implements ContextualSupplier<SourceQueryResponse<?>, CompletableFuture<SourceQueryResponse<?>>> {
-
-        private final InetSocketAddress address;
-
-        private final SourceQueryRequest request;
-
-        private final int maxAttemptCount;
-
-        private QueryContextSupplier(InetSocketAddress address, SourceQueryRequest request) {
-            this.address = address;
-            this.request = request;
-            this.maxAttemptCount = retryPolicy.getConfig().getMaxAttempts();
-        }
-
-        @Override
-        public CompletableFuture<SourceQueryResponse<?>> get(ExecutionContext<SourceQueryResponse<?>> executionContext) throws Throwable {
-            log.debug("MESSENGER (SourceQueryMessenger) => Executing request for address '{}' with request '{}' (Attempts: {}, Last Error: {}, Is Retry: {})", address, request, executionContext.getAttemptCount(), executionContext.getLastException() != null ? executionContext.getLastException().getClass().getSimpleName() : "N/A", executionContext.isRetry());
-            return sendQuery(address, request).handle((response, error) -> handleTimeouts(response, error, executionContext));
-        }
-
-        public SourceQueryResponse<?> handleTimeouts(SourceQueryResponse<?> response, Throwable error, ExecutionContext<SourceQueryResponse<?>> executionContext) {
-            if (error != null) {
-                if (error instanceof MessengerException) {
-                    Throwable cause = Errors.unwrap(error);
-                    NettyChannelContext ctx = ((MessengerException) error).getContext();
-                    int attemptCount = executionContext.getAttemptCount() + 1;
-                    if (attemptCount >= maxAttemptCount)
-                        throw new MaxAttemptsReachedException(cause, ctx.properties().envelope().recipient(), ctx.properties().request(), attemptCount, maxAttemptCount);
-                    throw (MessengerException) error;
-                } else {
-                    throw new CompletionException(Errors.unwrap(error));
-                }
-            }
-            return response;
         }
     }
 }

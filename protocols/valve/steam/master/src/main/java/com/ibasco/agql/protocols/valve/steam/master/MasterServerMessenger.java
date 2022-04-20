@@ -30,6 +30,7 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialR
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import dev.failsafe.*;
+import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.CheckedPredicate;
@@ -115,7 +116,20 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //<editor-fold desc="Protected Methods">
 
     private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
+        //Console.println("BUILDING RETRY");
         RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(options);
+        builder.onRetry(new EventListener<ExecutionAttemptedEvent<MasterServerResponse>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<MasterServerResponse> event) throws Throwable {
+                //Console.println("MASTER RETRY: %d", event.getAttemptCount());
+            }
+        });
+        builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<MasterServerResponse>>() {
+            @Override
+            public void accept(ExecutionAttemptedEvent<MasterServerResponse> event) throws Throwable {
+                //Console.error("Failed attempt: %s (Count: %d)", event.getLastException(), event.getAttemptCount());
+            }
+        });
         return builder.build();
     }
 
@@ -138,6 +152,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
      */
     public CompletableFuture<MasterServerResponse> send(MasterServerRequest request) {
         if (this.requestExecutor != null) {
+            Console.println("Sending master request: %s", request);
             MasterServerContextualSupplier supplier = new MasterServerContextualSupplier(request);
             return requestExecutor.getStageAsync(supplier).whenComplete(supplier::onCompletion);
         } else

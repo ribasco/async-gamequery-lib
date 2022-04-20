@@ -187,7 +187,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
-    protected CompletableFuture<NettyChannelContext> acquireContext(Object data) {
+    protected final CompletableFuture<NettyChannelContext> acquireContext(Object data) {
         if (data == null)
             throw new IllegalStateException("No data provided for channel acquisition");
         return channelFactory.create(data).thenApply(NettyChannelContext::getContext);

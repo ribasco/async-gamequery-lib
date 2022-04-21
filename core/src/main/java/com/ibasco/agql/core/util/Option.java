@@ -51,7 +51,7 @@ public final class Option<T> {
     private static final Logger log = LoggerFactory.getLogger(Option.class);
 
     private static final Predicate<ClassPath.ClassInfo> VALID_OPTION_CONTAINERS = info -> {
-        if (!info.isTopLevel() || !info.getName().toLowerCase().contains("options"))
+        if (!info.isTopLevel() || !info.getName().startsWith("com.ibasco.agql") || !info.getName().toLowerCase().contains("options"))
             return false;
         Class<?> cls = info.load();
         int modifiers = cls.getModifiers();
@@ -114,8 +114,15 @@ public final class Option<T> {
             for (ClassPath.ClassInfo info : classes) {
                 //note: by manually loading the classses, we trigger Option#create() as a result, which populates the optionCache.
 
-                //noinspection unchecked
-                Class<? extends Options> declaringClass = (Class<? extends Options>) info.load();
+                Class<? extends Options> declaringClass;
+                try {
+                    //noinspection unchecked
+                    declaringClass = (Class<? extends Options>) info.load();
+                } catch (LinkageError e) {
+                    error("Failed to load class '%s'", info.getName());
+                    continue;
+                }
+
                 Field[] fields = declaringClass.getFields(); //use getFields() to also include the fields of parent classses
 
                 int ctr = 1;

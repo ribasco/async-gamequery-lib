@@ -90,6 +90,9 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("reauth", this::commandReauth);
 
         final SourceRconOptions options = SourceRconOptions.builder()
+                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
+                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                                           .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
                                                            .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
                                                            .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
                                                            .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)

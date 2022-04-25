@@ -71,18 +71,18 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         this.options = options;
         this.eventLoopGroup = initializeEventLoopGroup();
         DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
-        configBuilder.setKeepAlive(options.getOrDefault(GlobalOptions.SOCKET_KEEP_ALIVE));
-        configBuilder.addRequestFilter(new ThrottleRequestFilter(options.getOrDefault(GlobalOptions.POOL_MAX_CONNECTIONS)));
+        configBuilder.setKeepAlive(options.getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));
+        configBuilder.addRequestFilter(new ThrottleRequestFilter(options.getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS)));
         configBuilder.setEventLoopGroup(this.eventLoopGroup);
         this.transport = new AsyncHttpTransport(configBuilder.build());
         this.responseFactory = responseFactory;
     }
 
     private EventLoopGroup initializeEventLoopGroup() {
-        ExecutorService executorService = options.get(GlobalOptions.THREAD_EXECUTOR_SERVICE);
+        ExecutorService executorService = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE);
         if (executorService == null)
             executorService = Platform.getDefaultExecutor();
-        Integer nThreads = getOptions().get(GlobalOptions.THREAD_CORE_SIZE);
+        Integer nThreads = getOptions().get(GeneralOptions.THREAD_CORE_SIZE);
         //Attempt to determine the number of threads supported by the executor service
         if (nThreads == null) {
             if (executorService instanceof AgqlManagedExecutorService)
@@ -91,7 +91,7 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
                 ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
                 nThreads = tpe.getCorePoolSize();
             } else {
-                throw new IllegalStateException("Please specify a core pool size in the options (See GlobalOptions.THREAD_CORE_SIZE)");
+                throw new IllegalStateException("Please specify a core pool size in the options (See GeneralOptions.THREAD_CORE_SIZE)");
             }
         }
         EventLoopGroup group = Platform.isDefaultExecutor(executorService) ? Platform.getDefaultEventLoopGroup() : Platform.createEventLoopGroup(executorService, nThreads, Properties.useNativeTransport());

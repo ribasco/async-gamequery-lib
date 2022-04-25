@@ -104,10 +104,10 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     @Override
     protected void configure(Options options) {
         //enable pooling by default
-        applyDefault(GlobalOptions.CONNECTION_POOLING, false);
-        applyDefault(GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
-        applyDefault(GlobalOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
-        applyDefault(GlobalOptions.READ_TIMEOUT, 10000);
+        applyDefault(GeneralOptions.CONNECTION_POOLING, false);
+        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
+        applyDefault(GeneralOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
+        applyDefault(GeneralOptions.READ_TIMEOUT, 10000);
         //default rate limiting options
         applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);

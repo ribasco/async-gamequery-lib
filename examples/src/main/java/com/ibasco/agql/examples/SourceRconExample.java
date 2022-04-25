@@ -91,10 +91,10 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("reauth", this::commandReauth);
 
         final SourceRconOptions options = SourceRconOptions.builder()
-                                                           .option(GlobalOptions.POOL_MAX_CONNECTIONS, 8)
-                                                           .option(GlobalOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                           .option(GlobalOptions.CONNECTION_POOLING, true)
-                                                           .option(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                           .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
+                                                           .option(GeneralOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
+                                                           .option(GeneralOptions.CONNECTION_POOLING, true)
+                                                           .option(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                            .option(ConnectOptions.FAILSAFE_ENABLED, true)
                                                            .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 1L)
                                                            .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 500L)

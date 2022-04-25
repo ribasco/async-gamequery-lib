@@ -19,7 +19,7 @@ package com.ibasco.agql.core.transport;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory;
 import com.ibasco.agql.core.util.ConnectOptions;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Options;
 
 /**
@@ -67,7 +67,7 @@ public class DefaultNettyChannelFactoryProvider implements NettyChannelFactoryPr
         if (options.getOrDefault(ConnectOptions.FAILSAFE_ENABLED))
             factory = new FailsafeChannelFactory(factory);
         //connection pooling enabled?
-        if (options.getOrDefault(GlobalOptions.CONNECTION_POOLING))
+        if (options.getOrDefault(GeneralOptions.CONNECTION_POOLING))
             factory = new NettyPooledChannelFactory(factory);
         if (contextFactory == null)
             return new NettyContextChannelFactory(factory);

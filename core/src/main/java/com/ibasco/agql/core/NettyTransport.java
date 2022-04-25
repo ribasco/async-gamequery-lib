@@ -20,7 +20,7 @@ import com.ibasco.agql.core.exceptions.ChannelClosedException;
 import com.ibasco.agql.core.exceptions.TransportException;
 import com.ibasco.agql.core.exceptions.WriteInProgressException;
 import com.ibasco.agql.core.util.Errors;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import io.netty.channel.Channel;
@@ -77,7 +77,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
         //Set resource leak detection if debugging is enabled
         if (log.isErrorEnabled()) {
-            ResourceLeakDetector.Level level = options.getOrDefault(GlobalOptions.RESOURCE_LEAK_DETECTOR_LEVEL);
+            ResourceLeakDetector.Level level = options.getOrDefault(GeneralOptions.RESOURCE_LEAK_DETECTOR_LEVEL);
             ResourceLeakDetector.setLevel(level);
             log.debug("[INIT] TRANSPORT => Set ResourceLeakDetector level to '{}'", level.name());
         }

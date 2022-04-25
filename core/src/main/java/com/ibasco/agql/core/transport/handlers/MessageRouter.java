@@ -20,7 +20,7 @@ import com.ibasco.agql.core.*;
 import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Strings;
 import io.netty.buffer.ByteBuf;
@@ -177,7 +177,7 @@ public class MessageRouter extends ChannelDuplexHandler {
             channel.pipeline().remove(ReadTimeoutHandler.class);
         } catch (NoSuchElementException ignored) {
         }
-        Integer readTimeout = GlobalOptions.READ_TIMEOUT.attr(channel);
+        Integer readTimeout = GeneralOptions.READ_TIMEOUT.attr(channel);
         assert readTimeout != null;
         channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
         log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", Netty.id(channel), readTimeout);

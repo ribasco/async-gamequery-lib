@@ -15,12 +15,12 @@ Features
 - Simple and easy to use API.
 - All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
 - It's fast and capable of handling large transactions.
-- Efficient use of system resources
+- Resource efficient
   - Uses netty's off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Helps reduce GC pressure for high volume/throughput transactions)
   - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model.
   - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
-- Highly configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
-- Queries are [Failsafe](https://failsafe.dev/) (excluding web api queries). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
+- Highly Configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Transactions are [Failsafe](https://failsafe.dev/) (except web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
   - **Retry Policy:** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
   - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
   - **Circuit Breaker Policy:** When certain number of failures reach the threshold, the library will transition to an "OPEN" state and temporarily reject new requests to prevent overload.
@@ -44,8 +44,8 @@ public class BlockingQueryExample {
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                           .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
-                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
-                                            .build();
+                                                          .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                                          .build();
 
         //You can instantiate the client from the try-with block as it implements the java.io.Closeable interface
         try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
@@ -76,8 +76,8 @@ public class NonBlockingQueryExample {
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                           .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
-                                            .build();
+                                                          .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                                          .build();
 
         //create a countdown latch with value of 1 since we are only expecting to receive 1 result
         CountDownLatch latch = new CountDownLatch(1);
@@ -141,8 +141,8 @@ public class NonBlockingQueryExample {
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                           .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                            .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
-                                            .build();
+                                                          .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
+                                                          .build();
         //Instantiate the client (constructor argument is optional)
         SourceQueryClient client = new SourceQueryClient(queryOptions);
 

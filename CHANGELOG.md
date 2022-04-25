@@ -16,7 +16,7 @@ Changelog
     - **Deprecated** some client constructors in the query modules. Use the new configuration feature of the client.
     - Now using off-heap pooled direct buffers by default for the majority of the queries.
     - Cleaned up and standardized log statements for better readability.
-    - A default global `EventLoopGroup` (a special netty executor service) is now shared with all clients by default. A custom executor/EventLoopGroup can still be provided via configuration. (See GlobalOptions.THREAD_EL_GROUP)
+    - A default global `EventLoopGroup` (a special netty executor service) is now shared with all clients by default. A custom executor/EventLoopGroup can still be provided via configuration. (See GeneralOptions.THREAD_EL_GROUP)
     - Updated interactive examples
 
 - **Source RCON**
@@ -29,7 +29,7 @@ Changelog
             - Failed requests will be retried three times before it is completed exceptionally. This is mostly convenient for cases where a request fails due to the active connection being dropped by the remote server (password invalidated/change, changelevel was issued etc).
     - Improved support for connection pooling
         - Connection Pooling is now enabled by default
-        - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see GlobalOptions.POOL_MAX_CONNECTIONS)
+        - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see GeneralOptions.POOL_MAX_CONNECTIONS)
     - Built-in Authentication management
         - An authentication manager is now provided and enabled by default to manage all active connections, ensuring that each connection remains in a valid state (connection is active and authenticated by the remote server).
     - Added RCON console in example module

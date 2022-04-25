@@ -200,10 +200,10 @@ public final class Option<T> {
      *
      * @return {@code true} if this option is a Global option type
      *
-     * @see GlobalOptions
+     * @see GeneralOptions
      */
     public boolean isGlobal() {
-        return declaringClass != null && declaringClass.equals(GlobalOptions.class);
+        return declaringClass != null && declaringClass.equals(GeneralOptions.class);
     }
 
     public boolean isShared() {
@@ -214,7 +214,7 @@ public final class Option<T> {
      * <p>Retrieve a singleton instance of an {@link com.ibasco.agql.core.util.Option} using the provided key.</p>
      *
      * <blockquote>
-     * <strong>Note:</strong> This will lookup the {@link com.ibasco.agql.core.util.GlobalOptions} container by default
+     * <strong>Note:</strong> This will lookup the {@link GeneralOptions} container by default
      * </blockquote>
      *
      * @param key
@@ -226,7 +226,7 @@ public final class Option<T> {
      */
     public static <V> Option<V> of(String key) {
         //noinspection unchecked
-        return (Option<V>) cache.get(GlobalOptions.class).stream().map(CacheEntry::getOption).filter(option -> option.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+        return (Option<V>) cache.get(GeneralOptions.class).stream().map(CacheEntry::getOption).filter(option -> option.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
     }
 
     public static <V> Option<V> of(Class<? extends Options> containerClass, Class<?> context, Option<?> option) {
@@ -326,7 +326,7 @@ public final class Option<T> {
      * @return The singleton {@link com.ibasco.agql.core.util.Option} instance if found, otherwise {@code null}.
      */
     public static <V> Option<V> ofGlobal(String key) {
-        for (Map.Entry<Option<?>, Object> entry : GlobalOptions.getInstance()) {
+        for (Map.Entry<Option<?>, Object> entry : GeneralOptions.getInstance()) {
             if (entry.getKey().getKey().equalsIgnoreCase(key) && entry.getKey().isGlobal())
                 //noinspection unchecked
                 return (Option<V>) entry.getKey();
@@ -335,21 +335,21 @@ public final class Option<T> {
     }
 
     /**
-     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link com.ibasco.agql.core.util.GlobalOptions} container
+     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link GeneralOptions} container
      *
      * @param option
      *         The {@link com.ibasco.agql.core.util.Option} to be used as lookup
      * @param <V>
      *         The captured return type
      *
-     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link com.ibasco.agql.core.util.GlobalOptions} container
+     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link GeneralOptions} container
      */
     public static <V> V getGlobal(Option<V> option) {
-        return GlobalOptions.getInstance().get(option);
+        return GeneralOptions.getInstance().get(option);
     }
 
     /**
-     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link com.ibasco.agql.core.util.GlobalOptions} container
+     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link GeneralOptions} container
      *
      * @param option
      *         The {@link com.ibasco.agql.core.util.Option} to be used as lookup
@@ -358,10 +358,10 @@ public final class Option<T> {
      * @param <V>
      *         The captured return type
      *
-     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link com.ibasco.agql.core.util.GlobalOptions} container
+     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link GeneralOptions} container
      */
     public static <V> V getGlobal(Option<V> option, V defaultValue) {
-        return GlobalOptions.getInstance().get(option, defaultValue);
+        return GeneralOptions.getInstance().get(option, defaultValue);
     }
 
     /**

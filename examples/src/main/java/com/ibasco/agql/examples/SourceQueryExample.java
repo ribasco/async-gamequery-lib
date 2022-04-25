@@ -104,9 +104,9 @@ public class SourceQueryExample extends BaseExample {
             // - Set read timeout to 1000ms (1 second)
             SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                                 //override default value, enable rate limiting (default is: false)
-                                                                .option(GlobalOptions.CONNECTION_POOLING, false)
-                                                                .option(GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
-                                                                .option(GlobalOptions.POOL_MAX_CONNECTIONS, 50)
+                                                                .option(GeneralOptions.CONNECTION_POOLING, false)
+                                                                .option(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
+                                                                .option(GeneralOptions.POOL_MAX_CONNECTIONS, 50)
                                                                 .option(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true)
                                                                 .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
@@ -114,8 +114,8 @@ public class SourceQueryExample extends BaseExample {
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
-                                                                //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
-                                                                .option(GlobalOptions.READ_TIMEOUT, 5000)
+                                                                //.option(GeneralOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
+                                                                .option(GeneralOptions.READ_TIMEOUT, 5000)
                                                                 .build();
             queryClient = new SourceQueryClient(queryOptions);
 
@@ -124,7 +124,7 @@ public class SourceQueryExample extends BaseExample {
             // - Provide a custom executor for master client. We are responsible for shutting down this executor, not the library.
             MasterServerOptions masterOptions = MasterServerOptions.builder()
                                                                    .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                                   //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
+                                                                   //.option(GeneralOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
                                                                    .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runQueries();

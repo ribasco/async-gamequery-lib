@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,10 +49,10 @@ public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
     public FixedNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);
         final Options options = channelFactory.getOptions();
-        this.action = options.getOrDefault(GlobalOptions.POOL_ACQUIRE_TIMEOUT_ACTION);
-        this.acquireTimeoutMillis = options.getOrDefault(GlobalOptions.POOL_ACQUIRE_TIMEOUT);
-        this.maxConnections = options.getOrDefault(GlobalOptions.POOL_MAX_CONNECTIONS);
-        this.maxPendingAcquires = options.getOrDefault(GlobalOptions.POOL_ACQUIRE_MAX);
+        this.action = options.getOrDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT_ACTION);
+        this.acquireTimeoutMillis = options.getOrDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT);
+        this.maxConnections = options.getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS);
+        this.maxPendingAcquires = options.getOrDefault(GeneralOptions.POOL_ACQUIRE_MAX);
     }
 
     /** {@inheritDoc} */

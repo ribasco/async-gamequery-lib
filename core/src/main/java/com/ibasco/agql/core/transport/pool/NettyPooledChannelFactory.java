@@ -20,7 +20,7 @@ package com.ibasco.agql.core.transport.pool;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryDecorator;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
@@ -53,7 +53,7 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
      */
     public NettyPooledChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        final ChannelPoolType poolType = getOptions().getOrDefault(GlobalOptions.POOL_TYPE);
+        final ChannelPoolType poolType = getOptions().getOrDefault(GeneralOptions.POOL_TYPE);
         this.channelPoolFactory = NettyChannelPoolFactoryProvider.DEFAULT.getFactory(poolType, channelFactory);
         log.debug("[INIT] POOL => Using channel pool factory '{}'", channelPoolFactory);
         this.channelPoolMap = new MessageChannelPoolMap(this);

@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.GlobalOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
@@ -56,7 +56,7 @@ public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
     /** {@inheritDoc} */
     @Override
     protected void configureBootstrap(final Bootstrap bootstrap) {
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(GlobalOptions.SOCKET_KEEP_ALIVE));
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));
         bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 

@@ -108,7 +108,7 @@ public final class Platform {
             //once we have created all available options, update it's field names via reflection
             //Option.updateFieldNames();
             //global
-            GlobalOptions.getInstance();
+            GeneralOptions.getInstance();
 
             if (verbose) {
                 printLine();

@@ -39,8 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
  *                                                            new LinkedBlockingQueue<>(),
  *                                                            new DefaultThreadFactory("agql-query"));
  *  SourceQueryOptions queryOptions = SourceQueryOptions.builder() //this can be any class that implements the Options interface
- *                                      .option(GlobalOptions.READ_TIMEOUT, 3000)
- *                                      .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, executor)
+ *                                      .option(GeneralOptions.READ_TIMEOUT, 3000)
+ *                                      .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, executor)
  *                                      .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
  *                                      .build();
  *
@@ -52,14 +52,14 @@ import java.util.concurrent.atomic.AtomicReference;
  * @see Option
  * @see OptionBuilder
  */
-public final class GlobalOptions extends AbstractOptions {
+public final class GeneralOptions extends AbstractOptions {
 
-    private static final AtomicReference<Options> globalOptions = new AtomicReference<>();
+    private static final AtomicReference<Options> optionsRef = new AtomicReference<>();
 
     /**
      * Prevent this from being instantiated
      */
-    private GlobalOptions() {}
+    private GeneralOptions() {}
 
     //<editor-fold desc="General">
 
@@ -231,19 +231,19 @@ public final class GlobalOptions extends AbstractOptions {
      * @return The global {@link com.ibasco.agql.core.util.Options} container
      */
     public static Options getInstance() {
-        Options options = globalOptions.get();
+        Options options = optionsRef.get();
         if (options == null) {
-            options = newGlobalOptions();
-            if (!globalOptions.compareAndSet(null, options)) {
-                return globalOptions.get();
+            options = newGeneralOptions();
+            if (!optionsRef.compareAndSet(null, options)) {
+                return optionsRef.get();
             }
         }
         return options;
     }
 
-    private static Options newGlobalOptions() {
-        Options options = new GlobalOptions();
-        for (Option.CacheEntry cacheEntry : Option.getOptions().get(GlobalOptions.class)) {
+    private static Options newGeneralOptions() {
+        Options options = new GeneralOptions();
+        for (Option.CacheEntry cacheEntry : Option.getOptions().get(GeneralOptions.class)) {
             Option<?> opt = cacheEntry.getOption();
             //noinspection unchecked
             options.put((Option<Object>) opt, opt.getDefaultValue());

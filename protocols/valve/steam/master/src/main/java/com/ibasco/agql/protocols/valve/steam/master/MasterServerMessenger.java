@@ -164,8 +164,8 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     /** {@inheritDoc} */
     @Override
     protected void configure(Options options) {
-        applyDefault(GlobalOptions.CONNECTION_POOLING, false);
-        applyDefault(GlobalOptions.READ_TIMEOUT, 8000);
+        applyDefault(GeneralOptions.CONNECTION_POOLING, false);
+        applyDefault(GeneralOptions.READ_TIMEOUT, 8000);
 
         //Failsafe Defaults
         applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);

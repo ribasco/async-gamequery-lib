@@ -142,8 +142,8 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     @Override
     protected void configure(final Options options) {
         //global defaults
-        applyDefault(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED);
-        applyDefault(GlobalOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED);
+        applyDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
 
         //rcon defaults
         applyDefault(SourceRconOptions.USE_TERMINATOR_PACKET, true);
@@ -704,10 +704,10 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             print(output, LINE);
             print(output, "Channel Statistics");
             print(output, LINE);
-            print(output, "Connection pooling enabled: %s", getOrDefault(GlobalOptions.CONNECTION_POOLING));
-            print(output, "Max Pooled Connections: %d", getOrDefault(GlobalOptions.POOL_MAX_CONNECTIONS));
+            print(output, "Connection pooling enabled: %s", getOrDefault(GeneralOptions.CONNECTION_POOLING));
+            print(output, "Max Pooled Connections: %d", getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS));
             print(output, "Max Core Pool Size: %d", Concurrency.getCorePoolSize(getExecutor()));
-            print(output, "Max Pending Acquires: %d", getOrDefault(GlobalOptions.POOL_ACQUIRE_MAX));
+            print(output, "Max Pending Acquires: %d", getOrDefault(GeneralOptions.POOL_ACQUIRE_MAX));
             print(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
             EventLoopGroup eventLoopGroup = getExecutor();
             print(output, "Executor Service: %s", eventLoopGroup);

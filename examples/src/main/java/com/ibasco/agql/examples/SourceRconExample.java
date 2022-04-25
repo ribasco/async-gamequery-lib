@@ -97,7 +97,7 @@ public class SourceRconExample extends BaseExample {
                                                            .option(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED)
                                                            .option(ConnectOptions.FAILSAFE_ENABLED, true)
                                                            .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 1000L)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 500L)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L)
                                                            .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
                                                            .option(SourceRconOptions.STRICT_MODE, false)
                                                            //.option(SourceRconOptions.FAILSAFE_RETRY_DELAY, 1500L)

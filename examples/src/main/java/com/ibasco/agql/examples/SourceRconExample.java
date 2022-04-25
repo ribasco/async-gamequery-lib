@@ -90,6 +90,9 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("reauth", this::commandReauth);
 
         final SourceRconOptions options = SourceRconOptions.builder()
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
                                                            .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
                                                            .build();
         Console.println("Created a new rcon options container with %d options", options.size());

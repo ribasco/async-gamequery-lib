@@ -17,7 +17,6 @@
 package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.exceptions.InvalidCredentialsException;
-import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.util.*;
 import static com.ibasco.agql.core.util.Console.color;
 import com.ibasco.agql.examples.base.BaseExample;
@@ -92,15 +91,6 @@ public class SourceRconExample extends BaseExample {
 
         final SourceRconOptions options = SourceRconOptions.builder()
                                                            .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
-                                                           .option(GeneralOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                           .option(GeneralOptions.CONNECTION_POOLING, true)
-                                                           .option(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED)
-                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
-                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 1000L)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L)
-                                                           .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
-                                                           .option(SourceRconOptions.STRICT_MODE, false)
-                                                           //.option(SourceRconOptions.FAILSAFE_RETRY_DELAY, 1500L)
                                                            .build();
         Console.println("Created a new rcon options container with %d options", options.size());
         for (Map.Entry<Option<?>, Object> o : options) {

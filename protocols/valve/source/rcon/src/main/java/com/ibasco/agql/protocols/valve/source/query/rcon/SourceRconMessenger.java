@@ -142,6 +142,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     @Override
     protected void configure(final Options options) {
         //global defaults
+        applyDefault(GeneralOptions.CONNECTION_POOLING, true);
         applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED);
         applyDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
 
@@ -152,14 +153,16 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         //rcon failsafe defaults
         applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
 
-        //connect failsafe default
+        //connect failsafe defaults
+        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
         applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
         applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
         applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());

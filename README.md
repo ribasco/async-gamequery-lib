@@ -181,7 +181,7 @@ The following image shows the test results after executing `500,000k` random com
 - OS: Ubuntu Linux 20.04
 - Transport used: epoll
 
-![Source RCON Example Application - 02](site/resources/images/agql-rcon-console-02.png)
+![Source RCON Example Application - 02](site/resources/images/rcon-console-500k.png)
 
 Project Resources
 -------------

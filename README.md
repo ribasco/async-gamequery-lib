@@ -183,6 +183,14 @@ The following image shows the test results after executing `500,000k` random com
 
 ![Source RCON Example Application - 02](site/resources/images/rcon-console-500k.png)
 
+**Failsafe Demo - Retry**
+
+https://user-images.githubusercontent.com/13303385/165109655-d222637f-e614-494a-b7f3-b6a94dfbeae1.mp4
+
+**Failsafe Demo - Circuit Breaker**
+
+https://user-images.githubusercontent.com/13303385/165109735-0d96f3ca-5681-4456-977c-8cd4a5189c8b.mp4
+
 Project Resources
 -------------
 

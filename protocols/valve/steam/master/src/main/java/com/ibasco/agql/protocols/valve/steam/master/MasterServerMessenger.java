@@ -19,6 +19,7 @@ package com.ibasco.agql.protocols.valve.steam.master;
 import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
@@ -83,7 +84,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //<editor-fold desc="Failsafe">
     private void initFailSafe(final Options options, final ScheduledExecutorService executor) {
         assert options != null;
-        if (!options.getOrDefault(MasterServerOptions.FAILSAFE_ENABLED))
+        if (!options.getOrDefault(FailsafeOptions.FAILSAFE_ENABLED))
             return;
 
         //initialize failsafe policies
@@ -96,11 +97,11 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         }).build();
 
         //retry policy
-        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RETRY_ENABLED)) {
+        if (options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED)) {
             this.retryPolicy = buildRetryPolicy(options);
         }
         //rate limiter
-        if (options.getOrDefault(MasterServerOptions.FAILSAFE_RATELIMIT_ENABLED)) {
+        if (options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED)) {
             this.rateLimiter = buildRateLimiterPolicy(options);
         }
         //initialize executors
@@ -117,7 +118,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
         //Console.println("BUILDING RETRY");
-        RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(options);
+        RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
         builder.onRetry(new EventListener<ExecutionAttemptedEvent<MasterServerResponse>>() {
             @Override
             public void accept(ExecutionAttemptedEvent<MasterServerResponse> event) throws Throwable {
@@ -134,7 +135,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     }
 
     private RateLimiter<MasterServerChannelContext> buildRateLimiterPolicy(final Options options) {
-        RateLimiterBuilder<MasterServerChannelContext> rateLimiterBuilder = FailsafeBuilder.buildRateLimiter(options);
+        RateLimiterBuilder<MasterServerChannelContext> rateLimiterBuilder = FailsafeBuilder.buildRateLimiter(FailsafeOptions.class, options);
         return rateLimiterBuilder.build();
     }
 
@@ -163,11 +164,25 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     /** {@inheritDoc} */
     @Override
     protected void configure(Options options) {
-        //we disable using native transports (e.g. epoll) by default. Per my tests, it seems NIO seems to be more reliable.
-        //This can still be overriden by the developer
-        //defaultOption(options, GlobalOptions.USE_NATIVE_TRANSPORT, false);
-        defaultOption(options, GlobalOptions.CONNECTION_POOLING, false);
-        defaultOption(options, GlobalOptions.READ_TIMEOUT, 8000);
+        applyDefault(GlobalOptions.CONNECTION_POOLING, false);
+        applyDefault(GlobalOptions.READ_TIMEOUT, 8000);
+
+        //Failsafe Defaults
+        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 15L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 60000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, 3000L);
+
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, -1L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 60000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 5d);
+
     }
 
     /** {@inheritDoc} */

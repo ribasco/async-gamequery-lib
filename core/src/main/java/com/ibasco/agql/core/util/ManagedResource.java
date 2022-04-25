@@ -25,7 +25,6 @@ import java.io.Closeable;
  *
  * @param <T>
  *         The underlying type of the managed resource
- *
  * @author Rafael Luis Ibasco
  */
 public interface ManagedResource<T> extends Closeable {

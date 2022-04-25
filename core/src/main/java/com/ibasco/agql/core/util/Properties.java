@@ -77,11 +77,31 @@ public final class Properties {
         return USE_NATIVE_TRANSPORT;
     }
 
+    /**
+     * <p>readBoolProperty.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param defaultValue
+     *         a boolean
+     *
+     * @return a boolean
+     */
     public static boolean readBoolProperty(String property, boolean defaultValue) {
         String value = readProperty(property);
         return (value == null) ? defaultValue : BooleanUtils.toBoolean(value);
     }
 
+    /**
+     * <p>readIntProperty.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param defaultValue
+     *         a int
+     *
+     * @return a int
+     */
     public static int readIntProperty(String property, int defaultValue) {
         String value = readProperty(property);
         if (value != null && !Strings.isNumeric(value.trim()))
@@ -89,10 +109,28 @@ public final class Properties {
         return value == null ? defaultValue : Integer.parseInt(value.trim());
     }
 
+    /**
+     * <p>readProperty.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
     public static String readProperty(String property) {
         return readProperty(property, null);
     }
 
+    /**
+     * <p>readProperty.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param defaultValue
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
     public static String readProperty(String property, String defaultValue) {
         try {
             String value = System.getProperty(property);

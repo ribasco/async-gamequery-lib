@@ -60,7 +60,6 @@ import java.net.SocketAddress;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -92,13 +91,13 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     private final RconAuthenticator authenticator;
 
-    private final RetryPolicy<SourceRconChannelContext> retryPolicy;
+    private RetryPolicy<SourceRconChannelContext> retryPolicy;
 
-    private final Fallback<SourceRconChannelContext> fallbackPolicy;
+    private Fallback<SourceRconChannelContext> fallbackPolicy;
 
-    private final CircuitBreaker<SourceRconChannelContext> circuitBreakerPolicy;
+    private CircuitBreaker<SourceRconChannelContext> circuitBreakerPolicy;
 
-    private final FailsafeExecutor<SourceRconChannelContext> executor;
+    private FailsafeExecutor<SourceRconChannelContext> executor;
 
     private volatile boolean healthCheckStarted;
     //</editor-fold>
@@ -118,22 +117,55 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         this.reauthenticate = getOrDefault(SourceRconOptions.REAUTHENTICATE);
         this.authenticator = new SourceRconAuthenticator(credentialsStore, reauthenticate);
         this.channelFactory = (SourceRconChannelFactory) getChannelFactory();
-        final Options rconOptions = getOptions();
+        initFailSafe(getOptions());
+    }
+    //</editor-fold>
+
+    private void initFailSafe(final Options rconOptions) {
         this.circuitBreakerPolicy = buildCircuitBreakerPolicy(rconOptions);
         this.fallbackPolicy = buildFallbackPolicy();
         this.retryPolicy = buildRetryPolicy(rconOptions);
         this.executor = Failsafe.with(fallbackPolicy, retryPolicy, circuitBreakerPolicy).with(getExecutor());
     }
-    //</editor-fold>
 
     //<editor-fold desc="Failsafe Policy Builder">
     private CircuitBreaker<SourceRconChannelContext> buildCircuitBreakerPolicy(final Options options) {
-        CircuitBreakerBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildCircuitBreaker(options);
+        CircuitBreakerBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildCircuitBreaker(FailsafeOptions.class, options);
         builder.handleIf(e -> {
             Throwable cause = Errors.unwrap(e);
             return cause instanceof TimeoutException || cause instanceof io.netty.handler.timeout.TimeoutException;
         });
         return builder.build();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void configure(final Options options) {
+        //global defaults
+        applyDefault(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED);
+        applyDefault(GlobalOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+
+        //rcon defaults
+        applyDefault(SourceRconOptions.USE_TERMINATOR_PACKET, true);
+        applyDefault(SourceRconOptions.STRICT_MODE, false);
+
+        //rcon failsafe defaults
+        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
+
+        //connect failsafe default
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
+        Console.println("%s: Applied default option values", getClass().getSimpleName());
     }
 
     private Fallback<SourceRconChannelContext> buildFallbackPolicy() {
@@ -180,7 +212,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     }
 
     private RetryPolicy<SourceRconChannelContext> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildRetryPolicy(options);
+        RetryPolicyBuilder<SourceRconChannelContext> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
         builder.abortIf((context, error) -> error instanceof RconAuthException || Errors.unwrap(error) instanceof ConnectException);
         builder.handleIf(e -> {
             Throwable error = Errors.unwrap(e);
@@ -349,29 +381,15 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     /** {@inheritDoc} */
     @Override
-    protected void configure(final Options options) {
-        defaultOption(options, GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED);
-        defaultOption(options, SourceRconOptions.USE_TERMINATOR_PACKET, true);
-        defaultOption(options, SourceRconOptions.STRICT_MODE, false);
-        defaultOption(options, GlobalOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     protected NettyChannelFactory createChannelFactory() {
         final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
         return new SourceRconChannelFactory(channelFactory);
     }
 
     /**
+     * {@inheritDoc}
+     * <p>
      * Route the rcon request to it's appropriate handler
-     *
-     * @param address
-     *         The destination address
-     * @param request
-     *         The request to be sent to the server
-     *
-     * @return A {@link java.util.concurrent.CompletableFuture} which is notified once a response has been received from the server
      */
     @Override
     public CompletableFuture<SourceRconResponse> send(final InetSocketAddress address, final SourceRconRequest request) {
@@ -454,7 +472,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     /**
      * <p>Getter for the field <code>statistics</code>.</p>
      *
-     * @return a {@link Statistics} object
+     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger.Statistics} object
      */
     @ApiStatus.Experimental
     @ApiStatus.Internal
@@ -653,15 +671,14 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         }
     }
 
-    public class Statistics implements BiFunction<Channel, Throwable, Channel> {
+    public class Statistics {
 
         private final ChannelFutureListener REMOVE_ON_CLOSE = future -> {
             log.debug("{} STATISTICS (CLEANUP) => Removing channel '{}'", Netty.id(future.channel()), future.channel());
             remove(future.channel());
         };
 
-        @Override
-        public Channel apply(Channel channel, Throwable error) {
+        private Channel collect(Channel channel, Throwable error) {
             if (error != null) {
                 if (error instanceof CompletionException)
                     throw (CompletionException) error;
@@ -810,7 +827,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             channelFuture.thenAccept(this::updateContext);
             return channelFuture
                     .thenCompose(SourceRconMessenger.this::register)
-                    .handle(statistics)
+                    .handle(statistics::collect)
                     .thenApply(SourceRconChannelContext::getContext)
                     .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
         }

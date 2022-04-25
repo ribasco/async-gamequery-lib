@@ -125,7 +125,6 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
      *         a {@link java.lang.Class} object
      * @param executorService
      *         a {@link java.util.concurrent.ExecutorService} object
-     *
      * @return a {@link io.netty.channel.EventLoopGroup} object
      */
     protected EventLoopGroup initializeEventLoopGroup(@NotNull Class<? extends Channel> channelClass, @NotNull ExecutorService executorService) {
@@ -325,7 +324,8 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         log.debug("[INIT] TRANSPORT (BOOTSTRAP) => Auto initializing channel attributes whose autoCreate flag is set");
         log.debug("===================================================================================================================");
         if (Option.getOptions().size() > 0) {
-            for (Option<?> option : Option.getOptions().values()) {
+            for (Option.CacheEntry cacheEntry : Option.getOptions().values()) {
+                Option<?> option = cacheEntry.getOption();
                 if (option.isChannelAttribute() && option.isAutoCreate()) {
                     log.debug("[INIT] TRANSPORT (BOOTSTRAP) => ({}) Attribute: '{}' (Default Value: {})", ++ctr, option.getKey(), option.getDefaultValue());
                     //noinspection unchecked

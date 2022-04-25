@@ -21,7 +21,6 @@ import com.ibasco.agql.core.util.*;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
-import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
@@ -66,25 +65,14 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
      */
     protected FailsafeChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);
-        Options globalOptions = GlobalOptions.getContainer();
-        this.fallbackPolicy = buildFallbackPolicy(globalOptions);
-        this.retryPolicy = buildRetryPolicy(globalOptions);
-        this.circuitBreaker = buildCircuitBreakerPolicy(globalOptions);
+        Options options = channelFactory.getOptions();
+        this.fallbackPolicy = buildFallbackPolicy(options);
+        this.retryPolicy = buildRetryPolicy(options);
+        this.circuitBreaker = buildCircuitBreakerPolicy(options);
         this.acquireExecutor = Failsafe.with(fallbackPolicy, retryPolicy, circuitBreaker).with(getExecutor());
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> create(Object data) {
-        return acquireExecutor.getStageAsync(getContextualSupplier(data));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
-        return Netty.useEventLoop(create(data), eventLoop);
-    }
-
+    //<editor-fold desc="Failsafe">
     private Fallback<Channel> buildFallbackPolicy(final Options options) {
         FallbackBuilder<Channel> builder = Fallback.builderOfException(event -> {
             if (event.getLastException() instanceof CircuitBreakerOpenException) {
@@ -97,13 +85,14 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
     }
 
     private CircuitBreaker<Channel> buildCircuitBreakerPolicy(final Options options) {
-        CircuitBreakerBuilder<Channel> builder = FailsafeBuilder.buildCircuitBreaker(options);
+        //TODO: Make sure we use ConnectOptions
+        CircuitBreakerBuilder<Channel> builder = FailsafeBuilder.buildCircuitBreaker(ConnectOptions.class, options);
         builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
         return builder.build();
     }
 
     private RetryPolicy<Channel> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<Channel> builder = FailsafeBuilder.buildRetryPolicy(options);
+        RetryPolicyBuilder<Channel> builder = FailsafeBuilder.buildRetryPolicy(ConnectOptions.class, options);
         builder.handleIf(e -> Errors.unwrap(e) instanceof SocketException); //handle all instances of socket related exceptions
         builder.abortIf(channel -> {
             EventLoopGroup group = channel.eventLoop().parent();
@@ -118,35 +107,25 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
                     log.error("CHANNEL_FACTORY ({}) => Failed to acquire channel. Retrying (Attempts: {}, Last Failure: {})", getClass().getSimpleName(), event.getAttemptCount(), event.getLastException() != null ? event.getLastException().getClass().getSimpleName() : "N/A");
                 }
             });
-            builder.onRetriesExceeded(new EventListener<ExecutionCompletedEvent<Channel>>() {
-                @Override
-                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                    Console.error("[CONNECT] Retries Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException());
-                }
-            });
-            builder.onFailure(new EventListener<ExecutionCompletedEvent<Channel>>() {
-                @Override
-                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                    Console.error("[CONNECT] Unable to connect to server. All attempts have failed. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
-                }
-            });
-            builder.onAbort(new EventListener<ExecutionCompletedEvent<Channel>>() {
-                @Override
-                public void accept(ExecutionCompletedEvent<Channel> event) throws Throwable {
-                    Console.colorize().red().text("[CONNECT]").white().textln("Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).print();
-                    //Console.error("[CONNECT] Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount());
-                }
-            });
-            builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<Channel>>() {
-                @Override
-                public void accept(ExecutionAttemptedEvent<Channel> event) throws Throwable {
-                    Console.error("[CONNECT] Failed Attempt (Error: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount());
-                }
-            });
+            builder.onRetriesExceeded(event -> Console.error("[CONNECT] Retries Exceeded: %d (Error: %s)", event.getAttemptCount(), event.getException()));
+            builder.onFailure(event -> Console.error("[CONNECT] Unable to connect to server. All attempts have failed. (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()));
+            builder.onAbort(event -> Console.colorize().red().text("[CONNECT]").white().textln("Retry Aborted (Error: %s, Attempts: %d)", event.getException(), event.getAttemptCount()).print());
+            builder.onFailedAttempt(event -> Console.error("[CONNECT] Failed Attempt (Error: %s, Attempts: %d)", event.getLastException(), event.getAttemptCount()));
         }
-        //builder.withMaxAttempts(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_MAX_CONNECT));
-        //builder.withBackoff(Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MIN)), Duration.ofSeconds(getOptions().getOrDefault(GlobalOptions.FAILSAFE_ACQUIRE_BACKOFF_MAX)));
         return builder.build();
+    }
+    //</editor-fold>
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> create(Object data) {
+        return acquireExecutor.getStageAsync(getContextualSupplier(data));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
+        return Netty.useEventLoop(create(data), eventLoop);
     }
 
     private ChannelSupplier getContextualSupplier(final Object data) {

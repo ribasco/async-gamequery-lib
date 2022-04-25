@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -68,10 +69,12 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
             options = OptionBuilder.newBuilder(properties.optionClass()).build();//createOptions();
         }
         assert options != null;
-        //Apply messenger specific configuration parameters
-        configure(options);
-        //Initialize members
         this.options = options;
+        //Apply messenger specific configuration
+        configure(options);
+        consolidate();
+
+        //Initialize members
         this.factoryProvider = createFactoryProvider();
         this.channelFactory = createChannelFactory();
         this.transport = new NettyTransport(options);
@@ -82,12 +85,12 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     //<editor-fold desc="Abstract/Protected Methods">
 
     /**
-     * Populate with configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
+     * Populate configuration options. Subclasses should override this method. This is called right before the underlying transport is initialized.
      *
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
      */
-    protected void configure(final Options options) {}
+    abstract protected void configure(final Options options);
 
     /**
      * <p>createFactoryProvider.</p>
@@ -123,17 +126,14 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * <p>Send context to the underlying {@link Transport}</p>
+     * <p>Send context to the underlying {@link com.ibasco.agql.core.Transport}</p>
      *
      * @param context
      *         The context containing the transaction details
      * @param <C>
-     *         A type of {@link NettyChannelContext}
+     *         A type of {@link com.ibasco.agql.core.NettyChannelContext}
      *
      * @return a {@link java.util.concurrent.CompletableFuture} object
-     *
-     * @throws MessengerException
-     *         If any error occurs during read/write operations. This wraps the underlying context that was used for the transaction.
      */
     public final <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
         assert context != null;
@@ -365,14 +365,39 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     protected final <X> void lockedOption(Options map, Option<X> option, X value) {
         if (map.contains(option))
             map.remove(option);
-        map.add(option, value, true);
+        map.put(option, value, true);
+    }
+
+    protected void consolidate() {
+        Options options = getOptions();
+        Class<? extends Options> optionsClass = getOptions().getClass();
+        Console.printLine();
+        Console.println("Consolidating options for '%s' (Size: %d)", optionsClass.getSimpleName(), options.size());
+        Console.printLine();
+        //1. ensure all required configuration options are present in this container by cross-check with the option cache
+        for (Option.CacheEntry cacheEntry : Option.getOptions().get(optionsClass)) {
+            Option<?> option = cacheEntry.getOption();
+            Class<?> context = cacheEntry.getContext();
+            //noinspection unchecked
+            options.putIfAbsent((Option<Object>) option, option.getDefaultValue());
+        }
+
+        //2. Process global options
+        if (options.isEmpty()) {
+            Console.println("[%s] No options available to process", getClass().getSimpleName());
+        } else {
+
+            for (Map.Entry<Option<?>, Object> entry : options) {
+                Option<?> option = entry.getKey();
+                Object value = entry.getValue();
+                Console.println("[%s] %-30s => %-50s : %-30s (%-15s)", getClass().getSimpleName(), option.getDeclaringClass().getSimpleName(), option.getFieldName(), value, option.getKey());
+            }
+        }
     }
 
     /**
-     * <p>defaultOption.</p>
+     * <p>Apply a default option value if not specified by the user</p>
      *
-     * @param map
-     *         a {@link com.ibasco.agql.core.util.Options} object
      * @param option
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param value
@@ -380,9 +405,15 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      * @param <X>
      *         a X class
      */
-    protected final <X> void defaultOption(Options map, Option<X> option, X value) {
-        if (!map.contains(option))
-            map.add(option, value);
+    protected final <X> void applyDefault(Option<X> option, X value) {
+        Options map = getOptions();
+        map.putIfAbsent(option, value);
+        /*if (!map.contains(option)) {
+            map.put(option, value);
+            //Console.println("[%s]: Applied default value '%s' = '%s'", getClass().getSimpleName(), option.getFieldName(), value);
+        } else {
+            Console.println("[%s]: Skipped default value for '%s'. User provided value is '%s'", getClass().getSimpleName(), option.getFieldName(), map.get(option));
+        }*/
     }
     //</editor-fold>
 }

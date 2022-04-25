@@ -60,8 +60,6 @@ import java.util.function.Supplier;
 public final class Platform {
 
     private static final Logger log = LoggerFactory.getLogger(Platform.class);
-
-    /** Constant <code>DEFAULT_THREAD_GROUP</code> */
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
 
     private static volatile ThreadFactory DEFAULT_THREAD_FACTORY;
@@ -92,6 +90,9 @@ public final class Platform {
         DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER); //provider for default executor service
     }
 
+    /**
+     * <p>Initialize platform and properties. This can only be called once.</p>
+     */
     public static void initialize() {
         if (initialized)
             return;
@@ -105,9 +106,9 @@ public final class Platform {
             //we initialize options from here to ensure the order of initialization
             Option.initialize();
             //once we have created all available options, update it's field names via reflection
-            Option.updateFieldNames();
+            //Option.updateFieldNames();
             //global
-            GlobalOptions.getContainer();
+            GlobalOptions.getInstance();
 
             if (verbose) {
                 printLine();
@@ -181,7 +182,6 @@ public final class Platform {
      *
      * @param executor
      *         The {@link java.util.concurrent.Executor} to check
-     *
      * @return {@code true} if the {@link java.util.concurrent.Executor} is global
      */
     public static boolean isDefaultExecutor(Executor executor) {
@@ -197,10 +197,10 @@ public final class Platform {
 
     /**
      * <p>
-     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link ThreadPoolExecutor} cast the return value to ({@link AgqlManagedExecutorService} and call {@link AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
+     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link java.util.concurrent.ThreadPoolExecutor} cast the return value to ({@link com.ibasco.agql.core.util.AgqlManagedExecutorService} and call {@link com.ibasco.agql.core.util.AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
      * </p>
      * <blockquote>
-     * <strong>NOTE:</strong> The executor service returned by this function is reference counted (See {@link ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link ManagedResource#release()} the on the resource after use.
+     * <strong>NOTE:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
      * </blockquote>
      *
      * @return The default global {@link java.util.concurrent.ExecutorService}
@@ -250,7 +250,6 @@ public final class Platform {
      *
      * @param cls
      *         a {@link java.lang.Class} object
-     *
      * @return a {@link java.lang.ThreadGroup} object
      */
     public static ThreadGroup creeateThreadGroup(Class<?> cls) {
@@ -264,7 +263,6 @@ public final class Platform {
      *         a {@link java.lang.Class} object
      * @param parent
      *         a {@link java.lang.ThreadGroup} object
-     *
      * @return a {@link java.lang.ThreadGroup} object
      */
     public static ThreadGroup creeateThreadGroup(Class<?> cls, ThreadGroup parent) {
@@ -310,7 +308,6 @@ public final class Platform {
      *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
      * @param useNative
      *         {@code true} to use native transports when available (e.g. epoll for linux, kqueue for osx).
-     *
      * @return A new {@link io.netty.channel.EventLoopGroup} instance
      */
     public static EventLoopGroup createEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
@@ -337,9 +334,7 @@ public final class Platform {
      *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
      * @param nThreads
      *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
-     *
      * @return A new {@link io.netty.channel.EventLoopGroup} instance
-     *
      * @throws java.lang.IllegalStateException
      *         If channelClass is not supported
      * @throws java.lang.IllegalArgumentException
@@ -366,7 +361,6 @@ public final class Platform {
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
      * @param group
      *         a {@link io.netty.channel.EventLoopGroup} object
-     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type, EventLoopGroup group) {
@@ -388,7 +382,6 @@ public final class Platform {
      *
      * @param type
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType}
-     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type) {
@@ -402,7 +395,6 @@ public final class Platform {
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
      * @param useNativeTransport
      *         {@code true} to use native transport
-     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type, boolean useNativeTransport) {

@@ -35,7 +35,6 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to be registered
-     *
      * @throws com.ibasco.agql.core.exceptions.ChannelRegistrationException
      *         If the registration fails
      */
@@ -46,7 +45,6 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to be unregistered
-     *
      * @return {@code true} if the {@link io.netty.channel.Channel} was successfuly unregistred.
      */
     boolean unregister(Channel channel);
@@ -56,7 +54,6 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to check.
-     *
      * @return {@code true} if the {@link io.netty.channel.Channel} is registered by this instance.
      */
     boolean isRegistered(Channel channel);
@@ -69,19 +66,19 @@ public interface ChannelRegistry {
     Set<Map.Entry<InetSocketAddress, Channel>> getEntries();
 
     /**
-     * <p>A unique set of registered {@link InetSocketAddress}</p>
+     * <p>A unique set of registered {@link java.net.InetSocketAddress}</p>
      *
      * @return a {@link java.util.Set} object
      */
     Set<InetSocketAddress> getAddresses();
 
     /**
-     * <p>The {@link Channel}'s acquired for the specified {@link InetSocketAddress}</p>
+     * <p>The {@link io.netty.channel.Channel}'s acquired for the specified {@link java.net.InetSocketAddress}</p>
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to be used for the lookup
      *
-     * @return a {@link java.util.Set} of {@link Channel} instances acquired for the address
+     * @return a {@link java.util.Set} of {@link io.netty.channel.Channel} instances acquired for the address
      */
     Set<Channel> getChannels(InetSocketAddress address);
 
@@ -90,7 +87,6 @@ public interface ChannelRegistry {
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to lookup
-     *
      * @return The total number of registered {@link io.netty.channel.Channel} for the specified address
      */
     int getCount(InetSocketAddress address);

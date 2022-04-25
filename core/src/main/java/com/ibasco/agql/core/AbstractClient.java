@@ -99,7 +99,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      * @param address
      *         The {@link java.net.InetSocketAddress} destination
      * @param request
-     *         The {@link AbstractRequest} to be sent
+     *         The {@link com.ibasco.agql.core.AbstractRequest} to be sent
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received.
      */

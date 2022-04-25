@@ -43,7 +43,6 @@ public class Functions {
      *         The captured type of the parameter
      * @param <B>
      *         The captured return type
-     *
      * @return The casted instance
      */
     public static <A, B> B cast(A a) {
@@ -60,7 +59,6 @@ public class Functions {
      *         a B class
      * @param <C>
      *         a C class
-     *
      * @return a C object
      */
     public static <B, C extends B> C convert(B b) {
@@ -75,7 +73,6 @@ public class Functions {
      *         a A object
      * @param <A>
      *         a A class
-     *
      * @return a A object
      */
     public static <A> A returnArg(A a) {
@@ -93,7 +90,6 @@ public class Functions {
      *         a A class
      * @param <B>
      *         a B class
-     *
      * @return a A object
      */
     public static <A, B> A selectFirst(A a, B b) {
@@ -111,7 +107,6 @@ public class Functions {
      *         a A class
      * @param <B>
      *         a B class
-     *
      * @return a B object
      */
     public static <A, B> B selectSecond(A a, B b) {
@@ -125,7 +120,6 @@ public class Functions {
      *         a {@link java.lang.Object} object
      * @param arr
      *         a {@link java.lang.Class} object
-     *
      * @return a boolean
      */
     public static boolean isTypeOf(Object v, Class<?>... arr) {

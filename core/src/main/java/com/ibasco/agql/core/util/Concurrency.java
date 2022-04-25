@@ -42,7 +42,6 @@ public final class Concurrency {
      *         a {@link java.util.concurrent.CompletableFuture} object
      * @param <V>
      *         a V class
-     *
      * @return a {@link java.util.concurrent.CompletionStage} object
      */
     public static <V> CompletionStage<V> wrap(CompletableFuture<V> future) {
@@ -60,7 +59,6 @@ public final class Concurrency {
      *         a A class
      * @param <B>
      *         a B class
-     *
      * @return a B object
      */
     public static <A, B> B combine(A a, B b) {
@@ -74,7 +72,6 @@ public final class Concurrency {
      *         a {@link java.lang.Throwable} object
      * @param <V>
      *         a V class
-     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error) {
@@ -90,7 +87,6 @@ public final class Concurrency {
      *         a {@link java.util.concurrent.Executor} object
      * @param <V>
      *         a V class
-     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error, Executor executor) {
@@ -109,7 +105,6 @@ public final class Concurrency {
      *
      * @param executorService
      *         The {@link java.util.concurrent.ExecutorService} to shutdown
-     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService) {
@@ -127,7 +122,6 @@ public final class Concurrency {
      *         The timeout value to wait for a successful termination
      * @param timeUnit
      *         The {@link java.util.concurrent.TimeUnit} of the timeout value
-     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService, final int timeout, final TimeUnit timeUnit) {
@@ -171,9 +165,9 @@ public final class Concurrency {
      * Retrieve the core pool size of an executor (if available)
      *
      * @param executor
-     *         The {@link Executor} to check
+     *         The {@link java.util.concurrent.Executor} to check
      *
-     * @return An integer representing the number of threads available for the {@link Executor}
+     * @return An integer representing the number of threads available for the {@link java.util.concurrent.Executor}
      */
     public static int getCorePoolSize(Executor executor) {
         if (executor instanceof ThreadPoolExecutor) {

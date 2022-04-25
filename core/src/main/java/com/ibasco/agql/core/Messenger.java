@@ -38,7 +38,7 @@ import java.util.concurrent.Executor;
 public interface Messenger<R extends AbstractRequest, S extends AbstractResponse> extends Closeable, ConfigurationSupport {
 
     /**
-     * <p>Send request to the underlying {@link Transport}</p>
+     * <p>Send request to the underlying {@link com.ibasco.agql.core.Transport}</p>
      *
      * @param address
      *         a {@link java.net.InetSocketAddress} object
@@ -50,14 +50,14 @@ public interface Messenger<R extends AbstractRequest, S extends AbstractResponse
     CompletableFuture<S> send(InetSocketAddress address, R request);
 
     /**
-     * <p>The underlying {@link Transport} used by this instance</p>
+     * <p>The underlying {@link com.ibasco.agql.core.Transport} used by this instance</p>
      *
      * @return a {@link com.ibasco.agql.core.Transport} object
      */
     Transport<?, ?> getTransport();
 
     /**
-     * <p>The {@link Executor} utilized by this messenger</p>
+     * <p>The {@link java.util.concurrent.Executor} utilized by this messenger</p>
      *
      * @return a {@link java.util.concurrent.Executor} object
      */

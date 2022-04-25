@@ -29,13 +29,25 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      * <p>Add option value to this container</p>
      *
      * @param option
-     *         a {@link com.ibasco.agql.core.util.Option} object
+     *         The {@link com.ibasco.agql.core.util.Option} key
      * @param value
-     *         a X object
+     *         The {@link Option} value
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      */
-    <X> void add(Option<X> option, X value);
+    <X> void put(Option<X> option, X value);
+
+    /**
+     * <p>Add option value to this container if not yet existing</p>
+     *
+     * @param option
+     *         The {@link com.ibasco.agql.core.util.Option} key
+     * @param value
+     *         The {@link Option} value
+     * @param <X>
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
+     */
+    <X> X putIfAbsent(Option<X> option, X value);
 
     /**
      * <p>Add option value to this container with the additional option to lockout the value</p>
@@ -45,11 +57,11 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      * @param value
      *         The value to be added
      * @param locked
-     *         Set to {@code true} if we should lockout this value. Future invocations of {@link #add(Option, Object)} will result in failure for this configuration {@link Option}
+     *         Set to {@code true} if we should lockout this value. Future invocations of {@link #put(Option, Object)} will result in failure for this configuration {@link com.ibasco.agql.core.util.Option}
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      */
-    <X> void add(Option<X> option, X value, boolean locked);
+    <X> void put(Option<X> option, X value, boolean locked);
 
     /**
      * <p>Check locked status of option</p>
@@ -57,41 +69,63 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      * @param option
      *         a {@link com.ibasco.agql.core.util.Option} object
      *
-     * @return {@code true} if the specified {@link Option} is currently locked.
+     * @return {@code true} if the specified {@link com.ibasco.agql.core.util.Option} is currently locked.
      */
     boolean isLocked(Option<?> option);
 
     /**
-     * <p>Checks if the provided {@link Option} key exists in this container</p>
+     * <p>Checks if the provided {@link com.ibasco.agql.core.util.Option} key exists in this container</p>
      *
      * @param option
      *         The {@link com.ibasco.agql.core.util.Option} key to be used as lookup
      *
-     * @return {@code true} if the {@link Option} exists in this container
+     * @return {@code true} if the {@link com.ibasco.agql.core.util.Option} exists in this container
      */
     boolean contains(Option<?> option);
 
     /**
-     * <p>Remove {@link Option} value from this container.</p>
+     * <p>Remove {@link com.ibasco.agql.core.util.Option} value from this container.</p>
      *
      * @param option
      *         The {@link com.ibasco.agql.core.util.Option} key to be used as lookup
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      */
     <X> void remove(Option<X> option);
 
     /**
-     * <p>Retrieve {@link Option} value from this container</p>
+     * <p>Retrieve {@link com.ibasco.agql.core.util.Option} value from this container</p>
      *
      * @param option
      *         The {@link com.ibasco.agql.core.util.Option} key to be used as lookup
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      *
-     * @return The value associated with the provided {@link Option}
+     * @return The value associated with the provided {@link com.ibasco.agql.core.util.Option}
      */
     <X> X get(Option<X> option);
+
+    <X> X get(String key, Class<? extends Options> context);
+
+    default <X> X get(Option<?> option, Class<? extends Options> context) {
+        //note: we do not use the provided option instance, instead we use it's associated key for lookup
+        //as its possible to have multiple option instances having the same key inside a single container
+        return get(option.getKey(), context);
+    }
+
+    default <X> X getOrDefault(Option<X> option, Class<? extends Options> context) {
+        //note: we do not use the provided option instance, instead we use it's associated key for lookup
+        //as its possible to have multiple option instances having the same key inside a single container
+        return getOrDefault(option.getKey(), context);
+    }
+
+    default <X> X getOrDefault(String key, Class<? extends Options> context) {
+        Option<X> option = Option.of(getClass(), context, key);
+        if (option == null)
+            throw new IllegalStateException(String.format("Option key '%s' does not exists", key));
+        X value = get(option, context);
+        return value == null ? option.getDefaultValue() : value;
+    }
 
     /**
      * <p>Retrieve option value from this container. If missing, the provided default value will be returned</p>
@@ -101,9 +135,9 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      * @param defaultValue
      *         The default value to return if the initial return value is {@code null}
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      *
-     * @return The value associated with the provided {@link Option}
+     * @return The value associated with the provided {@link com.ibasco.agql.core.util.Option}
      */
     <X> X get(Option<X> option, X defaultValue);
 
@@ -113,16 +147,25 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      * @param option
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param <X>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      *
-     * @return The value associated with the provided {@link Option}
+     * @return The value associated with the provided {@link com.ibasco.agql.core.util.Option}
      */
     <X> X getOrDefault(Option<X> option);
 
     /**
-     * <p>Returns the number of configuration {@link Option} present for this container</p>
+     * <p>Returns the number of configuration {@link com.ibasco.agql.core.util.Option} present for this container</p>
      *
-     * @return An integer representing the size of the {@link Option}s present in this container.
+     * @return An integer representing the size of the {@link com.ibasco.agql.core.util.Option}s present in this container.
      */
     int size();
+
+    /**
+     * Check if container is empty.
+     *
+     * @return {@code true} if the instance is empty.
+     */
+    default boolean isEmpty() {
+        return size() == 0;
+    }
 }

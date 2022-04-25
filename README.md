@@ -7,22 +7,23 @@ Asynchronous Game Query Library
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
 
-A game query library on steroids written for Java. This is an implementation of Valve's source [Query](https://developer.valvesoftware.com/wiki/Server_queries), [Rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol), [Master](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol) and [Steam Web API](https://steamcommunity.com/dev) protocols. Built on top of [Netty](https://github.com/netty/netty)
+A game query library on steroids written for Java. It's an implementation of Valve's source [Query](https://developer.valvesoftware.com/wiki/Server_queries), [Rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol), [Master](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol) and [Steam Web API](https://steamcommunity.com/dev) protocols. Built on top of [Netty](https://github.com/netty/netty)
 
 Features
 -------------
 
 - Simple and easy to use API.
 - All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
-- Capable of handling large volumes of transactions
+- It's fast and capable of handling large transactions.
 - Efficient use of system resources
-    - Uses off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Reduces GC pressure)
-    - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model (each transaction is guaranteed to only run in one thread).
-    - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
-- Highly configurable. Clients can be easily configured to satisfy developer's requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
-- Queries are [Failsafe](https://failsafe.dev/) (excluding web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of requests. Below are the policies available by default.
-    - **Retry Policy:** A failed transaction is re-attempted until a response is either received or has reached the maximum number attempts defined by configuration.
-    - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+  - Uses netty's off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Helps reduce GC pressure for high volume/throughput transactions)
+  - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model.
+  - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
+- Highly configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Queries are [Failsafe](https://failsafe.dev/) (excluding web api queries). Some query protocols use UDP as the transport protocol. The problem with UDP is that data is not always guaranteed to be delivered. Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
+  - **Retry Policy:** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
+  - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+  - **Circuit Breaker Policy:** When certain number of failures reach the threshold, the library will transition to an "OPEN" state and temporarily reject new requests to prevent overload.
 
 Usage
 -------------
@@ -40,9 +41,9 @@ public class BlockingQueryExample {
 
     public static void main(String[] args) {
         // - Change rate limiting method to BURST
-        // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
-        Options queryOptions = OptionBuilder.newBuilder()
-                                            .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+      // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+      SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+                                                          .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
                                             .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
 
@@ -72,9 +73,9 @@ public class NonBlockingQueryExample {
         //Example configuration
         // - Enabled rate limiting so we don't send too fast
         // - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
-        // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
-        Options queryOptions = OptionBuilder.newBuilder()
-                                            .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+      // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+      SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+                                                          .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                             .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
 
@@ -97,7 +98,7 @@ public class NonBlockingQueryExample {
                     latch.countDown();
                 }
             }
-            //If not yet done, register a callback then display the result
+            //If not yet done, register a callback and display the result once completed
             else {
                 infoFuture.whenComplete(new BiConsumer<SourceQueryInfoResponse, Throwable>() {
                     @Override
@@ -115,16 +116,16 @@ public class NonBlockingQueryExample {
                 });
             }
 
-            //REMEMBER: Since we are executing an asynchronous request, at this point, 
-            // we need to wait until we have received a response from the server, 
-            // otherwise the program might abruptly be terminated.     
-            latch.await();
+          //REMEMBER: Since we are executing an asynchronous operation, 
+          // we need to wait until we have received a response from the server, 
+          // otherwise the program might abruptly be terminated. 
+          latch.await();
         }
     }
 }
 ```
 
-Here is an advanced example demonstrating how to combine all three queries in one call. For more advanced examples, please go to the [examples](https://github.com/ribasco/async-gamequery-lib/blob/master/examples/src/main/java/com/ibasco/agql/examples/SourceQueryExample.java) section.
+Here is an advanced example demonstrating how to combine all three queries in one call. For more advanced examples (e.g. sending requests by batch), please check out the [examples](https://github.com/ribasco/async-gamequery-lib/blob/master/examples/src/main/java/com/ibasco/agql/examples/SourceQueryExample.java) module in the project source.
 
 ```java
 public class NonBlockingQueryExample {
@@ -137,9 +138,9 @@ public class NonBlockingQueryExample {
         //Example configuration
         // - Enabled rate limiting so we don't send too fast
         // - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
-        // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
-        Options queryOptions = OptionBuilder.newBuilder()
-                                            .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+      // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
+      SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+                                                          .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                             .option(GlobalOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                             .build();
         //Instantiate the client (constructor argument is optional)
@@ -360,12 +361,16 @@ References you might find helpful regarding the implementations
 * [Clash of Clans Web API](https://developer.clashofclans.com/#/documentation)
 * [xPaw Steam Web API Documentation](https://lab.xpaw.me/steam_api_documentation.html)
 
+Demo Application
+----------------
+Coming soon
+
 Contributing
 ------------
 
 Fork it and submit a pull request. Any type of contributions are welcome.
 
-Special Thanks 
+Special Thanks
 ---------------
 
 * ej Technologies - Developer of the award-winning JProfiler, a full-featured "All-in-one" Java Profiler. Click on the icon below to find out more.

@@ -30,7 +30,6 @@ public interface ConfigurationSupport {
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param <V>
      *         a V class
-     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option) {
@@ -46,7 +45,6 @@ public interface ConfigurationSupport {
      *         a V object
      * @param <V>
      *         a V class
-     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option, V defaultValue) {
@@ -67,13 +65,24 @@ public interface ConfigurationSupport {
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param <V>
      *         a V class
-     *
      * @return a V object
      */
     default <V> V get(Option<V> option) {
         return getOptions().get(option);
     }
 
+    /**
+     * <p>get.</p>
+     *
+     * @param option
+     *         a {@link com.ibasco.agql.core.util.Option} object
+     * @param defaultValue
+     *         a V object
+     * @param <V>
+     *         a V class
+     *
+     * @return a V object
+     */
     default <V> V get(Option<V> option, V defaultValue) {
         return getOptions().get(option, defaultValue);
     }
@@ -89,7 +98,7 @@ public interface ConfigurationSupport {
      *         a V class
      */
     default <V> void set(Option<V> option, V value) {
-        getOptions().add(option, value);
+        getOptions().put(option, value);
     }
 
     /**
@@ -103,7 +112,7 @@ public interface ConfigurationSupport {
      *         a V class
      */
     default <V> void lock(Option<V> option, V value) {
-        getOptions().add(option, value, true);
+        getOptions().put(option, value, true);
     }
 
     /**

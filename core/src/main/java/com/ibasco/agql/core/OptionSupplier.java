@@ -20,8 +20,14 @@ import com.ibasco.agql.core.util.Option;
 
 import java.util.function.Supplier;
 
+/**
+ * <p>OptionSupplier interface.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public interface OptionSupplier<T> extends Supplier<Option<T>> {
 
+    /** {@inheritDoc} */
     @Override
     default Option<T> get() {
         return null;

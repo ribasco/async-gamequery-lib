@@ -17,6 +17,8 @@
 package com.ibasco.agql.core.util;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 import java.io.Serializable;
 import java.util.Base64;
@@ -29,15 +31,24 @@ import java.util.Random;
  */
 public class UUID implements Serializable {
 
-    private transient static Random sRand;
-
-    private byte[] data;
+    private final byte[] data;
 
     private String dataStr;
 
+    private final int dataInt;
+
     private UUID() {
-        //sRand = SecureRandom.getInstanceStrong();
-        sRand = new Random();
+        Random sRand = new Random();
+        byte[] rbytes = new byte[8];
+        sRand.nextBytes(rbytes);
+        this.data = rbytes;
+        //compute integer
+        byte[] intBytes = new byte[4];
+        intBytes[0] = data[0];
+        intBytes[1] = data[2];
+        intBytes[2] = data[4];
+        intBytes[3] = data[6];
+        this.dataInt = Math.abs(Bytes.toIntegerLE(intBytes));
     }
 
     /**
@@ -46,11 +57,7 @@ public class UUID implements Serializable {
      * @return a {@link com.ibasco.agql.core.util.UUID} object
      */
     public static UUID create() {
-        UUID id = new UUID();
-        byte[] rbytes = new byte[8];
-        sRand.nextBytes(rbytes);
-        id.data = rbytes;
-        return id;
+        return new UUID();
     }
 
     /**
@@ -63,17 +70,12 @@ public class UUID implements Serializable {
     }
 
     /**
-     * <p>getInteger.</p>
+     * <p>The integer representation of the instance</p>
      *
      * @return a int
      */
     public int getInteger() {
-        byte[] intBytes = new byte[4];
-        intBytes[0] = data[0];
-        intBytes[1] = data[2];
-        intBytes[2] = data[4];
-        intBytes[3] = data[6];
-        return Math.abs(Bytes.toIntegerLE(intBytes));
+        return this.dataInt;
     }
 
     /**
@@ -95,5 +97,18 @@ public class UUID implements Serializable {
             dataStr = Base64.getEncoder().encodeToString(data).toUpperCase().replaceAll("[/=+]", "");
         }
         return dataStr;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UUID uuid = (UUID) o;
+        return new EqualsBuilder().append(dataInt, uuid.dataInt).isEquals();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(dataInt).toHashCode();
     }
 }

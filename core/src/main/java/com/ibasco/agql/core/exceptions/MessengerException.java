@@ -32,25 +32,71 @@ public class MessengerException extends AgqlRuntimeException {
 
     private final NettyChannelContext context;
 
+    /**
+     * <p>Constructor for MessengerException.</p>
+     *
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public MessengerException(NettyChannelContext context) {
         this.context = context;
     }
 
+    /**
+     * <p>Constructor for MessengerException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public MessengerException(String message, NettyChannelContext context) {
         super(message);
         this.context = context;
     }
 
+    /**
+     * <p>Constructor for MessengerException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public MessengerException(String message, Throwable cause, NettyChannelContext context) {
         super(message, cause);
         this.context = context;
     }
 
+    /**
+     * <p>Constructor for MessengerException.</p>
+     *
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public MessengerException(Throwable cause, NettyChannelContext context) {
         super(cause);
         this.context = context;
     }
 
+    /**
+     * <p>Constructor for MessengerException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
     public MessengerException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, NettyChannelContext context) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.context = context;
@@ -59,7 +105,10 @@ public class MessengerException extends AgqlRuntimeException {
     /**
      * The originating request of the transaction
      *
-     * @return A request of type {@link AbstractRequest}
+     * @param <R>
+     *         a R class
+     *
+     * @return A request of type {@link com.ibasco.agql.core.AbstractRequest}
      */
     public <R extends AbstractRequest> R getRequest() {
         return context.properties().request();
@@ -68,7 +117,7 @@ public class MessengerException extends AgqlRuntimeException {
     /**
      * The local address of the connection used for this transaction
      *
-     * @return An {@link InetSocketAddress} containing the host and port
+     * @return An {@link java.net.InetSocketAddress} containing the host and port
      */
     public final InetSocketAddress getLocalAddress() {
         return context.localAddress();
@@ -77,16 +126,17 @@ public class MessengerException extends AgqlRuntimeException {
     /**
      * The remote address of the connection used for this transaction
      *
-     * @return An {@link InetSocketAddress} containing the host and port
+     * @return An {@link java.net.InetSocketAddress} containing the host and port
      */
     public final InetSocketAddress getRemoteAddress() {
         return context.remoteAddress();
     }
 
     /**
-     * The underlying {@link NettyChannelContext} used for this transaction.
+     * The underlying {@link com.ibasco.agql.core.NettyChannelContext} used for this transaction.
      *
-     * @return The {@link NettyChannelContext} that was used for this transaction. {@code null} if the exception occured before a context has been acquired.
+     * @return The {@link com.ibasco.agql.core.NettyChannelContext} that was used for this transaction. {@code null} if the exception occured before a context has been acquired.
+     * @param <C> a C class
      */
     public final <C extends NettyChannelContext> C getContext() {
         //noinspection unchecked

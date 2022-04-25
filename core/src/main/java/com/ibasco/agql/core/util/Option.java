@@ -27,6 +27,8 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +36,6 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -59,36 +60,32 @@ public final class Option<T> {
         return Options.class.isAssignableFrom(cls) && Modifier.isPublic(modifiers) && !Modifier.isAbstract(modifiers) && validInterface;
     };
 
-    private static final SetMultimap<Class<? extends Options>, Option<?>> optionCache = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
+    /**
+     * Cache for all available {@link Option} instances in this project. Also describes the context the option is associated with.
+     */
+    private static final SetMultimap<Class<? extends Options>, CacheEntry> cache = Multimaps.synchronizedSetMultimap(MultimapBuilder.hashKeys().hashSetValues().build());
 
     //<editor-fold desc="Private Members">
+    private final UUID id = UUID.create();
+
     private final String key;
 
     private final T defaultValue;
-
-    private String fieldName;
 
     private final boolean channelAttribute;
 
     private final boolean autoCreate;
 
-    private final Class<? extends Options> ownerClass;
-    //</editor-fold>
+    private final Class<? extends Options> declaringClass;
 
-    static {
-        Platform.initialize();
-    }
+    String fieldName;
+    //</editor-fold>
 
     /**
      * Creates a new {@link Option} instance with the key and default value
-     *
-     * @param key
-     *         The unique key associated with this option
-     * @param defaultValue
-     *         The default option value
      */
-    private Option(Class<? extends Options> ownerClass, String key, T defaultValue, boolean channelAttribute, boolean autoCreate) {
-        this.ownerClass = ownerClass;
+    private Option(Class<? extends Options> declaringClass, String key, T defaultValue, boolean channelAttribute, boolean autoCreate) {
+        this.declaringClass = declaringClass;
         this.key = key;
         this.defaultValue = defaultValue;
         this.channelAttribute = channelAttribute;
@@ -96,7 +93,7 @@ public final class Option<T> {
     }
 
     /**
-     * Load all available configuration {@link Option} classes found in the classpath. The loading will then trigger the options to get created and get stored in a global cache registry.
+     * Iterate through all available configuration {@link Option} classes found in the classpath then initialize and store the option keys into the cache.
      */
     static void initialize() {
         Console.println("Initializing Options");
@@ -111,114 +108,193 @@ public final class Option<T> {
                                                          .collect(Collectors.toList());
             printLine();
             println("List of global/module options (Option Key/Default Value)");
+            printLine();
+
+            //1. Scan for 'Options' classes and initialize it's static field members
             for (ClassPath.ClassInfo info : classes) {
                 //note: by manually loading the classses, we trigger Option#create() as a result, which populates the optionCache.
-
-                Class<? extends Options> declaringClass;
+                Class<? extends Options> containerClass;
                 try {
                     //noinspection unchecked
-                    declaringClass = (Class<? extends Options>) info.load();
+                    containerClass = (Class<? extends Options>) info.load();
+                    Console.println("Processing %s", containerClass.getSimpleName());
+                    Console.printLine();
                 } catch (LinkageError e) {
-                    error("Failed to load class '%s'", info.getName());
+                    error("Failed to load class '%s' (Error: %s)", info.getName(), e);
                     continue;
                 }
+                //1.a Recursively initialize fields
+                initializeFields(containerClass);
+            }
 
-                Field[] fields = declaringClass.getFields(); //use getFields() to also include the fields of parent classses
-
+            //2. Display all registered options from the cache
+            int total = 1;
+            //Display registered options
+            for (Class<? extends Options> cls : cache.keySet()) {
+                printLine();
+                println(color(YELLOW, "%s (Default Values)"), cls.getSimpleName());
+                printLine();
                 int ctr = 1;
-                if (fields.length == 0) {
-                    continue;
-                }
-                printLine();
-                println(color(YELLOW, "%s (Default Values)"), declaringClass.getSimpleName());
-                printLine();
-                for (Field field : fields) {
-                    try {
-                        int mod = field.getModifiers();
-                        if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
-                            continue;
-                        Option<?> option = (Option<?>) field.get(null);
-                        //println("Processing option '%s' (Owner Class: %s, Parent Class: %s)", field.getName(), enclosingClass.getSimpleName(), field.getDeclaringClass().getSimpleName());
-                        //note: if option is null, then it means it has not yet been created.
-                        assert option != null;
-                        assert option.getOwner().equals(declaringClass);
-                        String defaultValue = StringUtils.abbreviate(Objects.toString(option.getDefaultValue(), "<NULL>"), 30);
-                        println("%02d. " + color(CYAN, "%-50s") + ": " + color(WHITE, "%-30s (key: %s)"), ctr++, field.getName(), defaultValue, option.getKey());
-                    } catch (IllegalAccessException e) {
-                        error(e.getMessage());
-                    }
+                Set<CacheEntry> cacheEntries = cache.get(cls).stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
+                for (CacheEntry cacheEntry : cacheEntries) {
+                    String defaultValue = StringUtils.abbreviate(Objects.toString(cacheEntry.getOption().getDefaultValue(), "<NULL>"), 30);
+                    println("%03d.%02d. " + color(CYAN, "%-50s") + ": " + color(WHITE, "%-30s (key: %s, context: %s, Id: %d)"), total++, ctr++, cacheEntry.getOption().getFieldName(), defaultValue, cacheEntry.getOption().getKey(), cacheEntry.getContext().getSimpleName(), cacheEntry.getOption().getId().getInteger());
                 }
             }
+
+            //3. Display summary
             printLine();
-            println("Done. Loaded a total of '%d' options from %d modules", optionCache.values().size(), optionCache.keySet().size());
+            println("Done. Loaded a total of '%d' options from %d modules", cache.values().size(), cache.keySet().size());
+            printLine();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    private static void initializeFields(Class<? extends Options> containerClass) {
+        initializeFields(containerClass, null);
+    }
+
+    private static void initializeFields(Class<? extends Options> contextClass, Class<? extends Options> parentClass) {
+        if (parentClass == null)
+            parentClass = contextClass;
+        if (contextClass.isAnnotationPresent(Inherit.class)) {
+            Class<? extends Options>[] optionClasses = contextClass.getDeclaredAnnotation(Inherit.class).options();
+            for (Class<? extends Options> optionClass : optionClasses) {
+                initializeFields(optionClass, parentClass);
+            }
+        }
+        Field[] fields = contextClass.getFields(); //use getFields() to also include the fields declared from the parent
+        if (fields.length == 0) {
+            return;
+        }
+        for (Field field : fields) {
+            try {
+                int mod = field.getModifiers();
+                if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
+                    continue;
+                Option<?> option = (Option<?>) field.get(null); //calling this method will force static field initialization (will trigger a call to Option#create)
+                //note: if option is null, then it means it has not yet been created.
+                assert option != null;
+                //update option field name
+                option.fieldName = field.getName();
+
+                //add to cache
+                CacheEntry cacheEntry = new CacheEntry(option, contextClass);
+                boolean registered = cache.put(parentClass, cacheEntry);
+                Console.println("%-30s :: %-30s -> %-30s = %-50s (Registered: %s, Declaring Class: %s, Context Class: %s, Id: %s)", parentClass.getSimpleName(), contextClass.getSimpleName(), option.getDeclaringClass().getSimpleName(), field.getName(), registered, option.getDeclaringClass().getSimpleName(), cacheEntry.getContext() != null ? cacheEntry.getContext().getSimpleName() : "N/A", option);
+                //assert option.getOwner().equals(declaringClass);
+            } catch (IllegalAccessException e) {
+                error(e.getMessage());
+            }
+        }
+        printLine();
+    }
+
+    public UUID getId() {
+        return id;
+    }
+
     /**
+     * <p>isGlobal.</p>
+     *
      * @return {@code true} if this option is a Global option type
      *
      * @see GlobalOptions
      */
     public boolean isGlobal() {
-        return ownerClass != null && ownerClass.equals(GlobalOptions.class);
+        return declaringClass != null && declaringClass.equals(GlobalOptions.class);
+    }
+
+    public boolean isShared() {
+        return getDeclaringClass().isAnnotationPresent(Shared.class);
     }
 
     /**
-     * <p>Retrieve a singleton instance of an {@link Option} using the provided key.</p>
+     * <p>Retrieve a singleton instance of an {@link com.ibasco.agql.core.util.Option} using the provided key.</p>
      *
      * <blockquote>
-     * <strong>Note:</strong> This will lookup the {@link GlobalOptions} container by default
+     * <strong>Note:</strong> This will lookup the {@link com.ibasco.agql.core.util.GlobalOptions} container by default
      * </blockquote>
      *
      * @param key
      *         The key to be used for the lookup
+     * @param <V>
+     *         a V class
      *
-     * @return A singleton instance of {@link Option} associated with the key
+     * @return A singleton instance of {@link com.ibasco.agql.core.util.Option} associated with the key
      */
     public static <V> Option<V> of(String key) {
         //noinspection unchecked
-        return (Option<V>) optionCache.get(GlobalOptions.class).stream().filter(o -> o.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+        return (Option<V>) cache.get(GlobalOptions.class).stream().map(CacheEntry::getOption).filter(option -> option.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+    }
+
+    public static <V> Option<V> of(Class<? extends Options> containerClass, Class<?> context, Option<?> option) {
+        return of(containerClass, context, option.getKey());
+    }
+
+    public static <V> Option<V> of(Class<? extends Options> containerClass, Class<?> context, String key) {
+        if (containerClass == null)
+            throw new IllegalArgumentException("Group cannot be null");
+        if (Strings.isBlank(key))
+            throw new IllegalArgumentException("Key cannot be null");
+        if (!cache.containsKey(containerClass))
+            return null;
+        synchronized (cache) {
+            Set<CacheEntry> cacheEntries = cache.get(containerClass);
+            for (CacheEntry cacheEntry : cacheEntries) {
+                Option<?> option = cacheEntry.getOption();
+                Class<?> contextClass = cacheEntry.getContext();
+                assert contextClass != null;
+                if (option.getKey().equalsIgnoreCase(key) && contextClass.equals(context))
+                    //noinspection unchecked
+                    return (Option<V>) option;
+            }
+            return null;
+        }
     }
 
     /**
-     * <p>Retrieve an singleton {@link Option} instance using the provided class group and key combination</p>
+     * <p>Retrieve an singleton {@link com.ibasco.agql.core.util.Option} instance using the provided class group and key combination</p>
      *
-     * @param group
-     *         The {@link Class}
+     * @param containerClass
+     *         The {@link java.lang.Class} A class of type {@link Options}
      * @param key
      *         The key identifying the option
      * @param <V>
      *         The underlying type of the Option
      *
-     * @return The {@link Option} instance or {@code null} if no {@link Option} found for the specified combination.
+     * @return The {@link com.ibasco.agql.core.util.Option} instance or {@code null} if no {@link com.ibasco.agql.core.util.Option} found for the specified combination.
      */
-    public static <V> Option<V> of(Class<? extends Options> group, String key) {
-        if (group == null)
+    public static <V> Option<V> of(Class<? extends Options> containerClass, String key) {
+        if (containerClass == null)
             throw new IllegalArgumentException("Group cannot be null");
         if (Strings.isBlank(key))
             throw new IllegalArgumentException("Key cannot be null");
-        if (!optionCache.containsKey(group))
+        if (!cache.containsKey(containerClass))
             return null;
-        Set<Option<?>> groupOptions = optionCache.get(group);
-        synchronized (optionCache) {
-            for (Option<?> option : groupOptions) {
-                if (option.getKey().equalsIgnoreCase(key))
+        synchronized (cache) {
+            Set<CacheEntry> cacheEntries = cache.get(containerClass);
+            for (CacheEntry cacheEntry : cacheEntries) {
+                Option<?> option = cacheEntry.getOption();
+                Class<?> contextClass = cacheEntry.getContext();
+                assert contextClass != null;
+                assert option != null;
+                if (option.getKey().equalsIgnoreCase(key) && contextClass.equals(containerClass))
                     //noinspection unchecked
                     return (Option<V>) option;
             }
+            return null;
         }
-        return null;
     }
 
     /**
-     * The declaring {@link Class} of this {@link Option}
+     * The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
      *
-     * @return The declaring {@link Class} of this {@link Option}
+     * @return The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
      */
-    public Class<? extends Options> getOwner() {
-        return ownerClass;
+    public Class<? extends Options> getDeclaringClass() {
+        return declaringClass;
     }
 
     /**
@@ -240,17 +316,17 @@ public final class Option<T> {
     }
 
     /**
-     * <p>Returns a singleton {@link Option} instance from global</p>
+     * <p>Returns a singleton {@link com.ibasco.agql.core.util.Option} instance from global</p>
      *
      * @param key
      *         The option key to be used for lookup
      * @param <V>
-     *         The captured type of the {@link Option}
+     *         The captured type of the {@link com.ibasco.agql.core.util.Option}
      *
-     * @return The singleton {@link Option} instance if found, otherwise {@code null}.
+     * @return The singleton {@link com.ibasco.agql.core.util.Option} instance if found, otherwise {@code null}.
      */
     public static <V> Option<V> ofGlobal(String key) {
-        for (Map.Entry<Option<?>, Object> entry : GlobalOptions.getContainer()) {
+        for (Map.Entry<Option<?>, Object> entry : GlobalOptions.getInstance()) {
             if (entry.getKey().getKey().equalsIgnoreCase(key) && entry.getKey().isGlobal())
                 //noinspection unchecked
                 return (Option<V>) entry.getKey();
@@ -259,33 +335,33 @@ public final class Option<T> {
     }
 
     /**
-     * Retrieve a global {@link Option} declared from {@link GlobalOptions} container
+     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link com.ibasco.agql.core.util.GlobalOptions} container
      *
      * @param option
-     *         The {@link Option} to be used as lookup
+     *         The {@link com.ibasco.agql.core.util.Option} to be used as lookup
      * @param <V>
      *         The captured return type
      *
-     * @return The value of the specified {@link Option} retrieved from the {@link GlobalOptions} container
+     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link com.ibasco.agql.core.util.GlobalOptions} container
      */
     public static <V> V getGlobal(Option<V> option) {
-        return GlobalOptions.getContainer().get(option);
+        return GlobalOptions.getInstance().get(option);
     }
 
     /**
-     * Retrieve a global {@link Option} declared from {@link GlobalOptions} container
+     * Retrieve a global {@link com.ibasco.agql.core.util.Option} declared from {@link com.ibasco.agql.core.util.GlobalOptions} container
      *
      * @param option
-     *         The {@link Option} to be used as lookup
+     *         The {@link com.ibasco.agql.core.util.Option} to be used as lookup
      * @param defaultValue
      *         The default value to return if the initial return value is {@code null}
      * @param <V>
      *         The captured return type
      *
-     * @return The value of the specified {@link Option} retrieved from the {@link GlobalOptions} container
+     * @return The value of the specified {@link com.ibasco.agql.core.util.Option} retrieved from the {@link com.ibasco.agql.core.util.GlobalOptions} container
      */
     public static <V> V getGlobal(Option<V> option, V defaultValue) {
-        return GlobalOptions.getContainer().get(option, defaultValue);
+        return GlobalOptions.getInstance().get(option, defaultValue);
     }
 
     /**
@@ -337,7 +413,7 @@ public final class Option<T> {
     }
 
     /**
-     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided
+     * Creates a singleton instance of an {@link com.ibasco.agql.core.util.Option} based on the key provided. NOTE: The newly created instance will not be added to the cache.
      *
      * @param key
      *         The unique key of the option
@@ -353,33 +429,22 @@ public final class Option<T> {
      * @return A singleton {@link com.ibasco.agql.core.util.Option} instance based on the key provided.
      */
     public static <V> Option<V> create(String key, V defaultValue, boolean channelAttribute, boolean autoCreate) {
-        //perform some magic and determine the declaring class automatically
-        Class<? extends Options> declaringClass = getDeclaringClass();
-        if (declaringClass == null)
-            throw new IllegalStateException("Failed to find declaring class for key " + key);
-        Option<?> option = Option.of(declaringClass, key);
-        if (option != null)
-            throw new IllegalStateException(String.format("Key '%s' already exists", key));
-        if (!channelAttribute && autoCreate)
-            throw new IllegalStateException("Auto create is set to true but option is not marked as a channel attribute");
-        //create new option
-        synchronized (optionCache) {
-            option = new Option<>(declaringClass, key, defaultValue, channelAttribute, autoCreate);
-            //Console.println(">> [%-20s] Initializing option %-35s with default value of '%s'", color(ANSI_WHITE, ownerClass.getSimpleName()), color(ANSI_CYAN, key), defaultValue);
-            if (optionCache.put(declaringClass, option)) {
-                //noinspection unchecked
-                return (Option<V>) option;
-            }
+        try {
+            //perform some magic and determine the declaring class automatically
+            Class<? extends Options> declaringClass = findDelcaringClass();
+            if (declaringClass == null)
+                throw new IllegalStateException("Failed to find declaring class for key " + key);
+            Console.println("create(): %s) %s = %s", declaringClass.getSimpleName(), key, defaultValue);
+            Option<?> option = Option.of(declaringClass, key);
+            if (option != null)
+                throw new IllegalStateException(String.format("Key '%s' already exists", key));
+            if (!channelAttribute && autoCreate)
+                throw new IllegalStateException("Auto create is set to true but option is not marked as a channel attribute");
+            return new Option<>(declaringClass, key, defaultValue, channelAttribute, autoCreate);
+        } catch (Throwable e) {
+            e.printStackTrace(System.err);
         }
-        throw new IllegalStateException(String.format("Failed to add option '%s' to cache", option));
-    }
-
-    static void updateFieldNames() {
-        for (Class<? extends Options> key : Option.getOptions().keySet()) {
-            for (Option<?> option : Option.getOptions().get(key)) {
-                option.fieldName = getFieldName(option.getKey(), option.getOwner());
-            }
-        }
+        return null;
     }
 
     private static String getFieldName(String key, Class<? extends Options> ownerClass) {
@@ -405,7 +470,7 @@ public final class Option<T> {
         return null;
     }
 
-    private static Class<? extends Options> getDeclaringClass() {
+    private static Class<? extends Options> findDelcaringClass() {
         Class<? extends Options> containerClass = null;
         try {
             for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
@@ -429,75 +494,19 @@ public final class Option<T> {
     }
 
     /**
-     * Returns a read-only {@link SetMultimap} containing of all the avialable options of this library
+     * Returns a read-only {@link com.google.common.collect.SetMultimap} containing of all the {@link Option}s provided by this library
      *
-     * @return A read-only {@link SetMultimap}
+     * @return an {@link ImmutableSetMultimap}
      */
-    public static SetMultimap<Class<? extends Options>, Option<?>> getOptions() {
-        return ImmutableSetMultimap.<Class<? extends Options>, Option<?>>builder().putAll(optionCache).build();
+    public static SetMultimap<Class<? extends Options>, CacheEntry> getOptions() {
+        return ImmutableSetMultimap.<Class<? extends Options>, CacheEntry>builder().putAll(cache).build();
     }
 
     /**
-     * Merge the default options not existing within the provided container.
+     * <p>Getter for the field <code>fieldName</code>.</p>
      *
-     * @param options
-     *         The options container to be merged
-     *
-     * @return A {@link Map} containing the merged entries
+     * @return a {@link java.lang.String} object
      */
-    public static Map<Option<?>, Object> merge(Options options) {
-        return merge(options, (o, v) -> true);
-    }
-
-    public static Map<Option<?>, Object> merge(Options options, BiPredicate<Option<?>, Object> filter) {
-        return merge(options, filter, true);
-    }
-
-    /**
-     * Merge the rest of the default options that was not added on the container.
-     *
-     * @param options
-     *         The options container to be merged
-     * @param filter
-     *         A {@link BiPredicate} to filter out unwanted entries
-     *
-     * @return A flat {@link Map} containing the merged entries
-     */
-    public static Map<Option<?>, Object> merge(Options options, BiPredicate<Option<?>, Object> filter, boolean mergeGlobal) {
-        Class<? extends Options> owner = options.getClass();
-        Map<Option<?>, Object> mergedOptions = new HashMap<>();
-        //merge all the default options provided by this container.
-        for (Option<?> option : Option.getOptions().get(owner)) {
-            Object value = options.get(option);
-            if (value == null)
-                value = option.getDefaultValue();
-            if (!filter.test(option, value))
-                continue;
-            mergedOptions.put(option, value);
-        }
-        //merge the rest of the options that is not owned by this container
-        for (Map.Entry<Option<?>, Object> entry : options) {
-            Option<?> option = entry.getKey();
-            if (option.getOwner().equals(owner))
-                continue;
-            Object value = entry.getValue() == null ? option.getDefaultValue() : entry.getValue();
-            if (!filter.test(option, value))
-                continue;
-            mergedOptions.put(option, value);
-        }
-        //should we merge global options too?
-        if (!mergeGlobal)
-            return mergedOptions;
-        for (Map.Entry<Option<?>, Object> entry : GlobalOptions.getContainer()) {
-            Option<?> globalOption = entry.getKey();
-            Object globalOptionValue = entry.getValue();
-            if (mergedOptions.containsKey(globalOption)) {
-                //Console.println("%s contains a global option %s", options.getClass().getSimpleName(), globalOption.getFieldName());
-            }
-        }
-        return mergedOptions;
-    }
-
     public String getFieldName() {
         return fieldName;
     }
@@ -586,22 +595,66 @@ public final class Option<T> {
         return (T) channel.attr(AttributeKey.valueOf(key)).get();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        return Objects.hash(getOwner(), getKey());
-    }
-
-    /** {@inheritDoc} */
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
+
         if (!(o instanceof Option)) return false;
+
         Option<?> option = (Option<?>) o;
-        return new EqualsBuilder()
-                .append(getKey(), option.getKey())
-                .append(getOwner(), option.getOwner())
-                .isEquals();
+
+        return new EqualsBuilder().append(getId(), option.getId()).isEquals();
     }
 
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    }
+
+    public static final class CacheEntry implements Comparable<CacheEntry> {
+
+        public static final Comparator<CacheEntry> BY_KEY = Comparator.comparing(e -> e.getOption().getKey());
+
+        public static final Comparator<CacheEntry> BY_CONTEXT = Comparator.comparing(e -> e.getContext().getSimpleName());
+
+        public static final Comparator<CacheEntry> BOTH = BY_CONTEXT.thenComparing(BY_KEY);
+
+        private final Class<?> context;
+
+        private final Option<?> option;
+
+        private CacheEntry(Option<?> option, Class<?> context) {
+            this.option = Objects.requireNonNull(option, "Option must not be null");
+            this.context = Objects.requireNonNull(context, "Context class must not be null");
+        }
+
+        public Class<?> getContext() {
+            return context;
+        }
+
+        public Option<?> getOption() {
+            return option;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+
+            if (!(o instanceof Option.CacheEntry)) return false;
+
+            CacheEntry that = (CacheEntry) o;
+
+            return new EqualsBuilder().append(getContext(), that.getContext()).append(getOption(), that.getOption()).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(getContext()).append(getOption()).toHashCode();
+        }
+
+        @Override
+        public int compareTo(@NotNull Option.CacheEntry o) {
+            return BOTH.compare(this, o);
+        }
+    }
 }

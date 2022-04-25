@@ -22,10 +22,7 @@ import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.enums.ChannelPoolType;
-import com.ibasco.agql.core.util.Concurrency;
-import com.ibasco.agql.core.util.Errors;
-import com.ibasco.agql.core.util.GlobalOptions;
-import com.ibasco.agql.core.util.Net;
+import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryClient;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
@@ -105,30 +102,30 @@ public class SourceQueryExample extends BaseExample {
             // - Provide a custom executor for query client. We are responsible for shutting down this executor, not the library.
             // - Set channel pooling strategy to FIXED (POOL_TYPE) with using a fixed number of pooled connections of 50 (POOL_MAX_CONNECTIONS)
             // - Set read timeout to 1000ms (1 second)
-            SourceQueryOptions queryOptions = SourceQueryClient.newOptionBuilder()
-                                                               //override default value, enable rate limiting (default is: false)
-                                                               .option(GlobalOptions.CONNECTION_POOLING, false)
-                                                               .option(GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
-                                                               .option(GlobalOptions.POOL_MAX_CONNECTIONS, 50)
-                                                               .option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
-                                                               .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                               .option(SourceQueryOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
-                                                               .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
-                                                               .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
-                                                               .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
-                                                               .option(SourceQueryOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
-                                                               //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
-                                                               .option(GlobalOptions.READ_TIMEOUT, 5000)
-                                                               .build();
+            SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+                                                                //override default value, enable rate limiting (default is: false)
+                                                                .option(GlobalOptions.CONNECTION_POOLING, false)
+                                                                .option(GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
+                                                                .option(GlobalOptions.POOL_MAX_CONNECTIONS, 50)
+                                                                .option(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true)
+                                                                .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5)
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
+                                                                //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
+                                                                .option(GlobalOptions.READ_TIMEOUT, 5000)
+                                                                .build();
             queryClient = new SourceQueryClient(queryOptions);
 
             //master client configuration
             // - Configuring the Rate limit type to SMOOTH
             // - Provide a custom executor for master client. We are responsible for shutting down this executor, not the library.
-            MasterServerOptions masterOptions = MasterServerQueryClient.newOptionBuilder()
-                                                                       .option(MasterServerOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                                       //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
-                                                                       .build();
+            MasterServerOptions masterOptions = MasterServerOptions.builder()
+                                                                   .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                                                   //.option(GlobalOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
+                                                                   .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runQueries();
         } catch (Exception e) {
@@ -137,18 +134,8 @@ public class SourceQueryExample extends BaseExample {
         }
     }
 
-    private void printConsoleBanner() {
-        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
-        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
-        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
-        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
-        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
-        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
-        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
-    }
-
     /**
-     * <p>runQueries.</p>
+     * <p>This will execute all three server queries at once and display the output to the user.</p>
      *
      * @throws java.lang.Exception
      *         if any.
@@ -158,11 +145,16 @@ public class SourceQueryExample extends BaseExample {
         long start, end;
 
         final QueryAggregateProcessor processor = new QueryAggregateProcessor();
+
+        //We use Phaser as our synchronization barrier
+        // since at this point, we do not yet know how many servers we will query.
         final Phaser phaser = new Phaser();
 
         AtomicInteger total = new AtomicInteger();
         start = System.currentTimeMillis();
         phaser.register();
+
+        //Retrieve all game servers from the master server and execute all three queries (INFO, PLAYER, RULES)
         if (queryAllServers) {
             System.out.println("Note: Type '\u001B[32mskip\u001B[0m' to exclude filter");
             final MasterServerFilter filter = buildServerFilter();
@@ -170,7 +162,9 @@ public class SourceQueryExample extends BaseExample {
             System.out.printf("\033[1;36mFetching server list using filter \033[1;33m'%s'\033[0m\n", filter);
             printLine();
             fetchServersAndQuery(filter, phaser, processor, total); //this will block until we have received all addresses
-        } else {
+        }
+        //Only query a single server instance
+        else {
             String addressString = promptInput("Enter the address of the server you want to query (<ip>:<port>)", true, null, "queryAddress");
             int iterations = promptInputInt("How many times should we repeat our queries? (int)", false, "1", "queryIterations");
             InetSocketAddress address = Net.parseAddress(addressString, 27015);
@@ -180,9 +174,12 @@ public class SourceQueryExample extends BaseExample {
                 queryServer(address, phaser).whenComplete(processor).join();
             total.set(1);
         }
-        //wait for the registered parties (info, players and rules) to finish
+        //tell phaser to block, until all the registered parties (info, players and rules) have completed.
         phaser.arriveAndAwaitAdvance();
+
+        //measure the duration
         end = System.currentTimeMillis() - start;
+
         printLine();
         if (end < 1) {
             System.out.printf("\033[0;33mTEST COMPLETED  in \033[0;36m%03d\033[0;33m seconds\033[0m\n", Duration.ofMillis(end).getSeconds());
@@ -196,6 +193,7 @@ public class SourceQueryExample extends BaseExample {
         printLine();
         System.out.flush();
 
+        //Display the collected query statistics
         for (Map.Entry<QueryType, QueryStatsCounter> entry : processor.getStats().entrySet()) {
             String name = entry.getKey().name();
             QueryStatsCounter stat = entry.getValue();
@@ -301,6 +299,16 @@ public class SourceQueryExample extends BaseExample {
         close(masterClient, "Master");
         close(queryExecutor, "Query");
         close(masterExecutor, "Master");
+    }
+
+    private void printConsoleBanner() {
+        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
+        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
+        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
+        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
+        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
+        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
+        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
     }
 
     //<editor-fold desc="Private class/enum">

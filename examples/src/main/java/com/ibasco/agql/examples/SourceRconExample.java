@@ -90,18 +90,23 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("cleanup", this::commandCleanup);
         commandProcessors.put("reauth", this::commandReauth);
 
-        final SourceRconOptions rconOptions = SourceRconClient.newOptionsBuilder()
-                                                              .option(GlobalOptions.POOL_MAX_CONNECTIONS, 8)
-                                                              .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
-                                                              .option(SourceRconOptions.STRICT_MODE, false)
-                                                              .option(GlobalOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
-                                                              .option(GlobalOptions.CONNECTION_POOLING, true)
-                                                              .option(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED)
-                                                              .option(GlobalOptions.FAILSAFE_ENABLED, true)
-                                                              .option(SourceRconOptions.FAILSAFE_RETRY_DELAY, 1500L)
-                                                              .build();
-
-        rconClient = new SourceRconClient(rconOptions);
+        final SourceRconOptions options = SourceRconOptions.builder()
+                                                           .option(GlobalOptions.POOL_MAX_CONNECTIONS, 8)
+                                                           .option(GlobalOptions.POOL_ACQUIRE_TIMEOUT, Integer.MAX_VALUE)
+                                                           .option(GlobalOptions.CONNECTION_POOLING, true)
+                                                           .option(GlobalOptions.POOL_TYPE, ChannelPoolType.FIXED)
+                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
+                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 1L)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 500L)
+                                                           .option(SourceRconOptions.USE_TERMINATOR_PACKET, true)
+                                                           .option(SourceRconOptions.STRICT_MODE, false)
+                                                           //.option(SourceRconOptions.FAILSAFE_RETRY_DELAY, 1500L)
+                                                           .build();
+        Console.println("Created a new rcon options container with %d options", options.size());
+        for (Map.Entry<Option<?>, Object> o : options) {
+            Console.println("- %-30s = %-30s", o.getKey().getKey(), o.getValue());
+        }
+        rconClient = new SourceRconClient(options);
         //clearConsole();
         printBanner();
         runTerminal();

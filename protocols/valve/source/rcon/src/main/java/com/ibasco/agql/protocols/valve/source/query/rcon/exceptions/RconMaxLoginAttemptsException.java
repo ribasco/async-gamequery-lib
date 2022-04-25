@@ -32,34 +32,108 @@ public class RconMaxLoginAttemptsException extends RconAuthException {
 
     private final int maxAttemptCount;
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param attemptCount
+     *         a int
+     * @param maxAttemptCount
+     *         a int
+     */
     public RconMaxLoginAttemptsException(AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
         super(request, address, reason);
         this.attemptCount = attemptCount;
         this.maxAttemptCount = maxAttemptCount;
     }
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param attemptCount
+     *         a int
+     * @param maxAttemptCount
+     *         a int
+     */
     public RconMaxLoginAttemptsException(String message, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
         super(message, request, address, reason);
         this.attemptCount = attemptCount;
         this.maxAttemptCount = maxAttemptCount;
     }
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param attemptCount
+     *         a int
+     * @param maxAttemptCount
+     *         a int
+     */
     public RconMaxLoginAttemptsException(String message, Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
         super(message, cause, request, address, reason);
         this.attemptCount = attemptCount;
         this.maxAttemptCount = maxAttemptCount;
     }
 
+    /**
+     * <p>Constructor for RconMaxLoginAttemptsException.</p>
+     *
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param attemptCount
+     *         a int
+     * @param maxAttemptCount
+     *         a int
+     */
     public RconMaxLoginAttemptsException(Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason, int attemptCount, int maxAttemptCount) {
         super(cause, request, address, reason);
         this.attemptCount = attemptCount;
         this.maxAttemptCount = maxAttemptCount;
     }
 
+    /**
+     * <p>Getter for the field <code>attemptCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getAttemptCount() {
         return attemptCount;
     }
 
+    /**
+     * <p>Getter for the field <code>maxAttemptCount</code>.</p>
+     *
+     * @return a int
+     */
     public int getMaxAttemptCount() {
         return maxAttemptCount;
     }

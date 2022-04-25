@@ -17,10 +17,7 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
-import com.ibasco.agql.core.util.GlobalOptions;
-import com.ibasco.agql.core.util.HttpOptions;
-import com.ibasco.agql.core.util.Platform;
-import com.ibasco.agql.core.util.Properties;
+import com.ibasco.agql.core.util.*;
 import io.netty.channel.EventLoopGroup;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.Response;
@@ -88,6 +85,8 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         Integer nThreads = getOptions().get(GlobalOptions.THREAD_CORE_SIZE);
         //Attempt to determine the number of threads supported by the executor service
         if (nThreads == null) {
+            if (executorService instanceof AgqlManagedExecutorService)
+                executorService = ((AgqlManagedExecutorService) executorService).getResource();
             if (executorService instanceof ThreadPoolExecutor) {
                 ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
                 nThreads = tpe.getCorePoolSize();

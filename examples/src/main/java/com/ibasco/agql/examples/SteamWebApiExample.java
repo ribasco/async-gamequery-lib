@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.util.Console;
 import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
@@ -79,12 +80,13 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
                      return new ArrayList<>();
                  })
                  .thenAccept(steamServers -> {
-                     steamServers.parallelStream().forEachOrdered(steamServer -> log.info("Server: {}", steamServer.getAddr()));
+                     steamServers.parallelStream().forEachOrdered(steamServer -> Console.println("Server: %s", steamServer.getAddr()));
                  }).join();
+
         steamApps.getServerUpdateStatus(2146, 550).thenAccept(new Consumer<ServerUpdateStatus>() {
             @Override
             public void accept(ServerUpdateStatus serverUpdateStatus) {
-                log.info("Success: {}, Message: {}, Required Version: {}", serverUpdateStatus.isSuccess(), serverUpdateStatus.getMessage(), serverUpdateStatus.getRequiredVersion());
+                Console.println("Success: %s, Message: %s, Required Version: %d", serverUpdateStatus.isSuccess(), serverUpdateStatus.getMessage(), serverUpdateStatus.getRequiredVersion());
             }
         }).join();
 
@@ -316,7 +318,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
     }
 
     private static void displayResult(Object result) {
-        log.info("Result {}", result);
+        Console.println("%s", result);
     }
 
     /** {@inheritDoc} */

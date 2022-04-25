@@ -136,10 +136,10 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>Returns a {@link CompletableFuture} that returns this context once the response has been marked as completed.</p>
+     * <p>Returns a {@link java.util.concurrent.CompletableFuture} that returns this context once the response has been marked as completed.</p>
      *
      * @param <C>
-     *         A captured type of {@link NettyChannelContext}
+     *         A captured type of {@link com.ibasco.agql.core.NettyChannelContext}
      *
      * @return a {@link java.util.concurrent.CompletableFuture} returning this context instance once response has been received.
      */
@@ -238,7 +238,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param response
      *         a {@link com.ibasco.agql.core.AbstractResponse} object
-     *
      * @return a boolean
      */
     public final boolean markSuccess(AbstractResponse response) {
@@ -299,7 +298,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *         a {@link io.netty.util.AttributeKey} object
      * @param <V>
      *         a V class
-     *
      * @return a boolean
      */
     public final <V> boolean exists(AttributeKey<V> key) {
@@ -313,7 +311,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *         a {@link io.netty.util.AttributeKey} object
      * @param <V>
      *         a V class
-     *
      * @return a V object
      */
     public final <V> V get(AttributeKey<V> key) {
@@ -405,7 +402,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param copy
      *         a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
-     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
      */
     protected Properties newProperties(Properties copy) {
@@ -426,7 +422,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to retrieve the context from
-     *
      * @return The {@link com.ibasco.agql.core.NettyChannelContext} associated with the {@link io.netty.channel.Channel}
      */
     public static NettyChannelContext getContext(Channel channel) {
@@ -443,7 +438,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param request
      *         a {@link com.ibasco.agql.core.AbstractRequest} object
-     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     public NettyChannelContext attach(AbstractRequest request) {
@@ -492,6 +486,8 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
+     * {@inheritDoc}
+     *
      * Close or release the underlying {@link Channel} of this context. If the {@link Channel} is not pooled, it will call {@link Channel#close()} otherwise it will attempt to call release to return it back to the pool.
      */
     @Override

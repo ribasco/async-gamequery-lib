@@ -31,7 +31,6 @@ public class Strings {
      *
      * @param str
      *         a {@link java.lang.String} object
-     *
      * @return a boolean
      */
     public static boolean isBlank(String str) {
@@ -43,7 +42,6 @@ public class Strings {
      *
      * @param str
      *         a {@link java.lang.String} object
-     *
      * @return a boolean
      */
     public static boolean isNumeric(String str) {
@@ -65,7 +63,6 @@ public class Strings {
      *         a {@link java.lang.String} object
      * @param defaultValue
      *         a {@link java.lang.String} object
-     *
      * @return a {@link java.lang.String} object
      */
     public static String defaultIfEmpty(String value, String defaultValue) {

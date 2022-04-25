@@ -42,26 +42,26 @@ import java.util.concurrent.CompletableFuture;
  * A query client for retreiving information on Source servers. Based on the <a href="https://developer.valvesoftware.com/wiki/Server_Queries#Source_Server">Valve Source Server Query Protocol</a>
  * </p>
  *
- * <h3>Code example:</h3>
+ * <strong>Example:</strong>
  *
  * <h4>Asynchronous (non-blocking)</h4>
  *
  * <pre>
  * try (SourceQueryClient client = new SourceQueryClient()) {
- *     CompletableFuture<Source> resultFuture = client.getInfo(new InetSocketAddress("192.168.1.10", 27015);
+ *     CompletableFuture&lt;Source&gt; resultFuture = client.getInfo(new InetSocketAddress(&quot;192.168.1.10&quot;, 27015);
  *     if (resultFuture.isDone()) {
  *         SourceQueryInfoResponse infoResponse = resultFuture.getNow(null);
  *         assert infoResponse != null;
- *         System.out.printf("INFO: %s\n", infoResponse.getResult());
+ *         System.out.printf(&quot;INFO: %s\n&quot;, infoResponse.getResult());
  *     } else {
  *         //we have not yet received a response, register a callback once we do
- *         resultFuture.whenComplete((response, error) -> {
+ *         resultFuture.whenComplete((response, error) -&gt; {
  *             if (error != null) {
  *                 error.printStackTrace(System.err);
  *                 return;
  *             }
  *             assert response != null;
- *             System.out.printf("INFO: %s\n", response);
+ *             System.out.printf(&quot;INFO: %s\n&quot;, response);
  *         });
  *     }
  * }
@@ -71,9 +71,9 @@ import java.util.concurrent.CompletableFuture;
  *
  * <pre>
  * try (SourceQueryClient client = new SourceQueryClient()) {
- *     SourceQueryInfoResponse infoResponse = client.getInfo(new InetSocketAddress("192.168.1.10", 27015);
+ *     SourceQueryInfoResponse infoResponse = client.getInfo(new InetSocketAddress(&quot;192.168.1.10&quot;, 27015);
  *     assert infoResponse != null;
- *     System.out.printf("INFO: %s\n", infoResponse.getResult());
+ *     System.out.printf(&quot;INFO: %s\n&quot;, infoResponse.getResult());
  * } catch (Exception error) {
  *     error.printStackTrace(System.err);
  * }
@@ -84,30 +84,30 @@ import java.util.concurrent.CompletableFuture;
  * <p>Enable rate-limiting (disabled by default)</p>
  *
  * <pre>
- * Options options = OptionBuilder.newBuilder().option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
+ * SourceQueryOptions options = SourceQueryOptions.builder().option(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, true)
  *                                             .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
  *                                             .build();
  *
- * //pass options to client's constructor
+ * //pass options to client&#39;s constructor
  * try (SourceQueryClient client = new SourceQueryClient(options)) {
- *     InetSocketAddress address = new InetSocketAddress("192.168.1.10", 27015);
+ *     InetSocketAddress address = new InetSocketAddress(&quot;192.168.1.10&quot;, 27015);
  *
  *     //execute query 100 times
- *     for (int i=0; i<100; i++) {
- *         CompletableFuture<Source> resultFuture = client.getInfo(address);
+ *     for (int i=0; i&lt;100; i++) {
+ *         CompletableFuture&lt;Source&gt; resultFuture = client.getInfo(address);
  *         if (resultFuture.isDone()) {
  *             SourceQueryInfoResponse infoResponse = resultFuture.getNow(null);
  *             assert infoResponse != null;
- *             System.out.printf("INFO: %s\n", infoResponse.getResult());
+ *             System.out.printf(&quot;INFO: %s\n&quot;, infoResponse.getResult());
  *         } else {
  *             //we have not yet received a response, register a callback once we do
- *             resultFuture.whenComplete((response, error) -> {
+ *             resultFuture.whenComplete((response, error) -&gt; {
  *                 if (error != null) {
  *                     error.printStackTrace(System.err);
  *                     return;
  *                 }
  *                 assert response != null;
- *                 System.out.printf("INFO: %s\n", response);
+ *                 System.out.printf(&quot;INFO: %s\n&quot;, response);
  *             });
  *         }
  *     }
@@ -140,10 +140,6 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      */
     public SourceQueryClient(SourceQueryOptions options) {
         super(options);
-    }
-
-    public static OptionBuilder<SourceQueryOptions> newOptionBuilder() {
-        return OptionBuilder.newBuilder(SourceQueryOptions.class);
     }
     //</editor-fold>
 

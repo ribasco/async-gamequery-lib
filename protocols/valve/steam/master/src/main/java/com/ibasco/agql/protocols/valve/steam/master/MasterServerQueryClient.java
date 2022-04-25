@@ -38,14 +38,14 @@ import java.util.concurrent.CompletableFuture;
 public final class MasterServerQueryClient extends NettySocketClient<MasterServerRequest, MasterServerResponse> {
 
     /**
-     * Create a new {@link MasterServerQueryClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
+     * Create a new {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerQueryClient} instance using the pre-defined configuration {@link com.ibasco.agql.core.util.Options} for this client
      */
     public MasterServerQueryClient() {
         this(null);
     }
 
     /**
-     * Create a new {@link MasterServerQueryClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
+     * Create a new {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerQueryClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
      *
      * @param options
      *         The user-defined {@link com.ibasco.agql.core.util.Options} containing the configuration settings to be used by this client.
@@ -57,10 +57,6 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
         super(options);
     }
 
-    public static OptionBuilder<MasterServerOptions> newOptionBuilder() {
-        return OptionBuilder.newBuilder(MasterServerOptions.class);
-    }
-
     /**
      * <p>Retrieves a list of servers from the Steam Master Server.</p>
      *
@@ -70,9 +66,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
      * @param type
      *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
-     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
-     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
     public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
@@ -90,9 +84,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
      * @param callback
      *         Accepts a {@link com.ibasco.agql.core.util.functions.TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server. (Parameters: Server Address, Master Server Address, Exception)
-     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
-     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
     public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {

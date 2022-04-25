@@ -20,15 +20,13 @@ import com.ibasco.agql.core.enums.RateLimitType;
 import dev.failsafe.*;
 import dev.failsafe.event.CircuitBreakerStateChangedEvent;
 import dev.failsafe.event.EventListener;
-import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.event.ExecutionCompletedEvent;
 
 import java.time.Duration;
-import java.util.Map;
 import java.util.function.BiPredicate;
 
 /**
- * A convenience class that assists in building {@link dev.failsafe.Failsafe} policies and executors using pre-defined failsafe {@link Options}
+ * A convenience class that assists in building {@link dev.failsafe.Failsafe} policies and executors using pre-defined failsafe {@link com.ibasco.agql.core.util.Options}
  *
  * @author Rafael Luis Ibasco
  */
@@ -38,17 +36,25 @@ public class FailsafeBuilder {
 
     private FailsafeBuilder() {}
 
-    public static <T> RateLimiterBuilder<T> buildRateLimiter(Options options) {
-        Map<Option<?>, Object> mergedOptions = Option.merge(options, FAILSAFE_OPTIONS_ONLY);
-
-        Boolean failsafeEnabled = findValue(FailsafeProperties.FAILSAFE_ENABLED, mergedOptions);
+    /**
+     * <p>buildRateLimiter.</p>
+     *
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param <T>
+     *         a T class
+     *
+     * @return a {@link dev.failsafe.RateLimiterBuilder} object
+     */
+    public static <T> RateLimiterBuilder<T> buildRateLimiter(Class<? extends Options> context, Options options) {
+        Boolean failsafeEnabled = options.getOrDefault(FailsafeOptions.FAILSAFE_ENABLED, context);
         if (failsafeEnabled != null && !failsafeEnabled)
             throw new IllegalStateException("Failsafe is not enabled");
 
-        Long maxExecutions = findValue(FailsafeProperties.FAILSAFE_RATELIMIT_MAX_EXEC, mergedOptions);
-        Long periodMs = findValue(FailsafeProperties.FAILSAFE_RATELIMIT_PERIOD, mergedOptions);
-        Long maxWaitTimeMs = findValue(FailsafeProperties.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, mergedOptions);
-        RateLimitType rateLimitType = findValue(FailsafeProperties.FAILSAFE_RATELIMIT_TYPE, mergedOptions);
+        Long maxExecutions = options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, context);
+        Long periodMs = options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, context);
+        Long maxWaitTimeMs = options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, context);
+        RateLimitType rateLimitType = options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, context);
         //noinspection unchecked
         RateLimiterBuilder<T> builder = (RateLimiterBuilder<T>) rateLimitType.getBuilder().apply(maxExecutions, Duration.ofMillis(periodMs));
         if (maxWaitTimeMs != null)
@@ -64,28 +70,37 @@ public class FailsafeBuilder {
         return builder;
     }
 
-    public static <T> RetryPolicyBuilder<T> buildRetryPolicy(Options options) {
+    /**
+     * <p>buildRetryPolicy.</p>
+     *
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param <T>
+     *         a T class
+     *
+     * @return a {@link dev.failsafe.RetryPolicyBuilder} object
+     */
+    public static <T> RetryPolicyBuilder<T> buildRetryPolicy(Class<? extends Options> context, Options options) {
         if (options == null)
             throw new IllegalStateException("Options must not be null");
-        Map<Option<?>, Object> mergedOptions = Option.merge(options, FAILSAFE_OPTIONS_ONLY);
         RetryPolicyBuilder<T> builder = RetryPolicy.builder();
 
-        Boolean failsafeEnabled = findValue(FailsafeProperties.FAILSAFE_ENABLED, mergedOptions);
+        Boolean failsafeEnabled = options.getOrDefault(FailsafeOptions.FAILSAFE_ENABLED, context);
+
         if (failsafeEnabled != null && !failsafeEnabled)
             throw new IllegalStateException("Failsafe is not enabled");
-
-        Long retryDelay = findValue(FailsafeProperties.FAILSAFE_RETRY_DELAY, mergedOptions);
-        Integer maxAttempts = findValue(FailsafeProperties.FAILSAFE_RETRY_MAX_ATTEMPTS, mergedOptions);
-        Boolean backOffEnabled = findValue(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_ENABLED, mergedOptions);
-        Long backoffDelay = findValue(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY, mergedOptions);
-        Long backoffMaxDelay = findValue(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, mergedOptions);
+        Long retryDelay = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, context);
+        Integer maxAttempts = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, context);
+        Boolean backOffEnabled = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, context);
+        Long backoffDelay = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, context);
+        Long backoffMaxDelay = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, context);
 
         if (retryDelay != null && retryDelay > 0)
             builder.withDelay(Duration.ofMillis(retryDelay));
         if (maxAttempts != null)
             builder.withMaxAttempts(maxAttempts);
         if (backOffEnabled != null && backOffEnabled) {
-            Double backoffDelayFactor = findValue(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, mergedOptions);
+            Double backoffDelayFactor = options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, context);
             builder.withBackoff(Duration.ofMillis(backoffDelay), Duration.ofMillis(backoffMaxDelay), backoffDelayFactor);
         }
         if (Properties.isVerbose()) {
@@ -100,33 +115,40 @@ public class FailsafeBuilder {
         return builder;
     }
 
-    public static <T> CircuitBreakerBuilder<T> buildCircuitBreaker(Options options) {
+    /**
+     * <p>buildCircuitBreaker.</p>
+     *
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param <T>
+     *         a T class
+     *
+     * @return a {@link dev.failsafe.CircuitBreakerBuilder} object
+     */
+    public static <T> CircuitBreakerBuilder<T> buildCircuitBreaker(Class<? extends Options> context, Options options) {
         if (options == null)
             throw new IllegalStateException("Options must not be null");
-        Map<Option<?>, Object> mergedOptions = Option.merge(options, FAILSAFE_OPTIONS_ONLY);
 
-        Boolean failsafeEnabled = findValue(FailsafeProperties.FAILSAFE_ENABLED, mergedOptions);
+        Boolean failsafeEnabled = options.getOrDefault(FailsafeOptions.FAILSAFE_ENABLED, context);
         if (failsafeEnabled != null && !failsafeEnabled)
             throw new IllegalStateException("Failsafe is not enabled");
 
         CircuitBreakerBuilder<T> builder = CircuitBreaker.builder();
-        Integer delay = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_DELAY, mergedOptions);
-        Integer failureThreshold = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, mergedOptions);
-        Integer failureThresholdingCapacity = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, mergedOptions);
-        Integer successThreshold = findValue(FailsafeProperties.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, mergedOptions);
+        Integer delay = options.getOrDefault(FailsafeOptions.FAILSAFE_CIRCBREAKER_DELAY, context);
+        Integer failureThreshold = options.getOrDefault(FailsafeOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, context);
+        Integer failureThresholdingCapacity = options.getOrDefault(FailsafeOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, context);
+        Integer successThreshold = options.getOrDefault(FailsafeOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, context);
+        builder.withFailureThreshold(failureThreshold, failureThresholdingCapacity);
+        builder.withSuccessThreshold(successThreshold);
+        builder.withDelay(Duration.ofMillis(delay));
 
+        //debugging purposes only
         if (Properties.isVerbose()) {
             Console.println("Building 'CIRCUIT BREAKER POLICY' for '%s'", options.getClass().getSimpleName());
             Console.println(">> Delay: %d", delay);
             Console.println(">> Failure Threshold: %d", failureThreshold);
             Console.println(">> Failure Thresholding Capacity: %d", failureThresholdingCapacity);
             Console.println(">> Success Threshold: %d", successThreshold);
-        }
-
-        builder.withFailureThreshold(failureThreshold, failureThresholdingCapacity);
-        builder.withSuccessThreshold(successThreshold);
-        builder.withDelay(Duration.ofMillis(delay));
-        if (Properties.isVerbose()) {
             builder.onOpen(new EventListener<CircuitBreakerStateChangedEvent>() {
                 @Override
                 public void accept(CircuitBreakerStateChangedEvent event) throws Throwable {
@@ -153,62 +175,5 @@ public class FailsafeBuilder {
             });
         }
         return builder;
-    }
-
-    private static <S, R, C extends PolicyConfig<R>, T extends PolicyBuilder<S, C, R>> void attachGlobalListeners(T builder) {
-        builder.onSuccess(new EventListener<ExecutionCompletedEvent<R>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<R> event) throws Throwable {
-                Console.println("[GLOBAL LISTENER] Successful execution: %s", event.getResult());
-            }
-        });
-        builder.onFailure(new EventListener<ExecutionCompletedEvent<R>>() {
-            @Override
-            public void accept(ExecutionCompletedEvent<R> event) throws Throwable {
-                Console.error("[GLOBAL LISTENER] Failed execution encountered  (Attempts: %d, Error: %s)", event.getAttemptCount(), event.getException());
-            }
-        });
-        if (builder instanceof RetryPolicyBuilder<?>) {
-            //noinspection unchecked
-            RetryPolicyBuilder<R> rBuilder = (RetryPolicyBuilder<R>) builder;
-            rBuilder.onRetry(new EventListener<ExecutionAttemptedEvent<R>>() {
-                @Override
-                public void accept(ExecutionAttemptedEvent<R> event) throws Throwable {
-                    Console.error("[GLOBAL LISTENER] Retry attempt detected (Attempt count: %d, Last Exception: %s)", event.getAttemptCount(), event.getLastException());
-                }
-            });
-        }
-        //return builder;
-    }
-
-    /**
-     * Attempts to find the value for the specified key in the provided options map. If the key does not exists in the provided map, it will then attempt to search the global options map.
-     *
-     * @param key
-     *         The option key to be used as a lookup
-     * @param optionMap
-     *         The {@link Map} to search on
-     * @param <V>
-     *         The captured return type
-     *
-     * @return The value of the specified {@link Option}
-     */
-    @SuppressWarnings("unchecked")
-    private static <V> V findValue(String key, Map<Option<?>, Object> optionMap) {
-        if (key == null)
-            throw new IllegalStateException("Key is null");
-        for (Map.Entry<Option<?>, Object> entry : optionMap.entrySet()) {
-            String optionKey = entry.getKey().getKey();
-            if (optionKey.equalsIgnoreCase(key)) {
-                //noinspection unchecked
-                return (V) entry.getValue();
-            }
-        }
-        //check if present in global options
-        Option<?> globalOptionKey = Option.ofGlobal(key);
-        if (globalOptionKey == null)
-            throw new IllegalStateException("Option key not found: " + key);
-        V globalValue = (V) Option.getGlobal(globalOptionKey);
-        return globalValue == null ? (V) globalOptionKey.getDefaultValue() : globalValue;
     }
 }

@@ -54,6 +54,8 @@ abstract public class AbstractWebApiInterface<C extends AbstractRestClient, R ex
     /**
      * Used by the underlying concrete classes for api versioning
      */
+    /** Constant <code>VERSION_2=2</code> */
+    /** Constant <code>VERSION_3=3</code> */
     public static final int VERSION_1 = 1, VERSION_2 = 2, VERSION_3 = 3;
 
     /**

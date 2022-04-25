@@ -23,43 +23,63 @@ package com.ibasco.agql.core.util;
  */
 public interface FailsafeProperties {
 
+    /** Constant <code>FAILSAFE_ENABLED="failsafeEnabled"</code> */
     String FAILSAFE_ENABLED = "failsafeEnabled";
 
     //<editor-fold desc="Rate Limit Policy">
+
+    /** Constant <code>FAILSAFE_RATELIMIT_ENABLED="failsafeRateLimitEnabled"</code> */
     String FAILSAFE_RATELIMIT_ENABLED = "failsafeRateLimitEnabled";
 
+    /** Constant <code>FAILSAFE_RATELIMIT_MAX_EXEC="failsafeRateLimitMaxExec"</code> */
     String FAILSAFE_RATELIMIT_MAX_EXEC = "failsafeRateLimitMaxExec";
 
+    /** Constant <code>FAILSAFE_RATELIMIT_TYPE="failsafeRateLimitType"</code> */
     String FAILSAFE_RATELIMIT_TYPE = "failsafeRateLimitType";
 
+    /** Constant <code>FAILSAFE_RATELIMIT_PERIOD="failsafeRateLimitPeriod"</code> */
     String FAILSAFE_RATELIMIT_PERIOD = "failsafeRateLimitPeriod";
 
+    /** Constant <code>FAILSAFE_RATELIMIT_MAX_WAIT_TIME="failsafeRateLimitMaxWaitTime"</code> */
     String FAILSAFE_RATELIMIT_MAX_WAIT_TIME = "failsafeRateLimitMaxWaitTime";
     //</editor-fold>
 
     //<editor-fold desc="Retry Policy">
+
+    /** Constant <code>FAILSAFE_RETRY_ENABLED="failsafeRetryRetryEnabled"</code> */
     String FAILSAFE_RETRY_ENABLED = "failsafeRetryRetryEnabled";
 
+    /** Constant <code>FAILSAFE_RETRY_DELAY="failsafeRetryDelay"</code> */
     String FAILSAFE_RETRY_DELAY = "failsafeRetryDelay";
 
+    /** Constant <code>FAILSAFE_RETRY_MAX_ATTEMPTS="failsafeRetryMaxAttempts"</code> */
     String FAILSAFE_RETRY_MAX_ATTEMPTS = "failsafeRetryMaxAttempts";
 
+    /** Constant <code>FAILSAFE_RETRY_BACKOFF_ENABLED="failsafeRetryBackoffEnabled"</code> */
     String FAILSAFE_RETRY_BACKOFF_ENABLED = "failsafeRetryBackoffEnabled";
 
+    /** Constant <code>FAILSAFE_RETRY_BACKOFF_DELAY="failsafeRetryBackoffDelay"</code> */
     String FAILSAFE_RETRY_BACKOFF_DELAY = "failsafeRetryBackoffDelay";
 
+    /** Constant <code>FAILSAFE_RETRY_BACKOFF_MAX_DELAY="failsafeRetryBackoffMaxDelay"</code> */
     String FAILSAFE_RETRY_BACKOFF_MAX_DELAY = "failsafeRetryBackoffMaxDelay";
 
+    /** Constant <code>FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR="failsafeRetryBackoffDelayFactor"</code> */
     String FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = "failsafeRetryBackoffDelayFactor";
 
+    /** Constant <code>FAILSAFE_CIRCBREAKER_ENABLED="failsafeCircuitBreakerEnabled"</code> */
     String FAILSAFE_CIRCBREAKER_ENABLED = "failsafeCircuitBreakerEnabled";
 
+    /** Constant <code>FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD="failsafeCircuitBreakerFailureThreshold"</code> */
     String FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD = "failsafeCircuitBreakerFailureThreshold";
 
+    /** Constant <code>FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP="failsafeCircuitBreakerFailureThresholdi"{trunked}</code> */
     String FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP = "failsafeCircuitBreakerFailureThresholdingCapacity";
 
+    /** Constant <code>FAILSAFE_CIRCBREAKER_DELAY="failsafeCircuitBreakerDelay"</code> */
     String FAILSAFE_CIRCBREAKER_DELAY = "failsafeCircuitBreakerDelay";
 
+    /** Constant <code>FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD="failsafeCircuitBreakerSuccessThreshold"</code> */
     String FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD = "failsafeCircuitBreakerSuccessThreshold";
     //</editor-fold>
 

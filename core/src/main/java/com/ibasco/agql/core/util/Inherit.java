@@ -18,6 +18,11 @@ package com.ibasco.agql.core.util;
 
 import java.lang.annotation.*;
 
+/**
+ * <p>Inherit class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 @Documented
 @Retention(value = RetentionPolicy.RUNTIME)
 @Target(value = ElementType.TYPE)

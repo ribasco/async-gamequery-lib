@@ -96,7 +96,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     public SourceQueryMessenger(Options options) {
         super(options);
         //note: use getOptions() instead of options, to guarante that we do not receive a null value in case developer did not provide a user-defined options.
-        this.failsafeEnabled = getOptions().getOrDefault(SourceQueryOptions.FAILSAFE_ENABLED);
+        this.failsafeEnabled = getOptions().getOrDefault(FailsafeOptions.FAILSAFE_ENABLED);
         initFailSafe(getOptions());
     }
 
@@ -104,15 +104,25 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     @Override
     protected void configure(Options options) {
         //enable pooling by default
-        defaultOption(options, GlobalOptions.CONNECTION_POOLING, false);
-        defaultOption(options, GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
-        defaultOption(options, GlobalOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
-        defaultOption(options, GlobalOptions.READ_TIMEOUT, 10000);
+        applyDefault(GlobalOptions.CONNECTION_POOLING, false);
+        applyDefault(GlobalOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
+        applyDefault(GlobalOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
+        applyDefault(GlobalOptions.READ_TIMEOUT, 10000);
         //default rate limiting options
-        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED, false);
-        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
-        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
-        defaultOption(options, SourceQueryOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
+        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, 10000L);
+
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, -1L); //1000L
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 10);
     }
 
     private void initFailSafe(final Options options) {
@@ -126,12 +136,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         policies.add(fallbackPolicy);
 
         //retry policy
-        if (options.getOrDefault(SourceQueryOptions.FAILSAFE_RETRY_ENABLED)) {
+        if (options.getOrDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED)) {
             this.retryPolicy = buildRetryPolicy(options);
             policies.add(retryPolicy);
         }
         //rate limiter (standalone)
-        if (options.getOrDefault(SourceQueryOptions.FAILSAFE_RATELIMIT_ENABLED)) {
+        if (options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED)) {
             this.rateLimiter = buildRateLimiterPolicy(options);
         }
 
@@ -160,14 +170,14 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     }
 
     private RetryPolicy<NettyChannelContext> buildRetryPolicy(final Options options) {
-        RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(options);
+        RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
         builder.abortOn(RejectedExecutionException.class);
         builder.onRetriesExceeded(retryExceededListener);
         return builder.build();
     }
 
     private RateLimiter<NettyChannelContext> buildRateLimiterPolicy(final Options options) {
-        RateLimiterBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRateLimiter(options);
+        RateLimiterBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRateLimiter(FailsafeOptions.class, options);
         return builder.build();
     }
 

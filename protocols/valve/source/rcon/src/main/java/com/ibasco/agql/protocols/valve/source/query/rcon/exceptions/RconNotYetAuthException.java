@@ -28,18 +28,66 @@ import java.net.InetSocketAddress;
  */
 public class RconNotYetAuthException extends RconAuthException {
 
+    /**
+     * <p>Constructor for RconNotYetAuthException.</p>
+     *
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public RconNotYetAuthException(AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
         super(request, address, reason);
     }
 
+    /**
+     * <p>Constructor for RconNotYetAuthException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public RconNotYetAuthException(String message, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
         super(message, request, address, reason);
     }
 
+    /**
+     * <p>Constructor for RconNotYetAuthException.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public RconNotYetAuthException(String message, Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
         super(message, cause, request, address, reason);
     }
 
+    /**
+     * <p>Constructor for RconNotYetAuthException.</p>
+     *
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     * @param reason
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     */
     public RconNotYetAuthException(Throwable cause, AbstractRequest request, InetSocketAddress address, SourceRconAuthReason reason) {
         super(cause, request, address, reason);
     }

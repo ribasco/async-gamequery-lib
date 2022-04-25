@@ -80,6 +80,16 @@ public class Pair<A, B> {
         this.second = second;
     }
 
+    /**
+     * <p>setBoth.</p>
+     *
+     * @param first
+     *         a A object
+     * @param second
+     *         a B object
+     *
+     * @return a {@link com.ibasco.agql.core.util.Pair} object
+     */
     public Pair<A, B> setBoth(A first, B second) {
         this.first = first;
         this.second = second;

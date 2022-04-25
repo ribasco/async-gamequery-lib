@@ -32,8 +32,17 @@ import java.net.InetSocketAddress;
  * @see Options
  * @see SourceRconClient
  */
-@Inherit(options = FailsafeOptions.class)
+@Inherit(options = {FailsafeOptions.class, ConnectOptions.class})
 public final class SourceRconOptions extends AbstractOptions {
+
+    /**
+     * <p>Create a new {@link OptionBuilder} for {@link SourceRconOptions}</p>
+     *
+     * @return a newly instantiated {@link com.ibasco.agql.core.util.OptionBuilder} object
+     */
+    public static OptionBuilder<SourceRconOptions> builder() {
+        return OptionBuilder.newBuilder(SourceRconOptions.class);
+    }
 
     /**
      * <p>
@@ -89,67 +98,4 @@ public final class SourceRconOptions extends AbstractOptions {
      * @see #CLOSE_INACTIVE_CHANNELS
      */
     public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.create("rconInactiveCheckInterval", 1);
-
-    /**
-     * Enable retry policy
-     *
-     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
-     * @see #FAILSAFE_RETRY_MAX_ATTEMPTS
-     * @see <a href="https://failsafe.dev/retry/">Failsafe's Retry Policy</a>
-     */
-    public static final Option<Boolean> FAILSAFE_RETRY_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RETRY_ENABLED, true);
-
-    /**
-     * Delay between retries (In milliseconds. Use -1 to disable. Default is 1000ms)
-     *
-     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
-     */
-    public static final Option<Long> FAILSAFE_RETRY_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_DELAY, 1000L);
-
-    /**
-     * Enable Failsafe's Retry Backoff Feature
-     *
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
-     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
-     */
-    public static final Option<Boolean> FAILSAFE_RETRY_BACKOFF_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
-
-    /**
-     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays.
-     *
-     * @see #FAILSAFE_RETRY_BACKOFF_MAX_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
-     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
-     */
-    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
-
-    /**
-     * Sets the delay between retries (milliseconds), exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5000 ms or 5 seconds)
-     *
-     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY
-     * @see #FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR
-     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
-     */
-    public static final Option<Long> FAILSAFE_RETRY_BACKOFF_MAX_DELAY = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
-
-    /**
-     * Sets the delay between retries, exponentially backing off to the maxDelay and multiplying successive delays by the delayFactor. Replaces any previously configured fixed or random delays. (Default is 5.0)
-     *
-     * @see #FAILSAFE_RETRY_BACKOFF_ENABLED
-     * @see <a href="https://failsafe.dev/retry/#delays">Failsafe's Retry Policy (Backoff)</a>
-     */
-    public static final Option<Double> FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR = Option.create(FailsafeProperties.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
-
-    /**
-     * Sets the max number of execution attempts to perform. -1 indicates no limit (Default is 3 attempts)
-     *
-     * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
-     */
-    public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.create(FailsafeProperties.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
 }

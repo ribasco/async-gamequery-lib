@@ -270,7 +270,8 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
     /** {@inheritDoc} */
     @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-        this.decoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketDecoder(ctx, SourceRconOptions.STRICT_MODE.attr(ctx));
+        Boolean strictMode = SourceRconOptions.STRICT_MODE.attr(ctx);
+        this.decoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketDecoder(ctx, strictMode != null ? strictMode : false);
         this.terminatorPacketsEnabled = SourceRcon.terminatorPacketEnabled(ctx);
         super.channelActive(ctx);
     }

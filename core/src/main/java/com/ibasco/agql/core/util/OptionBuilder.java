@@ -17,7 +17,7 @@
 package com.ibasco.agql.core.util;
 
 /**
- * A helper class for building a map of configuration {@link com.ibasco.agql.core.util.Option}
+ * A helper class for building a map of configuration {@link com.ibasco.agql.core.util.Option} instances.
  *
  * @author Rafael Luis Ibasco
  */
@@ -25,7 +25,13 @@ public class OptionBuilder<T extends Options> {
 
     private final T map;
 
-    protected OptionBuilder(Class<T> optionClass) {
+    /**
+     * <p>Constructor for OptionBuilder.</p>
+     *
+     * @param optionClass
+     *         a {@link java.lang.Class} object
+     */
+    private OptionBuilder(Class<T> optionClass) {
         if (optionClass == null)
             throw new IllegalArgumentException("Option class must not be null");
         try {
@@ -36,38 +42,43 @@ public class OptionBuilder<T extends Options> {
     }
 
     /**
-     * <p>Creates a new option container based on the provided {@link Options} class.</p>
+     * <p>Creates a new option container based on the provided {@link com.ibasco.agql.core.util.Options} class.</p>
      *
-     * @param group
-     *         any {@link java.lang.Class} implementing {@link Options}
+     * @param optionsClass
+     *         any {@link java.lang.Class} implementing {@link com.ibasco.agql.core.util.Options}
+     * @param <C>
+     *         Captured type of {@link Options}
+     * @param <O>
+     *         Captured type of {@link OptionBuilder}
      *
-     * @return An {@link com.ibasco.agql.core.util.OptionBuilder} instance for the specified {@link Options} class
+     * @return An {@link com.ibasco.agql.core.util.OptionBuilder} instance for the specified {@link com.ibasco.agql.core.util.Options} class
      */
-    public static <C extends Options, O extends OptionBuilder<C>> OptionBuilder<C> newBuilder(Class<C> group) {
-        return new OptionBuilder<>(group);
+    public static <C extends Options, O extends OptionBuilder<C>> O newBuilder(Class<C> optionsClass) {
+        //noinspection unchecked
+        return (O) new OptionBuilder<C>(optionsClass);
     }
 
     /**
-     * <p>option.</p>
+     * <p>Add a new configuration {@link Option}.</p>
      *
      * @param option
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param value
-     *         a X object
+     *         The value of the {@link Option}
      * @param <X>
-     *         a X class
+     *         The captured type of the {@link Option}
      *
      * @return a {@link com.ibasco.agql.core.util.OptionBuilder} object
      */
     public <X> OptionBuilder<T> option(Option<X> option, X value) {
-        map.add(option, value);
+        map.put(option, value);
         return this;
     }
 
     /**
-     * <p>build.</p>
+     * <p>Builds the {@link Options} container</p>
      *
-     * @return a {@link com.ibasco.agql.core.util.Options} object
+     * @return The {@link com.ibasco.agql.core.util.Options} container instance
      */
     public T build() {
         return map;

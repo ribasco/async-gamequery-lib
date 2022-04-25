@@ -20,14 +20,16 @@ import com.ibasco.agql.core.enums.RateLimitType;
 import dev.failsafe.Failsafe;
 
 /**
- * <p>{@link Failsafe} Options.</p>
+ * Failsafe {@link Option}s to be used by the underlying connection factory
  *
  * @author Rafael Luis Ibasco
  */
 @Shared
-public class FailsafeOptions extends AbstractOptions {
+public class ConnectOptions extends AbstractOptions {
 
-    protected FailsafeOptions() {}
+    private ConnectOptions() {
+
+    }
 
     //<editor-fold desc="Failsafe - General Options">
 

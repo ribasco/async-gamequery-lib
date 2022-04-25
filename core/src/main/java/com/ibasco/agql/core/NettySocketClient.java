@@ -33,7 +33,6 @@ import java.util.Objects;
  *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
  *         A type of {@link com.ibasco.agql.core.AbstractResponse}
- *
  * @author Rafael Luis Ibasco
  */
 abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse> extends AbstractClient<R, S> {
@@ -54,7 +53,6 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
      *
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
-     *
      * @see OptionBuilder
      */
     protected NettySocketClient(Options options) {

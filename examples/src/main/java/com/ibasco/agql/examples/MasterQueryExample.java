@@ -16,8 +16,10 @@
 
 package com.ibasco.agql.examples;
 
+import com.ibasco.agql.core.util.FailsafeOptions;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
@@ -44,20 +46,13 @@ public class MasterQueryExample extends BaseExample {
 
     private final Set<InetSocketAddress> addressSet = new HashSet<>();
 
-    /**
-     * <p>main.</p>
-     *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
-     */
-    public static void main(String[] args) throws Exception {
-        new MasterQueryExample().run(args);
-    }
-
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
-        client = new MasterServerQueryClient();
+        MasterServerOptions options = MasterServerOptions.builder()
+                                                         .option(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true)
+                                                         .build();
+        client = new MasterServerQueryClient(options);
         this.listAllServers();
         System.exit(0);
     }

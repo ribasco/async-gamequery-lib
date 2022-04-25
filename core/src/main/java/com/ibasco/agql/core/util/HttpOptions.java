@@ -16,5 +16,19 @@
 
 package com.ibasco.agql.core.util;
 
+/**
+ * <p>HttpOptions class.</p>
+ *
+ * @author Rafael Luis Ibasco
+ */
 public class HttpOptions extends AbstractOptions {
+
+    /**
+     * <p>Create a new {@link OptionBuilder} for {@link HttpOptions}</p>
+     *
+     * @return a newly instantiated {@link com.ibasco.agql.core.util.OptionBuilder} object
+     */
+    public static OptionBuilder<HttpOptions> builder() {
+        return OptionBuilder.newBuilder(HttpOptions.class);
+    }
 }

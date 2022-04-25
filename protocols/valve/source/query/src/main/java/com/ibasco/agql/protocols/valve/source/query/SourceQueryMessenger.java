@@ -103,26 +103,47 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     /** {@inheritDoc} */
     @Override
     protected void configure(Options options) {
-        //enable pooling by default
+        //default general config
         applyDefault(GeneralOptions.CONNECTION_POOLING, false);
         applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
         applyDefault(GeneralOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
-        applyDefault(GeneralOptions.READ_TIMEOUT, 10000);
-        //default rate limiting options
+        applyDefault(GeneralOptions.READ_TIMEOUT, 5000);
+
+        //connect options
+        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
+
+        //connect - retry
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
+
+        //connect - circuit breaker
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
+
+        //query - rate limiting
         applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, 10000L);
 
+        //query - retry
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, -1L); //1000L
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 10);
     }
 
     private void initFailSafe(final Options options) {

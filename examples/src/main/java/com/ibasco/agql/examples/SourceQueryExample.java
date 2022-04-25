@@ -21,11 +21,12 @@ import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.enums.RateLimitType;
 import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
-import com.ibasco.agql.core.transport.enums.ChannelPoolType;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.Concurrency;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.Net;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryClient;
-import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse;
@@ -102,7 +103,7 @@ public class SourceQueryExample extends BaseExample {
             // - Provide a custom executor for query client. We are responsible for shutting down this executor, not the library.
             // - Set channel pooling strategy to FIXED (POOL_TYPE) with using a fixed number of pooled connections of 50 (POOL_MAX_CONNECTIONS)
             // - Set read timeout to 1000ms (1 second)
-            SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+            /*SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                                 //override default value, enable rate limiting (default is: false)
                                                                 .option(GeneralOptions.CONNECTION_POOLING, false)
                                                                 .option(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
@@ -117,7 +118,8 @@ public class SourceQueryExample extends BaseExample {
                                                                 //.option(GeneralOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
                                                                 .option(GeneralOptions.READ_TIMEOUT, 5000)
                                                                 .build();
-            queryClient = new SourceQueryClient(queryOptions);
+            queryClient = new SourceQueryClient(queryOptions);*/
+            queryClient = new SourceQueryClient();
 
             //master client configuration
             // - Configuring the Rate limit type to SMOOTH
@@ -251,7 +253,7 @@ public class SourceQueryExample extends BaseExample {
     }
 
     /**
-     * Fetch a new list from the master server and query
+     * Fetch a new list from the master server then attempt to obtains the INFO, PLAYERS and RULES of each address.
      *
      * @param filter
      *         {@link MasterServerFilter}
@@ -398,7 +400,7 @@ public class SourceQueryExample extends BaseExample {
     }
 
     /**
-     * An aggregate for INFO, PLAYER and RULES queries for a specific server {@link InetSocketAddress}. All the
+     * An aggregate for INFO, PLAYER and RULES queries for a specific server {@link InetSocketAddress}.
      */
     private static class QueryAggregate {
 
@@ -644,7 +646,7 @@ public class SourceQueryExample extends BaseExample {
                     }
                     case RULES: {
                         SourceQueryRulesResponse rulesResponse = (SourceQueryRulesResponse) aggregate.rulesQuery().getResponse();
-                        data = aggregate.rulesQuery().hasResponse() ? rulesResponse.getResult().size() + " / " + rulesResponse.getExpectedCount() : "N/A";
+                        data = aggregate.rulesQuery().hasResponse() ? String.valueOf(rulesResponse.getResult().size()) : "N/A";
                         break;
                     }
                     default: {

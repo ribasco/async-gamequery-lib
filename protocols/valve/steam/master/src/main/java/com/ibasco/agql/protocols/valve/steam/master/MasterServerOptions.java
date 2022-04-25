@@ -26,7 +26,7 @@ import com.ibasco.agql.core.util.*;
  * @see OptionBuilder
  * @see MasterServerQueryClient
  */
-@Inherit(options = FailsafeOptions.class)
+@Inherit(options = {FailsafeOptions.class, ConnectOptions.class})
 public final class MasterServerOptions extends AbstractOptions {
 
     /**

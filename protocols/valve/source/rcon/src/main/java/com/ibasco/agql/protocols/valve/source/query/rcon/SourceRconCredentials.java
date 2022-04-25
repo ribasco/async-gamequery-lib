@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.Credentials;
-import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +27,6 @@ import java.util.Arrays;
  *
  * @author Rafael Luis Ibasco
  */
-@ApiStatus.Internal
 public final class SourceRconCredentials implements Credentials {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconCredentials.class);

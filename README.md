@@ -5,14 +5,14 @@ Asynchronous Game Query Library
 
 [mavenLink]: https://search.maven.org/search?q=com.ibasco.agql
 
-[![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) [![Project Stats](https://www.openhub.net/p/async-gamequery-lib/widgets/project_thin_badge?format=gif&ref=sample)](https://www.openhub.net/p/async-gamequery-lib)
+[![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Build Status](https://travis-ci.org/ribasco/async-gamequery-lib.svg?branch=master)](https://travis-ci.org/ribasco/async-gamequery-lib) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link) 
 
 A game query library on steroids written for Java. It's an implementation of Valve's source [Query](https://developer.valvesoftware.com/wiki/Server_queries), [Rcon](https://developer.valvesoftware.com/wiki/Source_RCON_Protocol), [Master](https://developer.valvesoftware.com/wiki/Master_Server_Query_Protocol) and [Steam Web API](https://steamcommunity.com/dev) protocols. Built on top of [Netty](https://github.com/netty/netty)
 
 Features
 -------------
 
-- Simple and easy to use API.
+- Simple and easy to use API. 
 - All operations are asynchronous. Every request returns a [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html)
 - It's fast and capable of handling large transactions.
 - Resource efficient
@@ -21,11 +21,11 @@ Features
   - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
 - Highly Configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
 - Transactions are [Failsafe](https://failsafe.dev/) (except web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
-  - **Retry Policy:** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
-  - **Rate Limiter Policy:** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
-  - **Circuit Breaker Policy:** When certain number of failures reach the threshold, the library will transition to an "OPEN" state and temporarily reject new requests to prevent overload.
+  - **[Retry Policy](https://failsafe.dev/retry/):** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
+  - **[Rate Limiter Policy](https://failsafe.dev/rate-limiter/):** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
+  - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests. 
 
-Usage
+Sample Usage
 -------------
 
 For more examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).
@@ -58,6 +58,8 @@ public class BlockingQueryExample {
 ```
 
 **Non-Blocking Queries**
+
+
 
 ```java
 import java.util.concurrent.CompletableFuture;
@@ -98,7 +100,7 @@ public class NonBlockingQueryExample {
                     latch.countDown();
                 }
             }
-            //If not yet done, register a callback and display the result once completed
+            //If not, register a callback to handle future response
             else {
                 infoFuture.whenComplete(new BiConsumer<SourceQueryInfoResponse, Throwable>() {
                     @Override
@@ -125,7 +127,7 @@ public class NonBlockingQueryExample {
 }
 ```
 
-Here is an advanced example demonstrating how to combine all three queries in one call. For more advanced examples (e.g. sending requests by batch), please check out the [examples](https://github.com/ribasco/async-gamequery-lib/blob/master/examples/src/main/java/com/ibasco/agql/examples/SourceQueryExample.java) module in the project source.
+A slightly advanced example demonstrating how to combine all three asynchronous queries into one call. For more advanced examples (e.g. sending requests by batch, using synchronization barriers etc), please check out the [examples](https://github.com/ribasco/async-gamequery-lib/blob/master/examples/src/main/java/com/ibasco/agql/examples/SourceQueryExample.java) module in the project source.
 
 ```java
 public class NonBlockingQueryExample {
@@ -150,7 +152,7 @@ public class NonBlockingQueryExample {
         SourceQueryAggregate result = new SourceQueryAggregate(address);
 
         //Combining all queries in one call
-        //Note: `Functions::selectFirst` is simply a utility function which returns the first argument of the callback 
+        //Note: `Functions::selectFirst` is simply a utility function which returns the first argument of the callback (Refer to the examples section for the source) 
         CompletableFuture<SourceQueryAggregate> resultFuture = CompletableFuture.completedFuture(result)
                                                                                 .thenCombine(client.getInfo(address).handle(result.ofType(SourceQueryType.INFO)), Functions::selectFirst)
                                                                                 .thenCombine(client.getPlayers(address).handle(result.ofType(SourceQueryType.PLAYERS)), Functions::selectFirst)
@@ -170,24 +172,20 @@ public class NonBlockingQueryExample {
 }
 ```
 
-**RCON 500k requests test**
+Failsafe Demo
+-------------
 
-The following image shows the test results after executing `500,000k` random commands on a single server instance (no reported errors).
+A couple of demonstration videos showcasing the built-in failsafe features provided by this library.
 
-- Connection pool size: 10
-- Thread pool size: 9 threads
-- CPU: Intel i5 3.2Ghz
-- RAM: 8 Gb
-- OS: Ubuntu Linux 20.04
-- Transport used: epoll
+**Retry Feature**
 
-![Source RCON Example Application - 02](site/resources/images/rcon-console-500k.png)
+- A batch of 5000 requests were sent to a single instance and `changelevel` was issued, triggering active connections to get dropped by the remote server. The failed requests were retried and recovers successfully. All futures transitioned to a completed state. 
 
-**Failsafe Demo - Retry**
+https://user-images.githubusercontent.com/13303385/165238011-1bbefbfc-14cd-40c8-9ab3-26f1db7c5d8f.mp4
 
-https://user-images.githubusercontent.com/13303385/165109655-d222637f-e614-494a-b7f3-b6a94dfbeae1.mp4
+**Circuit Breaker (Fail-fast)**
 
-**Failsafe Demo - Circuit Breaker**
+- A batch of 5000 requests were sent to a single instance. In the middle of the operation, the server was restarted triggering all remaining futures to timeout, resulting with the internal circuit breaker to transition in `OPEN` state. 
 
 https://user-images.githubusercontent.com/13303385/165109735-0d96f3ca-5681-4456-977c-8cd4a5189c8b.mp4
 

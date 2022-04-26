@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * <p>A collection of global configuration {@link com.ibasco.agql.core.util.Option}s</p>
- * <br />
+ * <br>
  * <h3>Sample usage:</h3>
  *
  *

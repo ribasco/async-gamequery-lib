@@ -681,7 +681,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             remove(future.channel());
         };
 
-        private Channel collect(Channel channel, Throwable error) {
+        private Channel record(Channel channel, Throwable error) {
             if (error != null) {
                 if (error instanceof CompletionException)
                     throw (CompletionException) error;
@@ -830,7 +830,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             channelFuture.thenAccept(this::updateContext);
             return channelFuture
                     .thenCompose(SourceRconMessenger.this::register)
-                    .handle(statistics::collect)
+                    .handle(statistics::record)
                     .thenApply(SourceRconChannelContext::getContext)
                     .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
         }

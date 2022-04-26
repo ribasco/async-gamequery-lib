@@ -1,10 +1,13 @@
 ## Source Server Query
 
-Demonstrates usage of Source Based Queries. 
+Demonstrates usage of Source Based Queries.
+
+### Configuration Options
 
 ### Server Info Query
+
 Retrieve information asynchronously from a source compatible server. In this example, we pass a completion handler callback that will process the result once it receives a message from the server. There is no need to pass a challenge number as this query does not require it.
- 
+
 ~~~java
 try (SourceQueryClient sourceQueryClient = new SourceQueryClient()) {
     InetSocketAddress serverAddress = new InetSocketAddress("192.168.1.13", 27015);

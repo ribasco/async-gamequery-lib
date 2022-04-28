@@ -109,7 +109,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
 
     //<editor-fold desc="Utility Functions for Sub-classes">
     /**
-     * <p>decodeFlag.</p>
+     * <p>Decodes a flag from the provided int value.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -126,7 +126,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     /**
-     * <p>decodeFlag.</p>
+     * <p>Decodes a flag from the provided int value.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -144,7 +144,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     /**
-     * <p>decodeFlag.</p>
+     * <p>Decodes a flag from the provided int value.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -161,7 +161,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     /**
-     * <p>decodeFlag.</p>
+     * <p>Decodes a flag from the provided int value.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -196,27 +196,36 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 debug("[O2] Decoded flag '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Exception e) {
-            error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
+            String hexDump = isDebugEnabled() ? Netty.prettyHexDump(buf) : "";
+            error("[O2] Failed to decode flag '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, hexDump, e);
         }
     }
 
     /**
-     * <p>decodeField.</p>
+     * <p>Decode as a field from the given {@link ByteBuf}.</p>
      *
-     * @param name a {@link java.lang.String} object
-     * @param buf a {@link io.netty.buffer.ByteBuf} object
-     * @param reader a {@link java.util.function.Supplier} object
-     * @param writer a {@link java.util.function.Consumer} object
-     * @param <A> a A class
-     * @param <B> a B class
-     * @throws com.ibasco.agql.core.exceptions.DecodeException if any.
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param buf
+     *         a {@link io.netty.buffer.ByteBuf} object
+     * @param reader
+     *         a {@link java.util.function.Supplier} object
+     * @param writer
+     *         a {@link java.util.function.Consumer} object
+     * @param <A>
+     *         a A class
+     * @param <B>
+     *         a B class
+     *
+     * @throws com.ibasco.agql.core.exceptions.DecodeException
+     *         if any.
      */
     protected <A, B> void decodeField(String name, ByteBuf buf, Supplier<A> reader, Consumer<B> writer) throws DecodeException {
         decodeField(name, buf, reader, writer, null);
     }
 
     /**
-     * <p>decodeField.</p>
+     * <p>Decode as a field from the given {@link ByteBuf}.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -232,7 +241,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     /**
-     * <p>decodeField.</p>
+     * <p>Decode as a field from the given {@link ByteBuf}.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -247,7 +256,7 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
     }
 
     /**
-     * <p>decodeField.</p>
+     * <p>Decode as a field from the given {@link ByteBuf}.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param buf a {@link io.netty.buffer.ByteBuf} object
@@ -276,12 +285,13 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
                 debug("[O1] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, toValue);
             }
         } catch (Exception e) {
-            error("[O1] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
+            String hexDump = isDebugEnabled() ? Netty.prettyHexDump(buf) : "";
+            error("[O1] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, hexDump, e);
         }
     }
 
     /**
-     * <p>decodeField.</p>
+     * <p>Decode as a field from the given {@link ByteBuf}.</p>
      *
      * @param name a {@link java.lang.String} object
      * @param defaultValue a V object
@@ -304,7 +314,8 @@ abstract public class SourceQueryDecoder<T extends SourceQueryRequest> extends M
             returnValue = decoder.apply(buf);
             debug("[O2] Decoded field '{}' at index position '{}' = '{}'", name, startPosition, returnValue);
         } catch (Exception e) {
-            error("[O2] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, Netty.prettyHexDump(buf), e);
+            String hexDump = isDebugEnabled() ? Netty.prettyHexDump(buf) : "";
+            error("[O2] Failed to decode field '{}' at start position '{}' (remaining bytes: {})\n{}", name, startPosition, bytesBefore, hexDump, e);
             returnValue = null;
         }
         returnValue = returnValue == null ? defaultValue : returnValue;

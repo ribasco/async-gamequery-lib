@@ -19,6 +19,7 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
@@ -36,15 +37,15 @@ import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.ContextualSupplier;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
-import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.*;
 
 /**
  * Messenger implementation for the Source Query Protocol
@@ -63,6 +64,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     private RetryPolicy<NettyChannelContext> retryPolicy;
 
     private final boolean failsafeEnabled;
+
+    /**
+     * Executor that is used for acquiring permits (applicable only if rate limiting is enabled)
+     */
+    private final ExecutorService permitExecutor;
 
     private final EventListener<ExecutionCompletedEvent<NettyChannelContext>> retryExceededListener = new EventListener<ExecutionCompletedEvent<NettyChannelContext>>() {
         @Override
@@ -97,6 +103,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         super(options);
         //note: use getOptions() instead of options, to guarante that we do not receive a null value in case developer did not provide a user-defined options.
         this.failsafeEnabled = getOptions().getOrDefault(FailsafeOptions.FAILSAFE_ENABLED);
+        this.permitExecutor = failsafeEnabled ? Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("rate-limiter")) : null;
         initFailSafe(getOptions());
     }
 
@@ -130,7 +137,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         //query - rate limiting
         applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
         applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
@@ -138,7 +145,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         //query - retry
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, -1L); //1000L
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
         applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
@@ -163,6 +170,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         }
         //rate limiter (standalone)
         if (options.getOrDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED)) {
+            //note: we will not add the rate limiter to the list of policies for the executor. since we are using the standalone way of handling permits.
             this.rateLimiter = buildRateLimiterPolicy(options);
         }
 
@@ -172,7 +180,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private Fallback<NettyChannelContext> buildFallbackPolicy(final Options options) {
         return Fallback.builderOfException((CheckedFunction<ExecutionAttemptedEvent<? extends NettyChannelContext>, Exception>) event -> {
-            int maxAttempts = retryPolicy.getConfig().getMaxAttempts();
+            int maxAttempts = retryPolicy != null ? retryPolicy.getConfig().getMaxAttempts() : FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS.getDefaultValue();
             if (event.getLastException() instanceof MessengerException) {
                 MessengerException mException = (MessengerException) event.getLastException();
                 Throwable cause = Errors.unwrap(mException);
@@ -192,8 +200,20 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private RetryPolicy<NettyChannelContext> buildRetryPolicy(final Options options) {
         RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
-        builder.abortOn(RejectedExecutionException.class);
+        builder.abortOn(RejectedExecutionException.class, RateLimitExceededException.class);
         builder.onRetriesExceeded(retryExceededListener);
+        if (Properties.isVerbose()) {
+            builder.onRetry(event -> {
+                Throwable error = event.getLastException();
+                if (error instanceof MessengerException) {
+                    MessengerException mEx = (MessengerException) error;
+                    NettyChannelContext context = mEx.getContext();
+                    Console.error("Last request failed. Retrying execution: (Request: %s, Error: %s)", context.properties().request(), mEx.getCause());
+                } else {
+                    Console.error("Last request failed. Retrying execution: %s", event.getLastException());
+                }
+            });
+        }
         return builder.build();
     }
 
@@ -231,6 +251,12 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
+    @Override
+    public void close() throws IOException {
+        super.close();
+        Concurrency.shutdown(permitExecutor);
+    }
+
     private class RequestContext {
 
         private final InetSocketAddress address;
@@ -255,9 +281,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 return Concurrency.failedFuture(new RejectedExecutionException());
             CompletableFuture<NettyChannelContext> contextFuture = acquireContext(this);
             contextFuture.thenAccept(this::initialize);
-            return contextFuture
-                    .thenApply(this::acquirePermit)
-                    .thenCompose(SourceQueryMessenger.super::send);
+            if (failsafeEnabled) {
+                //make sure we do not block the event loop, so we need to run this at another thread
+                contextFuture = contextFuture.thenApplyAsync(this::acquirePermit, permitExecutor);
+            }
+            return contextFuture.thenCompose(SourceQueryMessenger.super::send);
         }
 
         public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> context) {
@@ -277,6 +305,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 return context;
             try {
                 log.debug("{} MESSENGER => (SourceQueryMessenger) Acquiring send permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
+                Console.println("Acquiring send permit for %s (Max Rate: %dms)", context.properties().request(), (rateLimiter.getConfig().getMaxRate() != null) ? rateLimiter.getConfig().getMaxRate().toMillis() : -1);
                 rateLimiter.acquirePermit();
                 log.debug("{} MESSENGER => (SourceQueryMessenger) Successfully acquired permit from rate limiter: {} (Request: {})", context.id(), rateLimiter, context.properties().request());
                 return context;
@@ -312,7 +341,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 }
             } finally {
                 if (this.context != null) {
-                    assert this.context == context;
                     this.context.close();
                 }
             }

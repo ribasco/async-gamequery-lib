@@ -1,13 +1,14 @@
 Changelog
 -------------
 
-1.0.0 - A complete re-work of the core and source query/master modules.
+1.0.0 - A complete re-work from the ground up with backwards incompatible changes.
 
 - **General Updates**
     - Completely re-worked on the core implementation from the ground up for improved performance, reliability and data integrity.
         - Removed custom built request/response state management facilities from the previous version. Now fully taking advantage of netty's channel attributes for application state.
         - Ensure each transaction is run within a single thread obtained from the Event Loop (provided by netty)
         - Improved memory utilization
+    - In source rcon/master and query modules, all response types are now wrapped in an `AbstractResponse` type. This allows developers to retrieve additional information about the response (e.g. sender address, originating request etc)
     - Removed custom request/response state management facilities in the core module. Now using netty's channel attributes for managing each channel/connection state.
     - Re-licensed project to Apache-2.0
     - Added aggregate project artifact: `agql-<version>.jar`
@@ -20,13 +21,13 @@ Changelog
     - Updated interactive examples
 
 - **Source RCON**
-    - New artifact for this module `agql-source-rcon` 
+    - New artifact for this module `agql-source-rcon`
     - Removed constructor SourceRconClient(boolean useTerminatorPackets)
     - Updated authenticate signature to 'authenticate(InetSocketAddress address, byte[] password)'
-    - 
     - Failsafe Integration
         - Retry policy
             - Failed requests will be retried three times before it is completed exceptionally. This is mostly convenient for cases where a request fails due to the active connection being dropped by the remote server (password invalidated/change, changelevel was issued etc).
+        - Circuit Breaker (fail-fast)
     - Improved support for connection pooling
         - Connection Pooling is now enabled by default
         - Only one thread per connection is maintained for each address/pool (this can be changed via configuration. see GeneralOptions.POOL_MAX_CONNECTIONS)
@@ -36,6 +37,7 @@ Changelog
 
 - **Source Master Query**
     - Improved/re-worked implementation
+    - Retired
     - Failsafe Integration
         - Fallback Policy
             - If a connection is dropped by the master server (e.g. timeout or rate limit exceeded), the resulting future will still be marked as completed returning the list of addresses collected from the master server.
@@ -46,8 +48,15 @@ Changelog
 
 - **Source Query (Info/Players/Rules)**
     - Failsafe Integration
-      - Retry Policy
-        - Failed requests will be re-attempted 3 times by default. 
+        - Retry Policy
+            - Failed requests will be re-attempted 3 times by default.
+        - Rate Limiting Policy
+    - All futures now return a type of `SourceQueryResponse`. Result can be retrieved via `SourceQueryResponse.getResult()`
+    - Removed caching facilities. This was a bad idea from the start.
+    - Renamed methods
+        - From `getServerChallenge` to `getChallenge`
+        - From `getServerInfo` to `getInfo`
+        - From `getServerRules` to `getRules`
     - Source info query now compatible with the new implementation (challenge based) (See [RFC: Changes to the A2S_INFO protocol ](https://steamcommunity.com/discussions/forum/14/2989789048633291344/))
     - Queries that require a challenge number are now handled automatically by the library by default, this means that the developer no longer needs to obtain a challenge number manually.
     - **Deprecated** built-in challenge caching facilities. This will be removed in the next major update.
@@ -60,3 +69,6 @@ Changelog
 
 - **Clash of Clans (Web API)**
     - Marked as deprecated and will be removed in the next major version. This module will be removed in the next major version.
+
+- **Steam Web API**
+    - Added `GameServersService`. Allows query the master server via an web api call. 

@@ -43,7 +43,7 @@ public class BlockingQueryExample {
         // - Change rate limiting method to BURST
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
-                                                          .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
+                                                          .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.BURST)
                                                           .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                                           .build();
 
@@ -77,7 +77,7 @@ public class NonBlockingQueryExample {
         // - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
-                                                          .option(SourceQueryOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
+                                                          .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
                                                           .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, customExecutor)
                                                           .build();
 

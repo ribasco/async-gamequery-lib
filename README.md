@@ -25,7 +25,7 @@ Features
   - **[Rate Limiter Policy](https://failsafe.dev/rate-limiter/):** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
   - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests. 
 
-Sample Usage
+Usage
 -------------
 
 For more examples, please refer to the [site docs](http://ribasco.github.io/async-gamequery-lib/).

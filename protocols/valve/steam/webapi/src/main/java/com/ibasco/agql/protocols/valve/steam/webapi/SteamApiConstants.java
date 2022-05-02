@@ -72,22 +72,32 @@ public class SteamApiConstants {
     public static final String STEAM_DIRECTORY = "ISteamDirectory";
     /** Constant <code>STEAM_ENVOY="ISteamEnvoy"</code> */
     public static final String STEAM_ENVOY = "ISteamEnvoy";
+
     /** Constant <code>STEAM_PAYPAL_PAYMENTS_HUB="ISteamPayPalPaymentsHub"</code> */
     public static final String STEAM_PAYPAL_PAYMENTS_HUB = "ISteamPayPalPaymentsHub";
+
     /** Constant <code>STEAM_ECON_SERVICE="IEconService"</code> */
     public static final String STEAM_ECON_SERVICE = "IEconService";
+
     /** Constant <code>STEAM_ECON_ITEMS="IEconItems_${appId}"</code> */
     public static final String STEAM_ECON_ITEMS = "IEconItems_${appId}";
+
     /** Constant <code>STEAM_CHEATREPORT_SERVICE="ICheatReportingService"</code> */
     public static final String STEAM_CHEATREPORT_SERVICE = "ICheatReportingService";
 
+    public static final String STEAM_GAMESERVERS_SERVICE = "IGameServersService";
+
     //Steam URL Params
+
     /** Constant <code>STEAM_URLPARAM_STEAMID="steamid"</code> */
     public static final String STEAM_URLPARAM_STEAMID = "steamid";
+
     /** Constant <code>STEAM_URLPARAM_APPID="appid"</code> */
     public static final String STEAM_URLPARAM_APPID = "appid";
+
     /** Constant <code>STEAM_URLPARAM_CURRENCY="currency"</code> */
     public static final String STEAM_URLPARAM_CURRENCY = "currency";
+
     /** Constant <code>STEAM_URLPARAM_LANGUAGE="language"</code> */
     public static final String STEAM_URLPARAM_LANGUAGE = "language";
     /** Constant <code>STEAM_URLPARAM_MAXLENGTH="maxlength"</code> */
@@ -145,4 +155,5 @@ public class SteamApiConstants {
     public static final String SF_METHOD_PACKAGE_DETAILS = "${baseUrl}/packagedetails";
     /** Constant <code>SF_METHOD_SALE_DETAILS="${baseUrl}/salepage"</code> */
     public static final String SF_METHOD_SALE_DETAILS = "${baseUrl}/salepage";
+
 }

@@ -18,6 +18,7 @@ package com.ibasco.agql.examples;
 
 import com.ibasco.agql.core.util.Console;
 import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
+import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.*;
@@ -30,6 +31,7 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 /**
@@ -68,6 +70,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         SteamEconomy steamEconomy = new SteamEconomy(client);
         SteamStorefront storeFront = new SteamStorefront(client);
         SteamEconItems steamEconItems = new SteamEconItems(client);
+        GameServersService gameServersService = new GameServersService(client);
 
         steamApps.getAppList().exceptionally(throwable -> {
             log.error("Error Occured", throwable);
@@ -315,6 +318,13 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
 
         StoreSaleDetails storeSaleDetails = storeFront.getSaleDetails(0).join();
         log.info("Sale Details: {}", storeSaleDetails);
+
+        MasterServerFilter filter = MasterServerFilter.create().appId(730).dedicated(true);
+        CompletableFuture<List<Server>> serverListFuture = gameServersService.getServerList(filter.toString(), 10);
+        int ctr = 1;
+        for (Server server : serverListFuture.join()) {
+            System.out.printf("%03d) name = %s, ip = %s%n", ctr++, server.getName(), server.getAddr());
+        }
     }
 
     private static void displayResult(Object result) {

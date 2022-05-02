@@ -69,8 +69,7 @@ public class SteamNews extends SteamWebApiInterface {
         return newsItems.thenApply(root -> {
             JsonObject appNews = root.getAsJsonObject("appnews");
             JsonArray newsItems1 = appNews.getAsJsonArray("newsitems");
-            Type newsListType = new TypeToken<List<SteamNewsItem>>() {
-            }.getType();
+            Type newsListType = new TypeToken<List<SteamNewsItem>>() {}.getType();
             return builder().fromJson(newsItems1, newsListType);
         });
     }

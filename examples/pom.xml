@@ -158,7 +158,7 @@
             <artifactId>commons-cli</artifactId>
             <version>1.5.0</version>
         </dependency>
-        <dependency>
+        <!--<dependency>
             <groupId>org.jline</groupId>
             <artifactId>jline</artifactId>
             <version>3.21.0</version>
@@ -177,7 +177,7 @@
             <groupId>org.jline</groupId>
             <artifactId>jline-terminal-jansi</artifactId>
             <version>3.21.0</version>
-        </dependency>
+        </dependency>-->
         <!--<dependency>
             <groupId>org.fusesource.jansi</groupId>
             <artifactId>jansi</artifactId>

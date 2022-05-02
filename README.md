@@ -254,20 +254,44 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve Source Query Protocol**
 
 ```xml
+
 <dependency>
-    <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-source-query</artifactId>
-    <version>1.0.0</version>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-source-query</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+**Valve Source Log Listener Service**
+
+```xml
+
+<dependency>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-source-log</artifactId>
+  <version>1.0.0</version>
+</dependency>
+```
+
+**Valve Source Rcon Protocol**
+
+```xml
+
+<dependency>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-source-rcon</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ```
 
 **Valve Steam Web API**
 
 ```xml
+
 <dependency>
-    <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-steam-webapi</artifactId>
-    <version>1.0.0</version>
+  <groupId>com.ibasco.agql</groupId>
+  <artifactId>agql-steam-webapi</artifactId>
+  <version>1.0.0</version>
 </dependency>
 ```
 

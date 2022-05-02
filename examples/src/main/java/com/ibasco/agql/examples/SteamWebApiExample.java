@@ -320,10 +320,10 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         log.info("Sale Details: {}", storeSaleDetails);
 
         MasterServerFilter filter = MasterServerFilter.create().appId(730).dedicated(true);
-        CompletableFuture<List<Server>> serverListFuture = gameServersService.getServerList(filter.toString(), 10);
+        CompletableFuture<List<GameServer>> serverListFuture = gameServersService.getServerList(filter.toString(), 10);
         int ctr = 1;
-        for (Server server : serverListFuture.join()) {
-            System.out.printf("%03d) name = %s, ip = %s%n", ctr++, server.getName(), server.getAddr());
+        for (GameServer gameServer : serverListFuture.join()) {
+            System.out.printf("%03d) name = %s, ip = %s%n", ctr++, gameServer.getName(), gameServer.getAddr());
         }
     }
 

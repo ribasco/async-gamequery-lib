@@ -22,7 +22,7 @@ import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.GetServerList;
-import com.ibasco.agql.protocols.valve.steam.webapi.pojos.Server;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.GameServer;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,17 +41,17 @@ public class GameServersService extends SteamWebApiInterface {
         super(client);
     }
 
-    public CompletableFuture<List<Server>> getServerList(String filter) {
+    public CompletableFuture<List<GameServer>> getServerList(String filter) {
         return getServerList(filter, -1);
     }
 
-    public CompletableFuture<List<Server>> getServerList(String filter, int limit) {
+    public CompletableFuture<List<GameServer>> getServerList(String filter, int limit) {
         CompletableFuture<JsonObject> json = sendRequest(new GetServerList(VERSION_1, filter, limit));
         return json.thenApply((JsonObject element) -> {
             JsonObject response = element.get("response").getAsJsonObject();
             if (response.has("servers")) {
                 JsonArray array = response.getAsJsonArray("servers");
-                Type listType = new TypeToken<List<Server>>() {}.getType();
+                Type listType = new TypeToken<List<GameServer>>() {}.getType();
                 return builder().fromJson(array, listType);
             }
             return new ArrayList<>();

@@ -19,10 +19,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import javax.annotation.Generated;
-
-@Generated("jsonschema2pojo")
-public class Server {
+public class GameServer {
 
     @SerializedName("addr")
     @Expose
@@ -231,7 +228,7 @@ public class Server {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(Server.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
+        sb.append(GameServer.class.getName()).append('@').append(Integer.toHexString(System.identityHashCode(this))).append('[');
         sb.append("addr");
         sb.append('=');
         sb.append(((this.addr == null) ? "<null>" : this.addr));

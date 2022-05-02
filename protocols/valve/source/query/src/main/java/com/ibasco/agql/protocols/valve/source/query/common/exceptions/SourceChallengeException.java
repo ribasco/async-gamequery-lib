@@ -41,9 +41,9 @@ public class SourceChallengeException extends AgqlRuntimeException {
     }
 
     /**
-     * <p>Getter for the field <code>challenge</code>.</p>
+     * <p>The updated challenge number</p>
      *
-     * @return a int
+     * @return A 32-bit challenge integer
      */
     public int getChallenge() {
         return challenge;

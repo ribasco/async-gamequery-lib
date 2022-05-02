@@ -21,7 +21,7 @@ package com.ibasco.agql.core.util;
  *
  * @author Rafael Luis Ibasco
  */
-public class Console {
+public final class Console {
 
     /** Constant <code>RESET="\u001B[0m"</code> */
     public static final String RESET = "\u001B[0m";
@@ -158,52 +158,113 @@ public class Console {
         return new Colorize();
     }
 
+    public static Colorize colorize(boolean allowPrinting) {
+        return new Colorize(allowPrinting);
+    }
+
     public static class Colorize {
 
         private final StringBuilder builder;
 
+        private final boolean allowPrinting;
+
+        private boolean allowColors;
+
         private Colorize() {
-            builder = new StringBuilder();
+            this(Properties.isVerbose());
+        }
+
+        private Colorize(boolean allowPrinting) {
+            this.builder = new StringBuilder();
+            this.allowPrinting = allowPrinting;
+            this.allowColors = true;
+        }
+
+        public Colorize enableColors() {
+            this.allowColors = true;
+            return this;
+        }
+
+        public Colorize disableColors() {
+            this.allowColors = false;
+            return this;
         }
 
         public Colorize red() {
-            builder.append(RED);
-            return this;
+            return append(RED);
+        }
+
+        public Colorize red(String format, Object... args) {
+            return append(RED, format, args);
         }
 
         public Colorize yellow() {
-            builder.append(YELLOW);
-            return this;
+            return append(YELLOW);
+        }
+
+        public Colorize yellow(String format, Object... args) {
+            return append(YELLOW, format, args);
+        }
+
+        public Colorize purple() {
+            return append(PURPLE);
+        }
+
+        public Colorize purple(String format, Object... args) {
+            return append(PURPLE, format, args);
         }
 
         public Colorize cyan() {
-            builder.append(CYAN);
+            return append(CYAN);
+        }
+
+        public Colorize cyan(String format, Object... args) {
+            return append(CYAN, format, args);
+        }
+
+        public Colorize line() {
+            builder.append(System.lineSeparator());
             return this;
         }
 
         public Colorize reset() {
-            builder.append(RESET);
-            return this;
+            return append(RESET);
+        }
+
+        public Colorize reset(String format, Object... args) {
+            return append(RESET, format, args);
         }
 
         public Colorize black() {
-            builder.append(BLACK);
-            return this;
+            return append(BLACK);
+        }
+
+        public Colorize black(String format, Object... args) {
+            return append(BLACK, format, args);
         }
 
         public Colorize white() {
-            builder.append(WHITE);
-            return this;
+            return append(WHITE);
+        }
+
+        public Colorize white(String format, Object... args) {
+            return append(WHITE, format, args);
         }
 
         public Colorize blue() {
-            builder.append(BLUE);
-            return this;
+            return append(BLUE);
+        }
+
+        public Colorize blue(String format, Object... args) {
+            return append(BLUE, format, args);
         }
 
         public Colorize green() {
-            builder.append(GREEN);
-            return this;
+            return append(GREEN);
+        }
+
+        public Colorize green(String format, Object... args) {
+            return append(GREEN, format, args);
         }
 
         public Colorize text(String text) {
@@ -232,28 +293,40 @@ public class Console {
         }
 
         public void print() {
-            if (Properties.isVerbose())
+            if (allowPrinting)
                 System.out.print(builder);
         }
 
         public void println() {
-            if (Properties.isVerbose())
+            if (allowPrinting)
                 System.out.println(builder);
         }
 
         public void printErr() {
-            if (Properties.isVerbose())
+            if (allowPrinting)
                 System.err.print(builder);
         }
 
         public void printErrln() {
-            if (Properties.isVerbose())
+            if (allowPrinting)
                 System.err.println(builder);
         }
 
         @Override
         public String toString() {
             return builder.toString();
+        }
+
+        private Colorize append(String color) {
+            return append(color, null);
+        }
+
+        private Colorize append(String color, String format, Object... args) {
+            if (allowColors)
+                builder.append(color);
+            if (!Strings.isBlank(format))
+                builder.append(String.format(format, args));
+            return this;
         }
     }
 }

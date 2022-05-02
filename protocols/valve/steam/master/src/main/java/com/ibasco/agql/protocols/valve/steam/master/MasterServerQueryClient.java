@@ -26,7 +26,6 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 
 import java.net.InetSocketAddress;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -69,7 +68,7 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
-    public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
+    public CompletableFuture<MasterServerResponse> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
         return getServers(type, region, filter, null);
     }
 
@@ -87,13 +86,13 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
-    public CompletableFuture<Set<InetSocketAddress>> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
+    public CompletableFuture<MasterServerResponse> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         MasterServerRequest request = new MasterServerRequest();
         request.setType(type);
         request.setRegion(region);
         request.setFilter(filter);
         request.setCallback(callback);
-        return getMessenger().send(request).thenApply(MasterServerResponse::getServerList);
+        return getMessenger().send(request);
     }
 
     /** {@inheritDoc} */

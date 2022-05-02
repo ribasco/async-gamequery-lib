@@ -3,7 +3,7 @@ Web API General Usage
 
 **Web API Request Example**
 
-All Web API clients requires an API token `String` argument to be passed to it's constructor. This will be used for authenticating your requests with the server.   
+All Web API clients requires an API token `String` argument to be passed to it's constructor. This will be used for authenticating your requests with the server.
 
 ~~~java
 class WebApiGeneralUsage {
@@ -20,7 +20,7 @@ class WebApiGeneralUsage {
 
             //Invoke the request
             CompletableFuture<List<CocClanDetailedInfo>> clanDetailsFuture = clans.searchClans(criteria);
-            
+
             //Do something with clanDetailsFuture...
         }
     }
@@ -29,7 +29,8 @@ class WebApiGeneralUsage {
 
 **Retrieving the result (blocking)**
 
-Here we use the `get()` method of the returned [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html), which will block until a response is received from the server. If the request fails, an [ExecutionException](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutionException.html) (checked) will be thrown. Alternatively, you can use `join()` which is the same as `get()` but throws a [CompletionException](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionException.html) (unchecked) instead.  
+Here we use the `get()` method of the returned [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html), which will block until a response is received from the server. If the request fails, an [ExecutionException](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ExecutionException.html) (checked) will be thrown. Alternatively, you can use `join()` which is the same as `get()` but throws
+a [CompletionException](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionException.html) (unchecked) instead.
 
 ~~~java
 import java.util.concurrent.CancellationException;
@@ -49,15 +50,7 @@ class WebApiGeneralUsageBlocking {
 
             //Invoke the request
             List<CocClanDetailedInfo> result = clans.searchClans(criteria).get();
-
-            //did we receive a response?
-            if (clanDetailsFuture.isDone()) {
-                System.out.println("RESPONSE: " + clanDetailsFuture.get());
-            } else {
-                clanDetailsFuture.thenAccept(response -> System.out.println("RESPONSE: " + response));
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace(System.err);
+            System.out.println("RESPONSE: " + result);
         }
     }
 }
@@ -90,15 +83,13 @@ class WebApiGeneralUsageNonBlocking {
             } else {
                 clanDetailsFuture.thenAccept(response -> System.out.println("RESPONSE: " + response));
             }
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace(System.err);
         }
     }
 }
 ~~~
 
-**Things to Remember**
+**Remember**
 
 * Close the client when no longer in use
-* Creating client instances can be expensive, so it is wise to use only one instance as much as possible and share it across the interfaces.
+* Creating client instances can be expensive, use only one instance as much as possible and share it across the interfaces.
 * Multiple clients will share the same executor service by default to minimize thread creation

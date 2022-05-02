@@ -16,21 +16,28 @@
 
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
+import com.google.common.collect.Multimap;
+import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.NettySocketClient;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.Concurrency;
+import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.*;
+import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Consumer;
 
 /**
  * <p>An RCON client based on Valve's Source RCON Protocol.</p>
@@ -146,19 +153,19 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     }
 
     /**
-     * <p>Re-authenticate a previously registered address. The address should be authenticated (via {@link #authenticate(InetSocketAddress, byte[])}) and the credentials should still be valid, or the returned future will fail.
+     * <p>Re-authenticate a previously registered address. The address should be authenticated (via {@link #authenticate(InetSocketAddress, byte[])}) and the credentials should still be valid, or the returned future will fail. Use {@link #isAuthenticated(InetSocketAddress)} to check if the address is authenticated and registered.
      *
      * @param address
      *         The address of the source server
      *
      * @return A {@link java.util.concurrent.CompletableFuture} when completed, returns a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthResponse} which holds the status of the authentication request.
      *
-     * @throws com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException
-     *         if any.
+     * @throws com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconNotYetAuthException
+     *         If the address has not yet been authenticated by the server
      * @see #authenticate(InetSocketAddress, byte[])
      */
-    public CompletableFuture<SourceRconAuthResponse> authenticate(InetSocketAddress address) throws RconAuthException {
-        if (!getMessenger().isAuthenticated(address))
+    public CompletableFuture<SourceRconAuthResponse> authenticate(InetSocketAddress address) {
+        if (!isAuthenticated(address))
             throw new RconNotYetAuthException(String.format("Address not yet authenticated by the server %s.", address), null, address, SourceRconAuthReason.NOT_AUTHENTICATED);
         return send(address, new SourceRconAuthRequest(), SourceRconAuthResponse.class);
     }
@@ -178,27 +185,34 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      * @see #authenticate(InetSocketAddress, byte[])
      */
     public CompletableFuture<SourceRconCmdResponse> execute(InetSocketAddress address, String command) throws RconAuthException {
-        if (!getMessenger().isAuthenticated(address))
+        if (!isAuthenticated(address))
             return Concurrency.failedFuture(new RconNotYetAuthException(String.format("Address '%s' not yet authenticated", address), null, address, SourceRconAuthReason.NOT_AUTHENTICATED));
         return send(address, new SourceRconCmdRequest(command), SourceRconCmdResponse.class);
     }
 
     /**
-     * <p>Invalidates all connections for each registered address (registered via {@link #authenticate(InetSocketAddress, byte[])})</p>
-     *
-     * <p>
-     * Once invalidated, the existing connections will be re-authenticated (assuming the credentials remain valid). If the credentials have changed, then you will need to explicitly call {@link #authenticate(InetSocketAddress, byte[])}.
-     * </p>
+     * <p>Invalidates only the connections of all registered address (registered via {@link #authenticate(InetSocketAddress, byte[])}). The credentials registered with the address will remain valid. You do not need to call {@link #authenticate(InetSocketAddress, byte[])} unless the {@link Credentials} have been invalidated.</p>
      *
      * @see #authenticate(InetSocketAddress, byte[])
      */
-    @ApiStatus.Experimental
     public void invalidate() {
         getMessenger().invalidate(true);
     }
 
     /**
-     * Invalidates the specified address along with the previously authenticated connections associated with it. Once invalidated, the credentials associated with the address will be cleared,
+     * <p>Invalidates only the connections of all registered address (registered via {@link #authenticate(InetSocketAddress, byte[])}). The credentials registered with the address will remain valid. You do not need to call {@link #authenticate(InetSocketAddress, byte[])} unless the {@link Credentials} have been invalidated.</p>
+     *
+     * @param onlyConnections
+     *         {@code true} if we should only invalidate the {@link Channel}'s for the specified address.
+     *
+     * @see #authenticate(InetSocketAddress, byte[])
+     */
+    public void invalidate(boolean onlyConnections) {
+        getMessenger().invalidate(onlyConnections);
+    }
+
+    /**
+     * Invalidates the specified address along with the previously authenticated connections. Once invalidated, the credentials associated with the address will be invalidated and cleared,
      * so you will have to call {@link #authenticate(InetSocketAddress, byte[])} again.
      *
      * @param address
@@ -206,7 +220,6 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
      *
      * @see #authenticate(InetSocketAddress, byte[])
      */
-    @ApiStatus.Experimental
     public void invalidate(InetSocketAddress address) {
         getMessenger().invalidate(address);
     }
@@ -226,22 +239,44 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     }
 
     /**
-     * <p>Close inactive pooled connections</p>
+     * <p>Request to release/close inactive connections. This is similar to calling {@code cleanup(false)}</p>
+     *
+     * @see #cleanup(boolean)
      */
-    @ApiStatus.Experimental
-    @ApiStatus.Internal
     public void cleanup() {
-        getMessenger().cleanup();
+        getMessenger().cleanup(false);
+    }
+
+    /**
+     * <p>Request to release/close connections</p>
+     *
+     * @param force
+     *         {@code true} to force release/close all connections, otherwise {@code false} to only release/close inactive connections.
+     *
+     * @see #cleanup()
+     */
+    public void cleanup(boolean force) {
+        getMessenger().cleanup(force);
     }
 
     /**
      * <p>Rcon connection statistics</p>
      *
-     * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger.Statistics} object
+     * @return A {@link Multimap} containing statistical information about the active connections for each registered address
      */
     @ApiStatus.Experimental
-    public SourceRconMessenger.Statistics getStatistics() {
-        return getMessenger().getStatistics();
+    public SetMultimap<InetSocketAddress, SourceRconMessenger.ConnectionStats> getStatistics() {
+        return getMessenger().getStatistics().getConnectionStats();
+    }
+
+    @ApiStatus.Experimental
+    public void printExecutorStats(Consumer<String> output) {
+        getMessenger().getStatistics().printExecutorStats(output);
+    }
+
+    @ApiStatus.Experimental
+    public void printConnectionStats(Consumer<String> output) {
+        getMessenger().getStatistics().printConnectionStats(output);
     }
 
     /** {@inheritDoc} */
@@ -261,7 +296,7 @@ public final class SourceRconClient extends NettySocketClient<SourceRconRequest,
     protected <V extends SourceRconResponse> CompletableFuture<V> send(InetSocketAddress address, SourceRconRequest request, Class<V> expectedResponse) {
         //generate a new rcon request id
         request.setRequestId(SourceRcon.createRequestId());
-        log.debug("{} SEND => Creating new RCON request id '{}' ({})", Netty.id(request), request.getRequestId(), Math.abs(UUID.create().nextInteger()));
+        log.debug("{} SEND => Creating new RCON request id '{}'", Netty.id(request), request.getRequestId());
         return super.send(address, request, expectedResponse);
     }
 

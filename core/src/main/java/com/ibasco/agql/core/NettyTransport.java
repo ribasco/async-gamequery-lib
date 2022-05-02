@@ -53,7 +53,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
         try {
             assert context.channel().id().equals(channel.id());
             if (future.isSuccess()) {
-                log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline", context.id());
+                log.debug("{} TRANSPORT => Request has been sent and processed through the channel's pipeline (Request: {})", context.id(), context.properties().request());
                 context.properties().endWrite();
             } else {
                 log.debug("{} TRANSPORT => An error occured while sending request through the channel's pipeline", context.id(), future.cause());

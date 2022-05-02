@@ -14,31 +14,30 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.core;
+package com.ibasco.agql.examples.rcon;
 
-import com.ibasco.agql.core.util.UUID;
+import com.ibasco.agql.core.util.Strings;
 
-import java.io.Closeable;
-import java.util.concurrent.Executor;
+public class CommandResponse {
 
-/**
- * <p>Client interface.</p>
- *
- * @author Rafael Luis Ibasco
- */
-public interface Client extends Closeable {
+    private final String command;
 
-    /**
-     * <p>The unique-id of this instance</p>
-     *
-     * @return A {@link com.ibasco.agql.core.util.UUID} object
-     */
-    UUID id();
+    private final String result;
 
-    /**
-     * <p>The underlying {@link Executor} used by this instance</p>
-     *
-     * @return The {@link java.util.concurrent.Executor} object
-     */
-    Executor getExecutor();
+    public CommandResponse(String result, String command) {
+        this.command = command;
+        this.result = result;
+    }
+
+    public String getCommand() {
+        return command;
+    }
+
+    public boolean isEmptyResult() {
+        return Strings.isBlank(result);
+    }
+
+    public String getResult() {
+        return result;
+    }
 }

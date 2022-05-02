@@ -23,6 +23,7 @@ import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.challenge.SourceQueryChallengeRequest;
 import com.ibasco.agql.protocols.valve.source.query.challenge.SourceQueryChallengeResponse;
 import com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType;
+import com.ibasco.agql.protocols.valve.source.query.common.exceptions.SourceChallengeException;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRequest;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest;
@@ -130,10 +131,10 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
     }
 
     /**
-     * Create a new {@link com.ibasco.agql.protocols.valve.source.query.SourceQueryClient} instance using the provided configuration {@link com.ibasco.agql.core.util.Options}
+     * Create a new {@link com.ibasco.agql.protocols.valve.source.query.SourceQueryClient} instance using the provided {@link SourceQueryOptions}
      *
      * @param options
-     *         The user-defined {@link com.ibasco.agql.core.util.Options} containing the configuration settings to be used by this client.
+     *         A {@link SourceQueryOptions} object containing all the user-defined configuration values to be used by the client.
      *
      * @see Options
      * @see OptionBuilder
@@ -163,10 +164,12 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
-     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically. This is similar to calling {@link #getInfo(InetSocketAddress)}.
+     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically. Passing a non-null integer will implicitly disable auto-update. This means that the library will not automatically send a new challenge request if the server requires a new one. Instead, it will throw a {@link SourceChallengeException} where a valid challenge number can be obtained via {@link SourceChallengeException#getChallenge()}. This is similar to calling {@link #getInfo(InetSocketAddress)}.
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the {@link java.util.concurrent.CompletableFuture} returns a value of {@link com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse} which provides additional details on the server
      *
+     * @throws SourceChallengeException
+     *         If auto-update is disabled (challenge argument is {@code null}) and the current challenge number has been invalidated.
      * @see <a href="https://steamcommunity.com/discussions/forum/14/2974028351344359625/?ctp=2">Changes to A2S_INFO protocol</a>
      * @see <a href="https://store.steampowered.com/oldnews/78652">Steam Client Updates as of 12/08/2020</a>
      */
@@ -199,28 +202,16 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
-     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getRules(InetSocketAddress)})
+     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically. Passing a non-null integer will implicitly disable auto-update. This means that the library will not automatically send a new challenge request if the server requires a new one. Instead, it will throw a {@link SourceChallengeException} where a valid challenge number can be obtained via {@link SourceChallengeException#getChallenge()}. This is similar to calling {@link #getRules(InetSocketAddress)}.
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received from the server. If successful, the future returns a value of {@link com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesResponse} which provides additional details on the response.
      *
+     * @throws SourceChallengeException
+     *         If auto-update is disabled (challenge argument is {@code null}) and the current challenge number has been invalidated.
      * @see #getRules(InetSocketAddress, Integer)
      */
     public CompletableFuture<SourceQueryRulesResponse> getRules(InetSocketAddress address, Integer challenge) {
         return send(address, new SourceQueryRulesRequest(challenge), SourceQueryRulesResponse.class);
-    }
-
-    /**
-     * <p>Obtains a 4-byte (32-bit) anti-spoofing integer from the server. This is used for queries (such as PLAYERS, RULES or INFO) that requires a challenge number.</p>
-     *
-     * @param address
-     *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
-     * @param type
-     *         The {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} enumeration which identifies the type of server challenge.
-     *
-     * @return A {@link java.util.concurrent.CompletableFuture} returning a value of {@link java.lang.Integer} representing the server challenge number
-     */
-    public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
-        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class);
     }
 
     /**
@@ -247,16 +238,32 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @param address
      *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
      * @param challenge
-     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically (this is similar to calling {@link #getPlayers(InetSocketAddress)})
+     *         (optional) A 32-bit signed integer anti-spoofing challenge. Set to {@code null} to let the library obtain one automatically. Passing a non-null integer will implicitly disable auto-update. This means that the library will not automatically send a new challenge request if the server requires a new one. Instead, it will throw a {@link SourceChallengeException} where a valid challenge number can be obtained via {@link SourceChallengeException#getChallenge()}. This is similar to calling {@link #getPlayers(InetSocketAddress)}.
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that contains a {@link java.util.List} of {@link com.ibasco.agql.protocols.valve.source.query.players.SourcePlayer} currently residing on
      * the server
      *
+     * @throws SourceChallengeException
+     *         If auto-update is disabled (challenge argument is {@code null}) and the current challenge number has been invalidated.
      * @see #getPlayers(InetSocketAddress)
      * @see #getChallenge(InetSocketAddress, SourceChallengeType)
      */
     public CompletableFuture<List<SourcePlayer>> getPlayers(InetSocketAddress address, Integer challenge) {
         return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
+    }
+
+    /**
+     * <p>Obtains a 4-byte (32-bit) anti-spoofing integer from the server. This is used for queries (such as PLAYERS, RULES or INFO) that requires a challenge number.</p>
+     *
+     * @param address
+     *         The {@link java.net.InetSocketAddress} containing the IP address and port number information of the target server
+     * @param type
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} enumeration which identifies the type of server challenge.
+     *
+     * @return A {@link java.util.concurrent.CompletableFuture} returning a value of {@link java.lang.Integer} representing the server challenge number
+     */
+    public CompletableFuture<SourceQueryChallengeResponse> getChallenge(InetSocketAddress address, SourceChallengeType type) {
+        return send(address, new SourceQueryChallengeRequest(type), SourceQueryChallengeResponse.class);
     }
 
     /** {@inheritDoc} */

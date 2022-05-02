@@ -75,9 +75,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         public void accept(ExecutionCompletedEvent<NettyChannelContext> event) throws Throwable {
             if (event.getException() instanceof MaxAttemptsReachedException) {
                 MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
-                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Cause: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
+                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Last Error: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
             } else {
-                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {}, Error: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), simplify(event.getException()), event.getException());
+                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), event.getException());
             }
         }
 
@@ -202,18 +202,26 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
         builder.abortOn(RejectedExecutionException.class, RateLimitExceededException.class);
         builder.onRetriesExceeded(retryExceededListener);
-        if (Properties.isVerbose()) {
+        /*if (Properties.isVerbose()) {
             builder.onRetry(event -> {
                 Throwable error = event.getLastException();
                 if (error instanceof MessengerException) {
                     MessengerException mEx = (MessengerException) error;
                     NettyChannelContext context = mEx.getContext();
-                    Console.error("Last request failed. Retrying execution: (Request: %s, Error: %s)", context.properties().request(), mEx.getCause());
+                    Console.error("Last request failed. Retrying execution: (Request: %s, Attempts: %d, Error: %s)", context.properties().request(), event.getAttemptCount(), mEx.getCause());
                 } else {
-                    Console.error("Last request failed. Retrying execution: %s", event.getLastException());
+                    Console.error("Last request failed. Retrying execution (Attempts: %d, Error: %s)", event.getAttemptCount(), event.getLastException());
                 }
             });
-        }
+            builder.onSuccess(new EventListener<ExecutionCompletedEvent<NettyChannelContext>>() {
+                @Override
+                public void accept(ExecutionCompletedEvent<NettyChannelContext> event) throws Throwable {
+                    if (event.getAttemptCount() >= 1) {
+                        Console.println("[SUCCESSFUL RETRY] %s", event.getResult().properties().request());
+                    }
+                }
+            });
+        }*/
         return builder.build();
     }
 

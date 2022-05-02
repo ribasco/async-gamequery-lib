@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.examples.query;
+package com.ibasco.agql.examples.base;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,10 +246,12 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     }
 
     /**
-     * <p>print.</p>
+     * <p>printConnectionStats.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void print(String msg, Object... args) {
         output.accept(String.format("[\033[0;33m%s]\033[0m: %s", getDescription(), String.format(msg, args)));

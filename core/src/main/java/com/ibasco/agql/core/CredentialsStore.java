@@ -34,6 +34,7 @@ public interface CredentialsStore {
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to be used for lookup
+     *
      * @return The {@link com.ibasco.agql.core.Credentials} associated with the {@link java.net.InetSocketAddress}. {@code null} if no {@link com.ibasco.agql.core.Credentials} is present.
      */
     Credentials get(InetSocketAddress address);
@@ -45,8 +46,10 @@ public interface CredentialsStore {
      *         The {@link java.net.InetSocketAddress} to register
      * @param passphrase
      *         The byte array containing the passphrase to be used for authentication
+     *
+     * @return The new {@link Credentials} registered for the specified address
      */
-    void add(InetSocketAddress address, byte[] passphrase);
+    Credentials add(InetSocketAddress address, byte[] passphrase);
 
     /**
      * Clear {@link com.ibasco.agql.core.Credentials} for a specific address
@@ -66,6 +69,7 @@ public interface CredentialsStore {
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to check
+     *
      * @return {@code true} if a {@link com.ibasco.agql.core.Credentials} is registered for the specified address.
      */
     boolean exists(InetSocketAddress address);

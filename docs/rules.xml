@@ -30,5 +30,11 @@
                 <ignoreVersion type="regex">.*beta.*</ignoreVersion>
             </ignoreVersions>
         </rule>
+        <rule groupId="ch.qos*" comparisonMethod="maven">
+            <ignoreVersions>
+                <ignoreVersion type="regex">.*alpha.*</ignoreVersion>
+                <ignoreVersion type="regex">.*beta.*</ignoreVersion>
+            </ignoreVersions>
+        </rule>
     </rules>
 </ruleset>

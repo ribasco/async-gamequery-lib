@@ -200,7 +200,7 @@ public final class Platform {
      * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link java.util.concurrent.ThreadPoolExecutor} cast the return value to ({@link com.ibasco.agql.core.util.AgqlManagedExecutorService} and call {@link com.ibasco.agql.core.util.AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
      * </p>
      * <blockquote>
-     * <strong>NOTE:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
+     * <strong>IMPORTANT:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
      * </blockquote>
      *
      * @return The default global {@link java.util.concurrent.ExecutorService}
@@ -217,7 +217,7 @@ public final class Platform {
      *
      * @return The global {@link io.netty.channel.EventLoopGroup}
      */
-    public static synchronized EventLoopGroup getDefaultEventLoopGroup() {
+    public static EventLoopGroup getDefaultEventLoopGroup() {
         if (DEFAULT_EVENT_LOOP_GROUP == null) {
             synchronized (lock) {
                 if (DEFAULT_EVENT_LOOP_GROUP == null) {

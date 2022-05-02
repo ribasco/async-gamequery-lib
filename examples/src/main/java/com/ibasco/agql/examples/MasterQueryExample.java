@@ -23,6 +23,7 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerOptions;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerQueryClient;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
+import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +55,6 @@ public class MasterQueryExample extends BaseExample {
                                                          .build();
         client = new MasterServerQueryClient(options);
         this.listAllServers();
-        System.exit(0);
     }
 
     /** {@inheritDoc} */
@@ -76,7 +76,8 @@ public class MasterQueryExample extends BaseExample {
         Set<InetSocketAddress> addresses = null;
         try {
             addressSet.clear();
-            addresses = client.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+            MasterServerResponse response = client.getServers(MasterServerType.SOURCE, MasterServerRegion.REGION_ALL, filter, this::displayIpStream).join();
+            addresses = response.getServerList();
         } catch (Exception e) {
             e.printStackTrace(System.err);
         } finally {

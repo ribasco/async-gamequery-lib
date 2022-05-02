@@ -16,18 +16,20 @@
 
 package com.ibasco.agql.examples;
 
+import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.exceptions.InvalidCredentialsException;
 import com.ibasco.agql.core.util.*;
-import static com.ibasco.agql.core.util.Console.color;
 import com.ibasco.agql.examples.base.BaseExample;
-import com.ibasco.agql.examples.query.ResponseHandler;
+import com.ibasco.agql.examples.rcon.CommandResponse;
+import com.ibasco.agql.examples.rcon.RconResponseHandler;
+import com.ibasco.agql.examples.rcon.SMParser;
 import com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconClient;
+import com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger;
 import com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconOptions;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthResponse;
-import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdResponse;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.RegExUtils;
@@ -39,17 +41,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Advanced examples for Source RCON
@@ -66,17 +63,40 @@ public class SourceRconExample extends BaseExample {
 
     private final ExecutorService commandExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory("command"));
 
-    private final AtomicBoolean authenticated = new AtomicBoolean();
+    private final AtomicBoolean authenticate = new AtomicBoolean();
 
     private final Map<String, Function<String[], CompletableFuture<CommandResponse>>> commandProcessors = new HashMap<>();
 
     private SourceRconClient rconClient;
 
+    private SMParser sourceModParser;
+
     private InetSocketAddress serverAddress;
+
+    static {
+        //JansiLoader.initialize();
+    }
 
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
+        final SourceRconOptions options = SourceRconOptions.builder()
+                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
+                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                                           .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                                           .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
+                                                           .build();
+        initializeProcessors();
+        rconClient = new SourceRconClient(options);
+        sourceModParser = new SMParser(rconClient);
+        printBanner();
+        runTerminal();
+    }
+
+    private void initializeProcessors() {
         //register command processors
         commandProcessors.put("?", this::commandUsage);
         commandProcessors.put("h", this::commandUsage);
@@ -88,44 +108,65 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("newauth", this::commandAuthenticate);
         commandProcessors.put("cleanup", this::commandCleanup);
         commandProcessors.put("reauth", this::commandReauth);
-
-        final SourceRconOptions options = SourceRconOptions.builder()
-                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
-                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                                           .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                                           .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
-                                                           .build();
-        Console.println("Created a new rcon options container with %d options", options.size());
-        for (Map.Entry<Option<?>, Object> o : options) {
-            Console.println("- %-30s = %-30s", o.getKey().getKey(), o.getValue());
-        }
-        rconClient = new SourceRconClient(options);
-        //clearConsole();
-        printBanner();
-        runTerminal();
+        commandProcessors.put("plugins", this::commandListPlugins);
     }
 
+    //<editor-fold desc="Commands">
     private CompletableFuture<CommandResponse> commandUsage(String[] args) {
-        System.out.println(line);
-        System.out.println("List of Available Console Commands".toUpperCase());
-        System.out.println(line);
-        System.out.println("\033[0;34mRcon Command:\033[0m \033[0;36m<command>\033[0m");
-        System.out.println("\033[0;34mRcon Batch Command:\033[0m \033[0;36m/batch <amount> [command]\033[0m");
-        System.out.println("\033[0;34mHelp:\033[0m \033[0;36m/help, /h, /?\033[0m");
-        System.out.println("\033[0;34mInvalidate connections:\033[0m \033[0;36m/invalidate\033[0m");
-        System.out.println("\033[0;34mThread/Connection Statistics:\033[0m \033[0;36m/stats\033[0m");
-        System.out.println("\033[0;34mRe-authenticateBatch with server with new password:\033[0m \033[0;36m/newauth\033[0m");
-        System.out.println("\033[0;34mRe-authenticateBatch with server using registered password:\033[0m \033[0;36m/reauth\033[0m");
-        System.out.println("\033[0;34mCleanup unsused channels:\033[0m \033[0;36m/cleanup\033[0m");
-        System.out.println("\033[0;34mQuit Console:\033[0m \033[0;36m/quit\033[0m");
+        Console.Colorize console = Console.colorize(true).enableColors();
+        console.yellow("-------------------------------------------------------------------------------------------").reset().line();
+        console.yellow("List of Available Console Commands".toUpperCase()).line().reset();
+        console.yellow("-------------------------------------------------------------------------------------------").reset().line();
+        console.cyan("%-50s: ", "Rcon Command").white("%s", "<command>").reset().line();
+        console.cyan("%-50s: ", "Rcon Batch Command").white("%s", "/batch <amount> [command]").reset().line();
+        console.cyan("%-50s: ", "Help").white("%s", "/?, /h, /help").reset().line();
+        console.cyan("%-50s: ", "Invalidate Active Connections").white("%s", "/invalidate").reset().line();
+        console.cyan("%-50s: ", "Re-authenticate with new credentials").white("%s", "/newauth").reset().line();
+        console.cyan("%-50s: ", "Re-authenticate with existing credentials").white("%s", "/reauth").reset().line();
+        console.cyan("%-50s: ", "Cleanup inactive connections").white("%s", "/cleanup [force]").reset().line();
+        console.cyan("%-50s: ", "List SourceMod Plugins (with Cvars and command)").white("%s", "/plugins").reset().line();
+        console.cyan("%-50s: ", "Quit Program").white("%s", "/quit").reset().line();
+        System.out.println(console);
         return success("", args[0]);
     }
 
     private CompletableFuture<CommandResponse> commandStats(final String[] args) {
-        rconClient.getStatistics().print(System.out::println);
+        rconClient.printExecutorStats(System.out::println);
+        //rconClient.printConnectionStats(System.out::println);
+        SetMultimap<InetSocketAddress, SourceRconMessenger.ConnectionStats> stats = rconClient.getStatistics();
+        final Supplier<Console.Colorize> console = () -> Console.colorize(true);
+        int ctr = 1;
+        for (InetSocketAddress address : stats.keySet()) {
+            console.get().blue().text("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------").println();
+            console.get().blue().text("%02d)", ctr++).white().text(" Address ").reset().yellow().text("'%s'", address).println();
+            console.get().blue().text("--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------").println();
+            int connCtr = 1;
+            for (SourceRconMessenger.ConnectionStats connStats : stats.get(address)) {
+                Console.Colorize con = console.get();
+                con
+                        .purple("\t(%02d)", connCtr++).reset()
+                        .cyan("\t[Connection Id]: ").white(connStats.getConnectionId()).reset()
+                        .cyan("\t[Local Address]: ").white(connStats.getLocalAddress().toString()).reset()
+                        .cyan("\t[Acquire Count]: ").white("%03d", connStats.getAcquireCount()).reset()
+                        .cyan("\t[Last Acquired]: ").white("%s sec(s) ago", Time.getTimeDesc(connStats.getLastAcquiredMs(), true)).reset();
+
+                if (connStats.isAcquired()) {
+                    con.cyan().text("\t[Is Acquired]: ").reset().yellow().text("%s", connStats.isAcquired()).reset();
+                } else {
+                    con.cyan().text("\t[Is Acquired]: ").reset().green().text("%s", connStats.isAcquired()).reset();
+                }
+
+                if (connStats.isAuthenticated()) {
+                    con.cyan("\t[Is Authenticated]: ").reset().green("%s", connStats.isAuthenticated()).reset();
+                } else {
+                    con.cyan("\t[Is Authenticated]: ").reset().red("%s", connStats.isAuthenticated()).reset();
+                }
+
+                con.cyan("\t[Thread Name]: ").reset()
+                   .white("%s", connStats.getThreadName()).reset()
+                   .println();
+            }
+        }
         return success("", args[0]);
     }
 
@@ -156,12 +197,15 @@ public class SourceRconExample extends BaseExample {
     }
 
     private CompletableFuture<CommandResponse> commandAuthenticate(String[] args) {
-        authenticated.set(false);
+        authenticate.set(false);
         return success("done", args[0]);
     }
 
     private CompletableFuture<CommandResponse> commandCleanup(String[] args) {
-        rconClient.cleanup();
+        boolean force = false;
+        if (args.length >= 2)
+            force = !Strings.isBlank(args[1]) && "force".equalsIgnoreCase(args[1]);
+        rconClient.cleanup(force);
         return success("done", args[0]);
     }
 
@@ -172,6 +216,18 @@ public class SourceRconExample extends BaseExample {
             return error(e.getMessage());
         }
     }
+
+    private CompletableFuture<CommandResponse> commandListPlugins(String[] args) {
+        try {
+            Console.colorize(true).yellow("Fetching plugin list. Please wait...").println();
+            return sourceModParser.getPluginList(serverAddress)
+                                  .thenApply(sourceModParser::prettyFormat)
+                                  .thenCombine(CompletableFuture.completedFuture(args[0]), CommandResponse::new);
+        } catch (RconNotYetAuthException e) {
+            return error(e.getMessage());
+        }
+    }
+    //</editor-fold>
 
     private void printBanner() {
         System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
@@ -196,19 +252,20 @@ public class SourceRconExample extends BaseExample {
         try {
             //loop until stop is set
             while (!stop) {
-                if (!authenticated.get()) {
+                if (!authenticate.get()) {
                     String password = promptInputPassword("Password", true, "", "sourceRconPass");
                     System.out.println();
                     System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
                     System.out.println();
                     try {
                         SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
-                        authenticated.set(authResponse.isAuthenticated());
-                        if (!authenticated.get()) {
-                            Console.colorize()
-                                   .red().text("[ERROR]: ")
-                                   .white().text("Failed to authenticate with server. Server responded in error ")
-                                   .yellow().text(" (Reason: '%s')", authResponse.getReason())
+
+                        authenticate.set(authResponse.isAuthenticated());
+                        if (!authenticate.get()) {
+                            Console.colorize(true)
+                                   .red("[ERROR]: ")
+                                   .white("Failed to authenticate with server. Server responded in error ")
+                                   .yellow(" (Reason: '%s')", authResponse.getReason())
                                    .reset()
                                    .println();
                         }
@@ -218,24 +275,24 @@ public class SourceRconExample extends BaseExample {
                             RconException rconEx = (RconException) cause;
                             if (cause instanceof RconAuthException) {
                                 RconAuthException authEx = (RconAuthException) cause;
-                                Console.colorize()
-                                       .red().text("[CLIENT ERROR]: ")
+                                Console.colorize(true)
+                                       .red().text("[ERROR]: ")
                                        .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
                                        .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
                                        .reset()
                                        .println();
                             } else {
-                                Console.colorize()
-                                       .red().text("[CLIENT ERROR]: ")
+                                Console.colorize(true)
+                                       .red().text("[ERROR]: ")
                                        .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
                                        .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
                                        .reset()
                                        .println();
                             }
-                            authenticated.set(false);
+                            authenticate.set(false);
                         } else {
                             System.err.printf("ERROR: Failed to authenticate with server '%s' using password with '%s' bytes (Reason: %s)\n", serverAddress, password.length(), cause);
-                            authenticated.set(false);
+                            authenticate.set(false);
                             throw e;
                         }
                     }
@@ -251,7 +308,7 @@ public class SourceRconExample extends BaseExample {
                         stop = true;
                     } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
                         System.err.println(cause.getMessage());
-                        authenticated.set(false);
+                        authenticate.set(false);
                     } else if (cause instanceof ParseException) {
                         System.err.println(cause.getMessage());
                     } else {
@@ -269,7 +326,7 @@ public class SourceRconExample extends BaseExample {
     }
 
     private CompletableFuture<CommandResponse> success(String msg, final String command) {
-        return CompletableFuture.completedFuture(new CommandResponse(command, msg));
+        return CompletableFuture.completedFuture(new CommandResponse(msg, command));
     }
 
     private <V> CompletableFuture<V> error(String msg, Object... args) {
@@ -284,7 +341,7 @@ public class SourceRconExample extends BaseExample {
             System.out.println(line);
 
             final CountDownLatch latch = new CountDownLatch(count);
-            final RconCommandHandler handleResponse = new RconCommandHandler(count, latch);
+            final RconResponseHandler handleResponse = new RconResponseHandler(count, latch);
             try {
                 log.info("Waiting for all futures to complete");
                 for (int i = 0; i < count; i++) {
@@ -335,12 +392,12 @@ public class SourceRconExample extends BaseExample {
     }
 
     private CommandResponse successResponse(String command, String msg, Object... args) {
-        return new CommandResponse(command, String.format(msg, args));
+        return new CommandResponse(String.format(msg, args), command);
     }
 
     private CompletableFuture<CommandResponse> commandRcon(final String[] args) {
         final String command = args[0];
-        return rconClient.execute(serverAddress, command).thenApply(r -> new CommandResponse(command, r.getResult()));
+        return rconClient.execute(serverAddress, command).thenApply(r -> new CommandResponse(r.getResult(), command));
     }
 
     /** {@inheritDoc} */
@@ -348,181 +405,5 @@ public class SourceRconExample extends BaseExample {
     public void close() throws IOException {
         close(rconClient, "RCON");
         close(commandExecutor, "Command");
-    }
-
-    private void authenticateBatch(Map<InetSocketAddress, String> auth) throws RconNotYetAuthException {
-        final Phaser phaser = new Phaser();
-        //authenticateBatch
-        phaser.register();
-        Map<InetSocketAddress, Boolean> result = new HashMap<>();
-        for (Map.Entry<InetSocketAddress, String> server : auth.entrySet()) {
-            log.info("Authenticating address '{}' with password '{}'", server.getKey(), server.getValue());
-            phaser.register();
-            rconClient.authenticate(server.getKey(), server.getValue().getBytes()).whenComplete((status, error) -> {
-                try {
-                    if (error != null) {
-                        log.error("AUTH ERROR", error);
-                        result.put(server.getKey(), false);
-                    } else {
-                        if (status.isAuthenticated()) {
-                            log.info("({}) Successfully authenticated", status.getAddress());
-                            result.put(server.getKey(), true);
-                        } else {
-                            log.info("({}) Authentication Failed: {}", status.getAddress(), status.getReason());
-                            result.put(server.getKey(), false);
-                        }
-                    }
-                } finally {
-                    phaser.arriveAndDeregister();
-                }
-            });
-        }
-        phaser.arriveAndAwaitAdvance();
-
-        /*if (result.containsValue(false)) {
-            result.entrySet().stream().filter(p -> !p.getValue()).forEach(e -> log.error("Server {} did not authenticateBatch successfully", e.getKey()));
-            throw new RconNotYetAuthException(null, "A server did not authenticateBatch successfully", SourceRconAuthReason.NOT_AUTHENTICATED, null);
-        }*/
-    }
-
-    private void sendCommandBatch(int count, Set<InetSocketAddress> addressSet, BiConsumer<SourceRconCmdResponse, Throwable> handler, Phaser phaser) throws Exception {
-        phaser.register();
-        for (InetSocketAddress address : addressSet)
-            sendCommand(count, address, handler, phaser);
-        phaser.arriveAndAwaitAdvance();
-    }
-
-    private void sendCommand(int count, InetSocketAddress address, BiConsumer<SourceRconCmdResponse, Throwable> handler, Phaser phaser) {
-        for (int i = 0; i < count; i++) {
-            phaser.register();
-            String command = COMMANDS[RandomUtils.nextInt(0, COMMANDS.length)];
-            rconClient.execute(address, command).whenComplete(handler);
-        }
-    }
-
-    private static class RconCommandHandler extends ResponseHandler<SourceRconCmdResponse> {
-
-        private static final BiFunction<String, CommandStats, CommandStats> successCounter = (comamnd, stats) -> {
-            if (stats == null)
-                stats = new CommandStats();
-            stats.success.incrementAndGet();
-            return stats;
-        };
-
-        private static final BiFunction<String, CommandStats, CommandStats> failCounter = (command, stats) -> {
-            if (stats == null)
-                stats = new CommandStats();
-            stats.fail.incrementAndGet();
-            return stats;
-        };
-
-        private final AtomicLong byteCounter = new AtomicLong();
-
-        private final AtomicInteger iteration = new AtomicInteger();
-
-        private final ConcurrentHashMap<String, CommandStats> commandCount = new ConcurrentHashMap<>();
-
-        private final int increment;
-
-        private final int count;
-
-        private long startTime;
-
-        protected RconCommandHandler(int count, CountDownLatch latch) {
-            super("COMMAND", latch, System.out::println);
-            this.count = count;
-            this.increment = (int) (count * (1.0f / 100.0f));
-        }
-
-        @Override
-        protected void onSuccess(SourceRconCmdResponse res) {
-            byteCounter.addAndGet(res.getResult().length());
-            commandCount.compute(res.getCommand(), successCounter);
-        }
-
-        @Override
-        protected void onStart(SourceRconCmdResponse res, Throwable error) {
-            startTime = System.nanoTime();
-        }
-
-        @Override
-        protected void onFail(Throwable error) {
-            assert error instanceof RconException;
-            Console.println(color(Console.RED, "[RCON]") + " Failed to execute commmand (Error: %s)", error);
-            //error.printStackTrace(System.err);
-        }
-
-        @Override
-        protected void onDone(SourceRconCmdResponse res, Throwable error) {
-            int total = getTotalCount();
-            int success = getSuccessCount();
-            int fail = getFailCount();
-            Duration duration = Duration.ofNanos(System.nanoTime() - startTime);
-            if (increment > 0 && (total % increment) != 0)
-                return;
-            //\033[0;37m
-            //\033[0m
-            print("\033[0;35m%03d)\033[0m Processed a total of \033[1;35m% 6d\033[0m queries (\033[0;37mProgress:\033[0m \033[1;36m% 4.0f%%\033[0m, \033[0;37mSuccess:\033[0m \033[1;36m%05d, \033[0;37mFail:\033[0m \033[1;36m%05d, \033[0;37mBatch Size:\033[0m \033[1;36m%03d, \033[0;37mElapsed:\033[0m \033[1;36m%s, \033[0;37mLast Thread Used:\033[0m \033[1;36m%s\033[0m\033[0;37m)\033[0m", iteration.incrementAndGet(), total, getProgress(), success, fail, increment, Time.getTimeDesc(duration.toMillis(), true), Thread.currentThread().getName());
-        }
-
-        public double getProgress() {
-            return ((double) getTotalCount() / (double) count) * 100d;
-        }
-
-        @Override
-        public void printStats() {
-            super.printStats();
-            Duration duration = Duration.ofNanos(System.nanoTime() - startTime);
-            String sizeDesc = Bytes.getSizeDescriptionSI(byteCounter.get());
-            print("Total bytes received: %s (Duration: %s)", sizeDesc, Time.getTimeDesc(duration.toMillis()));
-            for (String command : commandCount.keySet()) {
-                print("Total successful '%s': %d", command, commandCount.get(command).success.get());
-            }
-        }
-
-        private static class CommandStats {
-
-            private final AtomicInteger success = new AtomicInteger();
-
-            private final AtomicInteger fail = new AtomicInteger();
-        }
-    }
-
-    private static class CommandException extends Exception {
-
-        private final String command;
-
-        private CommandException(String command, String message) {
-            super(message);
-            this.command = command;
-        }
-
-        public String getCommand() {
-            return command;
-        }
-    }
-
-    private static class CommandResponse {
-
-        private final String command;
-
-        private final String result;
-
-        private CommandResponse(String command, String result) {
-            this.command = command;
-            this.result = result;
-        }
-
-        public String getCommand() {
-            return command;
-        }
-
-        public boolean isEmptyResult() {
-            return Strings.isBlank(result);
-        }
-
-        public String getResult() {
-            return result;
-        }
     }
 }

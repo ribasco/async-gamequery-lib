@@ -31,7 +31,7 @@ public class InvalidPacketException extends AgqlRuntimeException {
      * @param message
      *         a {@link java.lang.String} object
      * @param data
-     *         an array of {@link byte} objects
+     *         The packet in raw byte array form
      */
     public InvalidPacketException(String message, byte[] data) {
         super(message);

@@ -46,15 +46,17 @@ public class InMemoryCredentialsStore implements CredentialsStore {
 
     /** {@inheritDoc} */
     @Override
-    public void add(InetSocketAddress address, byte[] passphrase) {
+    public Credentials add(InetSocketAddress address, byte[] passphrase) {
         if (passphrase == null || passphrase.length == 0)
             throw new IllegalArgumentException("Passphrase cannot be null or empty");
-        final Credentials oldCredentials = credentials.put(address, new SourceRconCredentials(passphrase));
-        log.debug("CREDENTIALS_STORE => Registered new address '{}' with passphrase ({} bytes_", address, passphrase.length);
+        final Credentials newCredentials = new SourceRconCredentials(passphrase);
+        final Credentials oldCredentials = credentials.put(address, newCredentials);
+        log.debug("CREDENTIALS_STORE => Registered new address '{}' with passphrase ({} bytes)", address, passphrase.length);
         if (oldCredentials != null) {
             oldCredentials.invalidate();
             log.debug("CREDENTIALS_STORE => Invalidated previous credentials for address '{}'", address);
         }
+        return newCredentials;
     }
 
     /** {@inheritDoc} */

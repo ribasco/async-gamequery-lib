@@ -47,6 +47,8 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     private final HttpOptions options;
 
+    private ExecutorService executorService;
+
     private final EventLoopGroup eventLoopGroup;
 
     /**
@@ -79,24 +81,27 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
     }
 
     private EventLoopGroup initializeEventLoopGroup() {
-        ExecutorService executorService = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE);
-        if (executorService == null)
-            executorService = Platform.getDefaultExecutor();
+        ExecutorService executor = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE);
+        if (executor == null) {
+            executor = Platform.getDefaultExecutor();
+        }
         Integer nThreads = getOptions().get(GeneralOptions.THREAD_CORE_SIZE);
         //Attempt to determine the number of threads supported by the executor service
         if (nThreads == null) {
-            if (executorService instanceof AgqlManagedExecutorService)
-                executorService = ((AgqlManagedExecutorService) executorService).getResource();
-            if (executorService instanceof ThreadPoolExecutor) {
-                ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
+            ExecutorService tmp = executor;
+            if (tmp instanceof AgqlManagedExecutorService)
+                tmp = ((AgqlManagedExecutorService) executor).getResource();
+            if (tmp instanceof ThreadPoolExecutor) {
+                ThreadPoolExecutor tpe = (ThreadPoolExecutor) tmp;
                 nThreads = tpe.getCorePoolSize();
             } else {
                 throw new IllegalStateException("Please specify a core pool size in the options (See GeneralOptions.THREAD_CORE_SIZE)");
             }
         }
-        EventLoopGroup group = Platform.isDefaultExecutor(executorService) ? Platform.getDefaultEventLoopGroup() : Platform.createEventLoopGroup(executorService, nThreads, Properties.useNativeTransport());
-        log.debug("HTTP_MESSENGER (INIT) => Executor Service: '{}'", executorService);
+        EventLoopGroup group = Platform.isDefaultExecutor(executor) ? Platform.getDefaultEventLoopGroup() : Platform.createEventLoopGroup(executor, nThreads, Properties.useNativeTransport());
+        log.debug("HTTP_MESSENGER (INIT) => Executor Service: '{}'", executor);
         log.debug("HTTP_MESSENGER (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
+        this.executorService = executor;
         return group;
     }
 
@@ -104,6 +109,9 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
     @Override
     public void close() throws IOException {
         transport.close();
+        if (eventLoopGroup != null)
+            eventLoopGroup.shutdownGracefully();
+        ManagedResource.release(executorService);
     }
 
     /** {@inheritDoc} */

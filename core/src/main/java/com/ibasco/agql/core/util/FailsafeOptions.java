@@ -27,7 +27,7 @@ import dev.failsafe.Failsafe;
 @Shared
 public class FailsafeOptions extends AbstractOptions {
 
-    protected FailsafeOptions() {}
+    private FailsafeOptions() {}
 
     //<editor-fold desc="Failsafe - General Options">
 

@@ -80,19 +80,11 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>aggregate-javadocs</id>
+                        <id>aggregate</id>
                         <phase>package</phase>
                         <goals>
                             <goal>aggregate-jar</goal>
                         </goals>
-                        <configuration>
-                            <includeDependencySources>true</includeDependencySources>
-                            <!--<source>8</source>-->
-                            <dependencySourceExcludes>
-                                <dependencySourceExclude>com.ibasco.agql:agql-lib-examples</dependencySourceExclude>
-                                <dependencySourceExclude>org.slf4j:*</dependencySourceExclude>
-                            </dependencySourceExcludes>
-                        </configuration>
                     </execution>
                 </executions>
             </plugin>

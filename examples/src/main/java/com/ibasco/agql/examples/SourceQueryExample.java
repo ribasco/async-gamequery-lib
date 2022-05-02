@@ -297,10 +297,10 @@ public class SourceQueryExample extends BaseExample {
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        close(queryClient, "Query");
-        close(masterClient, "Master");
-        close(queryExecutor, "Query");
-        close(masterExecutor, "Master");
+        close(queryClient, "Query Client");
+        close(masterClient, "Master Client");
+        close(queryExecutor, "Query Executor");
+        close(masterExecutor, "Master Executor");
     }
 
     private void printConsoleBanner() {
@@ -356,18 +356,12 @@ public class SourceQueryExample extends BaseExample {
             this.type = type;
         }
 
-        public static BiFunction<SourceQueryInfoResponse, Throwable, QueryResponse<SourceServer>> ofInfoType() {
-            return ofType(QueryType.INFO);
-        }
-
         public static <V, Q extends SourceQueryResponse<V>> BiFunction<Q, Throwable, QueryResponse<V>> ofType(QueryType type) {
             return new QueryResponse<V>(type)::save;
         }
 
-        private QueryResponse save(SourceQueryResponse<T> response, Throwable error) {
-            this.response = response;
-            this.error = error;
-            return this;
+        public static BiFunction<SourceQueryInfoResponse, Throwable, QueryResponse<SourceServer>> ofInfoType() {
+            return ofType(QueryType.INFO);
         }
 
         public static BiFunction<SourceQueryPlayerResponse, Throwable, QueryResponse<List<SourcePlayer>>> ofPlayerType() {
@@ -396,6 +390,12 @@ public class SourceQueryExample extends BaseExample {
 
         public boolean hasError() {
             return error != null;
+        }
+
+        private QueryResponse save(SourceQueryResponse<T> response, Throwable error) {
+            this.response = response;
+            this.error = error;
+            return this;
         }
     }
 
@@ -460,23 +460,6 @@ public class SourceQueryExample extends BaseExample {
 
         private boolean hasError() {
             return infoQuery.hasError() || playersQuery.hasError() || rulesQuery.hasError();
-        }
-
-        private boolean hasError(QueryType type) {
-            switch (type) {
-                case INFO: {
-                    return infoQuery != null && infoQuery.hasError();
-                }
-                case PLAYERS: {
-                    return playersQuery != null && playersQuery.hasError();
-                }
-                case RULES: {
-                    return rulesQuery != null && rulesQuery.hasError();
-                }
-                default: {
-                    throw new IllegalStateException("Invalid query type");
-                }
-            }
         }
 
         /**

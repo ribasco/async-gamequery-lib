@@ -31,23 +31,23 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialR
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import dev.failsafe.*;
-import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.CheckedPredicate;
 import dev.failsafe.function.ContextualSupplier;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -117,20 +117,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
     //<editor-fold desc="Protected Methods">
 
     private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
-        //Console.println("BUILDING RETRY");
         RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
-        builder.onRetry(new EventListener<ExecutionAttemptedEvent<MasterServerResponse>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<MasterServerResponse> event) throws Throwable {
-                //Console.println("MASTER RETRY: %d", event.getAttemptCount());
-            }
-        });
-        builder.onFailedAttempt(new EventListener<ExecutionAttemptedEvent<MasterServerResponse>>() {
-            @Override
-            public void accept(ExecutionAttemptedEvent<MasterServerResponse> event) throws Throwable {
-                //Console.error("Failed attempt: %s (Count: %d)", event.getLastException(), event.getAttemptCount());
-            }
-        });
         return builder.build();
     }
 
@@ -258,14 +245,13 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         request.setAddress(address.getAddress().getHostAddress() + ":" + address.getPort());
 
         if (rateLimiter != null) {
-            try {
-                log.debug("{} MASTER => Acquiring permit", context.id());
-                Console.println("%s (RATE LIMITER) Acquiring permit (Max rate: %s sec(s))", context.id(), DurationFormatUtils.formatDuration(rateLimiter.getConfig().getMaxRate().toMillis(), "HH:mm:ss"));
-                rateLimiter.acquirePermit();
+            Duration waitDuration = rateLimiter.reservePermit();
+            long millis = waitDuration.toMillis();
+            log.debug("{} MASTER => Acquiring permit (Wait time: {}ms)", context.id(), millis);
+            if (millis > 0)
+                context.eventLoop().schedule(context::send, millis, TimeUnit.MILLISECONDS);
+            else
                 context.send();
-            } catch (InterruptedException e) {
-                context.markInError(e);
-            }
         } else {
             context.send();
         }

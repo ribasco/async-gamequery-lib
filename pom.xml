@@ -40,7 +40,7 @@
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <netty.version>4.1.75.Final</netty.version>
+        <netty.version>4.1.76.Final</netty.version>
     </properties>
 
     <!-- Profiles -->
@@ -157,11 +157,29 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <reportSets>
                     <reportSet>
+                        <id>default</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                    <reportSet>
+                        <id>non-aggregate</id>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                        <configuration>
+                            <!-- Specific configuration for the non aggregate report -->
+                        </configuration>
+                    </reportSet>
+                    <reportSet>
                         <id>aggregate</id>
                         <inherited>false</inherited>
                         <reports>
                             <report>aggregate</report>
                         </reports>
+                        <configuration>
+                            <!-- Specific configuration for the aggregate report -->
+                        </configuration>
                     </reportSet>
                 </reportSets>
             </plugin>
@@ -406,7 +424,9 @@
                     <executions>
                         <execution>
                             <id>attach-sources</id>
+                            <phase>package</phase>
                             <goals>
+                                <!-- produce source artifact for main project sources -->
                                 <goal>jar-no-fork</goal>
                             </goals>
                         </execution>
@@ -420,6 +440,7 @@
                     <executions>
                         <execution>
                             <id>attach-javadocs</id>
+                            <phase>package</phase>
                             <goals>
                                 <goal>jar</goal>
                             </goals>
@@ -432,6 +453,15 @@
                         <skippedModules>agql-lib-examples</skippedModules>
                         <defaultAuthor>Rafael Luis Ibasco</defaultAuthor>
                         <defaultVersion>${project.version}</defaultVersion>
+                        <includeDependencySources>true</includeDependencySources>
+                        <includeTransitiveDependencySources>false</includeTransitiveDependencySources>
+                        <dependencySourceIncludes>
+                            <dependencySourceInclude>com.ibasco.agql:*</dependencySourceInclude>
+                        </dependencySourceIncludes>
+                        <dependencySourceExcludes>
+                            <dependencySourceExclude>com.ibasco.agql:agql-lib-examples</dependencySourceExclude>
+                            <!--<dependencySourceExclude>org.slf4j:*</dependencySourceExclude>-->
+                        </dependencySourceExcludes>
                         <additionalOptions>-Xdoclint:none</additionalOptions>
                         <additionalJOption>-Xdoclint:none</additionalJOption>
                     </configuration>
@@ -488,7 +518,7 @@
                     <configuration>
                         <siteDirectory>${site.dir}</siteDirectory>
                         <port>9000</port>
-                        <tempWebappDirectory>${basedir}/target/site/tempdir</tempWebappDirectory>
+                        <tempWebappDirectory>${project.build.directory}/site-web</tempWebappDirectory>
                         <!-- Do not auto-deploy. CI server will perform the site deployment -->
                         <skipDeploy>true</skipDeploy>
                     </configuration>
@@ -510,6 +540,9 @@
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>versions-maven-plugin</artifactId>
                     <version>2.10.0</version>
+                    <configuration>
+                        <rulesUri>file://${user.dir}/docs/rules.xml</rulesUri>
+                    </configuration>
                 </plugin>
                 <!-- Surefire -->
                 <plugin>
@@ -543,10 +576,10 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-            </plugin>
+            </plugin>-->
         </plugins>
     </build>
 
@@ -604,19 +637,19 @@
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
-                <version>1.7.32</version>
+                <version>1.7.36</version>
             </dependency>
             <!-- Google Guava -->
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>[30.0-jre,)</version>
+                <version>31.1-jre</version>
             </dependency>
             <!-- Google GSON -->
             <dependency>
                 <groupId>com.google.code.gson</groupId>
                 <artifactId>gson</artifactId>
-                <version>2.8.9</version>
+                <version>2.9.0</version>
             </dependency>
             <!-- JUnit 5 -->
             <dependency>
@@ -645,11 +678,6 @@
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-compress</artifactId>
                 <version>1.21</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-cli</groupId>
-                <artifactId>commons-cli</artifactId>
-                <version>1.5.0</version>
             </dependency>
             <!-- Netty -->
             <dependency>

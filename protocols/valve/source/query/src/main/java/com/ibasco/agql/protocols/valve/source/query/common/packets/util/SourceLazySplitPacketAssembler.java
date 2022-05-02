@@ -161,8 +161,10 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         //Fixed memory leak. MUST RELEASE INCOMPLETE PACKETS ON RESET
         if (this.packets != null) {
             for (SourceQuerySplitPacket packet : packets) {
-                log.debug("ASSEMBLER => Releasing incomplete split-packets: {}", packet);
-                ReferenceCountUtil.safeRelease(packet);
+                if (ReferenceCountUtil.refCnt(packet) > 0) {
+                    log.debug("ASSEMBLER => Releasing incomplete split-packets: {}", packet);
+                    ReferenceCountUtil.release(packet);
+                }
             }
         }
         this.packets = null;

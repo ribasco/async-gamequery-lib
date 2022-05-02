@@ -19,12 +19,12 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
-import io.netty.channel.EventLoopGroup;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 
 /**
  * A netty based socket client.
@@ -73,8 +73,8 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
 
     /** {@inheritDoc} */
     @Override
-    public EventLoopGroup getExecutor() {
-        return (EventLoopGroup) super.getExecutor();
+    public ScheduledExecutorService getExecutor() {
+        return (ScheduledExecutorService) super.getExecutor();
     }
 
     /** {@inheritDoc} */

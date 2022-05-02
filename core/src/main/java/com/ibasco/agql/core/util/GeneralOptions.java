@@ -81,7 +81,7 @@ public final class GeneralOptions extends AbstractOptions {
     /**
      * The maximum number of milliseconds to wait before timing out on close channel operation
      */
-    public static final Option<Integer> CLOSE_TIMEOUT = Option.create("globalCloseTimeout", 3000);
+    public static final Option<Integer> CLOSE_TIMEOUT = Option.create("globalCloseTimeout", 10000);
     //</editor-fold>
 
     //<editor-fold desc="Connection Pooling">

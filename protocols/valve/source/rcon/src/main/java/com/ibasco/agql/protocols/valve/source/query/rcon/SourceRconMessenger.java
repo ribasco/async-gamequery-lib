@@ -16,6 +16,8 @@
 
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
+import com.google.common.collect.MultimapBuilder;
+import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.ChannelRegistry;
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
@@ -48,6 +50,8 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.EventExecutor;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,7 +87,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     private final boolean reauthenticate;
 
-    private final InactivityCheckTask INACTIVITY_CHECK_TASK = new InactivityCheckTask();
+    private final CleanupTask INACTIVITY_CHECK_TASK = new CleanupTask();
 
     private final ChannelRegistry registry = new SourceRconChannelRegistry();
 
@@ -267,6 +271,8 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
      * <p>Getter for the field <code>credentialsStore</code>.</p>
      *
      * @return a {@link com.ibasco.agql.core.CredentialsStore} object
+     *
+     * @see InMemoryCredentialsStore
      */
     public CredentialsStore getCredentialsStore() {
         return credentialsStore;
@@ -355,6 +361,10 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
     /**
      * Checks if the specified {@link java.net.InetSocketAddress} has been previously authenticated.
+     *
+     * <blockquote>
+     * Note: This does not check the validity of the {@link Credentials} registered to the address.
+     * </blockquote>
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to check
@@ -486,8 +496,8 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     /**
      * Cleanup inactive connections
      */
-    public void cleanup() {
-        this.jobScheduler.execute(new InactivityCheckTask(true));
+    public void cleanup(boolean force) {
+        this.jobScheduler.execute(new CleanupTask(force));
     }
 
     /**
@@ -498,7 +508,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     }
 
     /**
-     * Invalidates all registered addresses and all of it's associated connections.
+     * Invalidates all registered addresses along with its connections.
      *
      * @param onlyConnections
      *         {@code true} if we should only invalidate the {@link io.netty.channel.Channel}'s for the specified address.
@@ -514,7 +524,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
      * @param address
      *         The {@link java.net.InetSocketAddress} to invalidate
      * @param connectionsOnly
-     *         {@code true} if we should only also invalidate the connections associated with the specified address. Credentials will remain valid.
+     *         {@code true} if we should only also invalidate the connections associated with the specified address, credentials will remain valid.
      */
     public void invalidate(InetSocketAddress address, boolean connectionsOnly) {
         checkAddress(address);
@@ -628,15 +638,17 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     //</editor-fold>
 
     //<editor-fold desc="Background Tasks">
-    private class InactivityCheckTask implements Runnable {
+    private class CleanupTask implements Runnable {
 
         private final boolean force;
 
-        private InactivityCheckTask() {
+        private String connectionId;
+
+        private CleanupTask() {
             this(false);
         }
 
-        private InactivityCheckTask(boolean force) {
+        private CleanupTask(boolean force) {
             this.force = force;
         }
 
@@ -659,7 +671,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                 Metadata metadata = statistics.getMetadata(channel);
                 long lastAcquiredDuration = metadata.getLastAcquiredDuration();
                 int remaining = registry.getChannels(address).size();
-                if (remaining == 1 || cRemaining == 1)
+                if (!force && (remaining == 1 || cRemaining == 1))
                     continue;
 
                 //close channels having:
@@ -668,9 +680,94 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                 if (force || (metadata.getAcquireCount() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
                     log.debug("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {}, Remaining: {})", ++ctr, channel, metadata.getAcquireCount(), metadata.getLastAcquiredDuration(), registry.isRegistered(channel), cRemaining);
                     final String id = channel.id().asShortText();
-                    Netty.close(channel).thenAcceptAsync(unused -> log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id), channel.eventLoop());
+                    Netty.close(channel).thenAcceptAsync(unused -> {
+                        log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id);
+                        Console.colorize().blue("[CLEANUP : %s] ", Thread.currentThread().getName()).white("Channel ").cyan("'%s'", id).white(" closed").println();
+                    }, channel.eventLoop());
                 }
             }
+        }
+    }
+
+    public static class ConnectionStats {
+
+        private final String connectionId;
+
+        private final InetSocketAddress localAddress;
+
+        private final InetSocketAddress remoteAddress;
+
+        private final int acquireCount;
+
+        private final boolean active;
+
+        private final boolean authenticated;
+
+        private final boolean acquired;
+
+        private final long lastAcquiredMs;
+
+        private final String threadName;
+
+        private ConnectionStats(String connectionId, InetSocketAddress localAddress, InetSocketAddress remoteAddress, int acquireCount, boolean active, boolean authenticated, boolean acquired, long lastAcquiredMs, String threadName) {
+            this.connectionId = connectionId;
+            this.localAddress = localAddress;
+            this.remoteAddress = remoteAddress;
+            this.acquireCount = acquireCount;
+            this.active = active;
+            this.authenticated = authenticated;
+            this.acquired = acquired;
+            this.lastAcquiredMs = lastAcquiredMs;
+            this.threadName = threadName;
+        }
+
+        public String getConnectionId() {
+            return connectionId;
+        }
+
+        public InetSocketAddress getLocalAddress() {
+            return localAddress;
+        }
+
+        public InetSocketAddress getRemoteAddress() {
+            return remoteAddress;
+        }
+
+        public int getAcquireCount() {
+            return acquireCount;
+        }
+
+        public boolean isAuthenticated() {
+            return authenticated;
+        }
+
+        public boolean isActive() {
+            return active;
+        }
+
+        public boolean isAcquired() {
+            return acquired;
+        }
+
+        public long getLastAcquiredMs() {
+            return lastAcquiredMs;
+        }
+
+        public String getThreadName() {
+            return threadName;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            ConnectionStats that = (ConnectionStats) o;
+            return new EqualsBuilder().append(connectionId, that.connectionId).isEquals();
+        }
+
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(connectionId).toHashCode();
         }
     }
 
@@ -681,66 +778,74 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             remove(future.channel());
         };
 
-        private Channel record(Channel channel, Throwable error) {
-            if (error != null) {
-                if (error instanceof CompletionException)
-                    throw (CompletionException) error;
-                else
-                    throw new CompletionException(error);
-            } else {
-                assert channel != null;
-                //reset attributes if channel was closed
-                if (!Metadata.Stats.ACQUIRE_COUNT.exists(channel)) {
-                    log.debug("{} STATISTICS => Initializing stats for channel '{}'", Netty.id(channel), channel);
-                    //remove entry on close
-                    channel.closeFuture().addListener(REMOVE_ON_CLOSE);
+        public SetMultimap<InetSocketAddress, ConnectionStats> getConnectionStats() {
+            SetMultimap<InetSocketAddress, ConnectionStats> dataMap = MultimapBuilder.SetMultimapBuilder.hashKeys().hashSetValues().build();
+            final List<InetSocketAddress> addressList = new ArrayList<>(registry.getAddresses());
+            for (InetSocketAddress address : addressList) {
+                List<Channel> channels = new ArrayList<>(registry.getChannels(address));
+                for (Channel channel : channels) {
+                    Metadata metadata = getMetadata(channel);
+                    dataMap.put(address,
+                                new ConnectionStats(
+                                        channel.id().asShortText(),
+                                        (InetSocketAddress) channel.localAddress(),
+                                        (InetSocketAddress) channel.remoteAddress(),
+                                        metadata.getAcquireCount(),
+                                        channel.isActive(),
+                                        isAuthenticated(channel),
+                                        NettyChannelPool.isPooled(channel),
+                                        metadata.getLastAcquiredDurationMillis(),
+                                        Netty.getThreadName(channel)
+                                ));
                 }
-                Metadata.Stats.ACQUIRE_COUNT.increment(channel);
-                Metadata.Stats.LAST_ACQUIRE_MILLIS.value(channel, System.currentTimeMillis());
             }
-            return channel;
+            return dataMap;
         }
 
-        public void print(Consumer<String> output) {
+        final String LINE = "\033[0;36m" + StringUtils.repeat("=", 200) + "\033[0m";
 
-            final String LINE = "\033[0;36m" + StringUtils.repeat("=", 200) + "\033[0m";
-            print(output, LINE);
-            print(output, "Channel Statistics");
-            print(output, LINE);
-            print(output, "Connection pooling enabled: %s", getOrDefault(GeneralOptions.CONNECTION_POOLING));
-            print(output, "Max Pooled Connections: %d", getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS));
-            print(output, "Max Core Pool Size: %d", Concurrency.getCorePoolSize(getExecutor()));
-            print(output, "Max Pending Acquires: %d", getOrDefault(GeneralOptions.POOL_ACQUIRE_MAX));
-            print(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
+        public void printExecutorStats(Consumer<String> output) {
+
+            printConnectionStats(output, LINE);
+            printConnectionStats(output, "Channel Statistics");
+            printConnectionStats(output, LINE);
+            printConnectionStats(output, "Connection pooling enabled: %s", getOrDefault(GeneralOptions.CONNECTION_POOLING));
+            printConnectionStats(output, "Max Pooled Connections: %d", getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS));
+            printConnectionStats(output, "Max Core Pool Size: %d", Concurrency.getCorePoolSize(getExecutor()));
+            printConnectionStats(output, "Max Pending Acquires: %d", getOrDefault(GeneralOptions.POOL_ACQUIRE_MAX));
+            printConnectionStats(output, "Tasks in queue: %d", Platform.getDefaultQueue().size());
             EventLoopGroup eventLoopGroup = getExecutor();
-            print(output, "Executor Service: %s", eventLoopGroup);
+            printConnectionStats(output, "Executor Service: %s", eventLoopGroup);
 
-            print(output, LINE);
-            print(output, "\033[0;33mEvent Loop Group: (Group: %s)\033[0m", eventLoopGroup);
-            print(output, LINE);
+            printConnectionStats(output, LINE);
+            printConnectionStats(output, "\033[0;33mEvent Loop Group: (Group: %s)\033[0m", eventLoopGroup);
+            printConnectionStats(output, LINE);
             int ctr = 0;
             for (EventExecutor ex : eventLoopGroup) {
                 SingleThreadEventLoop el = (SingleThreadEventLoop) ex;
-                print(output, "\033[0;33m%02d)\033[0m \033[0;36m%s-%-15d\033[0m \033[0;34m[%s]\033[0m (\033[0;37mPending Tasks:\033[0m \033[0;36m%d\033[0m, \033[0;37mThread Id:\033[0m \033[0;36m%d\033[0m)", ++ctr, ex.getClass().getSimpleName(), el.hashCode(), el.threadProperties().name(), el.pendingTasks(), el.threadProperties().id());
+                printConnectionStats(output, "\033[0;33m%02d)\033[0m \033[0;36m%s-%-15d\033[0m \033[0;34m[%s]\033[0m (\033[0;37mPending Tasks:\033[0m \033[0;36m%d\033[0m, \033[0;37mThread Id:\033[0m \033[0;36m%d\033[0m)", ++ctr, ex.getClass().getSimpleName(), el.hashCode(), el.threadProperties().name(), el.pendingTasks(), el.threadProperties().id());
             }
+        }
 
-            print(output, LINE);
+        public void printConnectionStats(Consumer<String> output) {
+            printExecutorStats(output);
+            printConnectionStats(output, LINE);
             final List<InetSocketAddress> addressList = new ArrayList<>(registry.getAddresses());
             for (int i = 0, distinctAddressesSize = addressList.size(); i < distinctAddressesSize; i++) {
                 final InetSocketAddress address = addressList.get(i);
                 List<Channel> channels = new ArrayList<>(registry.getChannels(address));
                 int totalAcquireCount = getTotalAcquireCount(channels);
-                print(output, "%d) Address: %s (Successful Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, channels.size(), isAuthenticated(address) ? "YES" : "NO");
+                printConnectionStats(output, "%d) Address: %s (Successful Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, channels.size(), isAuthenticated(address) ? "YES" : "NO");
                 for (int j = 0; j < channels.size(); j++) {
                     Channel channel = channels.get(j);
                     Metadata metadata = getMetadata(channel);
-                    print(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", Time.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), Netty.getThreadName(channel));
+                    printConnectionStats(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", Time.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), Netty.getThreadName(channel));
                 }
             }
-            print(output, LINE);
+            printConnectionStats(output, LINE);
         }
 
-        private void print(Consumer<String> out, String msg, Object... args) {
+        private void printConnectionStats(Consumer<String> out, String msg, Object... args) {
             out.accept(String.format(msg, args));
         }
 
@@ -758,6 +863,26 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                 log.debug("{} STATISTICS => Clearing stats for channel '{}'", Netty.id(channel), channel);
                 channel.attr(stat.key()).set(null);
             }
+        }
+
+        private Channel recordAcquire(Channel channel, Throwable error) {
+            if (error != null) {
+                if (error instanceof CompletionException)
+                    throw (CompletionException) error;
+                else
+                    throw new CompletionException(error);
+            } else {
+                assert channel != null;
+                //reset attributes if channel was closed
+                if (!Metadata.Stats.ACQUIRE_COUNT.exists(channel)) {
+                    log.debug("{} STATISTICS => Initializing stats for channel '{}'", Netty.id(channel), channel);
+                    //remove entry on close
+                    channel.closeFuture().addListener(REMOVE_ON_CLOSE);
+                }
+                Metadata.Stats.ACQUIRE_COUNT.increment(channel);
+                Metadata.Stats.LAST_ACQUIRE_MILLIS.value(channel, System.currentTimeMillis());
+            }
+            return channel;
         }
     }
     //</editor-fold>
@@ -828,11 +953,10 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         private CompletableFuture<SourceRconChannelContext> acquire() {
             CompletableFuture<Channel> channelFuture = channelFactory.create(address);
             channelFuture.thenAccept(this::updateContext);
-            return channelFuture
-                    .thenCompose(SourceRconMessenger.this::register)
-                    .handle(statistics::record)
-                    .thenApply(SourceRconChannelContext::getContext)
-                    .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
+            return channelFuture.thenCompose(SourceRconMessenger.this::register)
+                                .handle(statistics::recordAcquire)
+                                .thenApply(SourceRconChannelContext::getContext)
+                                .thenCombine(CompletableFuture.completedFuture(request), this::initializeContext);
         }
 
         private void updateContext(Channel channel) {

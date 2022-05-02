@@ -35,20 +35,10 @@ public class SourceLogListenerExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenerExample.class);
 
-    private SourceLogListenService logListenService;
+    private SourceLogListenService logService;
 
     private static void processLogData(SourceLogEntry message) {
         System.out.printf("\u001B[36m%s:\u001B[0m %s\n", message.getSourceAddress(), message.getMessage());
-    }
-
-    /**
-     * <p>main.</p>
-     *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
-     */
-    public static void main(String[] args) throws Exception {
-        new SourceLogListenerExample().run(args);
     }
 
     /** {@inheritDoc} */
@@ -56,8 +46,8 @@ public class SourceLogListenerExample extends BaseExample {
     public void run(String[] args) throws Exception {
         String address = promptInput("Please enter server address to listen on: ", true, null, "listenAddress");
         int port = promptInputInt("Please enter the server port (default: 27500) : ", false, "27500");
-        logListenService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
-        CompletableFuture<Void> f = logListenService.listen();
+        logService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
+        CompletableFuture<Void> f = logService.listen();
         f.join();
         System.out.println("Log service has been closed");
     }
@@ -65,6 +55,6 @@ public class SourceLogListenerExample extends BaseExample {
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        logListenService.close();
+        logService.close();
     }
 }

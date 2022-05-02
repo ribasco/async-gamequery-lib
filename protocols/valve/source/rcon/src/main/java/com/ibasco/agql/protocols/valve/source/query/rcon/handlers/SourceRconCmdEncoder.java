@@ -35,7 +35,7 @@ public class SourceRconCmdEncoder extends MessageOutboundEncoder<SourceRconCmdRe
     /** {@inheritDoc} */
     @Override
     protected void encodeMessage(ChannelHandlerContext ctx, Envelope<SourceRconCmdRequest> msg, List<Object> out) throws Exception {
-        boolean useTerminatorPacket = SourceRcon.terminatorPacketEnabled(ctx); //ctx.channel().attr(SourceRconOptions.USE_TERMINATOR_PACKET.toAttributeKey()).get();
+        boolean useTerminatorPacket = SourceRcon.terminatorPacketEnabled(ctx); //ctx.channel().attr(SourceRconOptions.USE_TERMINATOR_PACKET.toAttributeKey()).getConnectionStats();
         SourceRconCmdRequest request = msg.content();
         debug("Encoding rcon COMMAND request (Id: {}, Command: {})", request.getRequestId(), request.getCommand());
         out.add(SourceRconPacketFactory.createCommand(request.getRequestId(), request.getCommand()));

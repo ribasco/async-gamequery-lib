@@ -28,14 +28,12 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse;
-import com.ibasco.agql.protocols.valve.source.query.players.SourcePlayer;
 import com.ibasco.agql.protocols.valve.source.query.players.SourceQueryPlayerRequest;
 import com.ibasco.agql.protocols.valve.source.query.players.SourceQueryPlayerResponse;
 import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesRequest;
 import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesResponse;
 
 import java.net.InetSocketAddress;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -248,8 +246,8 @@ public final class SourceQueryClient extends NettySocketClient<SourceQueryReques
      * @see #getPlayers(InetSocketAddress)
      * @see #getChallenge(InetSocketAddress, SourceChallengeType)
      */
-    public CompletableFuture<List<SourcePlayer>> getPlayers(InetSocketAddress address, Integer challenge) {
-        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class).thenApply(SourceQueryResponse::getResult);
+    public CompletableFuture<SourceQueryPlayerResponse> getPlayers(InetSocketAddress address, Integer challenge) {
+        return send(address, new SourceQueryPlayerRequest(challenge), SourceQueryPlayerResponse.class);
     }
 
     /**

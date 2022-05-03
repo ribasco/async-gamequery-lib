@@ -72,6 +72,7 @@ com.ibasco.agql.protocols.valve.steam.webapi.interfaces.cheatreport
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.economy
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers
+com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront

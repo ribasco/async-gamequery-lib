@@ -18,6 +18,9 @@ package com.ibasco.agql.protocols.valve.steam.master;
 
 import org.apache.commons.lang3.StringUtils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * <p>A Master Server Filter Utility class</p>
  *
@@ -25,17 +28,13 @@ import org.apache.commons.lang3.StringUtils;
  */
 public final class MasterServerFilter {
 
-    private int appId;
-
-    private boolean allServers;
-
-    private final StringBuffer filter;
+    private final Map<String, Object> valueMap;
 
     /**
      * Default constructor
      */
     private MasterServerFilter() {
-        filter = new StringBuffer();
+        valueMap = new HashMap<>();
     }
 
     /**
@@ -53,7 +52,7 @@ public final class MasterServerFilter {
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter allServers() {
-        allServers = true;
+        create("allServers", true);
         return this;
     }
 
@@ -62,6 +61,7 @@ public final class MasterServerFilter {
      *
      * @param value
      *         Set to True to filter spectator proxy servers
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isSpecProxy(Boolean value) {
@@ -73,6 +73,7 @@ public final class MasterServerFilter {
      *
      * @param value
      *         Set to True to filter servers that are full
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isFull(Boolean value) {
@@ -82,7 +83,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are not empty</p>
      *
-     * @param value Set to true to only filter servers that are empty
+     * @param value
+     *         Set to true to only filter servers that are empty
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isEmpty(Boolean value) {
@@ -92,7 +95,9 @@ public final class MasterServerFilter {
     /**
      * <p>Filter for password protected servers</p>
      *
-     * @param value Set to true to only filter servers that are password protected
+     * @param value
+     *         Set to true to only filter servers that are password protected
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isPasswordProtected(Boolean value) {
@@ -102,7 +107,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers running on a Linux platform</p>
      *
-     * @param value Set to true to filter servers only running under linux
+     * @param value
+     *         Set to true to filter servers only running under linux
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isLinuxServer(Boolean value) {
@@ -112,7 +119,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers running the specified map (ex. cs_italy)</p>
      *
-     * @param value Map name
+     * @param value
+     *         Map name
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter mapName(String value) {
@@ -122,7 +131,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers running the specified modification (ex. cstrike)</p>
      *
-     * @param value The mode/game directory name (e.g. cstrike)
+     * @param value
+     *         The mode/game directory name (e.g. cstrike)
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter gamedir(String value) {
@@ -132,7 +143,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers using anti-cheat technology (VAC, but potentially others as well)</p>
      *
-     * @param value Set to true to filter only secure servers (VAC protected)
+     * @param value
+     *         Set to true to filter only secure servers (VAC protected)
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isSecure(Boolean value) {
@@ -142,7 +155,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers running dedicated</p>
      *
-     * @param value Set to true to filter only dedicated servers
+     * @param value
+     *         Set to true to filter only dedicated servers
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter dedicated(Boolean value) {
@@ -175,6 +190,7 @@ public final class MasterServerFilter {
      *
      * @param appId
      *         An integer representing the appId of a game
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter napp(Integer appId) {
@@ -186,7 +202,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are empty</p>
      *
-     * @param value Set to true to filter only empty servers
+     * @param value
+     *         Set to true to filter only empty servers
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter hasNoPlayers(Boolean value) {
@@ -198,6 +216,7 @@ public final class MasterServerFilter {
      *
      * @param tags
      *         A {@link java.lang.String} array of tags
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter gametypes(String... tags) {
@@ -209,6 +228,7 @@ public final class MasterServerFilter {
      *
      * @param tags
      *         Array of String game server tags
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter gamedata(String... tags) {
@@ -220,6 +240,7 @@ public final class MasterServerFilter {
      *
      * @param tags
      *         Array of String game server tags
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter gamedataOr(String... tags) {
@@ -231,6 +252,7 @@ public final class MasterServerFilter {
      *
      * @param nameWildcard
      *         Hostname to lookup (can use * as a wildcard)
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter withHostName(String nameWildcard) {
@@ -242,6 +264,7 @@ public final class MasterServerFilter {
      *
      * @param version
      *         Version to search (can use * as a wildcard)
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter hasVersion(String version) {
@@ -253,6 +276,7 @@ public final class MasterServerFilter {
      *
      * @param value
      *         Set to True to return only one server for each unique IP
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter onlyOneServerPerUniqueIp(Boolean value) {
@@ -264,6 +288,7 @@ public final class MasterServerFilter {
      *
      * @param ipPort
      *         IP[:port] format
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter hasServerIp(String ipPort) {
@@ -273,7 +298,9 @@ public final class MasterServerFilter {
     /**
      * <p>Servers that are whitelisted</p>
      *
-     * @param value Set to true to filter only whitelisted servers
+     * @param value
+     *         Set to true to filter only whitelisted servers
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter isWhitelisted(Boolean value) {
@@ -285,11 +312,11 @@ public final class MasterServerFilter {
      *
      * @param appId
      *         An integer representing the appId of a game
+     *
      * @return Instance of {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter}
      */
     public MasterServerFilter appId(Integer appId) {
         if (appId > 0) {
-            this.appId = appId;
             return create("appId", appId);
         }
         return this;
@@ -308,32 +335,33 @@ public final class MasterServerFilter {
     private MasterServerFilter create(String key, Object value) {
         if (StringUtils.isEmpty(key) || value == null)
             return this;
-
-        Object tmpValue = value;
-
-        if (tmpValue instanceof Boolean)
-            tmpValue = ((Boolean) tmpValue) ? "1" : "0";
-
-        if ("and".equals(key) || "or".equals(key) || "nor".equals(key))
-            filter.append("\\").append(key);
-        else
-            filter.append("\\").append(key).append("\\").append(tmpValue);
+        valueMap.put(key, value);
         return this;
     }
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Returns a {@link String} representation of this filter builder instance
      */
     @Override
     public String toString() {
-        if (allServers) {
-            if (appId > 0) {
-                filter.setLength(0);
-                appId(this.appId);
-            }
+        StringBuilder builder = new StringBuilder();
+        Map<String, Object> tmp = new HashMap<>(valueMap);
+        if (tmp.containsKey("allServers")) {
+            //clear everything except app id
+            tmp.entrySet().removeIf(p -> !p.getKey().equalsIgnoreCase("appId"));
         }
-        return filter.toString();
+        for (Map.Entry<String, Object> entry : tmp.entrySet()) {
+            String key = entry.getKey();
+            Object tmpValue = entry.getValue();
+            if (tmpValue instanceof Boolean)
+                tmpValue = ((Boolean) tmpValue) ? "1" : "0";
+            if ("and".equals(key) || "or".equals(key) || "nor".equals(key))
+                builder.append("\\").append(key);
+            else
+                builder.append("\\").append(key).append("\\").append(tmpValue);
+        }
+        return builder.toString();
     }
 }

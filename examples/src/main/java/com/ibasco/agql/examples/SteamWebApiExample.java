@@ -22,6 +22,7 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.*;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -325,6 +326,35 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         for (GameServer gameServer : serverListFuture.join()) {
             System.out.printf("%03d) name = %s, ip = %s%n", ctr++, gameServer.getName(), gameServer.getAddr());
         }
+
+        NewGameServerAccount newAccount = gameServersService.createAccount(550, "Test 3").join();
+        System.out.println(newAccount);
+
+        gameServersService.setMemo(newAccount.getSteamid(), "updated memo").join();
+
+        GameServerAccount accountInfo = gameServersService.getAccountList().join();
+        System.out.println(accountInfo);
+        for (GameServerAccountDetail detail : accountInfo.getServers()) {
+            System.out.println(detail);
+        }
+
+        String newLoginToken = gameServersService.resetLoginToken(newAccount.getSteamid()).join();
+        System.out.printf("New login token for steam id '%s': From '%s' to '%s'%n", newAccount.getSteamid(), newAccount.getLoginToken(), newLoginToken);
+
+        LoginTokenStatus tokenStatus = gameServersService.queryLoginTokenStatus(newAccount.getLoginToken()).join();
+        System.out.printf("Token status: %s%n", tokenStatus);
+
+        gameServersService.deleteAccount(newAccount.getSteamid()).join();
+        System.out.printf("Deleted account: %d%n", newAccount.getSteamid());
+
+        accountInfo = gameServersService.getAccountList().join();
+        System.out.println(accountInfo);
+        for (GameServerAccountDetail detail : accountInfo.getServers()) {
+            System.out.println(detail);
+        }
+
+        GameServerAccountPublicInfo publicInfo = gameServersService.getAccountPublicInfo(85568392924920264L).join();
+        System.out.println(publicInfo);
     }
 
     private static void displayResult(Object result) {

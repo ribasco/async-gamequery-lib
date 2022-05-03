@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
+package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

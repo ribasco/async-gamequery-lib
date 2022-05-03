@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.steam.master;
 
+import com.ibasco.agql.core.util.Strings;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
@@ -349,15 +350,14 @@ public final class MasterServerFilter {
         StringBuilder builder = new StringBuilder();
         Map<String, Object> tmp = new HashMap<>(valueMap);
         if (tmp.containsKey("allServers")) {
-            //clear everything except app id
-            tmp.entrySet().removeIf(p -> !p.getKey().equalsIgnoreCase("appId"));
+            return Strings.EMPTY;
         }
         for (Map.Entry<String, Object> entry : tmp.entrySet()) {
             String key = entry.getKey();
             Object tmpValue = entry.getValue();
             if (tmpValue instanceof Boolean)
                 tmpValue = ((Boolean) tmpValue) ? "1" : "0";
-            if ("and".equals(key) || "or".equals(key) || "nor".equals(key))
+            if ("and".equals(key) || "or".equals(key) || "nor".equals(key) || "nand".equals(key))
                 builder.append("\\").append(key);
             else
                 builder.append("\\").append(key).append("\\").append(tmpValue);

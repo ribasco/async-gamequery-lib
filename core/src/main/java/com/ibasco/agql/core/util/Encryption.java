@@ -128,8 +128,10 @@ public class Encryption {
     /**
      * <p>padNullBytes.</p>
      *
-     * @param text a {@link java.lang.String} object
-     * @return an array of {@link byte} objects
+     * @param text
+     *         a {@link java.lang.String} object
+     *
+     * @return an array of {@code byte} objects
      */
     public static byte[] padNullBytes(String text) {
         if (StringUtils.isEmpty(text))

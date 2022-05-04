@@ -41,7 +41,7 @@ public class InvalidPacketException extends AgqlRuntimeException {
     /**
      * <p>Getter for the field <code>data</code>.</p>
      *
-     * @return an array of {@link byte} objects
+     * @return an array of {@code byte} objects
      */
     public byte[] getData() {
         return data;

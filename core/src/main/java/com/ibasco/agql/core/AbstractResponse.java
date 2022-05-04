@@ -43,7 +43,7 @@ abstract public class AbstractResponse<T> extends AbstractMessage {
     }
 
     /**
-     * <p>Getter for the field <code>result</code>.</p>
+     * <p>The decoded result object</p>
      *
      * @return a T object
      */

@@ -63,7 +63,7 @@ public class UUID implements Serializable {
     /**
      * <p>getBytes.</p>
      *
-     * @return an array of {@link byte} objects
+     * @return an array of {@code byte} objects
      */
     public byte[] getBytes() {
         return data;

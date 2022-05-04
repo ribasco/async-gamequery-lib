@@ -37,7 +37,8 @@ public class SourceRconAuthRequest extends SourceRconRequest {
     /**
      * <p>Constructor for SourceRconAuthRequest.</p>
      *
-     * @param password an array of {@link byte} objects
+     * @param password
+     *         an array of {@code byte} objects
      */
     public SourceRconAuthRequest(byte[] password) {
         this.password = password;
@@ -46,7 +47,7 @@ public class SourceRconAuthRequest extends SourceRconRequest {
     /**
      * <p>Getter for the field <code>password</code>.</p>
      *
-     * @return an array of {@link byte} objects
+     * @return an array of {@code byte} objects
      */
     public byte[] getPassword() {
         return password;
@@ -55,7 +56,7 @@ public class SourceRconAuthRequest extends SourceRconRequest {
     /**
      * <p>Setter for the field <code>password</code>.</p>
      *
-     * @param password an array of {@link byte} objects
+     * @param password an array of {@code byte} objects
      */
     public void setPassword(byte[] password) {
         this.password = password;

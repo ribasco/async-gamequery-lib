@@ -78,7 +78,6 @@ public final class SourceRconChannelContext extends NettyChannelContext {
         return (SourceRconChannelContext) super.restore();
     }
 
-    /** {@inheritDoc} */
     public static SourceRconChannelContext getContext(Channel channel) {
         return (SourceRconChannelContext) NettyChannelContext.getContext(channel);
     }

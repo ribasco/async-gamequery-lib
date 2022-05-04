@@ -69,8 +69,10 @@ public class Bytes {
     /**
      * <p>toByteArray.</p>
      *
-     * @param value a int
-     * @return an array of {@link byte} objects
+     * @param value
+     *         a int
+     *
+     * @return an array of {@code byte} objects
      */
     public static byte[] toByteArray(int value) {
         return new byte[] {
@@ -85,7 +87,7 @@ public class Bytes {
      * <p>toByteArrayLE.</p>
      *
      * @param value a int
-     * @return an array of {@link byte} objects
+     * @return an array of {@code byte} objects
      */
     public static byte[] toByteArrayLE(int value) {
         return new byte[] {
@@ -99,7 +101,7 @@ public class Bytes {
     /**
      * <p>toInteger.</p>
      *
-     * @param bytes an array of {@link byte} objects
+     * @param bytes an array of {@code byte} objects
      * @return a int
      */
     public static int toInteger(byte[] bytes) {
@@ -112,7 +114,7 @@ public class Bytes {
     /**
      * <p>toIntegerLE.</p>
      *
-     * @param bytes an array of {@link byte} objects
+     * @param bytes an array of {@code byte} objects
      * @return a int
      */
     public static int toIntegerLE(byte[] bytes) {

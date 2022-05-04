@@ -282,7 +282,9 @@ public final class SourceRcon {
     /**
      * <p>createAuthRequest.</p>
      *
-     * @param password an array of {@link byte} objects
+     * @param password
+     *         an array of {@code byte} objects
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest} object
      */
     public static SourceRconAuthRequest createAuthRequest(byte[] password) {

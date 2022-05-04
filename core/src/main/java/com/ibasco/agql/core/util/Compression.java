@@ -27,7 +27,9 @@ public class Compression {
     /**
      * <p>getCrc32Checksum.</p>
      *
-     * @param data an array of {@link byte} objects
+     * @param data
+     *         an array of {@code byte} objects
+     *
      * @return a long
      */
     public static long getCrc32Checksum(byte[] data) {

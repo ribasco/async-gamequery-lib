@@ -38,7 +38,8 @@ public final class SourceRconCredentials implements Credentials {
     /**
      * <p>Constructor for SourceRconCredentials.</p>
      *
-     * @param passphrase an array of {@link byte} objects
+     * @param passphrase
+     *         an array of {@code byte} objects
      */
     public SourceRconCredentials(byte[] passphrase) {
         if (passphrase == null || passphrase.length == 0)

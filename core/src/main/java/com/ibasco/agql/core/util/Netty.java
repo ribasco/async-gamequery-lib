@@ -168,7 +168,7 @@ public class Netty {
      * <p>prettyHexDump.</p>
      *
      * @param buf
-     *         an array of {@link byte} objects
+     *         an array of {@code byte} objects
      *
      * @return a {@link java.lang.String} object
      */
@@ -253,7 +253,7 @@ public class Netty {
      * @param buf
      *         a {@link io.netty.buffer.ByteBuf} object
      *
-     * @return an array of {@link byte} objects
+     * @return an array of {@code byte} objects
      */
     public static byte[] getBufferContentsAll(ByteBuf buf) {
         int origReaderIndex = buf.readerIndex();

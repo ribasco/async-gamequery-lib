@@ -47,7 +47,8 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>Constructor for AbstractWebApiRequest.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public AbstractWebApiRequest(int apiVersion) {
         this.apiVersion = apiVersion;
@@ -58,7 +59,8 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>urlParam.</p>
      *
-     * @param criteria a {@link com.ibasco.agql.core.AbstractCriteriaBuilder} object
+     * @param criteria
+     *         a {@link com.ibasco.agql.core.AbstractCriteriaBuilder} object
      */
     @SuppressWarnings("unchecked")
     protected void urlParam(AbstractCriteriaBuilder criteria) {
@@ -78,7 +80,8 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>apiVersion.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public void apiVersion(int apiVersion) {
         this.apiVersion = apiVersion;
@@ -87,7 +90,9 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>hasProperty.</p>
      *
-     * @param property a {@link java.lang.String} object
+     * @param property
+     *         a {@link java.lang.String} object
+     *
      * @return a boolean
      */
     protected boolean hasProperty(String property) {
@@ -97,8 +102,10 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>property.</p>
      *
-     * @param property a {@link java.lang.String} object
-     * @param value a {@link java.lang.Object} object
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.Object} object
      */
     protected void property(String property, Object value) {
         if (!StringUtils.isEmpty(property) && value != null)
@@ -108,7 +115,9 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>property.</p>
      *
-     * @param property a {@link java.lang.String} object
+     * @param property
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String property(String property) {
@@ -118,7 +127,9 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>resolveProperties.</p>
      *
-     * @param textWithVariables a {@link java.lang.String} object
+     * @param textWithVariables
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String resolveProperties(String textWithVariables) {
@@ -146,7 +157,8 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     /**
      * <p>baseUrlFormat.</p>
      *
-     * @param baseUrlFormat a {@link java.lang.String} object
+     * @param baseUrlFormat
+     *         a {@link java.lang.String} object
      */
     public void baseUrlFormat(String baseUrlFormat) {
         this.baseUrlFormat = baseUrlFormat;

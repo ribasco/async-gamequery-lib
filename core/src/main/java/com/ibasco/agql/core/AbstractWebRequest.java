@@ -24,6 +24,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Collection;
 
 /**
  * <p>Abstract AbstractWebRequest class.</p>
@@ -48,7 +49,8 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>build.</p>
      *
-     * @param requestBuilder a {@link org.asynchttpclient.RequestBuilder} object
+     * @param requestBuilder
+     *         a {@link org.asynchttpclient.RequestBuilder} object
      */
     protected void build(RequestBuilder requestBuilder) {
         //no implementation
@@ -57,7 +59,8 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>baseUrl.</p>
      *
-     * @param url a {@link java.lang.String} object
+     * @param url
+     *         a {@link java.lang.String} object
      */
     protected void baseUrl(String url) {
         request().setUrl(url);
@@ -66,8 +69,10 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>header.</p>
      *
-     * @param header a {@link java.lang.CharSequence} object
-     * @param value a {@link java.lang.String} object
+     * @param header
+     *         a {@link java.lang.CharSequence} object
+     * @param value
+     *         a {@link java.lang.String} object
      */
     protected void header(CharSequence header, String value) {
         request().addHeader(header, value);
@@ -76,7 +81,8 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>method.</p>
      *
-     * @param method a {@link io.netty.handler.codec.http.HttpMethod} object
+     * @param method
+     *         a {@link io.netty.handler.codec.http.HttpMethod} object
      */
     protected void method(HttpMethod method) {
         request().setMethod(method.name());
@@ -85,20 +91,33 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>urlParam.</p>
      *
-     * @param name a {@link java.lang.String} object
-     * @param value a {@link java.lang.Object} object
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.Object} object
      */
     protected void urlParam(String name, Object value) {
         RequestBuilder builder = request();
         if (value == null)
             return;
-        builder.addQueryParam(name, String.valueOf(value));
+        if (value instanceof Collection<?>) {
+            Collection<Object> values = (Collection<Object>) value;
+            int idx = 0;
+            for (Object v : values) {
+                String paramName = String.format("%s[%d]", name, idx++);
+                builder.addQueryParam(paramName, String.valueOf(v));
+            }
+        } else {
+            builder.addQueryParam(name, String.valueOf(value));
+        }
     }
 
     /**
      * <p>encode.</p>
      *
-     * @param element a {@link java.lang.String} object
+     * @param element
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String encode(String element) {
@@ -108,8 +127,11 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     /**
      * <p>encode.</p>
      *
-     * @param element a {@link java.lang.String} object
-     * @param encoding a {@link java.lang.String} object
+     * @param element
+     *         a {@link java.lang.String} object
+     * @param encoding
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String encode(String element, String encoding) {
@@ -130,6 +152,7 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     }
 
     //@Override
+
     /**
      * <p>getMessage.</p>
      *

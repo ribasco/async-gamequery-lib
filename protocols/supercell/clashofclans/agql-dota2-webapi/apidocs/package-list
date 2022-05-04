@@ -23,6 +23,9 @@ com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player
+com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore
+com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos
+com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.requests
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user
 com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats

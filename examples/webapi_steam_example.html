@@ -206,6 +206,9 @@
 <tr class="b">
 <td align="left">GameServersService</td>
 <td>Contains methods relating to game servers</td></tr>
+<tr class="a">
+<td align="left">SteamStoreService</td>
+<td>Contains methods relating to the steam store service</td></tr>
 </tbody>
 </table></section><section>
 <h3><a name="Steam_Apps"></a>Steam Apps</h3>
@@ -627,6 +630,48 @@ public void accept(SteamPlayerStats playerStats){
             long steamId = 0L;
             GameServerAccountPublicInfo publicInfo = gameServersService.getAccountPublicInfo(steamId).join();
             System.out.println(publicInfo);
+        }
+    }
+}
+</code></pre></div></section><section>
+<h3><a name="SteamStoreService"></a>SteamStoreService</h3>
+<p><b>Get App List</b></p>
+
+<div class="source"><pre class="prettyprint linenums"><code class="language-java">public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient(&quot;&lt;api token&gt;&quot;)){
+            SteamStoreService service = new SteamStoreService(client);
+            SteamStoreAppResponse response = service.getAppList(10).join();
+            response.getApps().forEach(app -&gt; System.out.printf(&quot;\t[Page: 1] App: %s%n&quot;, app.getName()));
+            response = service.getAppList(response.getLastAppid(), 10).join();
+            response.getApps().forEach(app -&gt; System.out.printf(&quot;\t[Page: 2] App: %s%n&quot;, app.getName()));
+        }
+    }
+}
+</code></pre></div>
+<p><b>Get Localized Name for Tags</b></p>
+
+<div class="source"><pre class="prettyprint linenums"><code class="language-java">public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient(&quot;&lt;api token&gt;&quot;)){
+            SteamStoreService service = new SteamStoreService(client);
+            List&lt;LocalizedNameTag&gt; localizedTags = service.getLocalizedNameForTags(&quot;russian&quot;, Arrays.asList(493, 113)).join();
+            localizedTags.forEach(tag -&gt; System.out.printf(&quot;\tEnglish Name: %s, Normalized Name: %s, Localized Name: %s%n&quot;, tag.getEnglishName(), tag.getNormalizedName(), tag.getName()));
+        }
+    }
+}
+</code></pre></div>
+<p><b>Get Popular Tags</b></p>
+
+<div class="source"><pre class="prettyprint linenums"><code class="language-java">public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient(&quot;&lt;api token&gt;&quot;)){
+            SteamStoreService service = new SteamStoreService(client);
+            List&lt;PopularTag&gt; popularTags = service.getPopularTag(&quot;english&quot;).join();
+            popularTags.forEach(tag -&gt; System.out.printf(&quot;\tId: %d, Name: %s%n&quot;, tag.getTagId(), tag.getName()));
         }
     }
 }

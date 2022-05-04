@@ -29,12 +29,12 @@ Introduction
 
 A list of supported web service implementations
 
-| **Vendor** | **Module**                  | **Supported Interfaces**                                                                                   |
-|------------|-----------------------------|------------------------------------------------------------------------------------------------------------|
-| Supercell  | Clash of Clans (Deprecated) | Clans, Leagues, Locations, Players                                                                         |
-| Valve      | Steam                       | Apps, Community, Econ, Economy, Player Service, User, User Stats, Store Front, Game Servers, Store Service |
-| Valve      | Dota 2                      | Econ, Fantasy, Match, Stats, Stream, Teams                                                                 |
-| Valve      | CS:GO                       | Servers                                                                                                    |
+| **Vendor** | **Module**                  | **Supported Interfaces**                                                                                                 |
+|------------|-----------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| Supercell  | Clash of Clans (Deprecated) | Clans, Leagues, Locations, Players                                                                                       |
+| Valve      | Steam                       | Apps, Community, Econ, Economy, Player Service, User, User Stats, Store Front, Game Servers, Store Service, Web API Util |
+| Valve      | Dota 2                      | Econ, Fantasy, Match, Stats, Stream, Teams                                                                               |
+| Valve      | CS:GO                       | Servers                                                                                                                  |
 
 ##### Server Queries
 

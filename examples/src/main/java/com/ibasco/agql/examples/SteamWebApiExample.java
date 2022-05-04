@@ -26,6 +26,8 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.LocalizedNameTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.PopularTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.SteamStoreAppResponse;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ApiInterface;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ServerInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,8 +56,11 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
     /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     public static void main(String[] args) throws Exception {
         new SteamWebApiExample().run(args);
@@ -77,6 +82,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         SteamEconItems steamEconItems = new SteamEconItems(client);
         GameServersService gameServersService = new GameServersService(client);
         SteamStoreService storeService = new SteamStoreService(client);
+        SteamWebAPIUtil webApiUtil = new SteamWebAPIUtil(client);
 
         steamApps.getAppList().exceptionally(throwable -> {
             log.error("Error Occured", throwable);
@@ -332,6 +338,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
             System.out.printf("%03d) name = %s, ip = %s%n", ctr++, gameServer.getName(), gameServer.getAddr());
         }
 
+        //Game Servers Service
         NewGameServerAccount newAccount = gameServersService.createAccount(550, "Test 3").join();
         System.out.println(newAccount);
 
@@ -371,6 +378,15 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
 
         List<PopularTag> popularTags = storeService.getPopularTag("english").join();
         popularTags.forEach(tag -> System.out.printf("\tId: %d, Name: %s%n", tag.getTagId(), tag.getName()));
+
+        //SteamWebApiUtil
+        ServerInfo info = webApiUtil.getServerInfo().join();
+        System.out.printf("Time: %d, Time String: %s%n", info.getServertime(), info.getServerTimeString());
+
+        List<ApiInterface> apiInterfaceList = webApiUtil.getSupportedApiList().join();
+        for (ApiInterface apiInterface : apiInterfaceList) {
+            System.out.printf("Interface: %s (Methods: %d)%n", apiInterface.getName(), apiInterface.getMethods().size());
+        }
     }
 
     private static void displayResult(Object result) {

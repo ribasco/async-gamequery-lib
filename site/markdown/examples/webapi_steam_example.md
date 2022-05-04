@@ -536,7 +536,7 @@ class WebApiExample {
 public class SteamStoreExample {
 
     public static void main(String[] args) throws Exception {
-        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
             SteamStoreService service = new SteamStoreService(client);
             SteamStoreAppResponse response = service.getAppList(10).join();
             response.getApps().forEach(app -> System.out.printf("\t[Page: 1] App: %s%n", app.getName()));
@@ -553,7 +553,7 @@ public class SteamStoreExample {
 public class SteamStoreExample {
 
     public static void main(String[] args) throws Exception {
-        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
             SteamStoreService service = new SteamStoreService(client);
             List<LocalizedNameTag> localizedTags = service.getLocalizedNameForTags("russian", Arrays.asList(493, 113)).join();
             localizedTags.forEach(tag -> System.out.printf("\tEnglish Name: %s, Normalized Name: %s, Localized Name: %s%n", tag.getEnglishName(), tag.getNormalizedName(), tag.getName()));
@@ -568,10 +568,44 @@ public class SteamStoreExample {
 public class SteamStoreExample {
 
     public static void main(String[] args) throws Exception {
-        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
             SteamStoreService service = new SteamStoreService(client);
             List<PopularTag> popularTags = service.getPopularTag("english").join();
             popularTags.forEach(tag -> System.out.printf("\tId: %d, Name: %s%n", tag.getTagId(), tag.getName()));
+        }
+    }
+}
+```
+
+### Web API Util
+
+**Get Supported API List**
+
+```java
+public class WebApiUtilExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
+            SteamWebAPIUtil service = new SteamWebAPIUtil(client);
+            List<ApiInterface> apiInterfaceList = service.getSupportedApiList().join();
+            for (ApiInterface apiInterface : apiInterfaceList) {
+                System.out.printf("Interface: %s (Methods: %d)%n", apiInterface.getName(), apiInterface.getMethods().size());
+            }
+        }
+    }
+}
+```
+
+**Get Server Info**
+
+```java
+public class WebApiUtilExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
+            SteamWebAPIUtil service = new SteamWebAPIUtil(client);
+            ServerInfo info = service.getServerInfo().join();
+            System.out.printf("Time: %d, Time String: %s%n", info.getServertime(), info.getServerTimeString());
         }
     }
 }

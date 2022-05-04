@@ -5,7 +5,9 @@ Asynchronous Game Query Library
 
 [mavenLink]: https://search.maven.org/search?q=com.ibasco.agql
 
-![Development](https://github.com/ribasco/async-gamequery-lib/actions/workflows/build.yml/badge.svg?branch=master) ![Release](https://github.com/ribasco/async-gamequery-lib/actions/workflows/release.yml/badge.svg) ![Site](https://github.com/ribasco/async-gamequery-lib/actions/workflows/site.yml/badge.svg)
+[![Snapshot Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/build.yml)
+[![Release Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/release.yml/badge.svg)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/release.yml)
+[![Site Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/site.yml/badge.svg)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/site.yml)
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/async-gamequery-lib.svg)](https://www.javadoc.io/doc/com.ibasco.agql/async-gamequery-lib) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 

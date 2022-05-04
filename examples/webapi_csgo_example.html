@@ -185,15 +185,28 @@
 </table>
 <p><b>Get Game Server Status</b></p>
 
-<div class="source"><pre class="prettyprint linenums"><code>CsgoWebApiClient apiClient = new CsgoWebApiClient(&quot;auth-token-here&quot;);
+<div class="source"><pre class="prettyprint linenums"><code class="language-java">class CsgoExample {
 
-CsgoServers servers = new CsgoServers(apiClient);
+    public static void main(String[] args) throws Exception {
+        try (CsgoWebApiClient apiClient = new CsgoWebApiClient(&quot;auth-token-here&quot;)) {
+            CsgoServers servers = new CsgoServers(apiClient);
+            CsgoGameServerStatus status = servers.getGameServerStatus().get();
+            System.out.printf(&quot;Game Server Status : %s%n&quot;, status);
+        }
+    }
+}
+</code></pre></div>
+<p><b>Get Map Playtime Info</b></p>
 
-try {
-    CsgoGameServerStatus status = servers.getGameServerStatus().get();
-    log.info(&quot;Game Server Status : {}&quot;, status);
-} finally {
-    apiClient.close();
+<div class="source"><pre class="prettyprint linenums"><code class="language-java">class CsgoExample {
+
+    public static void main(String[] args) throws Exception {
+        try (CsgoWebApiClient apiClient = new CsgoWebApiClient(&quot;auth-token-here&quot;)) {
+            CsgoServers servers = new CsgoServers(apiClient);
+            CsgoGameMapPlaytimeInfo playtimeInfo = servers.getMapPlaytimeInfo(&quot;day&quot;, &quot;competitive&quot;, &quot;operation&quot;).join();
+            System.out.printf(&quot;Playtime Info: %s%n&quot;, playtimeInfo);
+        }
+    }
 }
 </code></pre></div></section></section>
         </main>

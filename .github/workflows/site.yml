@@ -1,18 +1,8 @@
-name: Site Build and Deploy
+name: Site Builds
 
 on:
-  push:
-    branches: [ master ]
-    tags:
-      - '!refs/tags/*'
-    paths-ignore:
-      - '**/README.md'
-      - '**/.github/**'
-  pull_request:
-    branches: [ master ]
-    paths-ignore:
-      - '**/README.md'
-      - '**/.github/**'
+  release:
+    types: [ published ]
 
 jobs:
   build-project:

@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 
+import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -24,9 +25,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  *
  * @author Rafael Luis Ibasco
  */
-public class Dota2Heroes {
+public class Dota2Hero {
+
+    @SerializedName("id")
     private int id;
+
+    @SerializedName("name")
     private String name;
+
+    @SerializedName("localized_name")
+    private String localizedName;
 
     /**
      * <p>Getter for the field <code>id</code>.</p>
@@ -40,7 +48,8 @@ public class Dota2Heroes {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -58,10 +67,19 @@ public class Dota2Heroes {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLocalizedName() {
+        return localizedName;
+    }
+
+    public void setLocalizedName(String localizedName) {
+        this.localizedName = localizedName;
     }
 
     /** {@inheritDoc} */

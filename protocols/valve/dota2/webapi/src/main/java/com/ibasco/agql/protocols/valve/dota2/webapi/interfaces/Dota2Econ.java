@@ -23,7 +23,7 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType;
 import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.*;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2EventStats;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2GameItem;
-import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2Heroes;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2Hero;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2Rarities;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import org.slf4j.Logger;
@@ -78,13 +78,16 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getGameHeroes.</p>
      *
-     * @param itemizedOnly a boolean
-     * @param language a {@link java.lang.String} object
+     * @param itemizedOnly
+     *         a boolean
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
-    public CompletableFuture<List<Dota2Heroes>> getGameHeroes(boolean itemizedOnly, String language) {
+    public CompletableFuture<List<Dota2Hero>> getGameHeroes(boolean itemizedOnly, String language) {
         CompletableFuture<JsonObject> json = sendRequest(new GetHeroes(VERSION_1, itemizedOnly, language));
-        return json.thenApply(r -> asCollectionOf(Dota2Heroes.class, LIST_NAME_HEROES, r));
+        return json.thenApply(r -> asCollectionOf(Dota2Hero.class, LIST_NAME_HEROES, r));
     }
 
     /**

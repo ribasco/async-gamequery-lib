@@ -28,11 +28,14 @@ public class GetMatchHistoryBySequenceNum extends Dota2MatchRequest {
     /**
      * <p>Constructor for GetMatchHistoryBySequenceNum.</p>
      *
-     * @param apiVersion a int
-     * @param startSeqNum a int
-     * @param matchesRequested a int
+     * @param apiVersion
+     *         a int
+     * @param startSeqNum
+     *         a int
+     * @param matchesRequested
+     *         a int
      */
-    public GetMatchHistoryBySequenceNum(int apiVersion, int startSeqNum, int matchesRequested) {
+    public GetMatchHistoryBySequenceNum(int apiVersion, long startSeqNum, int matchesRequested) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETMATCHHISTORYBYSEQNUM, apiVersion, null);
         urlParam("start_at_match_seq_num", startSeqNum);
         urlParam("matches_requested", matchesRequested);

@@ -49,7 +49,7 @@ public class Dota2MatchDetails {
     private long matchId;
 
     @SerializedName("match_seq_num")
-    private int matchSeqNum;
+    private long matchSeqNum;
 
     @SerializedName("tower_status_radiant")
     private int towerStatusRadiant;
@@ -218,7 +218,7 @@ public class Dota2MatchDetails {
      *
      * @return The matchSeqNum
      */
-    public int getMatchSeqNum() {
+    public long getMatchSeqNum() {
         return matchSeqNum;
     }
 
@@ -228,7 +228,7 @@ public class Dota2MatchDetails {
      * @param matchSeqNum
      *         The match_seq_num
      */
-    public void setMatchSeqNum(int matchSeqNum) {
+    public void setMatchSeqNum(long matchSeqNum) {
         this.matchSeqNum = matchSeqNum;
     }
 

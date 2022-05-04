@@ -130,11 +130,14 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getMatchHistoryBySequenceNum.</p>
      *
-     * @param startSeqNum a int
-     * @param matchesRequested a int
+     * @param startSeqNum
+     *         a int
+     * @param matchesRequested
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
-    public CompletableFuture<List<Dota2MatchDetails>> getMatchHistoryBySequenceNum(int startSeqNum, int matchesRequested) {
+    public CompletableFuture<List<Dota2MatchDetails>> getMatchHistoryBySequenceNum(long startSeqNum, int matchesRequested) {
         CompletableFuture<JsonObject> json = sendRequest(new GetMatchHistoryBySequenceNum(VERSION_1, startSeqNum, matchesRequested));
         return json.thenApply(r -> asCollectionOf(Dota2MatchDetails.class, "matches", r));
     }

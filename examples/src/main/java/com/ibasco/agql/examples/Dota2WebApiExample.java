@@ -68,7 +68,7 @@ public class Dota2WebApiExample extends BaseWebApiAuthExample {
             log.info("All of the game items..");
             gameItems.forEach(Dota2WebApiExample::displayResult);
 
-            List<Dota2Heroes> heroes = econInterface.getGameHeroes(false, "en").get();
+            List<Dota2Hero> heroes = econInterface.getGameHeroes(false, "en").get();
             heroes.forEach(Dota2WebApiExample::displayResult);
 
             String iconPath = econInterface.getItemIconPath("faker_gold", Dota2IconType.NORMAL).get();

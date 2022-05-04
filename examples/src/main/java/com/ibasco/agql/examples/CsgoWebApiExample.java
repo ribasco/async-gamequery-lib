@@ -19,6 +19,7 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.valve.csgo.webapi.CsgoWebApiClient;
 import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.CsgoServers;
+import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameMapPlaytimeInfo;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +44,9 @@ public class CsgoWebApiExample extends BaseWebApiAuthExample {
      * @throws java.lang.Exception if any.
      */
     public static void main(String[] args) throws Exception {
-        new CsgoWebApiExample().run(args);
+        try (CsgoWebApiExample example = new CsgoWebApiExample()) {
+            example.run(args);
+        }
     }
 
     /** {@inheritDoc} */
@@ -55,13 +58,15 @@ public class CsgoWebApiExample extends BaseWebApiAuthExample {
         CsgoServers servers = new CsgoServers(client);
 
         CsgoGameServerStatus status = servers.getGameServerStatus().get();
-        log.info("Game Server Status : {}", status);
+        System.out.printf("Game Server Status : %s%n", status);
+
+        CsgoGameMapPlaytimeInfo playtimeInfo = servers.getMapPlaytimeInfo("day", "competitive", "operation").join();
+        System.out.printf("Playtime Info: %s%n", playtimeInfo);
     }
 
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        if (client != null)
-            client.close();
+        close(client, "Csgo Web API client");
     }
 }

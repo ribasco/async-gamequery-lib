@@ -8,15 +8,30 @@
 
 **Get Game Server Status**
 
+~~~java
+class CsgoExample {
+
+    public static void main(String[] args) throws Exception {
+        try (CsgoWebApiClient apiClient = new CsgoWebApiClient("auth-token-here")) {
+            CsgoServers servers = new CsgoServers(apiClient);
+            CsgoGameServerStatus status = servers.getGameServerStatus().get();
+            System.out.printf("Game Server Status : %s%n", status);
+        }
+    }
+}
 ~~~
-CsgoWebApiClient apiClient = new CsgoWebApiClient("auth-token-here");
 
-CsgoServers servers = new CsgoServers(apiClient);
+**Get Map Playtime Info**
 
-try {
-    CsgoGameServerStatus status = servers.getGameServerStatus().get();
-    log.info("Game Server Status : {}", status);
-} finally {
-    apiClient.close();
+~~~java
+class CsgoExample {
+
+    public static void main(String[] args) throws Exception {
+        try (CsgoWebApiClient apiClient = new CsgoWebApiClient("auth-token-here")) {
+            CsgoServers servers = new CsgoServers(apiClient);
+            CsgoGameMapPlaytimeInfo playtimeInfo = servers.getMapPlaytimeInfo("day", "competitive", "operation").join();
+            System.out.printf("Playtime Info: %s%n", playtimeInfo);
+        }
+    }
 }
 ~~~

@@ -61,6 +61,7 @@ public class CocWebApiExample extends BaseWebApiAuthExample {
      */
     public static void main(String[] args) {
         new CocWebApiExample().run(args);
+
     }
 
     /** {@inheritDoc} */

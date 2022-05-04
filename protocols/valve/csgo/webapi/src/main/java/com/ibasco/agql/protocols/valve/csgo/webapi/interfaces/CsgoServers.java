@@ -21,8 +21,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.csgo.webapi.CsgoWebApiInterface;
 import com.ibasco.agql.protocols.valve.csgo.webapi.adapters.CsgoDatacenterStatusDeserializer;
+import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.servers.GetGameMapsPlaytime;
 import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.servers.GetGameServersStatus;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoDatacenterStatus;
+import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameMapPlaytimeInfo;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 
@@ -35,6 +37,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class CsgoServers extends CsgoWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -60,5 +63,22 @@ public class CsgoServers extends CsgoWebApiInterface {
     public CompletableFuture<CsgoGameServerStatus> getGameServerStatus() {
         CompletableFuture<JsonObject> json = sendRequest(new GetGameServersStatus(VERSION_1));
         return json.thenApply(r -> fromJson(getResult(r), CsgoGameServerStatus.class));
+    }
+
+    /**
+     * Get game maps playtime information
+     *
+     * @param interval
+     *         What recent interval is requested, possible values: day, week, month
+     * @param gameMode
+     *         What game mode is requested, possible values: competitive, casual
+     * @param mapGroup
+     *         What maps are requested, possible values: operation
+     *
+     * @return A {@link CompletableFuture} object.
+     */
+    public CompletableFuture<CsgoGameMapPlaytimeInfo> getMapPlaytimeInfo(String interval, String gameMode, String mapGroup) {
+        CompletableFuture<JsonObject> json = sendRequest(new GetGameMapsPlaytime(VERSION_1, interval, gameMode, mapGroup));
+        return json.thenApply(res -> res.get("result").getAsJsonObject()).thenApply(jsonObject -> builder().fromJson(jsonObject, CsgoGameMapPlaytimeInfo.class));
     }
 }

@@ -23,6 +23,9 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.*;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.LocalizedNameTag;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.PopularTag;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.SteamStoreAppResponse;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -72,6 +76,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         SteamStorefront storeFront = new SteamStorefront(client);
         SteamEconItems steamEconItems = new SteamEconItems(client);
         GameServersService gameServersService = new GameServersService(client);
+        SteamStoreService storeService = new SteamStoreService(client);
 
         steamApps.getAppList().exceptionally(throwable -> {
             log.error("Error Occured", throwable);
@@ -355,6 +360,17 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
 
         GameServerAccountPublicInfo publicInfo = gameServersService.getAccountPublicInfo(85568392924920264L).join();
         System.out.println(publicInfo);
+
+        SteamStoreAppResponse response = storeService.getAppList(10).join();
+        response.getApps().forEach(app -> System.out.printf("\t[Page: 1] App: %s%n", app.getName()));
+        response = storeService.getAppList(response.getLastAppid(), 10).join();
+        response.getApps().forEach(app -> System.out.printf("\t[Page: 2] App: %s%n", app.getName()));
+
+        List<LocalizedNameTag> localizedTags = storeService.getLocalizedNameForTags("russian", Arrays.asList(493, 113)).join();
+        localizedTags.forEach(tag -> System.out.printf("\tEnglish Name: %s, Normalized Name: %s, Localized Name: %s%n", tag.getEnglishName(), tag.getNormalizedName(), tag.getName()));
+
+        List<PopularTag> popularTags = storeService.getPopularTag("english").join();
+        popularTags.forEach(tag -> System.out.printf("\tId: %d, Name: %s%n", tag.getTagId(), tag.getName()));
     }
 
     private static void displayResult(Object result) {

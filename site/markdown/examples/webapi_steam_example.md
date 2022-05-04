@@ -5,17 +5,18 @@ Usage examples for Steam Web API Interfaces
 
 ### Available Interfaces
 
-| **Interface Name**  | **Description**                                                 |
-|---------------------|-----------------------------------------------------------------|
-| SteamApps           | Contains methods relating to Steam Apps in general.             |
-| SteamEconItems      | Contains methods relating to in-game items for supported games. |
-| SteamEconomy        | Contains methods relating to games' store's assets.             |
-| SteamNews           | Contains methods relating to steam news                         |
-| SteamPlayerService  | Contains methods relating to a steam user’s games.              |
-| SteamStorefront     | Contains methods relating to the steam storefront               |
-| SteamUser           | Contains methods provide information about Steam users.         |
-| SteamUserStats      | Contains methods to fetch global stat information by game.      |
-| GameServersService  | Contains methods relating to game servers                       |
+| **Interface Name** | **Description**                                                 |
+|--------------------|-----------------------------------------------------------------|
+| SteamApps          | Contains methods relating to Steam Apps in general.             |
+| SteamEconItems     | Contains methods relating to in-game items for supported games. |
+| SteamEconomy       | Contains methods relating to games' store's assets.             |
+| SteamNews          | Contains methods relating to steam news                         |
+| SteamPlayerService | Contains methods relating to a steam user’s games.              |
+| SteamStorefront    | Contains methods relating to the steam storefront               |
+| SteamUser          | Contains methods provide information about Steam users.         |
+| SteamUserStats     | Contains methods to fetch global stat information by game.      |
+| GameServersService | Contains methods relating to game servers                       |
+| SteamStoreService  | Contains methods relating to the steam store service            |
 
 ### Steam Apps
 
@@ -522,6 +523,55 @@ class WebApiExample {
             long steamId = 0L;
             GameServerAccountPublicInfo publicInfo = gameServersService.getAccountPublicInfo(steamId).join();
             System.out.println(publicInfo);
+        }
+    }
+}
+```
+
+### SteamStoreService
+
+**Get App List**
+
+```java
+public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+            SteamStoreService service = new SteamStoreService(client);
+            SteamStoreAppResponse response = service.getAppList(10).join();
+            response.getApps().forEach(app -> System.out.printf("\t[Page: 1] App: %s%n", app.getName()));
+            response = service.getAppList(response.getLastAppid(), 10).join();
+            response.getApps().forEach(app -> System.out.printf("\t[Page: 2] App: %s%n", app.getName()));
+        }
+    }
+}
+```
+
+**Get Localized Name for Tags**
+
+```java
+public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+            SteamStoreService service = new SteamStoreService(client);
+            List<LocalizedNameTag> localizedTags = service.getLocalizedNameForTags("russian", Arrays.asList(493, 113)).join();
+            localizedTags.forEach(tag -> System.out.printf("\tEnglish Name: %s, Normalized Name: %s, Localized Name: %s%n", tag.getEnglishName(), tag.getNormalizedName(), tag.getName()));
+        }
+    }
+}
+```
+
+**Get Popular Tags**
+
+```java
+public class SteamStoreExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")){
+            SteamStoreService service = new SteamStoreService(client);
+            List<PopularTag> popularTags = service.getPopularTag("english").join();
+            popularTags.forEach(tag -> System.out.printf("\tId: %d, Name: %s%n", tag.getTagId(), tag.getName()));
         }
     }
 }

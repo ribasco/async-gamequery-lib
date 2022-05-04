@@ -87,6 +87,8 @@ public class SteamApiConstants {
 
     public static final String STEAM_GAMESERVERS_SERVICE = "IGameServersService";
 
+    public static final String STEAM_STORE_SERVICE = "IStoreService";
+
     //Steam URL Params
 
     /** Constant <code>STEAM_URLPARAM_STEAMID="steamid"</code> */

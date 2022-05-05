@@ -73,22 +73,24 @@ public class SourceRconExample extends BaseExample {
 
     private InetSocketAddress serverAddress;
 
-    static {
-        //JansiLoader.initialize();
-    }
+    private SourceRconOptions options;
+
+    private static final String COMMAND_PREFIX = "!";
 
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
-        final SourceRconOptions options = SourceRconOptions.builder()
-                                                           .option(ConnectOptions.FAILSAFE_ENABLED, true)
-                                                           .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                                           .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                                           .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                                           .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
-                                                           .build();
+        Boolean userTerminatorPackets = promptInputBool("Enable terminator packets? (Y for 'source based servers', N for non-source based servers)", true, "true", "sourceUseTerminatorPackets");
+        Console.colorize(true).purple("[config] ").green("Terminator packets enabled: ").cyan("%s", userTerminatorPackets).println();
+        options = SourceRconOptions.builder()
+                                   .option(ConnectOptions.FAILSAFE_ENABLED, true)
+                                   .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                   .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                   .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
+                                   .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                   .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                   .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
+                                   .build();
         initializeProcessors();
         rconClient = new SourceRconClient(options);
         sourceModParser = new SMParser(rconClient);
@@ -118,21 +120,20 @@ public class SourceRconExample extends BaseExample {
         console.yellow("List of Available Console Commands".toUpperCase()).line().reset();
         console.yellow("-------------------------------------------------------------------------------------------").reset().line();
         console.cyan("%-50s: ", "Rcon Command").white("%s", "<command>").reset().line();
-        console.cyan("%-50s: ", "Rcon Batch Command").white("%s", "/batch <amount> [command]").reset().line();
-        console.cyan("%-50s: ", "Help").white("%s", "/?, /h, /help").reset().line();
-        console.cyan("%-50s: ", "Invalidate Active Connections").white("%s", "/invalidate").reset().line();
-        console.cyan("%-50s: ", "Re-authenticate with new credentials").white("%s", "/newauth").reset().line();
-        console.cyan("%-50s: ", "Re-authenticate with existing credentials").white("%s", "/reauth").reset().line();
-        console.cyan("%-50s: ", "Cleanup inactive connections").white("%s", "/cleanup [force]").reset().line();
-        console.cyan("%-50s: ", "List SourceMod Plugins (with Cvars and command)").white("%s", "/plugins").reset().line();
-        console.cyan("%-50s: ", "Quit Program").white("%s", "/quit").reset().line();
+        console.cyan("%-50s: ", "Rcon Batch Command").white("%s", "!batch <amount> [command]").reset().line();
+        console.cyan("%-50s: ", "Help").white("%s", "!?, !h, !help").reset().line();
+        console.cyan("%-50s: ", "Invalidate Active Connections").white("%s", "!invalidate").reset().line();
+        console.cyan("%-50s: ", "Re-authenticate with new credentials").white("%s", "!newauth").reset().line();
+        console.cyan("%-50s: ", "Re-authenticate with existing credentials").white("%s", "!reauth").reset().line();
+        console.cyan("%-50s: ", "Cleanup inactive connections").white("%s", "!cleanup [force]").reset().line();
+        console.cyan("%-50s: ", "List SourceMod Plugins (with Cvars and command)").white("%s", "!plugins").reset().line();
+        console.cyan("%-50s: ", "Quit Program").white("%s", "!quit").reset().line();
         System.out.println(console);
         return success("", args[0]);
     }
 
     private CompletableFuture<CommandResponse> commandStats(final String[] args) {
         rconClient.printExecutorStats(System.out::println);
-        //rconClient.printConnectionStats(System.out::println);
         SetMultimap<InetSocketAddress, SourceRconMessenger.ConnectionStats> stats = rconClient.getStatistics();
         final Supplier<Console.Colorize> console = () -> Console.colorize(true);
         int ctr = 1;
@@ -172,8 +173,8 @@ public class SourceRconExample extends BaseExample {
 
     private CompletableFuture<CommandResponse> commandBatch(String[] args) {
         if (args == null || args.length < 2)
-            return Concurrency.failedFuture(new ParseException("Usage: /batch <amount> <command1>[;<command2>;<command3>]", 0));
-        if (!"/batch".equalsIgnoreCase(args[0]))
+            return Concurrency.failedFuture(new ParseException("Usage: !batch <amount> <command1>[;<command2>;<command3>]", 0));
+        if (!"!batch".equalsIgnoreCase(args[0]))
             return error("Invalid first argument");
         if (!StringUtils.isNumeric(args[1]))
             return error("Second argument must be numeric");
@@ -376,13 +377,17 @@ public class SourceRconExample extends BaseExample {
             return Concurrency.failedFuture(new IllegalArgumentException("Command must not be empty"));
         command = command.trim();
         //handle built-in commands
-        if (command.startsWith("/")) {
+        if (command.startsWith(COMMAND_PREFIX)) {
             String[] args = StringUtils.splitByWholeSeparatorPreserveAllTokens(command, StringUtils.SPACE, 3);
-            String name = RegExUtils.replaceAll(args[0], "/", Strings.EMPTY).trim();
+            String name;
+            if (command.startsWith(COMMAND_PREFIX))
+                name = RegExUtils.replaceAll(args[0], COMMAND_PREFIX, Strings.EMPTY).trim();
+            else
+                throw new IllegalStateException("Unsupported command prefix");
             if (commandProcessors.containsKey(name)) {
                 return commandProcessors.get(name).apply(args);
             } else {
-                return error("Unknown command '%s' (type /help for the commands available)", command);
+                return error("Unknown command '%s' (type %shelp for the commands available)", command, COMMAND_PREFIX);
             }
         }
         //any command that does not start with '/' should be treated as an rcon command by default

@@ -23,7 +23,6 @@ import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket;
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
 import io.netty.buffer.ByteBuf;
-
 import java.util.Objects;
 
 /**

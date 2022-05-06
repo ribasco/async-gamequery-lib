@@ -35,6 +35,16 @@ public class CocTroop {
 
     private int maxLevel;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("name", getName())
+                .append("level", getLevel())
+                .append("maxlevel", getMaxLevel())
+                .toString();
+    }
+
     /**
      * <p>Getter for the field <code>name</code>.</p>
      *
@@ -47,7 +57,8 @@ public class CocTroop {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -65,7 +76,8 @@ public class CocTroop {
     /**
      * <p>Setter for the field <code>level</code>.</p>
      *
-     * @param level a int
+     * @param level
+     *         a int
      */
     public void setLevel(int level) {
         this.level = level;
@@ -83,19 +95,10 @@ public class CocTroop {
     /**
      * <p>Setter for the field <code>maxLevel</code>.</p>
      *
-     * @param maxLevel a int
+     * @param maxLevel
+     *         a int
      */
     public void setMaxLevel(int maxLevel) {
         this.maxLevel = maxLevel;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("name", getName())
-                .append("level", getLevel())
-                .append("maxlevel", getMaxLevel())
-                .toString();
     }
 }

@@ -22,14 +22,23 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class SteamGameServer {
+
     private String addr;
+
     private int gmxindex;
+
     private int appId;
+
     private String gameDir;
+
     private int region;
+
     private boolean secure;
+
     private boolean lan;
+
     private int gameport;
+
     private int specport;
 
     /**
@@ -44,7 +53,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>addr</code>.</p>
      *
-     * @param addr a {@link java.lang.String} object
+     * @param addr
+     *         a {@link java.lang.String} object
      */
     public void setAddr(String addr) {
         this.addr = addr;
@@ -62,7 +72,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>gmxindex</code>.</p>
      *
-     * @param gmxindex a int
+     * @param gmxindex
+     *         a int
      */
     public void setGmxindex(int gmxindex) {
         this.gmxindex = gmxindex;
@@ -80,7 +91,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>appId</code>.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
      */
     public void setAppId(int appId) {
         this.appId = appId;
@@ -98,7 +110,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>gameDir</code>.</p>
      *
-     * @param gameDir a {@link java.lang.String} object
+     * @param gameDir
+     *         a {@link java.lang.String} object
      */
     public void setGameDir(String gameDir) {
         this.gameDir = gameDir;
@@ -116,7 +129,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>region</code>.</p>
      *
-     * @param region a int
+     * @param region
+     *         a int
      */
     public void setRegion(int region) {
         this.region = region;
@@ -134,7 +148,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>secure</code>.</p>
      *
-     * @param secure a boolean
+     * @param secure
+     *         a boolean
      */
     public void setSecure(boolean secure) {
         this.secure = secure;
@@ -152,7 +167,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>lan</code>.</p>
      *
-     * @param lan a boolean
+     * @param lan
+     *         a boolean
      */
     public void setLan(boolean lan) {
         this.lan = lan;
@@ -170,7 +186,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>gameport</code>.</p>
      *
-     * @param gameport a int
+     * @param gameport
+     *         a int
      */
     public void setGameport(int gameport) {
         this.gameport = gameport;
@@ -188,7 +205,8 @@ public class SteamGameServer {
     /**
      * <p>Setter for the field <code>specport</code>.</p>
      *
-     * @param specport a int
+     * @param specport
+     *         a int
      */
     public void setSpecport(int specport) {
         this.specport = specport;

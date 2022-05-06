@@ -22,9 +22,19 @@ import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.core.exceptions.WebException;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.*;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.*;
-
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.CreateAccount;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.DeleteAccount;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.GetAccountList;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.GetAccountPublicInfo;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.GetServerList;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.QueryLoginToken;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.ResetLoginToken;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.SetMemo;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServer;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServerAccount;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServerAccountPublicInfo;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.LoginTokenStatus;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.NewGameServerAccount;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +59,12 @@ public class GameServersService extends SteamWebApiInterface {
             Type listType = new TypeToken<NewGameServerAccount>() {}.getType();
             return builder().fromJson(response, listType);
         });
+    }
+
+    private JsonObject getResponse(JsonObject element) {
+        if (!element.has("response"))
+            throw new WebException("Missing 'response' object");
+        return element.get("response").getAsJsonObject();
     }
 
     public CompletableFuture<Void> deleteAccount(long steamId) {
@@ -104,11 +120,5 @@ public class GameServersService extends SteamWebApiInterface {
     public CompletableFuture<LoginTokenStatus> queryLoginTokenStatus(String loginToken) {
         CompletableFuture<JsonObject> json = sendRequest(new QueryLoginToken(VERSION_1, loginToken));
         return json.thenApply(this::getResponse).thenApply(response -> builder().fromJson(response, LoginTokenStatus.class));
-    }
-
-    private JsonObject getResponse(JsonObject element) {
-        if (!element.has("response"))
-            throw new WebException("Missing 'response' object");
-        return element.get("response").getAsJsonObject();
     }
 }

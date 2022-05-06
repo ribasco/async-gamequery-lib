@@ -21,16 +21,15 @@ import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.pool.ChannelPoolHandler;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import static io.netty.util.internal.ObjectUtil.checkNotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.Deque;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
  * An enhanced version of netty's {@link io.netty.channel.pool.SimpleChannelPool} implementation
@@ -170,18 +169,6 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
         return releaseHealthCheck;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public final CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress) {
-        return acquire(remoteAddress, new CompletableFuture<>());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
-        return acquireHealthyFromPoolOrNew(remoteAddress, promise);
-    }
-
     /**
      * Tries to retrieve healthy channel from the pool if any or creates a new channel otherwise.
      *
@@ -207,7 +194,9 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     /**
      * <p>newChannel.</p>
      *
-     * @param remoteAddress a {@link java.net.InetSocketAddress} object
+     * @param remoteAddress
+     *         a {@link java.net.InetSocketAddress} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     protected CompletableFuture<Channel> newChannel(InetSocketAddress remoteAddress) {
@@ -313,6 +302,18 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
 
     /** {@inheritDoc} */
     @Override
+    public final CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress) {
+        return acquire(remoteAddress, new CompletableFuture<>());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> acquire(final InetSocketAddress remoteAddress, CompletableFuture<Channel> promise) {
+        return acquireHealthyFromPoolOrNew(remoteAddress, promise);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public CompletableFuture<Void> release(final Channel channel, final CompletableFuture<Void> promise) {
         try {
             checkNotNull(channel, "channel");
@@ -328,6 +329,16 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     @Override
     public int getSize() {
         return deque.size();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() {
+        Channel channel;
+        while ((channel = pollChannel()) != null) {
+            // Just ignore any errors that are reported back from close().
+            channel.close().awaitUninterruptibly();
+        }
     }
 
     private void doReleaseChannel(Channel channel, CompletableFuture<Void> promise) {
@@ -430,40 +441,19 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     }
 
     /**
-     * Poll a {@link io.netty.channel.Channel} out of the internal storage to reuse it. This will return {@code null} if no
-     * {@link io.netty.channel.Channel} is ready to be reused.
-     * <p>
-     * Subclasses may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
-     * implementations of these methods needs to be thread-safe!
-     *
-     * @return a {@link io.netty.channel.Channel} object
-     */
-    protected Channel pollChannel() {
-        return lastRecentUsed ? deque.pollLast() : deque.pollFirst();
-    }
-
-    /**
      * Offer a {@link io.netty.channel.Channel} back to the internal storage. This will return {@code true} if the {@link io.netty.channel.Channel}
      * could be added, {@code false} otherwise.
      * <p>
      * Sub-classes may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
      * implementations of these methods needs to be thread-safe!
      *
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     *
      * @return a boolean
      */
     protected boolean offerChannel(Channel channel) {
         return deque.offer(channel);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void close() {
-        Channel channel;
-        while ((channel = pollChannel()) != null) {
-            // Just ignore any errors that are reported back from close().
-            channel.close().awaitUninterruptibly();
-        }
     }
 
     /**
@@ -474,6 +464,19 @@ public class SimpleNettyChannelPool implements NettyChannelPool {
     public CompletableFuture<Void> closeAsync() {
         // Execute close asynchronously in case this is being invoked on an eventloop to avoid blocking
         return CompletableFuture.runAsync(this::close, GlobalEventExecutor.INSTANCE);
+    }
+
+    /**
+     * Poll a {@link io.netty.channel.Channel} out of the internal storage to reuse it. This will return {@code null} if no
+     * {@link io.netty.channel.Channel} is ready to be reused.
+     * <p>
+     * Subclasses may override {@code pollChannel()} and {@code offerChannel()}. Be aware that
+     * implementations of these methods needs to be thread-safe!
+     *
+     * @return a {@link io.netty.channel.Channel} object
+     */
+    protected Channel pollChannel() {
+        return lastRecentUsed ? deque.pollLast() : deque.pollFirst();
     }
 
     private static final class ChannelPoolFullException extends IllegalStateException {

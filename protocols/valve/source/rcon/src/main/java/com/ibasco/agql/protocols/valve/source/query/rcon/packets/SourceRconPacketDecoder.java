@@ -26,10 +26,9 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import java.nio.ByteOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.nio.ByteOrder;
 
 /**
  * <p>SourceRconPacketDecoder class.</p>
@@ -44,19 +43,21 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
 
     private final static int PAD_SIZE = 56;
 
-    //Since handler is guaranteed to be called on
-    // the same thread, we do not need this to be atomic
-    private int index;
-
     private final ChannelHandlerContext ctx;
 
     private final boolean strict;
 
+    //Since handler is guaranteed to be called on
+    // the same thread, we do not need this to be atomic
+    private int index;
+
     /**
      * <p>Constructor for SourceRconPacketDecoder.</p>
      *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param strict a boolean
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param strict
+     *         a boolean
      */
     public SourceRconPacketDecoder(ChannelHandlerContext ctx, boolean strict) {
         this.ctx = ctx;

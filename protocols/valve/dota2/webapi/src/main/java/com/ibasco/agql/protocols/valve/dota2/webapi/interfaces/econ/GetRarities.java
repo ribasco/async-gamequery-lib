@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2EconRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetRarities extends Dota2EconRequest {
+
     /**
      * <p>Constructor for GetRarities.</p>
      *
-     * @param apiVersion a int
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetRarities(int apiVersion, String language) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETRARITIES, apiVersion, language);

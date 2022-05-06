@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,39 +28,57 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class Dota2LiveLeagueGame {
+
     private List<Dota2GamePlayer> players = new ArrayList<>();
+
     @SerializedName("radiant_team")
     private Dota2LiveLeagueTeamInfo radiantTeam = new Dota2LiveLeagueTeamInfo();
+
     @SerializedName("dire_team")
     private Dota2LiveLeagueTeamInfo direTeam = new Dota2LiveLeagueTeamInfo();
+
     @SerializedName("lobby_id")
     private long lobbyId;
+
     @SerializedName("match_id")
     private long matchId;
+
     @SerializedName("spectators")
     private int numOfSpectators;
+
     @SerializedName("series_id")
     private int seriesId;
+
     @SerializedName("game_number")
     private int gameNumber;
+
     @SerializedName("league_id")
     private int leagueId;
+
     @SerializedName("stream_delay_s")
     private int streamDelay;
+
     @SerializedName("radiant_series_wins")
     private int radiantSeriesWins;
+
     @SerializedName("dire_series_wins")
     private int direSeriesWins;
+
     @SerializedName("series_type")
     private int seriesType;
+
     @SerializedName("league_series_id")
     private int leagueSeriesId;
+
     @SerializedName("league_game_id")
     private int leagueGameId;
+
     @SerializedName("stage_name")
     private String stageName;
+
     @SerializedName("league_tier")
     private int leagueTier;
+
     @SerializedName("scoreboard")
     private Dota2ScoreboardStats scoreboard = new Dota2ScoreboardStats();
 
@@ -77,7 +94,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>scoreboard</code>.</p>
      *
-     * @param scoreboard a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2ScoreboardStats} object
+     * @param scoreboard
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2ScoreboardStats} object
      */
     public void setScoreboard(Dota2ScoreboardStats scoreboard) {
         this.scoreboard = scoreboard;
@@ -95,7 +113,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>players</code>.</p>
      *
-     * @param players a {@link java.util.List} object
+     * @param players
+     *         a {@link java.util.List} object
      */
     public void setPlayers(List<Dota2GamePlayer> players) {
         this.players = players;
@@ -113,7 +132,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>radiantTeam</code>.</p>
      *
-     * @param radiantTeam a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2LiveLeagueTeamInfo} object
+     * @param radiantTeam
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2LiveLeagueTeamInfo} object
      */
     public void setRadiantTeam(Dota2LiveLeagueTeamInfo radiantTeam) {
         this.radiantTeam = radiantTeam;
@@ -131,7 +151,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>direTeam</code>.</p>
      *
-     * @param direTeam a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2LiveLeagueTeamInfo} object
+     * @param direTeam
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2LiveLeagueTeamInfo} object
      */
     public void setDireTeam(Dota2LiveLeagueTeamInfo direTeam) {
         this.direTeam = direTeam;
@@ -149,7 +170,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>lobbyId</code>.</p>
      *
-     * @param lobbyId a long
+     * @param lobbyId
+     *         a long
      */
     public void setLobbyId(long lobbyId) {
         this.lobbyId = lobbyId;
@@ -167,7 +189,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>matchId</code>.</p>
      *
-     * @param matchId a long
+     * @param matchId
+     *         a long
      */
     public void setMatchId(long matchId) {
         this.matchId = matchId;
@@ -185,7 +208,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>numOfSpectators</code>.</p>
      *
-     * @param numOfSpectators a int
+     * @param numOfSpectators
+     *         a int
      */
     public void setNumOfSpectators(int numOfSpectators) {
         this.numOfSpectators = numOfSpectators;
@@ -203,7 +227,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>seriesId</code>.</p>
      *
-     * @param seriesId a int
+     * @param seriesId
+     *         a int
      */
     public void setSeriesId(int seriesId) {
         this.seriesId = seriesId;
@@ -221,7 +246,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>gameNumber</code>.</p>
      *
-     * @param gameNumber a int
+     * @param gameNumber
+     *         a int
      */
     public void setGameNumber(int gameNumber) {
         this.gameNumber = gameNumber;
@@ -239,7 +265,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>leagueId</code>.</p>
      *
-     * @param leagueId a int
+     * @param leagueId
+     *         a int
      */
     public void setLeagueId(int leagueId) {
         this.leagueId = leagueId;
@@ -257,7 +284,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>streamDelay</code>.</p>
      *
-     * @param streamDelay a int
+     * @param streamDelay
+     *         a int
      */
     public void setStreamDelay(int streamDelay) {
         this.streamDelay = streamDelay;
@@ -275,7 +303,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>radiantSeriesWins</code>.</p>
      *
-     * @param radiantSeriesWins a int
+     * @param radiantSeriesWins
+     *         a int
      */
     public void setRadiantSeriesWins(int radiantSeriesWins) {
         this.radiantSeriesWins = radiantSeriesWins;
@@ -293,7 +322,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>direSeriesWins</code>.</p>
      *
-     * @param direSeriesWins a int
+     * @param direSeriesWins
+     *         a int
      */
     public void setDireSeriesWins(int direSeriesWins) {
         this.direSeriesWins = direSeriesWins;
@@ -311,7 +341,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>seriesType</code>.</p>
      *
-     * @param seriesType a int
+     * @param seriesType
+     *         a int
      */
     public void setSeriesType(int seriesType) {
         this.seriesType = seriesType;
@@ -329,7 +360,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>leagueSeriesId</code>.</p>
      *
-     * @param leagueSeriesId a int
+     * @param leagueSeriesId
+     *         a int
      */
     public void setLeagueSeriesId(int leagueSeriesId) {
         this.leagueSeriesId = leagueSeriesId;
@@ -347,7 +379,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>leagueGameId</code>.</p>
      *
-     * @param leagueGameId a int
+     * @param leagueGameId
+     *         a int
      */
     public void setLeagueGameId(int leagueGameId) {
         this.leagueGameId = leagueGameId;
@@ -365,7 +398,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>stageName</code>.</p>
      *
-     * @param stageName a {@link java.lang.String} object
+     * @param stageName
+     *         a {@link java.lang.String} object
      */
     public void setStageName(String stageName) {
         this.stageName = stageName;
@@ -383,7 +417,8 @@ public class Dota2LiveLeagueGame {
     /**
      * <p>Setter for the field <code>leagueTier</code>.</p>
      *
-     * @param leagueTier a int
+     * @param leagueTier
+     *         a int
      */
     public void setLeagueTier(int leagueTier) {
         this.leagueTier = leagueTier;

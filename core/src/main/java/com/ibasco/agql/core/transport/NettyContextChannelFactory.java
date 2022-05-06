@@ -17,17 +17,16 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import static com.ibasco.agql.core.transport.NettyChannelAttributes.CHANNEL_CONTEXT;
 import com.ibasco.agql.core.util.ImmutablePair;
 import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.util.Attribute;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static com.ibasco.agql.core.transport.NettyChannelAttributes.CHANNEL_CONTEXT;
 
 /**
  * Attaches a {@link com.ibasco.agql.core.NettyChannelContext} for each acquired/created {@link io.netty.channel.Channel}. Note that there is only one context assigned for each {@link io.netty.channel.Channel}.
@@ -44,7 +43,8 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
     /**
      * <p>Constructor for NettyContextChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public NettyContextChannelFactory(final NettyChannelFactory channelFactory) {
         this(channelFactory, null);
@@ -53,12 +53,23 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
     /**
      * <p>Constructor for NettyContextChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
-     * @param contextFactory a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param contextFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
      */
     public NettyContextChannelFactory(final NettyChannelFactory channelFactory, final NettyChannelContextFactory contextFactory) {
         super(channelFactory);
         this.contextFactory = contextFactory;
+    }
+
+    /**
+     * <p>Getter for the field <code>contextFactory</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     */
+    public final NettyChannelContextFactory getContextFactory() {
+        return contextFactory;
     }
 
     /** {@inheritDoc} */
@@ -67,6 +78,16 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         checkContextFactory();
         final InetSocketAddress address = getResolver().resolveRemoteAddress(data);
         return super.create(data).thenCombine(CompletableFuture.completedFuture(address), ImmutablePair::new).thenCompose(this::initializeEL);
+    }
+
+    /**
+     * <p>Setter for the field <code>contextFactory</code>.</p>
+     *
+     * @param contextFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     */
+    public final void setContextFactory(NettyChannelContextFactory contextFactory) {
+        this.contextFactory = contextFactory;
     }
 
     /** {@inheritDoc} */
@@ -117,24 +138,6 @@ public class NettyContextChannelFactory extends NettyChannelFactoryDecorator {
         }
 
         return channel;
-    }
-
-    /**
-     * <p>Getter for the field <code>contextFactory</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
-     */
-    public final NettyChannelContextFactory getContextFactory() {
-        return contextFactory;
-    }
-
-    /**
-     * <p>Setter for the field <code>contextFactory</code>.</p>
-     *
-     * @param contextFactory a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
-     */
-    public final void setContextFactory(NettyChannelContextFactory contextFactory) {
-        this.contextFactory = contextFactory;
     }
 
     private void checkContextFactory() {

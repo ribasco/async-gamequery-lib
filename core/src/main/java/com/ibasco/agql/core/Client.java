@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.UUID;
-
 import java.io.Closeable;
 import java.util.concurrent.Executor;
 

@@ -32,7 +32,6 @@ import com.ibasco.agql.protocols.valve.source.query.players.SourceQueryPlayerReq
 import com.ibasco.agql.protocols.valve.source.query.players.SourceQueryPlayerResponse;
 import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesRequest;
 import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesResponse;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 

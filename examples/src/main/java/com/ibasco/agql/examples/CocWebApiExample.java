@@ -25,11 +25,10 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocLeagues;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocLocations;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.CocPlayers;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>CocWebApiExample class.</p>
@@ -45,19 +44,10 @@ public class CocWebApiExample extends BaseWebApiAuthExample {
     private CocWebApiClient client;
 
     /**
-     * <p>displayListResults.</p>
-     *
-     * @param list a {@link java.util.List} object
-     * @param <T> a T class
-     */
-    public static <T> void displayListResults(List<T> list) {
-        list.forEach(o -> log.info("{}", o.toString()));
-    }
-
-    /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
+     * @param args
+     *         an array of {@link java.lang.String} objects
      */
     public static void main(String[] args) {
         new CocWebApiExample().run(args);
@@ -101,6 +91,18 @@ public class CocWebApiExample extends BaseWebApiAuthExample {
 
         log.info("Retrieving Detailed Player Information");
         players.getPlayerInfo("#J0PYGCG").thenAccept(p -> log.info("Player Info: {}", p)).join();
+    }
+
+    /**
+     * <p>displayListResults.</p>
+     *
+     * @param list
+     *         a {@link java.util.List} object
+     * @param <T>
+     *         a T class
+     */
+    public static <T> void displayListResults(List<T> list) {
+        list.forEach(o -> log.info("{}", o.toString()));
     }
 
     /** {@inheritDoc} */

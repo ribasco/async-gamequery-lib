@@ -9,7 +9,6 @@
 | CocLeagues         | League Information          |
 | CocPlayers         | Player Specific Information |
 
-
 ### Clans
 
 **Search clans**

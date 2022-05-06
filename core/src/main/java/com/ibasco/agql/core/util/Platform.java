@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
-import static com.ibasco.agql.core.util.Console.*;
 import io.netty.channel.Channel;
 import io.netty.channel.DefaultSelectStrategyFactory;
 import io.netty.channel.EventLoopGroup;
@@ -40,16 +39,27 @@ import io.netty.util.concurrent.RejectedExecutionHandlers;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.channels.spi.SelectorProvider;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static com.ibasco.agql.core.util.Console.BLUE;
+import static com.ibasco.agql.core.util.Console.CYAN;
+import static com.ibasco.agql.core.util.Console.YELLOW;
+import static com.ibasco.agql.core.util.Console.color;
+import static com.ibasco.agql.core.util.Console.printLine;
+import static com.ibasco.agql.core.util.Console.println;
 
 /**
  * Platform specific implementation
@@ -59,16 +69,9 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 public final class Platform {
 
-    private static final Logger log = LoggerFactory.getLogger(Platform.class);
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
 
-    private static volatile ThreadFactory DEFAULT_THREAD_FACTORY;
-
-    private static volatile EventLoopGroup DEFAULT_EVENT_LOOP_GROUP;
-
-    private static volatile EventLoopTaskQueueFactory DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
-
-    private static volatile BlockingQueue<Runnable> DEFAULT_QUEUE;
+    private static final Logger log = LoggerFactory.getLogger(Platform.class);
 
     private static final List<Queue<Runnable>> TASK_QUEUE_LIST = new ArrayList<>();
 
@@ -79,16 +82,24 @@ public final class Platform {
     //initialize resource provider for the default global executor service
     private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER;
 
-    private static volatile boolean initialized;
-
     private static final Object lock = new Object();
 
-    private Platform() {}
+    private static volatile ThreadFactory DEFAULT_THREAD_FACTORY;
+
+    private static volatile EventLoopGroup DEFAULT_EVENT_LOOP_GROUP;
+
+    private static volatile EventLoopTaskQueueFactory DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
+
+    private static volatile BlockingQueue<Runnable> DEFAULT_QUEUE;
+
+    private static volatile boolean initialized;
 
     static {
         DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
         DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER); //provider for default executor service
     }
+
+    private Platform() {}
 
     /**
      * <p>Initialize platform and properties. This can only be called once.</p>
@@ -146,6 +157,23 @@ public final class Platform {
     }
 
     /**
+     * <p>
+     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link java.util.concurrent.ThreadPoolExecutor} cast the return value to ({@link com.ibasco.agql.core.util.AgqlManagedExecutorService} and call {@link com.ibasco.agql.core.util.AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
+     * </p>
+     * <blockquote>
+     * <strong>IMPORTANT:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
+     * </blockquote>
+     *
+     * @return The default global {@link java.util.concurrent.ExecutorService}
+     *
+     * @see ManagedResource
+     * @see ManagedResource#release()
+     */
+    public static ExecutorService getDefaultExecutor() {
+        return DEFAULT_EXECUTOR_PROVIDER.acquire(GLOBAL_DEFAULT_EXECUTOR_KEY);
+    }
+
+    /**
      * <p>getDefaultQueue.</p>
      *
      * @return a {@link java.util.concurrent.BlockingQueue} object
@@ -182,6 +210,7 @@ public final class Platform {
      *
      * @param executor
      *         The {@link java.util.concurrent.Executor} to check
+     *
      * @return {@code true} if the {@link java.util.concurrent.Executor} is global
      */
     public static boolean isDefaultExecutor(Executor executor) {
@@ -193,23 +222,6 @@ public final class Platform {
         } finally {
             svc.release();
         }
-    }
-
-    /**
-     * <p>
-     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link java.util.concurrent.ThreadPoolExecutor} cast the return value to ({@link com.ibasco.agql.core.util.AgqlManagedExecutorService} and call {@link com.ibasco.agql.core.util.AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
-     * </p>
-     * <blockquote>
-     * <strong>IMPORTANT:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
-     * </blockquote>
-     *
-     * @return The default global {@link java.util.concurrent.ExecutorService}
-     *
-     * @see ManagedResource
-     * @see ManagedResource#release()
-     */
-    public static ExecutorService getDefaultExecutor() {
-        return DEFAULT_EXECUTOR_PROVIDER.acquire(GLOBAL_DEFAULT_EXECUTOR_KEY);
     }
 
     /**
@@ -246,10 +258,54 @@ public final class Platform {
     }
 
     /**
+     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
+     *
+     * @param executor
+     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
+     * @param nThreads
+     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     * @param useNative
+     *         {@code true} to use native transports when available (e.g. epoll for linux, kqueue for osx).
+     *
+     * @return A new {@link io.netty.channel.EventLoopGroup} instance
+     */
+    public static EventLoopGroup createEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
+        EventLoopGroup elg = null;
+        if (useNative) {
+            if (Epoll.isAvailable()) {
+                elg = new EpollEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+            } else if (KQueue.isAvailable()) {
+                elg = new KQueueEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+            }
+        }
+        if (elg == null)
+            elg = new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        log.debug("Created default event loop group with: {} threads", nThreads);
+        return elg;
+    }
+
+    private static EventLoopTaskQueueFactory getEventLoopTaskQueueFactory() {
+        if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
+            synchronized (lock) {
+                if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
+                    DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY = maxCapacity -> {
+                        Queue<Runnable> queue = maxCapacity == Integer.MAX_VALUE ? PlatformDependent.newMpscQueue() : PlatformDependent.newMpscQueue(maxCapacity);
+                        log.debug("Creating new task queue: {} ({})", queue, queue.hashCode());
+                        TASK_QUEUE_LIST.add(queue);
+                        return queue;
+                    };
+                }
+            }
+        }
+        return DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
+    }
+
+    /**
      * <p>creeateThreadGroup.</p>
      *
      * @param cls
      *         a {@link java.lang.Class} object
+     *
      * @return a {@link java.lang.ThreadGroup} object
      */
     public static ThreadGroup creeateThreadGroup(Class<?> cls) {
@@ -263,6 +319,7 @@ public final class Platform {
      *         a {@link java.lang.Class} object
      * @param parent
      *         a {@link java.lang.ThreadGroup} object
+     *
      * @return a {@link java.lang.ThreadGroup} object
      */
     public static ThreadGroup creeateThreadGroup(Class<?> cls, ThreadGroup parent) {
@@ -283,48 +340,6 @@ public final class Platform {
         return TASK_QUEUE_LIST;
     }
 
-    private static EventLoopTaskQueueFactory getEventLoopTaskQueueFactory() {
-        if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
-            synchronized (lock) {
-                if (DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY == null) {
-                    DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY = maxCapacity -> {
-                        Queue<Runnable> queue = maxCapacity == Integer.MAX_VALUE ? PlatformDependent.newMpscQueue() : PlatformDependent.newMpscQueue(maxCapacity);
-                        log.debug("Creating new task queue: {} ({})", queue, queue.hashCode());
-                        TASK_QUEUE_LIST.add(queue);
-                        return queue;
-                    };
-                }
-            }
-        }
-        return DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
-    }
-
-    /**
-     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
-     *
-     * @param executor
-     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
-     * @param nThreads
-     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
-     * @param useNative
-     *         {@code true} to use native transports when available (e.g. epoll for linux, kqueue for osx).
-     * @return A new {@link io.netty.channel.EventLoopGroup} instance
-     */
-    public static EventLoopGroup createEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
-        EventLoopGroup elg = null;
-        if (useNative) {
-            if (Epoll.isAvailable()) {
-                elg = new EpollEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-            } else if (KQueue.isAvailable()) {
-                elg = new KQueueEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-            }
-        }
-        if (elg == null)
-            elg = new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-        log.debug("Created default event loop group with: {} threads", nThreads);
-        return elg;
-    }
-
     /**
      * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
      *
@@ -334,7 +349,9 @@ public final class Platform {
      *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
      * @param nThreads
      *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     *
      * @return A new {@link io.netty.channel.EventLoopGroup} instance
+     *
      * @throws java.lang.IllegalStateException
      *         If channelClass is not supported
      * @throws java.lang.IllegalArgumentException
@@ -361,6 +378,7 @@ public final class Platform {
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
      * @param group
      *         a {@link io.netty.channel.EventLoopGroup} object
+     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type, EventLoopGroup group) {
@@ -382,6 +400,7 @@ public final class Platform {
      *
      * @param type
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType}
+     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type) {
@@ -395,6 +414,7 @@ public final class Platform {
      *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
      * @param useNativeTransport
      *         {@code true} to use native transport
+     *
      * @return a {@link java.lang.Class} object
      */
     public static Class<? extends Channel> getChannelClass(TransportType type, boolean useNativeTransport) {

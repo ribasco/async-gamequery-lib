@@ -32,7 +32,8 @@ public class TimeoutException extends AgqlRuntimeException {
     /**
      * <p>Constructor for TimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public TimeoutException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class TimeoutException extends AgqlRuntimeException {
     /**
      * <p>Constructor for TimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public TimeoutException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +54,8 @@ public class TimeoutException extends AgqlRuntimeException {
     /**
      * <p>Constructor for TimeoutException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public TimeoutException(Throwable cause) {
         super(cause);
@@ -60,10 +64,14 @@ public class TimeoutException extends AgqlRuntimeException {
     /**
      * <p>Constructor for TimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public TimeoutException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

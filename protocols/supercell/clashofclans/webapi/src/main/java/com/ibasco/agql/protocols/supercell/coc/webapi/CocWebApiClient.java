@@ -31,12 +31,14 @@ import org.slf4j.LoggerFactory;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocWebApiClient extends AbstractRestClient {
+
     private static final Logger log = LoggerFactory.getLogger(CocWebApiClient.class);
 
     /**
      * <p>Constructor for CocWebApiClient.</p>
      *
-     * @param apiToken a {@link java.lang.String} object
+     * @param apiToken
+     *         a {@link java.lang.String} object
      */
     public CocWebApiClient(String apiToken) {
         super(apiToken);
@@ -44,14 +46,14 @@ public class CocWebApiClient extends AbstractRestClient {
 
     /** {@inheritDoc} */
     @Override
-    protected CocWebApiResponse createWebApiResponse(Response response) {
-        log.debug("Creating Response for : {}", response);
-        return new CocWebApiResponse(response);
+    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
+        requestBuilder.addHeader("authorization", String.format("Bearer %s", authToken));
     }
 
     /** {@inheritDoc} */
     @Override
-    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
-        requestBuilder.addHeader("authorization", String.format("Bearer %s", authToken));
+    protected CocWebApiResponse createWebApiResponse(Response response) {
+        log.debug("Creating Response for : {}", response);
+        return new CocWebApiResponse(response);
     }
 }

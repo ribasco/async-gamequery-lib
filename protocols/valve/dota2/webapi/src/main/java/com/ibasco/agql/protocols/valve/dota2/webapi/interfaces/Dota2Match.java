@@ -20,15 +20,25 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiInterface;
 import com.ibasco.agql.protocols.valve.dota2.webapi.adapters.Dota2TeamInfoAdapter;
-import com.ibasco.agql.protocols.valve.dota2.webapi.exceptions.Dota2WebException;
-import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.*;
-import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.*;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetLeagueListing;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetLiveLeagueGames;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetMatchDetails;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetMatchHistory;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetMatchHistoryBySequenceNum;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetTeamInfoByTeamID;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.match.GetTopLiveGame;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2League;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2LiveLeagueGame;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchDetails;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistory;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchTeamInfo;
+import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2TopLiveGame;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Dota2Match class.</p>
@@ -42,7 +52,8 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>Constructor for Dota2Match.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2Match(SteamWebApiClient client) {
         super(client);
@@ -76,8 +87,11 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getLiveLeagueGames.</p>
      *
-     * @param leagueId a int
-     * @param matchId a int
+     * @param leagueId
+     *         a int
+     * @param matchId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2LiveLeagueGame>> getLiveLeagueGames(int leagueId, int matchId) {
@@ -88,7 +102,9 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getTopLiveGame.</p>
      *
-     * @param partner a int
+     * @param partner
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2TopLiveGame>> getTopLiveGame(int partner) {
@@ -99,7 +115,9 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getMatchDetails.</p>
      *
-     * @param matchId a long
+     * @param matchId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2MatchDetails> getMatchDetails(long matchId) {
@@ -119,7 +137,9 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getMatchHistory.</p>
      *
-     * @param criteria a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
+     * @param criteria
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2MatchHistory> getMatchHistory(Dota2MatchHistoryCriteria criteria) {
@@ -145,42 +165,15 @@ public class Dota2Match extends Dota2WebApiInterface {
     /**
      * <p>getTeamInfoById.</p>
      *
-     * @param startTeamId a int
-     * @param maxTeamCount a int
+     * @param startTeamId
+     *         a int
+     * @param maxTeamCount
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2MatchTeamInfo>> getTeamInfoById(int startTeamId, int maxTeamCount) {
         CompletableFuture<JsonObject> json = sendRequest(new GetTeamInfoByTeamID(VERSION_1, startTeamId, maxTeamCount));
         return json.thenApply(r -> asCollectionOf(Dota2MatchTeamInfo.class, "teams", r));
-    }
-
-    //TODO: No test data available
-    /**
-     * <p>getTopWeekendTourneyGames.</p>
-     *
-     * @return a {@link java.util.concurrent.CompletableFuture} object
-     */
-    public CompletableFuture<Object> getTopWeekendTourneyGames() {
-        throw new Dota2WebException("Not implemented");
-    }
-
-    //TODO: No test data available due to not having the right set of arguments
-    /**
-     * <p>getTournamentPlayerStats.</p>
-     *
-     * @return a {@link java.util.concurrent.CompletableFuture} object
-     */
-    public CompletableFuture<Object> getTournamentPlayerStats() {
-        throw new Dota2WebException("Not implemented");
-    }
-
-    //TODO: Should still implement this? See http://dev.dota2.com/showthread.php?t=186998
-    /**
-     * <p>getScheduledLeagueGames.</p>
-     *
-     * @return a {@link java.util.concurrent.CompletableFuture} object
-     */
-    public CompletableFuture<Object> getScheduledLeagueGames() {
-        throw new Dota2WebException("Not implemented");
     }
 }

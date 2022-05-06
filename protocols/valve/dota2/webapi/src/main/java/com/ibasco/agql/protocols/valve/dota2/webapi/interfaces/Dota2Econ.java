@@ -20,17 +20,21 @@ import com.google.gson.JsonObject;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2ApiConstants;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiInterface;
 import com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType;
-import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.*;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetEventStatsForAccount;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetGameItems;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetHeroes;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetItemIconPath;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetRarities;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.econ.GetTournamentPrizePool;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2EventStats;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2GameItem;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2Hero;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2Rarities;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Dota2Econ class.</p>
@@ -42,7 +46,9 @@ public class Dota2Econ extends Dota2WebApiInterface {
     private static final Logger log = LoggerFactory.getLogger(Dota2Econ.class);
 
     private static final String LIST_NAME_ITEMS = "items";
+
     private static final String LIST_NAME_HEROES = "heroes";
+
     private static final String LIST_NAME_RARITIES = "rarities";
 
     /**
@@ -67,7 +73,9 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getGameItems.</p>
      *
-     * @param language a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2GameItem>> getGameItems(String language) {
@@ -93,8 +101,11 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getItemIconPath.</p>
      *
-     * @param iconName a {@link java.lang.String} object
-     * @param iconType a {@link com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType} object
+     * @param iconName
+     *         a {@link java.lang.String} object
+     * @param iconType
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<String> getItemIconPath(String iconName, Dota2IconType iconType) {
@@ -110,7 +121,9 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getRarities.</p>
      *
-     * @param language a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2Rarities>> getRarities(String language) {
@@ -121,7 +134,9 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getTournamentPrizePool.</p>
      *
-     * @param leagueId a int
+     * @param leagueId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Integer> getTournamentPrizePool(int leagueId) {
@@ -132,8 +147,11 @@ public class Dota2Econ extends Dota2WebApiInterface {
     /**
      * <p>getEventStatsForAccount.</p>
      *
-     * @param accountId a int
-     * @param leagueId a int
+     * @param accountId
+     *         a int
+     * @param leagueId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2EventStats> getEventStatsForAccount(int accountId, int leagueId) {

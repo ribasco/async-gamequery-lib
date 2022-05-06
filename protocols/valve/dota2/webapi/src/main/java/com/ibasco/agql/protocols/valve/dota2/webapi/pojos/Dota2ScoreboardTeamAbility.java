@@ -30,6 +30,7 @@ public class Dota2ScoreboardTeamAbility {
     @SerializedName("ability_id")
     @Expose
     private int abilityId;
+
     @SerializedName("ability_level")
     @Expose
     private int abilityLevel;

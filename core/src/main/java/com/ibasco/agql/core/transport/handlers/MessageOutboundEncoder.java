@@ -24,11 +24,10 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
 import io.netty.handler.codec.MessageToMessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.function.BiConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract MessageOutboundEncoder class.</p>
@@ -51,34 +50,13 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
     /**
      * <p>Constructor for MessageOutboundEncoder.</p>
      *
-     * @param outboundMessageType a {@link java.lang.Class} object
+     * @param outboundMessageType
+     *         a {@link java.lang.Class} object
      */
     protected MessageOutboundEncoder(Class<Envelope<T>> outboundMessageType) {
         super(outboundMessageType);
         this.log = LoggerFactory.getLogger(this.getClass());
     }
-
-    /**
-     * <p>acceptMessage.</p>
-     *
-     * @param requestClass a {@link java.lang.Class} object
-     * @param envelope a {@link com.ibasco.agql.core.Envelope} object
-     * @return a boolean
-     * @throws java.lang.Exception if any.
-     */
-    protected boolean acceptMessage(Class<T> requestClass, Envelope<T> envelope) throws Exception {
-        return super.acceptOutboundMessage(envelope);
-    }
-
-    /**
-     * <p>encodeMessage.</p>
-     *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param msg a {@link com.ibasco.agql.core.Envelope} object
-     * @param out a {@link java.util.List} object
-     * @throws java.lang.Exception if any.
-     */
-    abstract protected void encodeMessage(ChannelHandlerContext ctx, Envelope<T> msg, List<Object> out) throws Exception;
 
     /** {@inheritDoc} */
     @Override
@@ -118,6 +96,65 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
         if (this.channel == null || this.channel != ctx.channel())
             this.channel = ctx.channel();
         encodeMessage(ctx, msg, out);
+    }
+
+    /**
+     * <p>encodeMessage.</p>
+     *
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg
+     *         a {@link com.ibasco.agql.core.Envelope} object
+     * @param out
+     *         a {@link java.util.List} object
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    abstract protected void encodeMessage(ChannelHandlerContext ctx, Envelope<T> msg, List<Object> out) throws Exception;
+
+    /**
+     * <p>debug.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected final void debug(String msg, Object... args) {
+        if (log.isDebugEnabled())
+            log(msg, log::debug, args);
+    }
+
+    /**
+     * <p>acceptMessage.</p>
+     *
+     * @param requestClass
+     *         a {@link java.lang.Class} object
+     * @param envelope
+     *         a {@link com.ibasco.agql.core.Envelope} object
+     *
+     * @return a boolean
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    protected boolean acceptMessage(Class<T> requestClass, Envelope<T> envelope) throws Exception {
+        return super.acceptOutboundMessage(envelope);
+    }
+
+    /**
+     * <p>log.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param level
+     *         a {@link java.util.function.BiConsumer} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(String.format("%s OUT => %s", Netty.id(channel), msg), args);
     }
 
     /** {@inheritDoc} */
@@ -164,8 +201,10 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
     /**
      * <p>trace.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void trace(String msg, Object... args) {
         if (log.isTraceEnabled())
@@ -175,8 +214,10 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
     /**
      * <p>error.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void error(String msg, Object... args) {
         if (log.isErrorEnabled())
@@ -186,8 +227,10 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
     /**
      * <p>info.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void info(String msg, Object... args) {
         if (log.isInfoEnabled())
@@ -195,34 +238,14 @@ abstract public class MessageOutboundEncoder<T extends AbstractRequest> extends 
     }
 
     /**
-     * <p>debug.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected final void debug(String msg, Object... args) {
-        if (log.isDebugEnabled())
-            log(msg, log::debug, args);
-    }
-
-    /**
      * <p>warn.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void warn(String msg, Object... args) {
         log(msg, log::warn, args);
-    }
-
-    /**
-     * <p>log.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param level a {@link java.util.function.BiConsumer} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s OUT => %s", Netty.id(channel), msg), args);
     }
 }

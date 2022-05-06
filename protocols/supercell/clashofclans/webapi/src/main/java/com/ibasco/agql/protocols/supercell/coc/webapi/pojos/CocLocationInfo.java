@@ -45,7 +45,8 @@ public class CocLocationInfo {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -63,7 +64,8 @@ public class CocLocationInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -81,7 +83,8 @@ public class CocLocationInfo {
     /**
      * <p>setCountry.</p>
      *
-     * @param country a boolean
+     * @param country
+     *         a boolean
      */
     public void setCountry(boolean country) {
         isCountry = country;

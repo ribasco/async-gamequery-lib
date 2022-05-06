@@ -28,6 +28,13 @@ abstract public class SourceRconRequest extends AbstractRequest {
 
     private int requestId;
 
+    /** {@inheritDoc} */
+    @Override
+    protected void buildToString(ToStringBuilder builder) {
+        super.buildToString(builder);
+        builder.append("requestId", getRequestId());
+    }
+
     /**
      * <p>Getter for the field <code>requestId</code>.</p>
      *
@@ -40,16 +47,10 @@ abstract public class SourceRconRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>requestId</code>.</p>
      *
-     * @param requestId a int
+     * @param requestId
+     *         a int
      */
     public void setRequestId(int requestId) {
         this.requestId = requestId;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void buildToString(ToStringBuilder builder) {
-        super.buildToString(builder);
-        builder.append("requestId", getRequestId());
     }
 }

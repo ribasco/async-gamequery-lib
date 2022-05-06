@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,11 +28,16 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItemSet {
+
     @SerializedName("item_set")
     private String itemSet;
+
     private String name;
+
     private List<String> items = new ArrayList<>();
+
     private List<SteamEconSchemaItemAttribute> attributes = new ArrayList<>();
+
     @SerializedName("store_bundle ")
     private String storeBundle;
 
@@ -49,7 +53,8 @@ public class SteamEconSchemaItemSet {
     /**
      * <p>Setter for the field <code>itemSet</code>.</p>
      *
-     * @param itemSet a {@link java.lang.String} object
+     * @param itemSet
+     *         a {@link java.lang.String} object
      */
     public void setItemSet(String itemSet) {
         this.itemSet = itemSet;
@@ -67,7 +72,8 @@ public class SteamEconSchemaItemSet {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -85,7 +91,8 @@ public class SteamEconSchemaItemSet {
     /**
      * <p>Setter for the field <code>items</code>.</p>
      *
-     * @param items a {@link java.util.List} object
+     * @param items
+     *         a {@link java.util.List} object
      */
     public void setItems(List<String> items) {
         this.items = items;
@@ -103,7 +110,8 @@ public class SteamEconSchemaItemSet {
     /**
      * <p>Setter for the field <code>attributes</code>.</p>
      *
-     * @param attributes a {@link java.util.List} object
+     * @param attributes
+     *         a {@link java.util.List} object
      */
     public void setAttributes(List<SteamEconSchemaItemAttribute> attributes) {
         this.attributes = attributes;
@@ -121,7 +129,8 @@ public class SteamEconSchemaItemSet {
     /**
      * <p>Setter for the field <code>storeBundle</code>.</p>
      *
-     * @param storeBundle a {@link java.lang.String} object
+     * @param storeBundle
+     *         a {@link java.lang.String} object
      */
     public void setStoreBundle(String storeBundle) {
         this.storeBundle = storeBundle;

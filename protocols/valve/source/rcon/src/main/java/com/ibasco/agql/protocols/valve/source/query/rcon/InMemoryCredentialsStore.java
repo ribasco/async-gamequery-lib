@@ -19,12 +19,11 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default In-Memory {@link com.ibasco.agql.core.CredentialsStore}

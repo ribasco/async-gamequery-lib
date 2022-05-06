@@ -30,7 +30,9 @@ public interface NettyChannelContextFactory {
     /**
      * <p>create.</p>
      *
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     NettyChannelContext create(Channel channel);

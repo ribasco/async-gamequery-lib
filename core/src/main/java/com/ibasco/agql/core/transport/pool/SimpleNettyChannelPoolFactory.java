@@ -17,10 +17,9 @@
 package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.transport.NettyChannelFactory;
+import java.net.InetSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * <p>SimpleNettyChannelPoolFactory class.</p>
@@ -34,7 +33,8 @@ public class SimpleNettyChannelPoolFactory extends NettyChannelPoolFactory {
     /**
      * <p>Constructor for SimpleNettyChannelPoolFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public SimpleNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);

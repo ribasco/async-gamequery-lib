@@ -35,6 +35,16 @@ public class CocLeague {
 
     private CocLeagueIconUrls iconUrls;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("name", getName())
+                .append("iconUrls", getIconUrls())
+                .toString();
+    }
+
     /**
      * <p>Getter for the field <code>id</code>.</p>
      *
@@ -47,7 +57,8 @@ public class CocLeague {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -65,7 +76,8 @@ public class CocLeague {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -83,19 +95,10 @@ public class CocLeague {
     /**
      * <p>Setter for the field <code>iconUrls</code>.</p>
      *
-     * @param iconUrls a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueIconUrls} object
+     * @param iconUrls
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueIconUrls} object
      */
     public void setIconUrls(CocLeagueIconUrls iconUrls) {
         this.iconUrls = iconUrls;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("name", getName())
-                .append("iconUrls", getIconUrls())
-                .toString();
     }
 }

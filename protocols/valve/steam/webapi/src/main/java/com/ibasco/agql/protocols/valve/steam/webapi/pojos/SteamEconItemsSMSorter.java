@@ -26,14 +26,20 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMSorter {
+
     private long id;
+
     private String name;
+
     @SerializedName("data_type")
     private String dataType;
+
     @SerializedName("sort_field")
     private String sortField;
+
     @SerializedName("sort_reversed")
     private boolean sortReversed;
+
     @SerializedName("localized_text")
     private String localizedText;
 
@@ -49,7 +55,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -67,7 +74,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -85,7 +93,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>dataType</code>.</p>
      *
-     * @param dataType a {@link java.lang.String} object
+     * @param dataType
+     *         a {@link java.lang.String} object
      */
     public void setDataType(String dataType) {
         this.dataType = dataType;
@@ -103,7 +112,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>sortField</code>.</p>
      *
-     * @param sortField a {@link java.lang.String} object
+     * @param sortField
+     *         a {@link java.lang.String} object
      */
     public void setSortField(String sortField) {
         this.sortField = sortField;
@@ -121,7 +131,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>sortReversed</code>.</p>
      *
-     * @param sortReversed a boolean
+     * @param sortReversed
+     *         a boolean
      */
     public void setSortReversed(boolean sortReversed) {
         this.sortReversed = sortReversed;
@@ -139,7 +150,8 @@ public class SteamEconItemsSMSorter {
     /**
      * <p>Setter for the field <code>localizedText</code>.</p>
      *
-     * @param localizedText a {@link java.lang.String} object
+     * @param localizedText
+     *         a {@link java.lang.String} object
      */
     public void setLocalizedText(String localizedText) {
         this.localizedText = localizedText;

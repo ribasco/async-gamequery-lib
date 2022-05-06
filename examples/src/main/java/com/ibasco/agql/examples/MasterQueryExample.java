@@ -25,14 +25,13 @@ import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>MasterQueryExample class.</p>
@@ -43,9 +42,9 @@ public class MasterQueryExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(MasterQueryExample.class);
 
-    private MasterServerQueryClient client;
-
     private final Set<InetSocketAddress> addressSet = new HashSet<>();
+
+    private MasterServerQueryClient client;
 
     /** {@inheritDoc} */
     @Override
@@ -55,12 +54,6 @@ public class MasterQueryExample extends BaseExample {
                                                          .build();
         client = new MasterServerQueryClient(options);
         this.listAllServers();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void close() throws IOException {
-        close(client, "Master");
     }
 
     /**
@@ -83,14 +76,6 @@ public class MasterQueryExample extends BaseExample {
         } finally {
             if (addresses != null)
                 System.out.printf("\033[0;32mDONE\033[0m \033[0;36m(Total: %d)\033[0m", addressSet.size());
-        }
-    }
-
-    private void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
-        if (addressSet.add(address)) {
-            System.out.printf("\033[0;34mReceived Server Address :\033[0m \033[0;33m%s\033[0m\n", address);
-        } else {
-            System.out.printf("\033[0;31mReceived Server Address (DUPLICATE) : %s\033[0m\n", address);
         }
     }
 
@@ -141,5 +126,19 @@ public class MasterQueryExample extends BaseExample {
         if (appId != null && appId > 0)
             filter.appId(appId);
         return filter;
+    }
+
+    private void displayIpStream(InetSocketAddress address, InetSocketAddress sender, Throwable error) {
+        if (addressSet.add(address)) {
+            System.out.printf("\033[0;34mReceived Server Address :\033[0m \033[0;33m%s\033[0m\n", address);
+        } else {
+            System.out.printf("\033[0;31mReceived Server Address (DUPLICATE) : %s\033[0m\n", address);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        close(client, "Master");
     }
 }

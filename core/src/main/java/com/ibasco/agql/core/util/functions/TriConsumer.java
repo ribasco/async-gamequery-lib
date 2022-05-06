@@ -25,19 +25,13 @@ import java.util.Objects;
  */
 @FunctionalInterface
 public interface TriConsumer<T, U, V> {
-    /**
-     * <p>accept.</p>
-     *
-     * @param t a T object
-     * @param u a U object
-     * @param v a V object
-     */
-    void accept(T t, U u, V v);
 
     /**
      * <p>andThen.</p>
      *
-     * @param after a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
+     * @param after
+     *         a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
+     *
      * @return a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
      */
     default TriConsumer<T, U, V> andThen(TriConsumer<? super T, ? super U, ? super V> after) {
@@ -47,4 +41,16 @@ public interface TriConsumer<T, U, V> {
             after.accept(a, b, c);
         };
     }
+
+    /**
+     * <p>accept.</p>
+     *
+     * @param t
+     *         a T object
+     * @param u
+     *         a U object
+     * @param v
+     *         a V object
+     */
+    void accept(T t, U u, V v);
 }

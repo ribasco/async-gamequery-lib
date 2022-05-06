@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,16 +28,35 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreFeaturedApps {
+
     @SerializedName("large_capsules")
     private List<StoreFeaturedAppInfo> largeCapsulesGames = new ArrayList<>();
+
     @SerializedName("featured_win")
     private List<StoreFeaturedAppInfo> windowsFeaturedGames = new ArrayList<>();
+
     @SerializedName("featured_mac")
     private List<StoreFeaturedAppInfo> macFeaturedGames = new ArrayList<>();
+
     @SerializedName("featured_linux")
     private List<StoreFeaturedAppInfo> linuxFeaturedGames = new ArrayList<>();
+
     private String layout;
+
     private int status;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("totalLargeCapsuleGames", getLargeCapsulesGames().size())
+                .append("totalWindowsFeaturedGames", getWindowsFeaturedGames().size())
+                .append("totalMacFeaturedGames", getMacFeaturedGames().size())
+                .append("totalLinuxFeaturedGames", getLinuxFeaturedGames().size())
+                .append("layout", getLayout())
+                .append("status", getStatus())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>largeCapsulesGames</code>.</p>
@@ -52,7 +70,8 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>largeCapsulesGames</code>.</p>
      *
-     * @param largeCapsulesGames a {@link java.util.List} object
+     * @param largeCapsulesGames
+     *         a {@link java.util.List} object
      */
     public void setLargeCapsulesGames(List<StoreFeaturedAppInfo> largeCapsulesGames) {
         this.largeCapsulesGames = largeCapsulesGames;
@@ -70,7 +89,8 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>windowsFeaturedGames</code>.</p>
      *
-     * @param windowsFeaturedGames a {@link java.util.List} object
+     * @param windowsFeaturedGames
+     *         a {@link java.util.List} object
      */
     public void setWindowsFeaturedGames(List<StoreFeaturedAppInfo> windowsFeaturedGames) {
         this.windowsFeaturedGames = windowsFeaturedGames;
@@ -88,7 +108,8 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>macFeaturedGames</code>.</p>
      *
-     * @param macFeaturedGames a {@link java.util.List} object
+     * @param macFeaturedGames
+     *         a {@link java.util.List} object
      */
     public void setMacFeaturedGames(List<StoreFeaturedAppInfo> macFeaturedGames) {
         this.macFeaturedGames = macFeaturedGames;
@@ -106,7 +127,8 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>linuxFeaturedGames</code>.</p>
      *
-     * @param linuxFeaturedGames a {@link java.util.List} object
+     * @param linuxFeaturedGames
+     *         a {@link java.util.List} object
      */
     public void setLinuxFeaturedGames(List<StoreFeaturedAppInfo> linuxFeaturedGames) {
         this.linuxFeaturedGames = linuxFeaturedGames;
@@ -124,7 +146,8 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>layout</code>.</p>
      *
-     * @param layout a {@link java.lang.String} object
+     * @param layout
+     *         a {@link java.lang.String} object
      */
     public void setLayout(String layout) {
         this.layout = layout;
@@ -142,22 +165,10 @@ public class StoreFeaturedApps {
     /**
      * <p>Setter for the field <code>status</code>.</p>
      *
-     * @param status a int
+     * @param status
+     *         a int
      */
     public void setStatus(int status) {
         this.status = status;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("totalLargeCapsuleGames", getLargeCapsulesGames().size())
-                .append("totalWindowsFeaturedGames", getWindowsFeaturedGames().size())
-                .append("totalMacFeaturedGames", getMacFeaturedGames().size())
-                .append("totalLinuxFeaturedGames", getLinuxFeaturedGames().size())
-                .append("layout", getLayout())
-                .append("status", getStatus())
-                .toString();
     }
 }

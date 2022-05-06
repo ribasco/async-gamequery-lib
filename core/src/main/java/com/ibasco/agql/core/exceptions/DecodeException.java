@@ -32,7 +32,8 @@ public class DecodeException extends AgqlException {
     /**
      * <p>Constructor for DecodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public DecodeException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class DecodeException extends AgqlException {
     /**
      * <p>Constructor for DecodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public DecodeException(String message, Throwable cause) {
         super(message, cause);

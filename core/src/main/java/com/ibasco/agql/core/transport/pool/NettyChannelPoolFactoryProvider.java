@@ -33,8 +33,11 @@ public interface NettyChannelPoolFactoryProvider {
     /**
      * <p>getFactory.</p>
      *
-     * @param type a {@link com.ibasco.agql.core.transport.enums.ChannelPoolType} object
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.ChannelPoolType} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     *
      * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
      */
     NettyChannelPoolFactory getFactory(ChannelPoolType type, NettyChannelFactory channelFactory);

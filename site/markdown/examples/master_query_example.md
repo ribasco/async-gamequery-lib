@@ -6,8 +6,8 @@
 
 1. [Failsafe Features](#failsafe-features)
 2. [Examples](#examples)
-   1. [Web API version](#web-api-version)
-   2. [Legacy version](#legacy-version)
+    1. [Web API version](#web-api-version)
+    2. [Legacy version](#legacy-version)
 
 #### Failsafe Features
 

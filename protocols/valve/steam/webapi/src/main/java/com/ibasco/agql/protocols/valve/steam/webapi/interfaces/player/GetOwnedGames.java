@@ -25,13 +25,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetOwnedGames extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetOwnedGames.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param includeAppInfo a boolean
-     * @param includePlayedFreeGames a boolean
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param includeAppInfo
+     *         a boolean
+     * @param includePlayedFreeGames
+     *         a boolean
      */
     public GetOwnedGames(int apiVersion, long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
         super("GetOwnedGames", apiVersion);

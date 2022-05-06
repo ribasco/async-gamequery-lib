@@ -24,9 +24,12 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreSaleApp {
+
     @SerializedName("id")
     private int appId;
+
     private String name;
+
     private int type;
 
     /**
@@ -41,7 +44,8 @@ public class StoreSaleApp {
     /**
      * <p>Setter for the field <code>appId</code>.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
      */
     public void setAppId(int appId) {
         this.appId = appId;
@@ -59,7 +63,8 @@ public class StoreSaleApp {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -77,7 +82,8 @@ public class StoreSaleApp {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
      */
     public void setType(int type) {
         this.type = type;

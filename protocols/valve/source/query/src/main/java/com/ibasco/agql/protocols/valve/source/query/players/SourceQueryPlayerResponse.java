@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.source.query.players;
 
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
-
 import java.util.List;
 
 /**
@@ -30,7 +29,8 @@ public class SourceQueryPlayerResponse extends SourceQueryResponse<List<SourcePl
     /**
      * <p>Constructor for SourceQueryPlayerResponse.</p>
      *
-     * @param players a {@link java.util.List} object
+     * @param players
+     *         a {@link java.util.List} object
      */
     public SourceQueryPlayerResponse(List<SourcePlayer> players) {
         super(players);

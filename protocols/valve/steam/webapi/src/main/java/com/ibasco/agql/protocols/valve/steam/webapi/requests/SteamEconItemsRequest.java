@@ -20,18 +20,23 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamApiConstants;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
 
 //TODO: Add language support
+
 /**
  * <p>Abstract SteamEconItemsRequest class.</p>
  *
  * @author Rafael Luis Ibasco
  */
 abstract public class SteamEconItemsRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for SteamEconItemsRequest.</p>
      *
-     * @param appId a int
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public SteamEconItemsRequest(int appId, String apiMethod, int apiVersion) {
         super(SteamApiConstants.STEAM_ECON_ITEMS, apiMethod, apiVersion);

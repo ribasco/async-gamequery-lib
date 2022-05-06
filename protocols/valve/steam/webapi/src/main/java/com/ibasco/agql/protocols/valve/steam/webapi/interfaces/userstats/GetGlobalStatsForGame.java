@@ -25,13 +25,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
  * @author Rafael Luis Ibasco
  */
 public class GetGlobalStatsForGame extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetGlobalStatsForGame.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param count a int
-     * @param name a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param count
+     *         a int
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name) {
         this(apiVersion, appId, count, name, -1, -1);
@@ -40,12 +45,18 @@ public class GetGlobalStatsForGame extends SteamUserStatsRequest {
     /**
      * <p>Constructor for GetGlobalStatsForGame.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param count a int
-     * @param name a {@link java.lang.String} object
-     * @param startDate a int
-     * @param endDate a int
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param count
+     *         a int
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param startDate
+     *         a int
+     * @param endDate
+     *         a int
      */
     public GetGlobalStatsForGame(int apiVersion, int appId, int count, String name, int startDate, int endDate) {
         super("GetGlobalStatsForGame", apiVersion);

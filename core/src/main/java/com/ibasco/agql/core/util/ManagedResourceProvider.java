@@ -26,6 +26,7 @@ import java.util.function.Supplier;
  *
  * @param <T>
  *         The type of {@link com.ibasco.agql.core.util.ManagedResource}
+ *
  * @author Rafael Luis Ibasco
  */
 public class ManagedResourceProvider<T extends ManagedResource> {
@@ -37,7 +38,8 @@ public class ManagedResourceProvider<T extends ManagedResource> {
     /**
      * <p>Constructor for ManagedResourceProvider.</p>
      *
-     * @param supplier a {@link java.util.function.Supplier} object
+     * @param supplier
+     *         a {@link java.util.function.Supplier} object
      */
     public ManagedResourceProvider(Supplier<T> supplier) {
         this.factory = s -> supplier.get();
@@ -46,7 +48,9 @@ public class ManagedResourceProvider<T extends ManagedResource> {
     /**
      * <p>acquire.</p>
      *
-     * @param resourceName a {@link java.lang.String} object
+     * @param resourceName
+     *         a {@link java.lang.String} object
+     *
      * @return a T object
      */
     public T acquire(String resourceName) {

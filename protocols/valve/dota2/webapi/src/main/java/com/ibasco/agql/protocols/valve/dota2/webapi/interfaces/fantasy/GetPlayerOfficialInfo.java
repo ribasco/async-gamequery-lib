@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2FantasyRequest
  * @author Rafael Luis Ibasco
  */
 public class GetPlayerOfficialInfo extends Dota2FantasyRequest {
+
     /**
      * <p>Constructor for GetPlayerOfficialInfo.</p>
      *
-     * @param apiVersion a int
-     * @param accountId a int
+     * @param apiVersion
+     *         a int
+     * @param accountId
+     *         a int
      */
     public GetPlayerOfficialInfo(int apiVersion, int accountId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETPLAYERINFO, apiVersion);

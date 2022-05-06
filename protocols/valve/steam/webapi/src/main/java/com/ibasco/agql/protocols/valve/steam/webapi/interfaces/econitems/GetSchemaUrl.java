@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconItemsReque
  * @author Rafael Luis Ibasco
  */
 public class GetSchemaUrl extends SteamEconItemsRequest {
+
     /**
      * <p>Constructor for GetSchemaUrl.</p>
      *
-     * @param appId a int
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param apiVersion
+     *         a int
      */
     public GetSchemaUrl(int appId, int apiVersion) {
         super(appId, SteamApiConstants.STEAM_METHOD_ECONITEMS_GETSCHEMAURL, apiVersion);

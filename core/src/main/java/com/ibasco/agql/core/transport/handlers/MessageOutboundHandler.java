@@ -24,10 +24,9 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
+import java.util.function.BiConsumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.function.BiConsumer;
 
 /**
  * <p>Abstract MessageOutboundHandler class.</p>
@@ -38,11 +37,11 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
 
     private final Logger log;
 
-    private Channel channel;
-
     private final Class<? extends AbstractRequest> filterRequestClass;
 
     private final Class<?> filterMessageType;
+
+    private Channel channel;
 
     /**
      * <p>Constructor for MessageOutboundHandler.</p>
@@ -54,8 +53,10 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>Constructor for MessageOutboundHandler.</p>
      *
-     * @param filterRequestClass a {@link java.lang.Class} object
-     * @param filterMessageType a {@link java.lang.Class} object
+     * @param filterRequestClass
+     *         a {@link java.lang.Class} object
+     * @param filterMessageType
+     *         a {@link java.lang.Class} object
      */
     protected MessageOutboundHandler(Class<? extends AbstractRequest> filterRequestClass, Class<?> filterMessageType) {
         this.log = LoggerFactory.getLogger(this.getClass());
@@ -66,10 +67,15 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>writeMessage.</p>
      *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param msg a {@link java.lang.Object} object
-     * @param promise a {@link io.netty.channel.ChannelPromise} object
-     * @throws java.lang.Exception if any.
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg
+     *         a {@link java.lang.Object} object
+     * @param promise
+     *         a {@link io.netty.channel.ChannelPromise} object
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     protected void writeMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
         ctx.write(msg, promise);
@@ -133,18 +139,36 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>trace.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void trace(String msg, Object... args) {
         log(msg, log::trace, args);
     }
 
     /**
+     * <p>log.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param level
+     *         a {@link java.util.function.BiConsumer} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(String.format("%s INB => %s", Netty.id(channel), msg), args);
+    }
+
+    /**
      * <p>error.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void error(String msg, Object... args) {
         log(msg, log::error, args);
@@ -153,8 +177,10 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>info.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void info(String msg, Object... args) {
         log(msg, log::info, args);
@@ -163,8 +189,10 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>debug.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void debug(String msg, Object... args) {
         log(msg, log::debug, args);
@@ -173,22 +201,13 @@ abstract public class MessageOutboundHandler extends ChannelOutboundHandlerAdapt
     /**
      * <p>warn.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void warn(String msg, Object... args) {
         log(msg, log::warn, args);
-    }
-
-    /**
-     * <p>log.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param level a {@link java.util.function.BiConsumer} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(String.format("%s INB => %s", Netty.id(channel), msg), args);
     }
 
 }

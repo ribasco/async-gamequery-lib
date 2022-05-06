@@ -25,6 +25,10 @@ public class SMPlugin {
 
     private final String name;
 
+    private final Set<SMConVar> conVars = new HashSet<>();
+
+    private final Set<SMCommand> commands = new HashSet<>();
+
     private String version;
 
     private String author;
@@ -40,10 +44,6 @@ public class SMPlugin {
     private String timestamp;
 
     private String hash;
-
-    private final Set<SMConVar> conVars = new HashSet<>();
-
-    private final Set<SMCommand> commands = new HashSet<>();
 
     public SMPlugin(String id, String name, String version, String author) {
         this.id = id;
@@ -80,6 +80,10 @@ public class SMPlugin {
         return author;
     }
 
+    public void setAuthor(String author) {
+        this.author = author;
+    }
+
     public String getFilename() {
         return filename;
     }
@@ -94,10 +98,6 @@ public class SMPlugin {
 
     public void setTitle(String title) {
         this.title = title;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getUrl() {

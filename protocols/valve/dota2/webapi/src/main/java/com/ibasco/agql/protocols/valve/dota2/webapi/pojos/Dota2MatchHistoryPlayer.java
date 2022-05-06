@@ -31,9 +31,11 @@ public class Dota2MatchHistoryPlayer {
     @SerializedName("account_id")
     @Expose
     private long accountId;
+
     @SerializedName("player_slot")
     @Expose
     private int playerSlot;
+
     @SerializedName("hero_id")
     @Expose
     private int heroId;

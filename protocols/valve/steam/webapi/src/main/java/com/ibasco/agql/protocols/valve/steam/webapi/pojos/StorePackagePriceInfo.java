@@ -26,14 +26,49 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class StorePackagePriceInfo {
+
     private String currency;
+
     @SerializedName("initial")
     private int initialPrice;
+
     @SerializedName("final")
     private int finalPrice;
+
     @SerializedName("discount_percent")
     private int discountPercent;
+
     private int individual;
+
+    /**
+     * <p>Getter for the field <code>discountPercent</code>.</p>
+     *
+     * @return a int
+     */
+    public int getDiscountPercent() {
+        return discountPercent;
+    }
+
+    /**
+     * <p>Setter for the field <code>discountPercent</code>.</p>
+     *
+     * @param discountPercent
+     *         a int
+     */
+    public void setDiscountPercent(int discountPercent) {
+        this.discountPercent = discountPercent;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("currency", getCurrency())
+                .append("initialPrice", getInitialPrice())
+                .append("finalPrice", getFinalPrice())
+                .append("individual", getIndividual())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>currency</code>.</p>
@@ -47,7 +82,8 @@ public class StorePackagePriceInfo {
     /**
      * <p>Setter for the field <code>currency</code>.</p>
      *
-     * @param currency a {@link java.lang.String} object
+     * @param currency
+     *         a {@link java.lang.String} object
      */
     public void setCurrency(String currency) {
         this.currency = currency;
@@ -65,7 +101,8 @@ public class StorePackagePriceInfo {
     /**
      * <p>Setter for the field <code>initialPrice</code>.</p>
      *
-     * @param initialPrice a int
+     * @param initialPrice
+     *         a int
      */
     public void setInitialPrice(int initialPrice) {
         this.initialPrice = initialPrice;
@@ -83,28 +120,11 @@ public class StorePackagePriceInfo {
     /**
      * <p>Setter for the field <code>finalPrice</code>.</p>
      *
-     * @param finalPrice a int
+     * @param finalPrice
+     *         a int
      */
     public void setFinalPrice(int finalPrice) {
         this.finalPrice = finalPrice;
-    }
-
-    /**
-     * <p>Getter for the field <code>discountPercent</code>.</p>
-     *
-     * @return a int
-     */
-    public int getDiscountPercent() {
-        return discountPercent;
-    }
-
-    /**
-     * <p>Setter for the field <code>discountPercent</code>.</p>
-     *
-     * @param discountPercent a int
-     */
-    public void setDiscountPercent(int discountPercent) {
-        this.discountPercent = discountPercent;
     }
 
     /**
@@ -119,20 +139,10 @@ public class StorePackagePriceInfo {
     /**
      * <p>Setter for the field <code>individual</code>.</p>
      *
-     * @param individual a int
+     * @param individual
+     *         a int
      */
     public void setIndividual(int individual) {
         this.individual = individual;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("currency", getCurrency())
-                .append("initialPrice", getInitialPrice())
-                .append("finalPrice", getFinalPrice())
-                .append("individual", getIndividual())
-                .toString();
     }
 }

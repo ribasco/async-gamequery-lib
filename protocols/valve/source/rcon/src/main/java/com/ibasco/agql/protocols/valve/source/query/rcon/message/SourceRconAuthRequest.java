@@ -44,6 +44,13 @@ public class SourceRconAuthRequest extends SourceRconRequest {
         this.password = password;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    protected void buildToString(ToStringBuilder builder) {
+        super.buildToString(builder);
+        builder.append("password", String.format("%d byte(s)", getPassword() != null ? getPassword().length : 0));
+    }
+
     /**
      * <p>Getter for the field <code>password</code>.</p>
      *
@@ -56,16 +63,10 @@ public class SourceRconAuthRequest extends SourceRconRequest {
     /**
      * <p>Setter for the field <code>password</code>.</p>
      *
-     * @param password an array of {@code byte} objects
+     * @param password
+     *         an array of {@code byte} objects
      */
     public void setPassword(byte[] password) {
         this.password = password;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void buildToString(ToStringBuilder builder) {
-        super.buildToString(builder);
-        builder.append("password", String.format("%d byte(s)", getPassword() != null ? getPassword().length : 0));
     }
 }

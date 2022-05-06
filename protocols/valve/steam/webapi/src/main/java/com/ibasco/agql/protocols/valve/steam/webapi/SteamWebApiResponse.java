@@ -26,10 +26,12 @@ import org.asynchttpclient.Response;
  * @author Rafael Luis Ibasco
  */
 public class SteamWebApiResponse extends AbstractWebApiResponse<JsonElement> {
+
     /**
      * <p>Constructor for SteamWebApiResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public SteamWebApiResponse(Response response) {
         super(response);

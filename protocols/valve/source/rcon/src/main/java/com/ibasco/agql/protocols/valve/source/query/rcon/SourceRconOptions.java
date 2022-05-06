@@ -18,10 +18,15 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.AbstractOptions;
+import com.ibasco.agql.core.util.ConnectOptions;
+import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.Inherit;
+import com.ibasco.agql.core.util.Option;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketAssembler;
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -34,15 +39,6 @@ import java.net.InetSocketAddress;
  */
 @Inherit(options = {FailsafeOptions.class, ConnectOptions.class})
 public final class SourceRconOptions extends AbstractOptions {
-
-    /**
-     * <p>Create a new {@link OptionBuilder} for {@link SourceRconOptions}</p>
-     *
-     * @return a newly instantiated {@link com.ibasco.agql.core.util.OptionBuilder} object
-     */
-    public static OptionBuilder<SourceRconOptions> builder() {
-        return OptionBuilder.newBuilder(SourceRconOptions.class);
-    }
 
     /**
      * <p>
@@ -98,4 +94,13 @@ public final class SourceRconOptions extends AbstractOptions {
      * @see #CLOSE_INACTIVE_CHANNELS
      */
     public static final Option<Integer> INACTIVE_CHECK_INTERVAL = Option.create("rconInactiveCheckInterval", 1);
+
+    /**
+     * <p>Create a new {@link OptionBuilder} for {@link SourceRconOptions}</p>
+     *
+     * @return a newly instantiated {@link com.ibasco.agql.core.util.OptionBuilder} object
+     */
+    public static OptionBuilder<SourceRconOptions> builder() {
+        return OptionBuilder.newBuilder(SourceRconOptions.class);
+    }
 }

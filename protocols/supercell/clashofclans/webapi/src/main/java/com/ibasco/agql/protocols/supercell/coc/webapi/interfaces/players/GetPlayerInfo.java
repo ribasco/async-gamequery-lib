@@ -28,11 +28,14 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetPlayerInfo extends CocWebApiRequest {
+
     /**
      * <p>Constructor for GetPlayerInfo.</p>
      *
-     * @param apiVersion a int
-     * @param playerTag a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param playerTag
+     *         a {@link java.lang.String} object
      */
     public GetPlayerInfo(int apiVersion, String playerTag) {
         super(apiVersion, CocApiConstants.UF_COC_PLAYER_INFO);

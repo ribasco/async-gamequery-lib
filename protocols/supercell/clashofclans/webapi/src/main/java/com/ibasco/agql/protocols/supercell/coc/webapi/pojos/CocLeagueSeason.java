@@ -41,7 +41,8 @@ public class CocLeagueSeason {
     /**
      * <p>Setter for the field <code>seasonDate</code>.</p>
      *
-     * @param seasonDate a {@link java.lang.String} object
+     * @param seasonDate
+     *         a {@link java.lang.String} object
      */
     public void setSeasonDate(String seasonDate) {
         this.seasonDate = seasonDate;

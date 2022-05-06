@@ -31,12 +31,15 @@ public class Dota2TeamMemberDetails {
     @SerializedName("account_id")
     @Expose
     private long accountId;
+
     @SerializedName("time_joined")
     @Expose
     private long timeJoined;
+
     @SerializedName("admin")
     @Expose
     private boolean admin;
+
     @SerializedName("sub")
     @Expose
     private boolean sub;

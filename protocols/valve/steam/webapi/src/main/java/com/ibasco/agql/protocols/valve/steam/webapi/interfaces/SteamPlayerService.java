@@ -22,12 +22,16 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetBadges;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetCommunityBadgeProgress;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetOwnedGames;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetRecentlyPlayedGames;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetSteamGameLenderId;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.player.GetSteamLevel;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerBadgeInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerOwnedGame;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerRecentPlayed;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamQuestStatus;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +47,8 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>Constructor for SteamPlayerService.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamPlayerService(SteamWebApiClient client) {
         super(client);
@@ -52,8 +57,11 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getRecentlyPlayedGames.</p>
      *
-     * @param steamId a long
-     * @param count a int
+     * @param steamId
+     *         a long
+     * @param count
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamPlayerRecentPlayed>> getRecentlyPlayedGames(long steamId, int count) {
@@ -68,9 +76,13 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getOwnedGames.</p>
      *
-     * @param steamId a long
-     * @param includeAppInfo a boolean
-     * @param includePlayedFreeGames a boolean
+     * @param steamId
+     *         a long
+     * @param includeAppInfo
+     *         a boolean
+     * @param includePlayedFreeGames
+     *         a boolean
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamPlayerOwnedGame>> getOwnedGames(long steamId, boolean includeAppInfo, boolean includePlayedFreeGames) {
@@ -86,7 +98,9 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getBadges.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamPlayerBadgeInfo> getBadges(long steamId) {
@@ -100,7 +114,9 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getCommunityBadgeProgress.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamQuestStatus>> getCommunityBadgeProgress(long steamId) {
@@ -110,8 +126,11 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getCommunityBadgeProgress.</p>
      *
-     * @param steamId a long
-     * @param badgeId a int
+     * @param steamId
+     *         a long
+     * @param badgeId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamQuestStatus>> getCommunityBadgeProgress(long steamId, int badgeId) {
@@ -128,7 +147,9 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getSteamLevel.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Integer> getSteamLevel(long steamId) {
@@ -139,8 +160,11 @@ public class SteamPlayerService extends SteamWebApiInterface {
     /**
      * <p>getSteamGameLenderId.</p>
      *
-     * @param steamId a long
-     * @param appId a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<String> getSteamGameLenderId(long steamId, int appId) {

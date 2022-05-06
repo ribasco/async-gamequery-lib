@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class ServerUpdateStatus extends SteamResponse {
+
     @SerializedName("up_to_date")
     private boolean upToDate;
 
@@ -47,7 +48,8 @@ public class ServerUpdateStatus extends SteamResponse {
     /**
      * <p>Setter for the field <code>upToDate</code>.</p>
      *
-     * @param upToDate a boolean
+     * @param upToDate
+     *         a boolean
      */
     public void setUpToDate(boolean upToDate) {
         this.upToDate = upToDate;
@@ -65,7 +67,8 @@ public class ServerUpdateStatus extends SteamResponse {
     /**
      * <p>Setter for the field <code>versionListable</code>.</p>
      *
-     * @param versionListable a boolean
+     * @param versionListable
+     *         a boolean
      */
     public void setVersionListable(boolean versionListable) {
         this.versionListable = versionListable;
@@ -83,7 +86,8 @@ public class ServerUpdateStatus extends SteamResponse {
     /**
      * <p>Setter for the field <code>requiredVersion</code>.</p>
      *
-     * @param requiredVersion a int
+     * @param requiredVersion
+     *         a int
      */
     public void setRequiredVersion(int requiredVersion) {
         this.requiredVersion = requiredVersion;
@@ -101,7 +105,8 @@ public class ServerUpdateStatus extends SteamResponse {
     /**
      * <p>Setter for the field <code>message</code>.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public void setMessage(String message) {
         this.message = message;

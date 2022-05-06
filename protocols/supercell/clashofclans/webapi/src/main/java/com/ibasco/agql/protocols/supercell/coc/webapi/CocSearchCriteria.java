@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.supercell.coc.webapi;
 
 import com.ibasco.agql.protocols.supercell.coc.webapi.enums.CocWarFrequency;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,6 +30,7 @@ import java.util.Set;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocSearchCriteria {
+
     private final Map<String, Object> criteria = new HashMap<>();
 
     /**
@@ -48,7 +48,9 @@ public class CocSearchCriteria {
      * Name search parameter is interpreted as wild card search, so it may appear anywhere in the clan name.
      * </p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria name(String name) {
@@ -59,7 +61,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by clan war frequency</p>
      *
-     * @param frequency a {@link com.ibasco.agql.protocols.supercell.coc.webapi.enums.CocWarFrequency} object
+     * @param frequency
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.enums.CocWarFrequency} object
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria warFrequency(CocWarFrequency frequency) {
@@ -70,7 +74,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by clan location identifier. For list of available locations, refer to getLocations operation.</p>
      *
-     * @param locationId a int
+     * @param locationId
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria locationId(int locationId) {
@@ -81,7 +87,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum amount of clan members.</p>
      *
-     * @param minMembers a int
+     * @param minMembers
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minMembers(int minMembers) {
@@ -92,7 +100,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by maximum amount of clan members.</p>
      *
-     * @param maxMembers a int
+     * @param maxMembers
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria maxMembers(int maxMembers) {
@@ -103,7 +113,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum amount of clan points.</p>
      *
-     * @param minClanPoints a int
+     * @param minClanPoints
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minClanPoints(int minClanPoints) {
@@ -114,7 +126,9 @@ public class CocSearchCriteria {
     /**
      * <p>Filter by minimum clan level.</p>
      *
-     * @param minClanLevel a int
+     * @param minClanLevel
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria minClanLevel(int minClanLevel) {
@@ -125,7 +139,9 @@ public class CocSearchCriteria {
     /**
      * <p>Limit the number of items returned in the response.</p>
      *
-     * @param limit a int
+     * @param limit
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria limit(int limit) {
@@ -140,7 +156,9 @@ public class CocSearchCriteria {
      * Note that only after or before can be specified for a request, not both.
      * </p>
      *
-     * @param after a int
+     * @param after
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria after(int after) {
@@ -155,7 +173,9 @@ public class CocSearchCriteria {
      * Note that only after or before can be specified for a request, not both.
      * </p>
      *
-     * @param before a int
+     * @param before
+     *         a int
+     *
      * @return A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} instance
      */
     public CocSearchCriteria before(int before) {

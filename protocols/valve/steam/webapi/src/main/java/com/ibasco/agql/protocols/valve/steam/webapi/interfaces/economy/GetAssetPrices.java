@@ -25,13 +25,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconomyRequest
  * @author Rafael Luis Ibasco
  */
 public class GetAssetPrices extends SteamEconomyRequest {
+
     /**
      * <p>Constructor for GetAssetPrices.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param currency a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param currency
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetAssetPrices(int apiVersion, int appId, String currency, String language) {
         super("GetAssetPrices", apiVersion);

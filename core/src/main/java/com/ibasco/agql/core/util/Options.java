@@ -105,14 +105,6 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
      */
     <X> X get(Option<X> option);
 
-    <X> X get(String key, Class<? extends Options> context);
-
-    default <X> X get(Option<?> option, Class<? extends Options> context) {
-        //note: we do not use the provided option instance, instead we use it's associated key for lookup
-        //as its possible to have multiple option instances having the same key inside a single container
-        return get(option.getKey(), context);
-    }
-
     default <X> X getOrDefault(Option<X> option, Class<? extends Options> context) {
         //note: we do not use the provided option instance, instead we use it's associated key for lookup
         //as its possible to have multiple option instances having the same key inside a single container
@@ -126,6 +118,14 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
         X value = get(option, context);
         return value == null ? option.getDefaultValue() : value;
     }
+
+    default <X> X get(Option<?> option, Class<? extends Options> context) {
+        //note: we do not use the provided option instance, instead we use it's associated key for lookup
+        //as its possible to have multiple option instances having the same key inside a single container
+        return get(option.getKey(), context);
+    }
+
+    <X> X get(String key, Class<? extends Options> context);
 
     /**
      * <p>Retrieve option value from this container. If missing, the provided default value will be returned</p>
@@ -154,13 +154,6 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
     <X> X getOrDefault(Option<X> option);
 
     /**
-     * <p>Returns the number of configuration {@link com.ibasco.agql.core.util.Option} present for this container</p>
-     *
-     * @return An integer representing the size of the {@link com.ibasco.agql.core.util.Option}s present in this container.
-     */
-    int size();
-
-    /**
      * Check if container is empty.
      *
      * @return {@code true} if the instance is empty.
@@ -168,4 +161,11 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
     default boolean isEmpty() {
         return size() == 0;
     }
+
+    /**
+     * <p>Returns the number of configuration {@link com.ibasco.agql.core.util.Option} present for this container</p>
+     *
+     * @return An integer representing the size of the {@link com.ibasco.agql.core.util.Option}s present in this container.
+     */
+    int size();
 }

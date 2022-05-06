@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
  * @author Rafael Luis Ibasco
  */
 public class GetUserStatsForGame extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetUserStatsForGame.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
      */
     public GetUserStatsForGame(int apiVersion, long steamId, int appId) {
         super("GetUserStatsForGame", apiVersion);

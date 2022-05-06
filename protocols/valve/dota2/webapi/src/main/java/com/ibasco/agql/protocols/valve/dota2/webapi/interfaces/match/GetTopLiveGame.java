@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetTopLiveGame extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetTopLiveGame.</p>
      *
-     * @param apiVersion a int
-     * @param partner a int
+     * @param apiVersion
+     *         a int
+     * @param partner
+     *         a int
      */
     public GetTopLiveGame(int apiVersion, int partner) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETTOPLIVEGAME, apiVersion, null);

@@ -22,8 +22,10 @@ package com.ibasco.agql.protocols.valve.csgo.webapi;
  * @author Rafael Luis Ibasco
  */
 public final class CsgoApiConstants {
+
     /** Constant <code>CSGO_INTERFACE_SERVERS="ICSGOServers_730"</code> */
     public static final String CSGO_INTERFACE_SERVERS = "ICSGOServers_730";
+
     /** Constant <code>CSGO_INTERFACE_TOURNAMENTS="ICSGOTournaments_730"</code> */
     public static final String CSGO_INTERFACE_TOURNAMENTS = "ICSGOTournaments_730";
 

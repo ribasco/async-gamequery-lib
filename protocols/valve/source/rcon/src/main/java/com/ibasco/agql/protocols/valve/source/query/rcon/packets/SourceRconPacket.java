@@ -22,7 +22,6 @@ import io.netty.buffer.ByteBuf;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Comparator;
 
 /**
@@ -43,8 +42,10 @@ public class SourceRconPacket extends AbstractPacket implements Comparable<Sourc
     /**
      * <p>Constructor for SourceRconPacket.</p>
      *
-     * @param type a int
-     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     * @param type
+     *         a int
+     * @param payload
+     *         a {@link io.netty.buffer.ByteBuf} object
      */
     public SourceRconPacket(int type, ByteBuf payload) {
         super(payload);
@@ -63,10 +64,60 @@ public class SourceRconPacket extends AbstractPacket implements Comparable<Sourc
     /**
      * <p>Setter for the field <code>size</code>.</p>
      *
-     * @param size a {@link java.lang.Integer} object
+     * @param size
+     *         a {@link java.lang.Integer} object
      */
     public void setSize(Integer size) {
         this.size = size;
+    }
+
+    /**
+     * <p>Getter for the field <code>terminator</code>.</p>
+     *
+     * @return The terminating byte (can be either 0x00 or 0x01)
+     */
+    public int getTerminator() {
+        return terminator;
+    }
+
+    /**
+     * <p>Setter for the field <code>terminator</code>.</p>
+     *
+     * @param terminator
+     *         a int
+     */
+    public void setTerminator(int terminator) {
+        this.terminator = terminator;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public final String toString() {
+        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
+        buildToString(builder);
+        return builder.toString();
+    }
+
+    /**
+     * <p>buildToString.</p>
+     *
+     * @param builder
+     *         a {@link org.apache.commons.lang3.builder.ToStringBuilder} object
+     */
+    protected void buildToString(ToStringBuilder builder) {
+        builder
+                .append("packet size", size)
+                .append("id", id)
+                .append("type", type)
+                .append("terminator", Bytes.toHexString(terminator));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public int compareTo(@NotNull SourceRconPacket o) {
+        return Comparator.comparingInt(SourceRconPacket::getId)
+                         .thenComparing(SourceRconPacket::getType)
+                         .compare(this, o);
     }
 
     /**
@@ -81,7 +132,8 @@ public class SourceRconPacket extends AbstractPacket implements Comparable<Sourc
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -99,56 +151,10 @@ public class SourceRconPacket extends AbstractPacket implements Comparable<Sourc
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
      */
     protected void setType(int type) {
         this.type = type;
-    }
-
-    /**
-     * <p>Getter for the field <code>terminator</code>.</p>
-     *
-     * @return The terminating byte (can be either 0x00 or 0x01)
-     */
-    public int getTerminator() {
-        return terminator;
-    }
-
-    /**
-     * <p>Setter for the field <code>terminator</code>.</p>
-     *
-     * @param terminator a int
-     */
-    public void setTerminator(int terminator) {
-        this.terminator = terminator;
-    }
-
-    /**
-     * <p>buildToString.</p>
-     *
-     * @param builder a {@link org.apache.commons.lang3.builder.ToStringBuilder} object
-     */
-    protected void buildToString(ToStringBuilder builder) {
-        builder
-                .append("packet size", size)
-                .append("id", id)
-                .append("type", type)
-                .append("terminator", Bytes.toHexString(terminator));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public final String toString() {
-        ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
-        buildToString(builder);
-        return builder.toString();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int compareTo(@NotNull SourceRconPacket o) {
-        return Comparator.comparingInt(SourceRconPacket::getId)
-                         .thenComparing(SourceRconPacket::getType)
-                         .compare(this, o);
     }
 }

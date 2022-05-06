@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.ConfigurationSupport;
-
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;

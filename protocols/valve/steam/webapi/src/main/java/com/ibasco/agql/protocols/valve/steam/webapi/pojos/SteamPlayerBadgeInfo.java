@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +26,7 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamPlayerBadgeInfo {
+
     @SerializedName("badges")
     private List<SteamPlayerBadge> playerBadges = new ArrayList<>();
 
@@ -54,7 +54,8 @@ public class SteamPlayerBadgeInfo {
     /**
      * <p>Setter for the field <code>playerBadges</code>.</p>
      *
-     * @param playerBadges a {@link java.util.List} object
+     * @param playerBadges
+     *         a {@link java.util.List} object
      */
     public void setPlayerBadges(List<SteamPlayerBadge> playerBadges) {
         this.playerBadges = playerBadges;
@@ -72,7 +73,8 @@ public class SteamPlayerBadgeInfo {
     /**
      * <p>Setter for the field <code>playerXp</code>.</p>
      *
-     * @param playerXp a int
+     * @param playerXp
+     *         a int
      */
     public void setPlayerXp(int playerXp) {
         this.playerXp = playerXp;
@@ -90,7 +92,8 @@ public class SteamPlayerBadgeInfo {
     /**
      * <p>Setter for the field <code>playerLevel</code>.</p>
      *
-     * @param playerLevel a int
+     * @param playerLevel
+     *         a int
      */
     public void setPlayerLevel(int playerLevel) {
         this.playerLevel = playerLevel;
@@ -108,7 +111,8 @@ public class SteamPlayerBadgeInfo {
     /**
      * <p>Setter for the field <code>xpNeededToLevelUp</code>.</p>
      *
-     * @param xpNeededToLevelUp a int
+     * @param xpNeededToLevelUp
+     *         a int
      */
     public void setXpNeededToLevelUp(int xpNeededToLevelUp) {
         this.xpNeededToLevelUp = xpNeededToLevelUp;
@@ -126,7 +130,8 @@ public class SteamPlayerBadgeInfo {
     /**
      * <p>Setter for the field <code>xpNeededCurrentLevel</code>.</p>
      *
-     * @param xpNeededCurrentLevel a int
+     * @param xpNeededCurrentLevel
+     *         a int
      */
     public void setXpNeededCurrentLevel(int xpNeededCurrentLevel) {
         this.xpNeededCurrentLevel = xpNeededCurrentLevel;

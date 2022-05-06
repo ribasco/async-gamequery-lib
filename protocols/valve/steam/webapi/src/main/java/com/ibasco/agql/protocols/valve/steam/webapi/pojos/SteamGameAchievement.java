@@ -24,8 +24,10 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamGameAchievement {
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("percent")
     private double percentage;
 
@@ -41,7 +43,8 @@ public class SteamGameAchievement {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -59,7 +62,8 @@ public class SteamGameAchievement {
     /**
      * <p>Setter for the field <code>percentage</code>.</p>
      *
-     * @param percentage a double
+     * @param percentage
+     *         a double
      */
     public void setPercentage(double percentage) {
         this.percentage = percentage;

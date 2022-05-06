@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconItemsReque
  * @author Rafael Luis Ibasco
  */
 public class GetStoreMetadata extends SteamEconItemsRequest {
+
     /**
      * <p>Constructor for GetStoreMetadata.</p>
      *
-     * @param appId a int
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param apiVersion
+     *         a int
      */
     public GetStoreMetadata(int appId, int apiVersion) {
         super(appId, SteamApiConstants.STEAM_METHOD_ECONITEMS_GETSTOREMETA, apiVersion);

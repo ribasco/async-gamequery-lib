@@ -22,7 +22,6 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.SourceRcon;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketFactory;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.List;
 
 /**

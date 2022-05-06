@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamGroupId {
+
     @SerializedName("gid")
     private String groupId;
 
@@ -48,7 +49,8 @@ public class SteamGroupId {
     /**
      * <p>Setter for the field <code>groupId</code>.</p>
      *
-     * @param groupId a {@link java.lang.String} object
+     * @param groupId
+     *         a {@link java.lang.String} object
      */
     public void setGroupId(String groupId) {
         this.groupId = groupId;

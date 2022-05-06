@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.source.query.common.packets.util;
 
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySplitPacket;
 import io.netty.buffer.ByteBuf;
-
 import java.util.List;
 
 /**
@@ -34,7 +33,9 @@ public interface SourceSplitPacketAssembler {
      * @param packet
      *         The split-packet to be added. Note that packets can arrive at different order,
      *         as long as both the container and the split-packet are in a valid state, then calling this method should not fail.
+     *
      * @return {@code true} if after calling this method caused the assembler in completed state (all split-packets have been received), {@code false} if not yet completed.
+     *
      * @throws java.lang.IllegalStateException
      *         If the assembler has not been initialized or has already been marked as completed.
      * @throws java.lang.IndexOutOfBoundsException
@@ -43,19 +44,10 @@ public interface SourceSplitPacketAssembler {
     boolean add(SourceQuerySplitPacket packet);
 
     /**
-     * <p>isComplete.</p>
-     *
-     * @return {@code true} if the container is now in completed state (all packets have been received). {@code false} if either the container has not
-     * been initialized (not collecting) or if the container is not yet marked in a completed state
-     * @see #reset()
-     * @see #getBuffer()
-     */
-    boolean isComplete();
-
-    /**
      * <p>isProcessing.</p>
      *
      * @return {@code true} if the assembler is currently processing split-packets. This is similar to calling {@code size() > 0 && !isComplete()}
+     *
      * @see #received()
      * @see #isComplete()
      */
@@ -64,20 +56,32 @@ public interface SourceSplitPacketAssembler {
     }
 
     /**
-     * <p>getBuffer.</p>
-     *
-     * @return The {@link io.netty.buffer.ByteBuf} containing the re-assembled packets.
-     * @throws java.lang.IllegalStateException
-     *         is the assembler is not yet in a completed state
-     */
-    ByteBuf getBuffer();
-
-    /**
      * <p>received.</p>
      *
      * @return The number of split-packets received by this container
      */
     int received();
+
+    /**
+     * <p>isComplete.</p>
+     *
+     * @return {@code true} if the container is now in completed state (all packets have been received). {@code false} if either the container has not
+     * been initialized (not collecting) or if the container is not yet marked in a completed state
+     *
+     * @see #reset()
+     * @see #getBuffer()
+     */
+    boolean isComplete();
+
+    /**
+     * <p>getBuffer.</p>
+     *
+     * @return The {@link io.netty.buffer.ByteBuf} containing the re-assembled packets.
+     *
+     * @throws java.lang.IllegalStateException
+     *         is the assembler is not yet in a completed state
+     */
+    ByteBuf getBuffer();
 
     /**
      * <p>count.</p>

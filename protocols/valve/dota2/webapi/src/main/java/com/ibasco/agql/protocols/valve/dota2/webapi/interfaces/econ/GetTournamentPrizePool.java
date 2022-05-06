@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2EconRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetTournamentPrizePool extends Dota2EconRequest {
+
     /**
      * <p>Constructor for GetTournamentPrizePool.</p>
      *
-     * @param apiVersion a int
-     * @param leagueId a int
+     * @param apiVersion
+     *         a int
+     * @param leagueId
+     *         a int
      */
     public GetTournamentPrizePool(int apiVersion, int leagueId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETTOURNPRIZEPOOL, apiVersion, null);

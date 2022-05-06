@@ -24,12 +24,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetCommunityBadgeProgress extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetCommunityBadgeProgress.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param badgeId a int
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param badgeId
+     *         a int
      */
     public GetCommunityBadgeProgress(int apiVersion, long steamId, int badgeId) {
         super("GetCommunityBadgeProgress", apiVersion);

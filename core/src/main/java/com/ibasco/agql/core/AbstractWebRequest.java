@@ -19,12 +19,11 @@ package com.ibasco.agql.core;
 import io.netty.handler.codec.http.HttpMethod;
 import org.asynchttpclient.Request;
 import org.asynchttpclient.RequestBuilder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract AbstractWebRequest class.</p>
@@ -47,16 +46,6 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     }
 
     /**
-     * <p>build.</p>
-     *
-     * @param requestBuilder
-     *         a {@link org.asynchttpclient.RequestBuilder} object
-     */
-    protected void build(RequestBuilder requestBuilder) {
-        //no implementation
-    }
-
-    /**
      * <p>baseUrl.</p>
      *
      * @param url
@@ -64,6 +53,15 @@ abstract public class AbstractWebRequest extends AbstractRequest {
      */
     protected void baseUrl(String url) {
         request().setUrl(url);
+    }
+
+    /**
+     * <p>request.</p>
+     *
+     * @return a {@link org.asynchttpclient.RequestBuilder} object
+     */
+    public final RequestBuilder request() {
+        return requestBuilder;
     }
 
     /**
@@ -143,17 +141,6 @@ abstract public class AbstractWebRequest extends AbstractRequest {
     }
 
     /**
-     * <p>request.</p>
-     *
-     * @return a {@link org.asynchttpclient.RequestBuilder} object
-     */
-    public final RequestBuilder request() {
-        return requestBuilder;
-    }
-
-    //@Override
-
-    /**
      * <p>getMessage.</p>
      *
      * @return a {@link org.asynchttpclient.Request} object
@@ -163,5 +150,17 @@ abstract public class AbstractWebRequest extends AbstractRequest {
         Request webRequest = requestBuilder.build();
         log.debug("Request URL: {}, PARAMS: {}", webRequest.getUrl(), webRequest.getQueryParams());
         return requestBuilder.build();
+    }
+
+    //@Override
+
+    /**
+     * <p>build.</p>
+     *
+     * @param requestBuilder
+     *         a {@link org.asynchttpclient.RequestBuilder} object
+     */
+    protected void build(RequestBuilder requestBuilder) {
+        //no implementation
     }
 }

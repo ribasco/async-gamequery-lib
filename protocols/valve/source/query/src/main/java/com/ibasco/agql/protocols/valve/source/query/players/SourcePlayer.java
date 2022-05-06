@@ -34,10 +34,14 @@ public class SourcePlayer {
     /**
      * <p>Constructor for SourcePlayer.</p>
      *
-     * @param index a int
-     * @param name a {@link java.lang.String} object
-     * @param score a int
-     * @param duration a float
+     * @param index
+     *         a int
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param score
+     *         a int
+     * @param duration
+     *         a float
      */
     public SourcePlayer(int index, String name, int score, float duration) {
         this.index = index;

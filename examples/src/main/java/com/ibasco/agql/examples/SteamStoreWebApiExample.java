@@ -19,11 +19,14 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.SteamStorefront;
-import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreFeaturedApps;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreFeaturedCategories;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StorePackageDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreSaleDetails;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * <p>SteamStoreWebApiExample class.</p>
@@ -39,8 +42,11 @@ public class SteamStoreWebApiExample extends BaseExample {
     /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     public static void main(String[] args) throws Exception {
         new SteamStoreWebApiExample().run(args);

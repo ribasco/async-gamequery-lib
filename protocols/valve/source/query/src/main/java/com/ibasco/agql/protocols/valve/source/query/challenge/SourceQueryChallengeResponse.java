@@ -31,8 +31,10 @@ public class SourceQueryChallengeResponse extends SourceQueryResponse<Integer> {
     /**
      * <p>Constructor for SourceQueryChallengeResponse.</p>
      *
-     * @param challenge a {@link java.lang.Integer} object
-     * @param type a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
+     * @param challenge
+     *         a {@link java.lang.Integer} object
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
      */
     public SourceQueryChallengeResponse(Integer challenge, SourceChallengeType type) {
         super(challenge);

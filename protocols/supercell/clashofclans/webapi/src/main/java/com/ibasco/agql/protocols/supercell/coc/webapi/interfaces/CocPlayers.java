@@ -22,7 +22,6 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiInterface;
 import com.ibasco.agql.protocols.supercell.coc.webapi.interfaces.players.GetPlayerInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerDetailedInfo;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,6 +33,7 @@ import java.util.concurrent.CompletableFuture;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocPlayers extends CocWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -49,6 +49,7 @@ public class CocPlayers extends CocWebApiInterface {
      *
      * @param playerTag
      *         A unique player {@link java.lang.String} identifier followed by a hashtag
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerDetailedInfo}
      */
     public CompletableFuture<CocPlayerDetailedInfo> getPlayerInfo(String playerTag) {

@@ -25,20 +25,30 @@ import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.Console;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.FailsafeBuilder;
+import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
+import com.ibasco.agql.core.util.MessengerProperties;
+import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.protocols.valve.steam.master.exception.MasterServerTimeoutException;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerPartialResponse;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
-import dev.failsafe.*;
+import dev.failsafe.ExecutionContext;
+import dev.failsafe.Failsafe;
+import dev.failsafe.FailsafeExecutor;
+import dev.failsafe.Fallback;
+import dev.failsafe.RateLimiter;
+import dev.failsafe.RateLimiterBuilder;
+import dev.failsafe.RetryPolicy;
+import dev.failsafe.RetryPolicyBuilder;
 import dev.failsafe.event.ExecutionAttemptedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.CheckedPredicate;
 import dev.failsafe.function.ContextualSupplier;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.time.Duration;
@@ -49,6 +59,8 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Handles the internal processing of the master server request/response.

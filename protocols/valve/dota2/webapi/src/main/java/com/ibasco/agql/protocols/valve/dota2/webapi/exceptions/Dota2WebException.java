@@ -24,6 +24,7 @@ import com.ibasco.agql.core.exceptions.WebException;
  * @author Rafael Luis Ibasco
  */
 public class Dota2WebException extends WebException {
+
     /**
      * <p>Constructor for Dota2WebException.</p>
      */
@@ -34,7 +35,8 @@ public class Dota2WebException extends WebException {
     /**
      * <p>Constructor for Dota2WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public Dota2WebException(String message) {
         super(message);
@@ -43,8 +45,10 @@ public class Dota2WebException extends WebException {
     /**
      * <p>Constructor for Dota2WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public Dota2WebException(String message, Throwable cause) {
         super(message, cause);
@@ -53,7 +57,8 @@ public class Dota2WebException extends WebException {
     /**
      * <p>Constructor for Dota2WebException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public Dota2WebException(Throwable cause) {
         super(cause);
@@ -62,10 +67,14 @@ public class Dota2WebException extends WebException {
     /**
      * <p>Constructor for Dota2WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public Dota2WebException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

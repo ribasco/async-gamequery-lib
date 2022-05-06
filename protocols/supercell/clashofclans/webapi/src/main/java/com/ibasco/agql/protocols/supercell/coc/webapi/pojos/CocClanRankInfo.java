@@ -29,70 +29,25 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocClanRankInfo {
+
     private String tag;
+
     private String name;
+
     private CocLocation location;
+
     private CocClanBadgeUrls badgeUrls;
+
     private int clanLevel;
+
     private int clanPoints;
+
     @SerializedName("members")
     private int totalMembers;
+
     private int rank;
+
     private int previousRank;
-
-    /**
-     * <p>Getter for the field <code>tag</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /**
-     * <p>Setter for the field <code>tag</code>.</p>
-     *
-     * @param tag a {@link java.lang.String} object
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    /**
-     * <p>Getter for the field <code>name</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * <p>Setter for the field <code>name</code>.</p>
-     *
-     * @param name a {@link java.lang.String} object
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * <p>Getter for the field <code>location</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
-     */
-    public CocLocation getLocation() {
-        return location;
-    }
-
-    /**
-     * <p>Setter for the field <code>location</code>.</p>
-     *
-     * @param location a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
-     */
-    public void setLocation(CocLocation location) {
-        this.location = location;
-    }
 
     /**
      * <p>Getter for the field <code>badgeUrls</code>.</p>
@@ -106,7 +61,8 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>badgeUrls</code>.</p>
      *
-     * @param badgeUrls a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBadgeUrls} object
+     * @param badgeUrls
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBadgeUrls} object
      */
     public void setBadgeUrls(CocClanBadgeUrls badgeUrls) {
         this.badgeUrls = badgeUrls;
@@ -124,7 +80,8 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>clanLevel</code>.</p>
      *
-     * @param clanLevel a int
+     * @param clanLevel
+     *         a int
      */
     public void setClanLevel(int clanLevel) {
         this.clanLevel = clanLevel;
@@ -142,7 +99,8 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>clanPoints</code>.</p>
      *
-     * @param clanPoints a int
+     * @param clanPoints
+     *         a int
      */
     public void setClanPoints(int clanPoints) {
         this.clanPoints = clanPoints;
@@ -160,10 +118,80 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>totalMembers</code>.</p>
      *
-     * @param totalMembers a int
+     * @param totalMembers
+     *         a int
      */
     public void setTotalMembers(int totalMembers) {
         this.totalMembers = totalMembers;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("tag", getTag())
+                .append("name", getName())
+                .append("location", getLocation())
+                .append("rank", getRank())
+                .append("previousRank", getPreviousRank())
+                .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>tag</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getTag() {
+        return tag;
+    }
+
+    /**
+     * <p>Setter for the field <code>tag</code>.</p>
+     *
+     * @param tag
+     *         a {@link java.lang.String} object
+     */
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name
+     *         a {@link java.lang.String} object
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * <p>Getter for the field <code>location</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
+     */
+    public CocLocation getLocation() {
+        return location;
+    }
+
+    /**
+     * <p>Setter for the field <code>location</code>.</p>
+     *
+     * @param location
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
+     */
+    public void setLocation(CocLocation location) {
+        this.location = location;
     }
 
     /**
@@ -178,7 +206,8 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>rank</code>.</p>
      *
-     * @param rank a int
+     * @param rank
+     *         a int
      */
     public void setRank(int rank) {
         this.rank = rank;
@@ -196,21 +225,10 @@ public class CocClanRankInfo {
     /**
      * <p>Setter for the field <code>previousRank</code>.</p>
      *
-     * @param previousRank a int
+     * @param previousRank
+     *         a int
      */
     public void setPreviousRank(int previousRank) {
         this.previousRank = previousRank;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("tag", getTag())
-                .append("name", getName())
-                .append("location", getLocation())
-                .append("rank", getRank())
-                .append("previousRank", getPreviousRank())
-                .toString();
     }
 }

@@ -25,7 +25,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMTabChild {
+
     private String name;
+
     private String id;
 
     /**
@@ -40,7 +42,8 @@ public class SteamEconItemsSMTabChild {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -58,7 +61,8 @@ public class SteamEconItemsSMTabChild {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a {@link java.lang.String} object
+     * @param id
+     *         a {@link java.lang.String} object
      */
     public void setId(String id) {
         this.id = id;

@@ -21,7 +21,6 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiInterface;
 import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.stats.GetRealtimeStats;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2RealtimeServerStats;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,7 +33,8 @@ public class Dota2Stats extends Dota2WebApiInterface {
     /**
      * <p>Constructor for Dota2Stats.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2Stats(SteamWebApiClient client) {
         super(client);
@@ -43,7 +43,9 @@ public class Dota2Stats extends Dota2WebApiInterface {
     /**
      * <p>getRealtimeStats.</p>
      *
-     * @param serverSteamId a long
+     * @param serverSteamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2RealtimeServerStats> getRealtimeStats(long serverSteamId) {

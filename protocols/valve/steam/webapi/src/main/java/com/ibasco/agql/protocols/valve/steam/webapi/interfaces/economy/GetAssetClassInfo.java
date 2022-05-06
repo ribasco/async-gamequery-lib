@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.economy;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamApiConstants;
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconomyRequest;
-
 import java.util.List;
 
 /**
@@ -27,12 +26,16 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class GetAssetClassInfo extends SteamEconomyRequest {
+
     /**
      * <p>Constructor for GetAssetClassInfo.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param classIds a {@link java.util.List} object
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param classIds
+     *         a {@link java.util.List} object
      */
     public GetAssetClassInfo(int apiVersion, int appId, List<Long> classIds) {
         this(apiVersion, appId, null, classIds.toArray(new Long[0]));
@@ -41,10 +44,14 @@ public class GetAssetClassInfo extends SteamEconomyRequest {
     /**
      * <p>Constructor for GetAssetClassInfo.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param language a {@link java.lang.String} object
-     * @param classIds a {@link java.lang.Long} object
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
+     * @param classIds
+     *         a {@link java.lang.Long} object
      */
     public GetAssetClassInfo(int apiVersion, int appId, String language, Long... classIds) {
         super("GetAssetClassInfo", apiVersion);

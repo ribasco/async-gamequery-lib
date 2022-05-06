@@ -22,16 +22,18 @@ import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.*;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServer;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServerAccount;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServerAccountDetail;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.GameServerAccountPublicInfo;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.LoginTokenStatus;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojos.NewGameServerAccount;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.LocalizedNameTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.PopularTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.SteamStoreAppResponse;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ServerInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -40,6 +42,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>SteamWebApiExample class.</p>

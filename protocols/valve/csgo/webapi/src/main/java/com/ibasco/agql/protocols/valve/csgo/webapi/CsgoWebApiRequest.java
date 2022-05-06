@@ -24,12 +24,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
  * @author Rafael Luis Ibasco
  */
 public class CsgoWebApiRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for CsgoWebApiRequest.</p>
      *
-     * @param apiInterface a {@link java.lang.String} object
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiInterface
+     *         a {@link java.lang.String} object
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public CsgoWebApiRequest(String apiInterface, String apiMethod, int apiVersion) {
         super(apiInterface, apiMethod, apiVersion);

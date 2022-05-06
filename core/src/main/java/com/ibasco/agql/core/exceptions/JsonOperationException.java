@@ -30,7 +30,8 @@ public class JsonOperationException extends WebException {
     /**
      * <p>Constructor for JsonOperationException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
      */
     public JsonOperationException(JsonObject jsonObject) {
         this(jsonObject, "");
@@ -39,18 +40,10 @@ public class JsonOperationException extends WebException {
     /**
      * <p>Constructor for JsonOperationException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param cause a {@link java.lang.Throwable} object
-     */
-    public JsonOperationException(JsonObject jsonObject, Throwable cause) {
-        this(jsonObject, null, cause);
-    }
-
-    /**
-     * <p>Constructor for JsonOperationException.</p>
-     *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public JsonOperationException(JsonObject jsonObject, String message) {
         this(jsonObject, message, null);
@@ -59,9 +52,12 @@ public class JsonOperationException extends WebException {
     /**
      * <p>Constructor for JsonOperationException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public JsonOperationException(JsonObject jsonObject, String message, Throwable cause) {
         this(jsonObject, message, cause, false, false);
@@ -70,15 +66,32 @@ public class JsonOperationException extends WebException {
     /**
      * <p>Constructor for JsonOperationException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public JsonOperationException(JsonObject jsonObject, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.jsonObject = jsonObject;
+    }
+
+    /**
+     * <p>Constructor for JsonOperationException.</p>
+     *
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     */
+    public JsonOperationException(JsonObject jsonObject, Throwable cause) {
+        this(jsonObject, null, cause);
     }
 
     /**
@@ -93,7 +106,8 @@ public class JsonOperationException extends WebException {
     /**
      * <p>Setter for the field <code>jsonObject</code>.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
      */
     public void setJsonObject(JsonObject jsonObject) {
         this.jsonObject = jsonObject;

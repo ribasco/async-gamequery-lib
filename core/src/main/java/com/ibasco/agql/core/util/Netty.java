@@ -16,7 +16,11 @@
 
 package com.ibasco.agql.core.util;
 
-import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.AbstractResponse;
+import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.Message;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.NoChannelContextException;
 import com.ibasco.agql.core.transport.handlers.MessageEncoder;
 import com.ibasco.agql.core.transport.handlers.WriteTimeoutHandler;
@@ -30,9 +34,6 @@ import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.Future;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -45,6 +46,8 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Netty utility functions
@@ -54,13 +57,13 @@ import java.util.function.Supplier;
 @ApiStatus.Internal
 public class Netty {
 
-    private static final Logger log = LoggerFactory.getLogger(Netty.class);
-
     /** Constant <code>INBOUND</code> */
     public static final Function<LinkedList<ChannelInboundHandler>, ChannelHandler> INBOUND = LinkedList::pollFirst;
 
     /** Constant <code>OUTBOUND</code> */
     public static final Function<LinkedList<ChannelOutboundHandler>, ChannelHandler> OUTBOUND = LinkedList::pollLast;
+
+    private static final Logger log = LoggerFactory.getLogger(Netty.class);
 
     /**
      * <p>useEventLoop.</p>
@@ -79,6 +82,35 @@ public class Netty {
                             .thenComposeAsync(Netty::toCompletable, eventLoop)
                             .thenApplyAsync(eventLoop::register, eventLoop)
                             .thenComposeAsync(Netty::toCompletable, eventLoop);
+    }
+
+    /**
+     * Converts a netty {@link io.netty.channel.ChannelFuture} to a {@link java.util.concurrent.CompletableFuture}
+     *
+     * @param channelFuture
+     *         The {@link io.netty.channel.ChannelFuture} to convert
+     *
+     * @return The converted {@link java.util.concurrent.CompletableFuture}
+     */
+    public static CompletableFuture<Channel> toCompletable(ChannelFuture channelFuture) {
+        if (channelFuture.isDone()) {
+            if (channelFuture.isSuccess()) {
+                assert channelFuture.channel() != null;
+                return CompletableFuture.supplyAsync(channelFuture::channel, channelFuture.channel().eventLoop());
+            } else {
+                return Concurrency.failedFuture(channelFuture.cause(), channelFuture.channel() == null ? null : channelFuture.channel().eventLoop());
+            }
+        } else {
+            CompletableFuture<Channel> cFuture = new CompletableFuture<>();
+            channelFuture.addListener((ChannelFutureListener) future -> {
+                if (future.isSuccess()) {
+                    cFuture.complete(future.channel());
+                } else {
+                    cFuture.completeExceptionally(future.cause());
+                }
+            });
+            return cFuture;
+        }
     }
 
     /**
@@ -290,6 +322,50 @@ public class Netty {
     }
 
     /**
+     * Translate {@link io.netty.channel.Channel} to it's unique id string representation
+     *
+     * @param ch
+     *         The {@link io.netty.channel.Channel} to translate
+     *
+     * @return A unique id string representation of the {@link io.netty.channel.Channel}
+     */
+    public static String id(Channel ch) {
+        if (ch == null)
+            return "[N/A]";
+        try {
+            NettyChannelContext context = NettyChannelContext.getContext(ch);
+            if (context.properties().envelope() != null) {
+                Envelope<AbstractRequest> request = context.properties().envelope();
+                if (request.content() != null) {
+                    return "[" + ch.id().asShortText() + " : " + request.content().id() + "]";//String.format("[%s : %s]", ch.id().asShortText(), request.content().id());
+                }
+            }
+        } catch (NoChannelContextException ignored) {
+        }
+        return "[" + ch.id().asShortText() + "]";
+    }
+
+    /**
+     * <p>Returns the type name of a {@link ChannelHandler}</p>
+     *
+     * @param handler
+     *         a {@link io.netty.channel.ChannelHandler} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String getType(ChannelHandler handler) {
+        if (handler instanceof ChannelDuplexHandler) {
+            return "BOTH    ";
+        } else if (handler instanceof ChannelInboundHandler) {
+            return "INBOUND ";
+        } else if (handler instanceof ChannelOutboundHandler) {
+            return "OUTBOUND";
+        } else {
+            return handler.getClass().getSimpleName();
+        }
+    }
+
+    /**
      * <p>getThreadName.</p>
      *
      * @param channel
@@ -348,29 +424,9 @@ public class Netty {
         return id(ctx.channel());
     }
 
-    /**
-     * Translate {@link io.netty.channel.Channel} to it's unique id string representation
-     *
-     * @param ch
-     *         The {@link io.netty.channel.Channel} to translate
-     *
-     * @return A unique id string representation of the {@link io.netty.channel.Channel}
-     */
-    public static String id(Channel ch) {
-        if (ch == null)
-            return "[N/A]";
-        try {
-            NettyChannelContext context = NettyChannelContext.getContext(ch);
-            if (context.properties().envelope() != null) {
-                Envelope<AbstractRequest> request = context.properties().envelope();
-                if (request.content() != null) {
-                    return "[" + ch.id().asShortText() + " : " + request.content().id() + "]";//String.format("[%s : %s]", ch.id().asShortText(), request.content().id());
-                }
-            }
-        } catch (NoChannelContextException ignored) {
-        }
-        return "[" + ch.id().asShortText() + "]";
-    }
+    // 1) Populate handlers using the initializer
+    // 2) extract the results from the deque
+    // 3) transfer the extracted handlers from the deque to the channel pipeline in the order depicted by the extractor
 
     /**
      * Translates an {@link com.ibasco.agql.core.Envelope} instance to it's unique id string representation
@@ -410,10 +466,6 @@ public class Netty {
         return String.format("[%s:%s]", prefix, message instanceof Message ? ((Message) message).id() : message);
     }
 
-    // 1) Populate handlers using the initializer
-    // 2) extract the results from the deque
-    // 3) transfer the extracted handlers from the deque to the channel pipeline in the order depicted by the extractor
-
     /**
      * <p>registerHandlers.</p>
      *
@@ -452,26 +504,6 @@ public class Netty {
         }
         ch.pipeline().addAfter(MessageEncoder.NAME, "writeTimeout", new WriteTimeoutHandler(writeTimeout, TimeUnit.MILLISECONDS));
         log.debug("{} TRANSPORT => Registered READ/WRITE Timeout Handlers", Netty.id(ch));
-    }
-
-    /**
-     * <p>Returns the type name of a {@link ChannelHandler}</p>
-     *
-     * @param handler
-     *         a {@link io.netty.channel.ChannelHandler} object
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public static String getType(ChannelHandler handler) {
-        if (handler instanceof ChannelDuplexHandler) {
-            return "BOTH    ";
-        } else if (handler instanceof ChannelInboundHandler) {
-            return "INBOUND ";
-        } else if (handler instanceof ChannelOutboundHandler) {
-            return "OUTBOUND";
-        } else {
-            return handler.getClass().getSimpleName();
-        }
     }
 
     /**
@@ -517,35 +549,6 @@ public class Netty {
                     cFuture.complete((V) fut.getNow());
                 } else {
                     cFuture.completeExceptionally(fut.cause());
-                }
-            });
-            return cFuture;
-        }
-    }
-
-    /**
-     * Converts a netty {@link io.netty.channel.ChannelFuture} to a {@link java.util.concurrent.CompletableFuture}
-     *
-     * @param channelFuture
-     *         The {@link io.netty.channel.ChannelFuture} to convert
-     *
-     * @return The converted {@link java.util.concurrent.CompletableFuture}
-     */
-    public static CompletableFuture<Channel> toCompletable(ChannelFuture channelFuture) {
-        if (channelFuture.isDone()) {
-            if (channelFuture.isSuccess()) {
-                assert channelFuture.channel() != null;
-                return CompletableFuture.supplyAsync(channelFuture::channel, channelFuture.channel().eventLoop());
-            } else {
-                return Concurrency.failedFuture(channelFuture.cause(), channelFuture.channel() == null ? null : channelFuture.channel().eventLoop());
-            }
-        } else {
-            CompletableFuture<Channel> cFuture = new CompletableFuture<>();
-            channelFuture.addListener((ChannelFutureListener) future -> {
-                if (future.isSuccess()) {
-                    cFuture.complete(future.channel());
-                } else {
-                    cFuture.completeExceptionally(future.cause());
                 }
             });
             return cFuture;

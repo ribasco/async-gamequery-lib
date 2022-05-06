@@ -36,7 +36,9 @@ public class Net {
     /**
      * <p>hostString.</p>
      *
-     * @param address a {@link java.net.SocketAddress} object
+     * @param address
+     *         a {@link java.net.SocketAddress} object
+     *
      * @return a {@link java.lang.String} object
      */
     public static String hostString(SocketAddress address) {
@@ -51,10 +53,15 @@ public class Net {
     /**
      * <p>parseAddress.</p>
      *
-     * @param address a {@link java.lang.String} object
-     * @param defaultPort a int
+     * @param address
+     *         a {@link java.lang.String} object
+     * @param defaultPort
+     *         a int
+     *
      * @return a {@link java.net.InetSocketAddress} object
-     * @throws java.text.ParseException if any.
+     *
+     * @throws java.text.ParseException
+     *         if any.
      */
     public static InetSocketAddress parseAddress(String address, int defaultPort) throws ParseException {
         if (address == null || address.trim().equalsIgnoreCase(""))
@@ -78,7 +85,9 @@ public class Net {
     /**
      * <p>getAddresses.</p>
      *
-     * @param host a {@link java.lang.String} object
+     * @param host
+     *         a {@link java.lang.String} object
+     *
      * @return an array of {@link java.net.InetAddress} objects
      */
     public static InetAddress[] getAddresses(String host) {

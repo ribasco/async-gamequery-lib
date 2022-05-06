@@ -39,6 +39,18 @@ public class CocAchievements {
 
     private String completionInfo;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("name", getName())
+                .append("stars", getStars())
+                .append("value", getValue())
+                .append("target", getTarget())
+                .append("completionInfo", getCompletionInfo())
+                .toString();
+    }
+
     /**
      * <p>Getter for the field <code>name</code>.</p>
      *
@@ -51,7 +63,8 @@ public class CocAchievements {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -69,7 +82,8 @@ public class CocAchievements {
     /**
      * <p>Setter for the field <code>stars</code>.</p>
      *
-     * @param stars a int
+     * @param stars
+     *         a int
      */
     public void setStars(int stars) {
         this.stars = stars;
@@ -87,7 +101,8 @@ public class CocAchievements {
     /**
      * <p>Setter for the field <code>value</code>.</p>
      *
-     * @param value a int
+     * @param value
+     *         a int
      */
     public void setValue(int value) {
         this.value = value;
@@ -105,7 +120,8 @@ public class CocAchievements {
     /**
      * <p>Setter for the field <code>target</code>.</p>
      *
-     * @param target a int
+     * @param target
+     *         a int
      */
     public void setTarget(int target) {
         this.target = target;
@@ -123,21 +139,10 @@ public class CocAchievements {
     /**
      * <p>Setter for the field <code>completionInfo</code>.</p>
      *
-     * @param completionInfo a {@link java.lang.String} object
+     * @param completionInfo
+     *         a {@link java.lang.String} object
      */
     public void setCompletionInfo(String completionInfo) {
         this.completionInfo = completionInfo;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("name", getName())
-                .append("stars", getStars())
-                .append("value", getValue())
-                .append("target", getTarget())
-                .append("completionInfo", getCompletionInfo())
-                .toString();
     }
 }

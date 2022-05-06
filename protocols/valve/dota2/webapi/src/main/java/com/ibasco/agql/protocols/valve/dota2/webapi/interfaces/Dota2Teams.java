@@ -21,7 +21,6 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiInterface;
 import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.teams.GetTeamInfo;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2TeamDetails;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,7 +34,8 @@ public class Dota2Teams extends Dota2WebApiInterface {
     /**
      * <p>Constructor for Dota2Teams.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2Teams(SteamWebApiClient client) {
         super(client);
@@ -44,7 +44,9 @@ public class Dota2Teams extends Dota2WebApiInterface {
     /**
      * <p>getTeamInfo.</p>
      *
-     * @param teamId a int
+     * @param teamId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2TeamDetails>> getTeamInfo(int teamId) {
@@ -54,8 +56,11 @@ public class Dota2Teams extends Dota2WebApiInterface {
     /**
      * <p>getTeamInfo.</p>
      *
-     * @param teamId a int
-     * @param leagueId a int
+     * @param teamId
+     *         a int
+     * @param leagueId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Dota2TeamDetails>> getTeamInfo(int teamId, int leagueId) {

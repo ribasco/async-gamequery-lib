@@ -24,23 +24,28 @@ import java.io.Closeable;
  * @author Rafael Luis Ibasco
  */
 public interface NettyChannelPoolMap<K, P extends NettyChannelPool> extends Closeable {
+
     /**
      * Return the {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} for the {@code code}. This will never return {@code null},
      * but create a new {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} if non exists for they requested {@code key}.
-     *
+     * <p>
      * Please note that {@code null} keys are not allowed.
      *
-     * @param key a K object
+     * @param key
+     *         a K object
+     *
      * @return a P object
      */
     P get(K key);
 
     /**
      * Returns {@code true} if a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} exists for the given {@code key}.
-     *
+     * <p>
      * Please note that {@code null} keys are not allowed.
      *
-     * @param key a K object
+     * @param key
+     *         a K object
+     *
      * @return a boolean
      */
     boolean contains(K key);

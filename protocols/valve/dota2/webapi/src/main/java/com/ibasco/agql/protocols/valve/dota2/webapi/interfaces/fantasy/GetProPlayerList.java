@@ -25,10 +25,12 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2FantasyRequest
  * @author Rafael Luis Ibasco
  */
 public class GetProPlayerList extends Dota2FantasyRequest {
+
     /**
      * <p>Constructor for GetProPlayerList.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public GetProPlayerList(int apiVersion) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETPROPLAYERLSIT, apiVersion);

@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.ConfigurationSupport;
-
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
@@ -28,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
  *         The return type of the transport
  * @param <R>
  *         The parameter type accepted by {@link #send(Object)}
+ *
  * @author Rafael Luis Ibasco
  */
 public interface Transport<S, R> extends Closeable, ConfigurationSupport {
@@ -37,6 +37,7 @@ public interface Transport<S, R> extends Closeable, ConfigurationSupport {
      *
      * @param data
      *         a R object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<S> send(R data);

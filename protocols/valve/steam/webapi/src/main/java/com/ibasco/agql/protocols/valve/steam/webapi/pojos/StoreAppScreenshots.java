@@ -24,9 +24,12 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppScreenshots {
+
     private int id;
+
     @SerializedName("path_thumbnail")
     private String thumbnailPath;
+
     @SerializedName("path_full")
     private String fullPath;
 
@@ -42,7 +45,8 @@ public class StoreAppScreenshots {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -60,7 +64,8 @@ public class StoreAppScreenshots {
     /**
      * <p>Setter for the field <code>thumbnailPath</code>.</p>
      *
-     * @param thumbnailPath a {@link java.lang.String} object
+     * @param thumbnailPath
+     *         a {@link java.lang.String} object
      */
     public void setThumbnailPath(String thumbnailPath) {
         this.thumbnailPath = thumbnailPath;
@@ -78,7 +83,8 @@ public class StoreAppScreenshots {
     /**
      * <p>Setter for the field <code>fullPath</code>.</p>
      *
-     * @param fullPath a {@link java.lang.String} object
+     * @param fullPath
+     *         a {@link java.lang.String} object
      */
     public void setFullPath(String fullPath) {
         this.fullPath = fullPath;

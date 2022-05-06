@@ -23,10 +23,9 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.TimeUnit;
 
 /**
  * <p>ReadTimeoutHandler class.</p>
@@ -42,8 +41,10 @@ public class ReadTimeoutHandler extends IdleStateHandler {
     /**
      * <p>Constructor for ReadTimeoutHandler.</p>
      *
-     * @param timeout a long
-     * @param unit a {@link java.util.concurrent.TimeUnit} object
+     * @param timeout
+     *         a long
+     * @param unit
+     *         a {@link java.util.concurrent.TimeUnit} object
      */
     public ReadTimeoutHandler(long timeout, TimeUnit unit) {
         super(timeout, 0, 0, unit);
@@ -65,8 +66,11 @@ public class ReadTimeoutHandler extends IdleStateHandler {
     /**
      * <p>readTimedOut.</p>
      *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @throws java.lang.Exception if any.
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     protected void readTimedOut(ChannelHandlerContext ctx) throws Exception {
         if (!timeoutFired) {

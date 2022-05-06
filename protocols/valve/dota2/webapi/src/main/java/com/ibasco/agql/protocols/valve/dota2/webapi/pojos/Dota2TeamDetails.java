@@ -20,7 +20,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,66 +33,87 @@ public class Dota2TeamDetails {
     @SerializedName("members")
     @Expose
     private List<Dota2TeamMemberDetails> members = new ArrayList<>();
+
     @SerializedName("team_id")
     @Expose
     private int teamId;
+
     @SerializedName("name")
     @Expose
     private String name;
+
     @SerializedName("tag")
     @Expose
     private String tag;
+
     @SerializedName("time_created")
     @Expose
     private int timeCreated;
+
     @SerializedName("pro")
     @Expose
     private boolean pro;
+
     @SerializedName("locked")
     @Expose
     private boolean locked;
+
     @SerializedName("ugc_logo")
     @Expose
     private String ugcLogo;
+
     @SerializedName("ugc_base_logo")
     @Expose
     private String ugcBaseLogo;
+
     @SerializedName("ugc_banner_logo")
     @Expose
     private String ugcBannerLogo;
+
     @SerializedName("ugc_sponsor_logo")
     @Expose
     private String ugcSponsorLogo;
+
     @SerializedName("country_code")
     @Expose
     private String countryCode;
+
     @SerializedName("url")
     @Expose
     private String url;
+
     @SerializedName("wins")
     @Expose
     private int wins;
+
     @SerializedName("losses")
     @Expose
     private int losses;
+
     @SerializedName("rank")
     @Expose
     private int rank;
+
     @SerializedName("calibration_games_remaining")
     @Expose
     private int calibrationGamesRemaining;
+
     @SerializedName("games_played_total")
     @Expose
     private int gamesPlayedTotal;
+
     @SerializedName("games_played_matchmaking")
     @Expose
     private int gamesPlayedMatchmaking;
+
     @SerializedName("leagues_participated")
     @Expose
     private List<Integer> leaguesParticipated = new ArrayList<>();
+
     @SerializedName("top_match_ids")
     @Expose
     private List<String> topMatchIds = new ArrayList<>();
+
     @SerializedName("recent_match_ids")
     @Expose
     private List<String> recentMatchIds = new ArrayList<>();

@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.Envelope;
-
 import java.net.InetSocketAddress;
 
 /**

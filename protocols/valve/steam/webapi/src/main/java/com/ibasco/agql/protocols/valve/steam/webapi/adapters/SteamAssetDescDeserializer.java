@@ -16,14 +16,17 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.adapters;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamAssetDescription;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by raffy on 10/27/2016.
@@ -31,6 +34,7 @@ import java.util.Map;
  * @author Rafael Luis Ibasco
  */
 public class SteamAssetDescDeserializer implements JsonDeserializer<SteamAssetDescription> {
+
     private static final Logger log = LoggerFactory.getLogger(SteamAssetDescDeserializer.class);
 
     /** {@inheritDoc} */

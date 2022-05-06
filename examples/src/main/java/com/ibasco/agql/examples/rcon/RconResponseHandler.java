@@ -18,18 +18,17 @@ package com.ibasco.agql.examples.rcon;
 
 import com.ibasco.agql.core.util.Bytes;
 import com.ibasco.agql.core.util.Console;
-import static com.ibasco.agql.core.util.Console.color;
 import com.ibasco.agql.core.util.Time;
 import com.ibasco.agql.examples.base.ResponseHandler;
 import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdResponse;
-
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BiFunction;
+import static com.ibasco.agql.core.util.Console.color;
 
 public class RconResponseHandler extends ResponseHandler<SourceRconCmdResponse> {
 
@@ -66,12 +65,6 @@ public class RconResponseHandler extends ResponseHandler<SourceRconCmdResponse> 
     }
 
     @Override
-    protected void onSuccess(SourceRconCmdResponse res) {
-        byteCounter.addAndGet(res.getResult().length());
-        commandCount.compute(res.getCommand(), successCounter);
-    }
-
-    @Override
     protected void onStart(SourceRconCmdResponse res, Throwable error) {
         startTime = System.nanoTime();
     }
@@ -81,6 +74,12 @@ public class RconResponseHandler extends ResponseHandler<SourceRconCmdResponse> 
         assert error instanceof RconException;
         Console.println(color(Console.RED, "[RCON]") + " Failed to execute commmand (Error: %s)", error);
         //error.printStackTrace(System.err);
+    }
+
+    @Override
+    protected void onSuccess(SourceRconCmdResponse res) {
+        byteCounter.addAndGet(res.getResult().length());
+        commandCount.compute(res.getCommand(), successCounter);
     }
 
     @Override

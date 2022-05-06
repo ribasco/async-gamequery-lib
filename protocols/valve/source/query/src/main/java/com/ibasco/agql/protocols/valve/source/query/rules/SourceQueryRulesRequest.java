@@ -34,7 +34,8 @@ public class SourceQueryRulesRequest extends SourceQueryAuthRequest {
     /**
      * <p>Constructor for SourceQueryRulesRequest.</p>
      *
-     * @param challenge a {@link java.lang.Integer} object
+     * @param challenge
+     *         a {@link java.lang.Integer} object
      */
     public SourceQueryRulesRequest(Integer challenge) {
         super(challenge);

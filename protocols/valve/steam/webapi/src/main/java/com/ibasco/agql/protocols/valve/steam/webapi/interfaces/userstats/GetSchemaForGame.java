@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
  * @author Rafael Luis Ibasco
  */
 public class GetSchemaForGame extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetSchemaForGame.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
      */
     public GetSchemaForGame(int apiVersion, int appId) {
         super("GetSchemaForGame", apiVersion);

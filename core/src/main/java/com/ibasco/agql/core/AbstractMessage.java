@@ -19,7 +19,6 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.util.UUID;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.Objects;
 
 /**
@@ -33,8 +32,8 @@ abstract public class AbstractMessage implements Message {
 
     /** {@inheritDoc} */
     @Override
-    public final UUID id() {
-        return id;
+    public int hashCode() {
+        return Objects.hash(id());
     }
 
     /** {@inheritDoc} */
@@ -48,17 +47,8 @@ abstract public class AbstractMessage implements Message {
 
     /** {@inheritDoc} */
     @Override
-    public int hashCode() {
-        return Objects.hash(id());
-    }
-
-    /**
-     * <p>buildToString.</p>
-     *
-     * @param builder a {@link org.apache.commons.lang3.builder.ToStringBuilder} object
-     */
-    protected void buildToString(ToStringBuilder builder) {
-        builder.append("id", this.id());
+    public final UUID id() {
+        return id;
     }
 
     /** {@inheritDoc} */
@@ -67,5 +57,15 @@ abstract public class AbstractMessage implements Message {
         ToStringBuilder builder = new ToStringBuilder(this, ToStringStyle.SHORT_PREFIX_STYLE);
         buildToString(builder);
         return builder.toString();
+    }
+
+    /**
+     * <p>buildToString.</p>
+     *
+     * @param builder
+     *         a {@link org.apache.commons.lang3.builder.ToStringBuilder} object
+     */
+    protected void buildToString(ToStringBuilder builder) {
+        builder.append("id", this.id());
     }
 }

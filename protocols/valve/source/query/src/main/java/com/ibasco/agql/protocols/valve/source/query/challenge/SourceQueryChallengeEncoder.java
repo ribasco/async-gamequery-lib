@@ -23,7 +23,6 @@ import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryRe
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.socket.DatagramPacket;
-
 import java.util.List;
 
 /**
@@ -35,17 +34,17 @@ public class SourceQueryChallengeEncoder extends SourceQueryEncoder<SourceQueryC
 
     /** {@inheritDoc} */
     @Override
-    protected boolean acceptQueryRequest(Class<? extends SourceQueryRequest> cls, Envelope<SourceQueryRequest> envelope) {
-        return SourceQueryChallengeRequest.class.equals(cls);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     protected void encodeQueryRequest(ChannelHandlerContext ctx, Envelope<SourceQueryChallengeRequest> msg, List<Object> out) throws Exception {
         SourceQueryChallengeRequest request = msg.content();
         ByteBuf buf = ctx.alloc().directBuffer(5);
         buf.writeIntLE(SourceQuery.SOURCE_PACKET_TYPE_SINGLE);
         buf.writeByte(SourceQuery.SOURCE_QUERY_CHALLENGE_REQ);
         out.add(new DatagramPacket(buf, msg.recipient()));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected boolean acceptQueryRequest(Class<? extends SourceQueryRequest> cls, Envelope<SourceQueryRequest> envelope) {
+        return SourceQueryChallengeRequest.class.equals(cls);
     }
 }

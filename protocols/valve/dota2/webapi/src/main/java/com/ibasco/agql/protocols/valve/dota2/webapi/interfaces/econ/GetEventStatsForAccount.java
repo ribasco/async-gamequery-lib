@@ -25,13 +25,18 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2EconRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetEventStatsForAccount extends Dota2EconRequest {
+
     /**
      * <p>Constructor for GetEventStatsForAccount.</p>
      *
-     * @param apiVersion a int
-     * @param accountId a int
-     * @param leagueId a int
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param accountId
+     *         a int
+     * @param leagueId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetEventStatsForAccount(int apiVersion, int accountId, int leagueId, String language) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETACCNTEVENTSTATS, apiVersion, language);

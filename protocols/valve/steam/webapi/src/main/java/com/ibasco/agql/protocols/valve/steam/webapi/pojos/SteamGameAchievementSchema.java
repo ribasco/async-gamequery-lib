@@ -24,18 +24,25 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamGameAchievementSchema {
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("defaultvalue")
     private int defaultValue;
+
     @SerializedName("displayName")
     private String displayName;
+
     @SerializedName("hidden")
     private int hidden;
+
     @SerializedName("description")
     private String description;
+
     @SerializedName("icon")
     private String icon;
+
     @SerializedName("icongray")
     private String icongray;
 
@@ -51,7 +58,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -69,7 +77,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>defaultValue</code>.</p>
      *
-     * @param defaultValue a int
+     * @param defaultValue
+     *         a int
      */
     public void setDefaultValue(int defaultValue) {
         this.defaultValue = defaultValue;
@@ -87,7 +96,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>displayName</code>.</p>
      *
-     * @param displayName a {@link java.lang.String} object
+     * @param displayName
+     *         a {@link java.lang.String} object
      */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
@@ -105,7 +115,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>hidden</code>.</p>
      *
-     * @param hidden a int
+     * @param hidden
+     *         a int
      */
     public void setHidden(int hidden) {
         this.hidden = hidden;
@@ -123,7 +134,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>description</code>.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     public void setDescription(String description) {
         this.description = description;
@@ -141,7 +153,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>icon</code>.</p>
      *
-     * @param icon a {@link java.lang.String} object
+     * @param icon
+     *         a {@link java.lang.String} object
      */
     public void setIcon(String icon) {
         this.icon = icon;
@@ -159,7 +172,8 @@ public class SteamGameAchievementSchema {
     /**
      * <p>Setter for the field <code>icongray</code>.</p>
      *
-     * @param icongray a {@link java.lang.String} object
+     * @param icongray
+     *         a {@link java.lang.String} object
      */
     public void setIcongray(String icongray) {
         this.icongray = icongray;

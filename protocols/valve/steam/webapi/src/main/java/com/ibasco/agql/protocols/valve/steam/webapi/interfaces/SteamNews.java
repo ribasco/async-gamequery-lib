@@ -23,7 +23,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news.GetNewsForApp;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamNewsItem;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -34,10 +33,12 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class SteamNews extends SteamWebApiInterface {
+
     /**
      * <p>Constructor for SteamNews.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamNews(SteamWebApiClient client) {
         super(client);
@@ -46,7 +47,9 @@ public class SteamNews extends SteamWebApiInterface {
     /**
      * <p>getNewsForApp.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamNewsItem>> getNewsForApp(int appId) {
@@ -56,11 +59,17 @@ public class SteamNews extends SteamWebApiInterface {
     /**
      * <p>getNewsForApp.</p>
      *
-     * @param appId a int
-     * @param maxLength a int
-     * @param endDate a int
-     * @param count a int
-     * @param feeds a {@link java.lang.String} object
+     * @param appId
+     *         a int
+     * @param maxLength
+     *         a int
+     * @param endDate
+     *         a int
+     * @param count
+     *         a int
+     * @param feeds
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamNewsItem>> getNewsForApp(int appId, int maxLength, int endDate, int count, String feeds) {

@@ -22,7 +22,6 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
-
 import java.io.Closeable;
 import java.util.concurrent.CompletableFuture;
 
@@ -36,7 +35,9 @@ public interface NettyChannelFactory extends Closeable {
     /**
      * <p>create.</p>
      *
-     * @param data a {@link java.lang.Object} object
+     * @param data
+     *         a {@link java.lang.Object} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Channel> create(final Object data);
@@ -44,8 +45,11 @@ public interface NettyChannelFactory extends Closeable {
     /**
      * <p>create.</p>
      *
-     * @param data a {@link java.lang.Object} object
-     * @param eventLoop a {@link io.netty.channel.EventLoop} object
+     * @param data
+     *         a {@link java.lang.Object} object
+     * @param eventLoop
+     *         a {@link io.netty.channel.EventLoop} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Channel> create(final Object data, EventLoop eventLoop);
@@ -67,7 +71,8 @@ public interface NettyChannelFactory extends Closeable {
     /**
      * <p>setChannelInitializer.</p>
      *
-     * @param channelInitializer a {@link com.ibasco.agql.core.transport.NettyChannelInitializer} object
+     * @param channelInitializer
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelInitializer} object
      */
     void setChannelInitializer(NettyChannelInitializer channelInitializer);
 
@@ -81,7 +86,8 @@ public interface NettyChannelFactory extends Closeable {
     /**
      * <p>setResolver.</p>
      *
-     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param resolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
      */
     void setResolver(NettyPropertyResolver resolver);
 

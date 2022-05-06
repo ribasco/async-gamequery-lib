@@ -17,7 +17,13 @@
 package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.exceptions.RejectedRequestException;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.ConnectOptions;
+import com.ibasco.agql.core.util.Console;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.FailsafeBuilder;
+import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.Properties;
 import dev.failsafe.*;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionAttemptedEvent;
@@ -26,13 +32,16 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.RejectedExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Adds {@link dev.failsafe.Failsafe} support for the underlying {@link com.ibasco.agql.core.transport.NettyChannelFactory}.
@@ -84,13 +93,6 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         return builder.build();
     }
 
-    private CircuitBreaker<Channel> buildCircuitBreakerPolicy(final Options options) {
-        //TODO: Make sure we use ConnectOptions
-        CircuitBreakerBuilder<Channel> builder = FailsafeBuilder.buildCircuitBreaker(ConnectOptions.class, options);
-        builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
-        return builder.build();
-    }
-
     private RetryPolicy<Channel> buildRetryPolicy(final Options options) {
         RetryPolicyBuilder<Channel> builder = FailsafeBuilder.buildRetryPolicy(ConnectOptions.class, options);
         builder.handleIf(e -> Errors.unwrap(e) instanceof SocketException); //handle all instances of socket related exceptions
@@ -114,23 +116,13 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
         }
         return builder.build();
     }
+
+    private CircuitBreaker<Channel> buildCircuitBreakerPolicy(final Options options) {
+        CircuitBreakerBuilder<Channel> builder = FailsafeBuilder.buildCircuitBreaker(ConnectOptions.class, options);
+        builder.handleIf(e -> Errors.unwrap(e) instanceof ConnectException);
+        return builder.build();
+    }
     //</editor-fold>
-
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> create(Object data) {
-        return acquireExecutor.getStageAsync(getContextualSupplier(data));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
-        return Netty.useEventLoop(create(data), eventLoop);
-    }
-
-    private ChannelSupplier getContextualSupplier(final Object data) {
-        return supplierMap.computeIfAbsent(getResolver().resolveRemoteAddress(data), ChannelSupplier::new);
-    }
 
     private class ChannelSupplier implements ContextualSupplier<Channel, CompletableFuture<Channel>> {
 
@@ -162,4 +154,21 @@ public class FailsafeChannelFactory extends NettyChannelFactoryDecorator {
             }
         }
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> create(Object data) {
+        return acquireExecutor.getStageAsync(getContextualSupplier(data));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
+        return Netty.useEventLoop(create(data), eventLoop);
+    }
+
+    private ChannelSupplier getContextualSupplier(final Object data) {
+        return supplierMap.computeIfAbsent(getResolver().resolveRemoteAddress(data), ChannelSupplier::new);
+    }
+
 }

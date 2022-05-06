@@ -20,17 +20,22 @@ import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.Console;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.Functions;
+import com.ibasco.agql.core.util.MessengerProperties;
+import com.ibasco.agql.core.util.Option;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
 import io.netty.channel.EventLoopGroup;
 import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base class for modules utilizing Netty as the mode of transport
@@ -92,6 +97,36 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      */
     abstract protected void configure(final Options options);
 
+    protected void consolidate() {
+        Options options = getOptions();
+        Class<? extends Options> optionsClass = getOptions().getClass();
+        Console.printLine();
+        Console.println("Consolidating options for '%s' (Size: %d)", optionsClass.getSimpleName(), options.size());
+        Console.printLine();
+        //1. ensure all required configuration options are present in this container by cross-check with the option cache
+        for (Option.CacheEntry cacheEntry : Option.getOptions().get(optionsClass)) {
+            Option<?> option = cacheEntry.getOption();
+            Class<?> context = cacheEntry.getContext();
+            //noinspection unchecked
+            options.putIfAbsent((Option<Object>) option, option.getDefaultValue());
+        }
+
+        //2. Process global options
+        if (options.isEmpty()) {
+            Console.println("[%s] No options available to process", getClass().getSimpleName());
+        } else {
+
+            for (Map.Entry<Option<?>, Object> entry : options) {
+                Option<?> option = entry.getKey();
+                Object value = entry.getValue();
+                Console.println("[%s] %-30s => %-50s : %-30s (%-15s)", getClass().getSimpleName(), option.getDeclaringClass().getSimpleName(), option.getFieldName(), value, option.getKey());
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Public methods">
+
     /**
      * <p>createFactoryProvider.</p>
      *
@@ -102,15 +137,18 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     }
     //</editor-fold>
 
-    //<editor-fold desc="Public methods">
-
     /**
      * <p>createChannelFactory.</p>
      *
      * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     abstract protected NettyChannelFactory createChannelFactory();
-    //</editor-fold>
+
+    /** {@inheritDoc} */
+    @Override
+    public Options getOptions() {
+        return this.options;
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -123,60 +161,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
                 .thenCombine(CompletableFuture.completedFuture(request), NettyMessenger::attach)
                 .thenCompose(this::send)
                 .thenCompose(NettyMessenger::response);
-    }
-
-    /**
-     * <p>Send context to the underlying {@link com.ibasco.agql.core.Transport}</p>
-     *
-     * @param context
-     *         The context containing the transaction details
-     * @param <C>
-     *         A type of {@link com.ibasco.agql.core.NettyChannelContext}
-     *
-     * @return a {@link java.util.concurrent.CompletableFuture} object
-     */
-    public final <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
-        assert context != null;
-        assert context.properties().request() != null;
-        log.debug("{} MESSENGER => Preparing context for transport (Request: {})", context.id(), context.properties().request());
-        CompletableFuture<C> future;
-        if (context.inEventLoop()) {
-            future = context.future()
-                            .thenApply(NettyMessenger::initialize)
-                            .thenCompose(transport::send)
-                            .thenCompose(NettyChannelContext::composedFuture)
-                            .thenApply(Functions::convert);
-        } else {
-            future = context.future()
-                            .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
-                            .thenComposeAsync(transport::send, context.eventLoop())
-                            .thenComposeAsync(NettyChannelContext::composedFuture, context.eventLoop())
-                            .thenApplyAsync(Functions::convert, context.eventLoop());
-        }
-        //- use handle so we don't complete exceptionally yet as we need to wrap this into a MessageException
-        return future.handle(Functions::selectSecond).thenCombine(CompletableFuture.completedFuture(context), this::wrapException);
-    }
-
-    /**
-     * Wrap an exception to a {@link MessengerException}
-     *
-     * @param error
-     *         The exception to be wrapped
-     * @param context
-     *         The {@link NettyChannelContext} associated with this exception
-     * @param <C>
-     *         A captured type of a {@link NettyChannelContext}
-     *
-     * @return The underlying {@link NettyChannelContext} used for this transaction
-     */
-    private <C extends NettyChannelContext> C wrapException(Throwable error, C context) {
-        assert context != null;
-        //wrap all exceptions with MessageException
-        if (error != null) {
-            Throwable cause = Errors.unwrap(error);
-            throw new MessengerException(cause, context);
-        }
-        return context;
     }
 
     /**
@@ -224,6 +208,38 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return context;
     }
 
+    /**
+     * <p>Send context to the underlying {@link com.ibasco.agql.core.Transport}</p>
+     *
+     * @param context
+     *         The context containing the transaction details
+     * @param <C>
+     *         A type of {@link com.ibasco.agql.core.NettyChannelContext}
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
+    public final <C extends NettyChannelContext> CompletableFuture<C> send(C context) {
+        assert context != null;
+        assert context.properties().request() != null;
+        log.debug("{} MESSENGER => Preparing context for transport (Request: {})", context.id(), context.properties().request());
+        CompletableFuture<C> future;
+        if (context.inEventLoop()) {
+            future = context.future()
+                            .thenApply(NettyMessenger::initialize)
+                            .thenCompose(transport::send)
+                            .thenCompose(NettyChannelContext::composedFuture)
+                            .thenApply(Functions::convert);
+        } else {
+            future = context.future()
+                            .thenApplyAsync(NettyMessenger::initialize, context.eventLoop())
+                            .thenComposeAsync(transport::send, context.eventLoop())
+                            .thenComposeAsync(NettyChannelContext::composedFuture, context.eventLoop())
+                            .thenApplyAsync(Functions::convert, context.eventLoop());
+        }
+        //- use handle so we don't complete exceptionally yet as we need to wrap this into a MessageException
+        return future.handle(Functions::selectSecond).thenCombine(CompletableFuture.completedFuture(context), this::wrapException);
+    }
+
     private static <V extends AbstractResponse> CompletableFuture<V> response(NettyChannelContext context) {
         return context.properties().responsePromise();
     }
@@ -249,6 +265,28 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         return context;
     }
 
+    /**
+     * Wrap an exception to a {@link MessengerException}
+     *
+     * @param error
+     *         The exception to be wrapped
+     * @param context
+     *         The {@link NettyChannelContext} associated with this exception
+     * @param <C>
+     *         A captured type of a {@link NettyChannelContext}
+     *
+     * @return The underlying {@link NettyChannelContext} used for this transaction
+     */
+    private <C extends NettyChannelContext> C wrapException(Throwable error, C context) {
+        assert context != null;
+        //wrap all exceptions with MessageException
+        if (error != null) {
+            Throwable cause = Errors.unwrap(error);
+            throw new MessengerException(cause, context);
+        }
+        return context;
+    }
+
     /** {@inheritDoc} */
     @Override
     public final NettyTransport getTransport() {
@@ -260,6 +298,8 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     public final EventLoopGroup getExecutor() {
         return channelFactory.getExecutor();
     }
+
+    //<editor-fold desc="Private/Protected Methods">
 
     /**
      * The method that will be called by the last {@link io.netty.channel.ChannelHandler} once a response has been received from the remote server.
@@ -315,14 +355,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
 
     /** {@inheritDoc} */
     @Override
-    public Options getOptions() {
-        return this.options;
-    }
-
-    //<editor-fold desc="Private/Protected Methods">
-
-    /** {@inheritDoc} */
-    @Override
     public void close() throws IOException {
         if (this.channelFactory != null)
             this.channelFactory.close();
@@ -366,33 +398,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         if (map.contains(option))
             map.remove(option);
         map.put(option, value, true);
-    }
-
-    protected void consolidate() {
-        Options options = getOptions();
-        Class<? extends Options> optionsClass = getOptions().getClass();
-        Console.printLine();
-        Console.println("Consolidating options for '%s' (Size: %d)", optionsClass.getSimpleName(), options.size());
-        Console.printLine();
-        //1. ensure all required configuration options are present in this container by cross-check with the option cache
-        for (Option.CacheEntry cacheEntry : Option.getOptions().get(optionsClass)) {
-            Option<?> option = cacheEntry.getOption();
-            Class<?> context = cacheEntry.getContext();
-            //noinspection unchecked
-            options.putIfAbsent((Option<Object>) option, option.getDefaultValue());
-        }
-
-        //2. Process global options
-        if (options.isEmpty()) {
-            Console.println("[%s] No options available to process", getClass().getSimpleName());
-        } else {
-
-            for (Map.Entry<Option<?>, Object> entry : options) {
-                Option<?> option = entry.getKey();
-                Object value = entry.getValue();
-                Console.println("[%s] %-30s => %-50s : %-30s (%-15s)", getClass().getSimpleName(), option.getDeclaringClass().getSimpleName(), option.getFieldName(), value, option.getKey());
-            }
-        }
     }
 
     /**

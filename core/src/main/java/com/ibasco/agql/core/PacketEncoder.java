@@ -24,6 +24,7 @@ import io.netty.buffer.ByteBuf;
  *
  * @param <P>
  *         The type of {@link com.ibasco.agql.core.Packet}
+ *
  * @author Rafael Luis Ibasco
  */
 @FunctionalInterface
@@ -34,7 +35,9 @@ public interface PacketEncoder<P extends Packet> {
      *
      * @param packet
      *         The {@link com.ibasco.agql.core.Packet} to be encoded
+     *
      * @return The encoded {@link io.netty.buffer.ByteBuf}
+     *
      * @throws com.ibasco.agql.core.exceptions.PacketEncodeException
      *         When an error occurs during the encoding process
      */

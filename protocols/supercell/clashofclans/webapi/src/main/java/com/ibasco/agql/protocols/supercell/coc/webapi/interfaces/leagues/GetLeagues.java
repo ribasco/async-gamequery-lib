@@ -32,10 +32,14 @@ public class GetLeagues extends CocWebApiRequest {
     /**
      * <p>Constructor for GetLeagues.</p>
      *
-     * @param apiVersion a int
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
     public GetLeagues(int apiVersion, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUES, limit, before, after);

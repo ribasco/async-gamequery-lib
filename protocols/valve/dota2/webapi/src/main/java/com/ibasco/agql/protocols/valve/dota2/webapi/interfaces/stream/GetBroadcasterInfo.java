@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2StreamRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetBroadcasterInfo extends Dota2StreamRequest {
+
     /**
      * <p>Constructor for GetBroadcasterInfo.</p>
      *
-     * @param apiVersion a int
-     * @param broadcasterSteamId a long
-     * @param leagueId a int
+     * @param apiVersion
+     *         a int
+     * @param broadcasterSteamId
+     *         a long
+     * @param leagueId
+     *         a int
      */
     public GetBroadcasterInfo(int apiVersion, long broadcasterSteamId, int leagueId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETBROADCASTERINFO, apiVersion, null);

@@ -26,11 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMDropdown {
+
     private long id;
+
     private String name;
+
     private String type;
+
     @SerializedName("label_text")
     private String labelText;
+
     @SerializedName("url_history_param_name")
     private String urlHistoryParamName;
 
@@ -46,7 +51,8 @@ public class SteamEconItemsSMDropdown {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -64,7 +70,8 @@ public class SteamEconItemsSMDropdown {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -82,7 +89,8 @@ public class SteamEconItemsSMDropdown {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a {@link java.lang.String} object
+     * @param type
+     *         a {@link java.lang.String} object
      */
     public void setType(String type) {
         this.type = type;
@@ -100,7 +108,8 @@ public class SteamEconItemsSMDropdown {
     /**
      * <p>Setter for the field <code>labelText</code>.</p>
      *
-     * @param labelText a {@link java.lang.String} object
+     * @param labelText
+     *         a {@link java.lang.String} object
      */
     public void setLabelText(String labelText) {
         this.labelText = labelText;
@@ -118,7 +127,8 @@ public class SteamEconItemsSMDropdown {
     /**
      * <p>Setter for the field <code>urlHistoryParamName</code>.</p>
      *
-     * @param urlHistoryParamName a {@link java.lang.String} object
+     * @param urlHistoryParamName
+     *         a {@link java.lang.String} object
      */
     public void setUrlHistoryParamName(String urlHistoryParamName) {
         this.urlHistoryParamName = urlHistoryParamName;

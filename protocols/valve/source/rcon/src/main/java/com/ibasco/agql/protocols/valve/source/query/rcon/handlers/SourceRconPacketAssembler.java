@@ -30,7 +30,6 @@ import io.netty.buffer.CompositeByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -54,6 +53,8 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
 
     private boolean markedForConsolidation;
 
+    private int counter;
+
     /** {@inheritDoc} */
     @Override
     protected boolean acceptMessage(AbstractRequest request, Object msg) {
@@ -67,8 +68,6 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         //make sure to only accept terminator or response value packets
         return SourceRcon.isTerminatorPacket(packet) || SourceRcon.isResponseValuePacket(packet);
     }
-
-    private int counter;
 
     /** {@inheritDoc} */
     @Override
@@ -99,6 +98,30 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
             }
         }
         return null;
+    }
+
+    private Deque<SourceRconPacket> container() {
+        if (this.splitPackets == null) {
+            this.splitPackets = new ArrayDeque<>();
+            debug("Initialized split-packet container");
+        }
+        return this.splitPackets;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        debug("channelActive() : Resetting container");
+        reset();
+        ctx.fireChannelActive();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        debug("channelInactive() : Resetting container");
+        reset();
+        ctx.fireChannelInactive();
     }
 
     /** {@inheritDoc} */
@@ -167,41 +190,20 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         }
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        if (!(evt instanceof ChannelEvent)) {
-            ctx.fireUserEventTriggered(evt);
-            return;
+    private void reset() {
+        try {
+            if (splitPackets == null)
+                return;
+            //release
+            SourceRconPacket packet;
+            while ((packet = splitPackets.pollFirst()) != null) {
+                packet.release();
+            }
+            splitPackets = null;
+            debug("Split packet container has been reset");
+        } catch (Exception e) {
+            debug("Failed to reset split packet container", e);
         }
-        ChannelEvent event = (ChannelEvent) evt;
-        if (ChannelEvent.RELEASED.equals(event) || ChannelEvent.CLOSED.equals(event))
-            reset();
-        markedForConsolidation = false;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-        debug("channelActive() : Resetting container");
-        reset();
-        ctx.fireChannelActive();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
-        debug("channelInactive() : Resetting container");
-        reset();
-        ctx.fireChannelInactive();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        debug("exceptionCaught() : Resetting container");
-        reset();
-        ctx.fireExceptionCaught(cause);
     }
 
     /**
@@ -267,27 +269,24 @@ public class SourceRconPacketAssembler extends MessageInboundDecoder {
         }
     }
 
-    private Deque<SourceRconPacket> container() {
-        if (this.splitPackets == null) {
-            this.splitPackets = new ArrayDeque<>();
-            debug("Initialized split-packet container");
+    /** {@inheritDoc} */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        if (!(evt instanceof ChannelEvent)) {
+            ctx.fireUserEventTriggered(evt);
+            return;
         }
-        return this.splitPackets;
+        ChannelEvent event = (ChannelEvent) evt;
+        if (ChannelEvent.RELEASED.equals(event) || ChannelEvent.CLOSED.equals(event))
+            reset();
+        markedForConsolidation = false;
     }
 
-    private void reset() {
-        try {
-            if (splitPackets == null)
-                return;
-            //release
-            SourceRconPacket packet;
-            while ((packet = splitPackets.pollFirst()) != null) {
-                packet.release();
-            }
-            splitPackets = null;
-            debug("Split packet container has been reset");
-        } catch (Exception e) {
-            debug("Failed to reset split packet container", e);
-        }
+    /** {@inheritDoc} */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        debug("exceptionCaught() : Resetting container");
+        reset();
+        ctx.fireExceptionCaught(cause);
     }
 }

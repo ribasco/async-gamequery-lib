@@ -27,7 +27,6 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRe
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 

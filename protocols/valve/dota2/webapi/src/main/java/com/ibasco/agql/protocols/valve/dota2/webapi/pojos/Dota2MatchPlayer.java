@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,56 +31,82 @@ public class Dota2MatchPlayer {
 
     @SerializedName("account_id")
     private long accountId;
+
     @SerializedName("player_slot")
     private int playerSlot;
+
     @SerializedName("hero_id")
     private int heroId;
+
     @SerializedName("item_0")
     private int item0;
+
     @SerializedName("item_1")
     private int item1;
+
     @SerializedName("item_2")
     private int item2;
+
     @SerializedName("item_3")
     private int item3;
+
     @SerializedName("item_4")
     private int item4;
+
     @SerializedName("item_5")
     private int item5;
+
     @SerializedName("kills")
     private int kills;
+
     @SerializedName("deaths")
     private int deaths;
+
     @SerializedName("assists")
     private int assists;
+
     @SerializedName("leaver_status")
     private int leaverStatus;
+
     @SerializedName("last_hits")
     private int lastHits;
+
     @SerializedName("denies")
     private int denies;
+
     @SerializedName("gold_per_min")
     private int goldPerMin;
+
     @SerializedName("xp_per_min")
     private int xpPerMin;
+
     @SerializedName("level")
     private int level;
+
     @SerializedName("hero_damage")
     private int heroDamage;
+
     @SerializedName("tower_damage")
     private int towerDamage;
+
     @SerializedName("hero_healing")
     private int heroHealing;
+
     @SerializedName("gold")
     private int gold;
+
     @SerializedName("gold_spent")
     private int goldSpent;
+
     @SerializedName("scaled_hero_damage")
     private int scaledHeroDamage;
+
     @SerializedName("scaled_tower_damage")
     private int scaledTowerDamage;
+
     @SerializedName("scaled_hero_healing")
     private int scaledHeroHealing;
+
     @SerializedName("ability_upgrades")
     private List<Dota2MatchAbilityUpgrade> abilityUpgrades = new ArrayList<>();
 

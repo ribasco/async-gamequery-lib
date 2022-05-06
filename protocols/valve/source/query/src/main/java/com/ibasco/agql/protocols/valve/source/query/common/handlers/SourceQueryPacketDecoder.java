@@ -25,15 +25,14 @@ import com.ibasco.agql.protocols.valve.source.query.common.packets.util.SourceQu
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageDecoder;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.List;
 
 /**
  * Decodes a raw source query response ({@link io.netty.buffer.ByteBuf}) into an instance of {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQueryPacket}.
  * The packet can be a single-type or a split-type. Split-type packets should be re-assembled back to a single-type packet by the next handlers
- *
+ * <p>
  * Simple workflow of data:
  *
  * <pre>

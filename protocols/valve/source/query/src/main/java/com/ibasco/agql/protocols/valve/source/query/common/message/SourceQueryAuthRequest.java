@@ -37,7 +37,8 @@ abstract public class SourceQueryAuthRequest extends SourceQueryRequest {
     /**
      * <p>Constructor for SourceQueryAuthRequest.</p>
      *
-     * @param challenge a {@link java.lang.Integer} object
+     * @param challenge
+     *         a {@link java.lang.Integer} object
      */
     protected SourceQueryAuthRequest(Integer challenge) {
         this.challenge = challenge;
@@ -56,7 +57,8 @@ abstract public class SourceQueryAuthRequest extends SourceQueryRequest {
     /**
      * <p>Setter for the field <code>challenge</code>.</p>
      *
-     * @param challenge a {@link java.lang.Integer} object
+     * @param challenge
+     *         a {@link java.lang.Integer} object
      */
     public void setChallenge(Integer challenge) {
         this.challenge = challenge;
@@ -74,7 +76,8 @@ abstract public class SourceQueryAuthRequest extends SourceQueryRequest {
     /**
      * <p>Setter for the field <code>autoUpdate</code>.</p>
      *
-     * @param autoUpdate a boolean
+     * @param autoUpdate
+     *         a boolean
      */
     public void setAutoUpdate(boolean autoUpdate) {
         this.autoUpdate = autoUpdate;

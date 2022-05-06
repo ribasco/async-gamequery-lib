@@ -26,12 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2GamePlayer {
+
     @SerializedName("account_id")
     private long accountId;
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("hero_id")
     private int heroId;
+
     private int team;
 
     /**
@@ -46,7 +50,8 @@ public class Dota2GamePlayer {
     /**
      * <p>Setter for the field <code>accountId</code>.</p>
      *
-     * @param accountId a long
+     * @param accountId
+     *         a long
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -64,7 +69,8 @@ public class Dota2GamePlayer {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -82,7 +88,8 @@ public class Dota2GamePlayer {
     /**
      * <p>Setter for the field <code>heroId</code>.</p>
      *
-     * @param heroId a int
+     * @param heroId
+     *         a int
      */
     public void setHeroId(int heroId) {
         this.heroId = heroId;
@@ -100,7 +107,8 @@ public class Dota2GamePlayer {
     /**
      * <p>Setter for the field <code>team</code>.</p>
      *
-     * @param team a int
+     * @param team
+     *         a int
      */
     public void setTeam(int team) {
         this.team = team;

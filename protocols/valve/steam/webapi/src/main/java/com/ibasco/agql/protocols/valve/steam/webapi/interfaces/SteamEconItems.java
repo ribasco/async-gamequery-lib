@@ -21,11 +21,14 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.GetPlayerItems;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.GetSchema;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.GetSchemaUrl;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.GetStoreMetadata;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.econitems.GetStoreStatus;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsStoreMeta;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconPlayerItem;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchema;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -36,6 +39,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItems extends SteamWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -49,8 +53,11 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getPlayerItems.</p>
      *
-     * @param appId a int
-     * @param steamId a long
+     * @param appId
+     *         a int
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamEconPlayerItem>> getPlayerItems(int appId, long steamId) {
@@ -60,9 +67,13 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getPlayerItems.</p>
      *
-     * @param appId a int
-     * @param steamId a long
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param steamId
+     *         a long
+     * @param apiVersion
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamEconPlayerItem>> getPlayerItems(int appId, long steamId, int apiVersion) {
@@ -80,7 +91,9 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getSchema.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamEconSchema> getSchema(int appId) {
@@ -90,8 +103,11 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getSchema.</p>
      *
-     * @param appId a int
-     * @param version a int
+     * @param appId
+     *         a int
+     * @param version
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamEconSchema> getSchema(int appId, int version) {
@@ -106,7 +122,9 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getSchemaUrl.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<String> getSchemaUrl(int appId) {
@@ -116,8 +134,11 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getSchemaUrl.</p>
      *
-     * @param appId a int
-     * @param version a int
+     * @param appId
+     *         a int
+     * @param version
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<String> getSchemaUrl(int appId, int version) {
@@ -132,7 +153,9 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getStoreMetadata.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamEconItemsStoreMeta> getStoreMetadata(int appId) {
@@ -142,8 +165,11 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getStoreMetadata.</p>
      *
-     * @param appId a int
-     * @param version a int
+     * @param appId
+     *         a int
+     * @param version
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamEconItemsStoreMeta> getStoreMetadata(int appId, int version) {
@@ -154,7 +180,9 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getStoreStatus.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Integer> getStoreStatus(int appId) {
@@ -164,8 +192,11 @@ public class SteamEconItems extends SteamWebApiInterface {
     /**
      * <p>getStoreStatus.</p>
      *
-     * @param appId a int
-     * @param version a int
+     * @param appId
+     *         a int
+     * @param version
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Integer> getStoreStatus(int appId, int version) {

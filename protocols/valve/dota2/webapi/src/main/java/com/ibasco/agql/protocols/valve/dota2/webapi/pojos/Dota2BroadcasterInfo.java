@@ -26,6 +26,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2BroadcasterInfo {
+
     @SerializedName("account_id")
     private long accountId;
 
@@ -47,7 +48,8 @@ public class Dota2BroadcasterInfo {
     /**
      * <p>Setter for the field <code>accountId</code>.</p>
      *
-     * @param accountId a long
+     * @param accountId
+     *         a long
      */
     public void setAccountId(long accountId) {
         this.accountId = accountId;
@@ -65,7 +67,8 @@ public class Dota2BroadcasterInfo {
     /**
      * <p>Setter for the field <code>serverSteamId</code>.</p>
      *
-     * @param serverSteamId a {@link java.lang.String} object
+     * @param serverSteamId
+     *         a {@link java.lang.String} object
      */
     public void setServerSteamId(String serverSteamId) {
         this.serverSteamId = serverSteamId;
@@ -83,7 +86,8 @@ public class Dota2BroadcasterInfo {
     /**
      * <p>Setter for the field <code>live</code>.</p>
      *
-     * @param live a boolean
+     * @param live
+     *         a boolean
      */
     public void setLive(boolean live) {
         this.live = live;

@@ -28,29 +28,16 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocWarLogEntry {
+
     private String result;
+
     private String endTime;
+
     private int teamSize;
+
     private CocWarLogEntryClan clan;
+
     private CocWarLogEntryClan opponent;
-
-    /**
-     * <p>Getter for the field <code>result</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getResult() {
-        return result;
-    }
-
-    /**
-     * <p>Setter for the field <code>result</code>.</p>
-     *
-     * @param result a {@link java.lang.String} object
-     */
-    public void setResult(String result) {
-        this.result = result;
-    }
 
     /**
      * <p>Getter for the field <code>endTime</code>.</p>
@@ -64,7 +51,8 @@ public class CocWarLogEntry {
     /**
      * <p>Setter for the field <code>endTime</code>.</p>
      *
-     * @param endTime a {@link java.lang.String} object
+     * @param endTime
+     *         a {@link java.lang.String} object
      */
     public void setEndTime(String endTime) {
         this.endTime = endTime;
@@ -82,10 +70,21 @@ public class CocWarLogEntry {
     /**
      * <p>Setter for the field <code>teamSize</code>.</p>
      *
-     * @param teamSize a int
+     * @param teamSize
+     *         a int
      */
     public void setTeamSize(int teamSize) {
         this.teamSize = teamSize;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("clan", getClan())
+                .append("opponent", getOpponent())
+                .append("result", getResult())
+                .toString();
     }
 
     /**
@@ -100,7 +99,8 @@ public class CocWarLogEntry {
     /**
      * <p>Setter for the field <code>clan</code>.</p>
      *
-     * @param clan a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntryClan} object
+     * @param clan
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntryClan} object
      */
     public void setClan(CocWarLogEntryClan clan) {
         this.clan = clan;
@@ -116,21 +116,31 @@ public class CocWarLogEntry {
     }
 
     /**
+     * <p>Getter for the field <code>result</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getResult() {
+        return result;
+    }
+
+    /**
+     * <p>Setter for the field <code>result</code>.</p>
+     *
+     * @param result
+     *         a {@link java.lang.String} object
+     */
+    public void setResult(String result) {
+        this.result = result;
+    }
+
+    /**
      * <p>Setter for the field <code>opponent</code>.</p>
      *
-     * @param opponent a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntryClan} object
+     * @param opponent
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntryClan} object
      */
     public void setOpponent(CocWarLogEntryClan opponent) {
         this.opponent = opponent;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("clan", getClan())
-                .append("opponent", getOpponent())
-                .append("result", getResult())
-                .toString();
     }
 }

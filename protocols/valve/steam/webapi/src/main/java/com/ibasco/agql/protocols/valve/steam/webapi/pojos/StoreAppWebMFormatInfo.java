@@ -24,8 +24,10 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppWebMFormatInfo {
+
     @SerializedName("480")
     private String lowResUrl;
+
     @SerializedName("max")
     private String maxResUrl;
 
@@ -41,7 +43,8 @@ public class StoreAppWebMFormatInfo {
     /**
      * <p>Setter for the field <code>lowResUrl</code>.</p>
      *
-     * @param lowResUrl a {@link java.lang.String} object
+     * @param lowResUrl
+     *         a {@link java.lang.String} object
      */
     public void setLowResUrl(String lowResUrl) {
         this.lowResUrl = lowResUrl;
@@ -59,7 +62,8 @@ public class StoreAppWebMFormatInfo {
     /**
      * <p>Setter for the field <code>maxResUrl</code>.</p>
      *
-     * @param maxResUrl a {@link java.lang.String} object
+     * @param maxResUrl
+     *         a {@link java.lang.String} object
      */
     public void setMaxResUrl(String maxResUrl) {
         this.maxResUrl = maxResUrl;

@@ -35,22 +35,14 @@ public class CocLeagueIconUrls {
 
     private String medium;
 
-    /**
-     * <p>Getter for the field <code>small</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getSmall() {
-        return small;
-    }
-
-    /**
-     * <p>Setter for the field <code>small</code>.</p>
-     *
-     * @param small a {@link java.lang.String} object
-     */
-    public void setSmall(String small) {
-        this.small = small;
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("tiny", getTiny())
+                .append("small", getSmall())
+                .append("medium", getMedium())
+                .toString();
     }
 
     /**
@@ -63,12 +55,22 @@ public class CocLeagueIconUrls {
     }
 
     /**
-     * <p>Setter for the field <code>tiny</code>.</p>
+     * <p>Getter for the field <code>small</code>.</p>
      *
-     * @param tiny a {@link java.lang.String} object
+     * @return a {@link java.lang.String} object
      */
-    public void setTiny(String tiny) {
-        this.tiny = tiny;
+    public String getSmall() {
+        return small;
+    }
+
+    /**
+     * <p>Setter for the field <code>small</code>.</p>
+     *
+     * @param small
+     *         a {@link java.lang.String} object
+     */
+    public void setSmall(String small) {
+        this.small = small;
     }
 
     /**
@@ -83,19 +85,20 @@ public class CocLeagueIconUrls {
     /**
      * <p>Setter for the field <code>medium</code>.</p>
      *
-     * @param medium a {@link java.lang.String} object
+     * @param medium
+     *         a {@link java.lang.String} object
      */
     public void setMedium(String medium) {
         this.medium = medium;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("tiny", getTiny())
-                .append("small", getSmall())
-                .append("medium", getMedium())
-                .toString();
+    /**
+     * <p>Setter for the field <code>tiny</code>.</p>
+     *
+     * @param tiny
+     *         a {@link java.lang.String} object
+     */
+    public void setTiny(String tiny) {
+        this.tiny = tiny;
     }
 }

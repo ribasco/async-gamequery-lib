@@ -19,12 +19,11 @@ package com.ibasco.agql.core;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringSubstitutor;
 import org.asynchttpclient.Request;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract AbstractWebApiRequest class.</p>
@@ -104,19 +103,6 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
      *
      * @param property
      *         a {@link java.lang.String} object
-     * @param value
-     *         a {@link java.lang.Object} object
-     */
-    protected void property(String property, Object value) {
-        if (!StringUtils.isEmpty(property) && value != null)
-            baseUrlParams.put(property, String.valueOf(value));
-    }
-
-    /**
-     * <p>property.</p>
-     *
-     * @param property
-     *         a {@link java.lang.String} object
      *
      * @return a {@link java.lang.String} object
      */
@@ -125,24 +111,16 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     }
 
     /**
-     * <p>resolveProperties.</p>
+     * <p>property.</p>
      *
-     * @param textWithVariables
+     * @param property
      *         a {@link java.lang.String} object
-     *
-     * @return a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.Object} object
      */
-    protected String resolveProperties(String textWithVariables) {
-        return substitutor.replace(textWithVariables);
-    }
-
-    /**
-     * <p>resolveBaseUrl.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String resolveBaseUrl() {
-        return resolveProperties(this.baseUrlFormat);
+    protected void property(String property, Object value) {
+        if (!StringUtils.isEmpty(property) && value != null)
+            baseUrlParams.put(property, String.valueOf(value));
     }
 
     /**
@@ -169,5 +147,26 @@ abstract public class AbstractWebApiRequest extends AbstractWebRequest {
     public Request getMessage() {
         baseUrl(resolveBaseUrl());
         return super.getMessage();
+    }
+
+    /**
+     * <p>resolveBaseUrl.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String resolveBaseUrl() {
+        return resolveProperties(this.baseUrlFormat);
+    }
+
+    /**
+     * <p>resolveProperties.</p>
+     *
+     * @param textWithVariables
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    protected String resolveProperties(String textWithVariables) {
+        return substitutor.replace(textWithVariables);
     }
 }

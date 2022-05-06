@@ -24,11 +24,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetBadges extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetBadges.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
      */
     public GetBadges(int apiVersion, long steamId) {
         super("GetBadges", apiVersion);

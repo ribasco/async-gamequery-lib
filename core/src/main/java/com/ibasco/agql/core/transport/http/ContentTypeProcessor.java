@@ -24,17 +24,20 @@ import java.util.function.Function;
  * @author Rafael Luis Ibasco
  */
 abstract public class ContentTypeProcessor<T> implements Function<String, T> {
-    /**
-     * <p>processContent.</p>
-     *
-     * @param body a {@link java.lang.String} object
-     * @return a T object
-     */
-    protected abstract T processContent(String body);
 
     /** {@inheritDoc} */
     @Override
     public final T apply(String s) {
         return processContent(s);
     }
+
+    /**
+     * <p>processContent.</p>
+     *
+     * @param body
+     *         a {@link java.lang.String} object
+     *
+     * @return a T object
+     */
+    protected abstract T processContent(String body);
 }

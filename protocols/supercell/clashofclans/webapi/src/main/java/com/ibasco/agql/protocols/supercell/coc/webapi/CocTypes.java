@@ -20,7 +20,6 @@ import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.lang.reflect.Type;
 import java.util.List;
 

@@ -24,9 +24,17 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamStoreApiRequest;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiResponse;
 import com.ibasco.agql.protocols.valve.steam.webapi.adapters.StoreAppPcRequirementsDeserializer;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.*;
-import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
-
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.GetAppDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.GetFeaturedCategories;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.GetFeaturedGames;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.GetPackageDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.storefront.GetSaleDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreFeaturedApps;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreFeaturedCategories;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StorePackageDetails;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreSaleDetails;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -64,8 +72,11 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getFeaturedApps.</p>
      *
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreFeaturedApps> getFeaturedApps(String countryCode, String language) {
@@ -85,8 +96,11 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getFeaturedCategories.</p>
      *
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreFeaturedCategories> getFeaturedCategories(String countryCode, String language) {
@@ -97,7 +111,9 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getAppDetails.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreAppDetails> getAppDetails(int appId) {
@@ -107,9 +123,13 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getAppDetails.</p>
      *
-     * @param appId a int
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param appId
+     *         a int
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreAppDetails> getAppDetails(int appId, String countryCode, String language) {
@@ -128,7 +148,9 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getPackageDetails.</p>
      *
-     * @param packageId a int
+     * @param packageId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StorePackageDetails> getPackageDetails(int packageId) {
@@ -138,9 +160,13 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getPackageDetails.</p>
      *
-     * @param packageId a int
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param packageId
+     *         a int
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StorePackageDetails> getPackageDetails(int packageId, String countryCode, String language) {
@@ -155,7 +181,9 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getSaleDetails.</p>
      *
-     * @param saleId a int
+     * @param saleId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreSaleDetails> getSaleDetails(int saleId) {
@@ -165,9 +193,13 @@ public class SteamStorefront extends AbstractWebApiInterface<SteamWebApiClient, 
     /**
      * <p>getSaleDetails.</p>
      *
-     * @param saleId a int
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param saleId
+     *         a int
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<StoreSaleDetails> getSaleDetails(int saleId, String countryCode, String language) {

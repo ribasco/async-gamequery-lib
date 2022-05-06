@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +28,14 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMSortingPrefab {
+
     private long id;
+
     private String name;
+
     @SerializedName("url_history_param_name")
     private String urlHistoryParamName;
+
     @SerializedName("sorter_ids")
     private List<SteamEconItemsSMSorterId> sorterIds = new ArrayList<>();
 
@@ -48,7 +51,8 @@ public class SteamEconItemsSMSortingPrefab {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -66,7 +70,8 @@ public class SteamEconItemsSMSortingPrefab {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -84,7 +89,8 @@ public class SteamEconItemsSMSortingPrefab {
     /**
      * <p>Setter for the field <code>urlHistoryParamName</code>.</p>
      *
-     * @param urlHistoryParamName a {@link java.lang.String} object
+     * @param urlHistoryParamName
+     *         a {@link java.lang.String} object
      */
     public void setUrlHistoryParamName(String urlHistoryParamName) {
         this.urlHistoryParamName = urlHistoryParamName;
@@ -102,7 +108,8 @@ public class SteamEconItemsSMSortingPrefab {
     /**
      * <p>Setter for the field <code>sorterIds</code>.</p>
      *
-     * @param sorterIds a {@link java.util.List} object
+     * @param sorterIds
+     *         a {@link java.util.List} object
      */
     public void setSorterIds(List<SteamEconItemsSMSorterId> sorterIds) {
         this.sorterIds = sorterIds;

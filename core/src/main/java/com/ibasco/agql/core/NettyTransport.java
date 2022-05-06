@@ -27,12 +27,11 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.util.ResourceLeakDetector;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The netty transport driver, responsible for sending the messages to the provided {@link io.netty.channel.Channel}.
@@ -42,10 +41,6 @@ import java.util.concurrent.CompletableFuture;
 public class NettyTransport implements Transport<NettyChannelContext, NettyChannelContext> {
 
     private static final Logger log = LoggerFactory.getLogger(NettyTransport.class);
-
-    //<editor-fold desc="Private Members">
-    private final Options options;
-    //</editor-fold>
 
     private static final ChannelFutureListener COMPLETE_ON_WRITE = future -> {
         final Channel channel = future.channel();
@@ -66,12 +61,18 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
                 context.properties().endWrite(e);
         }
     };
+    //</editor-fold>
+
+    //<editor-fold desc="Private Members">
+    private final Options options;
 
     //<editor-fold desc="Default Constructor">
+
     /**
      * <p>Constructor for NettyTransport.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
     public NettyTransport(final Options options) {
         this.options = Objects.requireNonNull(options, "[INIT] TRANSPORT => Missing options");
@@ -99,6 +100,13 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
                     .thenComposeAsync(this::writeAndNotify, context.eventLoop())
                     .handleAsync(this::finalize, context.eventLoop());
         }
+    }
+
+    private static void checkContext(NettyChannelContext context) {
+        if (context == null)
+            throw new IllegalStateException("Channel context must not be null");
+        if (context.properties().envelope() == null)
+            throw new IllegalStateException("No valid request attached to channel context: " + context);
     }
 
     private CompletableFuture<NettyChannelContext> writeAndNotify(final NettyChannelContext context) {
@@ -146,13 +154,6 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             throw new IllegalStateException("Channel is null");
         assert context.inEventLoop();
         return context;
-    }
-
-    private static void checkContext(NettyChannelContext context) {
-        if (context == null)
-            throw new IllegalStateException("Channel context must not be null");
-        if (context.properties().envelope() == null)
-            throw new IllegalStateException("No valid request attached to channel context: " + context);
     }
 
     /** {@inheritDoc} */

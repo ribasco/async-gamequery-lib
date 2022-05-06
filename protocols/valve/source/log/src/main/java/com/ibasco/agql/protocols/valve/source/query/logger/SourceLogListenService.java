@@ -22,12 +22,14 @@ import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
 import io.netty.channel.socket.DatagramChannel;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -37,6 +39,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Listens for log messages produced by a Source Server.</p>
@@ -71,19 +75,19 @@ public class SourceLogListenService implements Closeable {
 
     private static final Logger log = LoggerFactory.getLogger(SourceLogListenService.class);
 
-    private InetSocketAddress listenAddress;
-
     private final Bootstrap bootstrap;
 
     private final EventLoopGroup group;
 
-    private volatile boolean bindInProgress;
-
-    private volatile boolean started;
-
     private final AtomicReference<Consumer<SourceLogEntry>> callbackRef = new AtomicReference<>();
 
     private final ExecutorService executorService;
+
+    private InetSocketAddress listenAddress;
+
+    private volatile boolean bindInProgress;
+
+    private volatile boolean started;
 
     /**
      * <p>Creates a new service that will listen to any ip address
@@ -196,6 +200,7 @@ public class SourceLogListenService implements Closeable {
      *
      * @param listenAddress
      *         The {@link java.net.InetSocketAddress} to listen on
+     *
      * @throws java.lang.IllegalStateException
      *         If the service has been started already
      */
@@ -209,6 +214,7 @@ public class SourceLogListenService implements Closeable {
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
+     *
      * @see #setListenAddress(InetSocketAddress)
      * @see #close()
      */
@@ -222,7 +228,9 @@ public class SourceLogListenService implements Closeable {
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to listen on
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
+     *
      * @see #close()
      */
     public CompletableFuture<Void> listen(InetSocketAddress address) {
@@ -239,14 +247,6 @@ public class SourceLogListenService implements Closeable {
         else
             bindFuture.addListener((ChannelFutureListener) future -> initialize(future, promise));
         return promise.whenComplete((unused, throwable) -> bindInProgress = false);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void close() throws IOException {
-        log.debug("LOG SERVICE => Reequesting to shutdown log service");
-        group.shutdownGracefully(10, GeneralOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
-        ManagedResource.release(executorService);
     }
 
     private void initialize(ChannelFuture future, CompletableFuture<Void> promise) {
@@ -278,5 +278,13 @@ public class SourceLogListenService implements Closeable {
         } else {
             promise.completeExceptionally(future.cause());
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        log.debug("LOG SERVICE => Reequesting to shutdown log service");
+        group.shutdownGracefully(10, GeneralOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
+        ManagedResource.release(executorService);
     }
 }

@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2StatsRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetRealtimeStats extends Dota2StatsRequest {
+
     /**
      * <p>Constructor for GetRealtimeStats.</p>
      *
-     * @param apiVersion a int
-     * @param serverSteamId a long
+     * @param apiVersion
+     *         a int
+     * @param serverSteamId
+     *         a long
      */
     public GetRealtimeStats(int apiVersion, long serverSteamId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETREALTIMESTATS, apiVersion, null);

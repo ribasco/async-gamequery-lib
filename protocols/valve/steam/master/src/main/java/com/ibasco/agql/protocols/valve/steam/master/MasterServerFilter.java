@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.master;
 
 import com.ibasco.agql.core.util.Strings;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,6 +53,23 @@ public final class MasterServerFilter {
      */
     public MasterServerFilter allServers() {
         create("allServers", true);
+        return this;
+    }
+
+    /**
+     * A utility method to create a Key-Value string pair
+     *
+     * @param key
+     *         A {@link String} representing the key
+     * @param value
+     *         A {@link String} representing the value associated with the key
+     *
+     * @return Instance of {@link MasterServerFilter}
+     */
+    private MasterServerFilter create(String key, Object value) {
+        if (StringUtils.isEmpty(key) || value == null)
+            return this;
+        valueMap.put(key, value);
         return this;
     }
 
@@ -320,23 +336,6 @@ public final class MasterServerFilter {
         if (appId > 0) {
             return create("appId", appId);
         }
-        return this;
-    }
-
-    /**
-     * A utility method to create a Key-Value string pair
-     *
-     * @param key
-     *         A {@link String} representing the key
-     * @param value
-     *         A {@link String} representing the value associated with the key
-     *
-     * @return Instance of {@link MasterServerFilter}
-     */
-    private MasterServerFilter create(String key, Object value) {
-        if (StringUtils.isEmpty(key) || value == null)
-            return this;
-        valueMap.put(key, value);
         return this;
     }
 

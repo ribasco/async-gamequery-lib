@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.source.query.logger;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -27,14 +26,18 @@ import java.net.InetSocketAddress;
  * @author Rafael Luis Ibasco
  */
 public final class SourceLogEntry {
+
     private String message;
+
     private InetSocketAddress sourceAddress;
 
     /**
      * <p>Constructor for SourceLogEntry.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param sourceAddress a {@link java.net.InetSocketAddress} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param sourceAddress
+     *         a {@link java.net.InetSocketAddress} object
      */
     public SourceLogEntry(String message, InetSocketAddress sourceAddress) {
         this.message = message;
@@ -53,7 +56,8 @@ public final class SourceLogEntry {
     /**
      * <p>Setter for the field <code>message</code>.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public void setMessage(String message) {
         this.message = message;
@@ -71,7 +75,8 @@ public final class SourceLogEntry {
     /**
      * <p>Setter for the field <code>sourceAddress</code>.</p>
      *
-     * @param sourceAddress a {@link java.net.InetSocketAddress} object
+     * @param sourceAddress
+     *         a {@link java.net.InetSocketAddress} object
      */
     public void setSourceAddress(InetSocketAddress sourceAddress) {
         this.sourceAddress = sourceAddress;

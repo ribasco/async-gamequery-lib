@@ -26,10 +26,21 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconPlayerAccountInfo {
+
     @SerializedName("steamid")
     private long steamId;
+
     @SerializedName("personaname")
     private String personaName;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("steamId", getSteamId())
+                .append("personaName", getPersonaName())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>steamId</code>.</p>
@@ -43,7 +54,8 @@ public class SteamEconPlayerAccountInfo {
     /**
      * <p>Setter for the field <code>steamId</code>.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
      */
     public void setSteamId(long steamId) {
         this.steamId = steamId;
@@ -61,18 +73,10 @@ public class SteamEconPlayerAccountInfo {
     /**
      * <p>Setter for the field <code>personaName</code>.</p>
      *
-     * @param personaName a {@link java.lang.String} object
+     * @param personaName
+     *         a {@link java.lang.String} object
      */
     public void setPersonaName(String personaName) {
         this.personaName = personaName;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("steamId", getSteamId())
-                .append("personaName", getPersonaName())
-                .toString();
     }
 }

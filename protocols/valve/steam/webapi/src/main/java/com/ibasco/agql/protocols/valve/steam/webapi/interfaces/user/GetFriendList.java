@@ -24,12 +24,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetFriendList extends SteamUserRequest {
+
     /**
      * <p>Constructor for GetFriendList.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param relationship a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param relationship
+     *         a {@link java.lang.String} object
      */
     public GetFriendList(int apiVersion, long steamId, String relationship) {
         super("GetFriendList", apiVersion);

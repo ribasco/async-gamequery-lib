@@ -24,19 +24,29 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreDailyDealsInfo {
+
     private int id;
+
     private int type;
+
     private boolean discounted;
+
     private String currency;
+
     @SerializedName("original_price")
     private int originalPrice;
+
     @SerializedName("final_price")
     private int finalPrice;
+
     @SerializedName("discount_percent")
     private int discountPercentage;
+
     private String name;
+
     @SerializedName("header_image")
     private String headerImageUrl;
+
     @SerializedName("purchase_package")
     private int purchasePackage;
 
@@ -52,7 +62,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -70,7 +81,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
      */
     public void setType(int type) {
         this.type = type;
@@ -88,7 +100,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>discounted</code>.</p>
      *
-     * @param discounted a boolean
+     * @param discounted
+     *         a boolean
      */
     public void setDiscounted(boolean discounted) {
         this.discounted = discounted;
@@ -106,7 +119,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>currency</code>.</p>
      *
-     * @param currency a {@link java.lang.String} object
+     * @param currency
+     *         a {@link java.lang.String} object
      */
     public void setCurrency(String currency) {
         this.currency = currency;
@@ -124,7 +138,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>originalPrice</code>.</p>
      *
-     * @param originalPrice a int
+     * @param originalPrice
+     *         a int
      */
     public void setOriginalPrice(int originalPrice) {
         this.originalPrice = originalPrice;
@@ -142,7 +157,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>finalPrice</code>.</p>
      *
-     * @param finalPrice a int
+     * @param finalPrice
+     *         a int
      */
     public void setFinalPrice(int finalPrice) {
         this.finalPrice = finalPrice;
@@ -160,7 +176,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>discountPercentage</code>.</p>
      *
-     * @param discountPercentage a int
+     * @param discountPercentage
+     *         a int
      */
     public void setDiscountPercentage(int discountPercentage) {
         this.discountPercentage = discountPercentage;
@@ -178,7 +195,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -196,7 +214,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>headerImageUrl</code>.</p>
      *
-     * @param headerImageUrl a {@link java.lang.String} object
+     * @param headerImageUrl
+     *         a {@link java.lang.String} object
      */
     public void setHeaderImageUrl(String headerImageUrl) {
         this.headerImageUrl = headerImageUrl;
@@ -214,7 +233,8 @@ public class StoreDailyDealsInfo {
     /**
      * <p>Setter for the field <code>purchasePackage</code>.</p>
      *
-     * @param purchasePackage a int
+     * @param purchasePackage
+     *         a int
      */
     public void setPurchasePackage(int purchasePackage) {
         this.purchasePackage = purchasePackage;

@@ -21,7 +21,6 @@ import com.ibasco.agql.core.util.functions.TriConsumer;
 import com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -53,7 +52,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Constructor for MasterServerRequest.</p>
      *
-     * @param callback a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
+     * @param callback
+     *         a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
      */
     public MasterServerRequest(TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         this.callback = callback;
@@ -71,7 +71,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
      */
     public void setType(MasterServerType type) {
         this.type = type;
@@ -89,7 +90,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>callback</code>.</p>
      *
-     * @param callback a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
+     * @param callback
+     *         a {@link com.ibasco.agql.core.util.functions.TriConsumer} object
      */
     public void setCallback(TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {
         this.callback = callback;
@@ -107,7 +109,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>region</code>.</p>
      *
-     * @param region a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion} object
+     * @param region
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion} object
      */
     public void setRegion(MasterServerRegion region) {
         this.region = region;
@@ -125,7 +128,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>filter</code>.</p>
      *
-     * @param filter a {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} object
+     * @param filter
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} object
      */
     public void setFilter(MasterServerFilter filter) {
         this.filter = filter;
@@ -143,7 +147,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * Update the seed address to be sent to the remote server.
      *
-     * @param address A host string in the format of {@code &lt;ip:port&gt;}
+     * @param address
+     *         A host string in the format of {@code &lt;ip:port&gt;}
      */
     public void setAddress(String address) {
         this.address = address;
@@ -161,7 +166,8 @@ public class MasterServerRequest extends AbstractRequest {
     /**
      * <p>Setter for the field <code>requestDelay</code>.</p>
      *
-     * @param requestDelay a {@link java.lang.Integer} object
+     * @param requestDelay
+     *         a {@link java.lang.Integer} object
      */
     public void setRequestDelay(Integer requestDelay) {
         this.requestDelay = requestDelay;

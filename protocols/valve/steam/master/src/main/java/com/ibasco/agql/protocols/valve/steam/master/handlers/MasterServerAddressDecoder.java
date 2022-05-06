@@ -27,7 +27,6 @@ import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
 import io.netty.channel.ChannelHandlerContext;
 import org.jetbrains.annotations.NotNull;
-
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
@@ -82,19 +81,6 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
 
     /** {@inheritDoc} */
     @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        debug("MASTER => CHANNEL READ COMPLETE (Terminator received: {}, Last Seed Address: {})", terminatorReceived);
-        if (!partialSet.isEmpty()) {
-            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
-            context.properties().addressSet().addAll(partialSet);
-            ctx.fireChannelRead(new MasterServerPartialResponse(new HashSet<>(partialSet), terminatorReceived, context.properties().lastSeedAddress()));
-            partialSet.clear();
-        }
-        super.channelReadComplete(ctx);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
         debug("MASTER => Initializing Address Set");
         partialSet = new HashSet<>();
@@ -106,5 +92,18 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
     @Override
     public void channelInactive(@NotNull ChannelHandlerContext ctx) throws Exception {
         partialSet = null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        debug("MASTER => CHANNEL READ COMPLETE (Terminator received: {}, Last Seed Address: {})", terminatorReceived);
+        if (!partialSet.isEmpty()) {
+            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
+            context.properties().addressSet().addAll(partialSet);
+            ctx.fireChannelRead(new MasterServerPartialResponse(new HashSet<>(partialSet), terminatorReceived, context.properties().lastSeedAddress()));
+            partialSet.clear();
+        }
+        super.channelReadComplete(ctx);
     }
 }

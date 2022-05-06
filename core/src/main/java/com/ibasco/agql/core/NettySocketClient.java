@@ -19,12 +19,11 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.util.OptionBuilder;
 import com.ibasco.agql.core.util.Options;
 import com.ibasco.agql.core.util.UUID;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.ScheduledExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A netty based socket client.
@@ -33,6 +32,7 @@ import java.util.concurrent.ScheduledExecutorService;
  *         A type of {@link com.ibasco.agql.core.AbstractRequest}
  * @param <S>
  *         A type of {@link com.ibasco.agql.core.AbstractResponse}
+ *
  * @author Rafael Luis Ibasco
  */
 abstract public class NettySocketClient<R extends AbstractRequest, S extends AbstractResponse> extends AbstractClient<R, S> {
@@ -53,6 +53,7 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
      *
      * @param options
      *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
+     *
      * @see OptionBuilder
      */
     protected NettySocketClient(Options options) {
@@ -67,14 +68,14 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
 
     /** {@inheritDoc} */
     @Override
-    protected NettyMessenger<R, S> getMessenger() {
-        return (NettyMessenger<R, S>) super.getMessenger();
+    public ScheduledExecutorService getExecutor() {
+        return (ScheduledExecutorService) super.getExecutor();
     }
 
     /** {@inheritDoc} */
     @Override
-    public ScheduledExecutorService getExecutor() {
-        return (ScheduledExecutorService) super.getExecutor();
+    protected NettyMessenger<R, S> getMessenger() {
+        return (NettyMessenger<R, S>) super.getMessenger();
     }
 
     /** {@inheritDoc} */
@@ -86,16 +87,16 @@ abstract public class NettySocketClient<R extends AbstractRequest, S extends Abs
 
     /** {@inheritDoc} */
     @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof NettySocketClient)) return false;
         NettySocketClient<?, ?> that = (NettySocketClient<?, ?>) o;
         return id.equals(that.id);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int hashCode() {
-        return Objects.hash(id);
     }
 }

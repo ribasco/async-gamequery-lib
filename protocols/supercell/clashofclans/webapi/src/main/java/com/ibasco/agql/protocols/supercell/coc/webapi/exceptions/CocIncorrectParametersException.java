@@ -38,7 +38,8 @@ public class CocIncorrectParametersException extends BadRequestException {
     /**
      * <p>Constructor for CocIncorrectParametersException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public CocIncorrectParametersException(String message) {
         super(message);
@@ -47,8 +48,10 @@ public class CocIncorrectParametersException extends BadRequestException {
     /**
      * <p>Constructor for CocIncorrectParametersException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public CocIncorrectParametersException(String message, Throwable cause) {
         super(message, cause);
@@ -57,7 +60,8 @@ public class CocIncorrectParametersException extends BadRequestException {
     /**
      * <p>Constructor for CocIncorrectParametersException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public CocIncorrectParametersException(Throwable cause) {
         super(cause);
@@ -66,10 +70,14 @@ public class CocIncorrectParametersException extends BadRequestException {
     /**
      * <p>Constructor for CocIncorrectParametersException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public CocIncorrectParametersException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

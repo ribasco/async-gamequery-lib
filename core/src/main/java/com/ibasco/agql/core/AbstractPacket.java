@@ -29,7 +29,8 @@ abstract public class AbstractPacket extends DefaultByteBufHolder implements Pac
     /**
      * <p>Constructor for AbstractPacket.</p>
      *
-     * @param data a {@link io.netty.buffer.ByteBuf} object
+     * @param data
+     *         a {@link io.netty.buffer.ByteBuf} object
      */
     public AbstractPacket(ByteBuf data) {
         super(data);

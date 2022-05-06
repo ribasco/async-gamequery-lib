@@ -26,11 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2League {
+
     @SerializedName("leagueid")
     private int leagueId;
+
     private String name;
+
     private String description;
+
     private String tournamentUrl;
+
     private int itemdef;
 
     /**
@@ -45,7 +50,8 @@ public class Dota2League {
     /**
      * <p>Setter for the field <code>leagueId</code>.</p>
      *
-     * @param leagueId a int
+     * @param leagueId
+     *         a int
      */
     public void setLeagueId(int leagueId) {
         this.leagueId = leagueId;
@@ -63,7 +69,8 @@ public class Dota2League {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -81,7 +88,8 @@ public class Dota2League {
     /**
      * <p>Setter for the field <code>description</code>.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     public void setDescription(String description) {
         this.description = description;
@@ -99,7 +107,8 @@ public class Dota2League {
     /**
      * <p>Setter for the field <code>tournamentUrl</code>.</p>
      *
-     * @param tournamentUrl a {@link java.lang.String} object
+     * @param tournamentUrl
+     *         a {@link java.lang.String} object
      */
     public void setTournamentUrl(String tournamentUrl) {
         this.tournamentUrl = tournamentUrl;
@@ -117,7 +126,8 @@ public class Dota2League {
     /**
      * <p>Setter for the field <code>itemdef</code>.</p>
      *
-     * @param itemdef a int
+     * @param itemdef
+     *         a int
      */
     public void setItemdef(int itemdef) {
         this.itemdef = itemdef;

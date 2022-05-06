@@ -26,30 +26,43 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamPlayerProfile {
+
     @SerializedName("steamid")
     private String steamId;
+
     @SerializedName("communityvisibilitystate")
     private int communityVisibilityState;
+
     @SerializedName("profilestate")
     private int profileState;
+
     @SerializedName("personaname")
     private String name;
+
     @SerializedName("lastlogoff")
     private long lastLogOff;
+
     @SerializedName("profileurl")
     private String profileUrl;
+
     @SerializedName("avatar")
     private String avatarUrl;
+
     @SerializedName("avatarmedium")
     private String avatarMediumUrl;
+
     @SerializedName("avatarfull")
     private String avatarFullUrl;
+
     @SerializedName("personastate")
     private int personaState;
+
     @SerializedName("primaryclanid")
     private long primaryGroupId;
+
     @SerializedName("timecreated")
     private long timeCreated;
+
     @SerializedName("personastateflags")
     private int personaStateFlags;
 
@@ -65,7 +78,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>steamId</code>.</p>
      *
-     * @param steamId a {@link java.lang.String} object
+     * @param steamId
+     *         a {@link java.lang.String} object
      */
     public void setSteamId(String steamId) {
         this.steamId = steamId;
@@ -83,7 +97,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>communityVisibilityState</code>.</p>
      *
-     * @param communityVisibilityState a int
+     * @param communityVisibilityState
+     *         a int
      */
     public void setCommunityVisibilityState(int communityVisibilityState) {
         this.communityVisibilityState = communityVisibilityState;
@@ -101,7 +116,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>profileState</code>.</p>
      *
-     * @param profileState a int
+     * @param profileState
+     *         a int
      */
     public void setProfileState(int profileState) {
         this.profileState = profileState;
@@ -119,7 +135,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -137,7 +154,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>lastLogOff</code>.</p>
      *
-     * @param lastLogOff a long
+     * @param lastLogOff
+     *         a long
      */
     public void setLastLogOff(long lastLogOff) {
         this.lastLogOff = lastLogOff;
@@ -155,7 +173,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>profileUrl</code>.</p>
      *
-     * @param profileUrl a {@link java.lang.String} object
+     * @param profileUrl
+     *         a {@link java.lang.String} object
      */
     public void setProfileUrl(String profileUrl) {
         this.profileUrl = profileUrl;
@@ -173,7 +192,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>avatarUrl</code>.</p>
      *
-     * @param avatarUrl a {@link java.lang.String} object
+     * @param avatarUrl
+     *         a {@link java.lang.String} object
      */
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
@@ -191,7 +211,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>avatarMediumUrl</code>.</p>
      *
-     * @param avatarMediumUrl a {@link java.lang.String} object
+     * @param avatarMediumUrl
+     *         a {@link java.lang.String} object
      */
     public void setAvatarMediumUrl(String avatarMediumUrl) {
         this.avatarMediumUrl = avatarMediumUrl;
@@ -209,7 +230,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>avatarFullUrl</code>.</p>
      *
-     * @param avatarFullUrl a {@link java.lang.String} object
+     * @param avatarFullUrl
+     *         a {@link java.lang.String} object
      */
     public void setAvatarFullUrl(String avatarFullUrl) {
         this.avatarFullUrl = avatarFullUrl;
@@ -227,7 +249,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>personaState</code>.</p>
      *
-     * @param personaState a int
+     * @param personaState
+     *         a int
      */
     public void setPersonaState(int personaState) {
         this.personaState = personaState;
@@ -245,7 +268,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>primaryGroupId</code>.</p>
      *
-     * @param primaryGroupId a long
+     * @param primaryGroupId
+     *         a long
      */
     public void setPrimaryGroupId(long primaryGroupId) {
         this.primaryGroupId = primaryGroupId;
@@ -263,7 +287,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>timeCreated</code>.</p>
      *
-     * @param timeCreated a long
+     * @param timeCreated
+     *         a long
      */
     public void setTimeCreated(long timeCreated) {
         this.timeCreated = timeCreated;
@@ -281,7 +306,8 @@ public class SteamPlayerProfile {
     /**
      * <p>Setter for the field <code>personaStateFlags</code>.</p>
      *
-     * @param personaStateFlags a int
+     * @param personaStateFlags
+     *         a int
      */
     public void setPersonaStateFlags(int personaStateFlags) {
         this.personaStateFlags = personaStateFlags;

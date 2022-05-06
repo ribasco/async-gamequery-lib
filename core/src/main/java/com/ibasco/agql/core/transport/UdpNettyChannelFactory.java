@@ -21,7 +21,6 @@ import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,8 +36,10 @@ public class UdpNettyChannelFactory extends AbstractNettyChannelFactory {
     /**
      * <p>Constructor for UdpNettyChannelFactory.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
-     * @param connectionless a boolean
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param connectionless
+     *         a boolean
      */
     public UdpNettyChannelFactory(final Options options, final boolean connectionless) {
         this(options, null, connectionless);
@@ -47,9 +48,12 @@ public class UdpNettyChannelFactory extends AbstractNettyChannelFactory {
     /**
      * <p>Constructor for UdpNettyChannelFactory.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
-     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
-     * @param connectionless a boolean
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param connectionless
+     *         a boolean
      */
     public UdpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver, final boolean connectionless) {
         super(TransportType.UDP, options, resolver);

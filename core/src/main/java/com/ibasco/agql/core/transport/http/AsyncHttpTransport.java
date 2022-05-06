@@ -18,12 +18,15 @@ package com.ibasco.agql.core.transport.http;
 
 import com.ibasco.agql.core.Transport;
 import com.ibasco.agql.core.util.Options;
-import org.asynchttpclient.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.asynchttpclient.AsyncHttpClient;
+import org.asynchttpclient.AsyncHttpClientConfig;
+import org.asynchttpclient.DefaultAsyncHttpClient;
+import org.asynchttpclient.Request;
+import org.asynchttpclient.Response;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A wrapper class for the {@link org.asynchttpclient.AsyncHttpClient}
@@ -32,14 +35,15 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class AsyncHttpTransport implements Transport<Response, Request> {
 
-    private final AsyncHttpClient httpClient;
-
     private static final Logger log = LoggerFactory.getLogger(AsyncHttpTransport.class);
+
+    private final AsyncHttpClient httpClient;
 
     /**
      * <p>Constructor for AsyncHttpTransport.</p>
      *
-     * @param transportConfig a {@link org.asynchttpclient.AsyncHttpClientConfig} object
+     * @param transportConfig
+     *         a {@link org.asynchttpclient.AsyncHttpClientConfig} object
      */
     public AsyncHttpTransport(AsyncHttpClientConfig transportConfig) {
         this.httpClient = new DefaultAsyncHttpClient(transportConfig);

@@ -32,7 +32,8 @@ public class InvalidCredentialsException extends AgqlRuntimeException {
     /**
      * <p>Constructor for InvalidCredentialsException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public InvalidCredentialsException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class InvalidCredentialsException extends AgqlRuntimeException {
     /**
      * <p>Constructor for InvalidCredentialsException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public InvalidCredentialsException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +54,8 @@ public class InvalidCredentialsException extends AgqlRuntimeException {
     /**
      * <p>Constructor for InvalidCredentialsException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public InvalidCredentialsException(Throwable cause) {
         super(cause);
@@ -60,10 +64,14 @@ public class InvalidCredentialsException extends AgqlRuntimeException {
     /**
      * <p>Constructor for InvalidCredentialsException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public InvalidCredentialsException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

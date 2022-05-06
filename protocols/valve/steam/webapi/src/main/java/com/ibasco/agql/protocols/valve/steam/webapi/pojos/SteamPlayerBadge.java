@@ -24,12 +24,17 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamPlayerBadge {
+
     @SerializedName("badgeid")
     private int badgeId;
+
     private int level;
+
     @SerializedName("completion_time")
     private int completionTime;
+
     private int xp;
+
     private int scarcity;
 
     /**
@@ -44,7 +49,8 @@ public class SteamPlayerBadge {
     /**
      * <p>Setter for the field <code>badgeId</code>.</p>
      *
-     * @param badgeId a int
+     * @param badgeId
+     *         a int
      */
     public void setBadgeId(int badgeId) {
         this.badgeId = badgeId;
@@ -62,7 +68,8 @@ public class SteamPlayerBadge {
     /**
      * <p>Setter for the field <code>level</code>.</p>
      *
-     * @param level a int
+     * @param level
+     *         a int
      */
     public void setLevel(int level) {
         this.level = level;
@@ -80,7 +87,8 @@ public class SteamPlayerBadge {
     /**
      * <p>Setter for the field <code>completionTime</code>.</p>
      *
-     * @param completionTime a int
+     * @param completionTime
+     *         a int
      */
     public void setCompletionTime(int completionTime) {
         this.completionTime = completionTime;
@@ -98,7 +106,8 @@ public class SteamPlayerBadge {
     /**
      * <p>Setter for the field <code>xp</code>.</p>
      *
-     * @param xp a int
+     * @param xp
+     *         a int
      */
     public void setXp(int xp) {
         this.xp = xp;
@@ -116,7 +125,8 @@ public class SteamPlayerBadge {
     /**
      * <p>Setter for the field <code>scarcity</code>.</p>
      *
-     * @param scarcity a int
+     * @param scarcity
+     *         a int
      */
     public void setScarcity(int scarcity) {
         this.scarcity = scarcity;

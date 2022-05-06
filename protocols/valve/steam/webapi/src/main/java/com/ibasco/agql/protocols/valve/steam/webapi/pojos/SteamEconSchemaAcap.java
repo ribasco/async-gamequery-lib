@@ -28,14 +28,17 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaAcap {
+
     /**
      * The name of the particle system.
      */
     private String system;
+
     /**
      * The effect's ID, referred to by the attached particle effect attribute.
      */
     private int id;
+
     /**
      * A boolean that indicates whether or not the effect is attached to the "root" bone.
      * That is the bone of the item with no parent bones used for rotation and animation calculations.
@@ -64,7 +67,8 @@ public class SteamEconSchemaAcap {
     /**
      * <p>Setter for the field <code>system</code>.</p>
      *
-     * @param system a {@link java.lang.String} object
+     * @param system
+     *         a {@link java.lang.String} object
      */
     public void setSystem(String system) {
         this.system = system;
@@ -82,7 +86,8 @@ public class SteamEconSchemaAcap {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -100,7 +105,8 @@ public class SteamEconSchemaAcap {
     /**
      * <p>Setter for the field <code>attach_to_rootbone</code>.</p>
      *
-     * @param attach_to_rootbone a boolean
+     * @param attach_to_rootbone
+     *         a boolean
      */
     public void setAttach_to_rootbone(boolean attach_to_rootbone) {
         this.attach_to_rootbone = attach_to_rootbone;
@@ -118,7 +124,8 @@ public class SteamEconSchemaAcap {
     /**
      * <p>Setter for the field <code>attachment</code>.</p>
      *
-     * @param attachment a {@link java.lang.String} object
+     * @param attachment
+     *         a {@link java.lang.String} object
      */
     public void setAttachment(String attachment) {
         this.attachment = attachment;
@@ -136,7 +143,8 @@ public class SteamEconSchemaAcap {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;

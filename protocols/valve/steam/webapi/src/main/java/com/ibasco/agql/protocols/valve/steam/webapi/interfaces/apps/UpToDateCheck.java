@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamAppsRequest;
  * @author Rafael Luis Ibasco
  */
 public class UpToDateCheck extends SteamAppsRequest {
+
     /**
      * <p>Constructor for UpToDateCheck.</p>
      *
-     * @param version a int
-     * @param serverVersion a int
-     * @param appId a int
+     * @param version
+     *         a int
+     * @param serverVersion
+     *         a int
+     * @param appId
+     *         a int
      */
     public UpToDateCheck(int version, int serverVersion, int appId) {
         super("UpToDateCheck", version);

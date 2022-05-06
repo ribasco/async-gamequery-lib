@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamAssetTag {
+
     @SerializedName("internal_name")
     private String internalName;
 
@@ -48,7 +49,8 @@ public class SteamAssetTag {
     /**
      * <p>Setter for the field <code>internalName</code>.</p>
      *
-     * @param internalName a {@link java.lang.String} object
+     * @param internalName
+     *         a {@link java.lang.String} object
      */
     public void setInternalName(String internalName) {
         this.internalName = internalName;
@@ -66,7 +68,8 @@ public class SteamAssetTag {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -84,7 +87,8 @@ public class SteamAssetTag {
     /**
      * <p>Setter for the field <code>category</code>.</p>
      *
-     * @param category a {@link java.lang.String} object
+     * @param category
+     *         a {@link java.lang.String} object
      */
     public void setCategory(String category) {
         this.category = category;
@@ -102,7 +106,8 @@ public class SteamAssetTag {
     /**
      * <p>Setter for the field <code>categoryName</code>.</p>
      *
-     * @param categoryName a {@link java.lang.String} object
+     * @param categoryName
+     *         a {@link java.lang.String} object
      */
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;

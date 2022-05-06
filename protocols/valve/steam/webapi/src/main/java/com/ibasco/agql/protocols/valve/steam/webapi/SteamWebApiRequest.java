@@ -36,9 +36,12 @@ abstract public class SteamWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Constructor for SteamWebApiRequest.</p>
      *
-     * @param apiInterface a {@link java.lang.String} object
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiInterface
+     *         a {@link java.lang.String} object
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public SteamWebApiRequest(String apiInterface, String apiMethod, int apiVersion) {
         super(apiVersion);
@@ -63,7 +66,8 @@ abstract public class SteamWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Setter for the field <code>steamApiInterface</code>.</p>
      *
-     * @param steamApiInterface a {@link java.lang.String} object
+     * @param steamApiInterface
+     *         a {@link java.lang.String} object
      */
     public void setSteamApiInterface(String steamApiInterface) {
         this.steamApiInterface = steamApiInterface;
@@ -81,7 +85,8 @@ abstract public class SteamWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Setter for the field <code>steamApiMethod</code>.</p>
      *
-     * @param steamApiMethod a {@link java.lang.String} object
+     * @param steamApiMethod
+     *         a {@link java.lang.String} object
      */
     public void setSteamApiMethod(String steamApiMethod) {
         this.steamApiMethod = steamApiMethod;

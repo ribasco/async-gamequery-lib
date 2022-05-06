@@ -51,54 +51,6 @@ public final class Console {
     public static final String WHITE = "\u001B[37m";
 
     /**
-     * <p>color.</p>
-     *
-     * @param colorStr
-     *         a {@link java.lang.String} object
-     * @param value
-     *         a {@link java.lang.String} object
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public static String color(String colorStr, String value) {
-        return color(colorStr, value, true);
-    }
-
-    /**
-     * <p>color.</p>
-     *
-     * @param colorStr
-     *         a {@link java.lang.String} object
-     * @param value
-     *         a {@link java.lang.String} object
-     * @param reset
-     *         a boolean
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public static String color(String colorStr, String value, boolean reset) {
-        return colorStr + value + (reset ? RESET : "");
-    }
-
-    /**
-     * <p>color.</p>
-     *
-     * @param colorStr
-     *         a {@link java.lang.String} object
-     * @param format
-     *         a {@link java.lang.String} object
-     * @param reset
-     *         a boolean
-     * @param args
-     *         a {@link java.lang.Object} object
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public static String color(String colorStr, String format, boolean reset, Object... args) {
-        return colorStr + String.format(format, args) + (reset ? RESET : "");
-    }
-
-    /**
      * <p>printLine.</p>
      */
     public static void printLine() {
@@ -129,6 +81,54 @@ public final class Console {
         if (!Properties.isVerbose())
             return;
         System.out.printf(color(GREEN, "[%-11s] ", true, Thread.currentThread().getName()) + msg + "%n", args);
+    }
+
+    /**
+     * <p>color.</p>
+     *
+     * @param colorStr
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String color(String colorStr, String value) {
+        return color(colorStr, value, true);
+    }
+
+    /**
+     * <p>color.</p>
+     *
+     * @param colorStr
+     *         a {@link java.lang.String} object
+     * @param format
+     *         a {@link java.lang.String} object
+     * @param reset
+     *         a boolean
+     * @param args
+     *         a {@link java.lang.Object} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String color(String colorStr, String format, boolean reset, Object... args) {
+        return colorStr + String.format(format, args) + (reset ? RESET : "");
+    }
+
+    /**
+     * <p>color.</p>
+     *
+     * @param colorStr
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.String} object
+     * @param reset
+     *         a boolean
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String color(String colorStr, String value, boolean reset) {
+        return colorStr + value + (reset ? RESET : "");
     }
 
     /**
@@ -192,6 +192,18 @@ public final class Console {
 
         public Colorize red() {
             return append(RED);
+        }
+
+        private Colorize append(String color) {
+            return append(color, null);
+        }
+
+        private Colorize append(String color, String format, Object... args) {
+            if (allowColors)
+                builder.append(color);
+            if (!Strings.isBlank(format))
+                builder.append(String.format(format, args));
+            return this;
         }
 
         public Colorize red(String format, Object... args) {
@@ -315,18 +327,6 @@ public final class Console {
         @Override
         public String toString() {
             return builder.toString();
-        }
-
-        private Colorize append(String color) {
-            return append(color, null);
-        }
-
-        private Colorize append(String color, String format, Object... args) {
-            if (allowColors)
-                builder.append(color);
-            if (!Strings.isBlank(format))
-                builder.append(String.format(format, args));
-            return this;
         }
     }
 }

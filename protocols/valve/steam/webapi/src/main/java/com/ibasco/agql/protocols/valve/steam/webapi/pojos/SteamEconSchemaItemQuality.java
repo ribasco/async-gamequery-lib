@@ -25,21 +25,37 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItemQuality {
+
     private int normal;
+
     private int rarity1;
+
     private int rarity2;
+
     private int rarity3;
+
     private int rarity4;
+
     private int vintage;
+
     private int unique;
+
     private int community;
+
     private int developer;
+
     private int selfmade;
+
     private int customized;
+
     private int strange;
+
     private int completed;
+
     private int haunted;
+
     private int collectors;
+
     private int paintkitweapon;
 
     /**
@@ -54,7 +70,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>normal</code>.</p>
      *
-     * @param normal a int
+     * @param normal
+     *         a int
      */
     public void setNormal(int normal) {
         this.normal = normal;
@@ -72,7 +89,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>rarity1</code>.</p>
      *
-     * @param rarity1 a int
+     * @param rarity1
+     *         a int
      */
     public void setRarity1(int rarity1) {
         this.rarity1 = rarity1;
@@ -90,7 +108,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>rarity2</code>.</p>
      *
-     * @param rarity2 a int
+     * @param rarity2
+     *         a int
      */
     public void setRarity2(int rarity2) {
         this.rarity2 = rarity2;
@@ -108,7 +127,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>rarity3</code>.</p>
      *
-     * @param rarity3 a int
+     * @param rarity3
+     *         a int
      */
     public void setRarity3(int rarity3) {
         this.rarity3 = rarity3;
@@ -126,7 +146,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>rarity4</code>.</p>
      *
-     * @param rarity4 a int
+     * @param rarity4
+     *         a int
      */
     public void setRarity4(int rarity4) {
         this.rarity4 = rarity4;
@@ -144,7 +165,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>vintage</code>.</p>
      *
-     * @param vintage a int
+     * @param vintage
+     *         a int
      */
     public void setVintage(int vintage) {
         this.vintage = vintage;
@@ -162,7 +184,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>unique</code>.</p>
      *
-     * @param unique a int
+     * @param unique
+     *         a int
      */
     public void setUnique(int unique) {
         this.unique = unique;
@@ -180,7 +203,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>community</code>.</p>
      *
-     * @param community a int
+     * @param community
+     *         a int
      */
     public void setCommunity(int community) {
         this.community = community;
@@ -198,7 +222,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>developer</code>.</p>
      *
-     * @param developer a int
+     * @param developer
+     *         a int
      */
     public void setDeveloper(int developer) {
         this.developer = developer;
@@ -216,7 +241,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>selfmade</code>.</p>
      *
-     * @param selfmade a int
+     * @param selfmade
+     *         a int
      */
     public void setSelfmade(int selfmade) {
         this.selfmade = selfmade;
@@ -234,7 +260,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>customized</code>.</p>
      *
-     * @param customized a int
+     * @param customized
+     *         a int
      */
     public void setCustomized(int customized) {
         this.customized = customized;
@@ -252,7 +279,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>strange</code>.</p>
      *
-     * @param strange a int
+     * @param strange
+     *         a int
      */
     public void setStrange(int strange) {
         this.strange = strange;
@@ -270,7 +298,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>completed</code>.</p>
      *
-     * @param completed a int
+     * @param completed
+     *         a int
      */
     public void setCompleted(int completed) {
         this.completed = completed;
@@ -288,7 +317,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>haunted</code>.</p>
      *
-     * @param haunted a int
+     * @param haunted
+     *         a int
      */
     public void setHaunted(int haunted) {
         this.haunted = haunted;
@@ -306,7 +336,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>collectors</code>.</p>
      *
-     * @param collectors a int
+     * @param collectors
+     *         a int
      */
     public void setCollectors(int collectors) {
         this.collectors = collectors;
@@ -324,7 +355,8 @@ public class SteamEconSchemaItemQuality {
     /**
      * <p>Setter for the field <code>paintkitweapon</code>.</p>
      *
-     * @param paintkitweapon a int
+     * @param paintkitweapon
+     *         a int
      */
     public void setPaintkitweapon(int paintkitweapon) {
         this.paintkitweapon = paintkitweapon;

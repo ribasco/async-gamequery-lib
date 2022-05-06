@@ -20,7 +20,6 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,15 +41,19 @@ public class Dota2MatchHistoryInfo {
     @SerializedName("start_time")
     @Expose
     private int startTime;
+
     @SerializedName("lobby_type")
     @Expose
     private int lobbyType;
+
     @SerializedName("radiant_team_id")
     @Expose
     private int radiantTeamId;
+
     @SerializedName("dire_team_id")
     @Expose
     private int direTeamId;
+
     @SerializedName("players")
     @Expose
     private List<Dota2MatchHistoryPlayer> players = new ArrayList<>();

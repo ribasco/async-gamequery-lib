@@ -28,18 +28,23 @@ import io.netty.util.concurrent.EventExecutor;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.internal.ObjectUtil;
-import static io.netty.util.internal.ObjectUtil.checkPositive;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.channels.ClosedChannelException;
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static io.netty.util.internal.ObjectUtil.checkPositive;
 
 /**
  * An enhanced version of netty's {@link io.netty.channel.pool.FixedChannelPool}
@@ -49,18 +54,6 @@ import java.util.function.BiConsumer;
 public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
     private static final Logger log = LoggerFactory.getLogger(FixedNettyChannelPool.class);
-
-    public enum AcquireTimeoutAction {
-        /**
-         * Create a new connection when the timeout is detected.
-         */
-        NEW,
-
-        /**
-         * Fail the {@link CompletableFuture} of the acquire call with a {@link TimeoutException}.
-         */
-        FAIL
-    }
 
     private final EventExecutor executor;
 
@@ -78,11 +71,11 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
 
     private final AtomicInteger acquiredChannelCount = new AtomicInteger();
 
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-pool"));
+
     private int pendingAcquireCount;
 
     private boolean closed;
-
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("agql-pool"));
 
     /**
      * Creates a new instance using the {@link com.ibasco.agql.core.transport.pool.ChannelHealthChecker#ACTIVE}.
@@ -179,7 +172,8 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      * @param releaseHealthCheck
      *         will check channel health before offering back if this parameter set to
      *         {@code true}.
-     * @param releaseStrategy a ReleaseStrategy object
+     * @param releaseStrategy
+     *         a ReleaseStrategy object
      */
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
@@ -217,7 +211,8 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
      *         {@code true}.
      * @param lastRecentUsed
      *         {@code true} {@link io.netty.channel.Channel} selection will be LIFO, if {@code false} FIFO.
-     * @param releaseStrategy a ReleaseStrategy object
+     * @param releaseStrategy
+     *         a ReleaseStrategy object
      */
     public FixedNettyChannelPool(NettyChannelFactory channelFactory,
                                  ChannelPoolHandler handler,
@@ -415,6 +410,89 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
         assert acquiredChannelCount.get() >= 0;
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public void close() {
+        try {
+            closeAsync().get();
+            executor.shutdownGracefully();
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Closes the pool in an async manner.
+     */
+    @Override
+    public CompletableFuture<Void> closeAsync() {
+        if (executor.inEventLoop()) {
+            return close0();
+        } else {
+            return CompletableFuture.runAsync(this::close0, executor);
+        }
+    }
+
+    private CompletableFuture<Void> close0() {
+        assert executor.inEventLoop();
+
+        if (!closed) {
+            closed = true;
+            for (; ; ) {
+                AcquireTask task = pendingAcquireQueue.poll();
+                if (task == null) {
+                    break;
+                }
+                ScheduledFuture<?> f = task.timeoutFuture;
+                if (f != null) {
+                    f.cancel(false);
+                }
+                task.promise.completeExceptionally(new ClosedChannelException());
+            }
+            acquiredChannelCount.set(0);
+            pendingAcquireCount = 0;
+
+            // Ensure we dispatch this on another Thread as close0 will be called from the EventExecutor and we need
+            // to ensure we will not block in a EventExecutor.
+            return Netty.toCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
+                FixedNettyChannelPool.super.close();
+                return null;
+            }));
+        }
+
+        return CompletableFuture.completedFuture(null);
+    }
+
+    public enum AcquireTimeoutAction {
+        /**
+         * Create a new connection when the timeout is detected.
+         */
+        NEW,
+
+        /**
+         * Fail the {@link CompletableFuture} of the acquire call with a {@link TimeoutException}.
+         */
+        FAIL
+    }
+
+    private static final class AcquireTimeoutException extends TimeoutException {
+
+        private AcquireTimeoutException() {
+            super("Acquire operation took longer then configured maximum time");
+        }
+
+        // Suppress a warning since the method doesn't need synchronization
+        @Override
+        public Throwable fillInStackTrace() {   // lgtm[java/non-sync-override]
+            return this;
+        }
+    }
+
     // AcquireTask extends AcquireListener to reduce object creations and so GC pressure
     private final class AcquireTask extends AcquireListener {
 
@@ -508,77 +586,6 @@ public class FixedNettyChannelPool extends SimpleNettyChannelPool {
             }
             acquiredChannelCount.incrementAndGet();
             acquired = true;
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void close() {
-        try {
-            closeAsync().get();
-            executor.shutdownGracefully();
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            throw new RuntimeException(e);
-        } catch (ExecutionException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * Closes the pool in an async manner.
-     */
-    @Override
-    public CompletableFuture<Void> closeAsync() {
-        if (executor.inEventLoop()) {
-            return close0();
-        } else {
-            return CompletableFuture.runAsync(this::close0, executor);
-        }
-    }
-
-    private CompletableFuture<Void> close0() {
-        assert executor.inEventLoop();
-
-        if (!closed) {
-            closed = true;
-            for (; ; ) {
-                AcquireTask task = pendingAcquireQueue.poll();
-                if (task == null) {
-                    break;
-                }
-                ScheduledFuture<?> f = task.timeoutFuture;
-                if (f != null) {
-                    f.cancel(false);
-                }
-                task.promise.completeExceptionally(new ClosedChannelException());
-            }
-            acquiredChannelCount.set(0);
-            pendingAcquireCount = 0;
-
-            // Ensure we dispatch this on another Thread as close0 will be called from the EventExecutor and we need
-            // to ensure we will not block in a EventExecutor.
-            return Netty.toCompletable(GlobalEventExecutor.INSTANCE.submit(() -> {
-                FixedNettyChannelPool.super.close();
-                return null;
-            }));
-        }
-
-        return CompletableFuture.completedFuture(null);
-    }
-
-    private static final class AcquireTimeoutException extends TimeoutException {
-
-        private AcquireTimeoutException() {
-            super("Acquire operation took longer then configured maximum time");
-        }
-
-        // Suppress a warning since the method doesn't need synchronization
-        @Override
-        public Throwable fillInStackTrace() {   // lgtm[java/non-sync-override]
-            return this;
         }
     }
 }

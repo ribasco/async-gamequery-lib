@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
  * @author Rafael Luis Ibasco
  */
 public class GetNumberOfCurrentPlayers extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetNumberOfCurrentPlayers.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
      */
     public GetNumberOfCurrentPlayers(int apiVersion, int appId) {
         super("GetNumberOfCurrentPlayers", apiVersion);

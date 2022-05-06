@@ -30,7 +30,8 @@ abstract public class AbstractPacketEncoder<P extends Packet> implements PacketE
     /**
      * <p>Constructor for AbstractPacketEncoder.</p>
      *
-     * @param allocator a {@link io.netty.buffer.ByteBufAllocator} object
+     * @param allocator
+     *         a {@link io.netty.buffer.ByteBufAllocator} object
      */
     public AbstractPacketEncoder(ByteBufAllocator allocator) {
         this.allocator = allocator;

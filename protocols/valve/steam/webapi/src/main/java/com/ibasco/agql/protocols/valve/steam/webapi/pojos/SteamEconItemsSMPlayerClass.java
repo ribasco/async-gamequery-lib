@@ -26,9 +26,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMPlayerClass {
+
     private int id;
+
     @SerializedName("base_name")
     private String baseName;
+
     @SerializedName("localized_text")
     private String localizedText;
 
@@ -44,7 +47,8 @@ public class SteamEconItemsSMPlayerClass {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -62,7 +66,8 @@ public class SteamEconItemsSMPlayerClass {
     /**
      * <p>Setter for the field <code>baseName</code>.</p>
      *
-     * @param baseName a {@link java.lang.String} object
+     * @param baseName
+     *         a {@link java.lang.String} object
      */
     public void setBaseName(String baseName) {
         this.baseName = baseName;
@@ -80,7 +85,8 @@ public class SteamEconItemsSMPlayerClass {
     /**
      * <p>Setter for the field <code>localizedText</code>.</p>
      *
-     * @param localizedText a {@link java.lang.String} object
+     * @param localizedText
+     *         a {@link java.lang.String} object
      */
     public void setLocalizedText(String localizedText) {
         this.localizedText = localizedText;

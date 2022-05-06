@@ -32,7 +32,8 @@ public class SourceQuerySinglePacketEncoder extends AbstractPacketEncoder<Source
     /**
      * <p>Constructor for SourceQuerySinglePacketEncoder.</p>
      *
-     * @param allocator a {@link io.netty.buffer.ByteBufAllocator} object
+     * @param allocator
+     *         a {@link io.netty.buffer.ByteBufAllocator} object
      */
     public SourceQuerySinglePacketEncoder(ByteBufAllocator allocator) {
         super(allocator);

@@ -24,10 +24,13 @@ import com.ibasco.agql.core.transport.NettyPropertyResolver;
  * @author Rafael Luis Ibasco
  */
 public interface NettyPoolPropertyResolver extends NettyPropertyResolver {
+
     /**
      * <p>resolvePoolKey.</p>
      *
-     * @param data a {@link java.lang.Object} object
+     * @param data
+     *         a {@link java.lang.Object} object
+     *
      * @return a {@link java.lang.Object} object
      */
     Object resolvePoolKey(Object data);

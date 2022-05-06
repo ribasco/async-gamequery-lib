@@ -20,13 +20,18 @@ import com.ibasco.agql.core.transport.DefaultPropertyResolver;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryInitializer;
 import com.ibasco.agql.core.transport.pool.DefaultPoolPropertyResolver;
-import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.*;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconAuthDecoder;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconAuthEncoder;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconCmdDecoder;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconCmdEncoder;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketAssembler;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketDecoder;
+import com.ibasco.agql.protocols.valve.source.query.rcon.handlers.SourceRconPacketEncoder;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
+import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedList;
 
 /**
  * A special channel factory which decorates an exiting {@link com.ibasco.agql.core.transport.NettyChannelFactory} and ensures that the acquired/created {@link io.netty.channel.Channel} is fully authenticated by the remote server
@@ -40,7 +45,8 @@ public final class SourceRconChannelFactory extends NettyChannelFactoryInitializ
     /**
      * <p>Constructor for SourceRconChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public SourceRconChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);

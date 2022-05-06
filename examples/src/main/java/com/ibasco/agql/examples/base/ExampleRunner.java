@@ -17,13 +17,18 @@
 package com.ibasco.agql.examples.base;
 
 import com.ibasco.agql.examples.*;
-import org.apache.commons.cli.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>ExampleRunner class.</p>
@@ -80,6 +85,24 @@ public class ExampleRunner {
         options.addOption(nameOption);
     }
 
+    /**
+     * <p>main.</p>
+     *
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    public static void main(String[] args) throws Exception {
+        try {
+            new ExampleRunner().processArguments(args);
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+            System.exit(1);
+        }
+    }
+
     private void processArguments(String[] args) throws Exception {
         // create the parser
         CommandLineParser parser = new DefaultParser();
@@ -118,20 +141,5 @@ public class ExampleRunner {
     public static void clearConsole() {
         System.out.print("\033[H\033[2J");
         System.out.flush();
-    }
-
-    /**
-     * <p>main.</p>
-     *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
-     */
-    public static void main(String[] args) throws Exception {
-        try {
-            new ExampleRunner().processArguments(args);
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-            System.exit(1);
-        }
     }
 }

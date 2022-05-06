@@ -32,7 +32,8 @@ public class ChannelRegistrationException extends AgqlException {
     /**
      * <p>Constructor for ChannelRegistrationException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public ChannelRegistrationException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class ChannelRegistrationException extends AgqlException {
     /**
      * <p>Constructor for ChannelRegistrationException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public ChannelRegistrationException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +54,8 @@ public class ChannelRegistrationException extends AgqlException {
     /**
      * <p>Constructor for ChannelRegistrationException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public ChannelRegistrationException(Throwable cause) {
         super(cause);
@@ -60,10 +64,14 @@ public class ChannelRegistrationException extends AgqlException {
     /**
      * <p>Constructor for ChannelRegistrationException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public ChannelRegistrationException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

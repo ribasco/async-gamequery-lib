@@ -45,7 +45,8 @@ public class MasterServerQueryPacket extends AbstractPacket {
     /**
      * <p>Constructor for MasterServerQueryPacket.</p>
      *
-     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     * @param payload
+     *         a {@link io.netty.buffer.ByteBuf} object
      */
     public MasterServerQueryPacket(ByteBuf payload) {
         super(payload);
@@ -63,7 +64,8 @@ public class MasterServerQueryPacket extends AbstractPacket {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
      */
     public void setType(int type) {
         this.type = type;
@@ -81,7 +83,8 @@ public class MasterServerQueryPacket extends AbstractPacket {
     /**
      * <p>Setter for the field <code>region</code>.</p>
      *
-     * @param region a int
+     * @param region
+     *         a int
      */
     public void setRegion(int region) {
         this.region = region;
@@ -99,7 +102,8 @@ public class MasterServerQueryPacket extends AbstractPacket {
     /**
      * <p>Setter for the field <code>address</code>.</p>
      *
-     * @param address a {@link java.lang.String} object
+     * @param address
+     *         a {@link java.lang.String} object
      */
     public void setAddress(String address) {
         this.address = address;
@@ -117,7 +121,8 @@ public class MasterServerQueryPacket extends AbstractPacket {
     /**
      * <p>Setter for the field <code>filter</code>.</p>
      *
-     * @param filter a {@link java.lang.String} object
+     * @param filter
+     *         a {@link java.lang.String} object
      */
     public void setFilter(String filter) {
         this.filter = filter;

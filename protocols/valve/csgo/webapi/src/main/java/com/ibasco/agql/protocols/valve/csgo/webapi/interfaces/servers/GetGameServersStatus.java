@@ -25,10 +25,12 @@ import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.CsgoServersRequest
  * @author Rafael Luis Ibasco
  */
 public class GetGameServersStatus extends CsgoServersRequest {
+
     /**
      * <p>Constructor for GetGameServersStatus.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public GetGameServersStatus(int apiVersion) {
         super(CsgoApiConstants.CSGO_METHOD_GETGAMESERVERSTATUS, apiVersion);

@@ -36,8 +36,10 @@ public class WriteInProgressException extends TransportException {
     /**
      * <p>Constructor for WriteInProgressException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public WriteInProgressException(String message, Throwable cause) {
         super(message, cause);

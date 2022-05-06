@@ -45,7 +45,8 @@ public class SourceRconPacketEncoder implements PacketEncoder<SourceRconPacket> 
     /**
      * <p>Constructor for SourceRconPacketEncoder.</p>
      *
-     * @param allocator a {@link io.netty.buffer.ByteBufAllocator} object
+     * @param allocator
+     *         a {@link io.netty.buffer.ByteBufAllocator} object
      */
     public SourceRconPacketEncoder(ByteBufAllocator allocator) {
         this.allocator = allocator == null ? PooledByteBufAllocator.DEFAULT : allocator;

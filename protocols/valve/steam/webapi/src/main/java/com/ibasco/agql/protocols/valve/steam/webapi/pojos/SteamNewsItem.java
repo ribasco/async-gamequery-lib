@@ -24,22 +24,31 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamNewsItem {
+
     @SerializedName("gid")
     private String gid;
+
     @SerializedName("title")
     private String title;
+
     @SerializedName("url")
     private String url;
+
     @SerializedName("is_external_url")
     private boolean externalUrl;
+
     @SerializedName("author")
     private String author;
+
     @SerializedName("contents")
     private String contents;
+
     @SerializedName("feedlabel")
     private String feedLabel;
+
     @SerializedName("date")
     private int date;
+
     @SerializedName("feedname")
     private String feedName;
 
@@ -55,7 +64,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>gid</code>.</p>
      *
-     * @param gid a {@link java.lang.String} object
+     * @param gid
+     *         a {@link java.lang.String} object
      */
     public void setGid(String gid) {
         this.gid = gid;
@@ -73,7 +83,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>title</code>.</p>
      *
-     * @param title a {@link java.lang.String} object
+     * @param title
+     *         a {@link java.lang.String} object
      */
     public void setTitle(String title) {
         this.title = title;
@@ -91,7 +102,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>url</code>.</p>
      *
-     * @param url a {@link java.lang.String} object
+     * @param url
+     *         a {@link java.lang.String} object
      */
     public void setUrl(String url) {
         this.url = url;
@@ -109,7 +121,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>externalUrl</code>.</p>
      *
-     * @param externalUrl a boolean
+     * @param externalUrl
+     *         a boolean
      */
     public void setExternalUrl(boolean externalUrl) {
         this.externalUrl = externalUrl;
@@ -127,7 +140,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>author</code>.</p>
      *
-     * @param author a {@link java.lang.String} object
+     * @param author
+     *         a {@link java.lang.String} object
      */
     public void setAuthor(String author) {
         this.author = author;
@@ -145,7 +159,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>contents</code>.</p>
      *
-     * @param contents a {@link java.lang.String} object
+     * @param contents
+     *         a {@link java.lang.String} object
      */
     public void setContents(String contents) {
         this.contents = contents;
@@ -163,7 +178,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>feedLabel</code>.</p>
      *
-     * @param feedLabel a {@link java.lang.String} object
+     * @param feedLabel
+     *         a {@link java.lang.String} object
      */
     public void setFeedLabel(String feedLabel) {
         this.feedLabel = feedLabel;
@@ -181,7 +197,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>date</code>.</p>
      *
-     * @param date a int
+     * @param date
+     *         a int
      */
     public void setDate(int date) {
         this.date = date;
@@ -199,7 +216,8 @@ public class SteamNewsItem {
     /**
      * <p>Setter for the field <code>feedName</code>.</p>
      *
-     * @param feedName a {@link java.lang.String} object
+     * @param feedName
+     *         a {@link java.lang.String} object
      */
     public void setFeedName(String feedName) {
         this.feedName = feedName;

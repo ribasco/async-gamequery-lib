@@ -30,7 +30,8 @@ public class Dota2WebApiClient extends SteamWebApiClient {
     /**
      * <p>Constructor for Dota2WebApiClient.</p>
      *
-     * @param apiToken a {@link java.lang.String} object
+     * @param apiToken
+     *         a {@link java.lang.String} object
      */
     public Dota2WebApiClient(String apiToken) {
         super(apiToken);

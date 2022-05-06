@@ -28,10 +28,12 @@ import org.jetbrains.annotations.ApiStatus;
 public class CocApiConstants {
 
     //url formats
+
     /** Constant <code>UF_COC_BASE="https://api.clashofclans.com/v${version"{trunked}</code> */
     public static final String UF_COC_BASE = "https://api.clashofclans.com/v${version}";
 
     //uf clan interface
+
     /** Constant <code>UF_COC_CLAN_SEARCH="${baseUrl}/clans"</code> */
     public static final String UF_COC_CLAN_SEARCH = "${baseUrl}/clans";
 
@@ -45,6 +47,7 @@ public class CocApiConstants {
     public static final String UF_COC_CLAN_WARLOG = "${baseUrl}/clans/${clanTag}/warlog";
 
     //uf locations
+
     /** Constant <code>UF_COC_LOCATIONS="${baseUrl}/locations"</code> */
     public static final String UF_COC_LOCATIONS = "${baseUrl}/locations";
 
@@ -58,6 +61,7 @@ public class CocApiConstants {
     public static final String UF_COC_LOCATION_PLAYER_RANK = "${baseUrl}/locations/${locationId}/rankings/players";
 
     //uf league interface
+
     /** Constant <code>UF_COC_LEAGUES="${baseUrl}/leagues"</code> */
     public static final String UF_COC_LEAGUES = "${baseUrl}/leagues";
 
@@ -71,10 +75,12 @@ public class CocApiConstants {
     public static final String UF_COC_LEAGUE_SEASON_RANKINGS = "${baseUrl}/leagues/${leagueId}/seasons/${seasonId}";
 
     //uf player interface
+
     /** Constant <code>UF_COC_PLAYER_INFO="${baseUrl}/players/${playerTag}"</code> */
     public static final String UF_COC_PLAYER_INFO = "${baseUrl}/players/${playerTag}";
 
     //url format properties
+
     /** Constant <code>UF_PROP_VERSION="version"</code> */
     public static final String UF_PROP_VERSION = "version";
 

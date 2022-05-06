@@ -24,12 +24,17 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppMovie {
+
     private int id;
+
     private String name;
+
     @SerializedName("thumbnail")
     private String thumbnailUrl;
+
     @SerializedName("webm")
     private StoreAppWebMFormatInfo webMFormatInfo;
+
     private boolean highlight;
 
     /**
@@ -44,7 +49,8 @@ public class StoreAppMovie {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -62,7 +68,8 @@ public class StoreAppMovie {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -80,7 +87,8 @@ public class StoreAppMovie {
     /**
      * <p>Setter for the field <code>thumbnailUrl</code>.</p>
      *
-     * @param thumbnailUrl a {@link java.lang.String} object
+     * @param thumbnailUrl
+     *         a {@link java.lang.String} object
      */
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
@@ -98,7 +106,8 @@ public class StoreAppMovie {
     /**
      * <p>Setter for the field <code>webMFormatInfo</code>.</p>
      *
-     * @param webMFormatInfo a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppWebMFormatInfo} object
+     * @param webMFormatInfo
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppWebMFormatInfo} object
      */
     public void setWebMFormatInfo(StoreAppWebMFormatInfo webMFormatInfo) {
         this.webMFormatInfo = webMFormatInfo;
@@ -116,7 +125,8 @@ public class StoreAppMovie {
     /**
      * <p>Setter for the field <code>highlight</code>.</p>
      *
-     * @param highlight a boolean
+     * @param highlight
+     *         a boolean
      */
     public void setHighlight(boolean highlight) {
         this.highlight = highlight;

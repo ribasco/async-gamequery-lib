@@ -31,13 +31,12 @@ import io.netty.buffer.DefaultByteBufHolder;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -72,6 +71,55 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
      */
     public SourceRconPacketDecoder() {
         setSingleDecode(false);
+    }
+
+    private void flushExcept(SourceRconPacket packet, List<Object> out) {
+        List<Integer> ids = packets.stream().map(SourceRconPacket::getId).filter(id -> id != -1 && id != packet.getId()).distinct().collect(Collectors.toList());
+        if (ids.isEmpty())
+            return;
+        Iterator<SourceRconPacket> it = packets.iterator();
+        while (it.hasNext()) {
+            SourceRconPacket pending = it.next();
+            if (pending.getId() != packet.getId()) {
+                log.debug("Flushing '{}' except '{}'", pending, packet);
+                out.add(pending);
+                it.remove();
+            }
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        debug(ctx, "DECODER: START");
+        super.channelRead(ctx, msg);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        debug(ctx, "DECODER: END");
+        super.channelReadComplete(ctx);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        reset(ctx, true);
+        decoder = null;
+        super.channelInactive(ctx);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        ChannelEvent cEvent = (ChannelEvent) evt;
+        if (cEvent == ChannelEvent.RELEASED) {
+            if (packets == null)
+                return;
+            debug(ctx, "Channel was released. Resetting packet container (Container size: {})", packets.size());
+            reset(ctx, true);
+        }
     }
 
     /** {@inheritDoc} */
@@ -205,19 +253,13 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         }
     }
 
-    private void flushExcept(SourceRconPacket packet, List<Object> out) {
-        List<Integer> ids = packets.stream().map(SourceRconPacket::getId).filter(id -> id != -1 && id != packet.getId()).distinct().collect(Collectors.toList());
-        if (ids.isEmpty())
-            return;
-        Iterator<SourceRconPacket> it = packets.iterator();
-        while (it.hasNext()) {
-            SourceRconPacket pending = it.next();
-            if (pending.getId() != packet.getId()) {
-                log.debug("Flushing '{}' except '{}'", pending, packet);
-                out.add(pending);
-                it.remove();
-            }
-        }
+    /** {@inheritDoc} */
+    @Override
+    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
+        Boolean strictMode = SourceRconOptions.STRICT_MODE.attr(ctx);
+        this.decoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketDecoder(ctx, strictMode != null ? strictMode : false);
+        this.terminatorPacketsEnabled = SourceRcon.terminatorPacketEnabled(ctx);
+        super.channelActive(ctx);
     }
 
     /** {@inheritDoc} */
@@ -241,47 +283,8 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         packets = null;
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        ChannelEvent cEvent = (ChannelEvent) evt;
-        if (cEvent == ChannelEvent.RELEASED) {
-            if (packets == null)
-                return;
-            debug(ctx, "Channel was released. Resetting packet container (Container size: {})", packets.size());
-            reset(ctx, true);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        debug(ctx, "DECODER: START");
-        super.channelRead(ctx, msg);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        debug(ctx, "DECODER: END");
-        super.channelReadComplete(ctx);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelActive(@NotNull ChannelHandlerContext ctx) throws Exception {
-        Boolean strictMode = SourceRconOptions.STRICT_MODE.attr(ctx);
-        this.decoder = new com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketDecoder(ctx, strictMode != null ? strictMode : false);
-        this.terminatorPacketsEnabled = SourceRcon.terminatorPacketEnabled(ctx);
-        super.channelActive(ctx);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        reset(ctx, true);
-        decoder = null;
-        super.channelInactive(ctx);
+    private static void debug(ChannelHandlerContext ctx, String msg, Object... args) {
+        log.debug(String.format("%s INB => %s", Netty.id(ctx), msg), args);
     }
 
     private boolean allMatch(SourceRconPacket packet) {
@@ -318,9 +321,5 @@ public class SourceRconPacketDecoder extends ByteToMessageDecoder {
         }
         out.addAll(packets);
         reset(ctx, false);
-    }
-
-    private static void debug(ChannelHandlerContext ctx, String msg, Object... args) {
-        log.debug(String.format("%s INB => %s", Netty.id(ctx), msg), args);
     }
 }

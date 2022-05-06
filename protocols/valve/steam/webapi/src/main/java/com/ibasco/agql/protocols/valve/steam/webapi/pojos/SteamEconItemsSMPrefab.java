@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +28,11 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMPrefab {
+
     private long id;
+
     private String name;
+
     @SerializedName("config")
     private List<SteamEconItemsSMPrefabConfig> configs = new ArrayList<>();
 
@@ -46,7 +48,8 @@ public class SteamEconItemsSMPrefab {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -64,7 +67,8 @@ public class SteamEconItemsSMPrefab {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -82,7 +86,8 @@ public class SteamEconItemsSMPrefab {
     /**
      * <p>Setter for the field <code>configs</code>.</p>
      *
-     * @param configs a {@link java.util.List} object
+     * @param configs
+     *         a {@link java.util.List} object
      */
     public void setConfigs(List<SteamEconItemsSMPrefabConfig> configs) {
         this.configs = configs;

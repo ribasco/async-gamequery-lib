@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.master;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
@@ -32,8 +31,6 @@ import java.util.EnumMap;
  */
 @ApiStatus.Internal
 public final class MasterServer {
-
-    private static final EnumMap<MasterServerType, InetSocketAddress[]> masterAddressMap = new EnumMap<>(MasterServerType.class);
 
     /** Constant <code>MASTER_ADDR</code> */
     public static final InetSocketAddress MASTER_ADDR = new InetSocketAddress("hl2master.steampowered.com", 27011);
@@ -74,10 +71,14 @@ public final class MasterServer {
     /** Constant <code>REGION_WORLD=0xFF</code> */
     public static final int REGION_WORLD = 0xFF;
 
+    private static final EnumMap<MasterServerType, InetSocketAddress[]> masterAddressMap = new EnumMap<>(MasterServerType.class);
+
     /**
      * <p>isHeaderPacket.</p>
      *
-     * @param packet a {@link com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket} object
+     * @param packet
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket} object
+     *
      * @return a boolean
      */
     public static boolean isHeaderPacket(MasterServerAddressPacket packet) {
@@ -87,7 +88,9 @@ public final class MasterServer {
     /**
      * <p>isTerminatingPacket.</p>
      *
-     * @param packet a {@link com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket} object
+     * @param packet
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerAddressPacket} object
+     *
      * @return a boolean
      */
     public static boolean isTerminatingPacket(MasterServerAddressPacket packet) {
@@ -97,7 +100,9 @@ public final class MasterServer {
     /**
      * <p>isTerminatingAddress.</p>
      *
-     * @param address a {@link java.net.InetSocketAddress} object
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     *
      * @return a boolean
      */
     public static boolean isTerminatingAddress(InetSocketAddress address) {
@@ -107,8 +112,11 @@ public final class MasterServer {
     /**
      * <p>getCachedMasterAddress.</p>
      *
-     * @param type a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
-     * @param forceRefresh a boolean
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     * @param forceRefresh
+     *         a boolean
+     *
      * @return an array of {@link java.net.InetSocketAddress} objects
      */
     public static InetSocketAddress[] getCachedMasterAddress(MasterServerType type, boolean forceRefresh) {
@@ -120,7 +128,9 @@ public final class MasterServer {
     /**
      * <p>getAddresses.</p>
      *
-     * @param type a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     *
      * @return an array of {@link java.net.InetSocketAddress} objects
      */
     public static InetSocketAddress[] getAddresses(MasterServerType type) {

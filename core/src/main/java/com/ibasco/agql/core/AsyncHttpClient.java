@@ -18,7 +18,6 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.HttpOptions;
 import com.ibasco.agql.core.util.Options;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -45,7 +44,9 @@ abstract class AsyncHttpClient extends AbstractClient<AbstractWebRequest, Abstra
     /**
      * <p>send.</p>
      *
-     * @param message a {@link com.ibasco.agql.core.AbstractWebRequest} object
+     * @param message
+     *         a {@link com.ibasco.agql.core.AbstractWebRequest} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     protected CompletableFuture<AbstractWebResponse> send(AbstractWebRequest message) {

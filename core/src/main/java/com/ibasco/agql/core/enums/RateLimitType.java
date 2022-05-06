@@ -18,7 +18,6 @@ package com.ibasco.agql.core.enums;
 
 import dev.failsafe.RateLimiter;
 import dev.failsafe.RateLimiterBuilder;
-
 import java.time.Duration;
 import java.util.function.BiFunction;
 

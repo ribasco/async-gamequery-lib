@@ -25,7 +25,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.G
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.GetSupportedAPIList;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamwebapiutil.pojos.ServerInfo;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;

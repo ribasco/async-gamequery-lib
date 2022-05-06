@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.source.query.rules;
 
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
-
 import java.util.Map;
 
 /**
@@ -32,8 +31,10 @@ public class SourceQueryRulesResponse extends SourceQueryResponse<Map<String, St
     /**
      * <p>Constructor for SourceQueryRulesResponse.</p>
      *
-     * @param rules a {@link java.util.Map} object
-     * @param expectedCount a int
+     * @param rules
+     *         a {@link java.util.Map} object
+     * @param expectedCount
+     *         a int
      */
     public SourceQueryRulesResponse(Map<String, String> rules, int expectedCount) {
         super(rules);

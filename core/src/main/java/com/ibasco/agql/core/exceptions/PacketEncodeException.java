@@ -32,7 +32,8 @@ public class PacketEncodeException extends Exception {
     /**
      * <p>Constructor for PacketEncodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public PacketEncodeException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class PacketEncodeException extends Exception {
     /**
      * <p>Constructor for PacketEncodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public PacketEncodeException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +54,8 @@ public class PacketEncodeException extends Exception {
     /**
      * <p>Constructor for PacketEncodeException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public PacketEncodeException(Throwable cause) {
         super(cause);
@@ -60,10 +64,14 @@ public class PacketEncodeException extends Exception {
     /**
      * <p>Constructor for PacketEncodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public PacketEncodeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

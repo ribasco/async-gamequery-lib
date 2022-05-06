@@ -29,7 +29,9 @@ public interface RconAuthenticator {
     /**
      * <p>authenticate.</p>
      *
-     * @param context a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconChannelContext} object
+     * @param context
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconChannelContext} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<SourceRconChannelContext> authenticate(SourceRconChannelContext context);

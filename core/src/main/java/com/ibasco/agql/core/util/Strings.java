@@ -27,21 +27,11 @@ public class Strings {
     public static final String EMPTY = "";
 
     /**
-     * <p>isBlank.</p>
-     *
-     * @param str
-     *         a {@link java.lang.String} object
-     * @return a boolean
-     */
-    public static boolean isBlank(String str) {
-        return str == null || "".equals(str.trim());
-    }
-
-    /**
      * <p>isNumeric.</p>
      *
      * @param str
      *         a {@link java.lang.String} object
+     *
      * @return a boolean
      */
     public static boolean isNumeric(String str) {
@@ -57,12 +47,25 @@ public class Strings {
     }
 
     /**
+     * <p>isBlank.</p>
+     *
+     * @param str
+     *         a {@link java.lang.String} object
+     *
+     * @return a boolean
+     */
+    public static boolean isBlank(String str) {
+        return str == null || "".equals(str.trim());
+    }
+
+    /**
      * <p>defaultIfEmpty.</p>
      *
      * @param value
      *         a {@link java.lang.String} object
      * @param defaultValue
      *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     public static String defaultIfEmpty(String value, String defaultValue) {

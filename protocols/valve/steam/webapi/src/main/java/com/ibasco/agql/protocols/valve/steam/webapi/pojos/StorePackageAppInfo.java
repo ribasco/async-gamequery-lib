@@ -25,8 +25,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class StorePackageAppInfo {
+
     private int id;
+
     private String name;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("name", getName())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>id</code>.</p>
@@ -40,7 +51,8 @@ public class StorePackageAppInfo {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -58,18 +70,10 @@ public class StorePackageAppInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("name", getName())
-                .toString();
     }
 }

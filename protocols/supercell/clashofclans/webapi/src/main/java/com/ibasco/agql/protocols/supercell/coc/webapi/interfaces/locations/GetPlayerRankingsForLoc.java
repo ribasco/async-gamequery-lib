@@ -32,8 +32,10 @@ public class GetPlayerRankingsForLoc extends CocWebApiRequest {
     /**
      * <p>Constructor for GetPlayerRankingsForLoc.</p>
      *
-     * @param apiVersion a int
-     * @param locationId a int
+     * @param apiVersion
+     *         a int
+     * @param locationId
+     *         a int
      */
     public GetPlayerRankingsForLoc(int apiVersion, int locationId) {
         this(apiVersion, locationId, -1, -1, -1);
@@ -42,25 +44,33 @@ public class GetPlayerRankingsForLoc extends CocWebApiRequest {
     /**
      * <p>Constructor for GetPlayerRankingsForLoc.</p>
      *
-     * @param apiVersion a int
-     * @param locationId a int
-     * @param limit a int
+     * @param apiVersion
+     *         a int
+     * @param locationId
+     *         a int
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
-    public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit) {
-        this(apiVersion, locationId, limit, -1, -1);
+    public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
+        super(apiVersion, CocApiConstants.UF_COC_LOCATION_PLAYER_RANK, limit, before, after);
+        property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
     }
 
     /**
      * <p>Constructor for GetPlayerRankingsForLoc.</p>
      *
-     * @param apiVersion a int
-     * @param locationId a int
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param locationId
+     *         a int
+     * @param limit
+     *         a int
      */
-    public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit, int before, int after) {
-        super(apiVersion, CocApiConstants.UF_COC_LOCATION_PLAYER_RANK, limit, before, after);
-        property(CocApiConstants.UF_PROP_LOCATION_ID, locationId);
+    public GetPlayerRankingsForLoc(int apiVersion, int locationId, int limit) {
+        this(apiVersion, locationId, limit, -1, -1);
     }
 }

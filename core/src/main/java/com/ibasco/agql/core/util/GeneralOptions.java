@@ -23,7 +23,6 @@ import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.ResourceLeakDetector;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -54,15 +53,6 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public final class GeneralOptions extends AbstractOptions {
 
-    private static final AtomicReference<Options> optionsRef = new AtomicReference<>();
-
-    /**
-     * Prevent this from being instantiated
-     */
-    private GeneralOptions() {}
-
-    //<editor-fold desc="General">
-
     /**
      * Monitor resource usage leaks. Set the desired {@link ResourceLeakDetector}
      */
@@ -73,6 +63,8 @@ public final class GeneralOptions extends AbstractOptions {
      */
     public static final Option<Integer> READ_TIMEOUT = Option.create("globalReadTimeOut", 5000, true, true);
 
+    //<editor-fold desc="General">
+
     /**
      * Number of milliseconds to wait before we throw a WriteTimeoutException (Default: 5 seconds)
      */
@@ -82,9 +74,6 @@ public final class GeneralOptions extends AbstractOptions {
      * The maximum number of milliseconds to wait before timing out on close channel operation
      */
     public static final Option<Integer> CLOSE_TIMEOUT = Option.create("globalCloseTimeout", 10000);
-    //</editor-fold>
-
-    //<editor-fold desc="Connection Pooling">
 
     /**
      * The {@link ChannelHealthChecker} that is used by the {@link io.netty.channel.pool.ChannelPool} implementation to check if the {@link io.netty.channel.Channel} can be acquired.
@@ -99,6 +88,9 @@ public final class GeneralOptions extends AbstractOptions {
      */
     @ApiStatus.Internal
     public static final Option<FixedNettyChannelPool.AcquireTimeoutAction> POOL_ACQUIRE_TIMEOUT_ACTION = Option.create("globalAcquireTimeoutAction", FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+    //</editor-fold>
+
+    //<editor-fold desc="Connection Pooling">
 
     /**
      * The maximum number of milliseconds to wait before a timeout is triggered during {@link io.netty.channel.Channel} acquisition.
@@ -136,9 +128,6 @@ public final class GeneralOptions extends AbstractOptions {
      * Set to {@code true} to enable channel/connection pooling
      */
     public static final Option<Boolean> CONNECTION_POOLING = Option.create("globalPooling", true, false, false);
-    //</editor-fold>
-
-    //<editor-fold desc="Concurrency">
 
     /**
      * A custom {@link ExecutorService} that will be used by the client. Set to {@code null} to use the global executor provided by the library which is shared across all clients by default. (Default: {@code null})
@@ -159,7 +148,7 @@ public final class GeneralOptions extends AbstractOptions {
     public static final Option<Integer> THREAD_CORE_SIZE = Option.create("globalThreadCorePoolSize", null);
     //</editor-fold>
 
-    //<editor-fold desc="Socket/Channel">
+    //<editor-fold desc="Concurrency">
 
     /**
      * The strategy for allocating netty's inbound/outbound pooled buffers. If you choose {@link BufferAllocatorType#FIXED}, make sure to also set an optimal value for the buffer size (Default is: {@link BufferAllocatorType#FIXED})
@@ -178,6 +167,9 @@ public final class GeneralOptions extends AbstractOptions {
      * @see #SOCKET_RECVBUF_ALLOC_TYPE
      */
     public static final Option<Integer> SOCKET_ALLOC_FIXED_SIZE = Option.create("globalRecvAllocFixedSize", 9216);
+    //</editor-fold>
+
+    //<editor-fold desc="Socket/Channel">
 
     /**
      * As per netty: the initial buffer size when no feed back was received. Applicable only if SOCKET_RECVBUF_ALLOCATOR_TYPE is set to {@link BufferAllocatorType#ADAPTIVE}. (Default is 2048 bytes)
@@ -222,6 +214,13 @@ public final class GeneralOptions extends AbstractOptions {
      * The connection timeout value
      */
     public static final Option<Integer> SOCKET_CONNECT_TIMEOUT = Option.create("globalConnectTimeoutMillis", 3000);
+
+    private static final AtomicReference<Options> optionsRef = new AtomicReference<>();
+
+    /**
+     * Prevent this from being instantiated
+     */
+    private GeneralOptions() {}
 
     //</editor-fold>
 

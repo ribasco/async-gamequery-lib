@@ -26,11 +26,10 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>MasterServerPacketDecoder class.</p>
@@ -44,6 +43,21 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
     private static final int PACKET_SIZE = 6;
 
     private InetSocketAddress lastAddress;
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        try {
+            if (lastAddress == null)
+                return;
+            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
+            log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", Netty.id(ctx.channel()), lastAddress);
+            //update seed address in context
+            context.properties().lastSeedAddress(lastAddress);
+        } finally {
+            ctx.fireChannelReadComplete();
+        }
+    }
 
     /** {@inheritDoc} */
     @Override
@@ -64,21 +78,6 @@ public class MasterServerPacketDecoder extends ByteToMessageDecoder {
                 log.debug("{} MASTER => Received terminator packet: {}", Netty.id(ctx.channel()), lastAddress);
             }
             out.add(packet);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        try {
-            if (lastAddress == null)
-                return;
-            MasterServerChannelContext context = MasterServerChannelContext.getContext(ctx.channel());
-            log.debug("{} MASTER => Decoder complete (Last IP Packet: {})", Netty.id(ctx.channel()), lastAddress);
-            //update seed address in context
-            context.properties().lastSeedAddress(lastAddress);
-        } finally {
-            ctx.fireChannelReadComplete();
         }
     }
 

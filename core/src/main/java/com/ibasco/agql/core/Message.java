@@ -24,6 +24,7 @@ import com.ibasco.agql.core.util.UUID;
  * @author Rafael Luis Ibasco
  */
 public interface Message {
+
     /**
      * <p>id.</p>
      *

@@ -22,11 +22,10 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.SteamEconItems;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsStoreMeta;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconPlayerItem;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchema;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>SteamEconItemsExample class.</p>
@@ -42,8 +41,11 @@ public class SteamEconItemsExample extends BaseWebApiAuthExample {
     /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     public static void main(String[] args) throws Exception {
         new SteamEconItemsExample().run(args);
@@ -94,7 +96,8 @@ public class SteamEconItemsExample extends BaseWebApiAuthExample {
     /**
      * <p>displayResult.</p>
      *
-     * @param item a {@link java.lang.Object} object
+     * @param item
+     *         a {@link java.lang.Object} object
      */
     public static void displayResult(Object item) {
         log.info("{} = {}", item.getClass().getSimpleName(), item);

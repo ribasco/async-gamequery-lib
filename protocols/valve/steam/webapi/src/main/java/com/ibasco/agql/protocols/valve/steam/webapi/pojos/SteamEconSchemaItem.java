@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,49 +29,73 @@ import java.util.Map;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItem {
+
     private String name;
+
     @SerializedName("defindex")
     private int defIndex;
+
     @SerializedName("item_class")
     private String itemClass;
+
     @SerializedName("item_type_name")
     private String itemTypeName;
+
     @SerializedName("item_name")
     private String itemName;
+
     @SerializedName("item_description")
     private String itemDescription;
+
     @SerializedName("proper_name")
     private boolean properName;
+
     @SerializedName("item_slot")
     private String itemSlot; //TODO: use enum instead?
+
     @SerializedName("model_player")
     private String modelPlayer;
+
     @SerializedName("item_quality")
     private int itemQuality;
+
     @SerializedName("image_inventory")
     private String imageInventory;
+
     @SerializedName("min_ilevel")
     private int minItemLevel;
+
     @SerializedName("max_ilevel")
     private int maxItemLevel;
+
     @SerializedName("image_url")
     private String imageUrl;
+
     @SerializedName("image_url_large")
     private String imageUrlLarge;
+
     @SerializedName("drop_type ")
     private String dropType;
+
     @SerializedName("item_set")
     private String itemSet;
+
     @SerializedName("holiday_restriction")
     private String holidayRestriction;
+
     @SerializedName("craft_class")
     private String craftClass;
+
     @SerializedName("craft_material_type")
     private String craftMaterialType;
+
     private SteamEconSchemaCapabilities capabilities;
+
     @SerializedName("used_by_classes")
     private List<String> usedByClasses = new ArrayList<>();
+
     private List<SteamEconSchemaItemAttribute> attributes = new ArrayList<>();
+
     /**
      * An object that describes class specific loadout slots for the item if applicable.
      */
@@ -91,7 +114,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -109,7 +133,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>defIndex</code>.</p>
      *
-     * @param defIndex a int
+     * @param defIndex
+     *         a int
      */
     public void setDefIndex(int defIndex) {
         this.defIndex = defIndex;
@@ -127,7 +152,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemClass</code>.</p>
      *
-     * @param itemClass a {@link java.lang.String} object
+     * @param itemClass
+     *         a {@link java.lang.String} object
      */
     public void setItemClass(String itemClass) {
         this.itemClass = itemClass;
@@ -145,7 +171,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemTypeName</code>.</p>
      *
-     * @param itemTypeName a {@link java.lang.String} object
+     * @param itemTypeName
+     *         a {@link java.lang.String} object
      */
     public void setItemTypeName(String itemTypeName) {
         this.itemTypeName = itemTypeName;
@@ -163,7 +190,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemName</code>.</p>
      *
-     * @param itemName a {@link java.lang.String} object
+     * @param itemName
+     *         a {@link java.lang.String} object
      */
     public void setItemName(String itemName) {
         this.itemName = itemName;
@@ -181,7 +209,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemDescription</code>.</p>
      *
-     * @param itemDescription a {@link java.lang.String} object
+     * @param itemDescription
+     *         a {@link java.lang.String} object
      */
     public void setItemDescription(String itemDescription) {
         this.itemDescription = itemDescription;
@@ -199,7 +228,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>properName</code>.</p>
      *
-     * @param properName a boolean
+     * @param properName
+     *         a boolean
      */
     public void setProperName(boolean properName) {
         this.properName = properName;
@@ -217,7 +247,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemSlot</code>.</p>
      *
-     * @param itemSlot a {@link java.lang.String} object
+     * @param itemSlot
+     *         a {@link java.lang.String} object
      */
     public void setItemSlot(String itemSlot) {
         this.itemSlot = itemSlot;
@@ -235,7 +266,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>modelPlayer</code>.</p>
      *
-     * @param modelPlayer a {@link java.lang.String} object
+     * @param modelPlayer
+     *         a {@link java.lang.String} object
      */
     public void setModelPlayer(String modelPlayer) {
         this.modelPlayer = modelPlayer;
@@ -253,7 +285,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemQuality</code>.</p>
      *
-     * @param itemQuality a int
+     * @param itemQuality
+     *         a int
      */
     public void setItemQuality(int itemQuality) {
         this.itemQuality = itemQuality;
@@ -271,7 +304,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>imageInventory</code>.</p>
      *
-     * @param imageInventory a {@link java.lang.String} object
+     * @param imageInventory
+     *         a {@link java.lang.String} object
      */
     public void setImageInventory(String imageInventory) {
         this.imageInventory = imageInventory;
@@ -289,7 +323,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>minItemLevel</code>.</p>
      *
-     * @param minItemLevel a int
+     * @param minItemLevel
+     *         a int
      */
     public void setMinItemLevel(int minItemLevel) {
         this.minItemLevel = minItemLevel;
@@ -307,7 +342,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>maxItemLevel</code>.</p>
      *
-     * @param maxItemLevel a int
+     * @param maxItemLevel
+     *         a int
      */
     public void setMaxItemLevel(int maxItemLevel) {
         this.maxItemLevel = maxItemLevel;
@@ -325,7 +361,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>imageUrl</code>.</p>
      *
-     * @param imageUrl a {@link java.lang.String} object
+     * @param imageUrl
+     *         a {@link java.lang.String} object
      */
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
@@ -343,7 +380,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>imageUrlLarge</code>.</p>
      *
-     * @param imageUrlLarge a {@link java.lang.String} object
+     * @param imageUrlLarge
+     *         a {@link java.lang.String} object
      */
     public void setImageUrlLarge(String imageUrlLarge) {
         this.imageUrlLarge = imageUrlLarge;
@@ -361,7 +399,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>dropType</code>.</p>
      *
-     * @param dropType a {@link java.lang.String} object
+     * @param dropType
+     *         a {@link java.lang.String} object
      */
     public void setDropType(String dropType) {
         this.dropType = dropType;
@@ -379,7 +418,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>itemSet</code>.</p>
      *
-     * @param itemSet a {@link java.lang.String} object
+     * @param itemSet
+     *         a {@link java.lang.String} object
      */
     public void setItemSet(String itemSet) {
         this.itemSet = itemSet;
@@ -397,7 +437,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>holidayRestriction</code>.</p>
      *
-     * @param holidayRestriction a {@link java.lang.String} object
+     * @param holidayRestriction
+     *         a {@link java.lang.String} object
      */
     public void setHolidayRestriction(String holidayRestriction) {
         this.holidayRestriction = holidayRestriction;
@@ -415,7 +456,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>craftClass</code>.</p>
      *
-     * @param craftClass a {@link java.lang.String} object
+     * @param craftClass
+     *         a {@link java.lang.String} object
      */
     public void setCraftClass(String craftClass) {
         this.craftClass = craftClass;
@@ -433,7 +475,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>craftMaterialType</code>.</p>
      *
-     * @param craftMaterialType a {@link java.lang.String} object
+     * @param craftMaterialType
+     *         a {@link java.lang.String} object
      */
     public void setCraftMaterialType(String craftMaterialType) {
         this.craftMaterialType = craftMaterialType;
@@ -451,7 +494,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>capabilities</code>.</p>
      *
-     * @param capabilities a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchemaCapabilities} object
+     * @param capabilities
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchemaCapabilities} object
      */
     public void setCapabilities(SteamEconSchemaCapabilities capabilities) {
         this.capabilities = capabilities;
@@ -469,7 +513,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>usedByClasses</code>.</p>
      *
-     * @param usedByClasses a {@link java.util.List} object
+     * @param usedByClasses
+     *         a {@link java.util.List} object
      */
     public void setUsedByClasses(List<String> usedByClasses) {
         this.usedByClasses = usedByClasses;
@@ -487,7 +532,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>attributes</code>.</p>
      *
-     * @param attributes a {@link java.util.List} object
+     * @param attributes
+     *         a {@link java.util.List} object
      */
     public void setAttributes(List<SteamEconSchemaItemAttribute> attributes) {
         this.attributes = attributes;
@@ -505,7 +551,8 @@ public class SteamEconSchemaItem {
     /**
      * <p>Setter for the field <code>perClassLoadoutSlots</code>.</p>
      *
-     * @param perClassLoadoutSlots a {@link java.util.Map} object
+     * @param perClassLoadoutSlots
+     *         a {@link java.util.Map} object
      */
     public void setPerClassLoadoutSlots(Map<String, String> perClassLoadoutSlots) {
         this.perClassLoadoutSlots = perClassLoadoutSlots;

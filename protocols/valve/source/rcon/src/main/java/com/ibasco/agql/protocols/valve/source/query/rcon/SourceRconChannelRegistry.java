@@ -25,12 +25,15 @@ import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
 import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.nio.channels.UnsupportedAddressTypeException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Default implementation for {@link com.ibasco.agql.core.ChannelRegistry}. Uses a {@link com.google.common.collect.SetMultimap} to store managed netty based {@link io.netty.channel.Channel} instances.

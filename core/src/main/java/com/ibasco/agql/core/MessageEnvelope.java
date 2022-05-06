@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.Netty;
-
 import java.net.SocketAddress;
 
 /**
@@ -36,14 +35,30 @@ public class MessageEnvelope<M extends Message> implements Envelope<M> {
     /**
      * <p>Constructor for MessageEnvelope.</p>
      *
-     * @param message a M object
-     * @param sender a {@link java.net.SocketAddress} object
-     * @param recipient a {@link java.net.SocketAddress} object
+     * @param message
+     *         a M object
+     * @param sender
+     *         a {@link java.net.SocketAddress} object
+     * @param recipient
+     *         a {@link java.net.SocketAddress} object
      */
     public MessageEnvelope(M message, SocketAddress sender, SocketAddress recipient/*, CompletableFuture<?> promise, Messenger<? extends SocketAddress, AbstractRequest, AbstractResponse> messenger*/) {
         this.message = message;
         this.sender = sender;
         this.recipient = recipient;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public Envelope<M> get() {
+        return this;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        String msgType = content() != null ? content().getClass().getSimpleName() : "N/A";
+        return String.format("Msg: %s, Type: %s, From: %s, To: %s", Netty.id(this), msgType, sender(), recipient());
     }
 
     /** {@inheritDoc} */
@@ -82,18 +97,5 @@ public class MessageEnvelope<M extends Message> implements Envelope<M> {
     @Override
     public <A extends SocketAddress> void sender(A sender) {
         this.sender = sender;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public Envelope<M> get() {
-        return this;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        String msgType = content() != null ? content().getClass().getSimpleName() : "N/A";
-        return String.format("Msg: %s, Type: %s, From: %s, To: %s", Netty.id(this), msgType, sender(), recipient());
     }
 }

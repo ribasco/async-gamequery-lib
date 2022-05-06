@@ -17,10 +17,9 @@
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.Credentials;
+import java.util.Arrays;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
 
 /**
  * Default implementation for {@link com.ibasco.agql.core.Credentials}
@@ -50,14 +49,6 @@ public final class SourceRconCredentials implements Credentials {
 
     /** {@inheritDoc} */
     @Override
-    public byte[] getPassphrase() {
-        if (!this.valid)
-            throw new IllegalStateException("The passphrase is invalidated");
-        return this.passphrase;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public void invalidate() {
         if (this.valid) {
             this.valid = false;
@@ -72,16 +63,24 @@ public final class SourceRconCredentials implements Credentials {
 
     /** {@inheritDoc} */
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof SourceRconCredentials)) return false;
-        SourceRconCredentials that = (SourceRconCredentials) o;
-        return Arrays.equals(getPassphrase(), that.getPassphrase());
+    public byte[] getPassphrase() {
+        if (!this.valid)
+            throw new IllegalStateException("The passphrase is invalidated");
+        return this.passphrase;
     }
 
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
         return Arrays.hashCode(getPassphrase());
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SourceRconCredentials)) return false;
+        SourceRconCredentials that = (SourceRconCredentials) o;
+        return Arrays.equals(getPassphrase(), that.getPassphrase());
     }
 }

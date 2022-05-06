@@ -31,7 +31,8 @@ public class SourceQueryChallengeRequest extends SourceQueryRequest {
     /**
      * <p>Constructor for SourceQueryChallengeRequest.</p>
      *
-     * @param type a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
      */
     public SourceQueryChallengeRequest(SourceChallengeType type) {
         this.type = type;

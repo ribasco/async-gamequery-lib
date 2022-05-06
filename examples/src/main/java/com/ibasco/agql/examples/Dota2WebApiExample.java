@@ -19,14 +19,19 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.examples.base.BaseWebApiAuthExample;
 import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiClient;
 import com.ibasco.agql.protocols.valve.dota2.webapi.enums.Dota2IconType;
-import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.*;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Econ;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Fantasy;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Match;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Stats;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Stream;
+import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Teams;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Dota2WebApiExample class.</p>
@@ -44,8 +49,11 @@ public class Dota2WebApiExample extends BaseWebApiAuthExample {
     /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     public static void main(String[] args) throws Exception {
         new Dota2WebApiExample().run(args);

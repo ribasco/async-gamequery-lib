@@ -23,12 +23,11 @@ import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
-
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
 
 /**
  * <p>Abstract MessageInboundHandler class.</p>
@@ -40,26 +39,15 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
 
     private static final Logger log = LoggerFactory.getLogger(MessageInboundHandler.class);
 
-    private Channel channel;
-
     private final BiFunction<Channel, String, String> logtemplate;
+
+    private Channel channel;
 
     /**
      * <p>Constructor for MessageInboundHandler.</p>
      */
     protected MessageInboundHandler() {
         this.logtemplate = (ch, msg) -> Netty.id(ch) + " (" + getClass().getSimpleName() + ") INB => " + msg;
-    }
-
-    /**
-     * <p>readMessage.</p>
-     *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param msg a {@link java.lang.Object} object
-     * @throws java.lang.Exception if any.
-     */
-    protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ctx.fireChannelRead(msg);
     }
 
     /** {@inheritDoc} */
@@ -94,6 +82,21 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     }
 
     /**
+     * <p>readMessage.</p>
+     *
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg
+     *         a {@link java.lang.Object} object
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
+        ctx.fireChannelRead(msg);
+    }
+
+    /**
      * <p>isDebugEnabled.</p>
      *
      * @return a boolean
@@ -105,18 +108,36 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>trace.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void trace(String msg, Object... args) {
         log(msg, log::trace, args);
     }
 
     /**
+     * <p>log.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param level
+     *         a {@link java.util.function.BiConsumer} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(logtemplate.apply(channel, msg), args);
+    }
+
+    /**
      * <p>error.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void error(String msg, Object... args) {
         log(msg, log::error, args);
@@ -125,20 +146,42 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>error.</p>
      *
-     * @param logger a {@link org.slf4j.Logger} object
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param logger
+     *         a {@link org.slf4j.Logger} object
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void error(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
         log(msg, ctx, logger::error, args);
     }
 
     /**
+     * <p>log.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param level
+     *         a {@link java.util.function.BiConsumer} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected final void log(String msg, ChannelHandlerContext ctx, BiConsumer<String, Object[]> level, Object... args) {
+        level.accept(logtemplate.apply(ctx.channel(), msg), args);
+    }
+
+    /**
      * <p>info.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void info(String msg, Object... args) {
         log(msg, log::info, args);
@@ -147,19 +190,12 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>debug.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected void debug(String msg, Object... args) {
-        log(msg, log::debug, args);
-    }
-
-    /**
-     * <p>debug.</p>
-     *
-     * @param logger a {@link org.slf4j.Logger} object
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param logger
+     *         a {@link org.slf4j.Logger} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void debug(Logger logger, String msg, Object... args) {
         log(msg, logger::debug, args);
@@ -168,10 +204,14 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>debug.</p>
      *
-     * @param logger a {@link org.slf4j.Logger} object
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param logger
+     *         a {@link org.slf4j.Logger} object
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void debug(Logger logger, ChannelHandlerContext ctx, String msg, Object... args) {
         log(msg, ctx, logger::debug, args);
@@ -180,10 +220,14 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>debug.</p>
      *
-     * @param logger a {@link org.slf4j.Logger} object
-     * @param marker a {@link org.slf4j.Marker} object
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param logger
+     *         a {@link org.slf4j.Logger} object
+     * @param marker
+     *         a {@link org.slf4j.Marker} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected void debug(Logger logger, Marker marker, String msg, Object... args) {
         logger.debug(marker, logtemplate.apply(channel, msg), args);
@@ -192,41 +236,22 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
     /**
      * <p>warn.</p>
      *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
     protected final void warn(String msg, Object... args) {
         log(msg, log::warn, args);
     }
 
     /**
-     * <p>log.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param level a {@link java.util.function.BiConsumer} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected final void log(String msg, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(logtemplate.apply(channel, msg), args);
-    }
-
-    /**
-     * <p>log.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param level a {@link java.util.function.BiConsumer} object
-     * @param args a {@link java.lang.Object} object
-     */
-    protected final void log(String msg, ChannelHandlerContext ctx, BiConsumer<String, Object[]> level, Object... args) {
-        level.accept(logtemplate.apply(ctx.channel(), msg), args);
-    }
-
-    /**
      * <p>printField.</p>
      *
-     * @param name a {@link java.lang.String} object
-     * @param value a {@link java.lang.Object} object
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.Object} object
      */
     protected void printField(String name, Object value) {
         debug(String.format("    %-15s: ", name));
@@ -237,5 +262,17 @@ abstract public class MessageInboundHandler extends ChannelInboundHandlerAdapter
             debug(String.format("%-10s", value));
         }
         debug("");
+    }
+
+    /**
+     * <p>debug.</p>
+     *
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
+     */
+    protected void debug(String msg, Object... args) {
+        log(msg, log::debug, args);
     }
 }

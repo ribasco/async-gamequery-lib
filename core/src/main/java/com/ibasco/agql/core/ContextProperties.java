@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public interface ContextProperties {
+
     /**
      * <p>autoRelease.</p>
      *
@@ -35,7 +36,8 @@ public interface ContextProperties {
     /**
      * <p>autoRelease.</p>
      *
-     * @param autoRelease a boolean
+     * @param autoRelease
+     *         a boolean
      */
     void autoRelease(boolean autoRelease);
 
@@ -56,7 +58,9 @@ public interface ContextProperties {
     /**
      * <p>request.</p>
      *
-     * @param <V> a V class
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     <V extends AbstractRequest> V request();
@@ -64,14 +68,17 @@ public interface ContextProperties {
     /**
      * <p>request.</p>
      *
-     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
      */
     void request(AbstractRequest request);
 
     /**
      * <p>response.</p>
      *
-     * @param <V> a V class
+     * @param <V>
+     *         a V class
+     *
      * @return a V object
      */
     <V extends AbstractResponse> V response();
@@ -121,7 +128,9 @@ public interface ContextProperties {
     /**
      * <p>endWrite.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<NettyChannelContext> endWrite(Throwable error);
@@ -129,7 +138,9 @@ public interface ContextProperties {
     /**
      * <p>envelope.</p>
      *
-     * @param <A> a A class
+     * @param <A>
+     *         a A class
+     *
      * @return a {@link com.ibasco.agql.core.Envelope} object
      */
     <A extends AbstractRequest> Envelope<A> envelope();
@@ -137,7 +148,9 @@ public interface ContextProperties {
     /**
      * <p>responsePromise.</p>
      *
-     * @param <V> a V class
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     <V extends AbstractResponse> CompletableFuture<V> responsePromise();

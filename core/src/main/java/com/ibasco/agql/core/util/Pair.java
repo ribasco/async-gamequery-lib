@@ -35,8 +35,10 @@ public class Pair<A, B> {
     /**
      * <p>Constructor for Pair.</p>
      *
-     * @param first a A object
-     * @param second a B object
+     * @param first
+     *         a A object
+     * @param second
+     *         a B object
      */
     public Pair(A first, B second) {
         this.first = first;
@@ -55,7 +57,8 @@ public class Pair<A, B> {
     /**
      * <p>Setter for the field <code>first</code>.</p>
      *
-     * @param first a A object
+     * @param first
+     *         a A object
      */
     public void setFirst(A first) {
         this.first = first;

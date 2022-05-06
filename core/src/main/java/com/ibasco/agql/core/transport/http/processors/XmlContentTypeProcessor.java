@@ -25,6 +25,7 @@ import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
  * @author Rafael Luis Ibasco
  */
 public class XmlContentTypeProcessor extends ContentTypeProcessor {
+
     /** {@inheritDoc} */
     @Override
     protected Object processContent(String body) {

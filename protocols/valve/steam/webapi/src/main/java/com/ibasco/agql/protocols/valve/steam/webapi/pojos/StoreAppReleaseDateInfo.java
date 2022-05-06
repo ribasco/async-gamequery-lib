@@ -21,16 +21,28 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 //TODO: Add a custom type adapter for this class
+
 /**
  * <p>StoreAppReleaseDateInfo class.</p>
  *
  * @author Rafael Luis Ibasco
  */
 public class StoreAppReleaseDateInfo {
+
     @SerializedName("coming_soon")
     private boolean comingSoon;
+
     @SerializedName("date")
     private String releaseDate;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("comingSoon", isComingSoon())
+                .append("releaseDate", getReleaseDate())
+                .toString();
+    }
 
     /**
      * <p>isComingSoon.</p>
@@ -44,7 +56,8 @@ public class StoreAppReleaseDateInfo {
     /**
      * <p>Setter for the field <code>comingSoon</code>.</p>
      *
-     * @param comingSoon a boolean
+     * @param comingSoon
+     *         a boolean
      */
     public void setComingSoon(boolean comingSoon) {
         this.comingSoon = comingSoon;
@@ -62,18 +75,10 @@ public class StoreAppReleaseDateInfo {
     /**
      * <p>Setter for the field <code>releaseDate</code>.</p>
      *
-     * @param releaseDate a {@link java.lang.String} object
+     * @param releaseDate
+     *         a {@link java.lang.String} object
      */
     public void setReleaseDate(String releaseDate) {
         this.releaseDate = releaseDate;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("comingSoon", isComingSoon())
-                .append("releaseDate", getReleaseDate())
-                .toString();
     }
 }

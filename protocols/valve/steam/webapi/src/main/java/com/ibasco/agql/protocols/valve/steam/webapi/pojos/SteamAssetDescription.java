@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.Map;
 
 /**
@@ -26,10 +25,14 @@ import java.util.Map;
  * @author Rafael Luis Ibasco
  */
 public class SteamAssetDescription {
+
     private String type;
+
     private String value;
+
     @SerializedName("app_data")
     private Map<String, String> appData;
+
     private String color;
 
     /**
@@ -44,7 +47,8 @@ public class SteamAssetDescription {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a {@link java.lang.String} object
+     * @param type
+     *         a {@link java.lang.String} object
      */
     public void setType(String type) {
         this.type = type;
@@ -62,7 +66,8 @@ public class SteamAssetDescription {
     /**
      * <p>Setter for the field <code>value</code>.</p>
      *
-     * @param value a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.String} object
      */
     public void setValue(String value) {
         this.value = value;
@@ -80,7 +85,8 @@ public class SteamAssetDescription {
     /**
      * <p>Setter for the field <code>appData</code>.</p>
      *
-     * @param appData a {@link java.util.Map} object
+     * @param appData
+     *         a {@link java.util.Map} object
      */
     public void setAppData(Map<String, String> appData) {
         this.appData = appData;
@@ -98,7 +104,8 @@ public class SteamAssetDescription {
     /**
      * <p>Setter for the field <code>color</code>.</p>
      *
-     * @param color a {@link java.lang.String} object
+     * @param color
+     *         a {@link java.lang.String} object
      */
     public void setColor(String color) {
         this.color = color;

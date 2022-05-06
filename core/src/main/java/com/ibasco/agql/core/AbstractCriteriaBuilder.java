@@ -26,13 +26,17 @@ import java.util.Set;
  * @author Rafael Luis Ibasco
  */
 abstract public class AbstractCriteriaBuilder<T extends AbstractCriteriaBuilder> {
+
     private final Map<String, Object> criteriaMap = new HashMap<>();
 
     /**
      * <p>put.</p>
      *
-     * @param name a {@link java.lang.String} object
-     * @param value a {@link java.lang.Object} object
+     * @param name
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.Object} object
+     *
      * @return a T object
      */
     protected T put(String name, Object value) {

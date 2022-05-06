@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2EconRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetItemIconPath extends Dota2EconRequest {
+
     /**
      * <p>Constructor for GetItemIconPath.</p>
      *
-     * @param apiVersion a int
-     * @param iconName a {@link java.lang.String} object
-     * @param iconType a int
+     * @param apiVersion
+     *         a int
+     * @param iconName
+     *         a {@link java.lang.String} object
+     * @param iconType
+     *         a int
      */
     public GetItemIconPath(int apiVersion, String iconName, int iconType) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETITEMICONPATH, apiVersion, null);

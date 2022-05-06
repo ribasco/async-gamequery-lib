@@ -29,8 +29,11 @@ public interface NettyChannelFactoryProvider {
     /**
      * <p>getFactory.</p>
      *
-     * @param type a {@link com.ibasco.agql.core.transport.enums.TransportType} object
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     *
      * @return a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     NettyChannelFactory getFactory(final TransportType type, final Options options);
@@ -42,6 +45,7 @@ public interface NettyChannelFactoryProvider {
      *         The {@link com.ibasco.agql.core.transport.enums.TransportType} of the {@link com.ibasco.agql.core.transport.NettyChannelFactory}
      * @param options
      *         The configuration {@link com.ibasco.agql.core.util.Options} to be used by the factory
+     *
      * @return A decorated {@link com.ibasco.agql.core.transport.NettyContextChannelFactory}
      */
     NettyContextChannelFactory getContextualFactory(final TransportType type, final Options options);
@@ -49,9 +53,13 @@ public interface NettyChannelFactoryProvider {
     /**
      * <p>getContextualFactory.</p>
      *
-     * @param type a {@link com.ibasco.agql.core.transport.enums.TransportType} object
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
-     * @param contextFactory a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     * @param type
+     *         a {@link com.ibasco.agql.core.transport.enums.TransportType} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param contextFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelContextFactory} object
+     *
      * @return a {@link com.ibasco.agql.core.transport.NettyContextChannelFactory} object
      */
     NettyContextChannelFactory getContextualFactory(final TransportType type, final Options options, NettyChannelContextFactory contextFactory);

@@ -33,7 +33,8 @@ public class CocWebApiResponse extends AbstractWebApiResponse<JsonElement> {
     /**
      * <p>Constructor for CocWebApiResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public CocWebApiResponse(Response response) {
         super(response);

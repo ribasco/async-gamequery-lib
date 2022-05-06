@@ -22,6 +22,7 @@ package com.ibasco.agql.core.exceptions;
  * @author Rafael Luis Ibasco
  */
 public class ResourceNotFoundException extends WebException {
+
     /**
      * <p>Constructor for ResourceNotFoundException.</p>
      */
@@ -32,7 +33,8 @@ public class ResourceNotFoundException extends WebException {
     /**
      * <p>Constructor for ResourceNotFoundException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public ResourceNotFoundException(String message) {
         super(message);
@@ -41,8 +43,10 @@ public class ResourceNotFoundException extends WebException {
     /**
      * <p>Constructor for ResourceNotFoundException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public ResourceNotFoundException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +55,8 @@ public class ResourceNotFoundException extends WebException {
     /**
      * <p>Constructor for ResourceNotFoundException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public ResourceNotFoundException(Throwable cause) {
         super(cause);
@@ -60,10 +65,14 @@ public class ResourceNotFoundException extends WebException {
     /**
      * <p>Constructor for ResourceNotFoundException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public ResourceNotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

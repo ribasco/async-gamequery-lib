@@ -16,13 +16,12 @@
 
 package com.ibasco.agql.core;
 
-import static com.ibasco.agql.core.AbstractWebApiInterface.VERSION_1;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
+import static com.ibasco.agql.core.AbstractWebApiInterface.VERSION_1;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class AbstractWebApiRequestTest {
 

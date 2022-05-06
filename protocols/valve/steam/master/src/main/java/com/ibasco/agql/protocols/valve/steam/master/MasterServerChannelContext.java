@@ -21,7 +21,6 @@ import com.ibasco.agql.core.AbstractResponse;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import io.netty.channel.Channel;
-
 import java.net.InetSocketAddress;
 import java.util.HashSet;
 import java.util.Set;
@@ -50,22 +49,36 @@ public class MasterServerChannelContext extends NettyChannelContext {
     /**
      * <p>Constructor for MasterServerChannelContext.</p>
      *
-     * @param context a {@link com.ibasco.agql.core.NettyChannelContext} object
+     * @param context
+     *         a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     protected MasterServerChannelContext(NettyChannelContext context) {
         super(context);
     }
 
     /** {@inheritDoc} */
+    public static MasterServerChannelContext getContext(Channel channel) {
+        return (MasterServerChannelContext) NettyChannelContext.getContext(channel);
+    }
+
+    /** {@inheritDoc} */
     @Override
-    public MasterServerMessenger messenger() {
-        return (MasterServerMessenger) super.messenger();
+    protected Properties newProperties(Properties copy) {
+        if (copy instanceof MasterServerProperties)
+            return new MasterServerProperties(copy);
+        return new MasterServerProperties();
     }
 
     /** {@inheritDoc} */
     @Override
     public MasterServerProperties properties() {
         return (MasterServerProperties) super.properties();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public MasterServerMessenger messenger() {
+        return (MasterServerMessenger) super.messenger();
     }
 
     /** {@inheritDoc} */
@@ -87,24 +100,11 @@ public class MasterServerChannelContext extends NettyChannelContext {
         return (MasterServerChannelContext) super.restore();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected Properties newProperties(Properties copy) {
-        if (copy instanceof MasterServerProperties)
-            return new MasterServerProperties(copy);
-        return new MasterServerProperties();
-    }
-
-    /** {@inheritDoc} */
-    public static MasterServerChannelContext getContext(Channel channel) {
-        return (MasterServerChannelContext) NettyChannelContext.getContext(channel);
-    }
-
     public class MasterServerProperties extends Properties {
 
-        private AtomicReference<InetSocketAddress> lastSeedAddress = new AtomicReference<>();
-
         private final Set<InetSocketAddress> addressSet;
+
+        private AtomicReference<InetSocketAddress> lastSeedAddress = new AtomicReference<>();
 
         public MasterServerProperties() {
             addressSet = new HashSet<>();

@@ -45,7 +45,8 @@ public class SteamFriend {
     /**
      * <p>Setter for the field <code>steamId</code>.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
      */
     public void setSteamId(long steamId) {
         this.steamId = steamId;
@@ -63,7 +64,8 @@ public class SteamFriend {
     /**
      * <p>Setter for the field <code>relationship</code>.</p>
      *
-     * @param relationship a {@link java.lang.String} object
+     * @param relationship
+     *         a {@link java.lang.String} object
      */
     public void setRelationship(String relationship) {
         this.relationship = relationship;
@@ -81,7 +83,8 @@ public class SteamFriend {
     /**
      * <p>Setter for the field <code>friendSince</code>.</p>
      *
-     * @param friendSince a long
+     * @param friendSince
+     *         a long
      */
     public void setFriendSince(long friendSince) {
         this.friendSince = friendSince;

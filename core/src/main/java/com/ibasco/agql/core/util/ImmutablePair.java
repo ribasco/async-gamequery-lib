@@ -30,8 +30,10 @@ public class ImmutablePair<A, B> {
     /**
      * <p>Constructor for ImmutablePair.</p>
      *
-     * @param first a A object
-     * @param second a B object
+     * @param first
+     *         a A object
+     * @param second
+     *         a B object
      */
     public ImmutablePair(A first, B second) {
         this.first = first;

@@ -24,12 +24,16 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamPlayerAchievement {
+
     @SerializedName("apiname")
     private String key;
+
     @SerializedName("achieved")
     private int achieved;
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("description")
     private String description;
 
@@ -45,7 +49,8 @@ public class SteamPlayerAchievement {
     /**
      * <p>Setter for the field <code>key</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setKey(String name) {
         this.key = name;
@@ -63,7 +68,8 @@ public class SteamPlayerAchievement {
     /**
      * <p>Setter for the field <code>achieved</code>.</p>
      *
-     * @param achieved a int
+     * @param achieved
+     *         a int
      */
     public void setAchieved(int achieved) {
         this.achieved = achieved;
@@ -81,7 +87,8 @@ public class SteamPlayerAchievement {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -99,7 +106,8 @@ public class SteamPlayerAchievement {
     /**
      * <p>Setter for the field <code>description</code>.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     public void setDescription(String description) {
         this.description = description;

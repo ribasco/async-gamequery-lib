@@ -29,7 +29,8 @@ abstract public class AbstractWebResponse extends AbstractResponse<Response> {
     /**
      * <p>Constructor for AbstractWebResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public AbstractWebResponse(Response response) {
         super(response);

@@ -16,19 +16,22 @@
 
 package com.ibasco.agql.core;
 
-import com.ibasco.agql.core.util.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
+import com.ibasco.agql.core.util.Platform;
+import com.ibasco.agql.core.util.UUID;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Base implementation for all {@link com.ibasco.agql.core.Client} interfaces
+ * Base implementation for all {@link com.ibasco.agql.core.Client} interfaces.
  *
  * @param <R>
  *         A type of {@link com.ibasco.agql.core.AbstractRequest}
@@ -37,26 +40,26 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * @author Rafael Luis Ibasco.
  */
-abstract public class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
+public abstract class AbstractClient<R extends AbstractRequest, S extends AbstractResponse> implements Client {
+
+    private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
 
     static {
         Platform.initialize();
     }
 
-    private static final Logger log = LoggerFactory.getLogger(AbstractClient.class);
-
     private final UUID id = UUID.create();
 
     private final Options options;
 
-    //private Messenger<R, S, O> messenger;
-    private final AtomicReference<Messenger<R, S>> messenger = new AtomicReference<>();
+    private final AtomicReference<Messenger<R, S>> messengerRef = new AtomicReference<>();
 
     /**
      * Create a new client instance using the provided configuration options.
      *
      * @param options
-     *         The {@link com.ibasco.agql.core.util.Options} containing the configuration options that will be used by the client
+     *         The {@link com.ibasco.agql.core.util.Options} containing the configuration
+     *         options that will be used by the client
      *
      * @see OptionBuilder
      * @see Options
@@ -66,17 +69,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * <p>createMessenger.</p>
-     *
-     * @param options
-     *         a {@link com.ibasco.agql.core.util.Options} object
-     *
-     * @return a {@link com.ibasco.agql.core.Messenger} object
-     */
-    abstract protected Messenger<R, S> createMessenger(Options options);
-
-    /**
-     * <p>send.</p>
+     * Send request.
      *
      * @param address
      *         a {@link java.net.InetSocketAddress} object
@@ -89,26 +82,61 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
      *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
-    protected <V extends S> CompletableFuture<V> send(InetSocketAddress address, R request, Class<V> expectedResponse) {
+    protected <V extends S> CompletableFuture<V> send(
+            InetSocketAddress address, R request, Class<V> expectedResponse) {
         return send(address, request).thenApply(expectedResponse::cast);
     }
 
     /**
-     * <p>Send request to messenger</p>
+     * Send request to messenger.
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} destination
      * @param request
      *         The {@link com.ibasco.agql.core.AbstractRequest} to be sent
      *
-     * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has been received.
+     * @return A {@link java.util.concurrent.CompletableFuture} that is notified once a response has
+     * been received.
      */
     protected final CompletableFuture<S> send(InetSocketAddress address, R request) {
         Objects.requireNonNull(address, "Address cannot be null");
         Objects.requireNonNull(request, "Request cannot be null");
-        log.debug("{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})", Netty.id(request), request, address, messenger().getClass().getSimpleName(), getExecutor());
+        log.debug(
+                "{} SEND => Sending request '{}' to '{}' for messenger '{}' (Executor: {})",
+                Netty.id(request),
+                request,
+                address,
+                messenger().getClass().getSimpleName(),
+                getExecutor());
         return messenger().send(address, request);
     }
+
+    /**
+     * The underlying {@link Messenger}.
+     *
+     * @return Returns an existing instance of the messenger. If no instance exists yet, initialize
+     * then return
+     */
+    private Messenger<R, S> messenger() {
+        Messenger<R, S> messenger = this.messengerRef.get();
+        if (messenger == null) {
+            messenger = createMessenger(this.options);
+            if (!this.messengerRef.compareAndSet(null, messenger)) {
+                return this.messengerRef.get();
+            }
+        }
+        return messenger;
+    }
+
+    /**
+     * Factory method for {@link Messenger}.
+     *
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     *
+     * @return a {@link com.ibasco.agql.core.Messenger} object
+     */
+    protected abstract Messenger<R, S> createMessenger(Options options);
 
     /** {@inheritDoc} */
     @Override
@@ -123,7 +151,7 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     }
 
     /**
-     * <p>Getter for the field <code>messenger</code>.</p>
+     * Getter for the field <code>messenger</code>.
      *
      * @return a {@link com.ibasco.agql.core.Messenger} object
      */
@@ -134,24 +162,10 @@ abstract public class AbstractClient<R extends AbstractRequest, S extends Abstra
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        Messenger<R, S> messenger = this.messenger.get();
-        if (messenger == null)
-            return;
-        messenger.close();
-    }
-
-    /**
-     * @return Returns an existing instance of the messenger. If no instance exists yet, initialize then return
-     */
-    private Messenger<R, S> messenger() {
-        Messenger<R, S> messenger = this.messenger.get();
+        Messenger<R, S> messenger = this.messengerRef.get();
         if (messenger == null) {
-            //Console.println("Initializing messenger");
-            messenger = createMessenger(this.options);
-            if (!this.messenger.compareAndSet(null, messenger)) {
-                return this.messenger.get();
-            }
+            return;
         }
-        return messenger;
+        messenger.close();
     }
 }

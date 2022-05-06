@@ -22,7 +22,9 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppMetacritic {
+
     private int score;
+
     private String url;
 
     /**
@@ -37,7 +39,8 @@ public class StoreAppMetacritic {
     /**
      * <p>Setter for the field <code>score</code>.</p>
      *
-     * @param score a int
+     * @param score
+     *         a int
      */
     public void setScore(int score) {
         this.score = score;
@@ -55,7 +58,8 @@ public class StoreAppMetacritic {
     /**
      * <p>Setter for the field <code>url</code>.</p>
      *
-     * @param url a {@link java.lang.String} object
+     * @param url
+     *         a {@link java.lang.String} object
      */
     public void setUrl(String url) {
         this.url = url;

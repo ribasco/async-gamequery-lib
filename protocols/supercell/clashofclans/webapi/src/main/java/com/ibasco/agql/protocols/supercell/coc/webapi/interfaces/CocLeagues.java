@@ -32,7 +32,6 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -46,6 +45,7 @@ import java.util.function.Function;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocLeagues extends CocWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -77,6 +77,7 @@ public class CocLeagues extends CocWebApiInterface {
      *
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit) {
@@ -98,6 +99,7 @@ public class CocLeagues extends CocWebApiInterface {
      *         After marker can be found from the response, inside the 'paging' property. Note
      *         that only after or before can be specified for a request, not both. Otherwise use
      *         -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<List<CocLeague>> getLeagueList(int limit, int before, int after) {
@@ -115,6 +117,7 @@ public class CocLeagues extends CocWebApiInterface {
      *
      * @param leagueId
      *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague}
      */
     public CompletableFuture<CocLeague> getLeagueInfo(int leagueId) {
@@ -127,6 +130,7 @@ public class CocLeagues extends CocWebApiInterface {
      *
      * @param leagueId
      *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId) {
@@ -140,6 +144,7 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit) {
@@ -161,6 +166,7 @@ public class CocLeagues extends CocWebApiInterface {
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason}
      */
     public CompletableFuture<List<CocLeagueSeason>> getLeagueSeasons(int leagueId, int limit, int before, int after) {
@@ -183,7 +189,9 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link java.lang.Integer} representing a valid Clash of Clans League Id
      * @param seasonId
      *         An {@link java.lang.Integer} representing a valid Clash of Clans Season Id
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
+     *
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId) {
@@ -200,7 +208,9 @@ public class CocLeagues extends CocWebApiInterface {
      *         An {@link java.lang.Integer} representing a valid Clash of Clans Season Id
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
+     *
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit) {
@@ -225,7 +235,9 @@ public class CocLeagues extends CocWebApiInterface {
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
+     *
      * @see CocLeagues#getLeagueSeasons(int)
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getLeagueSeasonsPlayerRankings(int leagueId, String seasonId, int limit, int before, int after) {

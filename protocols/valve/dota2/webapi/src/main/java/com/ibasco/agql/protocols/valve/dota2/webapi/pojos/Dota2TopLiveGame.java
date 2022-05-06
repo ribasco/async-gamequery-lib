@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,38 +31,55 @@ public class Dota2TopLiveGame {
 
     @SerializedName("activate_time")
     private int activateTime;
+
     @SerializedName("deactivate_time")
     private int deactivateTime;
+
     @SerializedName("server_steam_id")
     private long serverSteamId;
+
     @SerializedName("lobby_id")
     private long lobbyId;
+
     @SerializedName("league_id")
     private int leagueId;
+
     @SerializedName("lobby_type")
     private int lobbyType;
+
     @SerializedName("game_time")
     private int gameTime;
+
     @SerializedName("delay")
     private int delay;
+
     @SerializedName("spectators")
     private int spectators;
+
     @SerializedName("game_mode")
     private int gameMode;
+
     @SerializedName("average_mmr")
     private int averageMmr;
+
     @SerializedName("sort_score")
     private int sortScore;
+
     @SerializedName("last_update_time")
     private int lastUpdateTime;
+
     @SerializedName("radiant_lead")
     private int radiantLead;
+
     @SerializedName("radiant_score")
     private int radiantScore;
+
     @SerializedName("dire_score")
     private int direScore;
+
     @SerializedName("players")
     private List<Dota2TopLiveGamePlayer> players = new ArrayList<>();
+
     @SerializedName("building_state")
     private int buildingState;
 

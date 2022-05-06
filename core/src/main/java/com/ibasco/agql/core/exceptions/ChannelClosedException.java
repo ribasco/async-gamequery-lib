@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.exceptions;
 
 import io.netty.channel.Channel;
-
 import java.io.IOException;
 
 /**
@@ -42,8 +41,10 @@ public class ChannelClosedException extends IOException {
     /**
      * <p>Constructor for ChannelClosedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
      */
     public ChannelClosedException(String message, Channel channel) {
         super(message);
@@ -53,9 +54,12 @@ public class ChannelClosedException extends IOException {
     /**
      * <p>Constructor for ChannelClosedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
      */
     public ChannelClosedException(String message, Throwable cause, Channel channel) {
         super(message, cause);

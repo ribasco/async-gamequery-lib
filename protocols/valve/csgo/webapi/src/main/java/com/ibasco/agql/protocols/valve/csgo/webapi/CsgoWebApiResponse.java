@@ -25,10 +25,12 @@ import org.asynchttpclient.Response;
  * @author Rafael Luis Ibasco
  */
 public class CsgoWebApiResponse extends SteamWebApiResponse {
+
     /**
      * <p>Constructor for CsgoWebApiResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public CsgoWebApiResponse(Response response) {
         super(response);

@@ -28,14 +28,20 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetClanMembers extends CocWebApiRequest {
+
     /**
      * <p>Constructor for GetClanMembers.</p>
      *
-     * @param apiVersion a int
-     * @param clanTag a {@link java.lang.String} object
-     * @param limit a int
-     * @param after a int
-     * @param before a int
+     * @param apiVersion
+     *         a int
+     * @param clanTag
+     *         a {@link java.lang.String} object
+     * @param limit
+     *         a int
+     * @param after
+     *         a int
+     * @param before
+     *         a int
      */
     public GetClanMembers(int apiVersion, String clanTag, int limit, int after, int before) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_MEMBERS);

@@ -1,7 +1,7 @@
 Dota 2 Web API Examples
 =======================
 
-Usage examples of Dota 2 Web API Interfaces 
+Usage examples of Dota 2 Web API Interfaces
 
 ### Available Interfaces
 
@@ -13,7 +13,6 @@ Usage examples of Dota 2 Web API Interfaces 
 | Dota2Stats         | Contains methods for retrieving real time match statistics from a dota 2 server |
 | Dota2Stream        | Contains methods relating to Dota 2 streaming system                            |
 | Dota2Teams         | Contains methods relating to Dota 2 teams                                       |
-
 
 ### Econ Interface
 
@@ -113,7 +112,6 @@ log.info("Match History : {}", matchHistory);
 List<Dota2MatchDetails> matchDetailsBySeq = matchInterface.getMatchHistoryBySequenceNum(1, 10).get();
 matchDetailsBySeq.forEach(this::displayResult);
 ~~~
-
 
 **Get Team Information by ID**
 

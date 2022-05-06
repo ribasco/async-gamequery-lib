@@ -30,7 +30,6 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -45,6 +44,7 @@ import java.util.function.Function;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocClans extends CocWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -65,6 +65,7 @@ public class CocClans extends CocWebApiInterface {
      *
      * @param criteria
      *         A {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} to help your life much easier
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a {@link java.util.List} of clans matching the criteria. Empty if no match
      * found.
      */
@@ -90,6 +91,7 @@ public class CocClans extends CocWebApiInterface {
      *
      * @param clanTag
      *         A {@link java.lang.String} preceded by a hash tag '#' character
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} returning an instance of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanDetailedInfo}
      */
     public CompletableFuture<CocClanDetailedInfo> getClanInfo(String clanTag) {
@@ -102,23 +104,11 @@ public class CocClans extends CocWebApiInterface {
      *
      * @param clanTag
      *         A {@link java.lang.String} representing the clan tag
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} returning an instance of {@link java.util.List} of type {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo}
      */
     public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag) {
         return getClanMembers(clanTag, -1, -1, -1);
-    }
-
-    /**
-     * <p>List clan members</p>
-     *
-     * @param clanTag
-     *         A {@link java.lang.String} representing the clan tag
-     * @param limit
-     *         An {@link java.lang.Integer} limiting the number of records returned
-     * @return A {@link java.util.concurrent.CompletableFuture} returning an instance of {@link java.util.List} of type {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo}
-     */
-    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit) {
-        return getClanMembers(clanTag, limit, -1, -1);
     }
 
     /**
@@ -138,6 +128,7 @@ public class CocClans extends CocWebApiInterface {
      *         Before marker can be found from the response,
      *         inside the 'paging' property. Note that only after or before can be specified for a request, not
      *         both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} returning an instance of {@link java.util.List} of type {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo}
      */
     public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit, int after, int before) {
@@ -154,10 +145,25 @@ public class CocClans extends CocWebApiInterface {
     }
 
     /**
+     * <p>List clan members</p>
+     *
+     * @param clanTag
+     *         A {@link java.lang.String} representing the clan tag
+     * @param limit
+     *         An {@link java.lang.Integer} limiting the number of records returned
+     *
+     * @return A {@link java.util.concurrent.CompletableFuture} returning an instance of {@link java.util.List} of type {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerBasicInfo}
+     */
+    public CompletableFuture<List<CocPlayerBasicInfo>> getClanMembers(String clanTag, int limit) {
+        return getClanMembers(clanTag, limit, -1, -1);
+    }
+
+    /**
      * <p>Retrieve clan's clan war log</p>
      *
      * @param clanTag
      *         A {@link java.lang.String} preceded by a hash tag '#' character
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry}
      */
     public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag) {
@@ -181,6 +187,7 @@ public class CocClans extends CocWebApiInterface {
      *         Before marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both.
      *         Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which contains a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocWarLogEntry}
      */
     public CompletableFuture<List<CocWarLogEntry>> getClanWarLog(String clanTag, int limit, int after, int before) {

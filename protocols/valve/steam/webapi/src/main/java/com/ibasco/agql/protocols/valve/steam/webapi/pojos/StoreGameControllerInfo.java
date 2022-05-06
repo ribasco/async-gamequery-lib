@@ -26,8 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class StoreGameControllerInfo {
+
     @SerializedName("full_gamepad")
     private boolean fullGamepad;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("fullGamepad", isFullGamepad()).toString();
+    }
 
     /**
      * <p>isFullGamepad.</p>
@@ -41,16 +49,10 @@ public class StoreGameControllerInfo {
     /**
      * <p>Setter for the field <code>fullGamepad</code>.</p>
      *
-     * @param fullGamepad a boolean
+     * @param fullGamepad
+     *         a boolean
      */
     public void setFullGamepad(boolean fullGamepad) {
         this.fullGamepad = fullGamepad;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("fullGamepad", isFullGamepad()).toString();
     }
 }

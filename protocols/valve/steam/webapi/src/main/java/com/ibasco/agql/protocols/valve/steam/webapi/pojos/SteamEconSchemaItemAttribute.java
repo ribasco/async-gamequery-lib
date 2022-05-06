@@ -26,9 +26,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItemAttribute {
+
     private String name;
+
     @SerializedName("class")
     private String className;
+
     private double value;
 
     /**
@@ -43,7 +46,8 @@ public class SteamEconSchemaItemAttribute {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -61,7 +65,8 @@ public class SteamEconSchemaItemAttribute {
     /**
      * <p>Setter for the field <code>className</code>.</p>
      *
-     * @param className a {@link java.lang.String} object
+     * @param className
+     *         a {@link java.lang.String} object
      */
     public void setClassName(String className) {
         this.className = className;
@@ -79,7 +84,8 @@ public class SteamEconSchemaItemAttribute {
     /**
      * <p>Setter for the field <code>value</code>.</p>
      *
-     * @param value a double
+     * @param value
+     *         a double
      */
     public void setValue(double value) {
         this.value = value;

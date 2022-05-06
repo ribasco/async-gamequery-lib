@@ -16,16 +16,19 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.adapters;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements;
-
 import java.lang.reflect.Type;
 
 /**
  * Special handler for properties that can either be an object or array.
  *
- * @see <a href="https://github.com/ribasco/async-gamequery-lib/issues/12">Issue #12</a>
  * @author Rafael Luis Ibasco
+ * @see <a href="https://github.com/ribasco/async-gamequery-lib/issues/12">Issue #12</a>
  */
 public class StoreAppPcRequirementsDeserializer implements JsonDeserializer<StoreAppPcRequirements> {
 

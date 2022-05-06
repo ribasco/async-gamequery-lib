@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.source.query.common.packets;
 import com.ibasco.agql.core.util.Bytes;
 import com.ibasco.agql.protocols.valve.source.query.SourceQuery;
 import io.netty.buffer.ByteBuf;
-
 import java.nio.ByteOrder;
 
 /**
@@ -34,7 +33,8 @@ public class SourceQuerySinglePacket extends SourceQueryPacket {
     /**
      * <p>Constructor for SourceQuerySinglePacket.</p>
      *
-     * @param payload a {@link io.netty.buffer.ByteBuf} object
+     * @param payload
+     *         a {@link io.netty.buffer.ByteBuf} object
      */
     public SourceQuerySinglePacket(ByteBuf payload) {
         super(SourceQuery.SOURCE_PACKET_TYPE_SINGLE, payload);
@@ -52,7 +52,8 @@ public class SourceQuerySinglePacket extends SourceQueryPacket {
     /**
      * <p>Setter for the field <code>header</code>.</p>
      *
-     * @param header a int
+     * @param header
+     *         a int
      */
     public final void setHeader(int header) {
         this.header = header;

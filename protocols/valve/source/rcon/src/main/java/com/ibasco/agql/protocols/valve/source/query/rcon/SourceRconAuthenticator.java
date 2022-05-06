@@ -27,11 +27,10 @@ import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthR
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthResponse;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The default {@link com.ibasco.agql.protocols.valve.source.query.rcon.RconAuthenticator}.
@@ -40,21 +39,23 @@ import java.util.concurrent.CompletableFuture;
  */
 public class SourceRconAuthenticator implements RconAuthenticator {
 
+    static final String INVALID_CREDENTIALS_MSG = "The credentials for address '%s' has been invalidated. Please re-authenticate with the server";
+
+    static final String NOT_YET_AUTH_MSG = "Address '%s' has not yet been authenticated by the server. Use authenticate()";
+
     private static final Logger log = LoggerFactory.getLogger(SourceRconAuthenticator.class);
 
     private final boolean reauthenticate;
 
     private final CredentialsStore credentialsStore;
 
-    static final String INVALID_CREDENTIALS_MSG = "The credentials for address '%s' has been invalidated. Please re-authenticate with the server";
-
-    static final String NOT_YET_AUTH_MSG = "Address '%s' has not yet been authenticated by the server. Use authenticate()";
-
     /**
      * <p>Constructor for SourceRconAuthenticator.</p>
      *
-     * @param credentialsStore a {@link com.ibasco.agql.core.CredentialsStore} object
-     * @param reauthenticate a boolean
+     * @param credentialsStore
+     *         a {@link com.ibasco.agql.core.CredentialsStore} object
+     * @param reauthenticate
+     *         a boolean
      */
     public SourceRconAuthenticator(CredentialsStore credentialsStore, boolean reauthenticate) {
         this.credentialsStore = credentialsStore;

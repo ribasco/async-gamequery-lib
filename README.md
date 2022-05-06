@@ -27,7 +27,7 @@ Features
 - Transactions are [Failsafe](https://failsafe.dev/) (except web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
   - **[Retry Policy](https://failsafe.dev/retry/):** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
   - **[Rate Limiter Policy](https://failsafe.dev/rate-limiter/):** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
-  - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests. 
+  - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests.
 
 Usage
 -------------
@@ -62,8 +62,6 @@ public class BlockingQueryExample {
 ```
 
 **Non-Blocking Queries**
-
-
 
 ```java
 import java.util.concurrent.CompletableFuture;
@@ -183,13 +181,13 @@ A couple of demonstration videos showcasing the built-in failsafe features provi
 
 **Retry Feature**
 
-- A batch of 5000 requests were sent to a single instance and `changelevel` was issued, triggering active connections to get dropped by the remote server. The failed requests were retried and recovers successfully. All futures transitioned to a completed state. 
+- A batch of 5000 requests were sent to a single instance and `changelevel` was issued, triggering active connections to get dropped by the remote server. The failed requests were retried and recovers successfully. All futures transitioned to a completed state.
 
 https://user-images.githubusercontent.com/13303385/165238011-1bbefbfc-14cd-40c8-9ab3-26f1db7c5d8f.mp4
 
 **Circuit Breaker (Fail-fast)**
 
-- A batch of 5000 requests were sent to a single instance. In the middle of the operation, the server was restarted triggering all remaining futures to timeout, resulting with the internal circuit breaker to transition in `OPEN` state. 
+- A batch of 5000 requests were sent to a single instance. In the middle of the operation, the server was restarted triggering all remaining futures to timeout, resulting with the internal circuit breaker to transition in `OPEN` state.
 
 https://user-images.githubusercontent.com/13303385/165109735-0d96f3ca-5681-4456-977c-8cd4a5189c8b.mp4
 

@@ -30,7 +30,8 @@ public class MasterServerChannelContextFactory extends DefaultChannlContextFacto
     /**
      * <p>Constructor for MasterServerChannelContextFactory.</p>
      *
-     * @param messenger a {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger} object
+     * @param messenger
+     *         a {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerMessenger} object
      */
     public MasterServerChannelContextFactory(MasterServerMessenger messenger) {
         super(messenger);

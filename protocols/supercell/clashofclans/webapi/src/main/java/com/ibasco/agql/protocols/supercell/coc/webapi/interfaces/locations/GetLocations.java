@@ -32,10 +32,14 @@ public class GetLocations extends CocWebApiRequest {
     /**
      * <p>Constructor for GetLocations.</p>
      *
-     * @param apiVersion a int
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
     public GetLocations(int apiVersion, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATIONS, limit, before, after);

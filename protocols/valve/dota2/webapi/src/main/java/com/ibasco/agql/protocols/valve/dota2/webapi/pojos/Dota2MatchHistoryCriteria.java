@@ -28,7 +28,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>heroId.</p>
      *
-     * @param heroId a int
+     * @param heroId
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria heroId(int heroId) {
@@ -38,7 +40,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>gameMode.</p>
      *
-     * @param gameMode a int
+     * @param gameMode
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria gameMode(int gameMode) {
@@ -48,7 +52,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>skill.</p>
      *
-     * @param skill a int
+     * @param skill
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria skill(int skill) {
@@ -58,7 +64,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>minPlayers.</p>
      *
-     * @param minPlayers a int
+     * @param minPlayers
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria minPlayers(int minPlayers) {
@@ -68,7 +76,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>accountId.</p>
      *
-     * @param accountId a long
+     * @param accountId
+     *         a long
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria accountId(long accountId) {
@@ -78,7 +88,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>leagueId.</p>
      *
-     * @param leagueId a long
+     * @param leagueId
+     *         a long
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria leagueId(long leagueId) {
@@ -88,7 +100,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>startAtMatchId.</p>
      *
-     * @param matchId a long
+     * @param matchId
+     *         a long
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria startAtMatchId(long matchId) {
@@ -98,7 +112,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>matchesRequested.</p>
      *
-     * @param totalMatchRequested a int
+     * @param totalMatchRequested
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria matchesRequested(int totalMatchRequested) {
@@ -108,7 +124,9 @@ public class Dota2MatchHistoryCriteria extends AbstractCriteriaBuilder<Dota2Matc
     /**
      * <p>tournamentGamesOnly.</p>
      *
-     * @param value a boolean
+     * @param value
+     *         a boolean
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchHistoryCriteria} object
      */
     public Dota2MatchHistoryCriteria tournamentGamesOnly(boolean value) {

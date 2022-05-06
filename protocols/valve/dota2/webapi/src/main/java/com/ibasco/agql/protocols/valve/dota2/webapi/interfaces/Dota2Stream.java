@@ -21,7 +21,6 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiInterface;
 import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.stream.GetBroadcasterInfo;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2BroadcasterInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -34,7 +33,8 @@ public class Dota2Stream extends Dota2WebApiInterface {
     /**
      * <p>Constructor for Dota2Stream.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2Stream(SteamWebApiClient client) {
         super(client);
@@ -43,8 +43,11 @@ public class Dota2Stream extends Dota2WebApiInterface {
     /**
      * <p>getBroadcasterInfo.</p>
      *
-     * @param broadcasterSteamId a long
-     * @param leagueId a int
+     * @param broadcasterSteamId
+     *         a long
+     * @param leagueId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2BroadcasterInfo> getBroadcasterInfo(long broadcasterSteamId, int leagueId) {

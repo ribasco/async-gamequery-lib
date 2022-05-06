@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class Dota2MatchRequest extends Dota2WebApiRequest {
+
     /**
      * <p>Constructor for Dota2MatchRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
-     * @param language a {@link java.lang.String} object
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public Dota2MatchRequest(String apiMethod, int apiVersion, String language) {
         super(Dota2ApiConstants.DOTA2_INTERFACE_MATCH, apiMethod, apiVersion, language);

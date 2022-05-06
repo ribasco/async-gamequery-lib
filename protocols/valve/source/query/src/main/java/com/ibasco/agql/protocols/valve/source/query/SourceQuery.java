@@ -88,7 +88,9 @@ public final class SourceQuery {
     /**
      * <p>isValidPacketType.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
+     *
      * @return a boolean
      */
     public static boolean isValidPacketType(int type) {
@@ -96,26 +98,23 @@ public final class SourceQuery {
     }
 
     /**
-     * <p>isValidResponse.</p>
+     * <p>isInvalidHeader.</p>
      *
-     * @param header a int
+     * @param header
+     *         a int
+     *
      * @return a boolean
      */
-    public static boolean isValidResponse(int header) {
-        switch (header) {
-            case SOURCE_QUERY_INFO_RES:
-            case SOURCE_QUERY_PLAYER_RES:
-            case SOURCE_QUERY_CHALLENGE_RES:
-            case SOURCE_QUERY_RULES_RES:
-                return true;
-        }
-        return false;
+    public static boolean isInvalidHeader(int header) {
+        return !isValidRequest(header) && !isValidResponse(header);
     }
 
     /**
      * <p>isValidRequest.</p>
      *
-     * @param header a int
+     * @param header
+     *         a int
+     *
      * @return a boolean
      */
     public static boolean isValidRequest(int header) {
@@ -130,19 +129,30 @@ public final class SourceQuery {
     }
 
     /**
-     * <p>isInvalidHeader.</p>
+     * <p>isValidResponse.</p>
      *
-     * @param header a int
+     * @param header
+     *         a int
+     *
      * @return a boolean
      */
-    public static boolean isInvalidHeader(int header) {
-        return !isValidRequest(header) && !isValidResponse(header);
+    public static boolean isValidResponse(int header) {
+        switch (header) {
+            case SOURCE_QUERY_INFO_RES:
+            case SOURCE_QUERY_PLAYER_RES:
+            case SOURCE_QUERY_CHALLENGE_RES:
+            case SOURCE_QUERY_RULES_RES:
+                return true;
+        }
+        return false;
     }
 
     /**
      * <p>getChallengeType.</p>
      *
-     * @param requestClass a {@link java.lang.Class} object
+     * @param requestClass
+     *         a {@link java.lang.Class} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.source.query.common.enums.SourceChallengeType} object
      */
     public static SourceChallengeType getChallengeType(Class<? extends SourceQueryRequest> requestClass) {

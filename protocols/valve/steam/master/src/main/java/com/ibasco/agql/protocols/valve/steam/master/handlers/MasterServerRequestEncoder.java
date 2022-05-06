@@ -23,7 +23,6 @@ import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.packets.MasterServerQueryPacket;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.List;
 
 /**
@@ -32,12 +31,6 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class MasterServerRequestEncoder extends MessageOutboundEncoder<MasterServerRequest> {
-
-    /** {@inheritDoc} */
-    @Override
-    protected boolean acceptMessage(Class<MasterServerRequest> requestClass, Envelope<MasterServerRequest> envelope) throws Exception {
-        return MasterServerRequest.class.equals(requestClass);
-    }
 
     /** {@inheritDoc} */
     @Override
@@ -55,5 +48,11 @@ public class MasterServerRequestEncoder extends MessageOutboundEncoder<MasterSer
         packet.setAddress(address);
         packet.setFilter(request.getFilter().toString());
         out.add(packet);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected boolean acceptMessage(Class<MasterServerRequest> requestClass, Envelope<MasterServerRequest> envelope) throws Exception {
+        return MasterServerRequest.class.equals(requestClass);
     }
 }

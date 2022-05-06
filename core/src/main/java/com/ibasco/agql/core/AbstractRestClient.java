@@ -23,13 +23,12 @@ import com.ibasco.agql.core.util.Options;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract AbstractRestClient class.</p>
@@ -66,35 +65,6 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
     }
 
     /**
-     * {@inheritDoc}
-     *
-     * <p>Factory method for creating the default {@link HttpMessenger}</p>
-     */
-    @Override
-    protected HttpMessenger createMessenger(Options options) {
-        Function<Response, AbstractWebApiResponse> responseFactory = this::createWebApiResponse;
-        return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor));
-    }
-
-    /**
-     * <p>Function that is responsible for parsing the internal response of the message (e.g. JSON or XML)</p>
-     *
-     * @return Returns instance of {@link AbstractWebApiResponse}
-     */
-    private AbstractWebApiResponse applyContentTypeProcessor(AbstractWebApiResponse response) {
-        if (response != null && response.getMessage() != null) {
-            Response msg = response.getMessage();
-            String body = msg.getResponseBody();
-            ContentTypeProcessor processor = contentProcessorMap.get(parseContentType(msg.getContentType()));
-            if (log.isDebugEnabled() && processor == null)
-                log.debug("No Content-Type processor found for {}. Please register a ContentTypeProcessor using registerContentProcessor()", parseContentType(msg.getContentType()));
-            //noinspection unchecked
-            response.setProcessedContent((processor != null) ? processor.apply(body) : body);
-        }
-        return response;
-    }
-
-    /**
      * <p>Register custom content processors based on the value defined in the Content-Type header</p>
      *
      * @param contentType
@@ -106,15 +76,6 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
         String type = parseContentType(contentType);
         log.debug("Registering Content-Type: {}", type);
         this.contentProcessorMap.put(type, processor);
-    }
-
-    /**
-     * <p>removeContentTypeProcessor.</p>
-     *
-     * @param contentType a {@link java.lang.String} object
-     */
-    protected void removeContentTypeProcessor(String contentType) {
-        this.contentProcessorMap.remove(parseContentType(contentType));
     }
 
     /**
@@ -132,6 +93,17 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
                 return types[0].trim();
         }
         return contentType;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>Factory method for creating the default {@link HttpMessenger}</p>
+     */
+    @Override
+    protected HttpMessenger createMessenger(Options options) {
+        Function<Response, AbstractWebApiResponse> responseFactory = this::createWebApiResponse;
+        return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor));
     }
 
     /** {@inheritDoc} */
@@ -162,9 +134,38 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      *
      * @param response
      *         The Http {@link org.asynchttpclient.Response} received by the transport
+     *
      * @return A Concrete implementation of {@link com.ibasco.agql.core.AbstractWebApiResponse}
      */
     abstract protected AbstractWebApiResponse createWebApiResponse(Response response);
+
+    /**
+     * <p>Function that is responsible for parsing the internal response of the message (e.g. JSON or XML)</p>
+     *
+     * @return Returns instance of {@link AbstractWebApiResponse}
+     */
+    private AbstractWebApiResponse applyContentTypeProcessor(AbstractWebApiResponse response) {
+        if (response != null && response.getMessage() != null) {
+            Response msg = response.getMessage();
+            String body = msg.getResponseBody();
+            ContentTypeProcessor processor = contentProcessorMap.get(parseContentType(msg.getContentType()));
+            if (log.isDebugEnabled() && processor == null)
+                log.debug("No Content-Type processor found for {}. Please register a ContentTypeProcessor using registerContentProcessor()", parseContentType(msg.getContentType()));
+            //noinspection unchecked
+            response.setProcessedContent((processor != null) ? processor.apply(body) : body);
+        }
+        return response;
+    }
+
+    /**
+     * <p>removeContentTypeProcessor.</p>
+     *
+     * @param contentType
+     *         a {@link java.lang.String} object
+     */
+    protected void removeContentTypeProcessor(String contentType) {
+        this.contentProcessorMap.remove(parseContentType(contentType));
+    }
 
     /**
      * <p>Getter for the field <code>authToken</code>.</p>
@@ -178,7 +179,8 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
     /**
      * <p>Setter for the field <code>authToken</code>.</p>
      *
-     * @param authToken a {@link java.lang.String} object
+     * @param authToken
+     *         a {@link java.lang.String} object
      */
     public void setAuthToken(String authToken) {
         this.authToken = authToken;

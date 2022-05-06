@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +28,9 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMSorting {
+
     private List<SteamEconItemsSMSorter> sorters = new ArrayList<>();
+
     @SerializedName("sorting_prefabs")
     private List<SteamEconItemsSMSortingPrefab> sortingPrefabs = new ArrayList<>();
 
@@ -45,7 +46,8 @@ public class SteamEconItemsSMSorting {
     /**
      * <p>Setter for the field <code>sorters</code>.</p>
      *
-     * @param sorters a {@link java.util.List} object
+     * @param sorters
+     *         a {@link java.util.List} object
      */
     public void setSorters(List<SteamEconItemsSMSorter> sorters) {
         this.sorters = sorters;
@@ -63,7 +65,8 @@ public class SteamEconItemsSMSorting {
     /**
      * <p>Setter for the field <code>sortingPrefabs</code>.</p>
      *
-     * @param sortingPrefabs a {@link java.util.List} object
+     * @param sortingPrefabs
+     *         a {@link java.util.List} object
      */
     public void setSortingPrefabs(List<SteamEconItemsSMSortingPrefab> sortingPrefabs) {
         this.sortingPrefabs = sortingPrefabs;

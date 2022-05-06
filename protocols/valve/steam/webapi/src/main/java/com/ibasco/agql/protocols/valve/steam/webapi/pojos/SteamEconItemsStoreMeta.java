@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,15 +28,22 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsStoreMeta {
+
     @SerializedName("carousel_data")
     private SteamEconItemsSMCarouselData carouselData;
+
     private List<SteamEconItemsSMTab> tabs = new ArrayList<>();
+
     private List<SteamEconItemsSMFilter> filters = new ArrayList<>();
+
     private SteamEconItemsSMSorting sorting;
+
     @SerializedName("dropdown_data")
     private SteamEconItemsSMDropdownData dropdownData;
+
     @SerializedName("player_class_data")
     private List<SteamEconItemsSMPlayerClass> playerClassData = new ArrayList<>();
+
     @SerializedName("home_page_data")
     private SteamEconItemsSMHomepage homePageData;
 
@@ -53,7 +59,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>carouselData</code>.</p>
      *
-     * @param carouselData a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMCarouselData} object
+     * @param carouselData
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMCarouselData} object
      */
     public void setCarouselData(SteamEconItemsSMCarouselData carouselData) {
         this.carouselData = carouselData;
@@ -71,7 +78,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>tabs</code>.</p>
      *
-     * @param tabs a {@link java.util.List} object
+     * @param tabs
+     *         a {@link java.util.List} object
      */
     public void setTabs(List<SteamEconItemsSMTab> tabs) {
         this.tabs = tabs;
@@ -89,7 +97,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>filters</code>.</p>
      *
-     * @param filters a {@link java.util.List} object
+     * @param filters
+     *         a {@link java.util.List} object
      */
     public void setFilters(List<SteamEconItemsSMFilter> filters) {
         this.filters = filters;
@@ -107,7 +116,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>sorting</code>.</p>
      *
-     * @param sorting a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMSorting} object
+     * @param sorting
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMSorting} object
      */
     public void setSorting(SteamEconItemsSMSorting sorting) {
         this.sorting = sorting;
@@ -125,7 +135,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>dropdownData</code>.</p>
      *
-     * @param dropdownData a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMDropdownData} object
+     * @param dropdownData
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMDropdownData} object
      */
     public void setDropdownData(SteamEconItemsSMDropdownData dropdownData) {
         this.dropdownData = dropdownData;
@@ -143,7 +154,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>playerClassData</code>.</p>
      *
-     * @param playerClassData a {@link java.util.List} object
+     * @param playerClassData
+     *         a {@link java.util.List} object
      */
     public void setPlayerClassData(List<SteamEconItemsSMPlayerClass> playerClassData) {
         this.playerClassData = playerClassData;
@@ -161,7 +173,8 @@ public class SteamEconItemsStoreMeta {
     /**
      * <p>Setter for the field <code>homePageData</code>.</p>
      *
-     * @param homePageData a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMHomepage} object
+     * @param homePageData
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMHomepage} object
      */
     public void setHomePageData(SteamEconItemsSMHomepage homePageData) {
         this.homePageData = homePageData;

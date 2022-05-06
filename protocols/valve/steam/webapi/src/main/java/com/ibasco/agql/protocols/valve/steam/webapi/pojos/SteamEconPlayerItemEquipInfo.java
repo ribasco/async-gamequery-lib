@@ -26,8 +26,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconPlayerItemEquipInfo {
+
     @SerializedName("class")
     private int classId;
+
     private int slot;
 
     /**
@@ -42,10 +44,20 @@ public class SteamEconPlayerItemEquipInfo {
     /**
      * <p>Setter for the field <code>classId</code>.</p>
      *
-     * @param classId a int
+     * @param classId
+     *         a int
      */
     public void setClassId(int classId) {
         this.classId = classId;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("class", getClass())
+                .append("slot", getSlot())
+                .toString();
     }
 
     /**
@@ -60,18 +72,10 @@ public class SteamEconPlayerItemEquipInfo {
     /**
      * <p>Setter for the field <code>slot</code>.</p>
      *
-     * @param slot a int
+     * @param slot
+     *         a int
      */
     public void setSlot(int slot) {
         this.slot = slot;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("class", getClass())
-                .append("slot", getSlot())
-                .toString();
     }
 }

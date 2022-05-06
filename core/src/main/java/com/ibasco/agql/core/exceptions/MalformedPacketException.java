@@ -32,7 +32,8 @@ public class MalformedPacketException extends PacketDecodeException {
     /**
      * <p>Constructor for MalformedPacketException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public MalformedPacketException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class MalformedPacketException extends PacketDecodeException {
     /**
      * <p>Constructor for MalformedPacketException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public MalformedPacketException(String message, Throwable cause) {
         super(message, cause);

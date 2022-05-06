@@ -19,10 +19,9 @@ package com.ibasco.agql.core.transport.pool;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Options;
+import java.net.InetSocketAddress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.net.InetSocketAddress;
 
 /**
  * <p>FixedNettyChannelPoolFactory class.</p>
@@ -44,7 +43,8 @@ public class FixedNettyChannelPoolFactory extends NettyChannelPoolFactory {
     /**
      * <p>Constructor for FixedNettyChannelPoolFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public FixedNettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         super(channelFactory);

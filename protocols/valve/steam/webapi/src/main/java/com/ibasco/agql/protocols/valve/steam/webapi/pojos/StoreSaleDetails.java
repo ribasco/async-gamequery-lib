@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,11 +26,16 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreSaleDetails {
+
     private int status;
+
     private int id;
+
     private String name;
+
     @SerializedName("available")
     private String availableDate;
+
     @SerializedName("items")
     private List<StoreSaleApp> appsOnSale = new ArrayList<>();
 
@@ -47,7 +51,8 @@ public class StoreSaleDetails {
     /**
      * <p>Setter for the field <code>status</code>.</p>
      *
-     * @param status a int
+     * @param status
+     *         a int
      */
     public void setStatus(int status) {
         this.status = status;
@@ -65,7 +70,8 @@ public class StoreSaleDetails {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -83,7 +89,8 @@ public class StoreSaleDetails {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -101,7 +108,8 @@ public class StoreSaleDetails {
     /**
      * <p>Setter for the field <code>availableDate</code>.</p>
      *
-     * @param availableDate a {@link java.lang.String} object
+     * @param availableDate
+     *         a {@link java.lang.String} object
      */
     public void setAvailableDate(String availableDate) {
         this.availableDate = availableDate;
@@ -119,7 +127,8 @@ public class StoreSaleDetails {
     /**
      * <p>Setter for the field <code>appsOnSale</code>.</p>
      *
-     * @param appsOnSale a {@link java.util.List} object
+     * @param appsOnSale
+     *         a {@link java.util.List} object
      */
     public void setAppsOnSale(List<StoreSaleApp> appsOnSale) {
         this.appsOnSale = appsOnSale;

@@ -20,7 +20,6 @@ import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Options;
 import io.netty.channel.pool.ChannelPoolHandler;
-
 import java.net.InetSocketAddress;
 import java.util.Objects;
 
@@ -40,7 +39,8 @@ abstract public class NettyChannelPoolFactory {
     /**
      * <p>Constructor for NettyChannelPoolFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     protected NettyChannelPoolFactory(NettyChannelFactory channelFactory) {
         final Options options = Objects.requireNonNull(channelFactory, "Channel factory must not be null").getOptions();
@@ -52,8 +52,11 @@ abstract public class NettyChannelPoolFactory {
     /**
      * <p>create.</p>
      *
-     * @param localAddress a {@link java.net.InetSocketAddress} object
-     * @param remoteAddress a {@link java.net.InetSocketAddress} object
+     * @param localAddress
+     *         a {@link java.net.InetSocketAddress} object
+     * @param remoteAddress
+     *         a {@link java.net.InetSocketAddress} object
+     *
      * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} object
      */
     abstract public NettyChannelPool create(InetSocketAddress localAddress, InetSocketAddress remoteAddress);

@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMSorterId {
+
     private long id;
 
     /**
@@ -39,7 +40,8 @@ public class SteamEconItemsSMSorterId {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;

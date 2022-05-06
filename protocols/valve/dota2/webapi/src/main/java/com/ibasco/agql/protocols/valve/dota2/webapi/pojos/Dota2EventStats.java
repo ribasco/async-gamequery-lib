@@ -25,6 +25,7 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2EventStats {
+
     private int eventPoints;
 
     /**
@@ -39,7 +40,8 @@ public class Dota2EventStats {
     /**
      * <p>Setter for the field <code>eventPoints</code>.</p>
      *
-     * @param eventPoints a int
+     * @param eventPoints
+     *         a int
      */
     public void setEventPoints(int eventPoints) {
         this.eventPoints = eventPoints;

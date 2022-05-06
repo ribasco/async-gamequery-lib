@@ -32,7 +32,8 @@ public class PacketDecodeException extends DecodeException {
     /**
      * <p>Constructor for PacketDecodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public PacketDecodeException(String message) {
         super(message);
@@ -41,8 +42,10 @@ public class PacketDecodeException extends DecodeException {
     /**
      * <p>Constructor for PacketDecodeException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public PacketDecodeException(String message, Throwable cause) {
         super(message, cause);

@@ -32,7 +32,8 @@ public final class SourceRconAuthResponse extends SourceRconResponse<Boolean> {
     /**
      * <p>Constructor for SourceRconAuthResponse.</p>
      *
-     * @param authenticated a boolean
+     * @param authenticated
+     *         a boolean
      */
     public SourceRconAuthResponse(boolean authenticated) {
         this(authenticated, null, null);
@@ -41,9 +42,12 @@ public final class SourceRconAuthResponse extends SourceRconResponse<Boolean> {
     /**
      * <p>Constructor for SourceRconAuthResponse.</p>
      *
-     * @param authenticated a boolean
-     * @param reason a {@link java.lang.String} object
-     * @param reasonCode a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
+     * @param authenticated
+     *         a boolean
+     * @param reason
+     *         a {@link java.lang.String} object
+     * @param reasonCode
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason} object
      */
     public SourceRconAuthResponse(boolean authenticated, String reason, SourceRconAuthReason reasonCode) {
         super(authenticated);

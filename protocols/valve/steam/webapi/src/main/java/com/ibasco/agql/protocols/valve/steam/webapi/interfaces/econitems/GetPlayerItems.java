@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconItemsReque
  * @author Rafael Luis Ibasco
  */
 public class GetPlayerItems extends SteamEconItemsRequest {
+
     /**
      * <p>Constructor for GetPlayerItems.</p>
      *
-     * @param appId a int
-     * @param steamId a long
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param steamId
+     *         a long
+     * @param apiVersion
+     *         a int
      */
     public GetPlayerItems(int appId, long steamId, int apiVersion) {
         super(appId, SteamApiConstants.STEAM_METHOD_ECONITEMS_GETPLAYERITEMS, apiVersion);

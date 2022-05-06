@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,165 +28,88 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppDetails {
+
     private String type;
+
     private String name;
+
     @SerializedName("steam_appid")
     private int appId;
+
     @SerializedName("required_age")
     private int requiredAge;
+
     @SerializedName("is_free")
     private boolean free;
+
     @SerializedName("controller_support")
     private String controllerSupport;
+
     @SerializedName("detailed_description")
     private String detailedDescription;
+
     @SerializedName("about_the_game")
     private String aboutTheGame;
+
     @SerializedName("short_description")
     private String shortDescription;
+
     @SerializedName("supported_languages")
     private String supportedLanguages;
+
     @SerializedName("header_image")
     private String headerImageUrl;
+
     @SerializedName("website")
     private String websiteUrl;
+
     @SerializedName("pc_requirements")
     private StoreAppPcRequirements pcRequirements;
+
     @SerializedName("mac_requirements")
     private StoreAppPcRequirements macRequirements;
+
     @SerializedName("linux_requirements")
     private StoreAppPcRequirements linuxRequirements;
+
     private List<String> developers = new ArrayList<>();
+
     private List<String> publishers = new ArrayList<>();
+
     @SerializedName("price_overview")
     private StoreAppPriceInfo priceOverview;
+
     @SerializedName("packages")
     private List<Integer> packageIds = new ArrayList<>();
+
     @SerializedName("package_groups")
     private List<StoreAppPackageGroup> packageGroups = new ArrayList<>();
+
     @SerializedName("platforms")
     private StoreAppPlatform platform;
+
     private StoreAppMetacritic metacritic;
+
     private List<StoreAppCategory> categories = new ArrayList<>();
+
     private List<StoreAppGenre> genres = new ArrayList<>();
+
     private List<StoreAppScreenshots> screenshots = new ArrayList<>();
+
     private List<StoreAppMovie> movies = new ArrayList<>();
+
     private StoreAppRecommendations recommendations;
+
     private StoreAppAchievements achievements;
+
     @SerializedName("release_date")
     private StoreAppReleaseDateInfo releaseDate;
+
     @SerializedName("support_info")
     private StoreAppSupportInfo supportInfo;
+
     @SerializedName("background")
     private String backgroundUrl;
-
-    /**
-     * <p>Getter for the field <code>type</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * <p>Setter for the field <code>type</code>.</p>
-     *
-     * @param type a {@link java.lang.String} object
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    /**
-     * <p>Getter for the field <code>name</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * <p>Setter for the field <code>name</code>.</p>
-     *
-     * @param name a {@link java.lang.String} object
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * <p>Getter for the field <code>appId</code>.</p>
-     *
-     * @return a int
-     */
-    public int getAppId() {
-        return appId;
-    }
-
-    /**
-     * <p>Setter for the field <code>appId</code>.</p>
-     *
-     * @param appId a int
-     */
-    public void setAppId(int appId) {
-        this.appId = appId;
-    }
-
-    /**
-     * <p>Getter for the field <code>requiredAge</code>.</p>
-     *
-     * @return a int
-     */
-    public int getRequiredAge() {
-        return requiredAge;
-    }
-
-    /**
-     * <p>Setter for the field <code>requiredAge</code>.</p>
-     *
-     * @param requiredAge a int
-     */
-    public void setRequiredAge(int requiredAge) {
-        this.requiredAge = requiredAge;
-    }
-
-    /**
-     * <p>isFree.</p>
-     *
-     * @return a boolean
-     */
-    public boolean isFree() {
-        return free;
-    }
-
-    /**
-     * <p>Setter for the field <code>free</code>.</p>
-     *
-     * @param free a boolean
-     */
-    public void setFree(boolean free) {
-        this.free = free;
-    }
-
-    /**
-     * <p>Getter for the field <code>controllerSupport</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getControllerSupport() {
-        return controllerSupport;
-    }
-
-    /**
-     * <p>Setter for the field <code>controllerSupport</code>.</p>
-     *
-     * @param controllerSupport a {@link java.lang.String} object
-     */
-    public void setControllerSupport(String controllerSupport) {
-        this.controllerSupport = controllerSupport;
-    }
 
     /**
      * <p>Getter for the field <code>detailedDescription</code>.</p>
@@ -201,7 +123,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>detailedDescription</code>.</p>
      *
-     * @param detailedDescription a {@link java.lang.String} object
+     * @param detailedDescription
+     *         a {@link java.lang.String} object
      */
     public void setDetailedDescription(String detailedDescription) {
         this.detailedDescription = detailedDescription;
@@ -219,7 +142,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>aboutTheGame</code>.</p>
      *
-     * @param aboutTheGame a {@link java.lang.String} object
+     * @param aboutTheGame
+     *         a {@link java.lang.String} object
      */
     public void setAboutTheGame(String aboutTheGame) {
         this.aboutTheGame = aboutTheGame;
@@ -237,7 +161,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>shortDescription</code>.</p>
      *
-     * @param shortDescription a {@link java.lang.String} object
+     * @param shortDescription
+     *         a {@link java.lang.String} object
      */
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
@@ -255,7 +180,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>supportedLanguages</code>.</p>
      *
-     * @param supportedLanguages a {@link java.lang.String} object
+     * @param supportedLanguages
+     *         a {@link java.lang.String} object
      */
     public void setSupportedLanguages(String supportedLanguages) {
         this.supportedLanguages = supportedLanguages;
@@ -273,7 +199,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>headerImageUrl</code>.</p>
      *
-     * @param headerImageUrl a {@link java.lang.String} object
+     * @param headerImageUrl
+     *         a {@link java.lang.String} object
      */
     public void setHeaderImageUrl(String headerImageUrl) {
         this.headerImageUrl = headerImageUrl;
@@ -291,7 +218,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>websiteUrl</code>.</p>
      *
-     * @param websiteUrl a {@link java.lang.String} object
+     * @param websiteUrl
+     *         a {@link java.lang.String} object
      */
     public void setWebsiteUrl(String websiteUrl) {
         this.websiteUrl = websiteUrl;
@@ -309,7 +237,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>pcRequirements</code>.</p>
      *
-     * @param pcRequirements a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
+     * @param pcRequirements
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
      */
     public void setPcRequirements(StoreAppPcRequirements pcRequirements) {
         this.pcRequirements = pcRequirements;
@@ -327,7 +256,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>macRequirements</code>.</p>
      *
-     * @param macRequirements a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
+     * @param macRequirements
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
      */
     public void setMacRequirements(StoreAppPcRequirements macRequirements) {
         this.macRequirements = macRequirements;
@@ -345,7 +275,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>linuxRequirements</code>.</p>
      *
-     * @param linuxRequirements a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
+     * @param linuxRequirements
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPcRequirements} object
      */
     public void setLinuxRequirements(StoreAppPcRequirements linuxRequirements) {
         this.linuxRequirements = linuxRequirements;
@@ -363,7 +294,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>developers</code>.</p>
      *
-     * @param developers a {@link java.util.List} object
+     * @param developers
+     *         a {@link java.util.List} object
      */
     public void setDevelopers(List<String> developers) {
         this.developers = developers;
@@ -381,7 +313,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>publishers</code>.</p>
      *
-     * @param publishers a {@link java.util.List} object
+     * @param publishers
+     *         a {@link java.util.List} object
      */
     public void setPublishers(List<String> publishers) {
         this.publishers = publishers;
@@ -399,7 +332,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>priceOverview</code>.</p>
      *
-     * @param priceOverview a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPriceInfo} object
+     * @param priceOverview
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPriceInfo} object
      */
     public void setPriceOverview(StoreAppPriceInfo priceOverview) {
         this.priceOverview = priceOverview;
@@ -417,7 +351,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>packageIds</code>.</p>
      *
-     * @param packageIds a {@link java.util.List} object
+     * @param packageIds
+     *         a {@link java.util.List} object
      */
     public void setPackageIds(List<Integer> packageIds) {
         this.packageIds = packageIds;
@@ -435,7 +370,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>packageGroups</code>.</p>
      *
-     * @param packageGroups a {@link java.util.List} object
+     * @param packageGroups
+     *         a {@link java.util.List} object
      */
     public void setPackageGroups(List<StoreAppPackageGroup> packageGroups) {
         this.packageGroups = packageGroups;
@@ -453,7 +389,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>platform</code>.</p>
      *
-     * @param platform a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPlatform} object
+     * @param platform
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppPlatform} object
      */
     public void setPlatform(StoreAppPlatform platform) {
         this.platform = platform;
@@ -471,7 +408,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>metacritic</code>.</p>
      *
-     * @param metacritic a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppMetacritic} object
+     * @param metacritic
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppMetacritic} object
      */
     public void setMetacritic(StoreAppMetacritic metacritic) {
         this.metacritic = metacritic;
@@ -489,7 +427,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>categories</code>.</p>
      *
-     * @param categories a {@link java.util.List} object
+     * @param categories
+     *         a {@link java.util.List} object
      */
     public void setCategories(List<StoreAppCategory> categories) {
         this.categories = categories;
@@ -507,7 +446,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>genres</code>.</p>
      *
-     * @param genres a {@link java.util.List} object
+     * @param genres
+     *         a {@link java.util.List} object
      */
     public void setGenres(List<StoreAppGenre> genres) {
         this.genres = genres;
@@ -525,7 +465,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>screenshots</code>.</p>
      *
-     * @param screenshots a {@link java.util.List} object
+     * @param screenshots
+     *         a {@link java.util.List} object
      */
     public void setScreenshots(List<StoreAppScreenshots> screenshots) {
         this.screenshots = screenshots;
@@ -543,7 +484,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>movies</code>.</p>
      *
-     * @param movies a {@link java.util.List} object
+     * @param movies
+     *         a {@link java.util.List} object
      */
     public void setMovies(List<StoreAppMovie> movies) {
         this.movies = movies;
@@ -561,7 +503,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>recommendations</code>.</p>
      *
-     * @param recommendations a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppRecommendations} object
+     * @param recommendations
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppRecommendations} object
      */
     public void setRecommendations(StoreAppRecommendations recommendations) {
         this.recommendations = recommendations;
@@ -579,7 +522,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>achievements</code>.</p>
      *
-     * @param achievements a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppAchievements} object
+     * @param achievements
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppAchievements} object
      */
     public void setAchievements(StoreAppAchievements achievements) {
         this.achievements = achievements;
@@ -597,7 +541,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>releaseDate</code>.</p>
      *
-     * @param releaseDate a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppReleaseDateInfo} object
+     * @param releaseDate
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppReleaseDateInfo} object
      */
     public void setReleaseDate(StoreAppReleaseDateInfo releaseDate) {
         this.releaseDate = releaseDate;
@@ -615,7 +560,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>supportInfo</code>.</p>
      *
-     * @param supportInfo a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppSupportInfo} object
+     * @param supportInfo
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.StoreAppSupportInfo} object
      */
     public void setSupportInfo(StoreAppSupportInfo supportInfo) {
         this.supportInfo = supportInfo;
@@ -633,7 +579,8 @@ public class StoreAppDetails {
     /**
      * <p>Setter for the field <code>backgroundUrl</code>.</p>
      *
-     * @param backgroundUrl a {@link java.lang.String} object
+     * @param backgroundUrl
+     *         a {@link java.lang.String} object
      */
     public void setBackgroundUrl(String backgroundUrl) {
         this.backgroundUrl = backgroundUrl;
@@ -650,5 +597,119 @@ public class StoreAppDetails {
                 .append("isFree", isFree())
                 .append("controllerSupport", getControllerSupport())
                 .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>type</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * <p>Setter for the field <code>type</code>.</p>
+     *
+     * @param type
+     *         a {@link java.lang.String} object
+     */
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name
+     *         a {@link java.lang.String} object
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * <p>Getter for the field <code>appId</code>.</p>
+     *
+     * @return a int
+     */
+    public int getAppId() {
+        return appId;
+    }
+
+    /**
+     * <p>Setter for the field <code>appId</code>.</p>
+     *
+     * @param appId
+     *         a int
+     */
+    public void setAppId(int appId) {
+        this.appId = appId;
+    }
+
+    /**
+     * <p>Getter for the field <code>requiredAge</code>.</p>
+     *
+     * @return a int
+     */
+    public int getRequiredAge() {
+        return requiredAge;
+    }
+
+    /**
+     * <p>Setter for the field <code>requiredAge</code>.</p>
+     *
+     * @param requiredAge
+     *         a int
+     */
+    public void setRequiredAge(int requiredAge) {
+        this.requiredAge = requiredAge;
+    }
+
+    /**
+     * <p>isFree.</p>
+     *
+     * @return a boolean
+     */
+    public boolean isFree() {
+        return free;
+    }
+
+    /**
+     * <p>Setter for the field <code>free</code>.</p>
+     *
+     * @param free
+     *         a boolean
+     */
+    public void setFree(boolean free) {
+        this.free = free;
+    }
+
+    /**
+     * <p>Getter for the field <code>controllerSupport</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getControllerSupport() {
+        return controllerSupport;
+    }
+
+    /**
+     * <p>Setter for the field <code>controllerSupport</code>.</p>
+     *
+     * @param controllerSupport
+     *         a {@link java.lang.String} object
+     */
+    public void setControllerSupport(String controllerSupport) {
+        this.controllerSupport = controllerSupport;
     }
 }

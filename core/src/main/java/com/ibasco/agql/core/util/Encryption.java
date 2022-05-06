@@ -18,13 +18,6 @@ package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import org.apache.commons.lang3.StringUtils;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,6 +27,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.Base64;
 import java.util.Objects;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 
 /**
  * <p>Encryption class.</p>
@@ -49,7 +48,9 @@ public class Encryption {
     /**
      * <p>encrypt.</p>
      *
-     * @param plainText a {@link java.lang.String} object
+     * @param plainText
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     public static String encrypt(String plainText) {
@@ -59,10 +60,14 @@ public class Encryption {
     /**
      * <p>encrypt.</p>
      *
-     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
-     * @param plainText a {@link java.lang.String} object
-     * @param secretKey a {@link java.lang.String} object
+     * @param plainText
+     *         a {@link java.lang.String} object
+     * @param secretKey
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
+     *
+     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
      */
     public static String encrypt(String plainText, String secretKey) {
         try {
@@ -77,52 +82,10 @@ public class Encryption {
         }
     }
 
-    /**
-     * <p>decrypt.</p>
-     *
-     * @param cipherText a {@link java.lang.String} object
-     * @return a {@link java.lang.String} object
-     */
-    public static String decrypt(String cipherText) {
-        return decrypt(cipherText, worldsMostSecureUnhackableKey);
-    }
-
-    /**
-     * <p>decrypt.</p>
-     *
-     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
-     * @param cipherText a {@link java.lang.String} object
-     * @param secretKey a {@link java.lang.String} object
-     * @return a {@link java.lang.String} object
-     */
-    public static String decrypt(String cipherText, String secretKey) {
-        try {
-            if (Strings.isBlank(secretKey))
-                throw new IllegalArgumentException("Secret key not specified");
-            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
-            SecretKeySpec key = createSecretKey(secretKey);
-            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes(StandardCharsets.UTF_8)));
-            byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
-            return new String(cipher.doFinal(cipherBytes), StandardCharsets.UTF_8);
-        } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
-            throw new AgqlRuntimeException(e);
-        }
-    }
-
     private static SecretKeySpec createSecretKey(String secretKey) {
         if (Strings.isBlank(secretKey))
             throw new IllegalArgumentException("Secret key not specified");
         return new SecretKeySpec(secretKey.getBytes(StandardCharsets.UTF_8), "AES");
-    }
-
-    /**
-     * <p>retrieveKey.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public static String retrieveKey() {
-        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), Encryption.worldsMostSecureUnhackableKey);
-        return key;
     }
 
     /**
@@ -146,5 +109,53 @@ public class Encryption {
             throw new AgqlRuntimeException(e);
         }
         return bos.toByteArray();
+    }
+
+    /**
+     * <p>decrypt.</p>
+     *
+     * @param cipherText
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String decrypt(String cipherText) {
+        return decrypt(cipherText, worldsMostSecureUnhackableKey);
+    }
+
+    /**
+     * <p>decrypt.</p>
+     *
+     * @param cipherText
+     *         a {@link java.lang.String} object
+     * @param secretKey
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     *
+     * @see <a href="https://gist.github.com/bricef/2436364">https://gist.github.com/bricef/2436364</a>
+     */
+    public static String decrypt(String cipherText, String secretKey) {
+        try {
+            if (Strings.isBlank(secretKey))
+                throw new IllegalArgumentException("Secret key not specified");
+            Cipher cipher = Cipher.getInstance("AES/CBC/NoPadding", "SunJCE");
+            SecretKeySpec key = createSecretKey(secretKey);
+            cipher.init(Cipher.DECRYPT_MODE, key, new IvParameterSpec(worldsMostSecureUnhackableIvKey.getBytes(StandardCharsets.UTF_8)));
+            byte[] cipherBytes = Base64.getDecoder().decode(cipherText);
+            return new String(cipher.doFinal(cipherBytes), StandardCharsets.UTF_8);
+        } catch (NoSuchAlgorithmException | NoSuchProviderException | NoSuchPaddingException | InvalidKeyException | InvalidAlgorithmParameterException | IllegalBlockSizeException | BadPaddingException e) {
+            throw new AgqlRuntimeException(e);
+        }
+    }
+
+    /**
+     * <p>retrieveKey.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public static String retrieveKey() {
+        String key = StringUtils.defaultIfBlank(System.getProperty("secretKey"), Encryption.worldsMostSecureUnhackableKey);
+        return key;
     }
 }

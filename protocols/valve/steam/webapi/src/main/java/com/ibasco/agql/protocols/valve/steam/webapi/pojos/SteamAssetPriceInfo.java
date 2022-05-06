@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -30,71 +29,21 @@ import java.util.Map;
  * @author Rafael Luis Ibasco
  */
 public class SteamAssetPriceInfo {
+
     @SerializedName("prices")
     private Map<String, Integer> prices;
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("date")
     private String date;
+
     @SerializedName("class")
     private List<SteamKeyValuePair<String, String>> classList = new ArrayList<>();
+
     @SerializedName("classid")
     private String classId;
-
-    /**
-     * <p>Getter for the field <code>prices</code>.</p>
-     *
-     * @return a {@link java.util.Map} object
-     */
-    public Map<String, Integer> getPrices() {
-        return prices;
-    }
-
-    /**
-     * <p>Setter for the field <code>prices</code>.</p>
-     *
-     * @param prices a {@link java.util.Map} object
-     */
-    public void setPrices(Map<String, Integer> prices) {
-        this.prices = prices;
-    }
-
-    /**
-     * <p>Getter for the field <code>name</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * <p>Setter for the field <code>name</code>.</p>
-     *
-     * @param name a {@link java.lang.String} object
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    //TODO: Return a LocalDateTime instance instead of Date string
-    /**
-     * <p>Getter for the field <code>date</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getDate() {
-        return date;
-    }
-
-    /**
-     * <p>Setter for the field <code>date</code>.</p>
-     *
-     * @param date a {@link java.lang.String} object
-     */
-    public void setDate(String date) {
-        this.date = date;
-    }
 
     /**
      * <p>Getter for the field <code>classList</code>.</p>
@@ -108,10 +57,21 @@ public class SteamAssetPriceInfo {
     /**
      * <p>Setter for the field <code>classList</code>.</p>
      *
-     * @param classList a {@link java.util.List} object
+     * @param classList
+     *         a {@link java.util.List} object
      */
     public void setClassList(List<SteamKeyValuePair<String, String>> classList) {
         this.classList = classList;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("ClassId", getClassId())
+                .append("Name", getName())
+                .append("Date", getDate())
+                .append("PriceCount", getPrices().size()).toString();
     }
 
     /**
@@ -123,22 +83,72 @@ public class SteamAssetPriceInfo {
         return classId;
     }
 
+    //TODO: Return a LocalDateTime instance instead of Date string
+
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name
+     *         a {@link java.lang.String} object
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * <p>Getter for the field <code>date</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getDate() {
+        return date;
+    }
+
+    /**
+     * <p>Getter for the field <code>prices</code>.</p>
+     *
+     * @return a {@link java.util.Map} object
+     */
+    public Map<String, Integer> getPrices() {
+        return prices;
+    }
+
+    /**
+     * <p>Setter for the field <code>prices</code>.</p>
+     *
+     * @param prices
+     *         a {@link java.util.Map} object
+     */
+    public void setPrices(Map<String, Integer> prices) {
+        this.prices = prices;
+    }
+
+    /**
+     * <p>Setter for the field <code>date</code>.</p>
+     *
+     * @param date
+     *         a {@link java.lang.String} object
+     */
+    public void setDate(String date) {
+        this.date = date;
+    }
+
     /**
      * <p>Setter for the field <code>classId</code>.</p>
      *
-     * @param classId a {@link java.lang.String} object
+     * @param classId
+     *         a {@link java.lang.String} object
      */
     public void setClassId(String classId) {
         this.classId = classId;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("ClassId", getClassId())
-                .append("Name", getName())
-                .append("Date", getDate())
-                .append("PriceCount", getPrices().size()).toString();
     }
 }

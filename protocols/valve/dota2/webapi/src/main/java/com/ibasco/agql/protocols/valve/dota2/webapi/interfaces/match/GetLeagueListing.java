@@ -25,10 +25,12 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetLeagueListing extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetLeagueListing.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public GetLeagueListing(int apiVersion) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETLEAGUELIST, apiVersion, null);

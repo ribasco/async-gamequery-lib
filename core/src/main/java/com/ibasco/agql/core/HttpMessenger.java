@@ -17,20 +17,24 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.AgqlManagedExecutorService;
+import com.ibasco.agql.core.util.GeneralOptions;
+import com.ibasco.agql.core.util.HttpOptions;
+import com.ibasco.agql.core.util.ManagedResource;
+import com.ibasco.agql.core.util.Platform;
+import com.ibasco.agql.core.util.Properties;
 import io.netty.channel.EventLoopGroup;
 import org.asynchttpclient.DefaultAsyncHttpClientConfig;
 import org.asynchttpclient.Response;
 import org.asynchttpclient.filter.ThrottleRequestFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A Messenger responsible for handling Web Requests and Responses.
@@ -47,9 +51,9 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     private final HttpOptions options;
 
-    private ExecutorService executorService;
-
     private final EventLoopGroup eventLoopGroup;
+
+    private ExecutorService executorService;
 
     /**
      * <p>Constructor for HttpMessenger.</p>
@@ -107,6 +111,12 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     /** {@inheritDoc} */
     @Override
+    public HttpOptions getOptions() {
+        return options;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void close() throws IOException {
         transport.close();
         if (eventLoopGroup != null)
@@ -133,11 +143,5 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
     @Override
     public EventLoopGroup getExecutor() {
         return this.eventLoopGroup;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public HttpOptions getOptions() {
-        return options;
     }
 }

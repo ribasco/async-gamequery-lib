@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.reflect.types;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Map;
@@ -30,13 +29,16 @@ import java.util.Map;
 public class MapParameterizedType implements ParameterizedType {
 
     private final Type type;
+
     private final Class<? extends Map> classType;
 
     /**
      * <p>Constructor for MapParameterizedType.</p>
      *
-     * @param type a {@link java.lang.reflect.Type} object
-     * @param classType a {@link java.lang.Class} object
+     * @param type
+     *         a {@link java.lang.reflect.Type} object
+     * @param classType
+     *         a {@link java.lang.Class} object
      */
     public MapParameterizedType(Type type, Class<? extends Map> classType) {
         this.type = type;

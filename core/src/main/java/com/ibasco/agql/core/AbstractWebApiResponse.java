@@ -30,7 +30,8 @@ public class AbstractWebApiResponse<T> extends AbstractWebResponse {
     /**
      * <p>Constructor for AbstractWebApiResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public AbstractWebApiResponse(Response response) {
         super(response);
@@ -48,8 +49,10 @@ public class AbstractWebApiResponse<T> extends AbstractWebResponse {
     /**
      * <p>Setter for the field <code>processedContent</code>.</p>
      *
-     * @param processedContent a V object
-     * @param <V> a V class
+     * @param processedContent
+     *         a V object
+     * @param <V>
+     *         a V class
      */
     public <V extends T> void setProcessedContent(V processedContent) {
         this.processedContent = processedContent;

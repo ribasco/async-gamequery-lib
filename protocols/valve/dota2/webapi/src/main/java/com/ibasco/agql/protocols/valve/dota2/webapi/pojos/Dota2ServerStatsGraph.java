@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.util.ArrayList;
 import java.util.List;
 

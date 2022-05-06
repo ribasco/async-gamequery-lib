@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,18 +28,27 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMTab {
+
     private String label;
+
     private String id;
+
     @SerializedName("parent_id")
     private int parentId;
+
     @SerializedName("use_large_cells")
     private boolean useLargeCells;
+
     @SerializedName("default")
     private boolean defaultTab;
+
     private List<SteamEconItemsSMTabChild> children = new ArrayList<>();
+
     private boolean home;
+
     @SerializedName("dropdown_prefab_id")
     private long dropdownPrefabId;
+
     @SerializedName("tab_image_override_name")
     private String tabImageOverrideName;
 
@@ -56,7 +64,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>tabImageOverrideName</code>.</p>
      *
-     * @param tabImageOverrideName a {@link java.lang.String} object
+     * @param tabImageOverrideName
+     *         a {@link java.lang.String} object
      */
     public void setTabImageOverrideName(String tabImageOverrideName) {
         this.tabImageOverrideName = tabImageOverrideName;
@@ -74,7 +83,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>label</code>.</p>
      *
-     * @param label a {@link java.lang.String} object
+     * @param label
+     *         a {@link java.lang.String} object
      */
     public void setLabel(String label) {
         this.label = label;
@@ -92,7 +102,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a {@link java.lang.String} object
+     * @param id
+     *         a {@link java.lang.String} object
      */
     public void setId(String id) {
         this.id = id;
@@ -110,7 +121,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>parentId</code>.</p>
      *
-     * @param parentId a int
+     * @param parentId
+     *         a int
      */
     public void setParentId(int parentId) {
         this.parentId = parentId;
@@ -128,7 +140,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>useLargeCells</code>.</p>
      *
-     * @param useLargeCells a boolean
+     * @param useLargeCells
+     *         a boolean
      */
     public void setUseLargeCells(boolean useLargeCells) {
         this.useLargeCells = useLargeCells;
@@ -146,7 +159,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>defaultTab</code>.</p>
      *
-     * @param defaultTab a boolean
+     * @param defaultTab
+     *         a boolean
      */
     public void setDefaultTab(boolean defaultTab) {
         this.defaultTab = defaultTab;
@@ -164,7 +178,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>children</code>.</p>
      *
-     * @param children a {@link java.util.List} object
+     * @param children
+     *         a {@link java.util.List} object
      */
     public void setChildren(List<SteamEconItemsSMTabChild> children) {
         this.children = children;
@@ -182,7 +197,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>home</code>.</p>
      *
-     * @param home a boolean
+     * @param home
+     *         a boolean
      */
     public void setHome(boolean home) {
         this.home = home;
@@ -200,7 +216,8 @@ public class SteamEconItemsSMTab {
     /**
      * <p>Setter for the field <code>dropdownPrefabId</code>.</p>
      *
-     * @param dropdownPrefabId a long
+     * @param dropdownPrefabId
+     *         a long
      */
     public void setDropdownPrefabId(long dropdownPrefabId) {
         this.dropdownPrefabId = dropdownPrefabId;

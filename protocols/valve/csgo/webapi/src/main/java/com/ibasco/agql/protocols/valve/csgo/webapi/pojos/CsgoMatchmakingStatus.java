@@ -26,13 +26,18 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class CsgoMatchmakingStatus {
+
     private String scheduler;
+
     @SerializedName("online_servers")
     private int onlineServerCount;
+
     @SerializedName("online_players")
     private int onlinePlayerCount;
+
     @SerializedName("searching_players")
     private int searchingPlayersCount;
+
     @SerializedName("search_seconds_avg")
     private int searchSecondsAvg;
 
@@ -48,7 +53,8 @@ public class CsgoMatchmakingStatus {
     /**
      * <p>Setter for the field <code>scheduler</code>.</p>
      *
-     * @param scheduler a {@link java.lang.String} object
+     * @param scheduler
+     *         a {@link java.lang.String} object
      */
     public void setScheduler(String scheduler) {
         this.scheduler = scheduler;
@@ -66,7 +72,8 @@ public class CsgoMatchmakingStatus {
     /**
      * <p>Setter for the field <code>onlineServerCount</code>.</p>
      *
-     * @param onlineServerCount a int
+     * @param onlineServerCount
+     *         a int
      */
     public void setOnlineServerCount(int onlineServerCount) {
         this.onlineServerCount = onlineServerCount;
@@ -84,7 +91,8 @@ public class CsgoMatchmakingStatus {
     /**
      * <p>Setter for the field <code>onlinePlayerCount</code>.</p>
      *
-     * @param onlinePlayerCount a int
+     * @param onlinePlayerCount
+     *         a int
      */
     public void setOnlinePlayerCount(int onlinePlayerCount) {
         this.onlinePlayerCount = onlinePlayerCount;
@@ -102,7 +110,8 @@ public class CsgoMatchmakingStatus {
     /**
      * <p>Setter for the field <code>searchingPlayersCount</code>.</p>
      *
-     * @param searchingPlayersCount a int
+     * @param searchingPlayersCount
+     *         a int
      */
     public void setSearchingPlayersCount(int searchingPlayersCount) {
         this.searchingPlayersCount = searchingPlayersCount;
@@ -120,7 +129,8 @@ public class CsgoMatchmakingStatus {
     /**
      * <p>Setter for the field <code>searchSecondsAvg</code>.</p>
      *
-     * @param searchSecondsAvg a int
+     * @param searchSecondsAvg
+     *         a int
      */
     public void setSearchSecondsAvg(int searchSecondsAvg) {
         this.searchSecondsAvg = searchSecondsAvg;

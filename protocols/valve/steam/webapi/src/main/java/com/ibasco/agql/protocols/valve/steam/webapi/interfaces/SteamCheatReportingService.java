@@ -21,7 +21,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.cheatreport.ReportCheatData;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData;
-
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -30,6 +29,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class SteamCheatReportingService extends SteamWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -45,6 +45,7 @@ public class SteamCheatReportingService extends SteamWebApiInterface {
      *
      * @param cheatData
      *         {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData} containing all the required parameters
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} returning a {@link java.lang.Void} result
      */
     public CompletableFuture<Boolean> reportCheatData(CheatData cheatData) {

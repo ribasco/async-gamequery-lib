@@ -17,11 +17,14 @@
 package com.ibasco.agql.core.util;
 
 import com.ibasco.agql.core.enums.RateLimitType;
-import dev.failsafe.*;
+import dev.failsafe.CircuitBreaker;
+import dev.failsafe.CircuitBreakerBuilder;
+import dev.failsafe.RateLimiterBuilder;
+import dev.failsafe.RetryPolicy;
+import dev.failsafe.RetryPolicyBuilder;
 import dev.failsafe.event.CircuitBreakerStateChangedEvent;
 import dev.failsafe.event.EventListener;
 import dev.failsafe.event.ExecutionCompletedEvent;
-
 import java.time.Duration;
 import java.util.function.BiPredicate;
 

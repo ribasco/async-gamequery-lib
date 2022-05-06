@@ -43,7 +43,8 @@ public class SteamKeyValuePair<K, V> {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a K object
+     * @param name
+     *         a K object
      */
     public void setName(K name) {
         this.name = name;
@@ -61,7 +62,8 @@ public class SteamKeyValuePair<K, V> {
     /**
      * <p>Setter for the field <code>value</code>.</p>
      *
-     * @param value a V object
+     * @param value
+     *         a V object
      */
     public void setValue(V value) {
         this.value = value;

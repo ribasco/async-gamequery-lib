@@ -30,7 +30,9 @@ public interface NettyPropertyResolver {
      *
      * @param data
      *         The {@link java.lang.Object} containing the remote {@link java.net.InetSocketAddress} of the recipient
+     *
      * @return The remote {@link java.net.InetSocketAddress} of the recipient
+     *
      * @throws java.lang.IllegalStateException
      *         If the address could not be resolved
      */
@@ -39,7 +41,9 @@ public interface NettyPropertyResolver {
     /**
      * <p>resolveLocalAddress.</p>
      *
-     * @param data a {@link java.lang.Object} object
+     * @param data
+     *         a {@link java.lang.Object} object
+     *
      * @return a {@link java.net.InetSocketAddress} object
      */
     default InetSocketAddress resolveLocalAddress(Object data) {

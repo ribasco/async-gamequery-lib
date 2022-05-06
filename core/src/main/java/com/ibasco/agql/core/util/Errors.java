@@ -28,7 +28,9 @@ public class Errors {
     /**
      * <p>unwrap.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     *
      * @return a {@link java.lang.Throwable} object
      */
     public static Throwable unwrap(Throwable error) {
@@ -42,7 +44,25 @@ public class Errors {
     /**
      * <p>unwrapAndThrow.</p>
      *
-     * @param error a {@link java.lang.Throwable} object
+     * @param s
+     *         a U object
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     * @param <U>
+     *         a U class
+     *
+     * @return a U object
+     */
+    public static <U> U unwrapAndThrow(U s, Throwable error) {
+        unwrapAndThrow(error);
+        return s;
+    }
+
+    /**
+     * <p>unwrapAndThrow.</p>
+     *
+     * @param error
+     *         a {@link java.lang.Throwable} object
      */
     public static void unwrapAndThrow(Throwable error) {
         if (error == null)
@@ -50,18 +70,5 @@ public class Errors {
         if (error instanceof CompletionException)
             throw (CompletionException) error;
         throw new CompletionException(error);
-    }
-
-    /**
-     * <p>unwrapAndThrow.</p>
-     *
-     * @param s a U object
-     * @param error a {@link java.lang.Throwable} object
-     * @param <U> a U class
-     * @return a U object
-     */
-    public static <U> U unwrapAndThrow(U s, Throwable error) {
-        unwrapAndThrow(error);
-        return s;
     }
 }

@@ -37,7 +37,8 @@ public class SourceQueryInfoRequest extends SourceQueryAuthRequest {
     /**
      * <p>Constructor for SourceQueryInfoRequest.</p>
      *
-     * @param challenge a {@link java.lang.Integer} object
+     * @param challenge
+     *         a {@link java.lang.Integer} object
      */
     public SourceQueryInfoRequest(Integer challenge) {
         super(challenge);

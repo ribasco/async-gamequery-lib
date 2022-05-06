@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.exceptions;
 
 import com.ibasco.agql.core.AbstractRequest;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -38,11 +37,16 @@ public class MaxAttemptsReachedException extends AgqlRuntimeException {
     /**
      * <p>Constructor for MaxAttemptsReachedException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
-     * @param remoteAddress a {@link java.net.InetSocketAddress} object
-     * @param request a {@link com.ibasco.agql.core.AbstractRequest} object
-     * @param attemptCount a int
-     * @param maxAttemptCount a int
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param remoteAddress
+     *         a {@link java.net.InetSocketAddress} object
+     * @param request
+     *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     * @param attemptCount
+     *         a int
+     * @param maxAttemptCount
+     *         a int
      */
     public MaxAttemptsReachedException(Throwable cause, InetSocketAddress remoteAddress, AbstractRequest request, int attemptCount, int maxAttemptCount) {
         super(cause);

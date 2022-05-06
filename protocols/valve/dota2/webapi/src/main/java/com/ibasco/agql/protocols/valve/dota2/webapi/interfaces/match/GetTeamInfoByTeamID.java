@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetTeamInfoByTeamID extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetTeamInfoByTeamID.</p>
      *
-     * @param apiVersion a int
-     * @param startTeamId a int
-     * @param teamCount a int
+     * @param apiVersion
+     *         a int
+     * @param startTeamId
+     *         a int
+     * @param teamCount
+     *         a int
      */
     public GetTeamInfoByTeamID(int apiVersion, int startTeamId, int teamCount) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETTEAMINFOBYID, apiVersion, null);

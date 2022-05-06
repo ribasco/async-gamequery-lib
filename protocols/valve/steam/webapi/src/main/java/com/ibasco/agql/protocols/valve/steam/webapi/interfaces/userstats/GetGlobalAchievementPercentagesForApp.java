@@ -24,11 +24,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserStatsReque
  * @author Rafael Luis Ibasco
  */
 public class GetGlobalAchievementPercentagesForApp extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetGlobalAchievementPercentagesForApp.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
      */
     public GetGlobalAchievementPercentagesForApp(int apiVersion, int appId) {
         super("GetGlobalAchievementPercentagesForApp", apiVersion);

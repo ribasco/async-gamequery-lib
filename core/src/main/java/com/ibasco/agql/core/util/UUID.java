@@ -19,7 +19,6 @@ package com.ibasco.agql.core.util;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.io.Serializable;
 import java.util.Base64;
 import java.util.Random;
@@ -33,9 +32,9 @@ public class UUID implements Serializable {
 
     private final byte[] data;
 
-    private String dataStr;
-
     private final int dataInt;
+
+    private String dataStr;
 
     private UUID() {
         Random sRand = new Random();
@@ -90,13 +89,9 @@ public class UUID implements Serializable {
         return Bytes.toIntegerLE(intBytes);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public String toString() {
-        if (dataStr == null) {
-            dataStr = Base64.getEncoder().encodeToString(data).toUpperCase().replaceAll("[/=+]", "");
-        }
-        return dataStr;
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(dataInt).toHashCode();
     }
 
     @Override
@@ -107,8 +102,12 @@ public class UUID implements Serializable {
         return new EqualsBuilder().append(dataInt, uuid.dataInt).isEquals();
     }
 
+    /** {@inheritDoc} */
     @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(dataInt).toHashCode();
+    public String toString() {
+        if (dataStr == null) {
+            dataStr = Base64.getEncoder().encodeToString(data).toUpperCase().replaceAll("[/=+]", "");
+        }
+        return dataStr;
     }
 }

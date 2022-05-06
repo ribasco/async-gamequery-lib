@@ -16,7 +16,12 @@
 
 package com.ibasco.agql.protocols.valve.source.query;
 
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.AbstractOptions;
+import com.ibasco.agql.core.util.ConnectOptions;
+import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.Inherit;
+import com.ibasco.agql.core.util.OptionBuilder;
+import com.ibasco.agql.core.util.Options;
 
 /**
  * Configuration options container for the Source Query module

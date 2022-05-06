@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.exceptions;
 
 import com.ibasco.agql.core.AbstractRequest;
-
 import java.net.InetSocketAddress;
 
 /**

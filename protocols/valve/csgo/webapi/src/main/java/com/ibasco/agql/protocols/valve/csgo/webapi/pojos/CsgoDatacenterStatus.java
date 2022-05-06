@@ -25,8 +25,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class CsgoDatacenterStatus {
+
     private String location;
+
     private String capacity;
+
     private String load;
 
     /**
@@ -41,7 +44,8 @@ public class CsgoDatacenterStatus {
     /**
      * <p>Setter for the field <code>location</code>.</p>
      *
-     * @param location a {@link java.lang.String} object
+     * @param location
+     *         a {@link java.lang.String} object
      */
     public void setLocation(String location) {
         this.location = location;
@@ -59,7 +63,8 @@ public class CsgoDatacenterStatus {
     /**
      * <p>Setter for the field <code>capacity</code>.</p>
      *
-     * @param capacity a {@link java.lang.String} object
+     * @param capacity
+     *         a {@link java.lang.String} object
      */
     public void setCapacity(String capacity) {
         this.capacity = capacity;
@@ -77,7 +82,8 @@ public class CsgoDatacenterStatus {
     /**
      * <p>Setter for the field <code>load</code>.</p>
      *
-     * @param load a {@link java.lang.String} object
+     * @param load
+     *         a {@link java.lang.String} object
      */
     public void setLoad(String load) {
         this.load = load;

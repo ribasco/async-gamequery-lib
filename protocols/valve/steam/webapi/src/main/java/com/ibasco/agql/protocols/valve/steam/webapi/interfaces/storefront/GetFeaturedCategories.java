@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamStoreApiRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetFeaturedCategories extends SteamStoreApiRequest {
+
     /**
      * <p>Constructor for GetFeaturedCategories.</p>
      *
-     * @param apiVersion a int
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetFeaturedCategories(int apiVersion, String countryCode, String language) {
         super(apiVersion, SteamApiConstants.SF_METHOD_FEATURED_CATEGORIES, countryCode, language);

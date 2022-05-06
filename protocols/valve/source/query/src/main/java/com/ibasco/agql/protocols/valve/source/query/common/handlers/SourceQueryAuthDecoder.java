@@ -29,7 +29,6 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.nio.ByteOrder;
 import java.util.Objects;
 
@@ -38,6 +37,7 @@ import java.util.Objects;
  *
  * @param <T>
  *         The underlying source query request type supporting challenge-response implementation
+ *
  * @author Rafael Luis Ibasco
  */
 abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> extends SourceQueryDecoder<T> {
@@ -49,24 +49,15 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
     /**
      * <p>Constructor for SourceQueryAuthDecoder.</p>
      *
-     * @param requestClass a {@link java.lang.Class} object
-     * @param responseHeader a int
+     * @param requestClass
+     *         a {@link java.lang.Class} object
+     * @param responseHeader
+     *         a int
      */
     protected SourceQueryAuthDecoder(Class<T> requestClass, int responseHeader) {
         this.requestClass = Objects.requireNonNull(requestClass, "Request class not provided");
         this.responseHeader = responseHeader;
     }
-
-    /**
-     * <p>decodeQueryPacket.</p>
-     *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
-     * @param request a T object
-     * @param msg a {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} object
-     * @return a {@link java.lang.Object} object
-     * @throws java.lang.Exception if any.
-     */
-    abstract protected Object decodeQueryPacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket msg) throws Exception;
 
     /** {@inheritDoc} */
     @Override
@@ -123,4 +114,21 @@ abstract public class SourceQueryAuthDecoder<T extends SourceQueryAuthRequest> e
         }
         return decodeQueryPacket(ctx, request, packet);
     }
+
+    /**
+     * <p>decodeQueryPacket.</p>
+     *
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param request
+     *         a T object
+     * @param msg
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket} object
+     *
+     * @return a {@link java.lang.Object} object
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    abstract protected Object decodeQueryPacket(ChannelHandlerContext ctx, T request, SourceQuerySinglePacket msg) throws Exception;
 }

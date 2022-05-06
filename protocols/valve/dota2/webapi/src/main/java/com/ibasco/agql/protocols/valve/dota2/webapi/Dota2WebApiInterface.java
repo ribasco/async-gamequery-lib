@@ -22,7 +22,6 @@ import com.ibasco.agql.core.AbstractWebApiInterface;
 import com.ibasco.agql.core.reflect.types.CollectionParameterizedType;
 import com.ibasco.agql.protocols.valve.dota2.webapi.exceptions.Dota2WebException;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,32 +35,25 @@ abstract public class Dota2WebApiInterface extends AbstractWebApiInterface<Steam
     /**
      * <p>Constructor for Dota2WebApiInterface.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2WebApiInterface(SteamWebApiClient client) {
         super(client);
     }
 
     /**
-     * <p>getValidResult.</p>
-     *
-     * @param json a {@link com.google.gson.JsonObject} object
-     * @return a {@link com.google.gson.JsonObject} object
-     */
-    protected JsonObject getValidResult(JsonObject json) {
-        JsonObject result = json.getAsJsonObject("result");
-        if (result != null)
-            return result;
-        throw new Dota2WebException(String.format("The response either did not contain the desired result or the server responded in error. (JSON = %s)", json));
-    }
-
-    /**
      * <p>asCollectionOf.</p>
      *
-     * @param type a {@link java.lang.Class} object
-     * @param listName a {@link java.lang.String} object
-     * @param root a {@link com.google.gson.JsonObject} object
-     * @param <T> a T class
+     * @param type
+     *         a {@link java.lang.Class} object
+     * @param listName
+     *         a {@link java.lang.String} object
+     * @param root
+     *         a {@link com.google.gson.JsonObject} object
+     * @param <T>
+     *         a T class
+     *
      * @return a {@link java.util.List} object
      */
     protected <T> List<T> asCollectionOf(Class type, String listName, JsonObject root) {
@@ -88,5 +80,20 @@ abstract public class Dota2WebApiInterface extends AbstractWebApiInterface<Steam
         }
         //Parse then return the Parameterized List
         return fromJson(items, new CollectionParameterizedType(type, ArrayList.class));
+    }
+
+    /**
+     * <p>getValidResult.</p>
+     *
+     * @param json
+     *         a {@link com.google.gson.JsonObject} object
+     *
+     * @return a {@link com.google.gson.JsonObject} object
+     */
+    protected JsonObject getValidResult(JsonObject json) {
+        JsonObject result = json.getAsJsonObject("result");
+        if (result != null)
+            return result;
+        throw new Dota2WebException(String.format("The response either did not contain the desired result or the server responded in error. (JSON = %s)", json));
     }
 }

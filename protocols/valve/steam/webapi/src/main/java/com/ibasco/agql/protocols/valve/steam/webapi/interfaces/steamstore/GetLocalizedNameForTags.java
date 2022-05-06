@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.requests.SteamStoreServiceRequest;
-
 import java.util.Collection;
 
 public class GetLocalizedNameForTags extends SteamStoreServiceRequest {

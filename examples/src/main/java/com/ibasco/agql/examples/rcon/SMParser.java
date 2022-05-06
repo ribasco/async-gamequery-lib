@@ -21,7 +21,6 @@ import com.ibasco.agql.core.util.Strings;
 import com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconClient;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdResponse;
 import org.apache.commons.lang3.StringUtils;
-
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,6 @@ import java.util.regex.Pattern;
 
 public class SMParser {
 
-    private final SourceRconClient client;
-
     private static final Pattern smPluginFieldValue = Pattern.compile("(?<field>\\w+):\\s(?<value>.+)");
 
     private static final Pattern smPluginInfo = Pattern.compile("(?<id>\\d*)\\s\"(?<name>.+)\"\\s(\\((?<version>.+)\\))?\\s?by\\s(?<author>.+)");
@@ -44,6 +41,8 @@ public class SMParser {
     private static final Pattern smCvarHelp = Pattern.compile("\"(?<name>.+)\"\\s=\\s\"(?<value>.+)?\"\\s?(?:min\\.\\s(?<min>\\S+))?\\s?(?:max\\.\\s(?<max>\\S+))?\\R\\s*(?<misc>.+\\R)?\\s-\\s(?<description>(?s:.)+)");
 
     private static final Pattern smCmdInfo = Pattern.compile("\\s*(?<name>\\S+)\\s*(?<type>\\S+)\\s+(?<description>.+)\\R?");
+
+    private final SourceRconClient client;
 
     public SMParser(final SourceRconClient client) {
         this.client = client;
@@ -55,6 +54,177 @@ public class SMParser {
                      .thenApplyAsync(list -> extractPluginInfo(address, list)) //NOTE: The following extract methods blocks the EventLoop, thus we need to call this asynchronously
                      .thenApplyAsync(plugins -> extractCvarList(address, plugins))
                      .thenApplyAsync(plugins -> extractCommandList(address, plugins));
+    }
+
+    private List<SMPlugin> parsePluginList(SourceRconCmdResponse response) {
+        List<SMPlugin> plugins = new ArrayList<>();
+        String pluginList = response.getResult();
+        Matcher matcher = smPluginInfo.matcher(pluginList);
+        while (matcher.find()) {
+            String id = matcher.group("id");
+            String name = matcher.group("name");
+            String version = matcher.group("version");
+            String author = matcher.group("author");
+            plugins.add(new SMPlugin(id, name, version, author));
+        }
+        return plugins;
+    }
+
+    private List<SMPlugin> extractPluginInfo(InetSocketAddress address, List<SMPlugin> pluginList) {
+        try {
+            CountDownLatch latch = new CountDownLatch(pluginList.size());
+            for (SMPlugin plugin : pluginList) {
+                client.execute(address, String.format("sm plugins info %s", plugin.getId()))
+                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parsePluginInfo)
+                      .whenComplete((sourcemodPlugin, throwable) -> latch.countDown());
+            }
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new CompletionException(e);
+        }
+        return pluginList;
+    }
+
+    private List<SMPlugin> extractCvarList(InetSocketAddress address, List<SMPlugin> plugins) {
+        try {
+            CountDownLatch latch = new CountDownLatch(plugins.size());
+            for (SMPlugin plugin : plugins) {
+                client.execute(address, String.format("sm cvars %s", plugin.getId()))
+                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parseCvarList)
+                      .thenApplyAsync(p -> extractConVarHelp(address, p))
+                      .whenComplete((sourcemodPlugin, throwable) -> latch.countDown());
+            }
+            latch.await();
+        } catch (InterruptedException e) {
+            throw new CompletionException(e);
+        }
+        return plugins;
+    }
+
+    private List<SMPlugin> extractCommandList(InetSocketAddress address, List<SMPlugin> plugins) {
+        try {
+            CountDownLatch cmdLatch = new CountDownLatch(plugins.size());
+            for (SMPlugin plugin : plugins) {
+                client.execute(address, String.format("sm cmds %s", plugin.getId()))
+                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parseCmdInfo)
+                      .whenComplete((sourcemodPlugin, throwable) -> cmdLatch.countDown());
+            }
+            cmdLatch.await();
+        } catch (InterruptedException e) {
+            throw new CompletionException(e);
+        }
+        return plugins;
+    }
+
+    private SMPlugin parsePluginInfo(SourceRconCmdResponse response, SMPlugin plugin) {
+        Matcher matcher = smPluginFieldValue.matcher(response.getResult());
+        while (matcher.find()) {
+            String field = matcher.group("field");
+            String value = matcher.group("value");
+
+            switch (field.toLowerCase()) {
+                case "filename": {
+                    plugin.setFilename(value);
+                    break;
+                }
+                case "title": {
+                    plugin.setTitle(value);
+                    break;
+                }
+                case "author": {
+                    plugin.setAuthor(value);
+                    break;
+                }
+                case "version": {
+                    plugin.setVersion(value);
+                    break;
+                }
+                case "timestamp": {
+                    plugin.setTimestamp(value);
+                    break;
+                }
+                case "url": {
+                    plugin.setUrl(value);
+                    break;
+                }
+                case "hash": {
+                    plugin.setHash(value);
+                    break;
+                }
+            }
+        }
+        return plugin;
+    }
+
+    private SMPlugin parseCvarList(SourceRconCmdResponse response, SMPlugin plugin) {
+        String cvarString = response.getResult();
+        if (Strings.isBlank(cvarString) || cvarString.contains("[SM] No convars found for")) {
+            return plugin;
+        }
+        //Strip headers
+        cvarString = cvarString.replaceAll("\\[SM]\\sListing\\s\\d*\\sconvars.+\\R*", "");
+        cvarString = cvarString.replaceAll("\\s+\\[Name]\\s+\\[Value]\\R*", "");
+        Matcher matcher = smCvar.matcher(cvarString);
+        while (matcher.find()) {
+            String name = matcher.group("name");
+            String value = matcher.group("value");
+            plugin.getConVars().add(new SMConVar(name, value));
+        }
+        return plugin;
+    }
+
+    private SMPlugin extractConVarHelp(InetSocketAddress address, SMPlugin plugin) {
+        if (!plugin.getConVars().isEmpty()) {
+            try {
+                CountDownLatch helpLatch = new CountDownLatch(plugin.getConVars().size());
+                for (SMConVar conVar : plugin.getConVars()) {
+                    client.execute(address, String.format("help %s", conVar.getName()))
+                          .thenCombine(CompletableFuture.completedFuture(conVar), this::parseConVarHelp)
+                          .whenComplete((cvar, error) -> helpLatch.countDown());
+                }
+                helpLatch.await();
+            } catch (InterruptedException e) {
+                throw new CompletionException(e);
+            }
+        }
+        return plugin;
+    }
+
+    private SMPlugin parseCmdInfo(SourceRconCmdResponse response, SMPlugin plugin) {
+        String cmdString = response.getResult();
+        if (cmdString.contains("No commands found for"))
+            return plugin;
+        //strip headers
+        cmdString = cmdString.replaceAll("\\[SM]\\sListing\\scommands\\sfor:.+\\R\\s*\\[Name]\\s*\\[Type]\\s*\\[Help]\\R", "");
+        Matcher matcher = smCmdInfo.matcher(cmdString);
+        while (matcher.find()) {
+            String name = matcher.group("name");
+            String type = matcher.group("type");
+            String description = matcher.group("description");
+            plugin.getCommands().add(new SMCommand(name, type, description));
+        }
+        return plugin;
+    }
+
+    private SMConVar parseConVarHelp(SourceRconCmdResponse response, SMConVar conVar) {
+        if (Strings.isBlank(response.getResult()) || response.getResult().contains("no cvar or command named"))
+            return conVar;
+        Matcher matcher = smCvarHelp.matcher(response.getResult());
+        while (matcher.find()) {
+            String name = matcher.group("name");
+            String value = matcher.group("value");
+            String minValue = matcher.group("min");
+            String maxValue = matcher.group("max");
+            String description = matcher.group("description");
+            if (Strings.isBlank(conVar.getName()))
+                conVar.setName(name);
+            if (Strings.isBlank(conVar.getValue()))
+                conVar.setValue(value);
+            conVar.setMinValue(minValue);
+            conVar.setMaxValue(maxValue);
+            conVar.setDescription(description);
+        }
+        return conVar;
     }
 
     public String prettyFormat(List<SMPlugin> plugins) {
@@ -126,176 +296,5 @@ public class SMParser {
             output.append("\n");
         }
         return output.toString();
-    }
-
-    private List<SMPlugin> extractPluginInfo(InetSocketAddress address, List<SMPlugin> pluginList) {
-        try {
-            CountDownLatch latch = new CountDownLatch(pluginList.size());
-            for (SMPlugin plugin : pluginList) {
-                client.execute(address, String.format("sm plugins info %s", plugin.getId()))
-                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parsePluginInfo)
-                      .whenComplete((sourcemodPlugin, throwable) -> latch.countDown());
-            }
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new CompletionException(e);
-        }
-        return pluginList;
-    }
-
-    private List<SMPlugin> extractCvarList(InetSocketAddress address, List<SMPlugin> plugins) {
-        try {
-            CountDownLatch latch = new CountDownLatch(plugins.size());
-            for (SMPlugin plugin : plugins) {
-                client.execute(address, String.format("sm cvars %s", plugin.getId()))
-                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parseCvarList)
-                      .thenApplyAsync(p -> extractConVarHelp(address, p))
-                      .whenComplete((sourcemodPlugin, throwable) -> latch.countDown());
-            }
-            latch.await();
-        } catch (InterruptedException e) {
-            throw new CompletionException(e);
-        }
-        return plugins;
-    }
-
-    private List<SMPlugin> extractCommandList(InetSocketAddress address, List<SMPlugin> plugins) {
-        try {
-            CountDownLatch cmdLatch = new CountDownLatch(plugins.size());
-            for (SMPlugin plugin : plugins) {
-                client.execute(address, String.format("sm cmds %s", plugin.getId()))
-                      .thenCombine(CompletableFuture.completedFuture(plugin), this::parseCmdInfo)
-                      .whenComplete((sourcemodPlugin, throwable) -> cmdLatch.countDown());
-            }
-            cmdLatch.await();
-        } catch (InterruptedException e) {
-            throw new CompletionException(e);
-        }
-        return plugins;
-    }
-
-    private SMPlugin parseCmdInfo(SourceRconCmdResponse response, SMPlugin plugin) {
-        String cmdString = response.getResult();
-        if (cmdString.contains("No commands found for"))
-            return plugin;
-        //strip headers
-        cmdString = cmdString.replaceAll("\\[SM]\\sListing\\scommands\\sfor:.+\\R\\s*\\[Name]\\s*\\[Type]\\s*\\[Help]\\R", "");
-        Matcher matcher = smCmdInfo.matcher(cmdString);
-        while (matcher.find()) {
-            String name = matcher.group("name");
-            String type = matcher.group("type");
-            String description = matcher.group("description");
-            plugin.getCommands().add(new SMCommand(name, type, description));
-        }
-        return plugin;
-    }
-
-    private SMPlugin extractConVarHelp(InetSocketAddress address, SMPlugin plugin) {
-        if (!plugin.getConVars().isEmpty()) {
-            try {
-                CountDownLatch helpLatch = new CountDownLatch(plugin.getConVars().size());
-                for (SMConVar conVar : plugin.getConVars()) {
-                    client.execute(address, String.format("help %s", conVar.getName()))
-                          .thenCombine(CompletableFuture.completedFuture(conVar), this::parseConVarHelp)
-                          .whenComplete((cvar, error) -> helpLatch.countDown());
-                }
-                helpLatch.await();
-            } catch (InterruptedException e) {
-                throw new CompletionException(e);
-            }
-        }
-        return plugin;
-    }
-
-    private SMConVar parseConVarHelp(SourceRconCmdResponse response, SMConVar conVar) {
-        if (Strings.isBlank(response.getResult()) || response.getResult().contains("no cvar or command named"))
-            return conVar;
-        Matcher matcher = smCvarHelp.matcher(response.getResult());
-        while (matcher.find()) {
-            String name = matcher.group("name");
-            String value = matcher.group("value");
-            String minValue = matcher.group("min");
-            String maxValue = matcher.group("max");
-            String description = matcher.group("description");
-            if (Strings.isBlank(conVar.getName()))
-                conVar.setName(name);
-            if (Strings.isBlank(conVar.getValue()))
-                conVar.setValue(value);
-            conVar.setMinValue(minValue);
-            conVar.setMaxValue(maxValue);
-            conVar.setDescription(description);
-        }
-        return conVar;
-    }
-
-    private SMPlugin parseCvarList(SourceRconCmdResponse response, SMPlugin plugin) {
-        String cvarString = response.getResult();
-        if (Strings.isBlank(cvarString) || cvarString.contains("[SM] No convars found for")) {
-            return plugin;
-        }
-        //Strip headers
-        cvarString = cvarString.replaceAll("\\[SM]\\sListing\\s\\d*\\sconvars.+\\R*", "");
-        cvarString = cvarString.replaceAll("\\s+\\[Name]\\s+\\[Value]\\R*", "");
-        Matcher matcher = smCvar.matcher(cvarString);
-        while (matcher.find()) {
-            String name = matcher.group("name");
-            String value = matcher.group("value");
-            plugin.getConVars().add(new SMConVar(name, value));
-        }
-        return plugin;
-    }
-
-    private SMPlugin parsePluginInfo(SourceRconCmdResponse response, SMPlugin plugin) {
-        Matcher matcher = smPluginFieldValue.matcher(response.getResult());
-        while (matcher.find()) {
-            String field = matcher.group("field");
-            String value = matcher.group("value");
-
-            switch (field.toLowerCase()) {
-                case "filename": {
-                    plugin.setFilename(value);
-                    break;
-                }
-                case "title": {
-                    plugin.setTitle(value);
-                    break;
-                }
-                case "author": {
-                    plugin.setAuthor(value);
-                    break;
-                }
-                case "version": {
-                    plugin.setVersion(value);
-                    break;
-                }
-                case "timestamp": {
-                    plugin.setTimestamp(value);
-                    break;
-                }
-                case "url": {
-                    plugin.setUrl(value);
-                    break;
-                }
-                case "hash": {
-                    plugin.setHash(value);
-                    break;
-                }
-            }
-        }
-        return plugin;
-    }
-
-    private List<SMPlugin> parsePluginList(SourceRconCmdResponse response) {
-        List<SMPlugin> plugins = new ArrayList<>();
-        String pluginList = response.getResult();
-        Matcher matcher = smPluginInfo.matcher(pluginList);
-        while (matcher.find()) {
-            String id = matcher.group("id");
-            String name = matcher.group("name");
-            String version = matcher.group("version");
-            String author = matcher.group("author");
-            plugins.add(new SMPlugin(id, name, version, author));
-        }
-        return plugins;
     }
 }

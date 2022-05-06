@@ -16,7 +16,11 @@
 
 package com.ibasco.agql.core.transport.handlers;
 
-import com.ibasco.agql.core.*;
+import com.ibasco.agql.core.AbstractPacket;
+import com.ibasco.agql.core.AbstractRequest;
+import com.ibasco.agql.core.AbstractResponse;
+import com.ibasco.agql.core.Envelope;
+import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.exceptions.InvalidPacketException;
 import com.ibasco.agql.core.exceptions.NoMessageHandlerException;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
@@ -24,17 +28,20 @@ import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Strings;
 import io.netty.buffer.ByteBuf;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelDuplexHandler;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
 import io.netty.util.IllegalReferenceCountException;
 import io.netty.util.ReferenceCountUtil;
 import io.netty.util.ReferenceCounted;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The last handler in the chain that is responsible for routing the response back to the {@link com.ibasco.agql.core.Messenger}
@@ -75,6 +82,43 @@ public class MessageRouter extends ChannelDuplexHandler {
         }
         registerTimeoutOnWrite(promise, ctx.channel());
         super.write(ctx, msg, promise);
+    }
+
+    private static void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {
+        NettyChannelContext context = NettyChannelContext.getContext(channel);
+        Envelope<AbstractRequest> envelope = context.properties().envelope();
+        if (envelope != null && context.properties().responsePromise().isDone()) {
+            log.warn("Skipping timeout registration. Response already received (Promise: {})", context.properties().responsePromise());
+            return;
+        }
+        if (promise.isDone()) {
+            if (promise.isSuccess())
+                registerReadTimeoutHandler(channel);
+            else {
+                log.error("Failed write operation for request '{}'", envelope, promise.cause());
+            }
+        } else {
+            promise.addListener(REGISTER_READ_TIMEOUT);
+        }
+    }
+
+    private static void registerReadTimeoutHandler(Channel channel) {
+        try {
+            //ensure they are not existing within the current pipeline
+            channel.pipeline().remove(ReadTimeoutHandler.class);
+        } catch (NoSuchElementException ignored) {
+        }
+        Integer readTimeout = GeneralOptions.READ_TIMEOUT.attr(channel);
+        assert readTimeout != null;
+        channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
+        log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", Netty.id(channel), readTimeout);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        super.channelInactive(ctx);
+        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", Netty.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
     }
 
     /** {@inheritDoc} */
@@ -146,6 +190,13 @@ public class MessageRouter extends ChannelDuplexHandler {
 
     /** {@inheritDoc} */
     @Override
+    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+        ctx.fireChannelReadComplete();
+        log.debug("{} ROUTER (INBOUND) => Read Complete", Netty.id(ctx.channel()));
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable error) throws Exception {
         NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
         log.debug(String.format("%s ROUTER (ERROR) => Type: %s, Message: %s (Channel: %s, Pooled: %s)",
@@ -155,49 +206,5 @@ public class MessageRouter extends ChannelDuplexHandler {
                                 context.channel(),
                                 NettyChannelPool.isPooled(context.channel())), error);
         context.receive(error);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        super.channelInactive(ctx);
-        log.debug("{} ROUTER (INBOUND) => Channel Closed (Pooled: {})", Netty.id(ctx.channel()), NettyChannelPool.isPooled(ctx.channel()));
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.fireChannelReadComplete();
-        log.debug("{} ROUTER (INBOUND) => Read Complete", Netty.id(ctx.channel()));
-    }
-
-    private static void registerReadTimeoutHandler(Channel channel) {
-        try {
-            //ensure they are not existing within the current pipeline
-            channel.pipeline().remove(ReadTimeoutHandler.class);
-        } catch (NoSuchElementException ignored) {
-        }
-        Integer readTimeout = GeneralOptions.READ_TIMEOUT.attr(channel);
-        assert readTimeout != null;
-        channel.pipeline().addBefore(MessageDecoder.NAME, "readTimeout", new ReadTimeoutHandler(readTimeout, TimeUnit.MILLISECONDS));
-        log.debug("{} ROUTER (OUTBOUND) => Registered ReadTimeoutHandler (Read Timeout: {} ms)", Netty.id(channel), readTimeout);
-    }
-
-    private static void registerTimeoutOnWrite(ChannelPromise promise, Channel channel) {
-        NettyChannelContext context = NettyChannelContext.getContext(channel);
-        Envelope<AbstractRequest> envelope = context.properties().envelope();
-        if (envelope != null && context.properties().responsePromise().isDone()) {
-            log.warn("Skipping timeout registration. Response already received (Promise: {})", context.properties().responsePromise());
-            return;
-        }
-        if (promise.isDone()) {
-            if (promise.isSuccess())
-                registerReadTimeoutHandler(channel);
-            else {
-                log.error("Failed write operation for request '{}'", envelope, promise.cause());
-            }
-        } else {
-            promise.addListener(REGISTER_READ_TIMEOUT);
-        }
     }
 }

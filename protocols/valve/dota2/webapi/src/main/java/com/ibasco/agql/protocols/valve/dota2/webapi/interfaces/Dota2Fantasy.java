@@ -23,7 +23,6 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.fantasy.GetProPla
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2FantasyPlayerInfo;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2FantasyProPlayerInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,21 +36,19 @@ public class Dota2Fantasy extends Dota2WebApiInterface {
     /**
      * <p>Constructor for Dota2Fantasy.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public Dota2Fantasy(SteamWebApiClient client) {
         super(client);
     }
 
-    /*public CompletableFuture<Object> getFantasyPlayerStats() {
-        //TODO: need to obtain a valid fantasy league id to test this properly
-        return null;
-    }*/
-
     /**
      * <p>getPlayerOfficialInfo.</p>
      *
-     * @param accountId a int
+     * @param accountId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Dota2FantasyPlayerInfo> getPlayerOfficialInfo(int accountId) {

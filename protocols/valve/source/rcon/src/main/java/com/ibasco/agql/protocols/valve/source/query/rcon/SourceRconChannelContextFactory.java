@@ -34,7 +34,8 @@ public class SourceRconChannelContextFactory extends DefaultChannlContextFactory
     /**
      * <p>Constructor for SourceRconChannelContextFactory.</p>
      *
-     * @param messenger a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger} object
+     * @param messenger
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.rcon.SourceRconMessenger} object
      */
     public SourceRconChannelContextFactory(final SourceRconMessenger messenger) {
         super(messenger);

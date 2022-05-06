@@ -26,9 +26,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItemLevelInfo {
+
     private int level;
+
     @SerializedName("required_score")
     private int requiredScore;
+
     private String name;
 
     /**
@@ -43,7 +46,8 @@ public class SteamEconSchemaItemLevelInfo {
     /**
      * <p>Setter for the field <code>level</code>.</p>
      *
-     * @param level a int
+     * @param level
+     *         a int
      */
     public void setLevel(int level) {
         this.level = level;
@@ -61,7 +65,8 @@ public class SteamEconSchemaItemLevelInfo {
     /**
      * <p>Setter for the field <code>requiredScore</code>.</p>
      *
-     * @param requiredScore a int
+     * @param requiredScore
+     *         a int
      */
     public void setRequiredScore(int requiredScore) {
         this.requiredScore = requiredScore;
@@ -79,7 +84,8 @@ public class SteamEconSchemaItemLevelInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;

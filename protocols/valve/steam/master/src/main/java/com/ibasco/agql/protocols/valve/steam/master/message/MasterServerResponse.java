@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.master.message;
 
 import com.ibasco.agql.core.AbstractResponse;
-
 import java.net.InetSocketAddress;
 import java.util.Set;
 
@@ -31,7 +30,8 @@ public class MasterServerResponse extends AbstractResponse<Set<InetSocketAddress
     /**
      * <p>Constructor for MasterServerResponse.</p>
      *
-     * @param serverList a {@link java.util.Set} object
+     * @param serverList
+     *         a {@link java.util.Set} object
      */
     public MasterServerResponse(Set<InetSocketAddress> serverList) {
         super(serverList);

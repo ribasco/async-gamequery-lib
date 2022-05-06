@@ -30,6 +30,7 @@ public interface ConfigurationSupport {
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param <V>
      *         a V class
+     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option) {
@@ -45,6 +46,7 @@ public interface ConfigurationSupport {
      *         a V object
      * @param <V>
      *         a V class
+     *
      * @return a V object
      */
     default <V> V getOrDefault(Option<V> option, V defaultValue) {
@@ -65,6 +67,7 @@ public interface ConfigurationSupport {
      *         a {@link com.ibasco.agql.core.util.Option} object
      * @param <V>
      *         a V class
+     *
      * @return a V object
      */
     default <V> V get(Option<V> option) {

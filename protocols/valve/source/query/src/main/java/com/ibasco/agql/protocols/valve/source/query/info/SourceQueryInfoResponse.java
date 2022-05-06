@@ -28,7 +28,8 @@ public class SourceQueryInfoResponse extends SourceQueryResponse<SourceServer> {
     /**
      * <p>Constructor for SourceQueryInfoResponse.</p>
      *
-     * @param sourceServer a {@link com.ibasco.agql.protocols.valve.source.query.info.SourceServer} object
+     * @param sourceServer
+     *         a {@link com.ibasco.agql.protocols.valve.source.query.info.SourceServer} object
      */
     public SourceQueryInfoResponse(SourceServer sourceServer) {
         super(sourceServer);

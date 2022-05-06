@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,7 +26,9 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppAchievements {
+
     private int total;
+
     @SerializedName("highlighted")
     private List<StoreAppAchievementHighlight> achievementHighlights = new ArrayList<>();
 
@@ -43,7 +44,8 @@ public class StoreAppAchievements {
     /**
      * <p>Setter for the field <code>total</code>.</p>
      *
-     * @param total a int
+     * @param total
+     *         a int
      */
     public void setTotal(int total) {
         this.total = total;
@@ -61,7 +63,8 @@ public class StoreAppAchievements {
     /**
      * <p>Setter for the field <code>achievementHighlights</code>.</p>
      *
-     * @param achievementHighlights a {@link java.util.List} object
+     * @param achievementHighlights
+     *         a {@link java.util.List} object
      */
     public void setAchievementHighlights(List<StoreAppAchievementHighlight> achievementHighlights) {
         this.achievementHighlights = achievementHighlights;

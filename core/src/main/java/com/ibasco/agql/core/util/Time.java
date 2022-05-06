@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.util;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
-
 import java.time.Duration;
 
 /**
@@ -30,7 +29,9 @@ public class Time {
     /**
      * <p>getTimeDesc.</p>
      *
-     * @param duration a {@link java.time.Duration} object
+     * @param duration
+     *         a {@link java.time.Duration} object
+     *
      * @return a {@link java.lang.String} object
      */
     public static String getTimeDesc(Duration duration) {
@@ -40,7 +41,9 @@ public class Time {
     /**
      * <p>getTimeDesc.</p>
      *
-     * @param millis a long
+     * @param millis
+     *         a long
+     *
      * @return a {@link java.lang.String} object
      */
     public static String getTimeDesc(long millis) {
@@ -50,8 +53,11 @@ public class Time {
     /**
      * <p>getTimeDesc.</p>
      *
-     * @param millis a long
-     * @param shortDesc a boolean
+     * @param millis
+     *         a long
+     * @param shortDesc
+     *         a boolean
+     *
      * @return a {@link java.lang.String} object
      */
     public static String getTimeDesc(long millis, boolean shortDesc) {

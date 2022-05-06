@@ -25,13 +25,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamStoreApiRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetAppDetails extends SteamStoreApiRequest {
+
     /**
      * <p>Constructor for GetAppDetails.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetAppDetails(int apiVersion, int appId, String countryCode, String language) {
         super(apiVersion, SteamApiConstants.SF_METHOD_APPDETAILS, countryCode, language);

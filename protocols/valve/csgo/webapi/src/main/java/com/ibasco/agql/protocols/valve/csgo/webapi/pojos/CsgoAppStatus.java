@@ -25,8 +25,11 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class CsgoAppStatus {
+
     private int version;
+
     private long timestamp;
+
     private String time;
 
     /**
@@ -41,7 +44,8 @@ public class CsgoAppStatus {
     /**
      * <p>Setter for the field <code>version</code>.</p>
      *
-     * @param version a int
+     * @param version
+     *         a int
      */
     public void setVersion(int version) {
         this.version = version;
@@ -59,7 +63,8 @@ public class CsgoAppStatus {
     /**
      * <p>Setter for the field <code>timestamp</code>.</p>
      *
-     * @param timestamp a long
+     * @param timestamp
+     *         a long
      */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
@@ -77,7 +82,8 @@ public class CsgoAppStatus {
     /**
      * <p>Setter for the field <code>time</code>.</p>
      *
-     * @param time a {@link java.lang.String} object
+     * @param time
+     *         a {@link java.lang.String} object
      */
     public void setTime(String time) {
         this.time = time;

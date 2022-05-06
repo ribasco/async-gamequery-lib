@@ -18,7 +18,14 @@ package com.ibasco.agql.examples;
 
 import com.google.common.collect.SetMultimap;
 import com.ibasco.agql.core.exceptions.InvalidCredentialsException;
-import com.ibasco.agql.core.util.*;
+import com.ibasco.agql.core.util.Concurrency;
+import com.ibasco.agql.core.util.ConnectOptions;
+import com.ibasco.agql.core.util.Console;
+import com.ibasco.agql.core.util.Errors;
+import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
+import com.ibasco.agql.core.util.Strings;
+import com.ibasco.agql.core.util.Time;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.examples.rcon.CommandResponse;
 import com.ibasco.agql.examples.rcon.RconResponseHandler;
@@ -35,18 +42,22 @@ import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.text.ParseException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Advanced examples for Source RCON
@@ -61,6 +72,8 @@ public class SourceRconExample extends BaseExample {
 
     private static final String[] COMMANDS = new String[] {"status", "sm plugins list", "cvarlist", "maps *", "meta list", "sm exts list", "sm version", "find sv", "help sv_cheats"};
 
+    private static final String COMMAND_PREFIX = "!";
+
     private final ExecutorService commandExecutor = Executors.newCachedThreadPool(new DefaultThreadFactory("command"));
 
     private final AtomicBoolean authenticate = new AtomicBoolean();
@@ -74,8 +87,6 @@ public class SourceRconExample extends BaseExample {
     private InetSocketAddress serverAddress;
 
     private SourceRconOptions options;
-
-    private static final String COMMAND_PREFIX = "!";
 
     /** {@inheritDoc} */
     @Override
@@ -111,6 +122,102 @@ public class SourceRconExample extends BaseExample {
         commandProcessors.put("cleanup", this::commandCleanup);
         commandProcessors.put("reauth", this::commandReauth);
         commandProcessors.put("plugins", this::commandListPlugins);
+    }
+
+    private void printBanner() {
+        System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
+        System.out.println("\033[0;36m██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\033[0m");
+        System.out.println("\033[0;36m██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  \033[0m");
+        System.out.println("\033[0;36m██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  \033[0m");
+        System.out.println("\033[0;36m██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗\033[0m");
+        System.out.println("\033[0;36m╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\033[0m");
+        System.out.println("\033[0;36m                                               \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
+    }
+
+    /**
+     * <p>runTerminal.</p>
+     */
+    public void runTerminal() {
+        String address = promptInput("Enter server address", true, "", "sourceRconIp");
+        int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
+
+        serverAddress = new InetSocketAddress(address, port);
+        boolean stop = false;
+
+        try {
+            //loop until stop is set
+            while (!stop) {
+                if (!authenticate.get()) {
+                    String password = promptInputPassword("Password", true, "", "sourceRconPass");
+                    System.out.println();
+                    System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
+                    System.out.println();
+                    try {
+                        SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
+
+                        authenticate.set(authResponse.isAuthenticated());
+                        if (!authenticate.get()) {
+                            Console.colorize(true)
+                                   .red("[ERROR]: ")
+                                   .white("Failed to authenticate with server. Server responded in error ")
+                                   .yellow(" (Reason: '%s')", authResponse.getReason())
+                                   .reset()
+                                   .println();
+                        }
+                    } catch (Exception e) {
+                        Throwable cause = Errors.unwrap(e);
+                        if (cause instanceof RconException) {
+                            RconException rconEx = (RconException) cause;
+                            if (cause instanceof RconAuthException) {
+                                RconAuthException authEx = (RconAuthException) cause;
+                                Console.colorize(true)
+                                       .red().text("[ERROR]: ")
+                                       .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
+                                       .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
+                                       .reset()
+                                       .println();
+                            } else {
+                                Console.colorize(true)
+                                       .red().text("[ERROR]: ")
+                                       .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
+                                       .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
+                                       .reset()
+                                       .println();
+                            }
+                            authenticate.set(false);
+                        } else {
+                            System.err.printf("ERROR: Failed to authenticate with server '%s' using password with '%s' bytes (Reason: %s)\n", serverAddress, password.length(), cause);
+                            authenticate.set(false);
+                            throw e;
+                        }
+                    }
+                    continue;
+                }
+
+                try {
+                    CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
+                    System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
+                } catch (Exception error) {
+                    Throwable cause = Errors.unwrap(error);
+                    if (cause instanceof CancellationException) {
+                        stop = true;
+                    } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
+                        System.err.println(cause.getMessage());
+                        authenticate.set(false);
+                    } else if (cause instanceof ParseException) {
+                        System.err.println(cause.getMessage());
+                    } else {
+                        System.err.println("Error during execution of command: ");
+                        cause.printStackTrace(System.err);
+                    }
+                    System.out.flush();
+                    //add a slight delay
+                    Concurrency.sleepUninterrupted(100);
+                }
+            }
+        } finally {
+            System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
+        }
     }
 
     //<editor-fold desc="Commands">
@@ -209,6 +316,7 @@ public class SourceRconExample extends BaseExample {
         rconClient.cleanup(force);
         return success("done", args[0]);
     }
+    //</editor-fold>
 
     private CompletableFuture<CommandResponse> commandReauth(String[] args) {
         try {
@@ -228,101 +336,33 @@ public class SourceRconExample extends BaseExample {
             return error(e.getMessage());
         }
     }
-    //</editor-fold>
 
-    private void printBanner() {
-        System.out.println("\033[0;36m██████╗  ██████╗ ██████╗ ███╗   ██╗     ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\033[0m");
-        System.out.println("\033[0;36m██╔══██╗██╔════╝██╔═══██╗████╗  ██║    ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\033[0m");
-        System.out.println("\033[0;36m██████╔╝██║     ██║   ██║██╔██╗ ██║    ██║     ██║   ██║██╔██╗ ██║███████╗██║   ██║██║     █████╗  \033[0m");
-        System.out.println("\033[0;36m██╔══██╗██║     ██║   ██║██║╚██╗██║    ██║     ██║   ██║██║╚██╗██║╚════██║██║   ██║██║     ██╔══╝  \033[0m");
-        System.out.println("\033[0;36m██║  ██║╚██████╗╚██████╔╝██║ ╚████║    ╚██████╗╚██████╔╝██║ ╚████║███████║╚██████╔╝███████╗███████╗\033[0m");
-        System.out.println("\033[0;36m╚═╝  ╚═╝ ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝     ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\033[0m");
-        System.out.println("\033[0;36m                                               \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
+    private CompletableFuture<String> promptUserInput() {
+        String promptText = String.format("\033[0;33m[%s:%d]\033[0m ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
+        return CompletableFuture.completedFuture(promptInput(promptText, true));
     }
 
-    /**
-     * <p>runTerminal.</p>
-     */
-    public void runTerminal() {
-        String address = promptInput("Enter server address", true, "", "sourceRconIp");
-        int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
-
-        serverAddress = new InetSocketAddress(address, port);
-        boolean stop = false;
-
-        try {
-            //loop until stop is set
-            while (!stop) {
-                if (!authenticate.get()) {
-                    String password = promptInputPassword("Password", true, "", "sourceRconPass");
-                    System.out.println();
-                    System.out.printf("Connecting to server \033[1;96m%s:%d\033[0m with password = %s\n", address, port, RegExUtils.replaceAll(password, ".", "*"));
-                    System.out.println();
-                    try {
-                        SourceRconAuthResponse authResponse = rconClient.authenticate(serverAddress, password.getBytes()).join();
-
-                        authenticate.set(authResponse.isAuthenticated());
-                        if (!authenticate.get()) {
-                            Console.colorize(true)
-                                   .red("[ERROR]: ")
-                                   .white("Failed to authenticate with server. Server responded in error ")
-                                   .yellow(" (Reason: '%s')", authResponse.getReason())
-                                   .reset()
-                                   .println();
-                        }
-                    } catch (Exception e) {
-                        Throwable cause = Errors.unwrap(e);
-                        if (cause instanceof RconException) {
-                            RconException rconEx = (RconException) cause;
-                            if (cause instanceof RconAuthException) {
-                                RconAuthException authEx = (RconAuthException) cause;
-                                Console.colorize(true)
-                                       .red().text("[ERROR]: ")
-                                       .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
-                                       .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
-                                       .reset()
-                                       .println();
-                            } else {
-                                Console.colorize(true)
-                                       .red().text("[ERROR]: ")
-                                       .white().text("Failed to authenticate with server '%s'", rconEx.getRemoteAddress())
-                                       .yellow().text(" (Request: '%s', Cause: %s)", rconEx.getRequest(), e)
-                                       .reset()
-                                       .println();
-                            }
-                            authenticate.set(false);
-                        } else {
-                            System.err.printf("ERROR: Failed to authenticate with server '%s' using password with '%s' bytes (Reason: %s)\n", serverAddress, password.length(), cause);
-                            authenticate.set(false);
-                            throw e;
-                        }
-                    }
-                    continue;
-                }
-
-                try {
-                    CommandResponse response = promptUserInput().thenCompose(this::parseCommand).join();
-                    System.out.printf("\n\033[0;37m%s\033[0m\n", response.getResult());
-                } catch (Exception error) {
-                    Throwable cause = Errors.unwrap(error);
-                    if (cause instanceof CancellationException) {
-                        stop = true;
-                    } else if (cause instanceof InvalidCredentialsException || cause instanceof RconAuthException) {
-                        System.err.println(cause.getMessage());
-                        authenticate.set(false);
-                    } else if (cause instanceof ParseException) {
-                        System.err.println(cause.getMessage());
-                    } else {
-                        System.err.println("Error during execution of command: ");
-                        cause.printStackTrace(System.err);
-                    }
-                    System.out.flush();
-                    //add a slight delay
-                    Concurrency.sleepUninterrupted(100);
-                }
+    private CompletableFuture<CommandResponse> parseCommand(String command) {
+        if (command == null || command.trim().isEmpty())
+            return Concurrency.failedFuture(new IllegalArgumentException("Command must not be empty"));
+        command = command.trim();
+        //handle built-in commands
+        if (command.startsWith(COMMAND_PREFIX)) {
+            String[] args = StringUtils.splitByWholeSeparatorPreserveAllTokens(command, StringUtils.SPACE, 3);
+            String name;
+            if (command.startsWith(COMMAND_PREFIX))
+                name = RegExUtils.replaceAll(args[0], COMMAND_PREFIX, Strings.EMPTY).trim();
+            else
+                throw new IllegalStateException("Unsupported command prefix");
+            if (commandProcessors.containsKey(name)) {
+                return commandProcessors.get(name).apply(args);
+            } else {
+                return error("Unknown command '%s' (type %shelp for the commands available)", command, COMMAND_PREFIX);
             }
-        } finally {
-            System.out.println("(CLOSE) \033[0;35mRcon console exiting\033[0m");
+        }
+        //any command that does not start with '/' should be treated as an rcon command by default
+        else {
+            return commandRcon(new String[] {command});
         }
     }
 
@@ -333,6 +373,7 @@ public class SourceRconExample extends BaseExample {
     private <V> CompletableFuture<V> error(String msg, Object... args) {
         return Concurrency.failedFuture(new ParseException(String.format(msg, args), 0));
     }
+    //</editor-fold>
 
     private CompletableFuture<CommandResponse> executeBatch(final int count, final String command) {
         return CompletableFuture.runAsync(() -> {
@@ -365,44 +406,14 @@ public class SourceRconExample extends BaseExample {
     private <V> CompletableFuture<V> error(Throwable error) {
         return Concurrency.failedFuture(error);
     }
-    //</editor-fold>
-
-    private CompletableFuture<String> promptUserInput() {
-        String promptText = String.format("\033[0;33m[%s:%d]\033[0m ", serverAddress.getAddress().getHostAddress(), serverAddress.getPort());
-        return CompletableFuture.completedFuture(promptInput(promptText, true));
-    }
-
-    private CompletableFuture<CommandResponse> parseCommand(String command) {
-        if (command == null || command.trim().isEmpty())
-            return Concurrency.failedFuture(new IllegalArgumentException("Command must not be empty"));
-        command = command.trim();
-        //handle built-in commands
-        if (command.startsWith(COMMAND_PREFIX)) {
-            String[] args = StringUtils.splitByWholeSeparatorPreserveAllTokens(command, StringUtils.SPACE, 3);
-            String name;
-            if (command.startsWith(COMMAND_PREFIX))
-                name = RegExUtils.replaceAll(args[0], COMMAND_PREFIX, Strings.EMPTY).trim();
-            else
-                throw new IllegalStateException("Unsupported command prefix");
-            if (commandProcessors.containsKey(name)) {
-                return commandProcessors.get(name).apply(args);
-            } else {
-                return error("Unknown command '%s' (type %shelp for the commands available)", command, COMMAND_PREFIX);
-            }
-        }
-        //any command that does not start with '/' should be treated as an rcon command by default
-        else {
-            return commandRcon(new String[] {command});
-        }
-    }
-
-    private CommandResponse successResponse(String command, String msg, Object... args) {
-        return new CommandResponse(String.format(msg, args), command);
-    }
 
     private CompletableFuture<CommandResponse> commandRcon(final String[] args) {
         final String command = args[0];
         return rconClient.execute(serverAddress, command).thenApply(r -> new CommandResponse(r.getResult(), command));
+    }
+
+    private CommandResponse successResponse(String command, String msg, Object... args) {
+        return new CommandResponse(String.format(msg, args), command);
     }
 
     /** {@inheritDoc} */

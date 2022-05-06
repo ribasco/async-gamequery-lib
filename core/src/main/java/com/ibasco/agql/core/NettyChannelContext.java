@@ -32,15 +32,14 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.EventLoop;
 import io.netty.util.AttributeKey;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.Closeable;
 import java.net.InetSocketAddress;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The context attached to a {@link io.netty.channel.Channel} instance
@@ -52,14 +51,6 @@ import java.util.concurrent.CompletableFuture;
 public class NettyChannelContext implements Closeable, Cloneable {
 
     private static final Logger log = LoggerFactory.getLogger(NettyChannelContext.class);
-
-    private final Channel channel;
-
-    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger;
-
-    private final Deque<Properties> propertiesStack = new ArrayDeque<>(10);
-
-    private Properties properties;
 
     private static final ChannelFutureListener CLEANUP_ON_CLOSE = future -> {
         NettyChannelContext context = NettyChannelContext.getContext(future.channel());
@@ -87,6 +78,14 @@ public class NettyChannelContext implements Closeable, Cloneable {
             responsePromise.completeExceptionally(new ChannelClosedException("Connection was dropped by the remote server", future.cause(), context.channel()));
     };
 
+    private final Channel channel;
+
+    private final NettyMessenger<? extends AbstractRequest, ? extends AbstractResponse> messenger;
+
+    private final Deque<Properties> propertiesStack = new ArrayDeque<>(10);
+
+    private Properties properties;
+
     /**
      * <p>Constructor for NettyChannelContext.</p>
      *
@@ -112,6 +111,79 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
+     * <p>newProperties.</p>
+     *
+     * @param copy
+     *         a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
+     *
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
+     */
+    protected Properties newProperties(Properties copy) {
+        if (copy != null)
+            return new Properties(copy);
+        return new Properties();
+    }
+
+    /**
+     * Marks the response promise exceptionally if the connection was dropped before we receive a response from the remote server
+     */
+    private void failOnClose() {
+        CompletableFuture<?> promise = properties().responsePromise();
+        if (promise == null)
+            throw new IllegalStateException("Missing envelope promise");
+        ChannelFuture closeFuture = channel().closeFuture();
+        if (closeFuture.isDone()) {
+            if (promise.isDone())
+                return;
+            if (closeFuture.isSuccess()) {
+                promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", channel()));
+            } else {
+                promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", closeFuture.cause(), channel()));
+            }
+            assert promise.isDone();
+        } else {
+            closeFuture.addListener(FAIL_ON_CLOSE);
+        }
+    }
+
+    private void cleanupOnClose() {
+        ChannelFuture closeFuture = channel().closeFuture();
+        if (closeFuture.isDone()) {
+            if (!closeFuture.isSuccess())
+                log.error("Error occured while attempting to close channel (context: {})", this, closeFuture.cause());
+            //perform cleanup operations
+            cleanup();
+        } else {
+            closeFuture.addListener(CLEANUP_ON_CLOSE);
+        }
+    }
+
+    /**
+     * <p>properties.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
+     */
+    public Properties properties() {
+        return properties;
+    }
+
+    /**
+     * <p>channel.</p>
+     *
+     * @return a {@link io.netty.channel.Channel} object
+     */
+    public final Channel channel() {
+        return channel;
+    }
+
+    /**
+     * Called once the underlying {@link io.netty.channel.Channel}/Connection has been closed.
+     */
+    protected void cleanup() {
+        //no-op. meant to be overriden by sub-classes
+    }
+
+    /**
      * <p>Constructor for NettyChannelContext.</p>
      *
      * @param context
@@ -127,12 +199,20 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>future.</p>
+     * Get the channel context attached to the provided {@link io.netty.channel.Channel}
      *
-     * @return a {@link java.util.concurrent.CompletableFuture} object
+     * @param channel
+     *         The {@link io.netty.channel.Channel} to retrieve the context from
+     *
+     * @return The {@link com.ibasco.agql.core.NettyChannelContext} associated with the {@link io.netty.channel.Channel}
      */
-    public final CompletableFuture<NettyChannelContext> future() {
-        return CompletableFuture.completedFuture(this);
+    public static NettyChannelContext getContext(Channel channel) {
+        if (channel == null)
+            throw new IllegalArgumentException("Channel is null");
+        NettyChannelContext context = channel.attr(NettyChannelAttributes.CHANNEL_CONTEXT).get();
+        if (context == null)
+            throw new NoChannelContextException("Missing channel context", channel);
+        return context;
     }
 
     /**
@@ -149,30 +229,30 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
+     * <p>future.</p>
+     *
+     * @return a {@link java.util.concurrent.CompletableFuture} object
+     */
+    public final CompletableFuture<NettyChannelContext> future() {
+        return CompletableFuture.completedFuture(this);
+    }
+
+    /**
+     * <p>eventLoop.</p>
+     *
+     * @return a {@link io.netty.channel.EventLoop} object
+     */
+    public final EventLoop eventLoop() {
+        return channel.eventLoop();
+    }
+
+    /**
      * <p>isValid.</p>
      *
      * @return a boolean
      */
     public boolean isValid() {
         return this.channel.isActive();
-    }
-
-    /**
-     * <p>id.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public final String id() {
-        return Netty.id(channel);
-    }
-
-    /**
-     * <p>channel.</p>
-     *
-     * @return a {@link io.netty.channel.Channel} object
-     */
-    public final Channel channel() {
-        return channel;
     }
 
     /**
@@ -194,12 +274,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>eventLoop.</p>
+     * <p>hasResponse.</p>
      *
-     * @return a {@link io.netty.channel.EventLoop} object
+     * @return a boolean
      */
-    public final EventLoop eventLoop() {
-        return channel.eventLoop();
+    public final boolean hasResponse() {
+        return isCompleted() && properties().response() != null;
     }
 
     /**
@@ -211,15 +291,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
         if (properties.responsePromise == null)
             throw new IllegalStateException("Context not initialized");
         return properties.responsePromise.isDone();
-    }
-
-    /**
-     * <p>hasResponse.</p>
-     *
-     * @return a boolean
-     */
-    public final boolean hasResponse() {
-        return isCompleted() && properties().response() != null;
     }
 
     /**
@@ -238,6 +309,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *
      * @param response
      *         a {@link com.ibasco.agql.core.AbstractResponse} object
+     *
      * @return a boolean
      */
     public final boolean markSuccess(AbstractResponse response) {
@@ -245,16 +317,11 @@ public class NettyChannelContext implements Closeable, Cloneable {
         return this.properties.responsePromise.complete(response);
     }
 
-    /**
-     * <p>markInError.</p>
-     *
-     * @param error
-     *         a {@link java.lang.Throwable} object
-     */
-    public final void markInError(Throwable error) {
-        checkResponse();
-        if (this.properties.responsePromise.completeExceptionally(error))
-            this.properties.responseError = error;
+    private void checkResponse() {
+        if (this.properties.responsePromise == null)
+            throw new IllegalStateException("Failed to set response. Response promise was not initialized");
+        if (this.properties.responsePromise.isDone())
+            throw new IllegalStateException("A response was already received for this context. Make sure reset() is called before updating this property");
     }
 
     /**
@@ -272,6 +339,27 @@ public class NettyChannelContext implements Closeable, Cloneable {
             log.error("{} CONTEXT => Messenger receive() has thrown an error", id(), e);
             markInError(e);
         }
+    }
+
+    /**
+     * <p>id.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public final String id() {
+        return Netty.id(channel);
+    }
+
+    /**
+     * <p>markInError.</p>
+     *
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     */
+    public final void markInError(Throwable error) {
+        checkResponse();
+        if (this.properties.responsePromise.completeExceptionally(error))
+            this.properties.responseError = error;
     }
 
     /**
@@ -298,6 +386,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *         a {@link io.netty.util.AttributeKey} object
      * @param <V>
      *         a V class
+     *
      * @return a boolean
      */
     public final <V> boolean exists(AttributeKey<V> key) {
@@ -311,6 +400,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
      *         a {@link io.netty.util.AttributeKey} object
      * @param <V>
      *         a V class
+     *
      * @return a V object
      */
     public final <V> V get(AttributeKey<V> key) {
@@ -352,15 +442,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>properties.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
-     */
-    public Properties properties() {
-        return properties;
-    }
-
-    /**
      * <p>send.</p>
      *
      * @return a {@link java.util.concurrent.CompletableFuture} object
@@ -398,46 +479,11 @@ public class NettyChannelContext implements Closeable, Cloneable {
     }
 
     /**
-     * <p>newProperties.</p>
-     *
-     * @param copy
-     *         a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
-     * @return a {@link com.ibasco.agql.core.NettyChannelContext.Properties} object
-     */
-    protected Properties newProperties(Properties copy) {
-        if (copy != null)
-            return new Properties(copy);
-        return new Properties();
-    }
-
-    private void checkResponse() {
-        if (this.properties.responsePromise == null)
-            throw new IllegalStateException("Failed to set response. Response promise was not initialized");
-        if (this.properties.responsePromise.isDone())
-            throw new IllegalStateException("A response was already received for this context. Make sure reset() is called before updating this property");
-    }
-
-    /**
-     * Get the channel context attached to the provided {@link io.netty.channel.Channel}
-     *
-     * @param channel
-     *         The {@link io.netty.channel.Channel} to retrieve the context from
-     * @return The {@link com.ibasco.agql.core.NettyChannelContext} associated with the {@link io.netty.channel.Channel}
-     */
-    public static NettyChannelContext getContext(Channel channel) {
-        if (channel == null)
-            throw new IllegalArgumentException("Channel is null");
-        NettyChannelContext context = channel.attr(NettyChannelAttributes.CHANNEL_CONTEXT).get();
-        if (context == null)
-            throw new NoChannelContextException("Missing channel context", channel);
-        return context;
-    }
-
-    /**
      * <p>attach.</p>
      *
      * @param request
      *         a {@link com.ibasco.agql.core.AbstractRequest} object
+     *
      * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
      */
     public NettyChannelContext attach(AbstractRequest request) {
@@ -487,7 +533,7 @@ public class NettyChannelContext implements Closeable, Cloneable {
 
     /**
      * {@inheritDoc}
-     *
+     * <p>
      * Close or release the underlying {@link Channel} of this context. If the {@link Channel} is not pooled, it will call {@link Channel#close()} otherwise it will attempt to call release to return it back to the pool.
      */
     @Override
@@ -505,53 +551,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
             channel.close();
             log.debug("{} CONTEXT (RELEASE) => Context released", id());
         }
-    }
-
-    /**
-     * Marks the response promise exceptionally if the connection was dropped before we receive a response from the remote server
-     */
-    private void failOnClose() {
-        CompletableFuture<?> promise = properties().responsePromise();
-        if (promise == null)
-            throw new IllegalStateException("Missing envelope promise");
-        ChannelFuture closeFuture = channel().closeFuture();
-        if (closeFuture.isDone()) {
-            if (promise.isDone())
-                return;
-            if (closeFuture.isSuccess()) {
-                promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", channel()));
-            } else {
-                promise.completeExceptionally(new ChannelClosedException("Connection was dropped by the server", closeFuture.cause(), channel()));
-            }
-            assert promise.isDone();
-        } else {
-            closeFuture.addListener(FAIL_ON_CLOSE);
-        }
-    }
-
-    private void cleanupOnClose() {
-        ChannelFuture closeFuture = channel().closeFuture();
-        if (closeFuture.isDone()) {
-            if (!closeFuture.isSuccess())
-                log.error("Error occured while attempting to close channel (context: {})", this, closeFuture.cause());
-            //perform cleanup operations
-            cleanup();
-        } else {
-            closeFuture.addListener(CLEANUP_ON_CLOSE);
-        }
-    }
-
-    /**
-     * Called once the underlying {@link io.netty.channel.Channel}/Connection has been closed.
-     */
-    protected void cleanup() {
-        //no-op. meant to be overriden by sub-classes
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "#" + this.hashCode() + " :: " + channel().id().asShortText() + " :: " + properties().request();
     }
 
     /**
@@ -579,16 +578,20 @@ public class NettyChannelContext implements Closeable, Cloneable {
             attachListeners();
         }
 
-        public Properties(Properties properties) {
-            this.envelope = MessageEnvelopeBuilder.createFrom(properties.envelope).build();
-            this.responsePromise = properties.responsePromise;
-            this.responseError = properties.responseError;
-            this.autoRelease = properties.autoRelease;
-            this.writePromise = properties.writePromise;
+        private void attachListeners() {
+            //release once the response promise has been marked as completed
+            this.responsePromise.whenComplete(this::releaseOnCompletion);
+            log.debug("{} CONTEXT => Attached auto-release listener", id());
         }
 
-        protected void onPropertiesReset() {
-            //no-op. meant to be overriden by sub-classes
+        private void releaseOnCompletion(AbstractResponse response, Throwable error) {
+            if (!autoRelease) {
+                log.debug("{} CONTEXT => Skipping auto release", id());
+                return;
+            }
+            log.debug("{} CONTEXT => Auto releasing context (Auto release: {}, Request: {})", id(), properties().autoRelease(), properties.request());
+            //release or close the context
+            close();
         }
 
         @Override
@@ -651,9 +654,8 @@ public class NettyChannelContext implements Closeable, Cloneable {
         }
 
         @Override
-        public <A extends AbstractRequest> Envelope<A> envelope() {
-            //noinspection unchecked
-            return (Envelope<A>) envelope;
+        public boolean writeInProgress() {
+            return this.writePromise != null && !this.writePromise.isDone();
         }
 
         @Override
@@ -668,11 +670,6 @@ public class NettyChannelContext implements Closeable, Cloneable {
             if (this.writePromise == null)
                 throw new IllegalStateException("No write operation is currntly in-progress");
             return this.writePromise.isCompletedExceptionally();
-        }
-
-        @Override
-        public boolean writeInProgress() {
-            return this.writePromise != null && !this.writePromise.isDone();
         }
 
         @Override
@@ -721,6 +718,12 @@ public class NettyChannelContext implements Closeable, Cloneable {
         }
 
         @Override
+        public <A extends AbstractRequest> Envelope<A> envelope() {
+            //noinspection unchecked
+            return (Envelope<A>) envelope;
+        }
+
+        @Override
         public <V extends AbstractResponse> CompletableFuture<V> responsePromise() {
             //noinspection unchecked
             return (CompletableFuture<V>) responsePromise;
@@ -737,26 +740,28 @@ public class NettyChannelContext implements Closeable, Cloneable {
             onPropertiesReset();
         }
 
+        protected void onPropertiesReset() {
+            //no-op. meant to be overriden by sub-classes
+        }
+
         private void checkEnvelope() {
             if (envelope == null)
                 throw new IllegalStateException("No envelope attached to the context");
         }
 
-        private void attachListeners() {
-            //release once the response promise has been marked as completed
-            this.responsePromise.whenComplete(this::releaseOnCompletion);
-            log.debug("{} CONTEXT => Attached auto-release listener", id());
+        public Properties(Properties properties) {
+            this.envelope = MessageEnvelopeBuilder.createFrom(properties.envelope).build();
+            this.responsePromise = properties.responsePromise;
+            this.responseError = properties.responseError;
+            this.autoRelease = properties.autoRelease;
+            this.writePromise = properties.writePromise;
         }
+    }
 
-        private void releaseOnCompletion(AbstractResponse response, Throwable error) {
-            if (!autoRelease) {
-                log.debug("{} CONTEXT => Skipping auto release", id());
-                return;
-            }
-            log.debug("{} CONTEXT => Auto releasing context (Auto release: {}, Request: {})", id(), properties().autoRelease(), properties.request());
-            //release or close the context
-            close();
-        }
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + "#" + this.hashCode() + " :: " + channel().id().asShortText() + " :: " + properties().request();
     }
 
     /** {@inheritDoc} */

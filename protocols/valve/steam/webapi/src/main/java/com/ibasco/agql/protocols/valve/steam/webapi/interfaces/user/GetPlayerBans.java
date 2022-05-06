@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
 /**
@@ -31,8 +30,10 @@ public class GetPlayerBans extends SteamUserRequest {
     /**
      * <p>Constructor for GetPlayerBans.</p>
      *
-     * @param apiVersion a int
-     * @param steamIds a {@link java.util.List} object
+     * @param apiVersion
+     *         a int
+     * @param steamIds
+     *         a {@link java.util.List} object
      */
     public GetPlayerBans(int apiVersion, List<Long> steamIds) {
         this(apiVersion, steamIds.toArray(new Long[0]));
@@ -41,8 +42,10 @@ public class GetPlayerBans extends SteamUserRequest {
     /**
      * <p>Constructor for GetPlayerBans.</p>
      *
-     * @param apiVersion a int
-     * @param steamIds a {@link java.lang.Long} object
+     * @param apiVersion
+     *         a int
+     * @param steamIds
+     *         a {@link java.lang.Long} object
      */
     public GetPlayerBans(int apiVersion, Long... steamIds) {
         super("GetPlayerBans", apiVersion);

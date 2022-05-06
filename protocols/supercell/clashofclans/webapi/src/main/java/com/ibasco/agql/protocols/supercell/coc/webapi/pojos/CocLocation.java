@@ -28,10 +28,25 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocLocation {
+
     private long id;
+
     private String name;
+
     private boolean isCountry;
+
     private String countryCode;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("name", getName())
+                .append("countryCode", getCountryCode())
+                .append("isCountry", isCountry())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>id</code>.</p>
@@ -45,7 +60,8 @@ public class CocLocation {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -63,10 +79,20 @@ public class CocLocation {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * <p>Getter for the field <code>countryCode</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getCountryCode() {
+        return countryCode;
     }
 
     /**
@@ -81,38 +107,20 @@ public class CocLocation {
     /**
      * <p>setCountry.</p>
      *
-     * @param country a boolean
+     * @param country
+     *         a boolean
      */
     public void setCountry(boolean country) {
         isCountry = country;
     }
 
     /**
-     * <p>Getter for the field <code>countryCode</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getCountryCode() {
-        return countryCode;
-    }
-
-    /**
      * <p>Setter for the field <code>countryCode</code>.</p>
      *
-     * @param countryCode a {@link java.lang.String} object
+     * @param countryCode
+     *         a {@link java.lang.String} object
      */
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("name", getName())
-                .append("countryCode", getCountryCode())
-                .append("isCountry", isCountry())
-                .toString();
     }
 }

@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,14 +31,19 @@ public class Dota2ServerStatsTeam {
 
     @SerializedName("team_number")
     private int teamNumber;
+
     @SerializedName("team_id")
     private int teamId;
+
     @SerializedName("team_name")
     private String teamName;
+
     @SerializedName("team_logo")
     private String teamLogo;
+
     @SerializedName("score")
     private int score;
+
     @SerializedName("players")
     private List<Dota2ServerStatsPlayer> players = new ArrayList<Dota2ServerStatsPlayer>();
 

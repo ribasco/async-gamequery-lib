@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
  * @author Rafael Luis Ibasco
  */
 public class SteamReportCheatRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for SteamReportCheatRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public SteamReportCheatRequest(String apiMethod, int apiVersion) {
         super(SteamApiConstants.STEAM_CHEATREPORT_SERVICE, apiMethod, apiVersion);

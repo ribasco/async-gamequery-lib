@@ -28,9 +28,22 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocClanBadgeUrls {
+
     private String small;
+
     private String medium;
+
     private String large;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("small", getSmall())
+                .append("medium", getMedium())
+                .append("large", getLarge())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>small</code>.</p>
@@ -44,7 +57,8 @@ public class CocClanBadgeUrls {
     /**
      * <p>Setter for the field <code>small</code>.</p>
      *
-     * @param small a {@link java.lang.String} object
+     * @param small
+     *         a {@link java.lang.String} object
      */
     public void setSmall(String small) {
         this.small = small;
@@ -62,7 +76,8 @@ public class CocClanBadgeUrls {
     /**
      * <p>Setter for the field <code>medium</code>.</p>
      *
-     * @param medium a {@link java.lang.String} object
+     * @param medium
+     *         a {@link java.lang.String} object
      */
     public void setMedium(String medium) {
         this.medium = medium;
@@ -80,19 +95,10 @@ public class CocClanBadgeUrls {
     /**
      * <p>Setter for the field <code>large</code>.</p>
      *
-     * @param large a {@link java.lang.String} object
+     * @param large
+     *         a {@link java.lang.String} object
      */
     public void setLarge(String large) {
         this.large = large;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("small", getSmall())
-                .append("medium", getMedium())
-                .append("large", getLarge())
-                .toString();
     }
 }

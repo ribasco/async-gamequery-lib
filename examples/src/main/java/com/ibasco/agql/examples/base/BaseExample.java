@@ -23,14 +23,18 @@ import com.ibasco.agql.core.util.Encryption;
 import com.ibasco.agql.core.util.Strings;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Properties;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract BaseExample class.</p>
@@ -47,14 +51,6 @@ abstract public class BaseExample implements Closeable {
     private final Scanner userInput = new Scanner(System.in);
 
     private final Properties exampleProps = new Properties();
-
-    /**
-     * <p>run.</p>
-     *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
-     */
-    abstract public void run(String[] args) throws Exception;
 
     /**
      * <p>Constructor for BaseExample.</p>
@@ -91,39 +87,59 @@ abstract public class BaseExample implements Closeable {
     }
 
     /**
-     * <p>saveProp.</p>
+     * <p>printHeader.</p>
      *
-     * @param property a {@link java.lang.String} object
-     * @param value a {@link java.lang.String} object
+     * @param msg
+     *         a {@link java.lang.String} object
+     * @param args
+     *         a {@link java.lang.Object} object
      */
-    public void saveProp(String property, String value) {
-        try {
-            String tmpValue = value == null ? "null" : value;
-            exampleProps.setProperty(property, tmpValue);
-            File f = new File(EXAMPLE_PROP_FILE);
-            OutputStream out = new FileOutputStream(f);
-            exampleProps.store(out, String.format("From '%s'", this.getClass().getSimpleName()));
-        } catch (Exception e) {
-            e.printStackTrace(System.err);
-        }
+    public static void printHeader(String msg, Object... args) {
+        if (Strings.isBlank(msg))
+            return;
+        int lineCount = msg.length() * 2;
+        printLine(lineCount);
+        System.out.printf("\033[0;33m" + msg + "\033[0m\n", args);
+        printLine(lineCount);
     }
 
     /**
-     * <p>getProp.</p>
+     * <p>printLine.</p>
      *
-     * @param propertyName a {@link java.lang.String} object
-     * @return a {@link java.lang.String} object
+     * @param count
+     *         a int
      */
-    protected String getProp(String propertyName) {
-        String tmp = exampleProps.getProperty(propertyName);
-        return "null".equalsIgnoreCase(tmp) ? null : tmp;
+    public static void printLine(int count) {
+        System.out.printf("\033[0;36m%s\033[0m\n", StringUtils.repeat('=', count));
+        System.out.flush();
     }
+
+    /**
+     * <p>printLine.</p>
+     */
+    public static void printLine() {
+        printLine(130);
+    }
+
+    /**
+     * <p>run.</p>
+     *
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
+     */
+    abstract public void run(String[] args) throws Exception;
 
     /**
      * <p>promptInput.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     *
      * @return a {@link java.lang.String} object
      */
     protected String promptInput(String message, boolean required) {
@@ -131,76 +147,15 @@ abstract public class BaseExample implements Closeable {
     }
 
     /**
-     * <p>promptInputPassword.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @param defaultProperty a {@link java.lang.String} object
-     * @return a {@link java.lang.String} object
-     */
-    protected String promptInputPassword(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        return promptInput(message, required, defaultReturnValue, defaultProperty, true);
-    }
-
-    /**
-     * <p>promptInputBool.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @return a {@link java.lang.Boolean} object
-     */
-    protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue) {
-        return promptInputBool(message, required, defaultReturnValue, null);
-    }
-
-    /**
-     * <p>promptInputBool.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @param defaultProperty a {@link java.lang.String} object
-     * @return a {@link java.lang.Boolean} object
-     */
-    protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
-        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? BooleanUtils.toBoolean(tmpVal) : null;
-    }
-
-    /**
-     * <p>promptInputInt.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @return a {@link java.lang.Integer} object
-     */
-    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue) {
-        return promptInputInt(message, required, defaultReturnValue, null);
-    }
-
-    /**
-     * <p>promptInputInt.</p>
-     *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @param defaultProperty a {@link java.lang.String} object
-     * @return a {@link java.lang.Integer} object
-     */
-    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue, String defaultProperty) {
-        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
-        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? Integer.valueOf(tmpVal) : null;
-    }
-
-    /**
      * <p>promptInput.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String promptInput(String message, boolean required, String defaultReturnValue) {
@@ -210,10 +165,15 @@ abstract public class BaseExample implements Closeable {
     /**
      * <p>promptInput.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @param defaultProperty a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     * @param defaultProperty
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty) {
@@ -223,11 +183,17 @@ abstract public class BaseExample implements Closeable {
     /**
      * <p>promptInput.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param required a boolean
-     * @param defaultReturnValue a {@link java.lang.String} object
-     * @param defaultProperty a {@link java.lang.String} object
-     * @param isPassword a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     * @param defaultProperty
+     *         a {@link java.lang.String} object
+     * @param isPassword
+     *         a boolean
+     *
      * @return a {@link java.lang.String} object
      */
     protected String promptInput(String message, boolean required, String defaultReturnValue, String defaultProperty, boolean isPassword) {
@@ -290,11 +256,136 @@ abstract public class BaseExample implements Closeable {
     }
 
     /**
+     * <p>getProp.</p>
+     *
+     * @param propertyName
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    protected String getProp(String propertyName) {
+        String tmp = exampleProps.getProperty(propertyName);
+        return "null".equalsIgnoreCase(tmp) ? null : tmp;
+    }
+
+    /**
+     * <p>saveProp.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param value
+     *         a {@link java.lang.String} object
+     */
+    public void saveProp(String property, String value) {
+        try {
+            String tmpValue = value == null ? "null" : value;
+            exampleProps.setProperty(property, tmpValue);
+            File f = new File(EXAMPLE_PROP_FILE);
+            OutputStream out = new FileOutputStream(f);
+            exampleProps.store(out, String.format("From '%s'", this.getClass().getSimpleName()));
+        } catch (Exception e) {
+            e.printStackTrace(System.err);
+        }
+    }
+
+    /**
+     * <p>promptInputPassword.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     * @param defaultProperty
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.String} object
+     */
+    protected String promptInputPassword(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        return promptInput(message, required, defaultReturnValue, defaultProperty, true);
+    }
+
+    /**
+     * <p>promptInputBool.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.Boolean} object
+     */
+    protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue) {
+        return promptInputBool(message, required, defaultReturnValue, null);
+    }
+
+    /**
+     * <p>promptInputBool.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     * @param defaultProperty
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.Boolean} object
+     */
+    protected Boolean promptInputBool(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
+        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? BooleanUtils.toBoolean(tmpVal) : null;
+    }
+
+    /**
+     * <p>promptInputInt.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.Integer} object
+     */
+    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue) {
+        return promptInputInt(message, required, defaultReturnValue, null);
+    }
+
+    /**
+     * <p>promptInputInt.</p>
+     *
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param required
+     *         a boolean
+     * @param defaultReturnValue
+     *         a {@link java.lang.String} object
+     * @param defaultProperty
+     *         a {@link java.lang.String} object
+     *
+     * @return a {@link java.lang.Integer} object
+     */
+    protected Integer promptInputInt(String message, boolean required, String defaultReturnValue, String defaultProperty) {
+        String tmpVal = promptInput(message, required, defaultReturnValue, defaultProperty, false);
+        return tmpVal != null && !"skip".equalsIgnoreCase(tmpVal.trim()) ? Integer.valueOf(tmpVal) : null;
+    }
+
+    /**
      * <p>close.</p>
      *
-     * @param client a {@link com.ibasco.agql.core.Client} object
-     * @param name a {@link java.lang.String} object
-     * @throws java.io.IOException if any.
+     * @param client
+     *         a {@link com.ibasco.agql.core.Client} object
+     * @param name
+     *         a {@link java.lang.String} object
+     *
+     * @throws java.io.IOException
+     *         if any.
      */
     protected void close(Client client, String name) throws IOException {
         System.out.printf("(CLOSE) \033[0;35mClosing \033[0;33m'%s'\033[0;35m client: \033[0m", name);
@@ -313,8 +404,10 @@ abstract public class BaseExample implements Closeable {
     /**
      * <p>close.</p>
      *
-     * @param executorService a {@link java.util.concurrent.ExecutorService} object
-     * @param name a {@link java.lang.String} object
+     * @param executorService
+     *         a {@link java.util.concurrent.ExecutorService} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     protected void close(ExecutorService executorService, String name) {
         if (executorService == null)
@@ -336,37 +429,5 @@ abstract public class BaseExample implements Closeable {
      */
     public final void clearConsole() {
         ExampleRunner.clearConsole();
-    }
-
-    /**
-     * <p>printHeader.</p>
-     *
-     * @param msg a {@link java.lang.String} object
-     * @param args a {@link java.lang.Object} object
-     */
-    public static void printHeader(String msg, Object... args) {
-        if (Strings.isBlank(msg))
-            return;
-        int lineCount = msg.length() * 2;
-        printLine(lineCount);
-        System.out.printf("\033[0;33m" + msg + "\033[0m\n", args);
-        printLine(lineCount);
-    }
-
-    /**
-     * <p>printLine.</p>
-     */
-    public static void printLine() {
-        printLine(130);
-    }
-
-    /**
-     * <p>printLine.</p>
-     *
-     * @param count a int
-     */
-    public static void printLine(int count) {
-        System.out.printf("\033[0;36m%s\033[0m\n", StringUtils.repeat('=', count));
-        System.out.flush();
     }
 }

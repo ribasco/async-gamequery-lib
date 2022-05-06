@@ -24,11 +24,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetUserGroupList extends SteamUserRequest {
+
     /**
      * <p>Constructor for GetUserGroupList.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
      */
     public GetUserGroupList(int apiVersion, long steamId) {
         super("GetUserGroupList", apiVersion);

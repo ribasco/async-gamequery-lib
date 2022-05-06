@@ -31,72 +31,95 @@ public class Dota2ScoreboardPlayerStats {
     @SerializedName("player_slot")
     @Expose
     private int playerSlot;
+
     @SerializedName("account_id")
     @Expose
     private int accountId;
+
     @SerializedName("hero_id")
     @Expose
     private int heroId;
+
     @SerializedName("kills")
     @Expose
     private int kills;
+
     @SerializedName("death")
     @Expose
     private int death;
+
     @SerializedName("assists")
     @Expose
     private int assists;
+
     @SerializedName("last_hits")
     @Expose
     private int lastHits;
+
     @SerializedName("denies")
     @Expose
     private int denies;
+
     @SerializedName("gold")
     @Expose
     private int gold;
+
     @SerializedName("level")
     @Expose
     private int level;
+
     @SerializedName("gold_per_min")
     @Expose
     private int goldPerMin;
+
     @SerializedName("xp_per_min")
     @Expose
     private int xpPerMin;
+
     @SerializedName("ultimate_state")
     @Expose
     private int ultimateState;
+
     @SerializedName("ultimate_cooldown")
     @Expose
     private int ultimateCooldown;
+
     @SerializedName("item0")
     @Expose
     private int item0;
+
     @SerializedName("item1")
     @Expose
     private int item1;
+
     @SerializedName("item2")
     @Expose
     private int item2;
+
     @SerializedName("item3")
     @Expose
     private int item3;
+
     @SerializedName("item4")
     @Expose
     private int item4;
+
     @SerializedName("item5")
     @Expose
     private int item5;
+
     @SerializedName("respawn_timer")
     @Expose
     private int respawnTimer;
+
     @SerializedName("position_x")
     @Expose
     private double positionX;
+
     @SerializedName("position_y")
     @Expose
     private double positionY;
+
     @SerializedName("net_worth")
     @Expose
     private int netWorth;

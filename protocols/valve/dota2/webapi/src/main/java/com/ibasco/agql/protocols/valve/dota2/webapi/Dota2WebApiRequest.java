@@ -24,13 +24,18 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class Dota2WebApiRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for Dota2WebApiRequest.</p>
      *
-     * @param apiInterface a {@link java.lang.String} object
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
-     * @param language a {@link java.lang.String} object
+     * @param apiInterface
+     *         a {@link java.lang.String} object
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public Dota2WebApiRequest(String apiInterface, String apiMethod, int apiVersion, String language) {
         super(apiInterface, apiMethod, apiVersion);

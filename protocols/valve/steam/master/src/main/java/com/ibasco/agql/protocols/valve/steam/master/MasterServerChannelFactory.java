@@ -25,7 +25,6 @@ import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerPacketE
 import com.ibasco.agql.protocols.valve.steam.master.handlers.MasterServerRequestEncoder;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import java.util.LinkedList;
 
 /**
@@ -38,7 +37,8 @@ public class MasterServerChannelFactory extends NettyChannelFactoryInitializer {
     /**
      * <p>Constructor for MasterServerChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public MasterServerChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);

@@ -24,10 +24,13 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamGameStatsSchema {
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("defaultvalue")
     private int defaultValue;
+
     @SerializedName("displaynName")
     private String displayName;
 
@@ -43,7 +46,8 @@ public class SteamGameStatsSchema {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -61,7 +65,8 @@ public class SteamGameStatsSchema {
     /**
      * <p>Setter for the field <code>defaultValue</code>.</p>
      *
-     * @param defaultValue a int
+     * @param defaultValue
+     *         a int
      */
     public void setDefaultValue(int defaultValue) {
         this.defaultValue = defaultValue;
@@ -79,7 +84,8 @@ public class SteamGameStatsSchema {
     /**
      * <p>Setter for the field <code>displayName</code>.</p>
      *
-     * @param displayName a {@link java.lang.String} object
+     * @param displayName
+     *         a {@link java.lang.String} object
      */
     public void setDisplayName(String displayName) {
         this.displayName = displayName;

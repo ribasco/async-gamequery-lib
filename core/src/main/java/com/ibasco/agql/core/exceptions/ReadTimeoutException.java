@@ -35,7 +35,8 @@ public class ReadTimeoutException extends TimeoutException {
     /**
      * <p>Constructor for ReadTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public ReadTimeoutException(String message) {
         super(message);
@@ -44,8 +45,10 @@ public class ReadTimeoutException extends TimeoutException {
     /**
      * <p>Constructor for ReadTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public ReadTimeoutException(String message, Throwable cause) {
         super(message, cause);

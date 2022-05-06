@@ -30,9 +30,13 @@ public interface PacketDecoder<P extends Packet> {
     /**
      * <p>decode.</p>
      *
-     * @param data a {@link io.netty.buffer.ByteBuf} object
+     * @param data
+     *         a {@link io.netty.buffer.ByteBuf} object
+     *
      * @return a P object
-     * @throws com.ibasco.agql.core.exceptions.PacketDecodeException if any.
+     *
+     * @throws com.ibasco.agql.core.exceptions.PacketDecodeException
+     *         if any.
      */
     P decode(ByteBuf data) throws PacketDecodeException;
 }

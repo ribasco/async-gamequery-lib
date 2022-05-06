@@ -44,9 +44,6 @@ import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.time.Duration;
@@ -58,6 +55,8 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Advanced example for executing batch asynchronous queries
@@ -134,6 +133,16 @@ public class SourceQueryExample extends BaseExample {
             log.error("Failed to run query: {}", e.getMessage());
             throw e;
         }
+    }
+
+    private void printConsoleBanner() {
+        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
+        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
+        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
+        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
+        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
+        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
+        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
     }
 
     /**
@@ -303,16 +312,6 @@ public class SourceQueryExample extends BaseExample {
         close(masterExecutor, "Master Executor");
     }
 
-    private void printConsoleBanner() {
-        System.out.println("\033[0;36m███████╗ ██████╗ ██╗   ██╗██████╗  ██████╗███████╗     ██████╗ ██╗   ██╗███████╗██████╗ ██╗   ██╗\033[0m");
-        System.out.println("\033[0;36m██╔════╝██╔═══██╗██║   ██║██╔══██╗██╔════╝██╔════╝    ██╔═══██╗██║   ██║██╔════╝██╔══██╗╚██╗ ██╔╝\033[0m");
-        System.out.println("\033[0;36m███████╗██║   ██║██║   ██║██████╔╝██║     █████╗      ██║   ██║██║   ██║█████╗  ██████╔╝ ╚████╔╝ \033[0m");
-        System.out.println("\033[0;36m╚════██║██║   ██║██║   ██║██╔══██╗██║     ██╔══╝      ██║▄▄ ██║██║   ██║██╔══╝  ██╔══██╗  ╚██╔╝  \033[0m");
-        System.out.println("\033[0;36m███████║╚██████╔╝╚██████╔╝██║  ██║╚██████╗███████╗    ╚██████╔╝╚██████╔╝███████╗██║  ██║   ██║   \033[0m");
-        System.out.println("\033[0;36m╚══════╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝ ╚═════╝╚══════╝     ╚══▀▀═╝  ╚═════╝ ╚══════╝╚═╝  ╚═╝   ╚═╝   \033[0m");
-        System.out.println("\033[0;36m                                             \033[0;33mPowered by Asynchronous Game Query Library\033[0m");
-    }
-
     //<editor-fold desc="Private class/enum">
 
     /**
@@ -356,12 +355,18 @@ public class SourceQueryExample extends BaseExample {
             this.type = type;
         }
 
+        public static BiFunction<SourceQueryInfoResponse, Throwable, QueryResponse<SourceServer>> ofInfoType() {
+            return ofType(QueryType.INFO);
+        }
+
         public static <V, Q extends SourceQueryResponse<V>> BiFunction<Q, Throwable, QueryResponse<V>> ofType(QueryType type) {
             return new QueryResponse<V>(type)::save;
         }
 
-        public static BiFunction<SourceQueryInfoResponse, Throwable, QueryResponse<SourceServer>> ofInfoType() {
-            return ofType(QueryType.INFO);
+        private QueryResponse save(SourceQueryResponse<T> response, Throwable error) {
+            this.response = response;
+            this.error = error;
+            return this;
         }
 
         public static BiFunction<SourceQueryPlayerResponse, Throwable, QueryResponse<List<SourcePlayer>>> ofPlayerType() {
@@ -390,12 +395,6 @@ public class SourceQueryExample extends BaseExample {
 
         public boolean hasError() {
             return error != null;
-        }
-
-        private QueryResponse save(SourceQueryResponse<T> response, Throwable error) {
-            this.response = response;
-            this.error = error;
-            return this;
         }
     }
 

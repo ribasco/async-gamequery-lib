@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.util.Option;
-
 import java.util.function.Supplier;
 
 /**

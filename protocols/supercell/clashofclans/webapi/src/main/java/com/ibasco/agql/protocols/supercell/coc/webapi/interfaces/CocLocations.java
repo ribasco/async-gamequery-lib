@@ -29,7 +29,6 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
@@ -44,6 +43,7 @@ import java.util.function.Function;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocLocations extends CocWebApiInterface {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -68,17 +68,6 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
-     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation}
-     */
-    public CompletableFuture<List<CocLocation>> getLocations(int limit) {
-        return getLocations(limit, -1, -1);
-    }
-
-    /**
-     * <p>List all available locations</p>
-     *
-     * @param limit
-     *         An {@link java.lang.Integer} limiting the number of records returned
      * @param before
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur before this marker.
      *         Before marker can be found from the response, inside the 'paging' property. Note         that only after
@@ -87,6 +76,7 @@ public class CocLocations extends CocWebApiInterface {
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation}
      */
     public CompletableFuture<List<CocLocation>> getLocations(int limit, int before, int after) {
@@ -102,11 +92,25 @@ public class CocLocations extends CocWebApiInterface {
     }
 
     /**
+     * <p>List all available locations</p>
+     *
+     * @param limit
+     *         An {@link java.lang.Integer} limiting the number of records returned
+     *
+     * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation}
+     */
+    public CompletableFuture<List<CocLocation>> getLocations(int limit) {
+        return getLocations(limit, -1, -1);
+    }
+
+    /**
      * <p>Get information about specific location</p>
      *
      * @param locationId
      *         An {@link java.lang.Integer} representing the identifier of the location to retrieve.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation}
+     *
      * @see CocLocations#getLocations()
      */
     public CompletableFuture<CocLocation> getLocationInfo(int locationId) {
@@ -119,6 +123,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @param locationId
      *         An {@link java.lang.Integer} representing the identifier of the location to retrieve.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo}
      */
     public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId) {
@@ -132,6 +137,7 @@ public class CocLocations extends CocWebApiInterface {
      *         An {@link java.lang.Integer} representing the identifier of the location to retrieve.
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result for a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo}
      */
     public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, int limit) {
@@ -153,6 +159,7 @@ public class CocLocations extends CocWebApiInterface {
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanRankInfo}
      */
     public CompletableFuture<List<CocClanRankInfo>> getClanRankingsFromLocation(int locationId, int limit, int before, int after) {
@@ -172,6 +179,7 @@ public class CocLocations extends CocWebApiInterface {
      *
      * @param locationId
      *         An {@link java.lang.Integer} representing the identifier of the location to retrieve.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId) {
@@ -185,6 +193,7 @@ public class CocLocations extends CocWebApiInterface {
      *         An {@link java.lang.Integer} representing the identifier of the location to retrieve.
      * @param limit
      *         An {@link java.lang.Integer} limiting the number of records returned
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, int limit) {
@@ -206,6 +215,7 @@ public class CocLocations extends CocWebApiInterface {
      *         (optional) An {@link java.lang.Integer} that indicates to return only items that occur after this marker.
      *         After marker can be found from the response, inside the 'paging' property. Note that only after
      *         or before can be specified for a request, not both. Otherwise use -1 to disregard.
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} containing a future result of a {@link java.util.List} of {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocPlayerRankInfo}
      */
     public CompletableFuture<List<CocPlayerRankInfo>> getPlayerRankingsFromLocation(int locationId, int limit, int before, int after) {

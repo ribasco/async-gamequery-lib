@@ -26,23 +26,33 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaAttribute {
+
     private String name;
+
     @SerializedName("defindex")
     private int defIndex;
+
     @SerializedName("attribute_class")
     private String attributeClass;
+
     @SerializedName("description_string")
     private String descriptionString;
+
     @SerializedName("description_format")
     private String descriptionFormat;
+
     @SerializedName("effect_type")
     private String effectType;
+
     @SerializedName("hidden")
     private boolean hidden;
+
     @SerializedName("stored_as_integer")
     private boolean storedAsInteger;
+
     @SerializedName("minvalue")
     private double minValue;
+
     @SerializedName("maxvalue")
     private double maxValue;
 
@@ -58,7 +68,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -76,7 +87,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>defIndex</code>.</p>
      *
-     * @param defIndex a int
+     * @param defIndex
+     *         a int
      */
     public void setDefIndex(int defIndex) {
         this.defIndex = defIndex;
@@ -94,7 +106,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>attributeClass</code>.</p>
      *
-     * @param attributeClass a {@link java.lang.String} object
+     * @param attributeClass
+     *         a {@link java.lang.String} object
      */
     public void setAttributeClass(String attributeClass) {
         this.attributeClass = attributeClass;
@@ -112,7 +125,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>descriptionString</code>.</p>
      *
-     * @param descriptionString a {@link java.lang.String} object
+     * @param descriptionString
+     *         a {@link java.lang.String} object
      */
     public void setDescriptionString(String descriptionString) {
         this.descriptionString = descriptionString;
@@ -130,7 +144,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>descriptionFormat</code>.</p>
      *
-     * @param descriptionFormat a {@link java.lang.String} object
+     * @param descriptionFormat
+     *         a {@link java.lang.String} object
      */
     public void setDescriptionFormat(String descriptionFormat) {
         this.descriptionFormat = descriptionFormat;
@@ -148,7 +163,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>effectType</code>.</p>
      *
-     * @param effectType a {@link java.lang.String} object
+     * @param effectType
+     *         a {@link java.lang.String} object
      */
     public void setEffectType(String effectType) {
         this.effectType = effectType;
@@ -166,7 +182,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>hidden</code>.</p>
      *
-     * @param hidden a boolean
+     * @param hidden
+     *         a boolean
      */
     public void setHidden(boolean hidden) {
         this.hidden = hidden;
@@ -184,7 +201,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>storedAsInteger</code>.</p>
      *
-     * @param storedAsInteger a boolean
+     * @param storedAsInteger
+     *         a boolean
      */
     public void setStoredAsInteger(boolean storedAsInteger) {
         this.storedAsInteger = storedAsInteger;
@@ -202,7 +220,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>minValue</code>.</p>
      *
-     * @param minValue a double
+     * @param minValue
+     *         a double
      */
     public void setMinValue(double minValue) {
         this.minValue = minValue;
@@ -220,7 +239,8 @@ public class SteamEconSchemaAttribute {
     /**
      * <p>Setter for the field <code>maxValue</code>.</p>
      *
-     * @param maxValue a double
+     * @param maxValue
+     *         a double
      */
     public void setMaxValue(double maxValue) {
         this.maxValue = maxValue;

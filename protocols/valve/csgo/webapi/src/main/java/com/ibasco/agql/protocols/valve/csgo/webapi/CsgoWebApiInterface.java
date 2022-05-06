@@ -27,6 +27,7 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
  * @author Rafael Luis Ibasco
  */
 abstract public class CsgoWebApiInterface extends AbstractWebApiInterface<SteamWebApiClient, CsgoWebApiRequest, CsgoWebApiResponse> {
+
     /**
      * <p>Default Constructor</p>
      *
@@ -40,7 +41,9 @@ abstract public class CsgoWebApiInterface extends AbstractWebApiInterface<SteamW
     /**
      * <p>getResult.</p>
      *
-     * @param root a {@link com.google.gson.JsonObject} object
+     * @param root
+     *         a {@link com.google.gson.JsonObject} object
+     *
      * @return a {@link com.google.gson.JsonObject} object
      */
     protected JsonObject getResult(JsonObject root) {

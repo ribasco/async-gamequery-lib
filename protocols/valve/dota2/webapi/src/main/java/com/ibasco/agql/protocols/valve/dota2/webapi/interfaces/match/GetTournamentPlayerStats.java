@@ -25,16 +25,24 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetTournamentPlayerStats extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetTournamentPlayerStats.</p>
      *
-     * @param apiVersion a int
-     * @param accountId a long
-     * @param leagueId a int
-     * @param heroId a int
-     * @param timeFrame a {@link java.lang.String} object
-     * @param matchId a long
-     * @param phaseId a int
+     * @param apiVersion
+     *         a int
+     * @param accountId
+     *         a long
+     * @param leagueId
+     *         a int
+     * @param heroId
+     *         a int
+     * @param timeFrame
+     *         a {@link java.lang.String} object
+     * @param matchId
+     *         a long
+     * @param phaseId
+     *         a int
      */
     public GetTournamentPlayerStats(int apiVersion, long accountId, int leagueId, int heroId, String timeFrame, long matchId, int phaseId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETTOURNPLAYERSTATS, apiVersion, null);

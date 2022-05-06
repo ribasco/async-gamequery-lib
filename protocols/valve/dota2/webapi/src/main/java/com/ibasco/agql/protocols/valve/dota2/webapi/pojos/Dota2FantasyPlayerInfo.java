@@ -26,14 +26,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2FantasyPlayerInfo {
+
     @SerializedName("Name")
     private String name;
+
     @SerializedName("TeamName")
     private String teamName;
+
     @SerializedName("TeamTag")
     private String teamTag;
+
     @SerializedName("Sponsor")
     private String sponsor;
+
     @SerializedName("FantasyRole")
     private int fantasyRole;
 
@@ -49,7 +54,8 @@ public class Dota2FantasyPlayerInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -67,7 +73,8 @@ public class Dota2FantasyPlayerInfo {
     /**
      * <p>Setter for the field <code>teamName</code>.</p>
      *
-     * @param teamName a {@link java.lang.String} object
+     * @param teamName
+     *         a {@link java.lang.String} object
      */
     public void setTeamName(String teamName) {
         this.teamName = teamName;
@@ -85,7 +92,8 @@ public class Dota2FantasyPlayerInfo {
     /**
      * <p>Setter for the field <code>teamTag</code>.</p>
      *
-     * @param teamTag a {@link java.lang.String} object
+     * @param teamTag
+     *         a {@link java.lang.String} object
      */
     public void setTeamTag(String teamTag) {
         this.teamTag = teamTag;
@@ -103,7 +111,8 @@ public class Dota2FantasyPlayerInfo {
     /**
      * <p>Setter for the field <code>sponsor</code>.</p>
      *
-     * @param sponsor a {@link java.lang.String} object
+     * @param sponsor
+     *         a {@link java.lang.String} object
      */
     public void setSponsor(String sponsor) {
         this.sponsor = sponsor;
@@ -121,7 +130,8 @@ public class Dota2FantasyPlayerInfo {
     /**
      * <p>Setter for the field <code>fantasyRole</code>.</p>
      *
-     * @param fantasyRole a int
+     * @param fantasyRole
+     *         a int
      */
     public void setFantasyRole(int fantasyRole) {
         this.fantasyRole = fantasyRole;

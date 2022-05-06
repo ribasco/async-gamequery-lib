@@ -19,11 +19,16 @@ package com.ibasco.agql.core.util;
 import io.netty.channel.EventLoopGroup;
 import io.netty.util.concurrent.EventExecutor;
 import org.jetbrains.annotations.ApiStatus;
+import java.util.Iterator;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Iterator;
-import java.util.concurrent.*;
 
 /**
  * <p>Concurrency class.</p>
@@ -42,6 +47,7 @@ public final class Concurrency {
      *         a {@link java.util.concurrent.CompletableFuture} object
      * @param <V>
      *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletionStage} object
      */
     public static <V> CompletionStage<V> wrap(CompletableFuture<V> future) {
@@ -59,6 +65,7 @@ public final class Concurrency {
      *         a A class
      * @param <B>
      *         a B class
+     *
      * @return a B object
      */
     public static <A, B> B combine(A a, B b) {
@@ -72,6 +79,7 @@ public final class Concurrency {
      *         a {@link java.lang.Throwable} object
      * @param <V>
      *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error) {
@@ -87,6 +95,7 @@ public final class Concurrency {
      *         a {@link java.util.concurrent.Executor} object
      * @param <V>
      *         a V class
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public static <V> CompletableFuture<V> failedFuture(Throwable error, Executor executor) {
@@ -105,6 +114,7 @@ public final class Concurrency {
      *
      * @param executorService
      *         The {@link java.util.concurrent.ExecutorService} to shutdown
+     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService) {
@@ -122,6 +132,7 @@ public final class Concurrency {
      *         The timeout value to wait for a successful termination
      * @param timeUnit
      *         The {@link java.util.concurrent.TimeUnit} of the timeout value
+     *
      * @return {@code true} if the {@link java.util.concurrent.ExecutorService} shutdown successfully {@code false} if executor service is {@code null}, timeout has expired or shutdown was interrupted
      */
     public static boolean shutdown(ExecutorService executorService, final int timeout, final TimeUnit timeUnit) {

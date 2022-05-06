@@ -24,7 +24,6 @@ import com.ibasco.agql.protocols.valve.source.query.common.handlers.SourceQueryA
 import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.HashMap;
 import java.util.Map;
 

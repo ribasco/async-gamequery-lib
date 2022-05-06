@@ -35,10 +35,13 @@ public final class SourceQueryPacketDecoderProvider {
      *         The lookup header type
      * @param <T>
      *         The concrete capture type of {@link com.ibasco.agql.core.PacketDecoder}
+     * @param <P>
+     *         a P class
+     *
      * @return A singleton instance of {@link com.ibasco.agql.core.PacketDecoder}
+     *
      * @see SourceQuery#SOURCE_PACKET_TYPE_SINGLE
      * @see SourceQuery#SOURCE_PACKET_TYPE_SPLIT
-     * @param <P> a P class
      */
     @SuppressWarnings("unchecked")
     public static <T extends PacketDecoder<P>, P extends SourceQueryPacket> T getDecoder(int type) {

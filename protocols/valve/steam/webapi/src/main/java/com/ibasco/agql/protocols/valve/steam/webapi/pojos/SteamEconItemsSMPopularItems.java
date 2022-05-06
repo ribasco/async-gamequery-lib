@@ -26,8 +26,10 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMPopularItems {
+
     @SerializedName("defindex")
     private int defIndex;
+
     private int order;
 
     /**
@@ -42,7 +44,8 @@ public class SteamEconItemsSMPopularItems {
     /**
      * <p>Setter for the field <code>defIndex</code>.</p>
      *
-     * @param defIndex a int
+     * @param defIndex
+     *         a int
      */
     public void setDefIndex(int defIndex) {
         this.defIndex = defIndex;
@@ -60,7 +63,8 @@ public class SteamEconItemsSMPopularItems {
     /**
      * <p>Setter for the field <code>order</code>.</p>
      *
-     * @param order a int
+     * @param order
+     *         a int
      */
     public void setOrder(int order) {
         this.order = order;

@@ -25,8 +25,19 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamApp {
+
     private int appid;
+
     private String name;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("appId", getAppid())
+                .append("name", getName())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>appid</code>.</p>
@@ -40,7 +51,8 @@ public class SteamApp {
     /**
      * <p>Setter for the field <code>appid</code>.</p>
      *
-     * @param appid a int
+     * @param appid
+     *         a int
      */
     public void setAppid(int appid) {
         this.appid = appid;
@@ -58,18 +70,10 @@ public class SteamApp {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("appId", getAppid())
-                .append("name", getName())
-                .toString();
     }
 }

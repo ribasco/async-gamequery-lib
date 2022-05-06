@@ -24,11 +24,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamAppsRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetServersAtAddress extends SteamAppsRequest {
+
     /**
      * <p>Constructor for GetServersAtAddress.</p>
      *
-     * @param version a int
-     * @param address a {@link java.lang.String} object
+     * @param version
+     *         a int
+     * @param address
+     *         a {@link java.lang.String} object
      */
     public GetServersAtAddress(int version, String address) {
         super("GetServersAtAddress", version);

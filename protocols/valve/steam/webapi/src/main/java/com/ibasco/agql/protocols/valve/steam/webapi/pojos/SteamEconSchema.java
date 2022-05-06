@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,46 +28,56 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchema {
+
     /**
      * The status of the request, should always be 1.
      */
     private int status;
+
     /**
      * A string containing the URL to the full item schema as used by the game.
      */
     @SerializedName("items_game_url")
     private String itemsGameUrl;
+
     /**
      * An object containing the numeric values corresponding to each "quality" an item can have:
      */
     private SteamEconSchemaItemQuality qualities;
+
     /**
      * A list of objects describing an item's origin.
      */
     private List<SteamEconSchemaOriginName> originNames = new ArrayList<>();
+
     /**
      * A list of item objects.
      */
     private List<SteamEconSchemaItem> items = new ArrayList<>();
+
     /**
      * An object containing an array of Schema Attributes
      */
     private List<SteamEconSchemaAttribute> attributes = new ArrayList<>();
+
     /**
      * A list of objects containing item set definitions.
      */
     @SerializedName("item_sets")
     private List<SteamEconSchemaItemSet> itemSets = new ArrayList<>();
+
     /**
      * An object containing a list of objects that describe the defined particle effects.
      */
     @SerializedName("attribute_controlled_attached_particles")
     private List<SteamEconSchemaAcap> attributeControlledAttachedParticles = new ArrayList<>();
+
     /**
      * A list of objects that describe ranks for kill eater items.
      */
     @SerializedName("item_levels")
     private List<SteamEconSchemaItemLevel> itemLevels = new ArrayList<>();
+
     /**
      * An object containing a list of objects describing suffixes
      * to use after a kill eater value in an attribute display line.
@@ -91,7 +100,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>status</code>.</p>
      *
-     * @param status a int
+     * @param status
+     *         a int
      */
     public void setStatus(int status) {
         this.status = status;
@@ -109,7 +119,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>itemsGameUrl</code>.</p>
      *
-     * @param itemsGameUrl a {@link java.lang.String} object
+     * @param itemsGameUrl
+     *         a {@link java.lang.String} object
      */
     public void setItemsGameUrl(String itemsGameUrl) {
         this.itemsGameUrl = itemsGameUrl;
@@ -127,7 +138,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>qualities</code>.</p>
      *
-     * @param qualities a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchemaItemQuality} object
+     * @param qualities
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconSchemaItemQuality} object
      */
     public void setQualities(SteamEconSchemaItemQuality qualities) {
         this.qualities = qualities;
@@ -145,7 +157,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>originNames</code>.</p>
      *
-     * @param originNames a {@link java.util.List} object
+     * @param originNames
+     *         a {@link java.util.List} object
      */
     public void setOriginNames(List<SteamEconSchemaOriginName> originNames) {
         this.originNames = originNames;
@@ -163,7 +176,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>items</code>.</p>
      *
-     * @param items a {@link java.util.List} object
+     * @param items
+     *         a {@link java.util.List} object
      */
     public void setItems(List<SteamEconSchemaItem> items) {
         this.items = items;
@@ -181,7 +195,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>attributes</code>.</p>
      *
-     * @param attributes a {@link java.util.List} object
+     * @param attributes
+     *         a {@link java.util.List} object
      */
     public void setAttributes(List<SteamEconSchemaAttribute> attributes) {
         this.attributes = attributes;
@@ -199,7 +214,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>itemSets</code>.</p>
      *
-     * @param itemSets a {@link java.util.List} object
+     * @param itemSets
+     *         a {@link java.util.List} object
      */
     public void setItemSets(List<SteamEconSchemaItemSet> itemSets) {
         this.itemSets = itemSets;
@@ -217,7 +233,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>attributeControlledAttachedParticles</code>.</p>
      *
-     * @param attributeControlledAttachedParticles a {@link java.util.List} object
+     * @param attributeControlledAttachedParticles
+     *         a {@link java.util.List} object
      */
     public void setAttributeControlledAttachedParticles(List<SteamEconSchemaAcap> attributeControlledAttachedParticles) {
         this.attributeControlledAttachedParticles = attributeControlledAttachedParticles;
@@ -235,7 +252,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>itemLevels</code>.</p>
      *
-     * @param itemLevels a {@link java.util.List} object
+     * @param itemLevels
+     *         a {@link java.util.List} object
      */
     public void setItemLevels(List<SteamEconSchemaItemLevel> itemLevels) {
         this.itemLevels = itemLevels;
@@ -253,7 +271,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>killEaterScoreTypes</code>.</p>
      *
-     * @param killEaterScoreTypes a {@link java.util.List} object
+     * @param killEaterScoreTypes
+     *         a {@link java.util.List} object
      */
     public void setKillEaterScoreTypes(List<SteamEconSchemaKest> killEaterScoreTypes) {
         this.killEaterScoreTypes = killEaterScoreTypes;
@@ -271,7 +290,8 @@ public class SteamEconSchema {
     /**
      * <p>Setter for the field <code>killEaterRanks</code>.</p>
      *
-     * @param killEaterRanks a {@link java.util.List} object
+     * @param killEaterRanks
+     *         a {@link java.util.List} object
      */
     public void setKillEaterRanks(List<SteamEconKillEaterRanks> killEaterRanks) {
         this.killEaterRanks = killEaterRanks;

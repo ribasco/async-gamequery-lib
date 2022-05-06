@@ -25,10 +25,12 @@ import org.asynchttpclient.Response;
  * @author Rafael Luis Ibasco
  */
 public class Dota2WebApiResponse extends SteamWebApiResponse {
+
     /**
      * <p>Constructor for Dota2WebApiResponse.</p>
      *
-     * @param response a {@link org.asynchttpclient.Response} object
+     * @param response
+     *         a {@link org.asynchttpclient.Response} object
      */
     public Dota2WebApiResponse(Response response) {
         super(response);

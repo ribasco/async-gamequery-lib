@@ -24,6 +24,7 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public abstract class SteamResponse {
+
     @SerializedName("success")
     private boolean success;
 
@@ -39,7 +40,8 @@ public abstract class SteamResponse {
     /**
      * <p>Setter for the field <code>success</code>.</p>
      *
-     * @param success a boolean
+     * @param success
+     *         a boolean
      */
     public void setSuccess(boolean success) {
         this.success = success;

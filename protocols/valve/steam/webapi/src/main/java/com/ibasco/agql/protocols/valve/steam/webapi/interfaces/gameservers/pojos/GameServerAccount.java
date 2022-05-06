@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.gameservers.pojo
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
 import java.util.List;
 
 public class GameServerAccount {

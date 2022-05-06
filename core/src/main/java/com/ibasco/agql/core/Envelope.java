@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.google.common.base.Supplier;
-
 import java.net.SocketAddress;
 
 /**
@@ -37,14 +36,17 @@ public interface Envelope<C> extends Supplier<Envelope<C>> {
     /**
      * <p>content.</p>
      *
-     * @param content a C object
+     * @param content
+     *         a C object
      */
     void content(C content);
 
     /**
      * <p>recipient.</p>
      *
-     * @param <A> a A class
+     * @param <A>
+     *         a A class
+     *
      * @return a A object
      */
     <A extends SocketAddress> A recipient();
@@ -52,15 +54,19 @@ public interface Envelope<C> extends Supplier<Envelope<C>> {
     /**
      * <p>recipient.</p>
      *
-     * @param recipient a A object
-     * @param <A> a A class
+     * @param recipient
+     *         a A object
+     * @param <A>
+     *         a A class
      */
     <A extends SocketAddress> void recipient(A recipient);
 
     /**
      * <p>sender.</p>
      *
-     * @param <A> a A class
+     * @param <A>
+     *         a A class
+     *
      * @return a A object
      */
     <A extends SocketAddress> A sender();
@@ -68,8 +74,10 @@ public interface Envelope<C> extends Supplier<Envelope<C>> {
     /**
      * <p>sender.</p>
      *
-     * @param sender a A object
-     * @param <A> a A class
+     * @param sender
+     *         a A object
+     * @param <A>
+     *         a A class
      */
     <A extends SocketAddress> void sender(A sender);
 }

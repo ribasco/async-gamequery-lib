@@ -29,8 +29,10 @@ public class Dota2MatchAbilityUpgrade {
 
     @SerializedName("ability")
     private int ability;
+
     @SerializedName("time")
     private int time;
+
     @SerializedName("level")
     private int level;
 

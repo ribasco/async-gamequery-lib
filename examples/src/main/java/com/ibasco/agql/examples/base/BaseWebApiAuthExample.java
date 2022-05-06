@@ -26,7 +26,9 @@ abstract public class BaseWebApiAuthExample extends BaseExample {
     /**
      * <p>getToken.</p>
      *
-     * @param key a {@link java.lang.String} object
+     * @param key
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.lang.String} object
      */
     protected String getToken(String key) {

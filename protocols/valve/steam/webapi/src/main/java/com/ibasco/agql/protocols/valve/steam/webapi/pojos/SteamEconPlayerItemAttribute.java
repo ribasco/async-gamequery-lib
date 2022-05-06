@@ -26,13 +26,28 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconPlayerItemAttribute<T> {
+
     @SerializedName("defindex")
     private int defIndex;
+
     private T value;
+
     @SerializedName("float_value")
     private float floatValue;
+
     @SerializedName("account_info")
     private SteamEconPlayerAccountInfo accountInfo;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("defindex", getDefIndex())
+                .append("value", getValue())
+                .append("floatValue", getFloatValue())
+                .append("accountInfo", getAccountInfo())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>defIndex</code>.</p>
@@ -46,7 +61,8 @@ public class SteamEconPlayerItemAttribute<T> {
     /**
      * <p>Setter for the field <code>defIndex</code>.</p>
      *
-     * @param defIndex a int
+     * @param defIndex
+     *         a int
      */
     public void setDefIndex(int defIndex) {
         this.defIndex = defIndex;
@@ -64,7 +80,8 @@ public class SteamEconPlayerItemAttribute<T> {
     /**
      * <p>Setter for the field <code>value</code>.</p>
      *
-     * @param value a T object
+     * @param value
+     *         a T object
      */
     public void setValue(T value) {
         this.value = value;
@@ -82,7 +99,8 @@ public class SteamEconPlayerItemAttribute<T> {
     /**
      * <p>Setter for the field <code>floatValue</code>.</p>
      *
-     * @param floatValue a float
+     * @param floatValue
+     *         a float
      */
     public void setFloatValue(float floatValue) {
         this.floatValue = floatValue;
@@ -100,20 +118,10 @@ public class SteamEconPlayerItemAttribute<T> {
     /**
      * <p>Setter for the field <code>accountInfo</code>.</p>
      *
-     * @param accountInfo a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconPlayerAccountInfo} object
+     * @param accountInfo
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconPlayerAccountInfo} object
      */
     public void setAccountInfo(SteamEconPlayerAccountInfo accountInfo) {
         this.accountInfo = accountInfo;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("defindex", getDefIndex())
-                .append("value", getValue())
-                .append("floatValue", getFloatValue())
-                .append("accountInfo", getAccountInfo())
-                .toString();
     }
 }

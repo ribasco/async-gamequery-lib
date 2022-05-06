@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +28,10 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMHomepage {
+
     @SerializedName("home_category_id")
     private long categoryId;
+
     @SerializedName("popular_items")
     private List<SteamEconItemsSMPopularItems> popularItems = new ArrayList<>();
 
@@ -46,7 +47,8 @@ public class SteamEconItemsSMHomepage {
     /**
      * <p>Setter for the field <code>categoryId</code>.</p>
      *
-     * @param categoryId a long
+     * @param categoryId
+     *         a long
      */
     public void setCategoryId(long categoryId) {
         this.categoryId = categoryId;
@@ -64,7 +66,8 @@ public class SteamEconItemsSMHomepage {
     /**
      * <p>Setter for the field <code>popularItems</code>.</p>
      *
-     * @param popularItems a {@link java.util.List} object
+     * @param popularItems
+     *         a {@link java.util.List} object
      */
     public void setPopularItems(List<SteamEconItemsSMPopularItems> popularItems) {
         this.popularItems = popularItems;

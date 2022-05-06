@@ -26,32 +26,46 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2ServerStatsPlayer {
+
     @SerializedName("accountId")
     private long accountId;
+
     @SerializedName("playerid")
     private int playerid;
+
     @SerializedName("name")
     private String name;
+
     @SerializedName("team")
     private int team;
+
     @SerializedName("heroid")
     private int heroid;
+
     @SerializedName("level")
     private int level;
+
     @SerializedName("kill_count")
     private int killCount;
+
     @SerializedName("death_count")
     private int deathCount;
+
     @SerializedName("assists_count")
     private int assistsCount;
+
     @SerializedName("denies_count")
     private int deniesCount;
+
     @SerializedName("lh_count")
     private int lhCount;
+
     @SerializedName("gold")
     private int gold;
+
     @SerializedName("x")
     private double x;
+
     @SerializedName("y")
     private double y;
 

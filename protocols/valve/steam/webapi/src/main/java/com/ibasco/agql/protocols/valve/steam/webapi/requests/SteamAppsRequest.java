@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class SteamAppsRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for SteamAppsRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public SteamAppsRequest(String apiMethod, int apiVersion) {
         super(SteamApiConstants.STEAM_APPS, apiMethod, apiVersion);

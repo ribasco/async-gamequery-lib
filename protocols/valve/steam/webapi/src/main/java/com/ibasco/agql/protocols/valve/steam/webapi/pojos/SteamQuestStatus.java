@@ -24,8 +24,10 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamQuestStatus {
+
     @SerializedName("questid")
     private int questId;
+
     private boolean completed;
 
     /**
@@ -40,7 +42,8 @@ public class SteamQuestStatus {
     /**
      * <p>Setter for the field <code>questId</code>.</p>
      *
-     * @param questId a int
+     * @param questId
+     *         a int
      */
     public void setQuestId(int questId) {
         this.questId = questId;
@@ -58,7 +61,8 @@ public class SteamQuestStatus {
     /**
      * <p>Setter for the field <code>completed</code>.</p>
      *
-     * @param completed a boolean
+     * @param completed
+     *         a boolean
      */
     public void setCompleted(boolean completed) {
         this.completed = completed;

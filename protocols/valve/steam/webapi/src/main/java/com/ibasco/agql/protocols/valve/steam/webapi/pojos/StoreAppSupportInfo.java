@@ -22,7 +22,9 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppSupportInfo {
+
     private String url;
+
     private String email;
 
     /**
@@ -37,7 +39,8 @@ public class StoreAppSupportInfo {
     /**
      * <p>Setter for the field <code>url</code>.</p>
      *
-     * @param url a {@link java.lang.String} object
+     * @param url
+     *         a {@link java.lang.String} object
      */
     public void setUrl(String url) {
         this.url = url;
@@ -55,7 +58,8 @@ public class StoreAppSupportInfo {
     /**
      * <p>Setter for the field <code>email</code>.</p>
      *
-     * @param email a {@link java.lang.String} object
+     * @param email
+     *         a {@link java.lang.String} object
      */
     public void setEmail(String email) {
         this.email = email;

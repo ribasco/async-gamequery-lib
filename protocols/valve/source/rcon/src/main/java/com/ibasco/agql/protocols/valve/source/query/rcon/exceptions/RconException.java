@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.exceptions;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.exceptions.ResponseException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
-
 import java.net.InetSocketAddress;
 
 /**

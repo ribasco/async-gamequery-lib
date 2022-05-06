@@ -19,10 +19,9 @@ package com.ibasco.agql.protocols.valve.source.query.rcon;
 import com.ibasco.agql.core.NettyChannelContext;
 import io.netty.channel.Channel;
 import org.jetbrains.annotations.ApiStatus;
+import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.concurrent.CompletableFuture;
 
 /**
  * Channel context for the Rcon module
@@ -40,10 +39,8 @@ public final class SourceRconChannelContext extends NettyChannelContext {
         super(channel, messenger);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public SourceRconMessenger messenger() {
-        return (SourceRconMessenger) super.messenger();
+    public static SourceRconChannelContext getContext(Channel channel) {
+        return (SourceRconChannelContext) NettyChannelContext.getContext(channel);
     }
 
     /** {@inheritDoc} */
@@ -56,14 +53,20 @@ public final class SourceRconChannelContext extends NettyChannelContext {
 
     /** {@inheritDoc} */
     @Override
-    public CompletableFuture<SourceRconChannelContext> send() {
-        return super.send().thenCompose(NettyChannelContext::composedFuture);
+    public RconProperties properties() {
+        return (RconProperties) super.properties();
     }
 
     /** {@inheritDoc} */
     @Override
-    public RconProperties properties() {
-        return (RconProperties) super.properties();
+    public SourceRconMessenger messenger() {
+        return (SourceRconMessenger) super.messenger();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<SourceRconChannelContext> send() {
+        return super.send().thenCompose(NettyChannelContext::composedFuture);
     }
 
     /** {@inheritDoc} */
@@ -76,10 +79,6 @@ public final class SourceRconChannelContext extends NettyChannelContext {
     @Override
     public SourceRconChannelContext restore() {
         return (SourceRconChannelContext) super.restore();
-    }
-
-    public static SourceRconChannelContext getContext(Channel channel) {
-        return (SourceRconChannelContext) NettyChannelContext.getContext(channel);
     }
 
     public class RconProperties extends NettyChannelContext.Properties {

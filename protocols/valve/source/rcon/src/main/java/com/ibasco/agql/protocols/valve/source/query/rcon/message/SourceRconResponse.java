@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.source.query.rcon.message;
 
 import com.ibasco.agql.core.AbstractResponse;
 import org.apache.commons.lang3.builder.ToStringBuilder;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -31,7 +30,8 @@ abstract public class SourceRconResponse<T> extends AbstractResponse<T> {
     /**
      * <p>Constructor for SourceRconResponse.</p>
      *
-     * @param result a T object
+     * @param result
+     *         a T object
      */
     protected SourceRconResponse(T result) {
         super(result);

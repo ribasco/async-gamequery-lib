@@ -16,15 +16,18 @@
 
 package com.ibasco.agql.protocols.valve.csgo.webapi.adapters;
 
-import com.google.gson.*;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoDatacenterStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>CsgoDatacenterStatusDeserializer class.</p>

@@ -20,7 +20,6 @@ import com.ibasco.agql.protocols.supercell.coc.webapi.CocApiConstants;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria;
 import com.ibasco.agql.protocols.supercell.coc.webapi.CocWebApiRequest;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.Map;
 
 /**
@@ -35,8 +34,10 @@ public class SearchClan extends CocWebApiRequest {
     /**
      * <p>Constructor for SearchClan.</p>
      *
-     * @param apiVersion a int
-     * @param criteria a {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} object
+     * @param apiVersion
+     *         a int
+     * @param criteria
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.CocSearchCriteria} object
      */
     public SearchClan(int apiVersion, CocSearchCriteria criteria) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_SEARCH);

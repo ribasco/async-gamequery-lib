@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetLiveLeagueGames extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetLiveLeagueGames.</p>
      *
-     * @param apiVersion a int
-     * @param leagueId a int
-     * @param matchId a int
+     * @param apiVersion
+     *         a int
+     * @param leagueId
+     *         a int
+     * @param matchId
+     *         a int
      */
     public GetLiveLeagueGames(int apiVersion, int leagueId, int matchId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETLIVELEAGUEGAMES, apiVersion, null);

@@ -29,10 +29,13 @@ public class Dota2ScoreboardStats {
 
     @SerializedName("duration")
     private double duration;
+
     @SerializedName("roshan_respawn_timer")
     private int roshanRespawnTimer;
+
     @SerializedName("radiant")
     private Dota2ScoreboardTeamStats radiantTeamScoreStats;
+
     @SerializedName("dire")
     private Dota2ScoreboardTeamStats direTeamScoreStats;
 
@@ -105,7 +108,8 @@ public class Dota2ScoreboardStats {
     /**
      * <p>Setter for the field <code>direTeamScoreStats</code>.</p>
      *
-     * @param direTeamScoreStats a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2ScoreboardTeamStats} object
+     * @param direTeamScoreStats
+     *         a {@link com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2ScoreboardTeamStats} object
      */
     public void setDireTeamScoreStats(Dota2ScoreboardTeamStats direTeamScoreStats) {
         this.direTeamScoreStats = direTeamScoreStats;

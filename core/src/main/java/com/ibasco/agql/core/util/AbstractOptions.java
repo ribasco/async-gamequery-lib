@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.util;
 
 import org.jetbrains.annotations.NotNull;
-
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Map;
@@ -34,8 +33,6 @@ abstract public class AbstractOptions implements Options {
     private static final Comparator<Map.Entry<Option<?>, Object>> BY_OPTION_FIELD = Comparator.comparing(key -> key.getKey().getFieldName() != null ? key.getKey().getFieldName() : key.getKey().getKey());
 
     private static final Comparator<Map.Entry<Option<?>, Object>> BY_OPTION_CLASS = Comparator.comparing(key -> key.getKey().getDeclaringClass().getSimpleName());
-
-    private final Map<Option<?>, OptionValue<?>> options = new ConcurrentHashMap<>();
 
     private static final Function<Map.Entry<Option<?>, OptionValue<?>>, Map.Entry<Option<?>, Object>> OPTION_ENTRIES = oldEntry -> new Map.Entry<Option<?>, Object>() {
         @Override
@@ -56,6 +53,8 @@ abstract public class AbstractOptions implements Options {
         }
     };
 
+    private final Map<Option<?>, OptionValue<?>> options = new ConcurrentHashMap<>();
+
     /**
      * <p>Constructor for AbstractOptions.</p>
      */
@@ -67,13 +66,6 @@ abstract public class AbstractOptions implements Options {
         put(option, value, false);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public <X> void put(Option<X> option, X value, boolean locked) {
-        checkOption(option);
-        options.put(option, new OptionValue<>(value, locked));
-    }
-
     @Override
     public <X> X putIfAbsent(Option<X> option, X value) {
         checkOption(option);
@@ -82,6 +74,13 @@ abstract public class AbstractOptions implements Options {
         if (optVal != null)
             return optVal.value;
         return null;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public <X> void put(Option<X> option, X value, boolean locked) {
+        checkOption(option);
+        options.put(option, new OptionValue<>(value, locked));
     }
 
     /** {@inheritDoc} */
@@ -120,6 +119,11 @@ abstract public class AbstractOptions implements Options {
         return (X) optVal.value;
     }
 
+    @Override
+    public <X> X get(String key, Class<? extends Options> context) {
+        return get(Option.of(getClass(), context, key));
+    }
+
     /** {@inheritDoc} */
     @Override
     public <X> X get(Option<X> option, X defaultValue) {
@@ -128,11 +132,6 @@ abstract public class AbstractOptions implements Options {
             return defaultValue == null ? option.getDefaultValue() : defaultValue;
         //noinspection unchecked
         return (X) optVal.value;
-    }
-
-    @Override
-    public <X> X get(String key, Class<? extends Options> context) {
-        return get(Option.of(getClass(), context, key));
     }
 
     /** {@inheritDoc} */

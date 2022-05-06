@@ -21,19 +21,26 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 //TODO: Use type adapters for this class to convert the interger values to boolean types
+
 /**
  * <p>Dota2GameItem class.</p>
  *
  * @author Rafael Luis Ibasco
  */
 public class Dota2GameItem {
+
     private int id;
+
     private String name;
+
     private int cost;
+
     @SerializedName("secret_shop")
     private int secretShop;
+
     @SerializedName("side_shop")
     private int sideShop;
+
     private int recipe;
 
     /**
@@ -48,7 +55,8 @@ public class Dota2GameItem {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -66,7 +74,8 @@ public class Dota2GameItem {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -84,7 +93,8 @@ public class Dota2GameItem {
     /**
      * <p>Setter for the field <code>cost</code>.</p>
      *
-     * @param cost a int
+     * @param cost
+     *         a int
      */
     public void setCost(int cost) {
         this.cost = cost;
@@ -102,7 +112,8 @@ public class Dota2GameItem {
     /**
      * <p>Setter for the field <code>secretShop</code>.</p>
      *
-     * @param secretShop a int
+     * @param secretShop
+     *         a int
      */
     public void setSecretShop(int secretShop) {
         this.secretShop = secretShop;
@@ -120,7 +131,8 @@ public class Dota2GameItem {
     /**
      * <p>Setter for the field <code>recipe</code>.</p>
      *
-     * @param recipe a int
+     * @param recipe
+     *         a int
      */
     public void setRecipe(int recipe) {
         this.recipe = recipe;

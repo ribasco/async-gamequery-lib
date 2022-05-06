@@ -37,7 +37,8 @@ public class WebException extends AgqlRuntimeException {
     /**
      * <p>Constructor for WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public WebException(String message) {
         super(message);
@@ -46,8 +47,10 @@ public class WebException extends AgqlRuntimeException {
     /**
      * <p>Constructor for WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public WebException(String message, Throwable cause) {
         super(message, cause);
@@ -56,7 +59,8 @@ public class WebException extends AgqlRuntimeException {
     /**
      * <p>Constructor for WebException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public WebException(Throwable cause) {
         super(cause);
@@ -65,10 +69,14 @@ public class WebException extends AgqlRuntimeException {
     /**
      * <p>Constructor for WebException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public WebException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

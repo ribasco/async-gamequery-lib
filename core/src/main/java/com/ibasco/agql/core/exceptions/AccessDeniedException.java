@@ -22,6 +22,7 @@ package com.ibasco.agql.core.exceptions;
  * @author Rafael Luis Ibasco
  */
 public class AccessDeniedException extends WebException {
+
     /**
      * <p>Constructor for AccessDeniedException.</p>
      */
@@ -32,7 +33,8 @@ public class AccessDeniedException extends WebException {
     /**
      * <p>Constructor for AccessDeniedException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public AccessDeniedException(String message) {
         super(message);
@@ -41,8 +43,10 @@ public class AccessDeniedException extends WebException {
     /**
      * <p>Constructor for AccessDeniedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public AccessDeniedException(String message, Throwable cause) {
         super(message, cause);
@@ -51,7 +55,8 @@ public class AccessDeniedException extends WebException {
     /**
      * <p>Constructor for AccessDeniedException.</p>
      *
-     * @param cause a {@link java.lang.Throwable} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public AccessDeniedException(Throwable cause) {
         super(cause);
@@ -60,10 +65,14 @@ public class AccessDeniedException extends WebException {
     /**
      * <p>Constructor for AccessDeniedException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public AccessDeniedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);

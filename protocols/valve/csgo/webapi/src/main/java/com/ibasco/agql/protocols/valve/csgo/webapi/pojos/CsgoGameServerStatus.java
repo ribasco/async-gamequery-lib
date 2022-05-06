@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.csgo.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +28,16 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class CsgoGameServerStatus {
+
     @SerializedName("app")
     private CsgoAppStatus appStatus;
+
     @SerializedName("services")
     private CsgoAppServicesStatus appServicesStatus;
+
     @SerializedName("datacenters")
     private List<CsgoDatacenterStatus> datacenterStatus = new ArrayList<>();
+
     @SerializedName("matchmaking")
     private CsgoMatchmakingStatus matchmakingStatus;
 
@@ -50,7 +53,8 @@ public class CsgoGameServerStatus {
     /**
      * <p>Setter for the field <code>appStatus</code>.</p>
      *
-     * @param appStatus a {@link com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoAppStatus} object
+     * @param appStatus
+     *         a {@link com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoAppStatus} object
      */
     public void setAppStatus(CsgoAppStatus appStatus) {
         this.appStatus = appStatus;
@@ -68,7 +72,8 @@ public class CsgoGameServerStatus {
     /**
      * <p>Setter for the field <code>appServicesStatus</code>.</p>
      *
-     * @param appServicesStatus a {@link com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoAppServicesStatus} object
+     * @param appServicesStatus
+     *         a {@link com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoAppServicesStatus} object
      */
     public void setAppServicesStatus(CsgoAppServicesStatus appServicesStatus) {
         this.appServicesStatus = appServicesStatus;
@@ -86,7 +91,8 @@ public class CsgoGameServerStatus {
     /**
      * <p>Setter for the field <code>datacenterStatus</code>.</p>
      *
-     * @param datacenterStatus a {@link java.util.List} object
+     * @param datacenterStatus
+     *         a {@link java.util.List} object
      */
     public void setDatacenterStatus(List<CsgoDatacenterStatus> datacenterStatus) {
         this.datacenterStatus = datacenterStatus;

@@ -18,7 +18,6 @@ package com.ibasco.agql.core.transport;
 
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import java.util.LinkedList;
 
 /**
@@ -29,18 +28,22 @@ import java.util.LinkedList;
 public interface NettyChannelHandlerInitializer {
 
     //From HEAD to TAIL
+
     /**
      * <p>registerInboundHandlers.</p>
      *
-     * @param handlers a {@link java.util.LinkedList} object
+     * @param handlers
+     *         a {@link java.util.LinkedList} object
      */
     void registerInboundHandlers(final LinkedList<ChannelInboundHandler> handlers);
 
     //From TAIL to HEAD
+
     /**
      * <p>registerOutboundHandlers.</p>
      *
-     * @param handlers a {@link java.util.LinkedList} object
+     * @param handlers
+     *         a {@link java.util.LinkedList} object
      */
     void registerOutboundHandlers(final LinkedList<ChannelOutboundHandler> handlers);
 }

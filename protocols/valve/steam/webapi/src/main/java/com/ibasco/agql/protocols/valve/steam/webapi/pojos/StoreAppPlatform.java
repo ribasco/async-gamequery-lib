@@ -26,12 +26,25 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppPlatform {
+
     @SerializedName("windows")
     private boolean windowsSupported;
+
     @SerializedName("mac")
     private boolean macSupported;
+
     @SerializedName("linux")
     private boolean linuxSupported;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("windows", isWindowsSupported())
+                .append("mac", isMacSupported())
+                .append("linux", isLinuxSupported())
+                .toString();
+    }
 
     /**
      * <p>isWindowsSupported.</p>
@@ -45,7 +58,8 @@ public class StoreAppPlatform {
     /**
      * <p>Setter for the field <code>windowsSupported</code>.</p>
      *
-     * @param windowsSupported a boolean
+     * @param windowsSupported
+     *         a boolean
      */
     public void setWindowsSupported(boolean windowsSupported) {
         this.windowsSupported = windowsSupported;
@@ -63,7 +77,8 @@ public class StoreAppPlatform {
     /**
      * <p>Setter for the field <code>macSupported</code>.</p>
      *
-     * @param macSupported a boolean
+     * @param macSupported
+     *         a boolean
      */
     public void setMacSupported(boolean macSupported) {
         this.macSupported = macSupported;
@@ -81,19 +96,10 @@ public class StoreAppPlatform {
     /**
      * <p>Setter for the field <code>linuxSupported</code>.</p>
      *
-     * @param linuxSupported a boolean
+     * @param linuxSupported
+     *         a boolean
      */
     public void setLinuxSupported(boolean linuxSupported) {
         this.linuxSupported = linuxSupported;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("windows", isWindowsSupported())
-                .append("mac", isMacSupported())
-                .append("linux", isLinuxSupported())
-                .toString();
     }
 }

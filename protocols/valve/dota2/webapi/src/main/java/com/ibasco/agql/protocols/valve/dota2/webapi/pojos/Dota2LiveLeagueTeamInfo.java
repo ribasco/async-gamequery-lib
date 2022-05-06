@@ -26,12 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2LiveLeagueTeamInfo {
+
     @SerializedName("team_name")
     private String teamName;
+
     @SerializedName("team_id")
     private long teamId;
+
     @SerializedName("team_logo")
     private long teamLogo;
+
     private boolean complete;
 
     /**
@@ -46,7 +50,8 @@ public class Dota2LiveLeagueTeamInfo {
     /**
      * <p>Setter for the field <code>teamName</code>.</p>
      *
-     * @param teamName a {@link java.lang.String} object
+     * @param teamName
+     *         a {@link java.lang.String} object
      */
     public void setTeamName(String teamName) {
         this.teamName = teamName;
@@ -64,7 +69,8 @@ public class Dota2LiveLeagueTeamInfo {
     /**
      * <p>Setter for the field <code>teamId</code>.</p>
      *
-     * @param teamId a long
+     * @param teamId
+     *         a long
      */
     public void setTeamId(long teamId) {
         this.teamId = teamId;
@@ -82,7 +88,8 @@ public class Dota2LiveLeagueTeamInfo {
     /**
      * <p>Setter for the field <code>teamLogo</code>.</p>
      *
-     * @param teamLogo a long
+     * @param teamLogo
+     *         a long
      */
     public void setTeamLogo(long teamLogo) {
         this.teamLogo = teamLogo;
@@ -100,7 +107,8 @@ public class Dota2LiveLeagueTeamInfo {
     /**
      * <p>Setter for the field <code>complete</code>.</p>
      *
-     * @param complete a boolean
+     * @param complete
+     *         a boolean
      */
     public void setComplete(boolean complete) {
         this.complete = complete;

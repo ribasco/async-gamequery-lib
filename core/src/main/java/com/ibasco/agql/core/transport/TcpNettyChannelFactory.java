@@ -23,7 +23,6 @@ import com.ibasco.agql.core.util.Options;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelOption;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
@@ -37,7 +36,8 @@ public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
     /**
      * <p>Constructor for TcpNettyChannelFactory.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
      */
     public TcpNettyChannelFactory(final Options options) {
         this(options, null);
@@ -46,18 +46,13 @@ public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
     /**
      * <p>Constructor for TcpNettyChannelFactory.</p>
      *
-     * @param options a {@link com.ibasco.agql.core.util.Options} object
-     * @param resolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param options
+     *         a {@link com.ibasco.agql.core.util.Options} object
+     * @param resolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
      */
     public TcpNettyChannelFactory(final Options options, final NettyPropertyResolver resolver) {
         super(TransportType.TCP, options, resolver);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void configureBootstrap(final Bootstrap bootstrap) {
-        bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));
-        bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 
     /** {@inheritDoc} */
@@ -70,5 +65,12 @@ public class TcpNettyChannelFactory extends AbstractNettyChannelFactory {
         } else {
             return Netty.toCompletable(getBootstrap().clone().connect(remoteAddress));
         }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void configureBootstrap(final Bootstrap bootstrap) {
+        bootstrap.option(ChannelOption.SO_KEEPALIVE, getOptions().getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));
+        bootstrap.option(ChannelOption.TCP_NODELAY, true);
     }
 }

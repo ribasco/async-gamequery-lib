@@ -22,13 +22,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 /**
  * <p>SteamEconKillEaterRanks class.</p>
  *
- * @see <a href="https://wiki.teamfortress.com/wiki/Talk:WebAPI/GetSchema">Talk:WebAPI/GetSchema</a>
  * @author Rafael Luis Ibasco
+ * @see <a href="https://wiki.teamfortress.com/wiki/Talk:WebAPI/GetSchema">Talk:WebAPI/GetSchema</a>
  */
 @Deprecated
 public class SteamEconKillEaterRanks {
+
     private int level;
+
     private int requiredScore;
+
     private String name;
 
     /**
@@ -43,7 +46,8 @@ public class SteamEconKillEaterRanks {
     /**
      * <p>Setter for the field <code>level</code>.</p>
      *
-     * @param level a int
+     * @param level
+     *         a int
      */
     public void setLevel(int level) {
         this.level = level;
@@ -61,7 +65,8 @@ public class SteamEconKillEaterRanks {
     /**
      * <p>Setter for the field <code>requiredScore</code>.</p>
      *
-     * @param requiredScore a int
+     * @param requiredScore
+     *         a int
      */
     public void setRequiredScore(int requiredScore) {
         this.requiredScore = requiredScore;
@@ -79,7 +84,8 @@ public class SteamEconKillEaterRanks {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;

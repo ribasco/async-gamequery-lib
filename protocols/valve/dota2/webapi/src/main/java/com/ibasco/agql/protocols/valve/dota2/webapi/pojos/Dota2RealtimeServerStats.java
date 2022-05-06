@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,12 +31,16 @@ public class Dota2RealtimeServerStats {
 
     @SerializedName("match")
     private Dota2ServerStatsMatch match;
+
     @SerializedName("teams")
     private List<Dota2ServerStatsTeam> teams = new ArrayList<>();
+
     @SerializedName("buildings")
     private List<Dota2ServerStatsBldg> buildings = new ArrayList<>();
+
     @SerializedName("graph_data")
     private Dota2ServerStatsGraph graphData;
+
     @SerializedName("delta_frame")
     private boolean deltaFrame;
 

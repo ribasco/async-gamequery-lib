@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
  * @author Rafael Luis Ibasco
  */
 public class SteamWebApiClient extends AbstractRestClient {
+
     private static final Logger log = LoggerFactory.getLogger(SteamWebApiClient.class);
 
     /**
@@ -40,7 +41,8 @@ public class SteamWebApiClient extends AbstractRestClient {
     /**
      * <p>Constructor for SteamWebApiClient.</p>
      *
-     * @param apiToken a {@link java.lang.String} object
+     * @param apiToken
+     *         a {@link java.lang.String} object
      */
     public SteamWebApiClient(String apiToken) {
         super(apiToken);
@@ -48,14 +50,14 @@ public class SteamWebApiClient extends AbstractRestClient {
 
     /** {@inheritDoc} */
     @Override
-    protected SteamWebApiResponse createWebApiResponse(Response response) {
-        log.debug("Creating Response for : {}", response);
-        return new SteamWebApiResponse(response);
+    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
+        requestBuilder.addQueryParam("key", authToken);
     }
 
     /** {@inheritDoc} */
     @Override
-    protected void applyAuthenticationScheme(RequestBuilder requestBuilder, String authToken) {
-        requestBuilder.addQueryParam("key", authToken);
+    protected SteamWebApiResponse createWebApiResponse(Response response) {
+        log.debug("Creating Response for : {}", response);
+        return new SteamWebApiResponse(response);
     }
 }

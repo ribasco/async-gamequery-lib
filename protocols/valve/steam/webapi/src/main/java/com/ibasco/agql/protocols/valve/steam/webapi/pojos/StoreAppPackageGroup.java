@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,17 +26,25 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppPackageGroup {
+
     private String name;
+
     private String title;
+
     private String description;
+
     @SerializedName("selection_text")
     private String selectionText;
+
     @SerializedName("save_text")
     private String saveText;
+
     @SerializedName("display_type")
     private int displayType;
+
     @SerializedName("is_recurring_subscription")
     private String recurringSubscription;
+
     @SerializedName("subs")
     private List<StoreAppSubPackage> subPackages = new ArrayList<>();
 
@@ -53,7 +60,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -71,7 +79,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>title</code>.</p>
      *
-     * @param title a {@link java.lang.String} object
+     * @param title
+     *         a {@link java.lang.String} object
      */
     public void setTitle(String title) {
         this.title = title;
@@ -89,7 +98,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>description</code>.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     public void setDescription(String description) {
         this.description = description;
@@ -107,7 +117,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>selectionText</code>.</p>
      *
-     * @param selectionText a {@link java.lang.String} object
+     * @param selectionText
+     *         a {@link java.lang.String} object
      */
     public void setSelectionText(String selectionText) {
         this.selectionText = selectionText;
@@ -125,7 +136,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>saveText</code>.</p>
      *
-     * @param saveText a {@link java.lang.String} object
+     * @param saveText
+     *         a {@link java.lang.String} object
      */
     public void setSaveText(String saveText) {
         this.saveText = saveText;
@@ -143,7 +155,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>displayType</code>.</p>
      *
-     * @param displayType a int
+     * @param displayType
+     *         a int
      */
     public void setDisplayType(int displayType) {
         this.displayType = displayType;
@@ -161,7 +174,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>recurringSubscription</code>.</p>
      *
-     * @param recurringSubscription a {@link java.lang.String} object
+     * @param recurringSubscription
+     *         a {@link java.lang.String} object
      */
     public void setRecurringSubscription(String recurringSubscription) {
         this.recurringSubscription = recurringSubscription;
@@ -179,7 +193,8 @@ public class StoreAppPackageGroup {
     /**
      * <p>Setter for the field <code>subPackages</code>.</p>
      *
-     * @param subPackages a {@link java.util.List} object
+     * @param subPackages
+     *         a {@link java.util.List} object
      */
     public void setSubPackages(List<StoreAppSubPackage> subPackages) {
         this.subPackages = subPackages;

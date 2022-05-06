@@ -29,14 +29,19 @@ public class Dota2ServerStatsMatch {
 
     @SerializedName("server_steam_id")
     private long serverSteamId;
+
     @SerializedName("matchId")
     private long matchId;
+
     @SerializedName("timestamp")
     private long timestamp;
+
     @SerializedName("game_time")
     private long gameTime;
+
     @SerializedName("game_mode")
     private int gameMode;
+
     @SerializedName("league_id")
     private int leagueId;
 

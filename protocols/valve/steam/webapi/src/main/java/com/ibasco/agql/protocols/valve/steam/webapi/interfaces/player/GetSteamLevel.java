@@ -24,11 +24,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetSteamLevel extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetSteamLevel.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
      */
     public GetSteamLevel(int apiVersion, long steamId) {
         super("GetSteamLevel", apiVersion);

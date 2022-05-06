@@ -22,6 +22,7 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppRecommendations {
+
     private int total;
 
     /**
@@ -36,7 +37,8 @@ public class StoreAppRecommendations {
     /**
      * <p>Setter for the field <code>total</code>.</p>
      *
-     * @param total a int
+     * @param total
+     *         a int
      */
     public void setTotal(int total) {
         this.total = total;

@@ -48,22 +48,25 @@ public class DefaultChannlContextFactory<M extends NettyMessenger<? extends Abst
     }
 
     /**
+     * <p>newChannelContext.</p>
+     *
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     * @param messenger
+     *         a M object
+     *
+     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
+     */
+    protected NettyChannelContext newChannelContext(Channel channel, M messenger) {
+        return new NettyChannelContext(channel, messenger);
+    }
+
+    /**
      * <p>Getter for the field <code>messenger</code>.</p>
      *
      * @return a M object
      */
     public final M getMessenger() {
         return messenger;
-    }
-
-    /**
-     * <p>newChannelContext.</p>
-     *
-     * @param channel a {@link io.netty.channel.Channel} object
-     * @param messenger a M object
-     * @return a {@link com.ibasco.agql.core.NettyChannelContext} object
-     */
-    protected NettyChannelContext newChannelContext(Channel channel, M messenger) {
-        return new NettyChannelContext(channel, messenger);
     }
 }

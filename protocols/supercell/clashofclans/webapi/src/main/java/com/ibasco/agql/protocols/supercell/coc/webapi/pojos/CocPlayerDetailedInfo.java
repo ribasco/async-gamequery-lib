@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,7 +63,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>attackWins</code>.</p>
      *
-     * @param attackWins a int
+     * @param attackWins
+     *         a int
      */
     public void setAttackWins(int attackWins) {
         this.attackWins = attackWins;
@@ -82,7 +82,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>defenseWins</code>.</p>
      *
-     * @param defenseWins a int
+     * @param defenseWins
+     *         a int
      */
     public void setDefenseWins(int defenseWins) {
         this.defenseWins = defenseWins;
@@ -100,7 +101,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>clan</code>.</p>
      *
-     * @param clan a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
+     * @param clan
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
      */
     public void setClan(CocClanBasicInfo clan) {
         this.clan = clan;
@@ -118,7 +120,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>bestTrophies</code>.</p>
      *
-     * @param bestTrophies a int
+     * @param bestTrophies
+     *         a int
      */
     public void setBestTrophies(int bestTrophies) {
         this.bestTrophies = bestTrophies;
@@ -136,7 +139,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>warStars</code>.</p>
      *
-     * @param warStars a int
+     * @param warStars
+     *         a int
      */
     public void setWarStars(int warStars) {
         this.warStars = warStars;
@@ -154,7 +158,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>townHallLevel</code>.</p>
      *
-     * @param townHallLevel a int
+     * @param townHallLevel
+     *         a int
      */
     public void setTownHallLevel(int townHallLevel) {
         this.townHallLevel = townHallLevel;
@@ -172,7 +177,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>legendStatistics</code>.</p>
      *
-     * @param legendStatistics a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLegendStatistics} object
+     * @param legendStatistics
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLegendStatistics} object
      */
     public void setLegendStatistics(CocLegendStatistics legendStatistics) {
         this.legendStatistics = legendStatistics;
@@ -190,7 +196,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>achievements</code>.</p>
      *
-     * @param achievements a {@link java.util.List} object
+     * @param achievements
+     *         a {@link java.util.List} object
      */
     public void setAchievements(List<CocAchievements> achievements) {
         this.achievements = achievements;
@@ -208,7 +215,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>troops</code>.</p>
      *
-     * @param troops a {@link java.util.List} object
+     * @param troops
+     *         a {@link java.util.List} object
      */
     public void setTroops(List<CocTroop> troops) {
         this.troops = troops;
@@ -226,7 +234,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>heroes</code>.</p>
      *
-     * @param heroes a {@link java.util.List} object
+     * @param heroes
+     *         a {@link java.util.List} object
      */
     public void setHeroes(List<CocTroop> heroes) {
         this.heroes = heroes;
@@ -244,7 +253,8 @@ public class CocPlayerDetailedInfo extends CocPlayerBasicInfo {
     /**
      * <p>Setter for the field <code>spells</code>.</p>
      *
-     * @param spells a {@link java.util.List} object
+     * @param spells
+     *         a {@link java.util.List} object
      */
     public void setSpells(List<CocTroop> spells) {
         this.spells = spells;

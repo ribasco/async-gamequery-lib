@@ -29,14 +29,13 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.apps.UpToDateChec
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.ServerUpdateStatus;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamApp;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGameServer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Contains the methods for the ISteamApps interface
@@ -50,7 +49,8 @@ public class SteamApps extends SteamWebApiInterface {
     /**
      * <p>Constructor for SteamApps.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamApps(SteamWebApiClient client) {
         super(client);
@@ -65,8 +65,8 @@ public class SteamApps extends SteamWebApiInterface {
         CompletableFuture<JsonObject> json = sendRequest(new GetAppList(VERSION_2));
         return json.thenApply((JsonObject element) -> {
             JsonElement jsonApps = element.get("applist")
-                    .getAsJsonObject()
-                    .getAsJsonArray("apps");
+                                          .getAsJsonObject()
+                                          .getAsJsonArray("apps");
             Type appListType = new TypeToken<List<SteamApp>>() {
             }.getType();
             return builder().fromJson(jsonApps, appListType);
@@ -76,9 +76,13 @@ public class SteamApps extends SteamWebApiInterface {
     /**
      * <p>getServersAtAddress.</p>
      *
-     * @param address a {@link java.lang.String} object
+     * @param address
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
-     * @throws java.net.UnknownHostException if any.
+     *
+     * @throws java.net.UnknownHostException
+     *         if any.
      */
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(String address) throws UnknownHostException {
         return getServersAtAddress(InetAddress.getByName(address));
@@ -87,7 +91,9 @@ public class SteamApps extends SteamWebApiInterface {
     /**
      * <p>getServersAtAddress.</p>
      *
-     * @param address a {@link java.net.InetAddress} object
+     * @param address
+     *         a {@link java.net.InetAddress} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamGameServer>> getServersAtAddress(InetAddress address) {
@@ -108,8 +114,11 @@ public class SteamApps extends SteamWebApiInterface {
     /**
      * <p>getServerUpdateStatus.</p>
      *
-     * @param version a int
-     * @param appId a int
+     * @param version
+     *         a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<ServerUpdateStatus> getServerUpdateStatus(int version, int appId) {

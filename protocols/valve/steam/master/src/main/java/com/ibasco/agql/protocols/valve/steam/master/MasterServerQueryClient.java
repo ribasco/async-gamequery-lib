@@ -24,7 +24,6 @@ import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerRegion;
 import com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerRequest;
 import com.ibasco.agql.protocols.valve.steam.master.message.MasterServerResponse;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
@@ -65,7 +64,9 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
      * @param type
      *         a {@link com.ibasco.agql.protocols.valve.steam.master.enums.MasterServerType} object
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
+     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter, TriConsumer)
      */
     public CompletableFuture<MasterServerResponse> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter) {
@@ -83,7 +84,9 @@ public final class MasterServerQueryClient extends NettySocketClient<MasterServe
      *         A {@link com.ibasco.agql.protocols.valve.steam.master.MasterServerFilter} containing the filters to be applied in the query
      * @param callback
      *         Accepts a {@link com.ibasco.agql.core.util.functions.TriConsumer} callback that will be called repeatedly for every batch of addresses received from the master server. (Parameters: Server Address, Master Server Address, Exception)
+     *
      * @return A {@link java.util.concurrent.CompletableFuture} which is notified once the request has been marked as complete. Returns a {@link java.util.Vector} containing the {@link java.net.InetSocketAddress} instances of the servers.
+     *
      * @see #getServers(MasterServerType, MasterServerRegion, MasterServerFilter)
      */
     public CompletableFuture<MasterServerResponse> getServers(MasterServerType type, MasterServerRegion region, MasterServerFilter filter, TriConsumer<InetSocketAddress, InetSocketAddress, Throwable> callback) {

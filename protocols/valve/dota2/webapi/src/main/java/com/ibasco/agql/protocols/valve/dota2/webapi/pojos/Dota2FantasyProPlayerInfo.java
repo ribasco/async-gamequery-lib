@@ -26,25 +26,36 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2FantasyProPlayerInfo {
+
     @SerializedName("account_id")
     private int accountId;
+
     private String name;
+
     @SerializedName("country_code")
     private String countryCode;
+
     @SerializedName("fantasy_role")
     private int fantasyRole;
+
     @SerializedName("team_id")
     private int teamId;
+
     @SerializedName("team_name")
     private String teamName;
+
     @SerializedName("team_tag")
     private String teamTag;
+
     @SerializedName("is_locked")
     private boolean isLocked;
+
     @SerializedName("is_pro")
     private boolean isPro;
+
     @SerializedName("locked_until")
     private long lockedUntil;
+
     private long timestamp;
 
     /**
@@ -59,7 +70,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>accountId</code>.</p>
      *
-     * @param accountId a int
+     * @param accountId
+     *         a int
      */
     public void setAccountId(int accountId) {
         this.accountId = accountId;
@@ -77,7 +89,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -95,7 +108,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>countryCode</code>.</p>
      *
-     * @param countryCode a {@link java.lang.String} object
+     * @param countryCode
+     *         a {@link java.lang.String} object
      */
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
@@ -113,7 +127,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>fantasyRole</code>.</p>
      *
-     * @param fantasyRole a int
+     * @param fantasyRole
+     *         a int
      */
     public void setFantasyRole(int fantasyRole) {
         this.fantasyRole = fantasyRole;
@@ -131,7 +146,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>teamId</code>.</p>
      *
-     * @param teamId a int
+     * @param teamId
+     *         a int
      */
     public void setTeamId(int teamId) {
         this.teamId = teamId;
@@ -149,7 +165,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>teamName</code>.</p>
      *
-     * @param teamName a {@link java.lang.String} object
+     * @param teamName
+     *         a {@link java.lang.String} object
      */
     public void setTeamName(String teamName) {
         this.teamName = teamName;
@@ -167,7 +184,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>teamTag</code>.</p>
      *
-     * @param teamTag a {@link java.lang.String} object
+     * @param teamTag
+     *         a {@link java.lang.String} object
      */
     public void setTeamTag(String teamTag) {
         this.teamTag = teamTag;
@@ -185,7 +203,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>setLocked.</p>
      *
-     * @param locked a boolean
+     * @param locked
+     *         a boolean
      */
     public void setLocked(boolean locked) {
         isLocked = locked;
@@ -203,7 +222,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>setPro.</p>
      *
-     * @param pro a boolean
+     * @param pro
+     *         a boolean
      */
     public void setPro(boolean pro) {
         isPro = pro;
@@ -221,7 +241,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>lockedUntil</code>.</p>
      *
-     * @param lockedUntil a long
+     * @param lockedUntil
+     *         a long
      */
     public void setLockedUntil(long lockedUntil) {
         this.lockedUntil = lockedUntil;
@@ -239,7 +260,8 @@ public class Dota2FantasyProPlayerInfo {
     /**
      * <p>Setter for the field <code>timestamp</code>.</p>
      *
-     * @param timestamp a long
+     * @param timestamp
+     *         a long
      */
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;

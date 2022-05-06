@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.transport.pool;
 
 import io.netty.channel.Channel;
-
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 
@@ -40,7 +39,9 @@ public interface ChannelHealthChecker {
      * <p>
      * This method will be called by the {@link io.netty.channel.EventLoop} of the {@link io.netty.channel.Channel}.
      *
-     * @param channel a {@link io.netty.channel.Channel} object
+     * @param channel
+     *         a {@link io.netty.channel.Channel} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     CompletableFuture<Boolean> isHealthy(Channel channel);

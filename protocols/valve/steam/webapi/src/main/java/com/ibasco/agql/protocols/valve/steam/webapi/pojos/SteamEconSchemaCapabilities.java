@@ -26,30 +26,44 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaCapabilities {
+
     private Boolean nameable;
+
     @SerializedName("can_gift_wrap")
     private Boolean canGiftWrap;
+
     @SerializedName("can_craft_mark")
     private Boolean canCraftMark;
+
     @SerializedName("can_be_restored    ")
     private Boolean canBeRestored;
+
     @SerializedName("strange_parts")
     private Boolean strangeParts;
+
     @SerializedName("can_card_upgrade")
     private Boolean canCardUpgrade;
+
     @SerializedName("can_strangify")
     private Boolean canStrangify;
+
     @SerializedName("can_killstreakify")
     private Boolean canKillStreakify;
+
     @SerializedName("can_consume")
     private Boolean canConsume;
+
     private Boolean decodable;
+
     @SerializedName("usable_gc")
     private Boolean usableGc;
+
     @SerializedName("usable_out_of_game")
     private Boolean usableOutOfGame;
+
     @SerializedName("can_sticker")
     private Boolean canSticker; //for version 2
+
     @SerializedName("can_stattrack_swap")
     private Boolean canStattrackSwap; //for version 2
 
@@ -65,7 +79,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>nameable</code>.</p>
      *
-     * @param nameable a {@link java.lang.Boolean} object
+     * @param nameable
+     *         a {@link java.lang.Boolean} object
      */
     public void setNameable(Boolean nameable) {
         this.nameable = nameable;
@@ -83,7 +98,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canGiftWrap</code>.</p>
      *
-     * @param canGiftWrap a {@link java.lang.Boolean} object
+     * @param canGiftWrap
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanGiftWrap(Boolean canGiftWrap) {
         this.canGiftWrap = canGiftWrap;
@@ -101,7 +117,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canCraftMark</code>.</p>
      *
-     * @param canCraftMark a {@link java.lang.Boolean} object
+     * @param canCraftMark
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanCraftMark(Boolean canCraftMark) {
         this.canCraftMark = canCraftMark;
@@ -119,7 +136,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canBeRestored</code>.</p>
      *
-     * @param canBeRestored a {@link java.lang.Boolean} object
+     * @param canBeRestored
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanBeRestored(Boolean canBeRestored) {
         this.canBeRestored = canBeRestored;
@@ -137,7 +155,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>strangeParts</code>.</p>
      *
-     * @param strangeParts a {@link java.lang.Boolean} object
+     * @param strangeParts
+     *         a {@link java.lang.Boolean} object
      */
     public void setStrangeParts(Boolean strangeParts) {
         this.strangeParts = strangeParts;
@@ -155,7 +174,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canCardUpgrade</code>.</p>
      *
-     * @param canCardUpgrade a {@link java.lang.Boolean} object
+     * @param canCardUpgrade
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanCardUpgrade(Boolean canCardUpgrade) {
         this.canCardUpgrade = canCardUpgrade;
@@ -173,7 +193,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canStrangify</code>.</p>
      *
-     * @param canStrangify a {@link java.lang.Boolean} object
+     * @param canStrangify
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanStrangify(Boolean canStrangify) {
         this.canStrangify = canStrangify;
@@ -191,7 +212,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canKillStreakify</code>.</p>
      *
-     * @param canKillStreakify a {@link java.lang.Boolean} object
+     * @param canKillStreakify
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanKillStreakify(Boolean canKillStreakify) {
         this.canKillStreakify = canKillStreakify;
@@ -209,7 +231,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canConsume</code>.</p>
      *
-     * @param canConsume a {@link java.lang.Boolean} object
+     * @param canConsume
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanConsume(Boolean canConsume) {
         this.canConsume = canConsume;
@@ -227,7 +250,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>decodable</code>.</p>
      *
-     * @param decodable a {@link java.lang.Boolean} object
+     * @param decodable
+     *         a {@link java.lang.Boolean} object
      */
     public void setDecodable(Boolean decodable) {
         this.decodable = decodable;
@@ -245,7 +269,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>usableGc</code>.</p>
      *
-     * @param usableGc a {@link java.lang.Boolean} object
+     * @param usableGc
+     *         a {@link java.lang.Boolean} object
      */
     public void setUsableGc(Boolean usableGc) {
         this.usableGc = usableGc;
@@ -263,7 +288,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>usableOutOfGame</code>.</p>
      *
-     * @param usableOutOfGame a {@link java.lang.Boolean} object
+     * @param usableOutOfGame
+     *         a {@link java.lang.Boolean} object
      */
     public void setUsableOutOfGame(Boolean usableOutOfGame) {
         this.usableOutOfGame = usableOutOfGame;
@@ -281,7 +307,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canSticker</code>.</p>
      *
-     * @param canSticker a {@link java.lang.Boolean} object
+     * @param canSticker
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanSticker(Boolean canSticker) {
         this.canSticker = canSticker;
@@ -299,7 +326,8 @@ public class SteamEconSchemaCapabilities {
     /**
      * <p>Setter for the field <code>canStattrackSwap</code>.</p>
      *
-     * @param canStattrackSwap a {@link java.lang.Boolean} object
+     * @param canStattrackSwap
+     *         a {@link java.lang.Boolean} object
      */
     public void setCanStattrackSwap(Boolean canStattrackSwap) {
         this.canStattrackSwap = canStattrackSwap;

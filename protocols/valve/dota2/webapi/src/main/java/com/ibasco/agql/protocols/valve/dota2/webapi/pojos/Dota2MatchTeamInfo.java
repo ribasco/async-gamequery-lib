@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.dota2.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class Dota2MatchTeamInfo {
+
     @SerializedName("name")
     private String name;
 
@@ -75,7 +75,8 @@ public class Dota2MatchTeamInfo {
     /**
      * <p>Setter for the field <code>leagueIds</code>.</p>
      *
-     * @param leagueIds a {@link java.util.List} object
+     * @param leagueIds
+     *         a {@link java.util.List} object
      */
     public void setLeagueIds(List<Integer> leagueIds) {
         this.leagueIds = leagueIds;
@@ -93,7 +94,8 @@ public class Dota2MatchTeamInfo {
     /**
      * <p>Setter for the field <code>playerAccountIds</code>.</p>
      *
-     * @param playerAccountIds a {@link java.util.List} object
+     * @param playerAccountIds
+     *         a {@link java.util.List} object
      */
     public void setPlayerAccountIds(List<Long> playerAccountIds) {
         this.playerAccountIds = playerAccountIds;

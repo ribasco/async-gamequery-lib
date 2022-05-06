@@ -16,18 +16,70 @@
 
 package com.ibasco.agql.core.util;
 
-import org.slf4j.LoggerFactory;
-
 import java.io.Closeable;
+import org.slf4j.LoggerFactory;
 
 /**
  * A reference counted resource that will be automatically closed once the count reaches zero. Particularly useful in cases where we provide a static global resource shared across all clients.
  *
  * @param <T>
  *         The underlying type of the managed resource
+ *
  * @author Rafael Luis Ibasco
  */
 public interface ManagedResource<T> extends Closeable {
+
+    /**
+     * <p>isManaged.</p>
+     *
+     * @param resource
+     *         a {@link java.lang.Object} object
+     *
+     * @return a boolean
+     */
+    static boolean isManaged(Object resource) {
+        return resource instanceof ManagedResource<?>;
+    }
+
+    /**
+     * Utility function for releasing {@link com.ibasco.agql.core.util.ManagedResource} type instances. If the instance is not a {@link com.ibasco.agql.core.util.ManagedResource} the function will simply return.
+     *
+     * @param resource
+     *         The resource to release
+     *
+     * @return The updated reference count
+     */
+    static int release(Object resource) {
+        return release(resource, 1);
+    }
+
+    /**
+     * Utility function for releasing {@link com.ibasco.agql.core.util.ManagedResource} type instances. If the instance is not a {@link com.ibasco.agql.core.util.ManagedResource} the function will simply return.
+     *
+     * @param resource
+     *         The resource to release
+     * @param releaseCount
+     *         a int
+     *
+     * @return The updated reference count
+     */
+    static int release(Object resource, int releaseCount) {
+        if (!(resource instanceof ManagedResource<?>))
+            return -1;
+        int count = ((ManagedResource<?>) resource).release(releaseCount);
+        LoggerFactory.getLogger(ManagedResource.class).debug("MANAGED_RESOURCE => Releasing resource {} (New reference count: {})", resource, count);
+        return count;
+    }
+
+    /**
+     * <p>release.</p>
+     *
+     * @param count
+     *         a int
+     *
+     * @return a int
+     */
+    int release(int count);
 
     /**
      * <p>getReferenceCount.</p>
@@ -49,54 +101,9 @@ public interface ManagedResource<T> extends Closeable {
     int release();
 
     /**
-     * <p>release.</p>
-     *
-     * @param count a int
-     * @return a int
-     */
-    int release(int count);
-
-    /**
      * <p>getResource.</p>
      *
      * @return a T object
      */
     T getResource();
-
-    /**
-     * <p>isManaged.</p>
-     *
-     * @param resource a {@link java.lang.Object} object
-     * @return a boolean
-     */
-    static boolean isManaged(Object resource) {
-        return resource instanceof ManagedResource<?>;
-    }
-
-    /**
-     * Utility function for releasing {@link com.ibasco.agql.core.util.ManagedResource} type instances. If the instance is not a {@link com.ibasco.agql.core.util.ManagedResource} the function will simply return.
-     *
-     * @param resource
-     *         The resource to release
-     * @return The updated reference count
-     */
-    static int release(Object resource) {
-        return release(resource, 1);
-    }
-
-    /**
-     * Utility function for releasing {@link com.ibasco.agql.core.util.ManagedResource} type instances. If the instance is not a {@link com.ibasco.agql.core.util.ManagedResource} the function will simply return.
-     *
-     * @param resource
-     *         The resource to release
-     * @return The updated reference count
-     * @param releaseCount a int
-     */
-    static int release(Object resource, int releaseCount) {
-        if (!(resource instanceof ManagedResource<?>))
-            return -1;
-        int count = ((ManagedResource<?>) resource).release(releaseCount);
-        LoggerFactory.getLogger(ManagedResource.class).debug("MANAGED_RESOURCE => Releasing resource {} (New reference count: {})", resource, count);
-        return count;
-    }
 }

@@ -17,7 +17,6 @@
 package com.ibasco.agql.core.reflect.types;
 
 import org.apache.commons.lang3.builder.EqualsBuilder;
-
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Collection;
@@ -30,13 +29,16 @@ import java.util.Collection;
 public class CollectionParameterizedType implements ParameterizedType {
 
     private final Type type;
+
     private final Class<? extends Collection> classListType;
 
     /**
      * <p>Constructor for CollectionParameterizedType.</p>
      *
-     * @param type a {@link java.lang.reflect.Type} object
-     * @param classListType a {@link java.lang.Class} object
+     * @param type
+     *         a {@link java.lang.reflect.Type} object
+     * @param classListType
+     *         a {@link java.lang.Class} object
      */
     public CollectionParameterizedType(Type type, Class<? extends Collection> classListType) {
         this.type = type;
@@ -46,7 +48,7 @@ public class CollectionParameterizedType implements ParameterizedType {
     /** {@inheritDoc} */
     @Override
     public Type[] getActualTypeArguments() {
-        return new Type[]{type};
+        return new Type[] {type};
     }
 
     /** {@inheritDoc} */

@@ -26,11 +26,26 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppSpotlightInfo {
+
     private String name;
+
     @SerializedName("header_image")
     private String headerImageUrl;
+
     private String body;
+
     private String url;
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("name", getName())
+                .append("headerImageUrl", getHeaderImageUrl())
+                .append("body", getBody())
+                .append("url", getUrl())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>name</code>.</p>
@@ -44,7 +59,8 @@ public class StoreAppSpotlightInfo {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -62,7 +78,8 @@ public class StoreAppSpotlightInfo {
     /**
      * <p>Setter for the field <code>headerImageUrl</code>.</p>
      *
-     * @param headerImageUrl a {@link java.lang.String} object
+     * @param headerImageUrl
+     *         a {@link java.lang.String} object
      */
     public void setHeaderImageUrl(String headerImageUrl) {
         this.headerImageUrl = headerImageUrl;
@@ -80,7 +97,8 @@ public class StoreAppSpotlightInfo {
     /**
      * <p>Setter for the field <code>body</code>.</p>
      *
-     * @param body a {@link java.lang.String} object
+     * @param body
+     *         a {@link java.lang.String} object
      */
     public void setBody(String body) {
         this.body = body;
@@ -98,20 +116,10 @@ public class StoreAppSpotlightInfo {
     /**
      * <p>Setter for the field <code>url</code>.</p>
      *
-     * @param url a {@link java.lang.String} object
+     * @param url
+     *         a {@link java.lang.String} object
      */
     public void setUrl(String url) {
         this.url = url;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("name", getName())
-                .append("headerImageUrl", getHeaderImageUrl())
-                .append("body", getBody())
-                .append("url", getUrl())
-                .toString();
     }
 }

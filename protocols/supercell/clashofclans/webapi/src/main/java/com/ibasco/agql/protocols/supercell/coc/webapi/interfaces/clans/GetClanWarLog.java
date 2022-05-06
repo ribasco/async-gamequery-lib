@@ -32,8 +32,10 @@ public class GetClanWarLog extends CocWebApiRequest {
     /**
      * <p>Constructor for GetClanWarLog.</p>
      *
-     * @param apiVersion a int
-     * @param clanTag a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param clanTag
+     *         a {@link java.lang.String} object
      */
     public GetClanWarLog(int apiVersion, String clanTag) {
         this(apiVersion, clanTag, -1, -1, -1);
@@ -42,11 +44,16 @@ public class GetClanWarLog extends CocWebApiRequest {
     /**
      * <p>Constructor for GetClanWarLog.</p>
      *
-     * @param apiVersion a int
-     * @param clanTag a {@link java.lang.String} object
-     * @param limit a int
-     * @param after a int
-     * @param before a int
+     * @param apiVersion
+     *         a int
+     * @param clanTag
+     *         a {@link java.lang.String} object
+     * @param limit
+     *         a int
+     * @param after
+     *         a int
+     * @param before
+     *         a int
      */
     public GetClanWarLog(int apiVersion, String clanTag, int limit, int after, int before) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_WARLOG, limit, after, before);

@@ -33,9 +33,12 @@ public class MasterServerPartialResponse extends MasterServerResponse {
     /**
      * <p>Constructor for MasterServerPartialResponse.</p>
      *
-     * @param serverList a {@link java.util.Set} object
-     * @param endOfResponse a boolean
-     * @param lastSeedAddress a {@link java.net.InetSocketAddress} object
+     * @param serverList
+     *         a {@link java.util.Set} object
+     * @param endOfResponse
+     *         a boolean
+     * @param lastSeedAddress
+     *         a {@link java.net.InetSocketAddress} object
      */
     public MasterServerPartialResponse(Set<InetSocketAddress> serverList, boolean endOfResponse, InetSocketAddress lastSeedAddress) {
         super(serverList);

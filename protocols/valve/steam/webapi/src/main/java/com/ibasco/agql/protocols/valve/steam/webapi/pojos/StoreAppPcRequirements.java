@@ -22,7 +22,9 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppPcRequirements {
+
     private String minimum;
+
     private String recommended;
 
     /**
@@ -37,7 +39,8 @@ public class StoreAppPcRequirements {
     /**
      * <p>Setter for the field <code>minimum</code>.</p>
      *
-     * @param minimum a {@link java.lang.String} object
+     * @param minimum
+     *         a {@link java.lang.String} object
      */
     public void setMinimum(String minimum) {
         this.minimum = minimum;
@@ -55,7 +58,8 @@ public class StoreAppPcRequirements {
     /**
      * <p>Setter for the field <code>recommended</code>.</p>
      *
-     * @param recommended a {@link java.lang.String} object
+     * @param recommended
+     *         a {@link java.lang.String} object
      */
     public void setRecommended(String recommended) {
         this.recommended = recommended;

@@ -28,7 +28,8 @@ public final class SourceRconCmdResponse extends SourceRconResponse<String> {
     /**
      * <p>Constructor for SourceRconCmdResponse.</p>
      *
-     * @param result a {@link java.lang.String} object
+     * @param result
+     *         a {@link java.lang.String} object
      */
     public SourceRconCmdResponse(String result) {
         super(result);
@@ -44,6 +45,12 @@ public final class SourceRconCmdResponse extends SourceRconResponse<String> {
         return request.getCommand();
     }
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return String.format("%s = %s", super.toString(), StringUtils.truncate(getResult(), 32));
+    }
+
     /**
      * <p>getResult.</p>
      *
@@ -51,11 +58,5 @@ public final class SourceRconCmdResponse extends SourceRconResponse<String> {
      */
     public final String getResult() {
         return super.getResult();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return String.format("%s = %s", super.toString(), StringUtils.truncate(getResult(), 32));
     }
 }

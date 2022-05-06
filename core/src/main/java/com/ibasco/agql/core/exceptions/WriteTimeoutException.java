@@ -35,7 +35,8 @@ public class WriteTimeoutException extends TimeoutException {
     /**
      * <p>Constructor for WriteTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public WriteTimeoutException(String message) {
         super(message);
@@ -44,8 +45,10 @@ public class WriteTimeoutException extends TimeoutException {
     /**
      * <p>Constructor for WriteTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public WriteTimeoutException(String message, Throwable cause) {
         super(message, cause);

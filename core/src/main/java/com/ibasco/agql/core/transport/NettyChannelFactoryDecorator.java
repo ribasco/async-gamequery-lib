@@ -22,12 +22,11 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base decorator class meant to be overriden by concrete decorator classes.
@@ -43,7 +42,8 @@ abstract public class NettyChannelFactoryDecorator implements NettyChannelFactor
     /**
      * <p>Constructor for NettyChannelFactoryDecorator.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     protected NettyChannelFactoryDecorator(final NettyChannelFactory channelFactory) {
         this.channelFactory = Objects.requireNonNull(channelFactory, "Channel factory must not be null");
@@ -59,12 +59,6 @@ abstract public class NettyChannelFactoryDecorator implements NettyChannelFactor
     @Override
     public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
         return this.channelFactory.create(data, eventLoop);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public EventLoopGroup getExecutor() {
-        return this.channelFactory.getExecutor();
     }
 
     /** {@inheritDoc} */
@@ -95,6 +89,12 @@ abstract public class NettyChannelFactoryDecorator implements NettyChannelFactor
     @Override
     public void setResolver(NettyPropertyResolver resolver) {
         this.channelFactory.setResolver(resolver);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public EventLoopGroup getExecutor() {
+        return this.channelFactory.getExecutor();
     }
 
     /** {@inheritDoc} */

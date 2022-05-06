@@ -43,7 +43,8 @@ public class CocErrorResponse {
     /**
      * <p>Setter for the field <code>reason</code>.</p>
      *
-     * @param reason a {@link java.lang.String} object
+     * @param reason
+     *         a {@link java.lang.String} object
      */
     public void setReason(String reason) {
         this.reason = reason;
@@ -61,7 +62,8 @@ public class CocErrorResponse {
     /**
      * <p>Setter for the field <code>message</code>.</p>
      *
-     * @param message a {@link java.lang.String} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public void setMessage(String message) {
         this.message = message;

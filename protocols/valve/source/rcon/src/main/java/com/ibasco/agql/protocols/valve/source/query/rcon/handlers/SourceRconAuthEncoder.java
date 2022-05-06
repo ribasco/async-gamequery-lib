@@ -21,7 +21,6 @@ import com.ibasco.agql.core.transport.handlers.MessageOutboundEncoder;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacketFactory;
 import io.netty.channel.ChannelHandlerContext;
-
 import java.util.List;
 
 /**
@@ -33,15 +32,15 @@ public class SourceRconAuthEncoder extends MessageOutboundEncoder<SourceRconAuth
 
     /** {@inheritDoc} */
     @Override
-    protected boolean acceptMessage(Class<SourceRconAuthRequest> requestClass, Envelope<SourceRconAuthRequest> envelope) throws Exception {
-        return SourceRconAuthRequest.class.equals(requestClass);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     protected void encodeMessage(ChannelHandlerContext ctx, Envelope<SourceRconAuthRequest> msg, List<Object> out) throws Exception {
         final SourceRconAuthRequest request = msg.content();
         debug("Encoding rcon AUTH request: {}", request);
         out.add(SourceRconPacketFactory.createAuth(request.getRequestId(), request.getPassword()));
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected boolean acceptMessage(Class<SourceRconAuthRequest> requestClass, Envelope<SourceRconAuthRequest> envelope) throws Exception {
+        return SourceRconAuthRequest.class.equals(requestClass);
     }
 }

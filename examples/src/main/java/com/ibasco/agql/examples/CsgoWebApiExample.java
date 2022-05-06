@@ -21,10 +21,9 @@ import com.ibasco.agql.protocols.valve.csgo.webapi.CsgoWebApiClient;
 import com.ibasco.agql.protocols.valve.csgo.webapi.interfaces.CsgoServers;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameMapPlaytimeInfo;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
+import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
 
 /**
  * <p>CsgoWebApiExample class.</p>
@@ -40,8 +39,11 @@ public class CsgoWebApiExample extends BaseWebApiAuthExample {
     /**
      * <p>main.</p>
      *
-     * @param args an array of {@link java.lang.String} objects
-     * @throws java.lang.Exception if any.
+     * @param args
+     *         an array of {@link java.lang.String} objects
+     *
+     * @throws java.lang.Exception
+     *         if any.
      */
     public static void main(String[] args) throws Exception {
         try (CsgoWebApiExample example = new CsgoWebApiExample()) {

@@ -28,14 +28,20 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetLeagueSeasons extends CocWebApiRequest {
+
     /**
      * <p>Constructor for GetLeagueSeasons.</p>
      *
-     * @param apiVersion a int
-     * @param leagueId a int
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param leagueId
+     *         a int
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
     public GetLeagueSeasons(int apiVersion, int leagueId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASONS, limit, before, after);

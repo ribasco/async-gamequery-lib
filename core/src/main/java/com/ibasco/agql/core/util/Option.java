@@ -21,7 +21,6 @@ import com.google.common.collect.MultimapBuilder;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.SetMultimap;
 import com.google.common.reflect.ClassPath;
-import static com.ibasco.agql.core.util.Console.*;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
@@ -29,15 +28,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static com.ibasco.agql.core.util.Console.CYAN;
+import static com.ibasco.agql.core.util.Console.WHITE;
+import static com.ibasco.agql.core.util.Console.YELLOW;
+import static com.ibasco.agql.core.util.Console.color;
+import static com.ibasco.agql.core.util.Console.error;
+import static com.ibasco.agql.core.util.Console.printLine;
+import static com.ibasco.agql.core.util.Console.println;
 
 /**
  * Represents a configuration option
@@ -191,25 +201,6 @@ public final class Option<T> {
         printLine();
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    /**
-     * <p>isGlobal.</p>
-     *
-     * @return {@code true} if this option is a Global option type
-     *
-     * @see GeneralOptions
-     */
-    public boolean isGlobal() {
-        return declaringClass != null && declaringClass.equals(GeneralOptions.class);
-    }
-
-    public boolean isShared() {
-        return getDeclaringClass().isAnnotationPresent(Shared.class);
-    }
-
     /**
      * <p>Retrieve a singleton instance of an {@link com.ibasco.agql.core.util.Option} using the provided key.</p>
      *
@@ -227,6 +218,15 @@ public final class Option<T> {
     public static <V> Option<V> of(String key) {
         //noinspection unchecked
         return (Option<V>) cache.get(GeneralOptions.class).stream().map(CacheEntry::getOption).filter(option -> option.getKey().equalsIgnoreCase(key)).findFirst().orElse(null);
+    }
+
+    /**
+     * <p>Getter for the field <code>key</code>.</p>
+     *
+     * @return The unique key associated with this {@link com.ibasco.agql.core.util.Option}
+     */
+    public String getKey() {
+        return key;
     }
 
     public static <V> Option<V> of(Class<? extends Options> containerClass, Class<?> context, Option<?> option) {
@@ -255,67 +255,6 @@ public final class Option<T> {
     }
 
     /**
-     * <p>Retrieve an singleton {@link com.ibasco.agql.core.util.Option} instance using the provided class group and key combination</p>
-     *
-     * @param containerClass
-     *         The {@link java.lang.Class} A class of type {@link Options}
-     * @param key
-     *         The key identifying the option
-     * @param <V>
-     *         The underlying type of the Option
-     *
-     * @return The {@link com.ibasco.agql.core.util.Option} instance or {@code null} if no {@link com.ibasco.agql.core.util.Option} found for the specified combination.
-     */
-    public static <V> Option<V> of(Class<? extends Options> containerClass, String key) {
-        if (containerClass == null)
-            throw new IllegalArgumentException("Group cannot be null");
-        if (Strings.isBlank(key))
-            throw new IllegalArgumentException("Key cannot be null");
-        if (!cache.containsKey(containerClass))
-            return null;
-        synchronized (cache) {
-            Set<CacheEntry> cacheEntries = cache.get(containerClass);
-            for (CacheEntry cacheEntry : cacheEntries) {
-                Option<?> option = cacheEntry.getOption();
-                Class<?> contextClass = cacheEntry.getContext();
-                assert contextClass != null;
-                assert option != null;
-                if (option.getKey().equalsIgnoreCase(key) && contextClass.equals(containerClass))
-                    //noinspection unchecked
-                    return (Option<V>) option;
-            }
-            return null;
-        }
-    }
-
-    /**
-     * The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
-     *
-     * @return The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
-     */
-    public Class<? extends Options> getDeclaringClass() {
-        return declaringClass;
-    }
-
-    /**
-     * <p>Getter for the field <code>defaultValue</code>.</p>
-     *
-     * @return The default value assciated with this {@link com.ibasco.agql.core.util.Option}
-     */
-    public T getDefaultValue() {
-        return defaultValue;
-    }
-
-    /**
-     * <p>Getter for the field <code>key</code>.</p>
-     *
-     * @return The unique key associated with this {@link com.ibasco.agql.core.util.Option}
-     */
-    public String getKey() {
-        return key;
-    }
-
-    /**
      * <p>Returns a singleton {@link com.ibasco.agql.core.util.Option} instance from global</p>
      *
      * @param key
@@ -332,6 +271,17 @@ public final class Option<T> {
                 return (Option<V>) entry.getKey();
         }
         return null;
+    }
+
+    /**
+     * <p>isGlobal.</p>
+     *
+     * @return {@code true} if this option is a Global option type
+     *
+     * @see GeneralOptions
+     */
+    public boolean isGlobal() {
+        return declaringClass != null && declaringClass.equals(GeneralOptions.class);
     }
 
     /**
@@ -447,29 +397,6 @@ public final class Option<T> {
         return null;
     }
 
-    private static String getFieldName(String key, Class<? extends Options> ownerClass) {
-        if (Strings.isBlank(key))
-            throw new IllegalStateException("Key must not be null/empty");
-        if (ownerClass == null)
-            throw new IllegalStateException("Owner class must not be null");
-        Field[] fields = ownerClass.getDeclaredFields();
-        for (Field field : fields) {
-            try {
-                int mod = field.getModifiers();
-                if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
-                    continue;
-                Option<?> option = (Option<?>) field.get(null);
-                if (option == null)
-                    continue;
-                if (option.getKey().equalsIgnoreCase(key))
-                    return field.getName();
-            } catch (IllegalAccessException e) {
-                error(e.getMessage());
-            }
-        }
-        return null;
-    }
-
     private static Class<? extends Options> findDelcaringClass() {
         Class<? extends Options> containerClass = null;
         try {
@@ -494,12 +421,91 @@ public final class Option<T> {
     }
 
     /**
+     * <p>Retrieve an singleton {@link com.ibasco.agql.core.util.Option} instance using the provided class group and key combination</p>
+     *
+     * @param containerClass
+     *         The {@link java.lang.Class} A class of type {@link Options}
+     * @param key
+     *         The key identifying the option
+     * @param <V>
+     *         The underlying type of the Option
+     *
+     * @return The {@link com.ibasco.agql.core.util.Option} instance or {@code null} if no {@link com.ibasco.agql.core.util.Option} found for the specified combination.
+     */
+    public static <V> Option<V> of(Class<? extends Options> containerClass, String key) {
+        if (containerClass == null)
+            throw new IllegalArgumentException("Group cannot be null");
+        if (Strings.isBlank(key))
+            throw new IllegalArgumentException("Key cannot be null");
+        if (!cache.containsKey(containerClass))
+            return null;
+        synchronized (cache) {
+            Set<CacheEntry> cacheEntries = cache.get(containerClass);
+            for (CacheEntry cacheEntry : cacheEntries) {
+                Option<?> option = cacheEntry.getOption();
+                Class<?> contextClass = cacheEntry.getContext();
+                assert contextClass != null;
+                assert option != null;
+                if (option.getKey().equalsIgnoreCase(key) && contextClass.equals(containerClass))
+                    //noinspection unchecked
+                    return (Option<V>) option;
+            }
+            return null;
+        }
+    }
+
+    private static String getFieldName(String key, Class<? extends Options> ownerClass) {
+        if (Strings.isBlank(key))
+            throw new IllegalStateException("Key must not be null/empty");
+        if (ownerClass == null)
+            throw new IllegalStateException("Owner class must not be null");
+        Field[] fields = ownerClass.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                int mod = field.getModifiers();
+                if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
+                    continue;
+                Option<?> option = (Option<?>) field.get(null);
+                if (option == null)
+                    continue;
+                if (option.getKey().equalsIgnoreCase(key))
+                    return field.getName();
+            } catch (IllegalAccessException e) {
+                error(e.getMessage());
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns a read-only {@link com.google.common.collect.SetMultimap} containing of all the {@link Option}s provided by this library
      *
      * @return an {@link ImmutableSetMultimap}
      */
     public static SetMultimap<Class<? extends Options>, CacheEntry> getOptions() {
         return ImmutableSetMultimap.<Class<? extends Options>, CacheEntry>builder().putAll(cache).build();
+    }
+
+    public boolean isShared() {
+        return getDeclaringClass().isAnnotationPresent(Shared.class);
+    }
+
+    /**
+     * The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
+     *
+     * @return The declaring {@link java.lang.Class} of this {@link com.ibasco.agql.core.util.Option}
+     */
+    public Class<? extends Options> getDeclaringClass() {
+        return declaringClass;
+    }
+
+    /**
+     * <p>Getter for the field <code>defaultValue</code>.</p>
+     *
+     * @return The default value assciated with this {@link com.ibasco.agql.core.util.Option}
+     */
+    public T getDefaultValue() {
+        return defaultValue;
     }
 
     /**
@@ -596,6 +602,11 @@ public final class Option<T> {
     }
 
     @Override
+    public int hashCode() {
+        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
 
@@ -606,9 +617,8 @@ public final class Option<T> {
         return new EqualsBuilder().append(getId(), option.getId()).isEquals();
     }
 
-    @Override
-    public int hashCode() {
-        return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
+    public UUID getId() {
+        return id;
     }
 
     public static final class CacheEntry implements Comparable<CacheEntry> {
@@ -628,12 +638,9 @@ public final class Option<T> {
             this.context = Objects.requireNonNull(context, "Context class must not be null");
         }
 
-        public Class<?> getContext() {
-            return context;
-        }
-
-        public Option<?> getOption() {
-            return option;
+        @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(getContext()).append(getOption()).toHashCode();
         }
 
         @Override
@@ -647,9 +654,12 @@ public final class Option<T> {
             return new EqualsBuilder().append(getContext(), that.getContext()).append(getOption(), that.getOption()).isEquals();
         }
 
-        @Override
-        public int hashCode() {
-            return new HashCodeBuilder(17, 37).append(getContext()).append(getOption()).toHashCode();
+        public Class<?> getContext() {
+            return context;
+        }
+
+        public Option<?> getOption() {
+            return option;
         }
 
         @Override

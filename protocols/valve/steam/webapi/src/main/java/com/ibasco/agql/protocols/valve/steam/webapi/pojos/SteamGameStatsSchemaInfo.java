@@ -25,7 +25,9 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamGameStatsSchemaInfo {
+
     private List<SteamGameAchievementSchema> achievementSchemaList = new ArrayList<>();
+
     private List<SteamGameStatsSchema> statsSchemaList = new ArrayList<>();
 
     /**
@@ -40,7 +42,8 @@ public class SteamGameStatsSchemaInfo {
     /**
      * <p>Setter for the field <code>achievementSchemaList</code>.</p>
      *
-     * @param achievementSchemaList a {@link java.util.List} object
+     * @param achievementSchemaList
+     *         a {@link java.util.List} object
      */
     public void setAchievementSchemaList(List<SteamGameAchievementSchema> achievementSchemaList) {
         this.achievementSchemaList = achievementSchemaList;
@@ -58,7 +61,8 @@ public class SteamGameStatsSchemaInfo {
     /**
      * <p>Setter for the field <code>statsSchemaList</code>.</p>
      *
-     * @param statsSchemaList a {@link java.util.List} object
+     * @param statsSchemaList
+     *         a {@link java.util.List} object
      */
     public void setStatsSchemaList(List<SteamGameStatsSchema> statsSchemaList) {
         this.statsSchemaList = statsSchemaList;

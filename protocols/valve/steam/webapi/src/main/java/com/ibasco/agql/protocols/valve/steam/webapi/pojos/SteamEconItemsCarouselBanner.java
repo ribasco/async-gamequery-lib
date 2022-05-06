@@ -26,9 +26,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsCarouselBanner {
+
     private String basefilename;
+
     private String action;
+
     private String placement;
+
     @SerializedName("action_param")
     private String actionParam;
 
@@ -44,7 +48,8 @@ public class SteamEconItemsCarouselBanner {
     /**
      * <p>Setter for the field <code>basefilename</code>.</p>
      *
-     * @param basefilename a {@link java.lang.String} object
+     * @param basefilename
+     *         a {@link java.lang.String} object
      */
     public void setBasefilename(String basefilename) {
         this.basefilename = basefilename;
@@ -62,7 +67,8 @@ public class SteamEconItemsCarouselBanner {
     /**
      * <p>Setter for the field <code>action</code>.</p>
      *
-     * @param action a {@link java.lang.String} object
+     * @param action
+     *         a {@link java.lang.String} object
      */
     public void setAction(String action) {
         this.action = action;
@@ -80,7 +86,8 @@ public class SteamEconItemsCarouselBanner {
     /**
      * <p>Setter for the field <code>placement</code>.</p>
      *
-     * @param placement a {@link java.lang.String} object
+     * @param placement
+     *         a {@link java.lang.String} object
      */
     public void setPlacement(String placement) {
         this.placement = placement;
@@ -98,7 +105,8 @@ public class SteamEconItemsCarouselBanner {
     /**
      * <p>Setter for the field <code>actionParam</code>.</p>
      *
-     * @param actionParam a {@link java.lang.String} object
+     * @param actionParam
+     *         a {@link java.lang.String} object
      */
     public void setActionParam(String actionParam) {
         this.actionParam = actionParam;

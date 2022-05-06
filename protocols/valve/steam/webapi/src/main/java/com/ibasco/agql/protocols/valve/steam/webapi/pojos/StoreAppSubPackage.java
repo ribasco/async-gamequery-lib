@@ -24,20 +24,28 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppSubPackage {
+
     @SerializedName("packageid")
     private int packageId;
+
     @SerializedName("percent_savings_text")
     private String percentSavingsText;
+
     @SerializedName("percent_savings")
     private int percentSavings;
+
     @SerializedName("option_text")
     private String optionText;
+
     @SerializedName("option_description")
     private String optionDescription;
+
     @SerializedName("can_get_free_license")
     private String getFreeLicense; //boolean value
+
     @SerializedName("is_free_license")
     private boolean freeLicense;
+
     @SerializedName("price_in_cents_with_discount")
     private int priceInCentsWithDiscount;
 
@@ -53,7 +61,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>packageId</code>.</p>
      *
-     * @param packageId a int
+     * @param packageId
+     *         a int
      */
     public void setPackageId(int packageId) {
         this.packageId = packageId;
@@ -71,7 +80,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>percentSavingsText</code>.</p>
      *
-     * @param percentSavingsText a {@link java.lang.String} object
+     * @param percentSavingsText
+     *         a {@link java.lang.String} object
      */
     public void setPercentSavingsText(String percentSavingsText) {
         this.percentSavingsText = percentSavingsText;
@@ -89,7 +99,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>percentSavings</code>.</p>
      *
-     * @param percentSavings a int
+     * @param percentSavings
+     *         a int
      */
     public void setPercentSavings(int percentSavings) {
         this.percentSavings = percentSavings;
@@ -107,7 +118,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>optionText</code>.</p>
      *
-     * @param optionText a {@link java.lang.String} object
+     * @param optionText
+     *         a {@link java.lang.String} object
      */
     public void setOptionText(String optionText) {
         this.optionText = optionText;
@@ -125,7 +137,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>optionDescription</code>.</p>
      *
-     * @param optionDescription a {@link java.lang.String} object
+     * @param optionDescription
+     *         a {@link java.lang.String} object
      */
     public void setOptionDescription(String optionDescription) {
         this.optionDescription = optionDescription;
@@ -143,7 +156,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>getFreeLicense</code>.</p>
      *
-     * @param getFreeLicense a {@link java.lang.String} object
+     * @param getFreeLicense
+     *         a {@link java.lang.String} object
      */
     public void setGetFreeLicense(String getFreeLicense) {
         this.getFreeLicense = getFreeLicense;
@@ -161,7 +175,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>freeLicense</code>.</p>
      *
-     * @param freeLicense a boolean
+     * @param freeLicense
+     *         a boolean
      */
     public void setFreeLicense(boolean freeLicense) {
         this.freeLicense = freeLicense;
@@ -179,7 +194,8 @@ public class StoreAppSubPackage {
     /**
      * <p>Setter for the field <code>priceInCentsWithDiscount</code>.</p>
      *
-     * @param priceInCentsWithDiscount a int
+     * @param priceInCentsWithDiscount
+     *         a int
      */
     public void setPriceInCentsWithDiscount(int priceInCentsWithDiscount) {
         this.priceInCentsWithDiscount = priceInCentsWithDiscount;

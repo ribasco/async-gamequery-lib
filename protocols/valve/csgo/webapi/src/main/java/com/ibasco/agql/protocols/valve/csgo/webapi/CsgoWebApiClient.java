@@ -30,7 +30,8 @@ public class CsgoWebApiClient extends SteamWebApiClient {
     /**
      * <p>Constructor for CsgoWebApiClient.</p>
      *
-     * @param apiToken a {@link java.lang.String} object
+     * @param apiToken
+     *         a {@link java.lang.String} object
      */
     public CsgoWebApiClient(String apiToken) {
         super(apiToken);

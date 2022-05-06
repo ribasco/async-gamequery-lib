@@ -27,11 +27,14 @@ import io.netty.handler.codec.http.HttpMethod;
  * @author Rafael Luis Ibasco
  */
 public class ReportCheatData extends SteamReportCheatRequest {
+
     /**
      * <p>Constructor for ReportCheatData.</p>
      *
-     * @param cheatInfo a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData} object
-     * @param apiVersion a int
+     * @param cheatInfo
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.CheatData} object
+     * @param apiVersion
+     *         a int
      */
     public ReportCheatData(CheatData cheatInfo, int apiVersion) {
         super(SteamApiConstants.STEAM_METHOD_CHEATREPORTSVC_REPORTCHEATDATA, apiVersion);

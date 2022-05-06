@@ -35,6 +35,25 @@ public class CocSeason {
 
     private String id;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("rank", getRank())
+                .append("trophies", getTrophies())
+                .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>id</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getId() {
+        return id;
+    }
+
     /**
      * <p>Getter for the field <code>rank</code>.</p>
      *
@@ -47,7 +66,8 @@ public class CocSeason {
     /**
      * <p>Setter for the field <code>rank</code>.</p>
      *
-     * @param rank a int
+     * @param rank
+     *         a int
      */
     public void setRank(int rank) {
         this.rank = rank;
@@ -65,37 +85,20 @@ public class CocSeason {
     /**
      * <p>Setter for the field <code>trophies</code>.</p>
      *
-     * @param trophies a int
+     * @param trophies
+     *         a int
      */
     public void setTrophies(int trophies) {
         this.trophies = trophies;
     }
 
     /**
-     * <p>Getter for the field <code>id</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a {@link java.lang.String} object
+     * @param id
+     *         a {@link java.lang.String} object
      */
     public void setId(String id) {
         this.id = id;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("rank", getRank())
-                .append("trophies", getTrophies())
-                .toString();
     }
 }

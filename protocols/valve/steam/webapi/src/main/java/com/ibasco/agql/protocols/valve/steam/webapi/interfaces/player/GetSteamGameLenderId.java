@@ -24,12 +24,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetSteamGameLenderId extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetSteamGameLenderId.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
      */
     public GetSteamGameLenderId(int apiVersion, long steamId, int appId) {
         super("IsPlayingSharedGame", apiVersion);

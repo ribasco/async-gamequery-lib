@@ -24,7 +24,9 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppAchievementHighlight {
+
     private String name;
+
     @SerializedName("path")
     private String pathUrl;
 
@@ -40,7 +42,8 @@ public class StoreAppAchievementHighlight {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -58,7 +61,8 @@ public class StoreAppAchievementHighlight {
     /**
      * <p>Setter for the field <code>pathUrl</code>.</p>
      *
-     * @param pathUrl a {@link java.lang.String} object
+     * @param pathUrl
+     *         a {@link java.lang.String} object
      */
     public void setPathUrl(String pathUrl) {
         this.pathUrl = pathUrl;

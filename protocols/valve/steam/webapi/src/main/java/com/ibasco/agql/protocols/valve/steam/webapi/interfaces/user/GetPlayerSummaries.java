@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user;
 
 import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
 import org.apache.commons.lang3.StringUtils;
-
 import java.util.List;
 
 /**
@@ -27,11 +26,14 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class GetPlayerSummaries extends SteamUserRequest {
+
     /**
      * <p>Constructor for GetPlayerSummaries.</p>
      *
-     * @param apiVersion a int
-     * @param steamIds a {@link java.util.List} object
+     * @param apiVersion
+     *         a int
+     * @param steamIds
+     *         a {@link java.util.List} object
      */
     public GetPlayerSummaries(int apiVersion, List<Long> steamIds) {
         this(apiVersion, steamIds.toArray(new Long[0]));
@@ -40,8 +42,10 @@ public class GetPlayerSummaries extends SteamUserRequest {
     /**
      * <p>Constructor for GetPlayerSummaries.</p>
      *
-     * @param apiVersion a int
-     * @param steamIds a {@link java.lang.Long} object
+     * @param apiVersion
+     *         a int
+     * @param steamIds
+     *         a {@link java.lang.Long} object
      */
     public GetPlayerSummaries(int apiVersion, Long... steamIds) {
         super("GetPlayerSummaries", apiVersion);

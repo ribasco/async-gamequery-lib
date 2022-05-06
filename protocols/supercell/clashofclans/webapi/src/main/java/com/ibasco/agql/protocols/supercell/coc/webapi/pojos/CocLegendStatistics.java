@@ -37,6 +37,18 @@ public class CocLegendStatistics {
 
     private CocSeason bestSeason;
 
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("legendTrophies", getLegendTrophies())
+                .append("currentSeason", getCurrentSeason())
+                .append("previousSeason", getPreviousSeason())
+                .append("bestSeason", getBestSeason())
+                .toString();
+
+    }
+
     /**
      * <p>Getter for the field <code>legendTrophies</code>.</p>
      *
@@ -49,7 +61,8 @@ public class CocLegendStatistics {
     /**
      * <p>Setter for the field <code>legendTrophies</code>.</p>
      *
-     * @param legendTrophies a int
+     * @param legendTrophies
+     *         a int
      */
     public void setLegendTrophies(int legendTrophies) {
         this.legendTrophies = legendTrophies;
@@ -67,7 +80,8 @@ public class CocLegendStatistics {
     /**
      * <p>Setter for the field <code>currentSeason</code>.</p>
      *
-     * @param currentSeason a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
+     * @param currentSeason
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
      */
     public void setCurrentSeason(CocSeason currentSeason) {
         this.currentSeason = currentSeason;
@@ -85,7 +99,8 @@ public class CocLegendStatistics {
     /**
      * <p>Setter for the field <code>previousSeason</code>.</p>
      *
-     * @param previousSeason a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
+     * @param previousSeason
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
      */
     public void setPreviousSeason(CocSeason previousSeason) {
         this.previousSeason = previousSeason;
@@ -103,21 +118,10 @@ public class CocLegendStatistics {
     /**
      * <p>Setter for the field <code>bestSeason</code>.</p>
      *
-     * @param bestSeason a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
+     * @param bestSeason
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocSeason} object
      */
     public void setBestSeason(CocSeason bestSeason) {
         this.bestSeason = bestSeason;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("legendTrophies", getLegendTrophies())
-                .append("currentSeason", getCurrentSeason())
-                .append("previousSeason", getPreviousSeason())
-                .append("bestSeason", getBestSeason())
-                .toString();
-
     }
 }

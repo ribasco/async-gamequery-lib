@@ -30,10 +30,18 @@ public class SourceRconCmdRequest extends SourceRconRequest {
     /**
      * <p>Constructor for SourceRconCmdRequest.</p>
      *
-     * @param command a {@link java.lang.String} object
+     * @param command
+     *         a {@link java.lang.String} object
      */
     public SourceRconCmdRequest(String command) {
         this.command = command;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void buildToString(ToStringBuilder builder) {
+        super.buildToString(builder);
+        builder.append("command", getCommand());
     }
 
     /**
@@ -43,12 +51,5 @@ public class SourceRconCmdRequest extends SourceRconRequest {
      */
     public final String getCommand() {
         return command;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void buildToString(ToStringBuilder builder) {
-        super.buildToString(builder);
-        builder.append("command", getCommand());
     }
 }

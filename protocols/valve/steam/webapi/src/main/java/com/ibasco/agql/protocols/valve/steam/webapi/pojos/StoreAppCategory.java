@@ -22,7 +22,9 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class StoreAppCategory {
+
     private int id;
+
     private String description;
 
     /**
@@ -37,7 +39,8 @@ public class StoreAppCategory {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -55,7 +58,8 @@ public class StoreAppCategory {
     /**
      * <p>Setter for the field <code>description</code>.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     public void setDescription(String description) {
         this.description = description;

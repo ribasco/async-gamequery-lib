@@ -18,7 +18,6 @@ package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
 import io.netty.channel.Channel;
-
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.Set;
@@ -35,6 +34,7 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to be registered
+     *
      * @throws com.ibasco.agql.core.exceptions.ChannelRegistrationException
      *         If the registration fails
      */
@@ -45,6 +45,7 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to be unregistered
+     *
      * @return {@code true} if the {@link io.netty.channel.Channel} was successfuly unregistred.
      */
     boolean unregister(Channel channel);
@@ -54,6 +55,7 @@ public interface ChannelRegistry {
      *
      * @param channel
      *         The {@link io.netty.channel.Channel} to check.
+     *
      * @return {@code true} if the {@link io.netty.channel.Channel} is registered by this instance.
      */
     boolean isRegistered(Channel channel);
@@ -87,6 +89,7 @@ public interface ChannelRegistry {
      *
      * @param address
      *         The {@link java.net.InetSocketAddress} to lookup
+     *
      * @return The total number of registered {@link io.netty.channel.Channel} for the specified address
      */
     int getCount(InetSocketAddress address);

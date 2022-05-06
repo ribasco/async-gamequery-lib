@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class Dota2TeamsRequest extends Dota2WebApiRequest {
+
     /**
      * <p>Constructor for Dota2TeamsRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
-     * @param language a {@link java.lang.String} object
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public Dota2TeamsRequest(String apiMethod, int apiVersion, String language) {
         super(Dota2ApiConstants.DOTA2_INTERFACE_TEAMS, apiMethod, apiVersion, language);

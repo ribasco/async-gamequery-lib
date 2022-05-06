@@ -24,6 +24,7 @@ import java.util.zip.CRC32;
  * @author Rafael Luis Ibasco
  */
 public class Compression {
+
     /**
      * <p>getCrc32Checksum.</p>
      *

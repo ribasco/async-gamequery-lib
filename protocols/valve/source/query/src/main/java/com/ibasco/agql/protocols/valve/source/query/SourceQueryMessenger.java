@@ -19,8 +19,11 @@ package com.ibasco.agql.protocols.valve.source.query;
 import com.ibasco.agql.core.NettyChannelContext;
 import com.ibasco.agql.core.NettyMessenger;
 import com.ibasco.agql.core.enums.RateLimitType;
+import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
+import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
+import com.ibasco.agql.core.exceptions.MessengerException;
+import com.ibasco.agql.core.exceptions.RejectedRequestException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
-import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
@@ -38,14 +41,17 @@ import dev.failsafe.event.ExecutionCompletedEvent;
 import dev.failsafe.function.CheckedFunction;
 import dev.failsafe.function.ContextualSupplier;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Messenger implementation for the Source Query Protocol
@@ -57,18 +63,18 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryMessenger.class);
 
-    private FailsafeExecutor<NettyChannelContext> executor;
-
-    private RateLimiter<NettyChannelContext> rateLimiter;
-
-    private RetryPolicy<NettyChannelContext> retryPolicy;
-
     private final boolean failsafeEnabled;
 
     /**
      * Executor that is used for acquiring permits (applicable only if rate limiting is enabled)
      */
     private final ExecutorService permitExecutor;
+
+    private FailsafeExecutor<NettyChannelContext> executor;
+
+    private RateLimiter<NettyChannelContext> rateLimiter;
+
+    private RetryPolicy<NettyChannelContext> retryPolicy;
 
     private final EventListener<ExecutionCompletedEvent<NettyChannelContext>> retryExceededListener = new EventListener<ExecutionCompletedEvent<NettyChannelContext>>() {
         @Override
@@ -105,52 +111,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         this.failsafeEnabled = getOptions().getOrDefault(FailsafeOptions.FAILSAFE_ENABLED);
         this.permitExecutor = failsafeEnabled ? Executors.newSingleThreadScheduledExecutor(new DefaultThreadFactory("rate-limiter")) : null;
         initFailSafe(getOptions());
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected void configure(Options options) {
-        //default general config
-        applyDefault(GeneralOptions.CONNECTION_POOLING, false);
-        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
-        applyDefault(GeneralOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
-        applyDefault(GeneralOptions.READ_TIMEOUT, 5000);
-
-        //connect options
-        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
-
-        //connect - retry
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_ENABLED, true);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
-
-        //connect - circuit breaker
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
-
-        //query - rate limiting
-        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
-        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, 10000L);
-
-        //query - retry
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
     }
 
     private void initFailSafe(final Options options) {
@@ -232,23 +192,48 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
     /** {@inheritDoc} */
     @Override
-    public CompletableFuture<SourceQueryResponse<?>> send(InetSocketAddress address, SourceQueryRequest request) {
-        CompletableFuture<NettyChannelContext> future;
-        RequestContext query = new RequestContext(address, request);
-        if (executor != null && failsafeEnabled)
-            future = executor.getStageAsync((ContextualSupplier<NettyChannelContext, CompletableFuture<NettyChannelContext>>) query::execute);
-        else
-            future = query.execute();
-        return future.handle(query::completion);
-    }
+    protected void configure(Options options) {
+        //default general config
+        applyDefault(GeneralOptions.CONNECTION_POOLING, false);
+        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE);
+        applyDefault(GeneralOptions.POOL_MAX_CONNECTIONS, Properties.getDefaultPoolSize());
+        applyDefault(GeneralOptions.READ_TIMEOUT, 5000);
 
-    //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).
-    // By overriding this, we then need to make sure to register a custom property resolver.
+        //connect options
+        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
 
-    /** {@inheritDoc} */
-    @Override
-    protected Object transformProperties(InetSocketAddress address, SourceQueryRequest request) {
-        return new ImmutablePair<>(address, request);
+        //connect - retry
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
+
+        //connect - circuit breaker
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
+
+        //query - rate limiting
+        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_PERIOD, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_EXEC, 650L);
+        applyDefault(FailsafeOptions.FAILSAFE_RATELIMIT_MAX_WAIT_TIME, 10000L);
+
+        //query - retry
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 1000L); //1000L
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 5);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
     }
 
     /** {@inheritDoc} */
@@ -259,10 +244,55 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         return new SourceQueryChannelFactory(channelFactory);
     }
 
+    //NOTE: We override this to ensure that we only acquire channels from a single pool instance (if pooling is enabled).
+    // By overriding this, we then need to make sure to register a custom property resolver.
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<SourceQueryResponse<?>> send(InetSocketAddress address, SourceQueryRequest request) {
+        CompletableFuture<NettyChannelContext> future;
+        RequestContext query = new RequestContext(address, request);
+        if (executor != null && failsafeEnabled)
+            future = executor.getStageAsync((ContextualSupplier<NettyChannelContext, CompletableFuture<NettyChannelContext>>) query::execute);
+        else
+            future = query.execute();
+        return future.handle(query::completion);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    protected Object transformProperties(InetSocketAddress address, SourceQueryRequest request) {
+        return new ImmutablePair<>(address, request);
+    }
+
     @Override
     public void close() throws IOException {
         super.close();
         Concurrency.shutdown(permitExecutor);
+    }
+
+    private static class PropertyResolver implements NettyPoolPropertyResolver {
+
+        private final NettyPropertyResolver defaultResolver;
+
+        private PropertyResolver(NettyPropertyResolver defaultResolver) {
+            this.defaultResolver = defaultResolver;
+        }
+
+        @Override
+        public Object resolvePoolKey(Object data) {
+            //use a single key for every channel acquisition to ensure we get the same pool instance for each request
+            return SourceQuery.class;
+        }
+
+        @Override
+        public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
+            if (data instanceof RequestContext) {
+                return ((RequestContext) data).getAddress();
+            } else {
+                return defaultResolver.resolveRemoteAddress(data);
+            }
+        }
     }
 
     private class RequestContext {
@@ -278,10 +308,8 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             this.request = request;
         }
 
-        private void initialize(NettyChannelContext context) {
-            setContext(context);
-            context.disableAutoRelease();
-            context.attach(request);
+        public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> context) {
+            return execute();
         }
 
         public CompletableFuture<NettyChannelContext> execute() {
@@ -296,8 +324,10 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             return contextFuture.thenCompose(SourceQueryMessenger.super::send);
         }
 
-        public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> context) {
-            return execute();
+        private void initialize(NettyChannelContext context) {
+            setContext(context);
+            context.disableAutoRelease();
+            context.attach(request);
         }
 
         /**
@@ -351,30 +381,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                 if (this.context != null) {
                     this.context.close();
                 }
-            }
-        }
-    }
-
-    private static class PropertyResolver implements NettyPoolPropertyResolver {
-
-        private final NettyPropertyResolver defaultResolver;
-
-        private PropertyResolver(NettyPropertyResolver defaultResolver) {
-            this.defaultResolver = defaultResolver;
-        }
-
-        @Override
-        public Object resolvePoolKey(Object data) {
-            //use a single key for every channel acquisition to ensure we get the same pool instance for each request
-            return SourceQuery.class;
-        }
-
-        @Override
-        public InetSocketAddress resolveRemoteAddress(Object data) throws IllegalStateException {
-            if (data instanceof RequestContext) {
-                return ((RequestContext) data).getAddress();
-            } else {
-                return defaultResolver.resolveRemoteAddress(data);
             }
         }
     }

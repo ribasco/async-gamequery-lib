@@ -28,11 +28,14 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class GetClanInfo extends CocWebApiRequest {
+
     /**
      * <p>Constructor for GetClanInfo.</p>
      *
-     * @param apiVersion a int
-     * @param clanTag a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param clanTag
+     *         a {@link java.lang.String} object
      */
     public GetClanInfo(int apiVersion, String clanTag) {
         super(apiVersion, CocApiConstants.UF_COC_CLAN_INFO);

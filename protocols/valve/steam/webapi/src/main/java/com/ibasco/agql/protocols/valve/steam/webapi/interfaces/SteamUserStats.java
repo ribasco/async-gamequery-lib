@@ -21,9 +21,18 @@ import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.*;
-import com.ibasco.agql.protocols.valve.steam.webapi.pojos.*;
-
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetGlobalAchievementPercentagesForApp;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetGlobalStatsForGame;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetNumberOfCurrentPlayers;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetPlayerAchievements;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetSchemaForGame;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.userstats.GetUserStatsForGame;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGameAchievement;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGameAchievementSchema;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGameStatsSchema;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGameStatsSchemaInfo;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerAchievement;
+import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerStats;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +48,8 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>Constructor for SteamUserStats.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamUserStats(SteamWebApiClient client) {
         super(client);
@@ -48,7 +58,9 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getGlobalAchievementPercentagesForApp.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamGameAchievement>> getGlobalAchievementPercentagesForApp(int appId) {
@@ -65,9 +77,13 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getGlobalStatsForGame.</p>
      *
-     * @param appId a int
-     * @param count a int
-     * @param name a {@link java.lang.String} object
+     * @param appId
+     *         a int
+     * @param count
+     *         a int
+     * @param name
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<Object>> getGlobalStatsForGame(int appId, int count, String name) {
@@ -78,7 +94,9 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getSchemaForGame.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamGameStatsSchemaInfo> getSchemaForGame(int appId) {
@@ -97,7 +115,9 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getNumberOfCurrentPlayers.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Integer> getNumberOfCurrentPlayers(int appId) {
@@ -108,8 +128,11 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getPlayerAchievements.</p>
      *
-     * @param steamId a long
-     * @param appId a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamPlayerAchievement>> getPlayerAchievements(long steamId, int appId) {
@@ -119,9 +142,13 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getPlayerAchievements.</p>
      *
-     * @param steamId a long
-     * @param appId a int
-     * @param language a {@link java.lang.String} object
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamPlayerAchievement>> getPlayerAchievements(long steamId, int appId, String language) {
@@ -132,8 +159,11 @@ public class SteamUserStats extends SteamWebApiInterface {
     /**
      * <p>getUserStatsForGame.</p>
      *
-     * @param steamId a long
-     * @param appId a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamPlayerStats> getUserStatsForGame(long steamId, int appId) {

@@ -32,12 +32,18 @@ public class GetLeagueSeasonRankings extends CocWebApiRequest {
     /**
      * <p>Constructor for GetLeagueSeasonRankings.</p>
      *
-     * @param apiVersion a int
-     * @param leagueId a int
-     * @param seasonId a {@link java.lang.String} object
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param leagueId
+     *         a int
+     * @param seasonId
+     *         a {@link java.lang.String} object
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
     public GetLeagueSeasonRankings(int apiVersion, int leagueId, String seasonId, int limit, int before, int after) {
         super(apiVersion, CocApiConstants.UF_COC_LEAGUE_SEASON_RANKINGS, limit, before, after);

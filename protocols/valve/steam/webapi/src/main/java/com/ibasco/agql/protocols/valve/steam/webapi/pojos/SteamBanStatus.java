@@ -24,18 +24,25 @@ import com.google.gson.annotations.SerializedName;
  * @author Rafael Luis Ibasco
  */
 public class SteamBanStatus {
+
     @SerializedName("SteamId")
     private String steamId;
+
     @SerializedName("CommunityBanned")
     private boolean communityBanned;
+
     @SerializedName("VACBanned")
     private boolean vacBanned;
+
     @SerializedName("NumberOfVACBans")
     private int totalVacBansOnRecord;
+
     @SerializedName("DaysSinceLastBan")
     private int totalDaysSinceLastBan;
+
     @SerializedName("NumberOfGameBans")
     private int totalGameBans;
+
     @SerializedName("EconomyBan")
     private String economyBan;
 
@@ -60,7 +67,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>steamId</code>.</p>
      *
-     * @param steamId a {@link java.lang.String} object
+     * @param steamId
+     *         a {@link java.lang.String} object
      */
     public void setSteamId(String steamId) {
         this.steamId = steamId;
@@ -78,7 +86,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>communityBanned</code>.</p>
      *
-     * @param communityBanned a boolean
+     * @param communityBanned
+     *         a boolean
      */
     public void setCommunityBanned(boolean communityBanned) {
         this.communityBanned = communityBanned;
@@ -96,7 +105,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>vacBanned</code>.</p>
      *
-     * @param vacBanned a boolean
+     * @param vacBanned
+     *         a boolean
      */
     public void setVacBanned(boolean vacBanned) {
         this.vacBanned = vacBanned;
@@ -114,7 +124,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>totalVacBansOnRecord</code>.</p>
      *
-     * @param totalVacBansOnRecord a int
+     * @param totalVacBansOnRecord
+     *         a int
      */
     public void setTotalVacBansOnRecord(int totalVacBansOnRecord) {
         this.totalVacBansOnRecord = totalVacBansOnRecord;
@@ -132,7 +143,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>totalDaysSinceLastBan</code>.</p>
      *
-     * @param totalDaysSinceLastBan a int
+     * @param totalDaysSinceLastBan
+     *         a int
      */
     public void setTotalDaysSinceLastBan(int totalDaysSinceLastBan) {
         this.totalDaysSinceLastBan = totalDaysSinceLastBan;
@@ -150,7 +162,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>totalGameBans</code>.</p>
      *
-     * @param totalGameBans a int
+     * @param totalGameBans
+     *         a int
      */
     public void setTotalGameBans(int totalGameBans) {
         this.totalGameBans = totalGameBans;
@@ -168,7 +181,8 @@ public class SteamBanStatus {
     /**
      * <p>Setter for the field <code>economyBan</code>.</p>
      *
-     * @param economyBan a {@link java.lang.String} object
+     * @param economyBan
+     *         a {@link java.lang.String} object
      */
     public void setEconomyBan(String economyBan) {
         this.economyBan = economyBan;

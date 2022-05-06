@@ -17,7 +17,6 @@
 package com.ibasco.agql.protocols.valve.steam.master.exception;
 
 import com.ibasco.agql.core.exceptions.ReadTimeoutException;
-
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.HashSet;
@@ -35,7 +34,8 @@ public class MasterServerTimeoutException extends ReadTimeoutException {
     /**
      * <p>Constructor for MasterServerTimeoutException.</p>
      *
-     * @param addresses a {@link java.util.Collection} object
+     * @param addresses
+     *         a {@link java.util.Collection} object
      */
     public MasterServerTimeoutException(Collection<InetSocketAddress> addresses) {
         this.addresses = new HashSet<>(addresses);
@@ -44,8 +44,10 @@ public class MasterServerTimeoutException extends ReadTimeoutException {
     /**
      * <p>Constructor for MasterServerTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param addresses a {@link java.util.Collection} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param addresses
+     *         a {@link java.util.Collection} object
      */
     public MasterServerTimeoutException(String message, Collection<InetSocketAddress> addresses) {
         super(message);
@@ -55,9 +57,12 @@ public class MasterServerTimeoutException extends ReadTimeoutException {
     /**
      * <p>Constructor for MasterServerTimeoutException.</p>
      *
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param addresses a {@link java.util.Collection} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param addresses
+     *         a {@link java.util.Collection} object
      */
     public MasterServerTimeoutException(String message, Throwable cause, Collection<InetSocketAddress> addresses) {
         super(message, cause);

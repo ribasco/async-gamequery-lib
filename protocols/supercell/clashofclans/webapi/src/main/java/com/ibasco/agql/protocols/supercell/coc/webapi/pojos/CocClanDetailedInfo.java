@@ -17,13 +17,12 @@
 package com.ibasco.agql.protocols.supercell.coc.webapi.pojos;
 
 import com.google.gson.annotations.SerializedName;
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.ArrayList;
 import java.util.List;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * Created by raffy on 10/28/2016.
@@ -33,76 +32,35 @@ import java.util.List;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocClanDetailedInfo extends CocClanBasicInfo {
+
     private String type;
+
     private String description;
+
     private CocLocation location;
+
     private int clanPoints;
+
     private int requiredTrophies;
+
     private String warFrequency;
+
     private int warWinStreak;
+
     private int warWins;
+
     private int warTies;
+
     private int warLosses;
+
     @SerializedName("isWarLogPublic")
     private boolean warLogPublic;
+
     @SerializedName("members")
     private int totalMembers;
+
     @SerializedName("memberList")
     private List<CocPlayerBasicInfo> clanMembers = new ArrayList<>();
-
-    /**
-     * <p>Getter for the field <code>description</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getDescription() {
-        return description;
-    }
-
-    /**
-     * <p>Setter for the field <code>description</code>.</p>
-     *
-     * @param description a {@link java.lang.String} object
-     */
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    /**
-     * <p>Getter for the field <code>clanMembers</code>.</p>
-     *
-     * @return a {@link java.util.List} object
-     */
-    public List<CocPlayerBasicInfo> getClanMembers() {
-        return clanMembers;
-    }
-
-    /**
-     * <p>Setter for the field <code>clanMembers</code>.</p>
-     *
-     * @param clanMembers a {@link java.util.List} object
-     */
-    public void setClanMembers(List<CocPlayerBasicInfo> clanMembers) {
-        this.clanMembers = clanMembers;
-    }
-
-    /**
-     * <p>Getter for the field <code>type</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getType() {
-        return type;
-    }
-
-    /**
-     * <p>Setter for the field <code>type</code>.</p>
-     *
-     * @param type a {@link java.lang.String} object
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
 
     /**
      * <p>Getter for the field <code>location</code>.</p>
@@ -116,7 +74,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>location</code>.</p>
      *
-     * @param location a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
+     * @param location
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLocation} object
      */
     public void setLocation(CocLocation location) {
         this.location = location;
@@ -134,7 +93,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>clanPoints</code>.</p>
      *
-     * @param clanPoints a int
+     * @param clanPoints
+     *         a int
      */
     public void setClanPoints(int clanPoints) {
         this.clanPoints = clanPoints;
@@ -152,7 +112,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>requiredTrophies</code>.</p>
      *
-     * @param requiredTrophies a int
+     * @param requiredTrophies
+     *         a int
      */
     public void setRequiredTrophies(int requiredTrophies) {
         this.requiredTrophies = requiredTrophies;
@@ -170,7 +131,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warFrequency</code>.</p>
      *
-     * @param warFrequency a {@link java.lang.String} object
+     * @param warFrequency
+     *         a {@link java.lang.String} object
      */
     public void setWarFrequency(String warFrequency) {
         this.warFrequency = warFrequency;
@@ -188,7 +150,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warWinStreak</code>.</p>
      *
-     * @param warWinStreak a int
+     * @param warWinStreak
+     *         a int
      */
     public void setWarWinStreak(int warWinStreak) {
         this.warWinStreak = warWinStreak;
@@ -206,7 +169,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warWins</code>.</p>
      *
-     * @param warWins a int
+     * @param warWins
+     *         a int
      */
     public void setWarWins(int warWins) {
         this.warWins = warWins;
@@ -224,7 +188,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warTies</code>.</p>
      *
-     * @param warTies a int
+     * @param warTies
+     *         a int
      */
     public void setWarTies(int warTies) {
         this.warTies = warTies;
@@ -242,7 +207,8 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warLosses</code>.</p>
      *
-     * @param warLosses a int
+     * @param warLosses
+     *         a int
      */
     public void setWarLosses(int warLosses) {
         this.warLosses = warLosses;
@@ -260,28 +226,11 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
     /**
      * <p>Setter for the field <code>warLogPublic</code>.</p>
      *
-     * @param warLogPublic a boolean
+     * @param warLogPublic
+     *         a boolean
      */
     public void setWarLogPublic(boolean warLogPublic) {
         this.warLogPublic = warLogPublic;
-    }
-
-    /**
-     * <p>Getter for the field <code>totalMembers</code>.</p>
-     *
-     * @return a int
-     */
-    public int getTotalMembers() {
-        return totalMembers;
-    }
-
-    /**
-     * <p>Setter for the field <code>totalMembers</code>.</p>
-     *
-     * @param totalMembers a int
-     */
-    public void setTotalMembers(int totalMembers) {
-        this.totalMembers = totalMembers;
     }
 
     /** {@inheritDoc} */
@@ -295,5 +244,81 @@ public class CocClanDetailedInfo extends CocClanBasicInfo {
                 .append("members", getTotalMembers())
                 .append("memberListSize", defaultIfNull(getClanMembers(), new ArrayList<>()).size())
                 .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>type</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * <p>Getter for the field <code>description</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getDescription() {
+        return description;
+    }
+
+    /**
+     * <p>Setter for the field <code>description</code>.</p>
+     *
+     * @param description
+     *         a {@link java.lang.String} object
+     */
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    /**
+     * <p>Getter for the field <code>totalMembers</code>.</p>
+     *
+     * @return a int
+     */
+    public int getTotalMembers() {
+        return totalMembers;
+    }
+
+    /**
+     * <p>Getter for the field <code>clanMembers</code>.</p>
+     *
+     * @return a {@link java.util.List} object
+     */
+    public List<CocPlayerBasicInfo> getClanMembers() {
+        return clanMembers;
+    }
+
+    /**
+     * <p>Setter for the field <code>clanMembers</code>.</p>
+     *
+     * @param clanMembers
+     *         a {@link java.util.List} object
+     */
+    public void setClanMembers(List<CocPlayerBasicInfo> clanMembers) {
+        this.clanMembers = clanMembers;
+    }
+
+    /**
+     * <p>Setter for the field <code>totalMembers</code>.</p>
+     *
+     * @param totalMembers
+     *         a int
+     */
+    public void setTotalMembers(int totalMembers) {
+        this.totalMembers = totalMembers;
+    }
+
+    /**
+     * <p>Setter for the field <code>type</code>.</p>
+     *
+     * @param type
+     *         a {@link java.lang.String} object
+     */
+    public void setType(String type) {
+        this.type = type;
     }
 }

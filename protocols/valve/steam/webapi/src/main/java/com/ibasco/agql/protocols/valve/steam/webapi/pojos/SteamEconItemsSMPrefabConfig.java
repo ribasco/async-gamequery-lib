@@ -26,10 +26,14 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMPrefabConfig {
+
     @SerializedName("dropdown_id")
     private long dropdownId;
+
     private String name;
+
     private boolean enabled;
+
     @SerializedName("default_selection_id")
     private long defaultSelectionId;
 
@@ -45,7 +49,8 @@ public class SteamEconItemsSMPrefabConfig {
     /**
      * <p>Setter for the field <code>dropdownId</code>.</p>
      *
-     * @param dropdownId a long
+     * @param dropdownId
+     *         a long
      */
     public void setDropdownId(long dropdownId) {
         this.dropdownId = dropdownId;
@@ -63,7 +68,8 @@ public class SteamEconItemsSMPrefabConfig {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -81,7 +87,8 @@ public class SteamEconItemsSMPrefabConfig {
     /**
      * <p>Setter for the field <code>enabled</code>.</p>
      *
-     * @param enabled a boolean
+     * @param enabled
+     *         a boolean
      */
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
@@ -99,7 +106,8 @@ public class SteamEconItemsSMPrefabConfig {
     /**
      * <p>Setter for the field <code>defaultSelectionId</code>.</p>
      *
-     * @param defaultSelectionId a long
+     * @param defaultSelectionId
+     *         a long
      */
     public void setDefaultSelectionId(long defaultSelectionId) {
         this.defaultSelectionId = defaultSelectionId;

@@ -22,13 +22,12 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Eager implementation of the {@link com.ibasco.agql.protocols.valve.source.query.common.packets.util.SourceSplitPacketAssembler}. The split-packet is decoded on-the-fly and the partial packet is then placed into a pre-allocated buffer
@@ -64,7 +63,8 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
     /**
      * <p>Constructor for SourceEagerSplitPacketAssembler.</p>
      *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
      */
     public SourceEagerSplitPacketAssembler(ChannelHandlerContext ctx) {
         this.ctx = ctx;
@@ -115,18 +115,6 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
 
     /** {@inheritDoc} */
     @Override
-    public boolean isComplete() {
-        return this.completed;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public ByteBuf getBuffer() {
-        return this.buffer;
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public int received() {
         if (this.packets == null)
             return 0;
@@ -136,6 +124,18 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
                 count++;
         }
         return count;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean isComplete() {
+        return this.completed;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public ByteBuf getBuffer() {
+        return this.buffer;
     }
 
     /** {@inheritDoc} */
@@ -159,20 +159,6 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
         log.debug("{} ASSEMBLER => Successfully reset assembler", Netty.id(ctx));
     }
 
-    private void initialize(SourceQuerySplitPacket packet) {
-        if (completed || this.packets != null)
-            throw new IllegalStateException("Not yet in completed state");
-        log.debug("{} ASSEMBLER => Initializing packet container", Netty.id(ctx));
-        this.packets = new SourceQuerySplitPacket[packet.getPacketCount()];
-        this.packetId = packet.getId();
-        this.maxPacketSize = packet.getPacketMaxSize();
-        this.packetCount = packet.getPacketCount();
-        //pre-allocate buffer
-        int bufferSize = maxPacketSize * packetCount;
-        this.buffer = allocator.directBuffer(bufferSize);
-        log.debug("{} ASSEMBLER => Pre-allocated buffer with {} bytes", Netty.id(ctx), bufferSize);
-    }
-
     /** {@inheritDoc} */
     @Override
     public List<ByteBuf> dump() {
@@ -187,5 +173,19 @@ public class SourceEagerSplitPacketAssembler implements SourceSplitPacketAssembl
             packets.set(packet.getId(), buf);
         }
         return packets;
+    }
+
+    private void initialize(SourceQuerySplitPacket packet) {
+        if (completed || this.packets != null)
+            throw new IllegalStateException("Not yet in completed state");
+        log.debug("{} ASSEMBLER => Initializing packet container", Netty.id(ctx));
+        this.packets = new SourceQuerySplitPacket[packet.getPacketCount()];
+        this.packetId = packet.getId();
+        this.maxPacketSize = packet.getPacketMaxSize();
+        this.packetCount = packet.getPacketCount();
+        //pre-allocate buffer
+        int bufferSize = maxPacketSize * packetCount;
+        this.buffer = allocator.directBuffer(bufferSize);
+        log.debug("{} ASSEMBLER => Pre-allocated buffer with {} bytes", Netty.id(ctx), bufferSize);
     }
 }

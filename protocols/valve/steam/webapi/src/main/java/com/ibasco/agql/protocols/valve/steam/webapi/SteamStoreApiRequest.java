@@ -22,11 +22,14 @@ package com.ibasco.agql.protocols.valve.steam.webapi;
  * @author Rafael Luis Ibasco
  */
 abstract public class SteamStoreApiRequest extends SteamWebApiRequest {
+
     /**
      * <p>Constructor for SteamStoreApiRequest.</p>
      *
-     * @param apiVersion a int
-     * @param urlFormat a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param urlFormat
+     *         a {@link java.lang.String} object
      */
     public SteamStoreApiRequest(int apiVersion, String urlFormat) {
         this(apiVersion, urlFormat, "us", "english");
@@ -35,10 +38,14 @@ abstract public class SteamStoreApiRequest extends SteamWebApiRequest {
     /**
      * <p>Constructor for SteamStoreApiRequest.</p>
      *
-     * @param apiVersion a int
-     * @param urlFormat a {@link java.lang.String} object
-     * @param countryCode a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param urlFormat
+     *         a {@link java.lang.String} object
+     * @param countryCode
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public SteamStoreApiRequest(int apiVersion, String urlFormat, String countryCode, String language) {
         super(null, null, apiVersion);

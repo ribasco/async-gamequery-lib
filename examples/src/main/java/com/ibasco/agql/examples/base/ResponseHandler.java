@@ -16,14 +16,13 @@
 
 package com.ibasco.agql.examples.base;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Phaser;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>Abstract ResponseHandler class.</p>
@@ -51,7 +50,8 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     /**
      * <p>Constructor for ResponseHandler.</p>
      *
-     * @param description a {@link java.lang.String} object
+     * @param description
+     *         a {@link java.lang.String} object
      */
     protected ResponseHandler(String description) {
         this(description, (CountDownLatch) null);
@@ -60,34 +60,10 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     /**
      * <p>Constructor for ResponseHandler.</p>
      *
-     * @param description a {@link java.lang.String} object
-     * @param phaser a {@link java.util.concurrent.Phaser} object
-     */
-    protected ResponseHandler(String description, Phaser phaser) {
-        this(description, phaser, null);
-    }
-
-    /**
-     * <p>Constructor for ResponseHandler.</p>
-     *
-     * @param description a {@link java.lang.String} object
-     * @param phaser a {@link java.util.concurrent.Phaser} object
-     * @param output a {@link java.util.function.Consumer} object
-     */
-    protected ResponseHandler(String description, Phaser phaser, Consumer<String> output) {
-        this.description = description;
-        this.phaser = phaser;
-        if (output == null)
-            this.output = log::info;
-        else
-            this.output = output;
-    }
-
-    /**
-     * <p>Constructor for ResponseHandler.</p>
-     *
-     * @param description a {@link java.lang.String} object
-     * @param latch a {@link java.util.concurrent.CountDownLatch} object
+     * @param description
+     *         a {@link java.lang.String} object
+     * @param latch
+     *         a {@link java.util.concurrent.CountDownLatch} object
      */
     protected ResponseHandler(String description, CountDownLatch latch) {
         this(description, latch, null);
@@ -96,9 +72,12 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     /**
      * <p>Constructor for ResponseHandler.</p>
      *
-     * @param description a {@link java.lang.String} object
-     * @param latch a {@link java.util.concurrent.CountDownLatch} object
-     * @param output a {@link java.util.function.Consumer} object
+     * @param description
+     *         a {@link java.lang.String} object
+     * @param latch
+     *         a {@link java.util.concurrent.CountDownLatch} object
+     * @param output
+     *         a {@link java.util.function.Consumer} object
      */
     protected ResponseHandler(String description, CountDownLatch latch, Consumer<String> output) {
         this.description = description;
@@ -111,44 +90,34 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     }
 
     /**
-     * <p>onSuccess.</p>
+     * <p>Constructor for ResponseHandler.</p>
      *
-     * @param res a T object
+     * @param description
+     *         a {@link java.lang.String} object
+     * @param phaser
+     *         a {@link java.util.concurrent.Phaser} object
      */
-    abstract protected void onSuccess(T res);
-
-    /**
-     * <p>onStart.</p>
-     *
-     * @param res a T object
-     * @param error a {@link java.lang.Throwable} object
-     */
-    protected void onStart(T res, Throwable error) {}
-
-    /**
-     * <p>onFail.</p>
-     *
-     * @param error a {@link java.lang.Throwable} object
-     */
-    protected void onFail(Throwable error) {
-        log.error(String.format("Error occured in: %s", getClass().getSimpleName()), error);
+    protected ResponseHandler(String description, Phaser phaser) {
+        this(description, phaser, null);
     }
 
     /**
-     * <p>onDone.</p>
+     * <p>Constructor for ResponseHandler.</p>
      *
-     * @param res a T object
-     * @param error a {@link java.lang.Throwable} object
+     * @param description
+     *         a {@link java.lang.String} object
+     * @param phaser
+     *         a {@link java.util.concurrent.Phaser} object
+     * @param output
+     *         a {@link java.util.function.Consumer} object
      */
-    protected void onDone(T res, Throwable error) {}
-
-    /**
-     * <p>Getter for the field <code>description</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getDescription() {
-        return description;
+    protected ResponseHandler(String description, Phaser phaser, Consumer<String> output) {
+        this.description = description;
+        this.phaser = phaser;
+        if (output == null)
+            this.output = log::info;
+        else
+            this.output = output;
     }
 
     /**
@@ -185,11 +154,58 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
         }
     }
 
+    /**
+     * <p>onStart.</p>
+     *
+     * @param res
+     *         a T object
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     */
+    protected void onStart(T res, Throwable error) {}
+
+    /**
+     * <p>onFail.</p>
+     *
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     */
+    protected void onFail(Throwable error) {
+        log.error(String.format("Error occured in: %s", getClass().getSimpleName()), error);
+    }
+
+    /**
+     * <p>onSuccess.</p>
+     *
+     * @param res
+     *         a T object
+     */
+    abstract protected void onSuccess(T res);
+
+    /**
+     * <p>onDone.</p>
+     *
+     * @param res
+     *         a T object
+     * @param error
+     *         a {@link java.lang.Throwable} object
+     */
+    protected void onDone(T res, Throwable error) {}
+
     private void invokeSyncBarrier() {
         if (phaser != null)
             phaser.arriveAndDeregister();
         if (latch != null)
             latch.countDown();
+    }
+
+    /**
+     * <p>getTotalCount.</p>
+     *
+     * @return a int
+     */
+    public int getTotalCount() {
+        return getSuccessCount() + getFailCount();
     }
 
     /**
@@ -211,15 +227,6 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     }
 
     /**
-     * <p>getTotalCount.</p>
-     *
-     * @return a int
-     */
-    public int getTotalCount() {
-        return getSuccessCount() + getFailCount();
-    }
-
-    /**
      * <p>Getter for the field <code>output</code>.</p>
      *
      * @return a {@link java.util.function.Consumer} object
@@ -231,7 +238,8 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
     /**
      * <p>Setter for the field <code>output</code>.</p>
      *
-     * @param output a {@link java.util.function.Consumer} object
+     * @param output
+     *         a {@link java.util.function.Consumer} object
      */
     public void setOutput(Consumer<String> output) {
         this.output = output;
@@ -255,5 +263,14 @@ abstract public class ResponseHandler<T> implements BiConsumer<T, Throwable> {
      */
     protected final void print(String msg, Object... args) {
         output.accept(String.format("[\033[0;33m%s]\033[0m: %s", getDescription(), String.format(msg, args)));
+    }
+
+    /**
+     * <p>Getter for the field <code>description</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getDescription() {
+        return description;
     }
 }

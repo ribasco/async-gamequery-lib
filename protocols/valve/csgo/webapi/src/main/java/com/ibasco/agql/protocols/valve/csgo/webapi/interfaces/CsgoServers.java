@@ -27,7 +27,6 @@ import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoDatacenterStatus;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameMapPlaytimeInfo;
 import com.ibasco.agql.protocols.valve.csgo.webapi.pojos.CsgoGameServerStatus;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
-
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 

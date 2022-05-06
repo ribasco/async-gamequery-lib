@@ -22,13 +22,16 @@ import com.google.gson.reflect.TypeToken;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiInterface;
 import com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType;
-import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.*;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.GetFriendList;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.GetPlayerBans;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.GetPlayerSummaries;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.GetUserGroupList;
+import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.user.ResolveVanityURL;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamBanStatus;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamFriend;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamGroupId;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamPlayerProfile;
 import org.apache.commons.lang3.StringUtils;
-
 import java.lang.reflect.Type;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -39,10 +42,12 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class SteamUser extends SteamWebApiInterface {
+
     /**
      * <p>Constructor for SteamUser.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamUser(SteamWebApiClient client) {
         super(client);
@@ -51,7 +56,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getFriendList.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamFriend>> getFriendList(long steamId) {
@@ -61,8 +68,11 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getFriendList.</p>
      *
-     * @param steamId a long
-     * @param relationship a {@link java.lang.String} object
+     * @param steamId
+     *         a long
+     * @param relationship
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamFriend>> getFriendList(long steamId, String relationship) {
@@ -78,7 +88,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getPlayerBans.</p>
      *
-     * @param steamIds a {@link java.util.List} object
+     * @param steamIds
+     *         a {@link java.util.List} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamBanStatus>> getPlayerBans(List<Long> steamIds) {
@@ -88,7 +100,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getPlayerBans.</p>
      *
-     * @param steamIds a {@link java.lang.Long} object
+     * @param steamIds
+     *         a {@link java.lang.Long} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamBanStatus>> getPlayerBans(Long... steamIds) {
@@ -104,7 +118,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getPlayerProfile.</p>
      *
-     * @param steamId a {@link java.lang.Long} object
+     * @param steamId
+     *         a {@link java.lang.Long} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<SteamPlayerProfile> getPlayerProfile(Long steamId) {
@@ -118,7 +134,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getPlayerProfiles.</p>
      *
-     * @param steamIds a {@link java.lang.Long} object
+     * @param steamIds
+     *         a {@link java.lang.Long} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamPlayerProfile>> getPlayerProfiles(Long... steamIds) {
@@ -137,7 +155,9 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getUserGroupList.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamGroupId>> getUserGroupList(long steamId) {
@@ -153,8 +173,11 @@ public class SteamUser extends SteamWebApiInterface {
     /**
      * <p>getSteamIdFromVanityUrl.</p>
      *
-     * @param urlPath a {@link java.lang.String} object
-     * @param type a {@link com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType} object
+     * @param urlPath
+     *         a {@link java.lang.String} object
+     * @param type
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Long> getSteamIdFromVanityUrl(String urlPath, VanityUrlType type) {

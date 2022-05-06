@@ -28,52 +28,26 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocPlayerRankInfo {
+
     private String tag;
+
     private String name;
+
     private int expLevel;
+
     private int trophies;
+
     private int attackWins;
+
     private int defenseWins;
+
     private int rank;
+
     private int previousRank;
+
     private CocClanBasicInfo clan;
+
     private CocLeague league;
-
-    /**
-     * <p>Getter for the field <code>tag</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /**
-     * <p>Setter for the field <code>tag</code>.</p>
-     *
-     * @param tag a {@link java.lang.String} object
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    /**
-     * <p>Getter for the field <code>name</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * <p>Setter for the field <code>name</code>.</p>
-     *
-     * @param name a {@link java.lang.String} object
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
 
     /**
      * <p>Getter for the field <code>expLevel</code>.</p>
@@ -87,7 +61,8 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>expLevel</code>.</p>
      *
-     * @param expLevel a int
+     * @param expLevel
+     *         a int
      */
     public void setExpLevel(int expLevel) {
         this.expLevel = expLevel;
@@ -105,7 +80,8 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>trophies</code>.</p>
      *
-     * @param trophies a int
+     * @param trophies
+     *         a int
      */
     public void setTrophies(int trophies) {
         this.trophies = trophies;
@@ -123,7 +99,8 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>attackWins</code>.</p>
      *
-     * @param attackWins a int
+     * @param attackWins
+     *         a int
      */
     public void setAttackWins(int attackWins) {
         this.attackWins = attackWins;
@@ -141,10 +118,89 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>defenseWins</code>.</p>
      *
-     * @param defenseWins a int
+     * @param defenseWins
+     *         a int
      */
     public void setDefenseWins(int defenseWins) {
         this.defenseWins = defenseWins;
+    }
+
+    /**
+     * <p>Getter for the field <code>league</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague} object
+     */
+    public CocLeague getLeague() {
+        return league;
+    }
+
+    /**
+     * <p>Setter for the field <code>league</code>.</p>
+     *
+     * @param league
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague} object
+     */
+    public void setLeague(CocLeague league) {
+        this.league = league;
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("tag", getTag())
+                .append("name", getName())
+                .append("clan", getClan())
+                .append("rank", getRank())
+                .append("previousRank", getPreviousRank())
+                .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>tag</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getTag() {
+        return tag;
+    }
+
+    /**
+     * <p>Setter for the field <code>tag</code>.</p>
+     *
+     * @param tag
+     *         a {@link java.lang.String} object
+     */
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name
+     *         a {@link java.lang.String} object
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * <p>Getter for the field <code>clan</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
+     */
+    public CocClanBasicInfo getClan() {
+        return clan;
     }
 
     /**
@@ -159,7 +215,8 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>rank</code>.</p>
      *
-     * @param rank a int
+     * @param rank
+     *         a int
      */
     public void setRank(int rank) {
         this.rank = rank;
@@ -177,57 +234,20 @@ public class CocPlayerRankInfo {
     /**
      * <p>Setter for the field <code>previousRank</code>.</p>
      *
-     * @param previousRank a int
+     * @param previousRank
+     *         a int
      */
     public void setPreviousRank(int previousRank) {
         this.previousRank = previousRank;
     }
 
     /**
-     * <p>Getter for the field <code>clan</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
-     */
-    public CocClanBasicInfo getClan() {
-        return clan;
-    }
-
-    /**
      * <p>Setter for the field <code>clan</code>.</p>
      *
-     * @param clan a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
+     * @param clan
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBasicInfo} object
      */
     public void setClan(CocClanBasicInfo clan) {
         this.clan = clan;
-    }
-
-    /**
-     * <p>Getter for the field <code>league</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague} object
-     */
-    public CocLeague getLeague() {
-        return league;
-    }
-
-    /**
-     * <p>Setter for the field <code>league</code>.</p>
-     *
-     * @param league a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeague} object
-     */
-    public void setLeague(CocLeague league) {
-        this.league = league;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("tag", getTag())
-                .append("name", getName())
-                .append("clan", getClan())
-                .append("rank", getRank())
-                .append("previousRank", getPreviousRank())
-                .toString();
     }
 }

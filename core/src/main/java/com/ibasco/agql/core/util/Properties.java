@@ -16,9 +16,9 @@
 
 package com.ibasco.agql.core.util;
 
-import static com.ibasco.agql.core.util.Console.error;
 import org.apache.commons.lang3.BooleanUtils;
 import org.jetbrains.annotations.ApiStatus;
+import static com.ibasco.agql.core.util.Console.error;
 
 /**
  * <p>A collection of global library properties. Note: This is not meant to be used outside.</p>
@@ -41,14 +41,14 @@ public final class Properties {
     /** Constant <code>DEFAULT_THREAD_SIZE=Runtime.getRuntime().availableProcessors() + 1</code> */
     private static final int DEFAULT_CORE_POOL_SIZE;
 
-    private Properties() {}
-
     static {
         VERBOSE = Properties.readBoolProperty(PROP_VERBOSE, false);
         Console.println("Initializing Properties");
         USE_NATIVE_TRANSPORT = Properties.readBoolProperty(PROP_USE_NATIVE, true); //note: native transports are used by default, unless disabled via JVM property
         DEFAULT_CORE_POOL_SIZE = Properties.readIntProperty(PROP_CORE_POOL_SIZE, Runtime.getRuntime().availableProcessors() + 1);
     }
+
+    private Properties() {}
 
     /**
      * Check if verbose mode is set. Debug statements will be printed in the console.
@@ -93,23 +93,6 @@ public final class Properties {
     }
 
     /**
-     * <p>readIntProperty.</p>
-     *
-     * @param property
-     *         a {@link java.lang.String} object
-     * @param defaultValue
-     *         a int
-     *
-     * @return a int
-     */
-    public static int readIntProperty(String property, int defaultValue) {
-        String value = readProperty(property);
-        if (value != null && !Strings.isNumeric(value.trim()))
-            throw new IllegalArgumentException("Value is not numeric: " + property);
-        return value == null ? defaultValue : Integer.parseInt(value.trim());
-    }
-
-    /**
      * <p>readProperty.</p>
      *
      * @param property
@@ -141,5 +124,22 @@ public final class Properties {
             error("WARNING: Failed to read system property '%s'. Defaulting to 'true' (Reason: %s)", property, e.getMessage());
             return defaultValue;
         }
+    }
+
+    /**
+     * <p>readIntProperty.</p>
+     *
+     * @param property
+     *         a {@link java.lang.String} object
+     * @param defaultValue
+     *         a int
+     *
+     * @return a int
+     */
+    public static int readIntProperty(String property, int defaultValue) {
+        String value = readProperty(property);
+        if (value != null && !Strings.isNumeric(value.trim()))
+            throw new IllegalArgumentException("Value is not numeric: " + property);
+        return value == null ? defaultValue : Integer.parseInt(value.trim());
     }
 }

@@ -28,50 +28,22 @@ import org.jetbrains.annotations.ApiStatus;
 @Deprecated
 @ApiStatus.ScheduledForRemoval
 public class CocWarLogEntryClan {
+
     private String tag;
+
     private String name;
+
     private CocClanBadgeUrls badgeUrls;
+
     private int clanLevel;
+
     private int attacks;
+
     private int stars;
+
     private int destructionPercentage;
+
     private int expEarned;
-
-    /**
-     * <p>Getter for the field <code>tag</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getTag() {
-        return tag;
-    }
-
-    /**
-     * <p>Setter for the field <code>tag</code>.</p>
-     *
-     * @param tag a {@link java.lang.String} object
-     */
-    public void setTag(String tag) {
-        this.tag = tag;
-    }
-
-    /**
-     * <p>Getter for the field <code>name</code>.</p>
-     *
-     * @return a {@link java.lang.String} object
-     */
-    public String getName() {
-        return name;
-    }
-
-    /**
-     * <p>Setter for the field <code>name</code>.</p>
-     *
-     * @param name a {@link java.lang.String} object
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
 
     /**
      * <p>Getter for the field <code>badgeUrls</code>.</p>
@@ -85,7 +57,8 @@ public class CocWarLogEntryClan {
     /**
      * <p>Setter for the field <code>badgeUrls</code>.</p>
      *
-     * @param badgeUrls a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBadgeUrls} object
+     * @param badgeUrls
+     *         a {@link com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocClanBadgeUrls} object
      */
     public void setBadgeUrls(CocClanBadgeUrls badgeUrls) {
         this.badgeUrls = badgeUrls;
@@ -103,28 +76,11 @@ public class CocWarLogEntryClan {
     /**
      * <p>Setter for the field <code>clanLevel</code>.</p>
      *
-     * @param clanLevel a int
+     * @param clanLevel
+     *         a int
      */
     public void setClanLevel(int clanLevel) {
         this.clanLevel = clanLevel;
-    }
-
-    /**
-     * <p>Getter for the field <code>attacks</code>.</p>
-     *
-     * @return a int
-     */
-    public int getAttacks() {
-        return attacks;
-    }
-
-    /**
-     * <p>Setter for the field <code>attacks</code>.</p>
-     *
-     * @param attacks a int
-     */
-    public void setAttacks(int attacks) {
-        this.attacks = attacks;
     }
 
     /**
@@ -139,28 +95,11 @@ public class CocWarLogEntryClan {
     /**
      * <p>Setter for the field <code>stars</code>.</p>
      *
-     * @param stars a int
+     * @param stars
+     *         a int
      */
     public void setStars(int stars) {
         this.stars = stars;
-    }
-
-    /**
-     * <p>Getter for the field <code>destructionPercentage</code>.</p>
-     *
-     * @return a int
-     */
-    public int getDestructionPercentage() {
-        return destructionPercentage;
-    }
-
-    /**
-     * <p>Setter for the field <code>destructionPercentage</code>.</p>
-     *
-     * @param destructionPercentage a int
-     */
-    public void setDestructionPercentage(int destructionPercentage) {
-        this.destructionPercentage = destructionPercentage;
     }
 
     /**
@@ -175,7 +114,8 @@ public class CocWarLogEntryClan {
     /**
      * <p>Setter for the field <code>expEarned</code>.</p>
      *
-     * @param expEarned a int
+     * @param expEarned
+     *         a int
      */
     public void setExpEarned(int expEarned) {
         this.expEarned = expEarned;
@@ -190,5 +130,81 @@ public class CocWarLogEntryClan {
                 .append("attacks", getAttacks())
                 .append("avgDestruction", getDestructionPercentage())
                 .toString();
+    }
+
+    /**
+     * <p>Getter for the field <code>name</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * <p>Getter for the field <code>tag</code>.</p>
+     *
+     * @return a {@link java.lang.String} object
+     */
+    public String getTag() {
+        return tag;
+    }
+
+    /**
+     * <p>Setter for the field <code>tag</code>.</p>
+     *
+     * @param tag
+     *         a {@link java.lang.String} object
+     */
+    public void setTag(String tag) {
+        this.tag = tag;
+    }
+
+    /**
+     * <p>Getter for the field <code>attacks</code>.</p>
+     *
+     * @return a int
+     */
+    public int getAttacks() {
+        return attacks;
+    }
+
+    /**
+     * <p>Setter for the field <code>attacks</code>.</p>
+     *
+     * @param attacks
+     *         a int
+     */
+    public void setAttacks(int attacks) {
+        this.attacks = attacks;
+    }
+
+    /**
+     * <p>Getter for the field <code>destructionPercentage</code>.</p>
+     *
+     * @return a int
+     */
+    public int getDestructionPercentage() {
+        return destructionPercentage;
+    }
+
+    /**
+     * <p>Setter for the field <code>destructionPercentage</code>.</p>
+     *
+     * @param destructionPercentage
+     *         a int
+     */
+    public void setDestructionPercentage(int destructionPercentage) {
+        this.destructionPercentage = destructionPercentage;
+    }
+
+    /**
+     * <p>Setter for the field <code>name</code>.</p>
+     *
+     * @param name
+     *         a {@link java.lang.String} object
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 }

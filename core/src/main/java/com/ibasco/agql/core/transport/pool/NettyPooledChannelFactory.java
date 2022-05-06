@@ -25,12 +25,11 @@ import com.ibasco.agql.core.util.Netty;
 import io.netty.channel.Channel;
 import io.netty.channel.EventLoop;
 import io.netty.channel.EventLoopGroup;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A decorator for {@link com.ibasco.agql.core.transport.NettyChannelFactory} which adds support for {@link io.netty.channel.Channel} pooling.
@@ -60,6 +59,15 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
         log.debug("[INIT] POOL => Using channel pool map '{}'", this.channelPoolMap);
     }
 
+    /**
+     * <p>Getter for the field <code>channelPoolFactory</code>.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
+     */
+    public NettyChannelPoolFactory getChannelPoolFactory() {
+        return this.channelPoolFactory;
+    }
+
     /** {@inheritDoc} */
     @Override
     public CompletableFuture<Channel> create(Object data) {
@@ -70,21 +78,6 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
         return pool.acquire(remoteAddress);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
-        return Netty.useEventLoop(create(data), eventLoop);
-    }
-
-    /**
-     * <p>Getter for the field <code>channelPoolFactory</code>.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.transport.pool.NettyChannelPoolFactory} object
-     */
-    public NettyChannelPoolFactory getChannelPoolFactory() {
-        return this.channelPoolFactory;
-    }
-
     /**
      * <p>getChannelFactory.</p>
      *
@@ -92,6 +85,12 @@ public class NettyPooledChannelFactory extends NettyChannelFactoryDecorator {
      */
     public NettyChannelFactory getChannelFactory() {
         return this.channelPoolFactory.getChannelFactory();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public CompletableFuture<Channel> create(Object data, EventLoop eventLoop) {
+        return Netty.useEventLoop(create(data), eventLoop);
     }
 
     /** {@inheritDoc} */

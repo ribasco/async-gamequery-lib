@@ -29,6 +29,7 @@ public class Dota2TopLiveGamePlayer {
 
     @SerializedName("account_id")
     private int accountId;
+
     @SerializedName("hero_id")
     private int heroId;
 

@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetMatchDetails extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetMatchDetails.</p>
      *
-     * @param apiVersion a int
-     * @param matchId a long
+     * @param apiVersion
+     *         a int
+     * @param matchId
+     *         a long
      */
     public GetMatchDetails(int apiVersion, long matchId) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETMATCHDETAIL, apiVersion, null);

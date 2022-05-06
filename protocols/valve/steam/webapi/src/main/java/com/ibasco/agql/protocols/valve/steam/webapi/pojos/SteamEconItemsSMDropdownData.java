@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,9 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMDropdownData {
+
     private List<SteamEconItemsSMDropdown> dropdowns = new ArrayList<>();
+
     private List<SteamEconItemsSMPrefab> prefabs = new ArrayList<>();
 
     /**
@@ -43,7 +44,8 @@ public class SteamEconItemsSMDropdownData {
     /**
      * <p>Setter for the field <code>dropdowns</code>.</p>
      *
-     * @param dropdowns a {@link java.util.List} object
+     * @param dropdowns
+     *         a {@link java.util.List} object
      */
     public void setDropdowns(List<SteamEconItemsSMDropdown> dropdowns) {
         this.dropdowns = dropdowns;
@@ -61,7 +63,8 @@ public class SteamEconItemsSMDropdownData {
     /**
      * <p>Setter for the field <code>prefabs</code>.</p>
      *
-     * @param prefabs a {@link java.util.List} object
+     * @param prefabs
+     *         a {@link java.util.List} object
      */
     public void setPrefabs(List<SteamEconItemsSMPrefab> prefabs) {
         this.prefabs = prefabs;

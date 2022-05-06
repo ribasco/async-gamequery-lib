@@ -22,10 +22,9 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
 import com.ibasco.agql.protocols.supercell.coc.webapi.pojos.CocLeagueSeason;
 import org.jetbrains.annotations.ApiStatus;
+import java.lang.reflect.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.lang.reflect.Type;
 
 /**
  * <p>CocLeagueSeasonDeserializer class.</p>

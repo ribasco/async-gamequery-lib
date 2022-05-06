@@ -29,8 +29,10 @@ public class GetNewsForApp extends SteamNewsRequest {
     /**
      * <p>Constructor for GetNewsForApp.</p>
      *
-     * @param apiVersion a int
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param appId
+     *         a int
      */
     public GetNewsForApp(int apiVersion, int appId) {
         super("GetNewsForApp", apiVersion);
@@ -40,7 +42,9 @@ public class GetNewsForApp extends SteamNewsRequest {
     /**
      * <p>maxLength.</p>
      *
-     * @param maxLength a int
+     * @param maxLength
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news.GetNewsForApp} object
      */
     public GetNewsForApp maxLength(int maxLength) {
@@ -51,7 +55,9 @@ public class GetNewsForApp extends SteamNewsRequest {
     /**
      * <p>endDate.</p>
      *
-     * @param endDate a int
+     * @param endDate
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news.GetNewsForApp} object
      */
     public GetNewsForApp endDate(int endDate) {
@@ -62,7 +68,9 @@ public class GetNewsForApp extends SteamNewsRequest {
     /**
      * <p>count.</p>
      *
-     * @param count a int
+     * @param count
+     *         a int
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news.GetNewsForApp} object
      */
     public GetNewsForApp count(int count) {
@@ -73,7 +81,9 @@ public class GetNewsForApp extends SteamNewsRequest {
     /**
      * <p>feeds.</p>
      *
-     * @param feeds a {@link java.lang.String} object
+     * @param feeds
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.steam.webapi.interfaces.news.GetNewsForApp} object
      */
     public GetNewsForApp feeds(String feeds) {

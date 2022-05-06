@@ -26,12 +26,16 @@ import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
  * @author Rafael Luis Ibasco
  */
 public class GetPlayerAchievements extends SteamUserStatsRequest {
+
     /**
      * <p>Constructor for GetPlayerAchievements.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param appId a int
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
      */
     public GetPlayerAchievements(int apiVersion, long steamId, int appId) {
         this(apiVersion, steamId, appId, null);
@@ -40,10 +44,14 @@ public class GetPlayerAchievements extends SteamUserStatsRequest {
     /**
      * <p>Constructor for GetPlayerAchievements.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param appId a int
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param appId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetPlayerAchievements(int apiVersion, long steamId, int appId, String language) {
         super("GetPlayerAchievements", apiVersion);

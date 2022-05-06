@@ -22,8 +22,11 @@ import com.ibasco.agql.core.ChannelRegistry;
 import com.ibasco.agql.core.Credentials;
 import com.ibasco.agql.core.CredentialsStore;
 import com.ibasco.agql.core.NettyMessenger;
+import com.ibasco.agql.core.exceptions.ChannelClosedException;
+import com.ibasco.agql.core.exceptions.ChannelRegistrationException;
+import com.ibasco.agql.core.exceptions.MessengerException;
+import com.ibasco.agql.core.exceptions.RejectedRequestException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
-import com.ibasco.agql.core.exceptions.*;
 import com.ibasco.agql.core.transport.FailsafeChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
@@ -31,10 +34,13 @@ import com.ibasco.agql.core.transport.enums.ChannelPoolType;
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.transport.pool.FixedNettyChannelPool;
 import com.ibasco.agql.core.transport.pool.NettyChannelPool;
-import com.ibasco.agql.core.util.Properties;
 import com.ibasco.agql.core.util.*;
 import com.ibasco.agql.protocols.valve.source.query.rcon.enums.SourceRconAuthReason;
-import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.*;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconAuthException;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconException;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconInvalidCredentialsException;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconMaxLoginAttemptsException;
+import com.ibasco.agql.protocols.valve.source.query.rcon.exceptions.RconNotYetAuthException;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconCmdRequest;
 import com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconRequest;
@@ -53,19 +59,26 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.jetbrains.annotations.ApiStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.ConnectException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>RCON Messenger</p>
@@ -142,39 +155,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         return builder.build();
     }
 
-    /** {@inheritDoc} */
-    @Override
-    protected void configure(final Options options) {
-        //global defaults
-        applyDefault(GeneralOptions.CONNECTION_POOLING, true);
-        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED);
-        applyDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
-
-        //rcon defaults
-        applyDefault(SourceRconOptions.USE_TERMINATOR_PACKET, true);
-        applyDefault(SourceRconOptions.STRICT_MODE, false);
-
-        //rcon failsafe defaults
-        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
-        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
-
-        //connect failsafe defaults
-        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
-        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
-        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
-        Console.println("%s: Applied default option values", getClass().getSimpleName());
-    }
-
     private Fallback<SourceRconChannelContext> buildFallbackPolicy() {
         FallbackBuilder<SourceRconChannelContext> builder = Fallback.builderOfException(new CheckedFunction<ExecutionAttemptedEvent<? extends SourceRconChannelContext>, Exception>() {
             @Override
@@ -245,9 +225,90 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         }
         return builder.build();
     }
+
+    /** {@inheritDoc} */
+    @Override
+    protected void configure(final Options options) {
+        //global defaults
+        applyDefault(GeneralOptions.CONNECTION_POOLING, true);
+        applyDefault(GeneralOptions.POOL_TYPE, ChannelPoolType.FIXED);
+        applyDefault(GeneralOptions.POOL_ACQUIRE_TIMEOUT_ACTION, FixedNettyChannelPool.AcquireTimeoutAction.FAIL);
+
+        //rcon defaults
+        applyDefault(SourceRconOptions.USE_TERMINATOR_PACKET, true);
+        applyDefault(SourceRconOptions.STRICT_MODE, false);
+
+        //rcon failsafe defaults
+        applyDefault(FailsafeOptions.FAILSAFE_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L);
+        applyDefault(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d);
+
+        //connect failsafe defaults
+        applyDefault(ConnectOptions.FAILSAFE_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_ENABLED, true);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_DELAY, 1000);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLD, Properties.getDefaultPoolSize());
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_FAILURE_THRESHOLDING_CAP, Properties.getDefaultPoolSize() * 2);
+        applyDefault(ConnectOptions.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
+        Console.println("%s: Applied default option values", getClass().getSimpleName());
+    }
     //</editor-fold>
 
     //<editor-fold desc="Getters">
+
+    /** {@inheritDoc} */
+    @Override
+    protected NettyChannelFactory createChannelFactory() {
+        final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
+        return new SourceRconChannelFactory(channelFactory);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Route the rcon request to it's appropriate handler
+     */
+    @Override
+    public CompletableFuture<SourceRconResponse> send(final InetSocketAddress address, final SourceRconRequest request) {
+        Objects.requireNonNull(address, "Address must not be null");
+        Objects.requireNonNull(request, "Request must not be null");
+        Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method;
+        if (request instanceof SourceRconAuthRequest) {
+            method = this::sendAuthRequest;
+        } else if (request instanceof SourceRconCmdRequest) {
+            method = this::sendCmdRequest;
+        } else {
+            throw new IllegalStateException("Invalid rcon request");
+        }
+        final RequestContext details = new RequestContext(address, request, method);
+        return failSafeExecute(details).handle(details::collectAndRelease);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            if (!jobScheduler.isShutdown()) {
+                log.debug("AUTH (CLOSE) => Requesting graceful shutdown");
+                if (Concurrency.shutdown(jobScheduler)) {
+                    log.debug("AUTH (CLOSE) => Job scheduler shutdown gracefully");
+                } else {
+                    log.debug("AUTH (CLOSE) => Failed to shutdown job scheduler");
+                }
+            }
+        }
+    }
+    //</editor-fold>
+
+    //<editor-fold desc="Channel Registration">
 
     /**
      * <p>Check if reauthenticate flag is set</p>
@@ -266,6 +327,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     public ChannelRegistry getChannelRegistry() {
         return registry;
     }
+    //</editor-fold>
 
     /**
      * <p>Getter for the field <code>credentialsStore</code>.</p>
@@ -277,9 +339,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     public CredentialsStore getCredentialsStore() {
         return credentialsStore;
     }
-    //</editor-fold>
-
-    //<editor-fold desc="Channel Registration">
 
     /**
      * Register and initialize a newly created channel
@@ -332,7 +391,8 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
         return channel;
     }
-    //</editor-fold>
+
+    //<editor-fold desc="Overriden members">
 
     /**
      * Checks the {@link Channel}'s current authentication status
@@ -376,8 +436,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         return credentialsStore.exists(address);
     }
 
-    //<editor-fold desc="Overriden members">
-
     /**
      * Check if the registered {@link Credentials} is still valid for address.
      *
@@ -390,34 +448,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         checkAddress(address);
         Credentials credentials = this.credentialsStore.get((InetSocketAddress) address);
         return credentials != null && credentials.isValid();
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    protected NettyChannelFactory createChannelFactory() {
-        final NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.TCP, getOptions(), new SourceRconChannelContextFactory(this));
-        return new SourceRconChannelFactory(channelFactory);
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Route the rcon request to it's appropriate handler
-     */
-    @Override
-    public CompletableFuture<SourceRconResponse> send(final InetSocketAddress address, final SourceRconRequest request) {
-        Objects.requireNonNull(address, "Address must not be null");
-        Objects.requireNonNull(request, "Request must not be null");
-        Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method;
-        if (request instanceof SourceRconAuthRequest) {
-            method = this::sendAuthRequest;
-        } else if (request instanceof SourceRconCmdRequest) {
-            method = this::sendCmdRequest;
-        } else {
-            throw new IllegalStateException("Invalid rcon request");
-        }
-        final RequestContext details = new RequestContext(address, request, method);
-        return failSafeExecute(details).handle(details::collectAndRelease);
     }
 
     private CompletableFuture<SourceRconChannelContext> sendAuthRequest(final SourceRconChannelContext context) {
@@ -446,6 +476,7 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         //Send the request over the transport. If the channel is not yet authenticated, an authentication request will be sent first.
         return authenticator.authenticate(context).handle(Pair::new).thenCombine(CompletableFuture.completedFuture(context), this::wrapOnError).thenCompose(SourceRconChannelContext::send);
     }
+    //</editor-fold>
 
     private SourceRconChannelContext wrapOnError(Pair<SourceRconChannelContext, Throwable> response, SourceRconChannelContext context) {
         assert context != null;
@@ -458,24 +489,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         assert response.getFirst() != null;
         assert context == response.getFirst();
         return context;
-    }
-    //</editor-fold>
-
-    /** {@inheritDoc} */
-    @Override
-    public void close() throws IOException {
-        try {
-            super.close();
-        } finally {
-            if (!jobScheduler.isShutdown()) {
-                log.debug("AUTH (CLOSE) => Requesting graceful shutdown");
-                if (Concurrency.shutdown(jobScheduler)) {
-                    log.debug("AUTH (CLOSE) => Job scheduler shutdown gracefully");
-                } else {
-                    log.debug("AUTH (CLOSE) => Failed to shutdown job scheduler");
-                }
-            }
-        }
     }
 
     private CompletableFuture<SourceRconChannelContext> failSafeExecute(final RequestContext request) {
@@ -637,58 +650,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
     }
     //</editor-fold>
 
-    //<editor-fold desc="Background Tasks">
-    private class CleanupTask implements Runnable {
-
-        private final boolean force;
-
-        private String connectionId;
-
-        private CleanupTask() {
-            this(false);
-        }
-
-        private CleanupTask(boolean force) {
-            this.force = force;
-        }
-
-        @Override
-        public void run() {
-            final int closeDuration = getOrDefault(SourceRconOptions.CLOSE_INACTIVE_CHANNELS);
-            if (closeDuration < 0)
-                return;
-            final Set<Map.Entry<InetSocketAddress, Channel>> entries = registry.getEntries();
-            for (Map.Entry<InetSocketAddress, Channel> entry : entries) {
-                InetSocketAddress address = entry.getKey();
-                Channel channel = entry.getValue();
-                int cRemaining = registry.getCount(address);
-                int ctr = 0;
-
-                //ignore channels that are currently in-use
-                if (NettyChannelPool.isPooled(channel))
-                    continue;
-
-                Metadata metadata = statistics.getMetadata(channel);
-                long lastAcquiredDuration = metadata.getLastAcquiredDuration();
-                int remaining = registry.getChannels(address).size();
-                if (!force && (remaining == 1 || cRemaining == 1))
-                    continue;
-
-                //close channels having:
-                //- 0 acquire count
-                //- Last acquired duration >= closeDuration
-                if (force || (metadata.getAcquireCount() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
-                    log.debug("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {}, Remaining: {})", ++ctr, channel, metadata.getAcquireCount(), metadata.getLastAcquiredDuration(), registry.isRegistered(channel), cRemaining);
-                    final String id = channel.id().asShortText();
-                    Netty.close(channel).thenAcceptAsync(unused -> {
-                        log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id);
-                        Console.colorize().blue("[CLEANUP : %s] ", Thread.currentThread().getName()).white("Channel ").cyan("'%s'", id).white(" closed").println();
-                    }, channel.eventLoop());
-                }
-            }
-        }
-    }
-
     public static class ConnectionStats {
 
         private final String connectionId;
@@ -758,20 +719,74 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
         }
 
         @Override
+        public int hashCode() {
+            return new HashCodeBuilder(17, 37).append(connectionId).toHashCode();
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             ConnectionStats that = (ConnectionStats) o;
             return new EqualsBuilder().append(connectionId, that.connectionId).isEquals();
         }
+    }
+
+    //<editor-fold desc="Background Tasks">
+    private class CleanupTask implements Runnable {
+
+        private final boolean force;
+
+        private String connectionId;
+
+        private CleanupTask() {
+            this(false);
+        }
+
+        private CleanupTask(boolean force) {
+            this.force = force;
+        }
 
         @Override
-        public int hashCode() {
-            return new HashCodeBuilder(17, 37).append(connectionId).toHashCode();
+        public void run() {
+            final int closeDuration = getOrDefault(SourceRconOptions.CLOSE_INACTIVE_CHANNELS);
+            if (closeDuration < 0)
+                return;
+            final Set<Map.Entry<InetSocketAddress, Channel>> entries = registry.getEntries();
+            for (Map.Entry<InetSocketAddress, Channel> entry : entries) {
+                InetSocketAddress address = entry.getKey();
+                Channel channel = entry.getValue();
+                int cRemaining = registry.getCount(address);
+                int ctr = 0;
+
+                //ignore channels that are currently in-use
+                if (NettyChannelPool.isPooled(channel))
+                    continue;
+
+                Metadata metadata = statistics.getMetadata(channel);
+                long lastAcquiredDuration = metadata.getLastAcquiredDuration();
+                int remaining = registry.getChannels(address).size();
+                if (!force && (remaining == 1 || cRemaining == 1))
+                    continue;
+
+                //close channels having:
+                //- 0 acquire count
+                //- Last acquired duration >= closeDuration
+                if (force || (metadata.getAcquireCount() == 0 || (lastAcquiredDuration >= 0 && lastAcquiredDuration >= closeDuration))) {
+                    log.debug("AUTH (CLEANUP) => ({}) Closing unused channel: ({}) (Acquire Count: {}, Last acquired: {}, Registered: {}, Remaining: {})", ++ctr, channel, metadata.getAcquireCount(), metadata.getLastAcquiredDuration(), registry.isRegistered(channel), cRemaining);
+                    final String id = channel.id().asShortText();
+                    Netty.close(channel).thenAcceptAsync(unused -> {
+                        log.debug("AUTH (CLEANUP) => Closed unused channel: {}", id);
+                        Console.colorize().blue("[CLEANUP : %s] ", Thread.currentThread().getName()).white("Channel ").cyan("'%s'", id).white(" closed").println();
+                    }, channel.eventLoop());
+                }
+            }
         }
     }
 
     public class Statistics {
+
+        final String LINE = "\033[0;36m" + StringUtils.repeat("=", 200) + "\033[0m";
 
         private final ChannelFutureListener REMOVE_ON_CLOSE = future -> {
             log.debug("{} STATISTICS (CLEANUP) => Removing channel '{}'", Netty.id(future.channel()), future.channel());
@@ -802,7 +817,28 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             return dataMap;
         }
 
-        final String LINE = "\033[0;36m" + StringUtils.repeat("=", 200) + "\033[0m";
+        //lookup by channel id since PooledChannel and Channel equals are not symmetrical
+        private Metadata getMetadata(Channel channel) {
+            return new Metadata(channel);
+        }
+
+        public void printConnectionStats(Consumer<String> output) {
+            printExecutorStats(output);
+            printConnectionStats(output, LINE);
+            final List<InetSocketAddress> addressList = new ArrayList<>(registry.getAddresses());
+            for (int i = 0, distinctAddressesSize = addressList.size(); i < distinctAddressesSize; i++) {
+                final InetSocketAddress address = addressList.get(i);
+                List<Channel> channels = new ArrayList<>(registry.getChannels(address));
+                int totalAcquireCount = getTotalAcquireCount(channels);
+                printConnectionStats(output, "%d) Address: %s (Successful Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, channels.size(), isAuthenticated(address) ? "YES" : "NO");
+                for (int j = 0; j < channels.size(); j++) {
+                    Channel channel = channels.get(j);
+                    Metadata metadata = getMetadata(channel);
+                    printConnectionStats(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", Time.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), Netty.getThreadName(channel));
+                }
+            }
+            printConnectionStats(output, LINE);
+        }
 
         public void printExecutorStats(Consumer<String> output) {
 
@@ -827,35 +863,12 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
             }
         }
 
-        public void printConnectionStats(Consumer<String> output) {
-            printExecutorStats(output);
-            printConnectionStats(output, LINE);
-            final List<InetSocketAddress> addressList = new ArrayList<>(registry.getAddresses());
-            for (int i = 0, distinctAddressesSize = addressList.size(); i < distinctAddressesSize; i++) {
-                final InetSocketAddress address = addressList.get(i);
-                List<Channel> channels = new ArrayList<>(registry.getChannels(address));
-                int totalAcquireCount = getTotalAcquireCount(channels);
-                printConnectionStats(output, "%d) Address: %s (Successful Acquires: %d, Active Channels: %d, Authenticated: %s)", i + 1, address, totalAcquireCount, channels.size(), isAuthenticated(address) ? "YES" : "NO");
-                for (int j = 0; j < channels.size(); j++) {
-                    Channel channel = channels.get(j);
-                    Metadata metadata = getMetadata(channel);
-                    printConnectionStats(output, "\t%d) Channel: %s, Acquire: %d, Active: %s, Authenticated: %s, Acquired: %s, Last Acquired: %s, Thread: %s", j + 1, channel, metadata.getAcquireCount(), channel.isActive(), isAuthenticated(channel), NettyChannelPool.isPooled(channel) ? "YES" : "NO", Time.getTimeDesc(metadata.getLastAcquiredDurationMillis(), true), Netty.getThreadName(channel));
-                }
-            }
-            printConnectionStats(output, LINE);
-        }
-
         private void printConnectionStats(Consumer<String> out, String msg, Object... args) {
             out.accept(String.format(msg, args));
         }
 
         private int getTotalAcquireCount(List<Channel> channels) {
             return channels.stream().filter(Metadata.Stats.ACQUIRE_COUNT::exists).mapToInt(Metadata.Stats.ACQUIRE_COUNT::value).sum();
-        }
-
-        //lookup by channel id since PooledChannel and Channel equals are not symmetrical
-        private Metadata getMetadata(Channel channel) {
-            return new Metadata(channel);
         }
 
         private void remove(Channel channel) {
@@ -893,9 +906,9 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
         private final SourceRconRequest request;
 
-        private WeakReference<SourceRconChannelContext> contextRef;
-
         private final Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method;
+
+        private WeakReference<SourceRconChannelContext> contextRef;
 
         private RequestContext(InetSocketAddress address, SourceRconRequest request, Function<SourceRconChannelContext, CompletableFuture<SourceRconChannelContext>> method) {
             this.address = address;
@@ -927,6 +940,12 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
                         ex.getContext().close();
                 }
             }
+        }
+
+        private SourceRconChannelContext getContext() {
+            if (this.contextRef == null)
+                return null;
+            return this.contextRef.get();
         }
 
         private CompletableFuture<SourceRconChannelContext> execute(ExecutionContext<SourceRconChannelContext> context) throws Throwable {
@@ -961,12 +980,6 @@ public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest,
 
         private void updateContext(Channel channel) {
             this.contextRef = new WeakReference<>(SourceRconChannelContext.getContext(channel));
-        }
-
-        private SourceRconChannelContext getContext() {
-            if (this.contextRef == null)
-                return null;
-            return this.contextRef.get();
         }
 
         private SourceRconChannelContext initializeContext(SourceRconChannelContext context, SourceRconRequest request) {

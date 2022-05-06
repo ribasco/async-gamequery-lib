@@ -24,7 +24,6 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
 import org.apache.commons.lang3.RandomUtils;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.util.Objects;
 
 /**
@@ -59,24 +58,9 @@ public final class SourceRcon {
     public static final int RCON_TYPE_RESPONSE_VALUE = 0;
 
     /**
-     * The minimum allowable value for an rcon request id
-     */
-    private static final int RCON_ID_MIN_RANGE = 100000000;
-
-    /**
-     * The maximum allowable value for an rcon request id
-     */
-    private static final int RCON_ID_MAX_RANGE = 999999999;
-
-    /**
      * A reserved request id representing a special rcon terminator packet
      */
     public static final int RCON_TERMINATOR_RID = -1;//8445800;
-
-    /**
-     * Flag indicating that the channel has been successfully authenticated by the remote server
-     */
-    //public static final AttributeKey<Boolean> AUTHENTICATED = AttributeKey.valueOf("rconAuthenticated");
 
     /**
      * Flag indicating that the channel has been invalidated and needs to be re-authenticated
@@ -84,14 +68,30 @@ public final class SourceRcon {
     public static final AttributeKey<Boolean> INVALIDATED = AttributeKey.valueOf("rconInvalidated");
 
     /**
-     * <p>Checks if the rcon request id represents a terminator packet</p>
-     *
-     * @param requestId
-     *         An integer representing an Rcon Request Id
-     * @return <code>true</code> if the given id represents a terminator
+     * The minimum allowable value for an rcon request id
      */
-    public static boolean isTerminatorId(int requestId) {
-        return RCON_TERMINATOR_RID == requestId;
+    private static final int RCON_ID_MIN_RANGE = 100000000;
+
+    /**
+     * Flag indicating that the channel has been successfully authenticated by the remote server
+     */
+    //public static final AttributeKey<Boolean> AUTHENTICATED = AttributeKey.valueOf("rconAuthenticated");
+
+    /**
+     * The maximum allowable value for an rcon request id
+     */
+    private static final int RCON_ID_MAX_RANGE = 999999999;
+
+    /**
+     * Check if the packet is the primary terminator packet (The first terminator packet sent after a request)
+     *
+     * @param packet
+     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
+     * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x0)
+     */
+    public static boolean isInitialTerminatorPacket(SourceRconPacket packet) {
+        return isTerminatorPacket(packet) && packet.getTerminator() == 0;
     }
 
     /**
@@ -99,6 +99,7 @@ public final class SourceRcon {
      *
      * @param packet
      *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
      * @return {@code true} if the packet is a terminator packet
      */
     public static boolean isTerminatorPacket(SourceRconPacket packet) {
@@ -107,65 +108,15 @@ public final class SourceRcon {
     }
 
     /**
-     * Check if the packet is the primary terminator packet (The first terminator packet sent after a request)
+     * <p>Checks if the rcon request id represents a terminator packet</p>
      *
-     * @param packet
-     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
-     * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x0)
-     */
-    public static boolean isInitialTerminatorPacket(SourceRconPacket packet) {
-        return isTerminatorPacket(packet) && packet.getTerminator() == 0;
-    }
-
-    /**
-     * Check if the packet is the secondary terminator packet (The secondary terminator packet sent after a request)
+     * @param requestId
+     *         An integer representing an Rcon Request Id
      *
-     * @param packet
-     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
-     * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x01)
+     * @return <code>true</code> if the given id represents a terminator
      */
-    public static boolean isSecondaryTerminatorPacket(SourceRconPacket packet) {
-        return isTerminatorPacket(packet) && packet.getTerminator() == 0x01;
-    }
-
-    /**
-     * Check if packet is an RCON Auth request packet
-     *
-     * @param packet
-     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
-     * @return {@code true} if packet is a valid AUTH packet
-     */
-    public static boolean isAuthRequestPacket(SourceRconPacket packet) {
-        Objects.requireNonNull(packet, "Packet argument must not be null");
-        return RCON_TYPE_REQUEST_AUTH == packet.getType();
-    }
-
-    /**
-     * Check if packet is an RCON auth response packet
-     *
-     * @param packet
-     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
-     * @return {@code true} if the packet is a valid auth response packet
-     */
-    public static boolean isAuthResponsePacket(SourceRconPacket packet) {
-        Objects.requireNonNull(packet, "Packet argument must not be null");
-        //a valid auth response packet should have:
-        // - an id == -1 or > 0
-        // - an empty response body
-        return (packet.getId() == -1 || (packet.getId() > 0)) &&
-                (packet.content().readableBytes() == 1 && (packet.content().getByte(0) == 0)) &&
-                RCON_TYPE_RESPONSE_AUTH == packet.getType();
-    }
-
-    /**
-     * Check if packet is a Command Response Packet
-     *
-     * @param packet
-     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
-     * @return {@code true} if the packet is a valid command response packet
-     */
-    public static boolean isCommandResponsePacket(SourceRconPacket packet) {
-        return packet.getId() > 0 && RCON_TYPE_RESPONSE_AUTH == packet.getType() && packet.content().readableBytes() > 1;
+    public static boolean isTerminatorId(int requestId) {
+        return RCON_TERMINATOR_RID == requestId;
     }
 
     /**
@@ -173,6 +124,7 @@ public final class SourceRcon {
      *
      * @param packet
      *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
      * @return {@code true} if the packet is a valid response value packet
      */
     public static boolean isResponseValuePacket(SourceRconPacket packet) {
@@ -181,10 +133,23 @@ public final class SourceRcon {
     }
 
     /**
+     * Check if the packet is the secondary terminator packet (The secondary terminator packet sent after a request)
+     *
+     * @param packet
+     *         {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
+     * @return {@code true} if the rcon packet is the initial terminator packet (byte terminator value of 0x01)
+     */
+    public static boolean isSecondaryTerminatorPacket(SourceRconPacket packet) {
+        return isTerminatorPacket(packet) && packet.getTerminator() == 0x01;
+    }
+
+    /**
      * <p>Checks if the request id is within the valid range</p>
      *
      * @param requestId
      *         An integer representing a request id
+     *
      * @return <code>true</code> if the given request id is within the valid range
      */
     public static boolean isValidRequestId(int requestId) {
@@ -192,19 +157,11 @@ public final class SourceRcon {
     }
 
     /**
-     * A utility method to generate random request ids
-     *
-     * @return An random integer ranging from 100000000 to 999999999
-     */
-    public static int createRequestId() {
-        return RandomUtils.nextInt(RCON_ID_MIN_RANGE, RCON_ID_MAX_RANGE);
-    }
-
-    /**
      * Check if value is valid RCON terminator
      *
      * @param terminator
      *         The terminator value
+     *
      * @return {@code true} if the value is a valid rcon terminators
      */
     public static boolean isValidTerminator(int terminator) {
@@ -216,6 +173,7 @@ public final class SourceRcon {
      *
      * @param ctx
      *         The {@link io.netty.channel.ChannelHandlerContext}
+     *
      * @return {@code true} if terminator packets are enabled
      */
     public static boolean terminatorPacketEnabled(ChannelHandlerContext ctx) {
@@ -228,6 +186,7 @@ public final class SourceRcon {
      *
      * @param packet
      *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
      * @return The name of the {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket}
      */
     public static String getPacketTypeName(SourceRconPacket packet) {
@@ -247,9 +206,54 @@ public final class SourceRcon {
     }
 
     /**
+     * Check if packet is an RCON Auth request packet
+     *
+     * @param packet
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
+     * @return {@code true} if packet is a valid AUTH packet
+     */
+    public static boolean isAuthRequestPacket(SourceRconPacket packet) {
+        Objects.requireNonNull(packet, "Packet argument must not be null");
+        return RCON_TYPE_REQUEST_AUTH == packet.getType();
+    }
+
+    /**
+     * Check if packet is an RCON auth response packet
+     *
+     * @param packet
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
+     * @return {@code true} if the packet is a valid auth response packet
+     */
+    public static boolean isAuthResponsePacket(SourceRconPacket packet) {
+        Objects.requireNonNull(packet, "Packet argument must not be null");
+        //a valid auth response packet should have:
+        // - an id == -1 or > 0
+        // - an empty response body
+        return (packet.getId() == -1 || (packet.getId() > 0)) &&
+                (packet.content().readableBytes() == 1 && (packet.content().getByte(0) == 0)) &&
+                RCON_TYPE_RESPONSE_AUTH == packet.getType();
+    }
+
+    /**
+     * Check if packet is a Command Response Packet
+     *
+     * @param packet
+     *         The {@link com.ibasco.agql.protocols.valve.source.query.rcon.packets.SourceRconPacket} to check
+     *
+     * @return {@code true} if the packet is a valid command response packet
+     */
+    public static boolean isCommandResponsePacket(SourceRconPacket packet) {
+        return packet.getId() > 0 && RCON_TYPE_RESPONSE_AUTH == packet.getType() && packet.content().readableBytes() > 1;
+    }
+
+    /**
      * <p>getPacketTypeName.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
+     *
      * @return a {@link java.lang.String} object
      */
     public static String getPacketTypeName(int type) {
@@ -272,7 +276,9 @@ public final class SourceRcon {
     /**
      * <p>createAuthRequest.</p>
      *
-     * @param credentials a {@link com.ibasco.agql.core.Credentials} object
+     * @param credentials
+     *         a {@link com.ibasco.agql.core.Credentials} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.source.query.rcon.message.SourceRconAuthRequest} object
      */
     public static SourceRconAuthRequest createAuthRequest(Credentials credentials) {
@@ -293,5 +299,14 @@ public final class SourceRcon {
         SourceRconAuthRequest request = new SourceRconAuthRequest(password);
         request.setRequestId(SourceRcon.createRequestId());
         return request;
+    }
+
+    /**
+     * A utility method to generate random request ids
+     *
+     * @return An random integer ranging from 100000000 to 999999999
+     */
+    public static int createRequestId() {
+        return RandomUtils.nextInt(RCON_ID_MIN_RANGE, RCON_ID_MAX_RANGE);
     }
 }

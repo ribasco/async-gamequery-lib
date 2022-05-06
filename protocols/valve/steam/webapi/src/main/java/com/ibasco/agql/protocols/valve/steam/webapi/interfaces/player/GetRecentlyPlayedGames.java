@@ -24,12 +24,16 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamPlayerServiceR
  * @author Rafael Luis Ibasco
  */
 public class GetRecentlyPlayedGames extends SteamPlayerServiceRequest {
+
     /**
      * <p>Constructor for GetRecentlyPlayedGames.</p>
      *
-     * @param apiVersion a int
-     * @param steamId a long
-     * @param count a int
+     * @param apiVersion
+     *         a int
+     * @param steamId
+     *         a long
+     * @param count
+     *         a int
      */
     public GetRecentlyPlayedGames(int apiVersion, long steamId, int count) {
         super("GetRecentlyPlayedGames", apiVersion);

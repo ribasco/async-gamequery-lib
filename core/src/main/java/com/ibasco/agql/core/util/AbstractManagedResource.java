@@ -33,7 +33,8 @@ abstract public class AbstractManagedResource<T> implements ManagedResource<T> {
     /**
      * <p>Constructor for AbstractManagedResource.</p>
      *
-     * @param resource a T object
+     * @param resource
+     *         a T object
      */
     protected AbstractManagedResource(T resource) {
         this.resource = resource;

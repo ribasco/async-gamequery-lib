@@ -25,12 +25,16 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2EconRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetHeroes extends Dota2EconRequest {
+
     /**
      * <p>Constructor for GetHeroes.</p>
      *
-     * @param apiVersion a int
-     * @param itemizedOnly a boolean
-     * @param language a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param itemizedOnly
+     *         a boolean
+     * @param language
+     *         a {@link java.lang.String} object
      */
     public GetHeroes(int apiVersion, boolean itemizedOnly, String language) {
         super(Dota2ApiConstants.DOTA2_METHOD_GETHEROES, apiVersion, language);

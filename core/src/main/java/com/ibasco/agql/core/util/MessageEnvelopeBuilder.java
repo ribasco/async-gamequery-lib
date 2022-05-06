@@ -20,7 +20,6 @@ import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.Message;
 import com.ibasco.agql.core.MessageEnvelope;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 
@@ -45,7 +44,9 @@ public class MessageEnvelopeBuilder<M extends Message> {
     /**
      * <p>createNew.</p>
      *
-     * @param <V> a V class
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
      */
     public static <V extends Message> MessageEnvelopeBuilder<V> createNew() {
@@ -55,8 +56,11 @@ public class MessageEnvelopeBuilder<M extends Message> {
     /**
      * <p>createFrom.</p>
      *
-     * @param envelope a {@link com.ibasco.agql.core.Envelope} object
-     * @param <V> a V class
+     * @param envelope
+     *         a {@link com.ibasco.agql.core.Envelope} object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
      */
     public static <V extends Message> MessageEnvelopeBuilder<V> createFrom(Envelope<V> envelope) {
@@ -66,11 +70,43 @@ public class MessageEnvelopeBuilder<M extends Message> {
     }
 
     /**
+     * <p>message.</p>
+     *
+     * @param content
+     *         a M object
+     *
+     * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
+     */
+    public MessageEnvelopeBuilder<M> message(M content) {
+        this.message = content;
+        return this;
+    }
+
+    /**
+     * <p>sender.</p>
+     *
+     * @param address
+     *         a A object
+     * @param <A>
+     *         a A class
+     *
+     * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
+     */
+    public <A extends SocketAddress> MessageEnvelopeBuilder<M> sender(A address) {
+        this.sender = address;
+        return this;
+    }
+
+    /**
      * <p>createFrom.</p>
      *
-     * @param envelope a {@link com.ibasco.agql.core.Envelope} object
-     * @param message a V object
-     * @param <V> a V class
+     * @param envelope
+     *         a {@link com.ibasco.agql.core.Envelope} object
+     * @param message
+     *         a V object
+     * @param <V>
+     *         a V class
+     *
      * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
      */
     public static <V extends Message> MessageEnvelopeBuilder<V> createFrom(Envelope<V> envelope, V message) {
@@ -82,8 +118,11 @@ public class MessageEnvelopeBuilder<M extends Message> {
     /**
      * <p>recipient.</p>
      *
-     * @param address a A object
-     * @param <A> a A class
+     * @param address
+     *         a A object
+     * @param <A>
+     *         a A class
+     *
      * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
      */
     public <A extends SocketAddress> MessageEnvelopeBuilder<M> recipient(A address) {
@@ -102,32 +141,11 @@ public class MessageEnvelopeBuilder<M extends Message> {
     }
 
     /**
-     * <p>sender.</p>
-     *
-     * @param address a A object
-     * @param <A> a A class
-     * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
-     */
-    public <A extends SocketAddress> MessageEnvelopeBuilder<M> sender(A address) {
-        this.sender = address;
-        return this;
-    }
-
-    /**
-     * <p>message.</p>
-     *
-     * @param content a M object
-     * @return a {@link com.ibasco.agql.core.util.MessageEnvelopeBuilder} object
-     */
-    public MessageEnvelopeBuilder<M> message(M content) {
-        this.message = content;
-        return this;
-    }
-
-    /**
      * <p>build.</p>
      *
-     * @param <A> a A class
+     * @param <A>
+     *         a A class
+     *
      * @return a {@link com.ibasco.agql.core.Envelope} object
      */
     public <A extends Message> Envelope<A> build() {

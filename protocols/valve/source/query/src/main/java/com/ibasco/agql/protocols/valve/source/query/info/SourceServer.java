@@ -79,7 +79,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>privateServer</code>.</p>
      *
-     * @param privateServer a boolean
+     * @param privateServer
+     *         a boolean
      */
     public void setPrivateServer(boolean privateServer) {
         this.privateServer = privateServer;
@@ -97,7 +98,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>networkVersion</code>.</p>
      *
-     * @param networkVersion a byte
+     * @param networkVersion
+     *         a byte
      */
     public void setNetworkVersion(byte networkVersion) {
         this.networkVersion = networkVersion;
@@ -115,7 +117,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>mapName</code>.</p>
      *
-     * @param mapName a {@link java.lang.String} object
+     * @param mapName
+     *         a {@link java.lang.String} object
      */
     public void setMapName(String mapName) {
         this.mapName = mapName;
@@ -133,7 +136,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>gameDirectory</code>.</p>
      *
-     * @param gameDirectory a {@link java.lang.String} object
+     * @param gameDirectory
+     *         a {@link java.lang.String} object
      */
     public void setGameDirectory(String gameDirectory) {
         this.gameDirectory = gameDirectory;
@@ -151,7 +155,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>gameDescription</code>.</p>
      *
-     * @param gameDescription a {@link java.lang.String} object
+     * @param gameDescription
+     *         a {@link java.lang.String} object
      */
     public void setGameDescription(String gameDescription) {
         this.gameDescription = gameDescription;
@@ -169,7 +174,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>appId</code>.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
      */
     public void setAppId(int appId) {
         this.appId = appId;
@@ -187,7 +193,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>numOfPlayers</code>.</p>
      *
-     * @param numOfPlayers a int
+     * @param numOfPlayers
+     *         a int
      */
     public void setNumOfPlayers(int numOfPlayers) {
         this.numOfPlayers = numOfPlayers;
@@ -205,7 +212,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>maxPlayers</code>.</p>
      *
-     * @param maxPlayers a int
+     * @param maxPlayers
+     *         a int
      */
     public void setMaxPlayers(int maxPlayers) {
         this.maxPlayers = maxPlayers;
@@ -223,7 +231,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>numOfBots</code>.</p>
      *
-     * @param numOfBots a int
+     * @param numOfBots
+     *         a int
      */
     public void setNumOfBots(int numOfBots) {
         this.numOfBots = numOfBots;
@@ -241,7 +250,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>dedicated</code>.</p>
      *
-     * @param dedicated a boolean
+     * @param dedicated
+     *         a boolean
      */
     public void setDedicated(boolean dedicated) {
         this.dedicated = dedicated;
@@ -259,7 +269,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>operatingSystem</code>.</p>
      *
-     * @param operatingSystem a {@link java.lang.String} object
+     * @param operatingSystem
+     *         a {@link java.lang.String} object
      */
     public void setOperatingSystem(String operatingSystem) {
         this.operatingSystem = operatingSystem;
@@ -277,7 +288,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>passwordProtected</code>.</p>
      *
-     * @param passwordProtected a boolean
+     * @param passwordProtected
+     *         a boolean
      */
     public void setPasswordProtected(boolean passwordProtected) {
         this.passwordProtected = passwordProtected;
@@ -295,7 +307,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>secure</code>.</p>
      *
-     * @param secure a boolean
+     * @param secure
+     *         a boolean
      */
     public void setSecure(boolean secure) {
         this.secure = secure;
@@ -313,7 +326,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>gameVersion</code>.</p>
      *
-     * @param gameVersion a {@link java.lang.String} object
+     * @param gameVersion
+     *         a {@link java.lang.String} object
      */
     public void setGameVersion(String gameVersion) {
         this.gameVersion = gameVersion;
@@ -331,7 +345,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>serverId</code>.</p>
      *
-     * @param serverId a long
+     * @param serverId
+     *         a long
      */
     public void setServerId(long serverId) {
         this.serverId = serverId;
@@ -349,7 +364,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>tvPort</code>.</p>
      *
-     * @param tvPort a int
+     * @param tvPort
+     *         a int
      */
     public void setTvPort(int tvPort) {
         this.tvPort = tvPort;
@@ -367,7 +383,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>tvName</code>.</p>
      *
-     * @param tvName a {@link java.lang.String} object
+     * @param tvName
+     *         a {@link java.lang.String} object
      */
     public void setTvName(String tvName) {
         this.tvName = tvName;
@@ -385,7 +402,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>serverTags</code>.</p>
      *
-     * @param serverTags a {@link java.lang.String} object
+     * @param serverTags
+     *         a {@link java.lang.String} object
      */
     public void setServerTags(String serverTags) {
         this.serverTags = serverTags;
@@ -403,7 +421,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>gameId</code>.</p>
      *
-     * @param gameId a long
+     * @param gameId
+     *         a long
      */
     public void setGameId(long gameId) {
         this.gameId = gameId;
@@ -421,7 +440,8 @@ public class SourceServer {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -434,6 +454,16 @@ public class SourceServer {
      */
     public InetSocketAddress getAddress() {
         return address;
+    }
+
+    /**
+     * <p>Setter for the field <code>address</code>.</p>
+     *
+     * @param address
+     *         a {@link java.net.InetSocketAddress} object
+     */
+    public void setAddress(InetSocketAddress address) {
+        this.address = address;
     }
 
     /**
@@ -452,14 +482,5 @@ public class SourceServer {
      */
     public int getPort() {
         return address.getPort();
-    }
-
-    /**
-     * <p>Setter for the field <code>address</code>.</p>
-     *
-     * @param address a {@link java.net.InetSocketAddress} object
-     */
-    public void setAddress(InetSocketAddress address) {
-        this.address = address;
     }
 }

@@ -26,7 +26,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.GetMos
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.LocalizedNameTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.PopularTag;
 import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.steamstore.pojos.SteamStoreAppResponse;
-
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.List;

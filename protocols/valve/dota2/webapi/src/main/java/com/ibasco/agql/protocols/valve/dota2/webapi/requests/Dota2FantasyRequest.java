@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.Dota2WebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class Dota2FantasyRequest extends Dota2WebApiRequest {
+
     /**
      * <p>Constructor for Dota2FantasyRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public Dota2FantasyRequest(String apiMethod, int apiVersion) {
         super(Dota2ApiConstants.DOTA2_INTERFACE_FANTASY, apiMethod, apiVersion, null);

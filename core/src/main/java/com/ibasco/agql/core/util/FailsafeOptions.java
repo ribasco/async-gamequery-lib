@@ -27,19 +27,14 @@ import dev.failsafe.Failsafe;
 @Shared
 public class FailsafeOptions extends AbstractOptions {
 
-    private FailsafeOptions() {}
-
-    //<editor-fold desc="Failsafe - General Options">
-
     /**
      * Enable {@link Failsafe} integration for Source Query module
      *
      * @see <a href="https://failsafe.dev/">Failsafe</a>
      */
     public static final Option<Boolean> FAILSAFE_ENABLED = Option.create(FailsafeProperties.FAILSAFE_ENABLED, true);
-    //</editor-fold>
 
-    //<editor-fold desc="Failsafe - Rate Limit Policy Options">
+    //<editor-fold desc="Failsafe - General Options">
 
     /**
      * Enable Rate Limiter (Failsafe)
@@ -50,6 +45,9 @@ public class FailsafeOptions extends AbstractOptions {
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
     public static final Option<Boolean> FAILSAFE_RATELIMIT_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RATELIMIT_ENABLED, true);
+    //</editor-fold>
+
+    //<editor-fold desc="Failsafe - Rate Limit Policy Options">
 
     /**
      * Maximum number of executions within the specified period (Default is 650 executions per minute)
@@ -82,9 +80,6 @@ public class FailsafeOptions extends AbstractOptions {
      * @see <a href="https://failsafe.dev/rate-limiter/">Failsafe's Rate Limiter</a>
      */
     public static final Option<RateLimitType> FAILSAFE_RATELIMIT_TYPE = Option.create(FailsafeProperties.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH);
-    //</editor-fold>
-
-    //<editor-fold desc="Failsafe - Retry Policy Options">
 
     /**
      * Enable retry policy
@@ -97,6 +92,9 @@ public class FailsafeOptions extends AbstractOptions {
      * @see <a href="https://failsafe.dev/retry/">Failsafe's Retry Policy</a>
      */
     public static final Option<Boolean> FAILSAFE_RETRY_ENABLED = Option.create(FailsafeProperties.FAILSAFE_RETRY_ENABLED, true);
+    //</editor-fold>
+
+    //<editor-fold desc="Failsafe - Retry Policy Options">
 
     /**
      * Delay between retries (In milliseconds. Use -1 to disable. Default is 1000ms)
@@ -148,14 +146,14 @@ public class FailsafeOptions extends AbstractOptions {
      * @see <a href="https://failsafe.dev/retry">Failsafe's Retry Policy</a>
      */
     public static final Option<Integer> FAILSAFE_RETRY_MAX_ATTEMPTS = Option.create(FailsafeProperties.FAILSAFE_RETRY_MAX_ATTEMPTS, 3);
-    //</editor-fold>
-
-    //<editor-fold desc="Failsafe - Circuit Breaker Policy Options">
 
     /**
      * <p>Enable/disable Circuit breaker failsafe policy (Default: true)</p>
      */
     public static final Option<Boolean> FAILSAFE_CIRCBREAKER_ENABLED = Option.create(FailsafeProperties.FAILSAFE_CIRCBREAKER_ENABLED, true);
+    //</editor-fold>
+
+    //<editor-fold desc="Failsafe - Circuit Breaker Policy Options">
 
     /**
      * <p>After opening, a breaker will delay for 1 second(s) by default before before transitioning to <a href="https://failsafe.dev/circuit-breaker/#half-opening">half-open</a>.
@@ -185,5 +183,7 @@ public class FailsafeOptions extends AbstractOptions {
      * @see <a href="https://failsafe.dev/circuit-breaker/#closing">Circuit Breaker - Closing</a>
      */
     public static final Option<Integer> FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD = Option.create(FailsafeProperties.FAILSAFE_CIRCBREAKER_SUCCESS_THRESHOLD, 1);
+
+    private FailsafeOptions() {}
     //</editor-fold>
 }

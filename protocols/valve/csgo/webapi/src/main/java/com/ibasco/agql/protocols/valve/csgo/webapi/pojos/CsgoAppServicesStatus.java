@@ -26,12 +26,16 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class CsgoAppServicesStatus {
+
     @SerializedName("SessionsLogon")
     private String sessionsLogonStatus;
+
     @SerializedName("SteamCommunity")
     private String steamCommunityStatus;
+
     @SerializedName("IEconItems")
     private String econItemsStatus;
+
     @SerializedName("Leaderboards")
     private String leaderboardsStatus;
 
@@ -47,7 +51,8 @@ public class CsgoAppServicesStatus {
     /**
      * <p>Setter for the field <code>sessionsLogonStatus</code>.</p>
      *
-     * @param sessionsLogonStatus a {@link java.lang.String} object
+     * @param sessionsLogonStatus
+     *         a {@link java.lang.String} object
      */
     public void setSessionsLogonStatus(String sessionsLogonStatus) {
         this.sessionsLogonStatus = sessionsLogonStatus;
@@ -65,7 +70,8 @@ public class CsgoAppServicesStatus {
     /**
      * <p>Setter for the field <code>steamCommunityStatus</code>.</p>
      *
-     * @param steamCommunityStatus a {@link java.lang.String} object
+     * @param steamCommunityStatus
+     *         a {@link java.lang.String} object
      */
     public void setSteamCommunityStatus(String steamCommunityStatus) {
         this.steamCommunityStatus = steamCommunityStatus;
@@ -83,7 +89,8 @@ public class CsgoAppServicesStatus {
     /**
      * <p>Setter for the field <code>econItemsStatus</code>.</p>
      *
-     * @param econItemsStatus a {@link java.lang.String} object
+     * @param econItemsStatus
+     *         a {@link java.lang.String} object
      */
     public void setEconItemsStatus(String econItemsStatus) {
         this.econItemsStatus = econItemsStatus;
@@ -101,7 +108,8 @@ public class CsgoAppServicesStatus {
     /**
      * <p>Setter for the field <code>leaderboardsStatus</code>.</p>
      *
-     * @param leaderboardsStatus a {@link java.lang.String} object
+     * @param leaderboardsStatus
+     *         a {@link java.lang.String} object
      */
     public void setLeaderboardsStatus(String leaderboardsStatus) {
         this.leaderboardsStatus = leaderboardsStatus;

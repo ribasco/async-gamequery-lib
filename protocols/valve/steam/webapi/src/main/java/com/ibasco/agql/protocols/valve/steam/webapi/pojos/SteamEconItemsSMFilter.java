@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,15 +28,21 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconItemsSMFilter {
+
     private long id;
+
     private String name;
+
     @SerializedName("url_history_param_name")
     private String urlHistoryParamName;
+
     private SteamEconItemsSMFilterElement allElement;
+
     /**
      * A list of elements within the filter.
      */
     private List<SteamEconItemsSMFilterElement> elements = new ArrayList<>();
+
     private int count;
 
     /**
@@ -52,7 +57,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a long
+     * @param id
+     *         a long
      */
     public void setId(long id) {
         this.id = id;
@@ -70,7 +76,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -88,7 +95,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>urlHistoryParamName</code>.</p>
      *
-     * @param urlHistoryParamName a {@link java.lang.String} object
+     * @param urlHistoryParamName
+     *         a {@link java.lang.String} object
      */
     public void setUrlHistoryParamName(String urlHistoryParamName) {
         this.urlHistoryParamName = urlHistoryParamName;
@@ -106,7 +114,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>allElement</code>.</p>
      *
-     * @param allElement a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMFilterElement} object
+     * @param allElement
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamEconItemsSMFilterElement} object
      */
     public void setAllElement(SteamEconItemsSMFilterElement allElement) {
         this.allElement = allElement;
@@ -124,7 +133,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>elements</code>.</p>
      *
-     * @param elements a {@link java.util.List} object
+     * @param elements
+     *         a {@link java.util.List} object
      */
     public void setElements(List<SteamEconItemsSMFilterElement> elements) {
         this.elements = elements;
@@ -142,7 +152,8 @@ public class SteamEconItemsSMFilter {
     /**
      * <p>Setter for the field <code>count</code>.</p>
      *
-     * @param count a int
+     * @param count
+     *         a int
      */
     public void setCount(int count) {
         this.count = count;

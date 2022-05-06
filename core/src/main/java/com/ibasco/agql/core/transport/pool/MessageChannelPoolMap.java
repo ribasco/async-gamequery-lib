@@ -20,18 +20,17 @@ import io.netty.channel.pool.SimpleChannelPool;
 import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import io.netty.util.concurrent.Promise;
-import static io.netty.util.internal.ObjectUtil.checkNotNull;
 import io.netty.util.internal.ReadOnlyIterator;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import static io.netty.util.internal.ObjectUtil.checkNotNull;
 
 /**
  * A custom {@link io.netty.channel.pool.ChannelPoolMap} implementation that allows a custom pool key to be used for {@link com.ibasco.agql.core.transport.pool.NettyChannelPool} lookup.
@@ -49,7 +48,8 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
     /**
      * <p>Constructor for MessageChannelPoolMap.</p>
      *
-     * @param pooledChannelFactory a {@link com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory} object
+     * @param pooledChannelFactory
+     *         a {@link com.ibasco.agql.core.transport.pool.NettyPooledChannelFactory} object
      */
     public MessageChannelPoolMap(final NettyPooledChannelFactory pooledChannelFactory) {
         this.pooledChannelFactory = pooledChannelFactory;
@@ -79,6 +79,30 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return map.containsKey(getResolver().resolvePoolKey(data));
     }
 
+    /**
+     * <p>getResolver.</p>
+     *
+     * @return a {@link com.ibasco.agql.core.transport.pool.NettyPoolPropertyResolver} object
+     */
+    public NettyPoolPropertyResolver getResolver() {
+        if (!(pooledChannelFactory.getResolver() instanceof NettyPoolPropertyResolver))
+            throw new IllegalStateException("Property resolver must be a type of " + NettyPoolPropertyResolver.class.getSimpleName());
+        return (NettyPoolPropertyResolver) pooledChannelFactory.getResolver();
+    }
+
+    private static Future<Void> poolCloseAsyncIfSupported(NettyChannelPool pool) {
+        if (pool instanceof SimpleChannelPool) {
+            return ((SimpleChannelPool) pool).closeAsync();
+        } else {
+            try {
+                pool.close();
+                return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
+            } catch (Exception e) {
+                return GlobalEventExecutor.INSTANCE.newFailedFuture(e);
+            }
+        }
+    }
+
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
@@ -87,13 +111,6 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
             removeAsyncIfSupported(key).syncUninterruptibly();
         }
         getChannelPoolFactory().getChannelFactory().close();
-    }
-
-    /** {@inheritDoc} */
-    @NotNull
-    @Override
-    public Iterator<Map.Entry<Object, NettyChannelPool>> iterator() {
-        return new ReadOnlyIterator<>(map.entrySet().iterator());
     }
 
     private Future<Boolean> removeAsyncIfSupported(Object key) {
@@ -112,19 +129,6 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return GlobalEventExecutor.INSTANCE.newSucceededFuture(Boolean.FALSE);
     }
 
-    private static Future<Void> poolCloseAsyncIfSupported(NettyChannelPool pool) {
-        if (pool instanceof SimpleChannelPool) {
-            return ((SimpleChannelPool) pool).closeAsync();
-        } else {
-            try {
-                pool.close();
-                return GlobalEventExecutor.INSTANCE.newSucceededFuture(null);
-            } catch (Exception e) {
-                return GlobalEventExecutor.INSTANCE.newFailedFuture(e);
-            }
-        }
-    }
-
     /**
      * <p>getChannelPoolFactory.</p>
      *
@@ -134,14 +138,10 @@ public class MessageChannelPoolMap implements NettyChannelPoolMap<Object, NettyC
         return pooledChannelFactory.getChannelPoolFactory();
     }
 
-    /**
-     * <p>getResolver.</p>
-     *
-     * @return a {@link com.ibasco.agql.core.transport.pool.NettyPoolPropertyResolver} object
-     */
-    public NettyPoolPropertyResolver getResolver() {
-        if (!(pooledChannelFactory.getResolver() instanceof NettyPoolPropertyResolver))
-            throw new IllegalStateException("Property resolver must be a type of " + NettyPoolPropertyResolver.class.getSimpleName());
-        return (NettyPoolPropertyResolver) pooledChannelFactory.getResolver();
+    /** {@inheritDoc} */
+    @NotNull
+    @Override
+    public Iterator<Map.Entry<Object, NettyChannelPool>> iterator() {
+        return new ReadOnlyIterator<>(map.entrySet().iterator());
     }
 }

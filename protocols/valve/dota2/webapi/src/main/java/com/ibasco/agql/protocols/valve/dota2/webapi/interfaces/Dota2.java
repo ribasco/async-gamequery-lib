@@ -24,10 +24,13 @@ import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
  * @author Rafael Luis Ibasco
  */
 public final class Dota2 {
+
     /**
      * <p>createEcon.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Econ} object
      */
     public static Dota2Econ createEcon(SteamWebApiClient client) {
@@ -37,7 +40,9 @@ public final class Dota2 {
     /**
      * <p>createFantasy.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Fantasy} object
      */
     public static Dota2Fantasy createFantasy(SteamWebApiClient client) {
@@ -47,7 +52,9 @@ public final class Dota2 {
     /**
      * <p>createMatch.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     *
      * @return a {@link com.ibasco.agql.protocols.valve.dota2.webapi.interfaces.Dota2Match} object
      */
     public static Dota2Match createMatch(SteamWebApiClient client) {

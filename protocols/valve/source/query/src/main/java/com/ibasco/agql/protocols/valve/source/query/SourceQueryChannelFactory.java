@@ -30,10 +30,9 @@ import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesDecode
 import com.ibasco.agql.protocols.valve.source.query.rules.SourceQueryRulesEncoder;
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
+import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.LinkedList;
 
 /**
  * <p>SourceQueryChannelFactory class.</p>
@@ -47,7 +46,8 @@ public class SourceQueryChannelFactory extends NettyChannelFactoryInitializer {
     /**
      * <p>Constructor for SourceQueryChannelFactory.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     public SourceQueryChannelFactory(final NettyChannelFactory channelFactory) {
         super(channelFactory);

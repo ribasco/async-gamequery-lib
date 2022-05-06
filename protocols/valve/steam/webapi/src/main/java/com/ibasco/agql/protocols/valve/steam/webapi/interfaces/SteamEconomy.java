@@ -29,7 +29,6 @@ import com.ibasco.agql.protocols.valve.steam.webapi.interfaces.economy.GetAssetP
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamAssetClassInfo;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamAssetDescription;
 import com.ibasco.agql.protocols.valve.steam.webapi.pojos.SteamAssetPriceInfo;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +41,12 @@ import java.util.concurrent.CompletableFuture;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconomy extends SteamWebApiInterface {
+
     /**
      * <p>Constructor for SteamEconomy.</p>
      *
-     * @param client a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
+     * @param client
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient} object
      */
     public SteamEconomy(SteamWebApiClient client) {
         super(client);
@@ -62,7 +63,9 @@ public class SteamEconomy extends SteamWebApiInterface {
     /**
      * <p>getAssetPrices.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamAssetPriceInfo>> getAssetPrices(int appId) {
@@ -72,9 +75,13 @@ public class SteamEconomy extends SteamWebApiInterface {
     /**
      * <p>getAssetPrices.</p>
      *
-     * @param appId a int
-     * @param currency a {@link java.lang.String} object
-     * @param language a {@link java.lang.String} object
+     * @param appId
+     *         a int
+     * @param currency
+     *         a {@link java.lang.String} object
+     * @param language
+     *         a {@link java.lang.String} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<List<SteamAssetPriceInfo>> getAssetPrices(int appId, String currency, String language) {
@@ -95,9 +102,13 @@ public class SteamEconomy extends SteamWebApiInterface {
     /**
      * <p>getAssetClassInfo.</p>
      *
-     * @param appId a int
-     * @param language a {@link java.lang.String} object
-     * @param classIds a {@link java.util.List} object
+     * @param appId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
+     * @param classIds
+     *         a {@link java.util.List} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Map<String, SteamAssetClassInfo>> getAssetClassInfo(int appId, String language, List<Long> classIds) {
@@ -107,9 +118,13 @@ public class SteamEconomy extends SteamWebApiInterface {
     /**
      * <p>getAssetClassInfo.</p>
      *
-     * @param appId a int
-     * @param language a {@link java.lang.String} object
-     * @param classIds a {@link java.lang.Long} object
+     * @param appId
+     *         a int
+     * @param language
+     *         a {@link java.lang.String} object
+     * @param classIds
+     *         a {@link java.lang.Long} object
+     *
      * @return a {@link java.util.concurrent.CompletableFuture} object
      */
     public CompletableFuture<Map<String, SteamAssetClassInfo>> getAssetClassInfo(int appId, String language, Long... classIds) {

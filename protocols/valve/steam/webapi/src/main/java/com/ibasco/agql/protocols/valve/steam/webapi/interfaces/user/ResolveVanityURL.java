@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamUserRequest;
  * @author Rafael Luis Ibasco
  */
 public class ResolveVanityURL extends SteamUserRequest {
+
     /**
      * <p>Constructor for ResolveVanityURL.</p>
      *
-     * @param apiVersion a int
-     * @param vanityUrl a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param vanityUrl
+     *         a {@link java.lang.String} object
      */
     public ResolveVanityURL(int apiVersion, String vanityUrl) {
         this(apiVersion, vanityUrl, VanityUrlType.DEFAULT);
@@ -38,9 +41,12 @@ public class ResolveVanityURL extends SteamUserRequest {
     /**
      * <p>Constructor for ResolveVanityURL.</p>
      *
-     * @param apiVersion a int
-     * @param vanityUrl a {@link java.lang.String} object
-     * @param urlType a {@link com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType} object
+     * @param apiVersion
+     *         a int
+     * @param vanityUrl
+     *         a {@link java.lang.String} object
+     * @param urlType
+     *         a {@link com.ibasco.agql.protocols.valve.steam.webapi.enums.VanityUrlType} object
      */
     public ResolveVanityURL(int apiVersion, String vanityUrl, VanityUrlType urlType) {
         super("ResolveVanityURL", apiVersion);

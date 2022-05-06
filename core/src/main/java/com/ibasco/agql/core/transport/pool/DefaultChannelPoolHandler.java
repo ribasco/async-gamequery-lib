@@ -27,11 +27,10 @@ import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.pool.AbstractChannelPoolHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>DefaultChannelPoolHandler class.</p>
@@ -56,7 +55,8 @@ public class DefaultChannelPoolHandler extends AbstractChannelPoolHandler {
     /**
      * <p>Constructor for DefaultChannelPoolHandler.</p>
      *
-     * @param bootstrap a {@link io.netty.bootstrap.Bootstrap} object
+     * @param bootstrap
+     *         a {@link io.netty.bootstrap.Bootstrap} object
      */
     public DefaultChannelPoolHandler(final Bootstrap bootstrap) {
         Objects.requireNonNull(bootstrap, "Bootstrap cannot be null");

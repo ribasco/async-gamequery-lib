@@ -25,7 +25,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaOriginName {
+
     private int origin;
+
     private String name;
 
     /**
@@ -40,7 +42,8 @@ public class SteamEconSchemaOriginName {
     /**
      * <p>Setter for the field <code>origin</code>.</p>
      *
-     * @param origin a int
+     * @param origin
+     *         a int
      */
     public void setOrigin(int origin) {
         this.origin = origin;
@@ -58,7 +61,8 @@ public class SteamEconSchemaOriginName {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;

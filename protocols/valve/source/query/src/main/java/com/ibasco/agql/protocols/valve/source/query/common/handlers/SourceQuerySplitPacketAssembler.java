@@ -52,41 +52,6 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
 
     /** {@inheritDoc} */
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        SourceSplitPacketAssembler assembler = getAssembler(ctx);
-        //did we receive a timeout while we are still processing packets?
-        if (assembler.isProcessing()) {
-            NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
-            debug(log, ctx, "An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
-            assembler.reset();
-        }
-        ctx.fireExceptionCaught(cause);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
-        try {
-            switch ((ChannelEvent) evt) {
-                case ACQUIRED: {
-                    debug(log, ctx, "Channel acquired. Creating new assembler for channel '{}'", ctx.channel());
-                    //this.assembler = new SourceLazySplitPacketAssembler(ctx);
-                    break;
-                }
-                case RELEASED:
-                case CLOSED: {
-                    debug(log, ctx, "Channel closed. Forcing reset of assembler", evt);
-                    getAssembler(ctx).reset();
-                    break;
-                }
-            }
-        } finally {
-            ctx.fireUserEventTriggered(evt);
-        }
-    }
-
-    /** {@inheritDoc} */
-    @Override
     protected void readMessage(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (!(msg instanceof SourceQuerySplitPacket)) {
             debug(log, ctx, "REJECTED '{}'", msg.getClass().getSimpleName());
@@ -147,6 +112,41 @@ public class SourceQuerySplitPacketAssembler extends MessageInboundHandler {
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         debug(log, ctx, "Read Complete");
         super.channelReadComplete(ctx);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void userEventTriggered(ChannelHandlerContext ctx, Object evt) throws Exception {
+        try {
+            switch ((ChannelEvent) evt) {
+                case ACQUIRED: {
+                    debug(log, ctx, "Channel acquired. Creating new assembler for channel '{}'", ctx.channel());
+                    //this.assembler = new SourceLazySplitPacketAssembler(ctx);
+                    break;
+                }
+                case RELEASED:
+                case CLOSED: {
+                    debug(log, ctx, "Channel closed. Forcing reset of assembler", evt);
+                    getAssembler(ctx).reset();
+                    break;
+                }
+            }
+        } finally {
+            ctx.fireUserEventTriggered(evt);
+        }
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        SourceSplitPacketAssembler assembler = getAssembler(ctx);
+        //did we receive a timeout while we are still processing packets?
+        if (assembler.isProcessing()) {
+            NettyChannelContext context = NettyChannelContext.getContext(ctx.channel());
+            debug(log, ctx, "An error was fired but we are still receiving incoming packets from the server (Error: {}, Packets received: {}, Packets expected: {}, Request: {})", cause.getClass().getSimpleName(), assembler.received(), assembler.count(), context.properties().envelope());
+            assembler.reset();
+        }
+        ctx.fireExceptionCaught(cause);
     }
 
     private SourceSplitPacketAssembler getAssembler(ChannelHandlerContext ctx) {

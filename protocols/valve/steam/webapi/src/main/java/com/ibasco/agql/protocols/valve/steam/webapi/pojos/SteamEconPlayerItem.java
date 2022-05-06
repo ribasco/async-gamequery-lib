@@ -19,7 +19,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,27 +28,42 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconPlayerItem {
+
     private int id;
+
     @SerializedName("original_id")
     private int originalId;
+
     @SerializedName("defindex")
     private int defIndex;
+
     private int level;
+
     private int quality;
+
     private int inventory;
+
     private int quantity;
+
     private int rarity;
+
     @SerializedName("flag_cannot_trade")
     private boolean cannotTrade;
+
     @SerializedName("attributes")
     private List<SteamEconPlayerItemAttribute> itemAttributes = new ArrayList<>();
+
     private List<SteamEconPlayerItemEquipInfo> equipInfos = new ArrayList<>();
+
     @SerializedName("flag_cannot_craft")
     private boolean cannotCraft; //tf2 specific
+
     @SerializedName("custom_name")
     private String customName;
+
     @SerializedName("custom_desc")
     private String customDescription;
+
     private int style;
 
     /**
@@ -64,7 +78,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -82,7 +97,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>originalId</code>.</p>
      *
-     * @param originalId a int
+     * @param originalId
+     *         a int
      */
     public void setOriginalId(int originalId) {
         this.originalId = originalId;
@@ -100,7 +116,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>defIndex</code>.</p>
      *
-     * @param defIndex a int
+     * @param defIndex
+     *         a int
      */
     public void setDefIndex(int defIndex) {
         this.defIndex = defIndex;
@@ -118,7 +135,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>level</code>.</p>
      *
-     * @param level a int
+     * @param level
+     *         a int
      */
     public void setLevel(int level) {
         this.level = level;
@@ -136,7 +154,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>quality</code>.</p>
      *
-     * @param quality a int
+     * @param quality
+     *         a int
      */
     public void setQuality(int quality) {
         this.quality = quality;
@@ -154,7 +173,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>inventory</code>.</p>
      *
-     * @param inventory a int
+     * @param inventory
+     *         a int
      */
     public void setInventory(int inventory) {
         this.inventory = inventory;
@@ -172,7 +192,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>quantity</code>.</p>
      *
-     * @param quantity a int
+     * @param quantity
+     *         a int
      */
     public void setQuantity(int quantity) {
         this.quantity = quantity;
@@ -190,7 +211,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>rarity</code>.</p>
      *
-     * @param rarity a int
+     * @param rarity
+     *         a int
      */
     public void setRarity(int rarity) {
         this.rarity = rarity;
@@ -208,7 +230,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>cannotTrade</code>.</p>
      *
-     * @param cannotTrade a boolean
+     * @param cannotTrade
+     *         a boolean
      */
     public void setCannotTrade(boolean cannotTrade) {
         this.cannotTrade = cannotTrade;
@@ -226,7 +249,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>itemAttributes</code>.</p>
      *
-     * @param itemAttributes a {@link java.util.List} object
+     * @param itemAttributes
+     *         a {@link java.util.List} object
      */
     public void setItemAttributes(List<SteamEconPlayerItemAttribute> itemAttributes) {
         this.itemAttributes = itemAttributes;
@@ -244,7 +268,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>equipInfos</code>.</p>
      *
-     * @param equipInfos a {@link java.util.List} object
+     * @param equipInfos
+     *         a {@link java.util.List} object
      */
     public void setEquipInfos(List<SteamEconPlayerItemEquipInfo> equipInfos) {
         this.equipInfos = equipInfos;
@@ -262,7 +287,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>cannotCraft</code>.</p>
      *
-     * @param cannotCraft a boolean
+     * @param cannotCraft
+     *         a boolean
      */
     public void setCannotCraft(boolean cannotCraft) {
         this.cannotCraft = cannotCraft;
@@ -280,7 +306,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>customName</code>.</p>
      *
-     * @param customName a {@link java.lang.String} object
+     * @param customName
+     *         a {@link java.lang.String} object
      */
     public void setCustomName(String customName) {
         this.customName = customName;
@@ -298,7 +325,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>customDescription</code>.</p>
      *
-     * @param customDescription a {@link java.lang.String} object
+     * @param customDescription
+     *         a {@link java.lang.String} object
      */
     public void setCustomDescription(String customDescription) {
         this.customDescription = customDescription;
@@ -316,7 +344,8 @@ public class SteamEconPlayerItem {
     /**
      * <p>Setter for the field <code>style</code>.</p>
      *
-     * @param style a int
+     * @param style
+     *         a int
      */
     public void setStyle(int style) {
         this.style = style;

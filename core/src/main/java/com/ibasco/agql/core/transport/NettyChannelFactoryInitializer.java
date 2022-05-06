@@ -18,7 +18,6 @@ package com.ibasco.agql.core.transport;
 
 import io.netty.channel.ChannelInboundHandler;
 import io.netty.channel.ChannelOutboundHandler;
-
 import java.util.LinkedList;
 
 /**
@@ -31,7 +30,8 @@ abstract public class NettyChannelFactoryInitializer extends NettyChannelFactory
     /**
      * <p>Constructor for NettyChannelFactoryInitializer.</p>
      *
-     * @param channelFactory a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
+     * @param channelFactory
+     *         a {@link com.ibasco.agql.core.transport.NettyChannelFactory} object
      */
     protected NettyChannelFactoryInitializer(NettyChannelFactory channelFactory) {
         super(channelFactory);

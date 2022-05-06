@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamEconItemsReque
  * @author Rafael Luis Ibasco
  */
 public class GetStoreStatus extends SteamEconItemsRequest {
+
     /**
      * <p>Constructor for GetStoreStatus.</p>
      *
-     * @param appId a int
-     * @param apiVersion a int
+     * @param appId
+     *         a int
+     * @param apiVersion
+     *         a int
      */
     public GetStoreStatus(int appId, int apiVersion) {
         super(appId, SteamApiConstants.STEAM_METHOD_ECONITEMS_GETSTORESTATUS, apiVersion);

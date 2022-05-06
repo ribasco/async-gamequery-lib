@@ -25,11 +25,14 @@ import com.ibasco.agql.protocols.valve.csgo.webapi.CsgoWebApiRequest;
  * @author Rafael Luis Ibasco
  */
 abstract public class CsgoServersRequest extends CsgoWebApiRequest {
+
     /**
      * <p>Constructor for CsgoServersRequest.</p>
      *
-     * @param apiMethod a {@link java.lang.String} object
-     * @param apiVersion a int
+     * @param apiMethod
+     *         a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
      */
     public CsgoServersRequest(String apiMethod, int apiVersion) {
         super(CsgoApiConstants.CSGO_INTERFACE_SERVERS, apiMethod, apiVersion);

@@ -19,7 +19,6 @@ package com.ibasco.agql.core.exceptions;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.NettyChannelContext;
 import org.jetbrains.annotations.ApiStatus;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -135,8 +134,10 @@ public class MessengerException extends AgqlRuntimeException {
     /**
      * The underlying {@link com.ibasco.agql.core.NettyChannelContext} used for this transaction.
      *
+     * @param <C>
+     *         a C class
+     *
      * @return The {@link com.ibasco.agql.core.NettyChannelContext} that was used for this transaction. {@code null} if the exception occured before a context has been acquired.
-     * @param <C> a C class
      */
     public final <C extends NettyChannelContext> C getContext() {
         //noinspection unchecked

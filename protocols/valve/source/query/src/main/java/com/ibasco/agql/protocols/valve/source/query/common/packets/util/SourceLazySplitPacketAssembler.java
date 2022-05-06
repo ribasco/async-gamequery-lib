@@ -28,9 +28,6 @@ import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.ReferenceCountUtil;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -40,6 +37,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A lazy implementation of the {@link com.ibasco.agql.protocols.valve.source.query.common.packets.util.SourceSplitPacketAssembler}. Packets will only be re-assembled when {@link #getBuffer()} is
@@ -51,11 +50,13 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     private static final Logger log = LoggerFactory.getLogger(SourceLazySplitPacketAssembler.class);
 
-    private final Supplier<Stream<SourceQuerySplitPacket>> packetStream = () -> Arrays.stream(SourceLazySplitPacketAssembler.this.packets).filter(Objects::nonNull).sorted();
-
     private final ByteBufAllocator allocator;
 
+    private final ChannelHandlerContext ctx;
+
     private volatile SourceQuerySplitPacket[] packets;
+
+    private final Supplier<Stream<SourceQuerySplitPacket>> packetStream = () -> Arrays.stream(SourceLazySplitPacketAssembler.this.packets).filter(Objects::nonNull).sorted();
 
     private volatile int packetId = -1;
 
@@ -69,12 +70,11 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     private volatile boolean completed;
 
-    private final ChannelHandlerContext ctx;
-
     /**
      * <p>Constructor for SourceLazySplitPacketAssembler.</p>
      *
-     * @param ctx a {@link io.netty.channel.ChannelHandlerContext} object
+     * @param ctx
+     *         a {@link io.netty.channel.ChannelHandlerContext} object
      */
     public SourceLazySplitPacketAssembler(ChannelHandlerContext ctx) {
         this.allocator = Objects.requireNonNull(ctx.alloc());
@@ -116,6 +116,19 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
 
     /** {@inheritDoc} */
     @Override
+    public int received() {
+        if (this.packets == null)
+            return 0;
+        int count = 0;
+        for (SourceQuerySplitPacket packet : this.packets) {
+            if (packet != null)
+                count++;
+        }
+        return count;
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public boolean isComplete() {
         return this.completed;
     }
@@ -134,19 +147,6 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
         } catch (PacketDecodeException e) {
             throw new IllegalStateException(e);
         }
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public int received() {
-        if (this.packets == null)
-            return 0;
-        int count = 0;
-        for (SourceQuerySplitPacket packet : this.packets) {
-            if (packet != null)
-                count++;
-        }
-        return count;
     }
 
     /** {@inheritDoc} */
@@ -193,6 +193,23 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
             packets.set(packet.getId(), buf);
         }
         return packets;
+    }
+
+    private void validatePackets() {
+        Objects.requireNonNull(this.packets, "Packet container is null");
+        if (this.packets.length == 0)
+            throw new IllegalStateException("Packet container is empty. No split-packets were received?");
+        //ensure that we have received everything
+        List<Integer> emptyIndices = IntStream.range(0, this.packets.length - 1).filter(index -> this.packets[index] == null).boxed().collect(Collectors.toList());
+        if (!emptyIndices.isEmpty())
+            throw new IllegalStateException(String.format("Found missing split-packets within the container (Missing packet numbers: '%s')", emptyIndices.stream().map(String::valueOf).collect(Collectors.joining(", "))));
+        //verify packet size
+        final int maxBufferSize = this.maxPacketSize * this.packetCount;
+        final int totalBytesReceived = packetStream.get().mapToInt(SourceQuerySplitPacket::getPacketSize).sum();
+        if (totalBytesReceived > maxBufferSize)
+            throw new IllegalStateException(String.format("The total bytes received is larger than the maximum allowable size (Max: %d, Actual: %d)", maxBufferSize, totalBytesReceived));
+
+        log.debug("{} ASSEMBLER => All packets have been received and are in a valid state", Netty.id(ctx));
     }
 
     /**
@@ -277,23 +294,6 @@ public class SourceLazySplitPacketAssembler implements SourceSplitPacketAssemble
             }
             return dcPayload;
         }
-    }
-
-    private void validatePackets() {
-        Objects.requireNonNull(this.packets, "Packet container is null");
-        if (this.packets.length == 0)
-            throw new IllegalStateException("Packet container is empty. No split-packets were received?");
-        //ensure that we have received everything
-        List<Integer> emptyIndices = IntStream.range(0, this.packets.length - 1).filter(index -> this.packets[index] == null).boxed().collect(Collectors.toList());
-        if (!emptyIndices.isEmpty())
-            throw new IllegalStateException(String.format("Found missing split-packets within the container (Missing packet numbers: '%s')", emptyIndices.stream().map(String::valueOf).collect(Collectors.joining(", "))));
-        //verify packet size
-        final int maxBufferSize = this.maxPacketSize * this.packetCount;
-        final int totalBytesReceived = packetStream.get().mapToInt(SourceQuerySplitPacket::getPacketSize).sum();
-        if (totalBytesReceived > maxBufferSize)
-            throw new IllegalStateException(String.format("The total bytes received is larger than the maximum allowable size (Max: %d, Actual: %d)", maxBufferSize, totalBytesReceived));
-
-        log.debug("{} ASSEMBLER => All packets have been received and are in a valid state", Netty.id(ctx));
     }
 
     private void initialize(SourceQuerySplitPacket packet) {

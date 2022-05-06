@@ -16,12 +16,11 @@
 
 package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
-import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
+import static org.apache.commons.lang3.ObjectUtils.defaultIfNull;
 
 /**
  * <p>StoreFeaturedCategory class.</p>
@@ -29,9 +28,22 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class StoreFeaturedCategory<I> {
+
     private String id;
+
     private String name;
+
     private List<I> items = new ArrayList<>();
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
+                .append("id", getId())
+                .append("name", getName())
+                .append("itemSize", defaultIfNull(getItems(), new ArrayList<I>()).size())
+                .toString();
+    }
 
     /**
      * <p>Getter for the field <code>id</code>.</p>
@@ -45,7 +57,8 @@ public class StoreFeaturedCategory<I> {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a {@link java.lang.String} object
+     * @param id
+     *         a {@link java.lang.String} object
      */
     public void setId(String id) {
         this.id = id;
@@ -63,7 +76,8 @@ public class StoreFeaturedCategory<I> {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -81,19 +95,10 @@ public class StoreFeaturedCategory<I> {
     /**
      * <p>Setter for the field <code>items</code>.</p>
      *
-     * @param items a {@link java.util.List} object
+     * @param items
+     *         a {@link java.util.List} object
      */
     public void setItems(List<I> items) {
         this.items = items;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this, ToStringStyle.NO_CLASS_NAME_STYLE)
-                .append("id", getId())
-                .append("name", getName())
-                .append("itemSize", defaultIfNull(getItems(), new ArrayList<I>()).size())
-                .toString();
     }
 }

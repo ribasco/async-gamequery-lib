@@ -25,9 +25,13 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class Dota2Rarities {
+
     private int id;
+
     private String name;
+
     private int order;
+
     private String color;
 
     /**
@@ -42,7 +46,8 @@ public class Dota2Rarities {
     /**
      * <p>Setter for the field <code>id</code>.</p>
      *
-     * @param id a int
+     * @param id
+     *         a int
      */
     public void setId(int id) {
         this.id = id;
@@ -60,7 +65,8 @@ public class Dota2Rarities {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -78,7 +84,8 @@ public class Dota2Rarities {
     /**
      * <p>Setter for the field <code>order</code>.</p>
      *
-     * @param order a int
+     * @param order
+     *         a int
      */
     public void setOrder(int order) {
         this.order = order;
@@ -96,7 +103,8 @@ public class Dota2Rarities {
     /**
      * <p>Setter for the field <code>color</code>.</p>
      *
-     * @param color a {@link java.lang.String} object
+     * @param color
+     *         a {@link java.lang.String} object
      */
     public void setColor(String color) {
         this.color = color;

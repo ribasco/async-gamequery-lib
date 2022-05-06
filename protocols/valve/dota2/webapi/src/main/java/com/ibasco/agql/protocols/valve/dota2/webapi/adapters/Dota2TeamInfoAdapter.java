@@ -21,7 +21,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import com.ibasco.agql.core.exceptions.AgqlRuntimeException;
 import com.ibasco.agql.protocols.valve.dota2.webapi.pojos.Dota2MatchTeamInfo;
-
 import java.io.IOException;
 
 /**
@@ -30,6 +29,13 @@ import java.io.IOException;
  * @author Rafael Luis Ibasco
  */
 public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
+
+    /** {@inheritDoc} */
+    @Override
+    public void write(JsonWriter out, Dota2MatchTeamInfo value) throws IOException {
+        throw new AgqlRuntimeException("Not implemented");
+    }
+
     /** {@inheritDoc} */
     @Override
     public Dota2MatchTeamInfo read(JsonReader in) throws IOException {
@@ -80,11 +86,5 @@ public class Dota2TeamInfoAdapter extends TypeAdapter<Dota2MatchTeamInfo> {
         }
         in.endObject();
         return teamInfo;
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public void write(JsonWriter out, Dota2MatchTeamInfo value) throws IOException {
-        throw new AgqlRuntimeException("Not implemented");
     }
 }

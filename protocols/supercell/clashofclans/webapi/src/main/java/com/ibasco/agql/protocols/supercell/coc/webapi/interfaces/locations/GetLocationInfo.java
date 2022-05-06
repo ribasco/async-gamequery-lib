@@ -32,8 +32,10 @@ public class GetLocationInfo extends CocWebApiRequest {
     /**
      * <p>Constructor for GetLocationInfo.</p>
      *
-     * @param apiVersion a int
-     * @param locationId a int
+     * @param apiVersion
+     *         a int
+     * @param locationId
+     *         a int
      */
     public GetLocationInfo(int apiVersion, int locationId) {
         super(apiVersion, CocApiConstants.UF_COC_LOCATION_INFO);

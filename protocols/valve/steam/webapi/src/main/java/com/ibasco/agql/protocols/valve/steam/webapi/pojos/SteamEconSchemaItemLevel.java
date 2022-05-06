@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +27,9 @@ import java.util.List;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaItemLevel {
+
     private String name;
+
     private List<SteamEconSchemaItemLevelInfo> levels = new ArrayList<>();
 
     /**
@@ -43,7 +44,8 @@ public class SteamEconSchemaItemLevel {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -61,7 +63,8 @@ public class SteamEconSchemaItemLevel {
     /**
      * <p>Setter for the field <code>levels</code>.</p>
      *
-     * @param levels a {@link java.util.List} object
+     * @param levels
+     *         a {@link java.util.List} object
      */
     public void setLevels(List<SteamEconSchemaItemLevelInfo> levels) {
         this.levels = levels;

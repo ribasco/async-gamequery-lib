@@ -24,10 +24,12 @@ import com.google.gson.JsonObject;
  * @author Rafael Luis Ibasco
  */
 public class JsonElementNotFoundException extends JsonOperationException {
+
     /**
      * <p>Constructor for JsonElementNotFoundException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
      */
     public JsonElementNotFoundException(JsonObject jsonObject) {
         super(jsonObject);
@@ -36,8 +38,10 @@ public class JsonElementNotFoundException extends JsonOperationException {
     /**
      * <p>Constructor for JsonElementNotFoundException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public JsonElementNotFoundException(JsonObject jsonObject, Throwable cause) {
         super(jsonObject, cause);
@@ -46,8 +50,10 @@ public class JsonElementNotFoundException extends JsonOperationException {
     /**
      * <p>Constructor for JsonElementNotFoundException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
      */
     public JsonElementNotFoundException(JsonObject jsonObject, String message) {
         super(jsonObject, message);
@@ -56,9 +62,12 @@ public class JsonElementNotFoundException extends JsonOperationException {
     /**
      * <p>Constructor for JsonElementNotFoundException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
      */
     public JsonElementNotFoundException(JsonObject jsonObject, String message, Throwable cause) {
         super(jsonObject, message, cause);
@@ -67,11 +76,16 @@ public class JsonElementNotFoundException extends JsonOperationException {
     /**
      * <p>Constructor for JsonElementNotFoundException.</p>
      *
-     * @param jsonObject a {@link com.google.gson.JsonObject} object
-     * @param message a {@link java.lang.String} object
-     * @param cause a {@link java.lang.Throwable} object
-     * @param enableSuppression a boolean
-     * @param writableStackTrace a boolean
+     * @param jsonObject
+     *         a {@link com.google.gson.JsonObject} object
+     * @param message
+     *         a {@link java.lang.String} object
+     * @param cause
+     *         a {@link java.lang.Throwable} object
+     * @param enableSuppression
+     *         a boolean
+     * @param writableStackTrace
+     *         a boolean
      */
     public JsonElementNotFoundException(JsonObject jsonObject, String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(jsonObject, message, cause, enableSuppression, writableStackTrace);

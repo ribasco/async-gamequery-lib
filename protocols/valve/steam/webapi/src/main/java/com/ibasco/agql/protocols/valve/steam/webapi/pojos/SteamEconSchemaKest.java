@@ -29,9 +29,12 @@ import org.apache.commons.lang3.builder.ToStringStyle;
  * @author Rafael Luis Ibasco
  */
 public class SteamEconSchemaKest {
+
     private int type;
+
     @SerializedName("type_name")
     private String name;
+
     @SerializedName("level_data")
     private String levelData;
 
@@ -47,7 +50,8 @@ public class SteamEconSchemaKest {
     /**
      * <p>Setter for the field <code>type</code>.</p>
      *
-     * @param type a int
+     * @param type
+     *         a int
      */
     public void setType(int type) {
         this.type = type;
@@ -65,7 +69,8 @@ public class SteamEconSchemaKest {
     /**
      * <p>Setter for the field <code>name</code>.</p>
      *
-     * @param name a {@link java.lang.String} object
+     * @param name
+     *         a {@link java.lang.String} object
      */
     public void setName(String name) {
         this.name = name;
@@ -83,7 +88,8 @@ public class SteamEconSchemaKest {
     /**
      * <p>Setter for the field <code>levelData</code>.</p>
      *
-     * @param levelData a {@link java.lang.String} object
+     * @param levelData
+     *         a {@link java.lang.String} object
      */
     public void setLevelData(String levelData) {
         this.levelData = levelData;

@@ -16,17 +16,16 @@
 
 package com.ibasco.agql.core.transport.pool;
 
-import static com.ibasco.agql.core.transport.pool.NettyChannelPool.isPooled;
 import com.ibasco.agql.core.util.Concurrency;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 import org.jetbrains.annotations.NotNull;
-
 import java.net.SocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.RejectedExecutionException;
+import static com.ibasco.agql.core.transport.pool.NettyChannelPool.isPooled;
 
 /**
  * <p>
@@ -163,26 +162,26 @@ public class DefaultPooledChannel extends PooledChannel {
 
     /** {@inheritDoc} */
     @Override
-    public <T> Attribute<T> attr(AttributeKey<T> key) {
-        return channel.attr(key);
-    }
-
-    /** {@inheritDoc} */
-    @Override
-    public <T> boolean hasAttr(AttributeKey<T> key) {
-        return channel.hasAttr(key);
-    }
-
-    /** {@inheritDoc} */
-    @Override
     public ChannelFuture bind(SocketAddress localAddress) {
         return channel.bind(localAddress);
     }
 
     /** {@inheritDoc} */
     @Override
+    public <T> Attribute<T> attr(AttributeKey<T> key) {
+        return channel.attr(key);
+    }
+
+    /** {@inheritDoc} */
+    @Override
     public ChannelFuture connect(SocketAddress remoteAddress) {
         return channel.connect(remoteAddress);
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public <T> boolean hasAttr(AttributeKey<T> key) {
+        return channel.hasAttr(key);
     }
 
     /** {@inheritDoc} */
@@ -314,7 +313,6 @@ public class DefaultPooledChannel extends PooledChannel {
         return channel.id().hashCode();
     }
 
-    //NOTE: Not symmetric (A Channel != DefaultPooledChannel)
     /** {@inheritDoc} */
     @Override
     public boolean equals(Object obj) {
@@ -324,6 +322,14 @@ public class DefaultPooledChannel extends PooledChannel {
             return false;
         return channel.id().equals(((Channel) obj).id());
     }
+
+    /** {@inheritDoc} */
+    @Override
+    public String toString() {
+        return "(POOLED) " + channel.toString();
+    }
+
+    //NOTE: Not symmetric (A Channel != DefaultPooledChannel)
 
     /** {@inheritDoc} */
     @Override
@@ -343,9 +349,4 @@ public class DefaultPooledChannel extends PooledChannel {
         return pool.release(this);
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public String toString() {
-        return "(POOLED) " + channel.toString();
-    }
 }

@@ -25,6 +25,7 @@ import com.ibasco.agql.protocols.valve.dota2.webapi.requests.Dota2MatchRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetMatchHistoryBySequenceNum extends Dota2MatchRequest {
+
     /**
      * <p>Constructor for GetMatchHistoryBySequenceNum.</p>
      *

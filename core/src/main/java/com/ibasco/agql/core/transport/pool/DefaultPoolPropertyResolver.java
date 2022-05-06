@@ -18,7 +18,6 @@ package com.ibasco.agql.core.transport.pool;
 
 import com.ibasco.agql.core.Envelope;
 import com.ibasco.agql.core.transport.NettyPropertyResolver;
-
 import java.net.InetSocketAddress;
 
 /**
@@ -33,7 +32,8 @@ public class DefaultPoolPropertyResolver implements NettyPoolPropertyResolver {
     /**
      * <p>Constructor for DefaultPoolPropertyResolver.</p>
      *
-     * @param propertyResolver a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
+     * @param propertyResolver
+     *         a {@link com.ibasco.agql.core.transport.NettyPropertyResolver} object
      */
     public DefaultPoolPropertyResolver(NettyPropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;

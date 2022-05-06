@@ -30,24 +30,31 @@ public class Dota2ServerStatsBldg {
     @SerializedName("team")
     @Expose
     private int team;
+
     @SerializedName("heading")
     @Expose
     private double heading;
+
     @SerializedName("type")
     @Expose
     private int type;
+
     @SerializedName("lane")
     @Expose
     private int lane;
+
     @SerializedName("tier")
     @Expose
     private int tier;
+
     @SerializedName("x")
     @Expose
     private double x;
+
     @SerializedName("y")
     @Expose
     private double y;
+
     @SerializedName("destroyed")
     @Expose
     private boolean destroyed;

@@ -31,8 +31,10 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Constructor for CocWebApiRequest.</p>
      *
-     * @param apiVersion a int
-     * @param urlFormat a {@link java.lang.String} object
+     * @param apiVersion
+     *         a int
+     * @param urlFormat
+     *         a {@link java.lang.String} object
      */
     public CocWebApiRequest(int apiVersion, String urlFormat) {
         this(apiVersion, urlFormat, -1);
@@ -41,9 +43,12 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Constructor for CocWebApiRequest.</p>
      *
-     * @param apiVersion a int
-     * @param urlFormat a {@link java.lang.String} object
-     * @param limit a int
+     * @param apiVersion
+     *         a int
+     * @param urlFormat
+     *         a {@link java.lang.String} object
+     * @param limit
+     *         a int
      */
     public CocWebApiRequest(int apiVersion, String urlFormat, int limit) {
         this(apiVersion, urlFormat, limit, -1, -1);
@@ -52,11 +57,16 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>Constructor for CocWebApiRequest.</p>
      *
-     * @param apiVersion a int
-     * @param urlFormat a {@link java.lang.String} object
-     * @param limit a int
-     * @param before a int
-     * @param after a int
+     * @param apiVersion
+     *         a int
+     * @param urlFormat
+     *         a {@link java.lang.String} object
+     * @param limit
+     *         a int
+     * @param before
+     *         a int
+     * @param after
+     *         a int
      */
     public CocWebApiRequest(int apiVersion, String urlFormat, int limit, int before, int after) {
         super(apiVersion);
@@ -71,7 +81,8 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>limit.</p>
      *
-     * @param limit a int
+     * @param limit
+     *         a int
      */
     public void limit(int limit) {
         urlParam("limit", limit);
@@ -80,7 +91,8 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>before.</p>
      *
-     * @param before a int
+     * @param before
+     *         a int
      */
     public void before(int before) {
         urlParam("before", before);
@@ -89,7 +101,8 @@ abstract public class CocWebApiRequest extends AbstractWebApiRequest {
     /**
      * <p>after.</p>
      *
-     * @param after a int
+     * @param after
+     *         a int
      */
     public void after(int after) {
         urlParam("after", after);

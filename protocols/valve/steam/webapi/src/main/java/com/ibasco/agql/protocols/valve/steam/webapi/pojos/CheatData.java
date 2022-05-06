@@ -22,17 +22,29 @@ package com.ibasco.agql.protocols.valve.steam.webapi.pojos;
  * @author Rafael Luis Ibasco
  */
 public class CheatData {
+
     private long steamId;
+
     private int appId;
+
     private String filePath;
+
     private String webCheatUrl;
+
     private long timeNow;
+
     private long timeStarted;
+
     private long timeStopped;
+
     private String cheatName;
+
     private int gameProcessId;
+
     private int cheatProcessId;
+
     private long cheatParam1;
+
     private long cheatParam2;
 
     /**
@@ -47,7 +59,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>steamId</code>.</p>
      *
-     * @param steamId a long
+     * @param steamId
+     *         a long
      */
     public void setSteamId(long steamId) {
         this.steamId = steamId;
@@ -65,7 +78,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>appId</code>.</p>
      *
-     * @param appId a int
+     * @param appId
+     *         a int
      */
     public void setAppId(int appId) {
         this.appId = appId;
@@ -83,7 +97,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>filePath</code>.</p>
      *
-     * @param filePath a {@link java.lang.String} object
+     * @param filePath
+     *         a {@link java.lang.String} object
      */
     public void setFilePath(String filePath) {
         this.filePath = filePath;
@@ -101,7 +116,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>webCheatUrl</code>.</p>
      *
-     * @param webCheatUrl a {@link java.lang.String} object
+     * @param webCheatUrl
+     *         a {@link java.lang.String} object
      */
     public void setWebCheatUrl(String webCheatUrl) {
         this.webCheatUrl = webCheatUrl;
@@ -119,7 +135,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>timeNow</code>.</p>
      *
-     * @param timeNow a long
+     * @param timeNow
+     *         a long
      */
     public void setTimeNow(long timeNow) {
         this.timeNow = timeNow;
@@ -137,7 +154,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>timeStarted</code>.</p>
      *
-     * @param timeStarted a long
+     * @param timeStarted
+     *         a long
      */
     public void setTimeStarted(long timeStarted) {
         this.timeStarted = timeStarted;
@@ -155,7 +173,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>timeStopped</code>.</p>
      *
-     * @param timeStopped a long
+     * @param timeStopped
+     *         a long
      */
     public void setTimeStopped(long timeStopped) {
         this.timeStopped = timeStopped;
@@ -173,7 +192,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>cheatName</code>.</p>
      *
-     * @param cheatName a {@link java.lang.String} object
+     * @param cheatName
+     *         a {@link java.lang.String} object
      */
     public void setCheatName(String cheatName) {
         this.cheatName = cheatName;
@@ -191,7 +211,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>gameProcessId</code>.</p>
      *
-     * @param gameProcessId a int
+     * @param gameProcessId
+     *         a int
      */
     public void setGameProcessId(int gameProcessId) {
         this.gameProcessId = gameProcessId;
@@ -209,7 +230,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>cheatProcessId</code>.</p>
      *
-     * @param cheatProcessId a int
+     * @param cheatProcessId
+     *         a int
      */
     public void setCheatProcessId(int cheatProcessId) {
         this.cheatProcessId = cheatProcessId;
@@ -227,7 +249,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>cheatParam1</code>.</p>
      *
-     * @param cheatParam1 a long
+     * @param cheatParam1
+     *         a long
      */
     public void setCheatParam1(long cheatParam1) {
         this.cheatParam1 = cheatParam1;
@@ -245,7 +268,8 @@ public class CheatData {
     /**
      * <p>Setter for the field <code>cheatParam2</code>.</p>
      *
-     * @param cheatParam2 a long
+     * @param cheatParam2
+     *         a long
      */
     public void setCheatParam2(long cheatParam2) {
         this.cheatParam2 = cheatParam2;

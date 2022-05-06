@@ -24,10 +24,12 @@ import com.ibasco.agql.protocols.valve.steam.webapi.requests.SteamAppsRequest;
  * @author Rafael Luis Ibasco
  */
 public class GetAppList extends SteamAppsRequest {
+
     /**
      * <p>Constructor for GetAppList.</p>
      *
-     * @param apiVersion a int
+     * @param apiVersion
+     *         a int
      */
     public GetAppList(int apiVersion) {
         super("GetAppList", apiVersion);

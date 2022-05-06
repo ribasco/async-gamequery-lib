@@ -36,11 +36,11 @@ List of failsafe features implemented on this module
 - A `SourceRconCmdResponse` is the response returned for command requests. Use the `getResult()` method to retrieve the result.
 - There are cases when the authentication request fails and the resulting future completes in error. If this happens, check the type of exception to determine the cause of the authentication failure. Below is the list of possible exceptions that are thrown in the event of an authentication failure.
 
-| Type                            | Description                                                                                                                    |
-|---------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
-| RconMaxLoginAttemptsException   | Thrown when the server has dropped the connection without responding and the maximum number of login attempts has been reached |
-| RconInvalidCredentialsException | Thrown if the credentials is no longer valid. Reauthentication required.                                                       |
-| RconNotYetAuthException         | Thrown when a command request was attempted but the address has not yet been authenticated by the server                       |
+| Type                                                                                                                                                                                   | Description                                                                                                                    |
+|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|
+| [RconMaxLoginAttemptsException](https://ribasco.github.io/async-gamequery-lib/apidocs/com/ibasco/agql/protocols/valve/source/query/rcon/exceptions/RconMaxLoginAttemptsException.html) | Thrown when the server has dropped the connection without responding and the maximum number of login attempts has been reached |
+| [RconInvalidCredentialsException](https://ribasco.github.io/async-gamequery-lib/apidocs/com/ibasco/agql/protocols/valve/source/query/rcon/exceptions/RconInvalidCredentialsException.html)                                                                                                                                                        | Thrown if the credentials is no longer valid. Reauthentication required.                                                       |
+| [RconNotYetAuthException](https://ribasco.github.io/async-gamequery-lib/apidocs/com/ibasco/agql/protocols/valve/source/query/rcon/exceptions/RconNotYetAuthException.html)                                                                                                                                                                | Thrown when a command request was attempted but the address has not yet been authenticated by the server                       |
 
 ##### Authentication
 

@@ -38,6 +38,13 @@ if [ -z "$1" ]
     exit 1
 fi
 
-echo -e "\u001B[36mRunning example for '\u001B[33m${1} \u001B[0m\u001B[32m(${@:2})\u001B[0m'"
+CMD_ARGS=${*:2}
 
-mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}" "${@:2}"
+if [ -z "${CMD_ARGS}" ]
+then
+  echo -e "\u001B[36mRunning example for '\u001B[33m${1} \u001B[0m\u001B[32m\u001B[0m'"
+else
+  echo -e "\u001B[36mRunning example for '\u001B[33m${1} \u001B[0m\u001B[32m(extra args: ${CMD_ARGS})\u001B[0m'"
+fi
+
+mvn -q -f examples/pom.xml exec:java -Dexec.args="-e ${1}" ${CMD_ARGS:+$CMD_ARGS}

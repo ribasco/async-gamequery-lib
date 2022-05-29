@@ -12,9 +12,9 @@ jobs:
       matrix:
         java: [ '8' ]
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Setup Java JDK
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           check-latest: true
@@ -29,7 +29,7 @@ jobs:
         run: echo ${{ steps.extract_branch.outputs.branch }}
 
       - name: Build Java Project
-        run: mvn install -P'release' -Dchangelist= -Dlicense.skipUpdateLicense=true -DskipTests=true -B -V --file pom.xml
+        run: mvn install -P'release' -Dchangelist= -DskipTests=true -B -V --file pom.xml
 
       - name: Unit Tests
         run: mvn test
@@ -38,7 +38,7 @@ jobs:
         run: mvn verify
 
       - name: Set up for Sonatype
-        uses: actions/setup-java@v2
+        uses: actions/setup-java@v3
         with: # running setup-java again overwrites the settings.xml
           distribution: 'temurin'
           check-latest: true

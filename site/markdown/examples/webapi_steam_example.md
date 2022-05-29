@@ -5,18 +5,19 @@ Usage examples for Steam Web API Interfaces
 
 ### Available Interfaces
 
-| **Interface Name** | **Description**                                                 |
-|--------------------|-----------------------------------------------------------------|
-| SteamApps          | Contains methods relating to Steam Apps in general.             |
-| SteamEconItems     | Contains methods relating to in-game items for supported games. |
-| SteamEconomy       | Contains methods relating to games' store's assets.             |
-| SteamNews          | Contains methods relating to steam news                         |
-| SteamPlayerService | Contains methods relating to a steam user’s games.              |
-| SteamStorefront    | Contains methods relating to the steam storefront               |
-| SteamUser          | Contains methods provide information about Steam users.         |
-| SteamUserStats     | Contains methods to fetch global stat information by game.      |
-| GameServersService | Contains methods relating to game servers                       |
-| SteamStoreService  | Contains methods relating to the steam store service            |
+| **Interface Name**    | **Description**                                                 |
+|-----------------------|-----------------------------------------------------------------|
+| SteamApps             | Contains methods relating to Steam Apps in general.             |
+| SteamEconItems        | Contains methods relating to in-game items for supported games. |
+| SteamEconomy          | Contains methods relating to games' store's assets.             |
+| SteamNews             | Contains methods relating to steam news                         |
+| SteamPlayerService    | Contains methods relating to a steam user’s games.              |
+| SteamStorefront       | Contains methods relating to the steam storefront               |
+| SteamUser             | Contains methods provide information about Steam users.         |
+| SteamUserStats        | Contains methods to fetch global stat information by game.      |
+| GameServersService    | Contains methods relating to game servers                       |
+| SteamStoreService     | Contains methods relating to the steam store service            |
+| SteamCommunityService | Contains methods relating to the steam community service        |
 
 ### Steam Apps
 
@@ -606,6 +607,23 @@ public class WebApiUtilExample {
             SteamWebAPIUtil service = new SteamWebAPIUtil(client);
             ServerInfo info = service.getServerInfo().join();
             System.out.printf("Time: %d, Time String: %s%n", info.getServertime(), info.getServerTimeString());
+        }
+    }
+}
+```
+
+### Steam Community Service
+
+```java
+public class SteamCommunityExample {
+
+    public static void main(String[] args) throws Exception {
+        try (SteamWebApiClient client = new SteamWebApiClient("<api token>")) {
+            SteamCommunityService service = new SteamCommunityService(client);
+            List<SteamCommunityApp> communityApps = service.getApps(550, 440, 730).join();
+            for (SteamCommunityApp app : communityApps) {
+                System.out.printf("App Id: %d, Name: %s, Icon: %s%n", app.getAppid(), app.getName(), app.getIcon());
+            }
         }
     }
 }

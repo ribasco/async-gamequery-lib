@@ -87,6 +87,7 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         GameServersService gameServersService = new GameServersService(client);
         SteamStoreService storeService = new SteamStoreService(client);
         SteamWebAPIUtil webApiUtil = new SteamWebAPIUtil(client);
+        SteamCommunityService steamCommunityService = new SteamCommunityService(client);
 
         steamApps.getAppList().exceptionally(throwable -> {
             log.error("Error Occured", throwable);
@@ -390,6 +391,12 @@ public class SteamWebApiExample extends BaseWebApiAuthExample {
         List<ApiInterface> apiInterfaceList = webApiUtil.getSupportedApiList().join();
         for (ApiInterface apiInterface : apiInterfaceList) {
             System.out.printf("Interface: %s (Methods: %d)%n", apiInterface.getName(), apiInterface.getMethods().size());
+        }
+
+        //Steam community interface
+        List<SteamCommunityApp> communityApps = steamCommunityService.getApps(550, 440, 730).join();
+        for (SteamCommunityApp app : communityApps) {
+            System.out.printf("App Id: %d, Name: %s, Icon: %s%n", app.getAppid(), app.getName(), app.getIcon());
         }
     }
 

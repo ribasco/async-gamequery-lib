@@ -51,7 +51,7 @@ jobs:
           cache: maven
 
       - name: Publish to Sonatype (Staging)
-        run: mvn --batch-mode deploy -P'release,deploy-sonatype' -Dchangelist= -DskipTests=true
+        run: mvn --batch-mode deploy -P'release' -Dchangelist= -DskipTests=true
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

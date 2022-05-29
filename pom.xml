@@ -413,7 +413,6 @@
                         <!--suppress MavenModelInspection -->
                         <skip>${skip.deploy}</skip>
                         <deployAtEnd>true</deployAtEnd>
-                        <!--<updateReleaseInfo>true</updateReleaseInfo>-->
                     </configuration>
                 </plugin>
                 <!-- Source Plugin -->

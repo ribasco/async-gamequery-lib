@@ -13,30 +13,6 @@ jobs:
         java: [ '8' ]
     steps:
       - uses: actions/checkout@v3
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          check-latest: true
-          java-version: ${{ matrix.java }}
-
-      - name: Extract branch name
-        shell: bash
-        run: echo "##[set-output name=branch;]$(echo ${GITHUB_REF#refs/tags/})"
-        id: extract_branch
-
-      - name: Output branch name
-        run: echo ${{ steps.extract_branch.outputs.branch }}
-
-      - name: Build Java Project
-        run: mvn install -P'release' -Dchangelist= -DskipTests=true -B -V --file pom.xml
-
-      - name: Unit Tests
-        run: mvn test
-
-      - name: Integration Tests
-        run: mvn verify
-
       - name: Set up for Sonatype
         uses: actions/setup-java@v3
         with: # running setup-java again overwrites the settings.xml

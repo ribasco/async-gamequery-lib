@@ -18,7 +18,6 @@ package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.enums.BufferAllocatorType;
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.AgqlManagedExecutorService;
 import com.ibasco.agql.core.util.Concurrency;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.ManagedResource;
@@ -35,7 +34,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,28 +133,14 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
      * @return a {@link io.netty.channel.EventLoopGroup} object
      */
     protected EventLoopGroup initializeEventLoopGroup(@NotNull Class<? extends Channel> channelClass, @NotNull ExecutorService executorService) {
-        Integer nThreads = getOptions().get(GeneralOptions.THREAD_CORE_SIZE);
+        final Integer nThreads = Platform.getCoreThreadCount(getOptions(), executorService);
         EventLoopGroup group;
         //1. if the executor service is the default global executor, then we simply return the default global EventLoopGroup
         //2. if the provided executor service is user-defined, then we create a new EventLoopGroup instance
         if (Platform.isDefaultExecutor(executorService)) {
             group = Platform.getDefaultEventLoopGroup();
         } else {
-            //since we are dealing with a user provided executor service the option 'GeneralOptions.THREAD_CORE_SIZE' is required
-            // unless we are able to automatically determine it's core pool size
-            //Attempt to determine the number of threads supported by the executor service
-            if (nThreads == null) {
-                if (executorService instanceof ThreadPoolExecutor) {
-                    ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
-                    nThreads = tpe.getCorePoolSize();
-                } else if (executorService instanceof AgqlManagedExecutorService) {
-                    ThreadPoolExecutor tpe = ((AgqlManagedExecutorService) executorService).getResource();
-                    nThreads = tpe.getCorePoolSize();
-                } else {
-                    throw new IllegalStateException("Please specify the core pool size for the  (See GeneralOptions.THREAD_CORE_SIZE)");
-                }
-            }
-            group = Platform.createEventLoopGroup(channelClass, executorService, nThreads);
+            group = Platform.getOrCreateEventLoopGroup(channelClass, executorService, nThreads);
         }
 
         log.debug("CHANNEL_FACTORY (INIT) => Channel Class '{}'", channelClass);

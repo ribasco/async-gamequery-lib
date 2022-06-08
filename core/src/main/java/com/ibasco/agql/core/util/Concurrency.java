@@ -160,10 +160,10 @@ public final class Concurrency {
     }
 
     /**
-     * <p>sleepUninterrupted.</p>
+     * <p>Sleep without interruption</p>
      *
      * @param milliseconds
-     *         a int
+     *         The number of milliseconds to sleep
      */
     public static void sleepUninterrupted(int milliseconds) {
         try {

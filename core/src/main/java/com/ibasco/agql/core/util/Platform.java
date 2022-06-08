@@ -45,6 +45,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -93,6 +94,8 @@ public final class Platform {
     private static volatile BlockingQueue<Runnable> DEFAULT_QUEUE;
 
     private static volatile boolean initialized;
+
+    private static final ConcurrentHashMap<ExecutorService, EventLoopGroup> eventLoopGroupMap = new ConcurrentHashMap<>();
 
     static {
         DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
@@ -225,6 +228,38 @@ public final class Platform {
     }
 
     /**
+     * Get the core number of threads specified in {@link Options} if available. If not specified in options, it will attempt to detect it via heuristics.
+     *
+     * @param options
+     *         The {@link Options} instance to be used as lookup
+     * @param executorService
+     *         The {@link ExecutorService} to be used for reference in-case value is not specified in the provided {@link Options}
+     *
+     * @return The core number of threads to be used by the {@link EventLoopGroup}
+     *
+     * @throws IllegalStateException
+     *         If the number of core threads could not be determined.
+     */
+    public static Integer getCoreThreadCount(Options options, ExecutorService executorService) {
+        Integer nThreads = options.get(GeneralOptions.THREAD_CORE_SIZE);
+        //since we are dealing with a user provided executor service the option 'GeneralOptions.THREAD_CORE_SIZE' is required
+        // unless we are able to automatically determine it's core pool size
+        //Attempt to determine the number of threads supported by the executor service
+        if (nThreads == null) {
+            if (executorService instanceof ThreadPoolExecutor) {
+                ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
+                nThreads = tpe.getCorePoolSize();
+            } else if (executorService instanceof AgqlManagedExecutorService) {
+                ThreadPoolExecutor tpe = ((AgqlManagedExecutorService) executorService).getResource();
+                nThreads = tpe.getCorePoolSize();
+            } else {
+                throw new IllegalStateException("Please specify the core pool size for the  (See GeneralOptions.THREAD_CORE_SIZE)");
+            }
+        }
+        return nThreads;
+    }
+
+    /**
      * The global {@link io.netty.channel.EventLoopGroup} shared across all clients by default. Upon shutdown, the default executor will also be automatically closed.
      *
      * @return The global {@link io.netty.channel.EventLoopGroup}
@@ -280,8 +315,53 @@ public final class Platform {
         }
         if (elg == null)
             elg = new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-        log.debug("Created default event loop group with: {} threads", nThreads);
+        log.debug("createEventLoopGroup(): Created event loop group with: {} threads (Executor Service: {})", nThreads, executor);
         return elg;
+    }
+
+    /**
+     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
+     *
+     * @param channelClass
+     *         The netty channel {@link java.lang.Class} that will be used as a referece to lookup the {@link io.netty.channel.EventLoopGroup}
+     * @param executor
+     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
+     * @param nThreads
+     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
+     *
+     * @return A new {@link io.netty.channel.EventLoopGroup} instance
+     *
+     * @throws java.lang.IllegalStateException
+     *         If channelClass is not supported
+     * @throws java.lang.IllegalArgumentException
+     *         If channelClass is {@code null}
+     */
+    public static EventLoopGroup createEventLoopGroup(Class<? extends Channel> channelClass, Executor executor, int nThreads) {
+        if (channelClass == null)
+            throw new IllegalArgumentException("Channel class must not be null");
+        if (NioSocketChannel.class.isAssignableFrom(channelClass) || NioDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else if (EpollSocketChannel.class.isAssignableFrom(channelClass) || EpollDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new EpollEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else if (KQueueSocketChannel.class.isAssignableFrom(channelClass) || KQueueDatagramChannel.class.isAssignableFrom(channelClass)) {
+            return new KQueueEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
+        } else {
+            throw new IllegalStateException("Unsupported channel class: " + channelClass);
+        }
+    }
+
+    public static EventLoopGroup getOrCreateEventLoopGroup(Class<? extends Channel> channelClass, ExecutorService executor, int nThreads) {
+        return eventLoopGroupMap.computeIfAbsent(executor, exec -> {
+            log.debug("getOrCreateEventLoopGroup(): Creating new Event Loop Group instance for executor service '{}' (Channel class: {}, Num of Threads: {})", exec, channelClass, nThreads);
+            return createEventLoopGroup(channelClass, exec, nThreads);
+        });
+    }
+
+    public static EventLoopGroup getOrCreateEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
+        return eventLoopGroupMap.computeIfAbsent(executor, exec -> {
+            log.debug("getOrCreateEventLoopGroup(): Creating new Event Loop Group instance for executor service '{}' (Num of Threads: {}, Use Native: {})", exec, nThreads, useNative);
+            return createEventLoopGroup(exec, nThreads, useNative);
+        });
     }
 
     private static EventLoopTaskQueueFactory getEventLoopTaskQueueFactory() {
@@ -338,37 +418,6 @@ public final class Platform {
      */
     public static List<Queue<Runnable>> getTaskQueueList() {
         return TASK_QUEUE_LIST;
-    }
-
-    /**
-     * Creates a new {@link io.netty.channel.EventLoopGroup} instance. The default is {@link io.netty.channel.nio.NioEventLoopGroup}
-     *
-     * @param channelClass
-     *         The netty channel {@link java.lang.Class} that will be used as a referece to lookup the {@link io.netty.channel.EventLoopGroup}
-     * @param executor
-     *         The {@link java.util.concurrent.Executor} to be used by the {@link io.netty.channel.EventLoopGroup}
-     * @param nThreads
-     *         The number of threads to be used by the {@link io.netty.channel.EventLoopGroup}. If a custom {@link java.util.concurrent.Executor} is provided, then the value should be less than or equals to the maximum number of threads supported by the provided {@link java.util.concurrent.Executor}. Set to 0 to use the value defined in system property {@code -Dio.netty.eventLoopThreads} (if present) or the default value defined by netty (num of processors x 2).
-     *
-     * @return A new {@link io.netty.channel.EventLoopGroup} instance
-     *
-     * @throws java.lang.IllegalStateException
-     *         If channelClass is not supported
-     * @throws java.lang.IllegalArgumentException
-     *         If channelClass is {@code null}
-     */
-    public static EventLoopGroup createEventLoopGroup(Class<? extends Channel> channelClass, Executor executor, int nThreads) {
-        if (channelClass == null)
-            throw new IllegalArgumentException("Channel class must not be null");
-        if (NioSocketChannel.class.isAssignableFrom(channelClass) || NioDatagramChannel.class.isAssignableFrom(channelClass)) {
-            return new NioEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, SelectorProvider.provider(), DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-        } else if (EpollSocketChannel.class.isAssignableFrom(channelClass) || EpollDatagramChannel.class.isAssignableFrom(channelClass)) {
-            return new EpollEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-        } else if (KQueueSocketChannel.class.isAssignableFrom(channelClass) || KQueueDatagramChannel.class.isAssignableFrom(channelClass)) {
-            return new KQueueEventLoopGroup(nThreads, executor, DefaultEventExecutorChooserFactory.INSTANCE, DefaultSelectStrategyFactory.INSTANCE, RejectedExecutionHandlers.reject(), getEventLoopTaskQueueFactory());
-        } else {
-            throw new IllegalStateException("Unsupported channel class: " + channelClass);
-        }
     }
 
     /**

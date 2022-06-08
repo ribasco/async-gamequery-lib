@@ -146,7 +146,7 @@ public class SourceLogListenService implements Closeable {
         if (Platform.isDefaultExecutor(executorService)) {
             group = Platform.getDefaultEventLoopGroup();
         } else {
-            group = Platform.createEventLoopGroup(executorService, nThreads, useNative);
+            group = Platform.getOrCreateEventLoopGroup(executorService, nThreads, useNative);
         }
         final Class<? extends Channel> channelClass = Platform.getChannelClass(TransportType.UDP, group);
         log.debug("LOG SERVICE => Executor: {}, Event loop group: {}, Channel class: {}, nThreads: {}, useNative: {}", executorService, group, channelClass, nThreads, useNative);

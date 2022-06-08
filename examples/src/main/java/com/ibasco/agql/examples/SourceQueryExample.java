@@ -24,9 +24,11 @@ import com.ibasco.agql.core.exceptions.TimeoutException;
 import com.ibasco.agql.core.util.Concurrency;
 import com.ibasco.agql.core.util.Errors;
 import com.ibasco.agql.core.util.FailsafeOptions;
+import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Net;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.SourceQueryClient;
+import com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions;
 import com.ibasco.agql.protocols.valve.source.query.common.message.SourceQueryResponse;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoRequest;
 import com.ibasco.agql.protocols.valve.source.query.info.SourceQueryInfoResponse;
@@ -51,7 +53,14 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.Phaser;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
@@ -67,15 +76,10 @@ public class SourceQueryExample extends BaseExample {
 
     private static final Logger log = LoggerFactory.getLogger(SourceQueryExample.class);
 
-    private final ThreadPoolExecutor masterExecutor = new ThreadPoolExecutor(1, Integer.MAX_VALUE,
-                                                                             60L, TimeUnit.SECONDS,
-                                                                             new SynchronousQueue<>(),
-                                                                             new DefaultThreadFactory("master"));
-
-    private final ThreadPoolExecutor queryExecutor = new ThreadPoolExecutor(9, Integer.MAX_VALUE,
-                                                                            60L, TimeUnit.SECONDS,
-                                                                            new LinkedBlockingQueue<>(),
-                                                                            new DefaultThreadFactory("query"));
+    private final ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors() + 1, Integer.MAX_VALUE,
+                                                                       60L, TimeUnit.SECONDS,
+                                                                       new LinkedBlockingQueue<>(),
+                                                                       new DefaultThreadFactory("query"));
 
     private SourceQueryClient queryClient;
 
@@ -102,9 +106,9 @@ public class SourceQueryExample extends BaseExample {
             // - Provide a custom executor for query client. We are responsible for shutting down this executor, not the library.
             // - Set channel pooling strategy to FIXED (POOL_TYPE) with using a fixed number of pooled connections of 50 (POOL_MAX_CONNECTIONS)
             // - Set read timeout to 1000ms (1 second)
-            /*SourceQueryOptions queryOptions = SourceQueryOptions.builder()
+            SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                                 //override default value, enable rate limiting (default is: false)
-                                                                .option(GeneralOptions.CONNECTION_POOLING, false)
+                                                                /*.option(GeneralOptions.CONNECTION_POOLING, false)
                                                                 .option(GeneralOptions.POOL_TYPE, ChannelPoolType.ADAPTIVE)
                                                                 .option(GeneralOptions.POOL_MAX_CONNECTIONS, 50)
                                                                 .option(FailsafeOptions.FAILSAFE_RATELIMIT_ENABLED, true)
@@ -113,19 +117,19 @@ public class SourceQueryExample extends BaseExample {
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, true)
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY, 50L)
                                                                 .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_MAX_DELAY, 5000L)
-                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)
-                                                                //.option(GeneralOptions.THREAD_EXECUTOR_SERVICE, queryExecutor) //un-comment to use the provided custom executor
+                                                                .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_DELAY_FACTOR, 1.5d)*/
+                                                                .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, executor) //un-comment to use the provided custom executor
                                                                 .option(GeneralOptions.READ_TIMEOUT, 5000)
                                                                 .build();
-            queryClient = new SourceQueryClient(queryOptions);*/
-            queryClient = new SourceQueryClient();
+            queryClient = new SourceQueryClient(queryOptions);
+            //queryClient = new SourceQueryClient();
 
             //master client configuration
             // - Configuring the Rate limit type to SMOOTH
             // - Provide a custom executor for master client. We are responsible for shutting down this executor, not the library.
             MasterServerOptions masterOptions = MasterServerOptions.builder()
                                                                    .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
-                                                                   //.option(GeneralOptions.THREAD_EXECUTOR_SERVICE, masterExecutor) //un-comment to use the provided custom executor
+                                                                   .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, executor) //un-comment to use the provided custom executor
                                                                    .build();
             masterClient = new MasterServerQueryClient(masterOptions);
             runQueries();
@@ -308,8 +312,7 @@ public class SourceQueryExample extends BaseExample {
     public void close() throws IOException {
         close(queryClient, "Query Client");
         close(masterClient, "Master Client");
-        close(queryExecutor, "Query Executor");
-        close(masterExecutor, "Master Executor");
+        close(executor, "Query Executor");
     }
 
     //<editor-fold desc="Private class/enum">

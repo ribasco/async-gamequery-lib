@@ -17,7 +17,6 @@
 package com.ibasco.agql.core;
 
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
-import com.ibasco.agql.core.util.AgqlManagedExecutorService;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.HttpOptions;
 import com.ibasco.agql.core.util.ManagedResource;
@@ -31,7 +30,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,23 +84,10 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
 
     private EventLoopGroup initializeEventLoopGroup() {
         ExecutorService executor = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE);
-        if (executor == null) {
+        if (executor == null)
             executor = Platform.getDefaultExecutor();
-        }
-        Integer nThreads = getOptions().get(GeneralOptions.THREAD_CORE_SIZE);
-        //Attempt to determine the number of threads supported by the executor service
-        if (nThreads == null) {
-            ExecutorService tmp = executor;
-            if (tmp instanceof AgqlManagedExecutorService)
-                tmp = ((AgqlManagedExecutorService) executor).getResource();
-            if (tmp instanceof ThreadPoolExecutor) {
-                ThreadPoolExecutor tpe = (ThreadPoolExecutor) tmp;
-                nThreads = tpe.getCorePoolSize();
-            } else {
-                throw new IllegalStateException("Please specify a core pool size in the options (See GeneralOptions.THREAD_CORE_SIZE)");
-            }
-        }
-        EventLoopGroup group = Platform.isDefaultExecutor(executor) ? Platform.getDefaultEventLoopGroup() : Platform.createEventLoopGroup(executor, nThreads, Properties.useNativeTransport());
+        Integer nThreads = Platform.getCoreThreadCount(getOptions(), executor);
+        EventLoopGroup group = Platform.isDefaultExecutor(executor) ? Platform.getDefaultEventLoopGroup() : Platform.getOrCreateEventLoopGroup(executor, nThreads, Properties.useNativeTransport());
         log.debug("HTTP_MESSENGER (INIT) => Executor Service: '{}'", executor);
         log.debug("HTTP_MESSENGER (INIT) => Event Loop Group: '{}' (Event Loop Threads: {})", group, nThreads);
         this.executorService = executor;

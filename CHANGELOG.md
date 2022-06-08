@@ -1,6 +1,12 @@
 Changelog
 -------------
 
+1.0.1 - Bug fixes/enhancements
+
+- Fixed #58: Use a single EventLoopGroup instance for clients that share the same ExecutorService
+- Fixed RejectedExecutionException that is thrown after an attempt to initialize and instantiate a new client more than once in the same process
+- Downgraded some error log statements to debug
+
 1.0.0 - A complete re-work from the ground up with backwards incompatible changes.
 
 - **General Updates**

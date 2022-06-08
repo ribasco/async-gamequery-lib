@@ -81,9 +81,9 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         public void accept(ExecutionCompletedEvent<NettyChannelContext> event) throws Throwable {
             if (event.getException() instanceof MaxAttemptsReachedException) {
                 MaxAttemptsReachedException mException = (MaxAttemptsReachedException) event.getException();
-                log.error("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Last Error: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
+                log.debug("Maximum number of attempts reached on address '{}' for request '{}' (Attempts: {}, Max Attempts: {}, Elapsed: {}, Last Error: {})", mException.getRemoteAddress(), mException.getRequest(), event.getAttemptCount(), mException.getMaxAttemptCount(), Time.getTimeDesc(event.getElapsedTime()), simplify(mException.getCause()));
             } else {
-                log.error("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), event.getException());
+                log.debug("Maximum number of attempts reached for request (Attempts: {}, Max Attempts: {})", event.getAttemptCount(), retryPolicy.getConfig().getMaxAttempts(), event.getException());
             }
         }
 

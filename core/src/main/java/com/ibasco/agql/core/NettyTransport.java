@@ -56,7 +56,7 @@ public class NettyTransport implements Transport<NettyChannelContext, NettyChann
             }
             assert !context.properties().writeInProgress();
         } catch (Exception e) {
-            log.error("{} TRANSPORT => Error occured during write operation", Netty.id(channel), e);
+            log.debug("{} TRANSPORT => Error occured during write operation", Netty.id(channel), e);
             if (context.properties().writeInProgress())
                 context.properties().endWrite(e);
         }

@@ -68,7 +68,7 @@ abstract public class CocWebApiInterface
         if (response.getStatus() == HttpStatusClass.CLIENT_ERROR) {
             if (response.getProcessedContent() != null) {
                 CocErrorResponse err = builder().fromJson(response.getProcessedContent(), CocErrorResponse.class);
-                log.error("[ERROR]: Reason: {}, Message: {}", err.getReason(), err.getMessage());
+                log.debug("[ERROR]: Reason: {}, Message: {}", err.getReason(), err.getMessage());
             }
             switch (response.getMessage().getStatusCode()) {
                 case 400:

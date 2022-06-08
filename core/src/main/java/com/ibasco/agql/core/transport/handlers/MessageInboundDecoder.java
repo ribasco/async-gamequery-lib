@@ -19,7 +19,6 @@ package com.ibasco.agql.core.transport.handlers;
 import com.ibasco.agql.core.AbstractRequest;
 import com.ibasco.agql.core.NettyChannelContext;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.DecoderException;
 import io.netty.util.ReferenceCountUtil;
 
 /**
@@ -55,10 +54,9 @@ abstract public class MessageInboundDecoder extends MessageInboundHandler {
             } else {
                 baseDebug("REJECTED message of type '{}' (Reason: Rejected by the concrete handler)", msg.getClass().getSimpleName());
             }
-        } catch (DecoderException e) {
-            throw e;
         } catch (Exception e) {
-            throw new DecoderException(e);
+            out = null;
+            throw e;
         } finally {
             if (out != null) {
                 if (out != msg)

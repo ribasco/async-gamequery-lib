@@ -34,6 +34,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultEventExecutorChooserFactory;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import io.netty.util.concurrent.Future;
 import io.netty.util.concurrent.GenericFutureListener;
 import io.netty.util.concurrent.RejectedExecutionHandlers;
 import io.netty.util.internal.PlatformDependent;
@@ -353,14 +354,32 @@ public final class Platform {
     public static EventLoopGroup getOrCreateEventLoopGroup(Class<? extends Channel> channelClass, ExecutorService executor, int nThreads) {
         return eventLoopGroupMap.computeIfAbsent(executor, exec -> {
             log.debug("getOrCreateEventLoopGroup(): Creating new Event Loop Group instance for executor service '{}' (Channel class: {}, Num of Threads: {})", exec, channelClass, nThreads);
-            return createEventLoopGroup(channelClass, exec, nThreads);
+            EventLoopGroup group = createEventLoopGroup(channelClass, exec, nThreads);
+            removeOnTermination(group, exec);
+            return group;
         });
     }
 
     public static EventLoopGroup getOrCreateEventLoopGroup(ExecutorService executor, int nThreads, boolean useNative) {
         return eventLoopGroupMap.computeIfAbsent(executor, exec -> {
             log.debug("getOrCreateEventLoopGroup(): Creating new Event Loop Group instance for executor service '{}' (Num of Threads: {}, Use Native: {})", exec, nThreads, useNative);
-            return createEventLoopGroup(exec, nThreads, useNative);
+            EventLoopGroup group = createEventLoopGroup(exec, nThreads, useNative);
+            removeOnTermination(group, exec);
+            return group;
+        });
+    }
+
+    private static void removeOnTermination(EventLoopGroup group, ExecutorService exec) {
+        //noinspection Convert2Lambda,unchecked,rawtypes
+        group.terminationFuture().addListener(new GenericFutureListener() {
+            @Override
+            public void operationComplete(Future future) throws Exception {
+                if (eventLoopGroupMap.remove(exec, group)) {
+                    log.debug("Event loop group has been terminated. Removed from map: (Executor Service: {}, Group: {})", exec, group);
+                } else {
+                    log.debug("Event loop group has been terminated. Failed to remove from map: (Executor Service: {}, Group: {})", exec, group);
+                }
+            }
         });
     }
 

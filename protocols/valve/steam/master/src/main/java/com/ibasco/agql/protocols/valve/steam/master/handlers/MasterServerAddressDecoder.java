@@ -71,9 +71,11 @@ public class MasterServerAddressDecoder extends MessageInboundDecoder {
         if (masterRequest.getCallback() != null && fullSet.add(address)) {
             partialSet.add(address);
             try {
-                masterRequest.getCallback().accept(address, envelope.recipient(), null);
+                if (context.isValid())
+                    masterRequest.getCallback().accept(address, envelope.recipient(), null);
             } catch (Exception e) {
                 error("Error thrown by the callback", e);
+                throw e;
             }
         }
         return null;

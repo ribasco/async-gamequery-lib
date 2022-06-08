@@ -54,8 +54,10 @@ import java.net.SocketException;
 import java.time.Duration;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -106,6 +108,9 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
                 return new MasterServerResponse(new HashSet<>(timeoutException.getAddresses()));
             }
             return new MasterServerResponse(new HashSet<>());
+        }).handleIf(p -> {
+            Throwable cause = Errors.unwrap(p);
+            return !(cause instanceof CancellationException) && !(cause instanceof InterruptedException) && !(cause instanceof RejectedExecutionException);
         }).build();
 
         //retry policy
@@ -130,6 +135,10 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     private RetryPolicy<MasterServerResponse> buildRetryPolicy(final Options options) {
         RetryPolicyBuilder<MasterServerResponse> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
+        builder.abortOn(p -> {
+            Throwable error = Errors.unwrap(p);
+            return (error instanceof CancellationException) || (error instanceof RejectedExecutionException) || (error instanceof InterruptedException);
+        });
         return builder.build();
     }
 

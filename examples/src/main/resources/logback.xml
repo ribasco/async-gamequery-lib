@@ -91,5 +91,4 @@
 
     <logger name="io.netty" level="error"/>
     <logger name="com.ibasco" level="error"/>
-    <logger name="org.jline" level="debug"/>
 </configuration>

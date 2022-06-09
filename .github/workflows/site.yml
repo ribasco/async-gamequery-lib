@@ -5,6 +5,7 @@ on:
     types: [ published ]
   workflow_dispatch:
 
+
 jobs:
   build-project:
     name: 'Build and Deploy'
@@ -23,7 +24,7 @@ jobs:
           cache: maven
 
       - name: Build Project Site
-        run: mvn site site:stage
+        run: mvn site site:stage -Dchangelist=
 
       - name: Deploy Site
         uses: peaceiris/actions-gh-pages@v3

@@ -23,11 +23,18 @@ Features
   - Uses netty's off-heap [pooled direct buffers](https://netty.io/wiki/using-as-a-generic-library.html) (Helps reduce GC pressure for high volume/throughput transactions)
   - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model.
   - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
-- Highly Configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc)
+- Highly Configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc.)
+- Throws meaningful exceptions. For example, in RCON, A `MaxAttemptsReachedException` will be thrown instead of a `ReadTimeoutException` or a `ChannelClosedException` to indicate that the number of login attempts has been reached.
 - Transactions are [Failsafe](https://failsafe.dev/) (except web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
   - **[Retry Policy](https://failsafe.dev/retry/):** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
   - **[Rate Limiter Policy](https://failsafe.dev/rate-limiter/):** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
   - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests.
+
+To Do
+-------------
+
+- Modularize project (java 9+ compatability)
+- Demo application (a usable desktop application showcasing most of the library's feature)
 
 Usage
 -------------
@@ -74,9 +81,9 @@ public class NonBlockingQueryExample {
     ExecutorService customExecutor = Executors.newCachedThreadPool();
 
     public static void main(String[] args) throws Exception {
-        //Example configuration
-        // - Enabled rate limiting so we don't send too fast
-        // - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
+      //Example configuration
+      // - Enabled rate limiting, so we don't send too fast
+      // - Change rate limiting type to SMOOTH (Two available types SMOOTH and BURST)
       // - Used a custom executor for query client. We are responsible for shutting down this executor, not the library.
       SourceQueryOptions queryOptions = SourceQueryOptions.builder()
                                                           .option(FailsafeOptions.FAILSAFE_RATELIMIT_TYPE, RateLimitType.SMOOTH)
@@ -122,7 +129,7 @@ public class NonBlockingQueryExample {
 
           //REMEMBER: Since we are executing an asynchronous operation, 
           // we need to wait until we have received a response from the server, 
-          // otherwise the program might abruptly be terminated. 
+          // otherwise the program might abruptly terminate. 
           latch.await();
         }
     }
@@ -256,7 +263,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve Source Query Protocol**
 
 ```xml
-
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-query</artifactId>
@@ -278,7 +284,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve Source Rcon Protocol**
 
 ```xml
-
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-rcon</artifactId>
@@ -289,7 +294,6 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 **Valve Steam Web API**
 
 ```xml
-
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-steam-webapi</artifactId>
@@ -331,7 +335,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 
 ### Install from Source
 
-Clone from remote repository then `mvn install`. All of the modules will be installed to your local maven repository.
+Clone from remote repository then `mvn install`. All the modules will be installed to your local maven repository.
 
 ~~~bash
 git clone https://github.com/ribasco/async-gamequery-lib.git
@@ -395,7 +399,7 @@ References you might find helpful regarding the implementations
 
 Demo Application
 ----------------
-Coming soon
+Coming soon (Currently working on a desktop application showcasing the features provided by this library). For now, refer to the interactive examples.
 
 Contributing
 ------------

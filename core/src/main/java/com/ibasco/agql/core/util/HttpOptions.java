@@ -24,6 +24,11 @@ package com.ibasco.agql.core.util;
 public class HttpOptions extends AbstractOptions {
 
     /**
+     * The authentication token to use
+     */
+    public static final Option<String> API_KEY = Option.create("webApiKey", null);
+
+    /**
      * <p>Create a new {@link OptionBuilder} for {@link HttpOptions}</p>
      *
      * @return a newly instantiated {@link com.ibasco.agql.core.util.OptionBuilder} object

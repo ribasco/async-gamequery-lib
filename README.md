@@ -24,17 +24,11 @@ Features
   - Built-in thread and connection pooling support. Takes advantage of netty's [event loop](https://netty.io/4.1/api/io/netty/channel/EventLoop.html) model.
   - Makes use of native transports (if available) for increased performance (e.g. [epoll](https://man7.org/linux/man-pages/man7/epoll.7.html), [kqueue](https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man2/kqueue.2.html)). Java's NIO is used by default.
 - Highly Configurable. Clients can be configured to satisfy your requirements (e.g. providing a custom executor, adjusting rate limit parameters, selecting connection pool strategy etc.)
-- Throws meaningful exceptions. For example, in RCON, A `MaxAttemptsReachedException` will be thrown instead of a `ReadTimeoutException` or a `ChannelClosedException` to indicate that the number of login attempts has been reached.
+- Throws meaningful exceptions. For example, in RCON, A `MaxAttemptsReachedException` will be thrown instead of a `ReadTimeoutException` or a `ChannelClosedException` to indicate that the maximum number of login attempts has been reached.
 - Transactions are [Failsafe](https://failsafe.dev/) (except web api). Resilience [policies](https://failsafe.dev/policies/) have been implemented to guarantee the delivery and receipt of queries. Below are the policies available by default.
   - **[Retry Policy](https://failsafe.dev/retry/):** A failed query is re-attempted until a response has either been received or the maximum number attempts has been reached.
   - **[Rate Limiter Policy](https://failsafe.dev/rate-limiter/):** This prevents overloading the servers by sending requests too fast causing the requests to timeout due to rate limits being exceeded.
   - **[Circuit Breaker Policy](https://failsafe.dev/circuit-breaker/):** When certain number of failures reach the threshold, the library will transition to an "OPEN" state, temporarily rejecting new requests.
-
-To Do
--------------
-
-- Modularize project (java 9+ compatability)
-- Demo application (a usable desktop application showcasing most of the library's feature)
 
 Usage
 -------------
@@ -246,7 +240,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -256,7 +250,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-steam-master</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -266,7 +260,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-query</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -277,7 +271,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-log</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -287,7 +281,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-rcon</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -297,7 +291,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-steam-webapi</artifactId>
-  <version>1.0.1</version>
+  <version>1.0.2</version>
 </dependency>
 ```
 
@@ -307,7 +301,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-dota2-webapi</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -317,7 +311,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-csgo-webapi</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -329,7 +323,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
     <artifactId>agql-coc-webapi</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 

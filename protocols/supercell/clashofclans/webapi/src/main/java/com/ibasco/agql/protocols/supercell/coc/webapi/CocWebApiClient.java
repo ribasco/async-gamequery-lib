@@ -17,6 +17,7 @@
 package com.ibasco.agql.protocols.supercell.coc.webapi;
 
 import com.ibasco.agql.core.AbstractRestClient;
+import com.ibasco.agql.core.util.HttpOptions;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
 import org.jetbrains.annotations.ApiStatus;
@@ -42,6 +43,16 @@ public class CocWebApiClient extends AbstractRestClient {
      */
     public CocWebApiClient(String apiToken) {
         super(apiToken);
+    }
+
+    /**
+     * Create a new client using the provided {@link HttpOptions}
+     *
+     * @param options
+     *         The {@link HttpOptions} to be used by the client
+     */
+    public CocWebApiClient(HttpOptions options) {
+        super(options);
     }
 
     /** {@inheritDoc} */

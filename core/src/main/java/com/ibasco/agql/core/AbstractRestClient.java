@@ -19,6 +19,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.transport.http.ContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.JsonContentTypeProcessor;
 import com.ibasco.agql.core.transport.http.processors.XmlContentTypeProcessor;
+import com.ibasco.agql.core.util.HttpOptions;
 import com.ibasco.agql.core.util.Options;
 import org.apache.commons.lang3.StringUtils;
 import org.asynchttpclient.RequestBuilder;
@@ -47,7 +48,7 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      * Some rest clients do not require authentication
      */
     public AbstractRestClient() {
-        this(null);
+        this((String) null);
     }
 
     /**
@@ -58,7 +59,23 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
      */
     public AbstractRestClient(String authToken) {
         super(null);
-        this.authToken = authToken;
+        initialize(authToken);
+    }
+
+    /**
+     * Create a new client using the provided {@link HttpOptions}
+     *
+     * @param options
+     *         The {@link HttpOptions} to be used by the client
+     */
+    public AbstractRestClient(HttpOptions options) {
+        super(options);
+        String authToken = getOptions() != null ? getOptions().get(HttpOptions.API_KEY) : null;
+        initialize(authToken);
+    }
+
+    private void initialize(String token) {
+        this.authToken = token;
         //Register default content-type processors
         registerContentTypeProcessor("application/json", new JsonContentTypeProcessor());
         registerContentTypeProcessor("application/xml", new XmlContentTypeProcessor());

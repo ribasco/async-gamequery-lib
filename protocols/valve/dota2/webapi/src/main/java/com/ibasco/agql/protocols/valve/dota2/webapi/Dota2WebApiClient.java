@@ -16,6 +16,7 @@
 
 package com.ibasco.agql.protocols.valve.dota2.webapi;
 
+import com.ibasco.agql.core.util.HttpOptions;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiClient;
 import com.ibasco.agql.protocols.valve.steam.webapi.SteamWebApiResponse;
 import org.asynchttpclient.Response;
@@ -35,6 +36,16 @@ public class Dota2WebApiClient extends SteamWebApiClient {
      */
     public Dota2WebApiClient(String apiToken) {
         super(apiToken);
+    }
+
+    /**
+     * Create a new client using the provided {@link HttpOptions}
+     *
+     * @param options
+     *         The {@link HttpOptions} to be used by the client
+     */
+    public Dota2WebApiClient(HttpOptions options) {
+        super(options);
     }
 
     /** {@inheritDoc} */

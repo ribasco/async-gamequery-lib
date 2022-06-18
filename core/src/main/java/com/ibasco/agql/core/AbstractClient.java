@@ -159,6 +159,13 @@ public abstract class AbstractClient<R extends AbstractRequest, S extends Abstra
         return messenger();
     }
 
+    /**
+     * @return The configuration {@link Options} used by this instance
+     */
+    public final Options getOptions() {
+        return options;
+    }
+
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {

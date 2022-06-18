@@ -17,6 +17,7 @@
 package com.ibasco.agql.protocols.valve.steam.webapi;
 
 import com.ibasco.agql.core.AbstractRestClient;
+import com.ibasco.agql.core.util.HttpOptions;
 import org.asynchttpclient.RequestBuilder;
 import org.asynchttpclient.Response;
 import org.slf4j.Logger;
@@ -46,6 +47,10 @@ public class SteamWebApiClient extends AbstractRestClient {
      */
     public SteamWebApiClient(String apiToken) {
         super(apiToken);
+    }
+
+    public SteamWebApiClient(HttpOptions options) {
+        super(options);
     }
 
     /** {@inheritDoc} */

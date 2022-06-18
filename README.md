@@ -8,6 +8,7 @@ Asynchronous Game Query Library
 [![Snapshot Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/build.yml)
 [![Release Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/release.yml/badge.svg)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/release.yml)
 [![Site Builds](https://github.com/ribasco/async-gamequery-lib/actions/workflows/site.yml/badge.svg)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/site.yml)
+[![Code Analysis](https://github.com/ribasco/async-gamequery-lib/actions/workflows/code-analysis.yml/badge.svg)](https://github.com/ribasco/async-gamequery-lib/actions/workflows/code-analysis.yml)
 
 [![Maven][mavenImg]][mavenLink] [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=29TX29ZSNXM64) [![Javadocs](https://www.javadoc.io/badge/com.ibasco.agql/agql.svg)](https://www.javadoc.io/doc/com.ibasco.agql/agql) [![Gitter](https://badges.gitter.im/gitterHQ/gitter.svg)](https://gitter.im/async-gamequery-lib/lobby?utm_source=share-link&utm_medium=link&utm_campaign=share-link)
 

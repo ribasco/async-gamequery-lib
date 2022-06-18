@@ -1,6 +1,12 @@
 Changelog
 -------------
 
+1.0.2 - Bug fixes/enhancements
+
+- Fixed #59: Close previous connection on retry
+- Fixed #60: Added missing overloaded constructor for Web API clients.
+- Fixed #61: Add new Http Option for web api key
+
 1.0.1 - Bug fixes/enhancements
 
 - Fixed #58: Use a single EventLoopGroup instance for clients that share the same ExecutorService

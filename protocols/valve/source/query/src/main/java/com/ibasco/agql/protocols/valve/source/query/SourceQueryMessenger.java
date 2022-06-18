@@ -50,6 +50,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -162,26 +163,6 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
         RetryPolicyBuilder<NettyChannelContext> builder = FailsafeBuilder.buildRetryPolicy(FailsafeOptions.class, options);
         builder.abortOn(RejectedExecutionException.class, RateLimitExceededException.class);
         builder.onRetriesExceeded(retryExceededListener);
-        /*if (Properties.isVerbose()) {
-            builder.onRetry(event -> {
-                Throwable error = event.getLastException();
-                if (error instanceof MessengerException) {
-                    MessengerException mEx = (MessengerException) error;
-                    NettyChannelContext context = mEx.getContext();
-                    Console.error("Last request failed. Retrying execution: (Request: %s, Attempts: %d, Error: %s)", context.properties().request(), event.getAttemptCount(), mEx.getCause());
-                } else {
-                    Console.error("Last request failed. Retrying execution (Attempts: %d, Error: %s)", event.getAttemptCount(), event.getLastException());
-                }
-            });
-            builder.onSuccess(new EventListener<ExecutionCompletedEvent<NettyChannelContext>>() {
-                @Override
-                public void accept(ExecutionCompletedEvent<NettyChannelContext> event) throws Throwable {
-                    if (event.getAttemptCount() >= 1) {
-                        Console.println("[SUCCESSFUL RETRY] %s", event.getResult().properties().request());
-                    }
-                }
-            });
-        }*/
         return builder.build();
     }
 
@@ -301,22 +282,26 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
 
         private final SourceQueryRequest request;
 
-        private NettyChannelContext context;
+        private final AtomicReference<NettyChannelContext> contextRef = new AtomicReference<>();
 
         private RequestContext(InetSocketAddress address, SourceQueryRequest request) {
             this.address = address;
             this.request = request;
         }
 
-        public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> context) {
+        public CompletableFuture<NettyChannelContext> execute(ExecutionContext<NettyChannelContext> executionContext) {
+            final NettyChannelContext currentContext = context();
+            if (executionContext.isRetry() && currentContext != null) {
+                log.debug("{} Retrying request '{}' for server address '{}'. Closing existing context.", currentContext.id(), this.request, this.address);
+                currentContext.close();
+            }
             return execute();
         }
 
         public CompletableFuture<NettyChannelContext> execute() {
             if (getExecutor().isShutdown() || getExecutor().isShuttingDown() || getExecutor().isTerminated())
                 return Concurrency.failedFuture(new RejectedExecutionException());
-            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(this);
-            contextFuture.thenAccept(this::initialize);
+            CompletableFuture<NettyChannelContext> contextFuture = acquireContext(this).thenApply(this::initialize);
             if (failsafeEnabled) {
                 //make sure we do not block the event loop, so we need to run this at another thread
                 contextFuture = contextFuture.thenApplyAsync(this::acquirePermit, permitExecutor);
@@ -324,10 +309,16 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             return contextFuture.thenCompose(SourceQueryMessenger.super::send);
         }
 
-        private void initialize(NettyChannelContext context) {
-            setContext(context);
-            context.disableAutoRelease();
-            context.attach(request);
+        private NettyChannelContext initialize(NettyChannelContext newContext) {
+            log.debug("{} Acquired context (request: {})", newContext.id(), request);
+            setContext(newContext);
+            newContext.disableAutoRelease();
+            newContext.attach(request);
+            return newContext;
+        }
+
+        private NettyChannelContext context() {
+            return this.contextRef.get();
         }
 
         /**
@@ -353,8 +344,13 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
             }
         }
 
-        private void setContext(NettyChannelContext context) {
-            this.context = context;
+        private void setContext(NettyChannelContext newContext) {
+            NettyChannelContext current = context();
+            if (log.isDebugEnabled() && current != null && (current != newContext))
+                log.debug("[{}] Replacing previous context from '{}' to '{}' (Original Thread: {})", Thread.currentThread().getName(), current, newContext, Netty.getThreadName(current.eventLoop()));
+            while (!contextRef.compareAndSet(current, newContext)) {
+                current = this.contextRef.get();
+            }
         }
 
         private InetSocketAddress getAddress() {
@@ -378,8 +374,11 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
                     return response;
                 }
             } finally {
-                if (this.context != null) {
-                    this.context.close();
+                if (this.context() != null) {
+                    log.debug("{} Closing context", this.context().id());
+                    this.context().close();
+                } else {
+                    log.debug("Failed to close context for address: {}, request: {}", address, request);
                 }
             }
         }

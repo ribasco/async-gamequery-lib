@@ -93,12 +93,12 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             }
 
             int flags = buf.readUnsignedByte();
-            decodeFlag("edfServerPort", buf, flags, A2S_INFO_EDF_PORT, buf::readShortLE, null);
-            decodeFlag("serverSteamId", buf, flags, A2S_INFO_EDF_STEAMID, buf::readLongLE, info::setServerId);
-            decodeFlag("sourceTvPort", buf, flags, A2S_INFO_EDF_SOURCETV, buf::readShortLE, info::setTvPort, Short::intValue);
-            decodeFlag("sourceTvName", buf, flags, A2S_INFO_EDF_SOURCETV, Netty::readString, info::setTvName);
-            decodeFlag("serverTags", buf, flags, A2S_INFO_EDF_TAGS, Netty::readString, info::setServerTags);
-            decodeFlag("appId64", buf, flags, A2S_INFO_EDF_GAMEID, buf::readLongLE, info::setGameId);
+            decodeFlag("edfServerPort", buf, flags, A2S_INFO_EDF_PORT, buf::readShortLE, info::setGamePort, Short::intValue);
+            decodeFlag("edfServerSteamId", buf, flags, A2S_INFO_EDF_STEAMID, buf::readLongLE, info::setServerId);
+            decodeFlag("edfSourceTvPort", buf, flags, A2S_INFO_EDF_SOURCETV, buf::readShortLE, info::setTvPort, Short::intValue);
+            decodeFlag("edfSourceTvName", buf, flags, A2S_INFO_EDF_SOURCETV, Netty::readString, info::setTvName);
+            decodeFlag("edfServerTags", buf, flags, A2S_INFO_EDF_TAGS, Netty::readString, info::setServerTags);
+            decodeFlag("edfAppId64", buf, flags, A2S_INFO_EDF_GAMEID, buf::readLongLE, info::setGameId);
         } else {
             debug("Received an empty INFO response");
         }

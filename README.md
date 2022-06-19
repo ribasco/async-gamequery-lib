@@ -240,8 +240,8 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql</artifactId>
-    <version>1.0.2</version>
+  <artifactId>agql</artifactId>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -250,8 +250,8 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-steam-master</artifactId>
-    <version>1.0.2</version>
+  <artifactId>agql-steam-master</artifactId>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -261,7 +261,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-query</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -272,7 +272,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-log</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -282,7 +282,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-source-rcon</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -292,7 +292,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
   <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-steam-webapi</artifactId>
-  <version>1.0.2</version>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -301,8 +301,8 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-dota2-webapi</artifactId>
-    <version>1.0.2</version>
+  <artifactId>agql-dota2-webapi</artifactId>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -311,8 +311,8 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-csgo-webapi</artifactId>
-    <version>1.0.2</version>
+  <artifactId>agql-csgo-webapi</artifactId>
+  <version>1.0.3</version>
 </dependency>
 ```
 
@@ -323,8 +323,8 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 ```xml
 <dependency>
     <groupId>com.ibasco.agql</groupId>
-    <artifactId>agql-coc-webapi</artifactId>
-    <version>1.0.2</version>
+  <artifactId>agql-coc-webapi</artifactId>
+  <version>1.0.3</version>
 </dependency>
 ```
 

@@ -78,6 +78,8 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             decodeField("playerCount", buf, buf::readUnsignedByte, info::setNumOfPlayers, Short::intValue);
             decodeField("maxPlayerCount", buf, buf::readUnsignedByte, info::setMaxPlayers, Short::intValue);
             decodeField("botCount", buf, buf::readUnsignedByte, info::setNumOfBots, Short::intValue);
+
+            decodeField("isSourceTvProxy", buf, PEEK_ASCII_BYTE_STR, info::setSourceTvProxy, "p"::equalsIgnoreCase);
             decodeField("isDedicated", buf, READ_ASCII_BYTE_STR, info::setDedicated, "d"::equalsIgnoreCase); //d = dedicated, l = non-dedicated, p = source tv proxy
             decodeField("operatingSystem", buf, READ_ASCII_BYTE_STR, info::setOperatingSystem); //l = linux, w = windows, m = mac
             decodeField("isPrivateServer", buf, buf::readByte, info::setPrivateServer, IS_PRIVATE_SERVER); //0 = public, 1 = private

@@ -68,6 +68,8 @@ public class SourceServer {
 
     private int gamePort;
 
+    private boolean sourceTvProxy;
+
     /**
      * <p>Specifies if the server is a private server and password protected</p>
      *
@@ -243,6 +245,8 @@ public class SourceServer {
      * <p>Specified whether the server is dedicated or not</p>
      *
      * @return {@code true} if the server is dedicated, otherwise {@code false} if it is non-dedicated OR a source tv proxy
+     *
+     * @see #isSourceTvProxy()
      */
     public boolean isDedicated() {
         return dedicated;
@@ -508,5 +512,18 @@ public class SourceServer {
 
     public void setGamePort(int gamePort) {
         this.gamePort = gamePort;
+    }
+
+    /**
+     * Specifies whether the server is a Source TV proxy/relay
+     *
+     * @return {@code true} if the server is a Source TV proxy
+     */
+    public boolean isSourceTvProxy() {
+        return sourceTvProxy;
+    }
+
+    public void setSourceTvProxy(boolean sourceTvProxy) {
+        this.sourceTvProxy = sourceTvProxy;
     }
 }

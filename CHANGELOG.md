@@ -1,6 +1,12 @@
 Changelog
 -------------
 
+1.0.3 - Bug fixes/enhancements
+
+- Enhancement #64: New `sourceTvProxy` flag in `SourceServer`
+- Defect #63: Map network protocol version in Source `A2S_INFO` decoder
+- Defect #62: Add game server port to `A2S_INFO` response
+
 1.0.2 - Bug fixes/enhancements
 
 - Fixed #59: Close previous connection on retry

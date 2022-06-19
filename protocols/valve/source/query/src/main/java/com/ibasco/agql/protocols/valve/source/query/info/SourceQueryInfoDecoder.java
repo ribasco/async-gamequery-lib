@@ -41,6 +41,8 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
 
     private static final Function<ByteBuf, String> READ_ASCII_BYTE_STR = buf -> buf.readCharSequence(1, StandardCharsets.US_ASCII).toString();
 
+    private static final Function<ByteBuf, String> PEEK_ASCII_BYTE_STR = buf -> new String(new byte[] {buf.getByte(buf.readerIndex())}, StandardCharsets.US_ASCII);
+
     private static final Function<Byte, Boolean> IS_VAC = byteVal -> byteVal == 1;
 
     private static final Function<Byte, Boolean> IS_PRIVATE_SERVER = byteVal -> byteVal != 0;
@@ -60,18 +62,14 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
         ByteBuf buf = packet.content();
 
         final SourceServer info = new SourceServer();
+
         info.setAddress(context.properties().remoteAddress());
 
         //NOTE: Some servers return an empty response. If this is the case, we skip the decoding process and simply return SourceServer instance
         if (buf.isReadable()) {
             debug("Attempting to decode A2S_INFO response (Reader Index: {}, Readable bytes: {})", buf.readerIndex(), buf.readableBytes());
 
-            //I dont know what this byte (0x11) is for, there is no mention of this in the docs
-            int undocumentedByte = buf.readUnsignedByte();
-
-            if (isDebugEnabled())
-                debug("INFO Dump ({})\n{}", undocumentedByte, Netty.prettyHexDump(buf));
-
+            decodeField("protocol", buf, buf::readUnsignedByte, info::setNetworkVersion, Short::byteValue);
             decodeField("name", buf, Netty::readString, info::setName);
             decodeField("mapName", buf, Netty::readString, info::setMapName);
             decodeField("gameDirectory", buf, Netty::readString, info::setGameDirectory);
@@ -80,10 +78,10 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             decodeField("playerCount", buf, buf::readUnsignedByte, info::setNumOfPlayers, Short::intValue);
             decodeField("maxPlayerCount", buf, buf::readUnsignedByte, info::setMaxPlayers, Short::intValue);
             decodeField("botCount", buf, buf::readUnsignedByte, info::setNumOfBots, Short::intValue);
-            decodeField("isDedicated", buf, READ_ASCII_BYTE_STR, info::setDedicated, "d"::equalsIgnoreCase);
-            decodeField("operatingSystem", buf, READ_ASCII_BYTE_STR, info::setOperatingSystem);
-            decodeField("isPrivateServer", buf, buf::readByte, info::setPrivateServer, IS_PRIVATE_SERVER);
-            decodeField("isSecure", buf, buf::readByte, info::setSecure, IS_VAC);
+            decodeField("isDedicated", buf, READ_ASCII_BYTE_STR, info::setDedicated, "d"::equalsIgnoreCase); //d = dedicated, l = non-dedicated, p = source tv proxy
+            decodeField("operatingSystem", buf, READ_ASCII_BYTE_STR, info::setOperatingSystem); //l = linux, w = windows, m = mac
+            decodeField("isPrivateServer", buf, buf::readByte, info::setPrivateServer, IS_PRIVATE_SERVER); //0 = public, 1 = private
+            decodeField("isSecure", buf, buf::readByte, info::setSecure, IS_VAC); //0 = unsecured, 1 = secured
             decodeField("gameVersion", buf, Netty::readString, info::setGameVersion);
 
             //do we still have more bytes to process?

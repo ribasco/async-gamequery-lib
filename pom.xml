@@ -265,7 +265,7 @@
             <extension>
                 <groupId>org.apache.maven.scm</groupId>
                 <artifactId>maven-scm-provider-gitexe</artifactId>
-                <version>1.11.2</version>
+                <version>1.13.0</version>
             </extension>
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>

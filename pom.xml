@@ -40,7 +40,7 @@
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <netty.version>4.1.77.Final</netty.version>
+        <netty.version>4.1.78.Final</netty.version>
     </properties>
 
     <!-- Profiles -->
@@ -270,7 +270,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ftp</artifactId>
-                <version>2.10</version>
+                <version>3.5.1</version>
             </extension>
         </extensions>
 
@@ -344,7 +344,7 @@
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
                     <artifactId>build-helper-maven-plugin</artifactId>
-                    <version>3.2.0</version>
+                    <version>3.3.0</version>
                 </plugin>
                 <!-- Configuration for signing artifacts -->
                 <plugin>
@@ -753,7 +753,7 @@
             <dependency>
                 <groupId>dev.failsafe</groupId>
                 <artifactId>failsafe</artifactId>
-                <version>3.2.3</version>
+                <version>3.2.4</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

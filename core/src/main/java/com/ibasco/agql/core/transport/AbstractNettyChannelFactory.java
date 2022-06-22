@@ -18,9 +18,7 @@ package com.ibasco.agql.core.transport;
 
 import com.ibasco.agql.core.enums.BufferAllocatorType;
 import com.ibasco.agql.core.transport.enums.TransportType;
-import com.ibasco.agql.core.util.Concurrency;
 import com.ibasco.agql.core.util.GeneralOptions;
-import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Netty;
 import com.ibasco.agql.core.util.Option;
 import com.ibasco.agql.core.util.Options;
@@ -34,7 +32,6 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,8 +68,6 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     };
 
     private NettyPropertyResolver resolver;
-
-    private ExecutorService executorService;
 
     private NettyChannelInitializer channelInitializer;
     //</editor-fold>
@@ -112,9 +107,7 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
         this.channelClass = Platform.getChannelClass(type);
 
         //initialize event loop group
-        this.executorService = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE);
-        if (executorService == null)
-            executorService = Platform.getDefaultExecutor();
+        ExecutorService executorService = options.get(GeneralOptions.THREAD_EXECUTOR_SERVICE, Platform.getDefaultExecutor());
         this.eventLoopGroup = initializeEventLoopGroup(channelClass, executorService);
         this.channelInitializer = initializer == null ? new NettyChannelInitializer() : initializer;
 
@@ -295,13 +288,14 @@ abstract public class AbstractNettyChannelFactory implements NettyChannelFactory
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        //if the executor service is a managed resource, attempt to release it
-        ManagedResource.release(executorService);
-
-        if (Concurrency.shutdown(eventLoopGroup, options.getOrDefault(GeneralOptions.CLOSE_TIMEOUT), TimeUnit.MILLISECONDS)) {
+        if (eventLoopGroup == null)
+            return;
+        try {
+            eventLoopGroup.shutdownGracefully().sync();
             log.debug("TRANSPORT (CLOSE) => Transport closed gracefully");
-        } else {
+        } catch (InterruptedException e) {
             log.debug("TRANSPORT (CLOSE) => Shutdown interrupted");
+            throw new IOException(e);
         }
     }
 

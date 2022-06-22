@@ -19,7 +19,6 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.HttpOptions;
-import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.Properties;
 import io.netty.channel.EventLoopGroup;
@@ -58,16 +57,6 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
      *
      * @param responseFactory
      *         a {@link java.util.function.Function} object
-     */
-    public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory) {
-        this(responseFactory, new HttpOptions());
-    }
-
-    /**
-     * <p>Constructor for HttpMessenger.</p>
-     *
-     * @param responseFactory
-     *         a {@link java.util.function.Function} object
      * @param options
      *         a {@link com.ibasco.agql.core.util.Options} object
      */
@@ -78,7 +67,7 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         configBuilder.setKeepAlive(options.getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));
         configBuilder.addRequestFilter(new ThrottleRequestFilter(options.getOrDefault(GeneralOptions.POOL_MAX_CONNECTIONS)));
         configBuilder.setEventLoopGroup(this.eventLoopGroup);
-        this.transport = new AsyncHttpTransport(configBuilder.build());
+        this.transport = new AsyncHttpTransport(configBuilder.build(), options);
         this.responseFactory = responseFactory;
     }
 
@@ -106,7 +95,6 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
         transport.close();
         if (eventLoopGroup != null)
             eventLoopGroup.shutdownGracefully();
-        ManagedResource.release(executorService);
     }
 
     /** {@inheritDoc} */

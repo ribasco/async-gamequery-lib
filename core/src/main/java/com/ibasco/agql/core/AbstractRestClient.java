@@ -120,7 +120,7 @@ abstract public class AbstractRestClient extends AsyncHttpClient {
     @Override
     protected HttpMessenger createMessenger(Options options) {
         Function<Response, AbstractWebApiResponse> responseFactory = this::createWebApiResponse;
-        return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor));
+        return new HttpMessenger(responseFactory.andThen(this::applyContentTypeProcessor), (HttpOptions) options);
     }
 
     /** {@inheritDoc} */

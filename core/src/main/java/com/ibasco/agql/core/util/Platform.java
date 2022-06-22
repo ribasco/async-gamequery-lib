@@ -53,7 +53,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import static com.ibasco.agql.core.util.Console.BLUE;
@@ -77,18 +76,9 @@ public final class Platform {
 
     private static final List<Queue<Runnable>> TASK_QUEUE_LIST = new ArrayList<>();
 
-    private static final String GLOBAL_DEFAULT_EXECUTOR_KEY = "globalDefaultExecutor";
-
-    private static final Supplier<AgqlManagedExecutorService> DEFAULT_EXECUTOR_SUPPLIER;
-
-    //initialize resource provider for the default global executor service
-    private static final ManagedResourceProvider<AgqlManagedExecutorService> DEFAULT_EXECUTOR_PROVIDER;
-
     private static final Object lock = new Object();
 
     private static volatile ThreadFactory DEFAULT_THREAD_FACTORY;
-
-    private static volatile EventLoopGroup DEFAULT_EVENT_LOOP_GROUP;
 
     private static volatile EventLoopTaskQueueFactory DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY;
 
@@ -96,11 +86,12 @@ public final class Platform {
 
     private static volatile boolean initialized;
 
+    private static final ThreadPoolExecutor defaultExecutor;
+
     private static final ConcurrentHashMap<ExecutorService, EventLoopGroup> eventLoopGroupMap = new ConcurrentHashMap<>();
 
     static {
-        DEFAULT_EXECUTOR_SUPPLIER = () -> new AgqlManagedExecutorService(new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, Platform.getDefaultQueue(), Platform.getDefaultThreadFactory()));
-        DEFAULT_EXECUTOR_PROVIDER = new ManagedResourceProvider<>(DEFAULT_EXECUTOR_SUPPLIER); //provider for default executor service
+        defaultExecutor = new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, getDefaultQueue(), getDefaultThreadFactory());
     }
 
     private Platform() {}
@@ -162,19 +153,14 @@ public final class Platform {
 
     /**
      * <p>
-     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. To obtain the underlying {@link java.util.concurrent.ThreadPoolExecutor} cast the return value to ({@link com.ibasco.agql.core.util.AgqlManagedExecutorService} and call {@link com.ibasco.agql.core.util.AgqlManagedExecutorService#getResource()}. (For internal use only, use at your own risk)
+     * The global {@link java.util.concurrent.ExecutorService} used by all clients by default. (For internal use only, use at your own risk)
      * </p>
-     * <blockquote>
-     * <strong>IMPORTANT:</strong> The executor service returned by this function is reference counted (See {@link com.ibasco.agql.core.util.ManagedResource}). Each invocation of this function will increase it's reference count. So make sure to call {@link com.ibasco.agql.core.util.ManagedResource#release()} the on the resource after use.
-     * </blockquote>
      *
      * @return The default global {@link java.util.concurrent.ExecutorService}
-     *
-     * @see ManagedResource
-     * @see ManagedResource#release()
      */
+
     public static ExecutorService getDefaultExecutor() {
-        return DEFAULT_EXECUTOR_PROVIDER.acquire(GLOBAL_DEFAULT_EXECUTOR_KEY);
+        return defaultExecutor;
     }
 
     /**
@@ -202,7 +188,7 @@ public final class Platform {
         if (DEFAULT_THREAD_FACTORY == null) {
             synchronized (lock) {
                 if (DEFAULT_THREAD_FACTORY == null) {
-                    DEFAULT_THREAD_FACTORY = new DefaultThreadFactory("agql-el", false, Thread.NORM_PRIORITY, DEFAULT_THREAD_GROUP);
+                    DEFAULT_THREAD_FACTORY = new DefaultThreadFactory("agql-el", true, Thread.NORM_PRIORITY, DEFAULT_THREAD_GROUP);
                 }
             }
         }
@@ -218,14 +204,7 @@ public final class Platform {
      * @return {@code true} if the {@link java.util.concurrent.Executor} is global
      */
     public static boolean isDefaultExecutor(Executor executor) {
-        if (executor == null)
-            return false;
-        AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
-        try {
-            return svc == executor || svc.getResource() == executor;
-        } finally {
-            svc.release();
-        }
+        return executor == defaultExecutor;
     }
 
     /**
@@ -250,9 +229,6 @@ public final class Platform {
             if (executorService instanceof ThreadPoolExecutor) {
                 ThreadPoolExecutor tpe = (ThreadPoolExecutor) executorService;
                 nThreads = tpe.getCorePoolSize();
-            } else if (executorService instanceof AgqlManagedExecutorService) {
-                ThreadPoolExecutor tpe = ((AgqlManagedExecutorService) executorService).getResource();
-                nThreads = tpe.getCorePoolSize();
             } else {
                 throw new IllegalStateException("Please specify the core pool size for the  (See GeneralOptions.THREAD_CORE_SIZE)");
             }
@@ -266,31 +242,7 @@ public final class Platform {
      * @return The global {@link io.netty.channel.EventLoopGroup}
      */
     public static EventLoopGroup getDefaultEventLoopGroup() {
-        if (DEFAULT_EVENT_LOOP_GROUP == null) {
-            synchronized (lock) {
-                if (DEFAULT_EVENT_LOOP_GROUP == null) {
-                    AgqlManagedExecutorService svc = (AgqlManagedExecutorService) getDefaultExecutor();
-                    try {
-                        final ThreadPoolExecutor executor = svc.getResource();
-                        DEFAULT_EVENT_LOOP_GROUP = createEventLoopGroup(executor, executor.getCorePoolSize(), Properties.useNativeTransport());
-                        //noinspection unchecked
-                        DEFAULT_EVENT_LOOP_GROUP.terminationFuture().addListener((GenericFutureListener) future -> {
-                            if (future.isSuccess()) {
-                                new Thread(() -> {
-                                    log.debug("PLATFORM => Shutting down default global executor");
-                                    Concurrency.shutdown(executor);
-                                }, "agql-shutdown").start();
-                            } else {
-                                throw new IllegalStateException(future.cause());
-                            }
-                        });
-                    } finally {
-                        svc.release();
-                    }
-                }
-            }
-        }
-        return DEFAULT_EVENT_LOOP_GROUP;
+        return getOrCreateEventLoopGroup(defaultExecutor, defaultExecutor.getCorePoolSize(), Properties.useNativeTransport());
     }
 
     /**
@@ -375,7 +327,7 @@ public final class Platform {
             @Override
             public void operationComplete(Future future) throws Exception {
                 if (eventLoopGroupMap.remove(exec, group)) {
-                    log.debug("Event loop group has been terminated. Removed from map: (Executor Service: {}, Group: {})", exec, group);
+                    log.debug("Event loop group has been terminated. Removed from map: (Executor Service: {}, Group: {}, Remaining: {})", exec, group, eventLoopGroupMap.size());
                 } else {
                     log.debug("Event loop group has been terminated. Failed to remove from map: (Executor Service: {}, Group: {})", exec, group);
                 }

@@ -1,5 +1,8 @@
 Changelog
 -------------
+1.0.4 - Bug fixes/enhancements
+
+- Enhancement #80: Use daemon threads for the default executor
 
 1.0.3 - Bug fixes/enhancements
 

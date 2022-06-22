@@ -18,7 +18,6 @@ package com.ibasco.agql.protocols.valve.source.query.logger;
 
 import com.ibasco.agql.core.transport.enums.TransportType;
 import com.ibasco.agql.core.util.GeneralOptions;
-import com.ibasco.agql.core.util.ManagedResource;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
@@ -81,8 +80,6 @@ public class SourceLogListenService implements Closeable {
 
     private final AtomicReference<Consumer<SourceLogEntry>> callbackRef = new AtomicReference<>();
 
-    private final ExecutorService executorService;
-
     private InetSocketAddress listenAddress;
 
     private volatile boolean bindInProgress;
@@ -134,7 +131,6 @@ public class SourceLogListenService implements Closeable {
      *         {@code true} if you prefer to use netty's <a href="https://netty.io/wiki/native-transports.html">native transports</a> over java's NIO (e.g. epoll on linux, kqueue on osx)
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> callback, ExecutorService executorService, int nThreads, boolean useNative) {
-        this.executorService = executorService;
         EventLoopGroup group;
         if (executorService == null)
             executorService = Platform.getDefaultExecutor();
@@ -283,8 +279,13 @@ public class SourceLogListenService implements Closeable {
     /** {@inheritDoc} */
     @Override
     public void close() throws IOException {
-        log.debug("LOG SERVICE => Reequesting to shutdown log service");
-        group.shutdownGracefully(10, GeneralOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS);
-        ManagedResource.release(executorService);
+        try {
+            log.debug("LOG SERVICE => Requesting to shutdown log service");
+            group.shutdownGracefully(10, GeneralOptions.CLOSE_TIMEOUT.getDefaultValue(), TimeUnit.SECONDS).sync();
+            log.debug("LOG SERVICE => Event loop group shutdown gracefully");
+        } catch (InterruptedException e) {
+            log.debug("LOG SERVICE => Shutdown interrupted");
+            throw new IOException(e);
+        }
     }
 }

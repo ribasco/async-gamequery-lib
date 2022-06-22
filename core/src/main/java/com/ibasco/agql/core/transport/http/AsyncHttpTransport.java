@@ -17,6 +17,7 @@
 package com.ibasco.agql.core.transport.http;
 
 import com.ibasco.agql.core.Transport;
+import com.ibasco.agql.core.util.HttpOptions;
 import com.ibasco.agql.core.util.Options;
 import org.asynchttpclient.AsyncHttpClient;
 import org.asynchttpclient.AsyncHttpClientConfig;
@@ -39,14 +40,17 @@ public final class AsyncHttpTransport implements Transport<Response, Request> {
 
     private final AsyncHttpClient httpClient;
 
+    private final HttpOptions options;
+
     /**
      * <p>Constructor for AsyncHttpTransport.</p>
      *
      * @param transportConfig
      *         a {@link org.asynchttpclient.AsyncHttpClientConfig} object
      */
-    public AsyncHttpTransport(AsyncHttpClientConfig transportConfig) {
+    public AsyncHttpTransport(final AsyncHttpClientConfig transportConfig, final HttpOptions options) {
         this.httpClient = new DefaultAsyncHttpClient(transportConfig);
+        this.options = options;
     }
 
     /** {@inheritDoc} */
@@ -65,6 +69,6 @@ public final class AsyncHttpTransport implements Transport<Response, Request> {
     /** {@inheritDoc} */
     @Override
     public Options getOptions() {
-        return null;
+        return options;
     }
 }

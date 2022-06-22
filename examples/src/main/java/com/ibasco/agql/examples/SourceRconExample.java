@@ -86,22 +86,20 @@ public class SourceRconExample extends BaseExample {
 
     private InetSocketAddress serverAddress;
 
-    private SourceRconOptions options;
-
     /** {@inheritDoc} */
     @Override
     public void run(String[] args) throws Exception {
         Boolean userTerminatorPackets = promptInputBool("Enable terminator packets? (Y for 'source based servers', N for non-source based servers)", true, "true", "sourceUseTerminatorPackets");
         Console.colorize(true).purple("[config] ").green("Terminator packets enabled: ").cyan("%s", userTerminatorPackets).println();
-        options = SourceRconOptions.builder()
-                                   .option(ConnectOptions.FAILSAFE_ENABLED, true)
-                                   .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                   .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                   .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
-                                   .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
-                                   .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
-                                   .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
-                                   .build();
+        SourceRconOptions options = SourceRconOptions.builder()
+                                                     .option(ConnectOptions.FAILSAFE_ENABLED, true)
+                                                     .option(ConnectOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                                     .option(ConnectOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                                     .option(FailsafeOptions.FAILSAFE_RETRY_ENABLED, true)
+                                                     .option(FailsafeOptions.FAILSAFE_RETRY_BACKOFF_ENABLED, false)
+                                                     .option(FailsafeOptions.FAILSAFE_RETRY_DELAY, 3000L)
+                                                     .option(GeneralOptions.POOL_MAX_CONNECTIONS, 8)
+                                                     .build();
         initializeProcessors();
         rconClient = new SourceRconClient(options);
         sourceModParser = new SMParser(rconClient);
@@ -140,6 +138,12 @@ public class SourceRconExample extends BaseExample {
     public void runTerminal() {
         String address = promptInput("Enter server address", true, "", "sourceRconIp");
         int port = Integer.parseInt(promptInput("Enter server port", false, "27015", "sourceRconPort"));
+
+        Console.colorize(true)
+               .cyan("[NOTE]: ")
+               .white("Type !h or !help for the available console commands")
+               .reset()
+               .println();
 
         serverAddress = new InetSocketAddress(address, port);
         boolean stop = false;

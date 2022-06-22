@@ -91,7 +91,11 @@ public final class Platform {
     private static final ConcurrentHashMap<ExecutorService, EventLoopGroup> eventLoopGroupMap = new ConcurrentHashMap<>();
 
     static {
-        defaultExecutor = new ThreadPoolExecutor(Properties.getDefaultPoolSize(), Integer.MAX_VALUE, Long.MAX_VALUE, TimeUnit.MILLISECONDS, getDefaultQueue(), getDefaultThreadFactory());
+        int poolSize = Properties.readIntProperty("agql.pool.poolSize", Properties.getDefaultPoolSize());
+        int maxPoolSize = Properties.readIntProperty("agql.pool.maxPoolSize", Integer.MAX_VALUE);
+        long keepAliveTime = Properties.readLongProperty("agql.pool.keepAliveTimeMs", Long.MAX_VALUE);
+        log.debug("PLATFORM => Initializing global thread pool (Pool Size: {}, Max Pool Size: {}, Keep Alive Time (ms): {})", poolSize, maxPoolSize, keepAliveTime);
+        defaultExecutor = new ThreadPoolExecutor(poolSize, maxPoolSize, keepAliveTime, TimeUnit.MILLISECONDS, getDefaultQueue(), getDefaultThreadFactory());
     }
 
     private Platform() {}

@@ -142,4 +142,11 @@ public final class Properties {
             throw new IllegalArgumentException("Value is not numeric: " + property);
         return value == null ? defaultValue : Integer.parseInt(value.trim());
     }
+
+    public static long readLongProperty(String property, long defaultValue) {
+        String value = readProperty(property);
+        if (value != null && !Strings.isNumeric(value.trim()))
+            throw new IllegalArgumentException("Value is not numeric: " + property);
+        return value == null ? defaultValue : Long.parseLong(value.trim());
+    }
 }

@@ -146,7 +146,7 @@ public final class Platform {
     /**
      * Perform a graceful shutdown. This will attempt to shutdown the internal default global executors provided the library.
      */
-    public static void shutdown() {
+    private static void shutdown() {
         ExecutorService defaultExecutor = getDefaultExecutor();
         if (defaultExecutor != null) {
             if (Concurrency.shutdown(defaultExecutor)) {

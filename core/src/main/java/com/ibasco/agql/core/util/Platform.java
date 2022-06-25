@@ -363,8 +363,8 @@ public final class Platform {
      *
      * @return a {@link java.lang.ThreadGroup} object
      */
-    public static ThreadGroup creeateThreadGroup(Class<?> cls) {
-        return creeateThreadGroup(cls, null);
+    public static ThreadGroup createThreadGroup(Class<?> cls) {
+        return createThreadGroup(cls, null);
     }
 
     /**
@@ -377,7 +377,7 @@ public final class Platform {
      *
      * @return a {@link java.lang.ThreadGroup} object
      */
-    public static ThreadGroup creeateThreadGroup(Class<?> cls, ThreadGroup parent) {
+    public static ThreadGroup createThreadGroup(Class<?> cls, ThreadGroup parent) {
         String name = StringUtils.join(StringUtils.splitByCharacterTypeCamelCase(cls.getSimpleName()), "-").toLowerCase();
         if (parent == null) {
             return new ThreadGroup(name);

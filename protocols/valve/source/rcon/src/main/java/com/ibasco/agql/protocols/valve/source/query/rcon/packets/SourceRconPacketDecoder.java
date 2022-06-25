@@ -98,7 +98,7 @@ public class SourceRconPacketDecoder implements PacketDecoder<SourceRconPacket> 
             //Read and verify request type
             desc = StringUtils.rightPad("Valid packet type?", PAD_SIZE);
             int packetType = in.readIntLE();
-            if (packetType != SourceRcon.RCON_TYPE_RESPONSE_AUTH && packetType != SourceRcon.RCON_TYPE_RESPONSE_VALUE) {
+            if (packetType != SourceRcon.RCON_TYPE_RESPONSE_AUTH && packetType != SourceRcon.RCON_TYPE_RESPONSE_VALUE && packetType != SourceRcon.RCON_TYPE_RESPONSE_VALUE_RUST) {
                 debug(ctx, " [ ] {} = NO (Actual: {})", desc, packetType);
                 throw new PacketDecodeException("Invalid packet type: " + packetType);
             }

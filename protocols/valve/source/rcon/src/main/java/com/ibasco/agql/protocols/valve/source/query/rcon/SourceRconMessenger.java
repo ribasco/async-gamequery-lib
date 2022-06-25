@@ -85,7 +85,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Rafael Luis Ibasco
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "rawtypes"})
 @MessengerProperties(optionClass = SourceRconOptions.class)
 public final class SourceRconMessenger extends NettyMessenger<SourceRconRequest, SourceRconResponse> {
 

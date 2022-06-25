@@ -35,7 +35,7 @@ import java.util.Objects;
 public final class SourceRcon {
 
     /** Constant <code>DEFAULT_THREAD_GROUP</code> */
-    public static final ThreadGroup DEFAULT_THREAD_GROUP = Platform.creeateThreadGroup(SourceRcon.class);
+    public static final ThreadGroup DEFAULT_THREAD_GROUP = Platform.createThreadGroup(SourceRcon.class);
 
     /**
      * RCON Auth Request Header
@@ -56,6 +56,11 @@ public final class SourceRcon {
      * RCON Response Value Header
      */
     public static final int RCON_TYPE_RESPONSE_VALUE = 0;
+
+    /**
+     * RCON Response Value Header (Rust)
+     */
+    public static final int RCON_TYPE_RESPONSE_VALUE_RUST = 0x4;
 
     /**
      * A reserved request id representing a special rcon terminator packet
@@ -129,7 +134,7 @@ public final class SourceRcon {
      */
     public static boolean isResponseValuePacket(SourceRconPacket packet) {
         Objects.requireNonNull(packet, "Packet argument must not be null");
-        return RCON_TYPE_RESPONSE_VALUE == packet.getType();
+        return RCON_TYPE_RESPONSE_VALUE == packet.getType() || RCON_TYPE_RESPONSE_VALUE_RUST == packet.getType();
     }
 
     /**
@@ -266,6 +271,9 @@ public final class SourceRcon {
             }
             case RCON_TYPE_RESPONSE_VALUE: {
                 return "SERVERDATA_RESPONSE_VALUE";
+            }
+            case RCON_TYPE_RESPONSE_VALUE_RUST: {
+                return "SERVERDATA_RESPONSE_VALUE_RUST";
             }
             default: {
                 return "Unknown";

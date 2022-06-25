@@ -1,5 +1,9 @@
 Changelog
 -------------
+1.0.5 - Bug fixes/enhancements
+
+- Fixed #87: Fixed invalid packet type exception thrown when executing commands on a Rust server
+
 1.0.4 - Bug fixes/enhancements
 
 - Enhancement #80: Use daemon threads for the default executor

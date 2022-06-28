@@ -2,13 +2,14 @@
 
 1. [Failsafe Features](#failsafe-features)
 2. [Examples](#examples)
-    1. [Authentication](#authentication)
-    2. [Commands](#commands)
-    3. [Invalidating credentials](#invalidating-credentials)
-    4. [Cleanup Connections](#cleaning-up-active-connections)
-    5. [Display connection statistics](#display-connection-statistics)
-    6. [Providing your own custom CredentialsStore implementation](#providing-your-own-custom-credentialsstore-implementation)
-    7. [Compatibility with non-source games](#compatibility-with-non-source-games)
+   1. [Authentication](#authentication)
+   2. [Commands](#commands)
+   3. [Invalidating credentials](#invalidating-credentials)
+   4. [Cleanup Connections](#cleaning-up-active-connections)
+   5. [Display connection statistics](#display-connection-statistics)
+   6. [Providing your own custom CredentialsStore implementation](#providing-your-own-custom-credentialsstore-implementation)
+   7. [Compatibility with non-source games](#compatibility-with-non-source-games)
+3. [Note about Rust RCON](#rust-rcon-support)
 
 #### About this module
 
@@ -301,3 +302,11 @@ class NonSourceBasedGames {
 
 }
 ```
+
+#### Rust Rcon Support
+
+To make this library work with rust, please ensure that you start the server with ` "+rcon.web 0"` to enable legcy mode.
+
+It's also worth noting that Facepunch will eventually [remove](https://github.com/Facepunch/webrcon) legacy mode (source protocol implementation) sometime in the future and will be replaced by their websockets implementation as the default.
+
+Currently, there are no plans to support the web sockets version.   

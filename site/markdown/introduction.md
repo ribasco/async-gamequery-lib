@@ -56,7 +56,7 @@ Other supported protocols
 
 ### Best Practices
 
-Keep in mind that you should **NEVER BLOCK** the thread of your completion handlers. If you have to perform synchronization within your handlers/callbacks, then it is highly recommended that you execute them asynchronously, otherwise your application may
+Keep in mind that you should **NEVER BLOCK** the thread of your completion handlers. If you have to perform synchronization or a long running operation within your handlers/callbacks, then it is highly recommended that you execute them asynchronously, otherwise your application may
 hang indefinitely.
 Java's [CompletableFuture](https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html) provides a convenient way of executing your handlers asynchronously. Refer to the working examples below.
 
@@ -254,10 +254,11 @@ public class RecommendedExampleOne {
 }
 ```
 
-The problem with this approach is that its not efficient. A closer look at the `parseOutput` implementation, shows that it is calling `client.execute(...).join()` synchronously. The call to `join()` blocks the current thread until a response is received. A slightly better approach would be to execute all these additional requests asynchronously then use a synchronization barrier (e.g. `CountDownLatch` or `Phaser`) to block until all requests have been fulfilled. In this example, we will
+The problem with this approach is that it's not efficient. A closer look at the `parseOutput` implementation, shows that it is calling `client.execute(...).join()` synchronously and will block the current thread until the method completes. The call to `join()` blocks the current thread until a response is received. A slightly better approach would be to execute all these additional requests asynchronously then use a synchronization barrier (e.g. `CountDownLatch` or `Phaser`) to block until all
+requests have been fulfilled. In this example, we will
 use `Phaser` since we do not yet know how many cvars we are going to process.
 
-**Solution 2:** Update `parseOutput` implementation so that we requests for `help <cvar>` are all executed asynchronously then wait until all requests have been fulfilled.
+**Solution 2:** Update `parseOutput` implementation so that the requests for `help <cvar>` are all executed asynchronously then wait until all requests have been fulfilled.
 
 ```java
 import java.util.concurrent.CompletableFuture;

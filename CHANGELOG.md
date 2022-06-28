@@ -62,7 +62,6 @@ Changelog
 
 - **Source Master Query**
     - Improved/re-worked implementation
-    - Retired
     - Failsafe Integration
         - Fallback Policy
             - If a connection is dropped by the master server (e.g. timeout or rate limit exceeded), the resulting future will still be marked as completed returning the list of addresses collected from the master server.

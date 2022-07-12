@@ -54,7 +54,7 @@ jobs:
 
       - name: Publish to Sonatype (Snapshots)
         if: github.event_name != 'pull_request' && github.event_name != 'release'
-        run: mvn --batch-mode deploy -DskipTests=true
+        run: mvn -P'snapshot' --batch-mode deploy -DskipTests=true
         env:
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}

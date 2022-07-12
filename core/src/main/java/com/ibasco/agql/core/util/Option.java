@@ -24,30 +24,20 @@ import com.google.common.reflect.ClassPath;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.util.AttributeKey;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.ibasco.agql.core.util.Console.CYAN;
-import static com.ibasco.agql.core.util.Console.WHITE;
-import static com.ibasco.agql.core.util.Console.YELLOW;
-import static com.ibasco.agql.core.util.Console.color;
 import static com.ibasco.agql.core.util.Console.error;
-import static com.ibasco.agql.core.util.Console.printLine;
-import static com.ibasco.agql.core.util.Console.println;
 
 /**
  * Represents a configuration option
@@ -102,103 +92,73 @@ public final class Option<T> {
         this.autoCreate = autoCreate;
     }
 
-    /**
-     * Iterate through all available configuration {@link Option} classes found in the classpath then initialize and store the option keys into the cache.
-     */
-    static void initialize() {
-        Console.println("Initializing Options");
-        //Initialize all available option classes from the loaded modules
-        try {
-            ClassPath classPath = ClassPath.from(Platform.class.getClassLoader());
-            //fina all valid option containers (classes implementing the Options interface)
-            List<ClassPath.ClassInfo> classes = classPath.getAllClasses()
-                                                         .stream()
-                                                         .filter(VALID_OPTION_CONTAINERS)
-                                                         .sorted(Comparator.comparing(ClassPath.ClassInfo::getSimpleName))
-                                                         .collect(Collectors.toList());
-            printLine();
-            println("List of global/module options (Option Key/Default Value)");
-            printLine();
+    @ApiStatus.Internal
+    public static void consolidate(Options options, Class<?> source) {
+        if (options == null)
+            throw new IllegalArgumentException("Options must not be null");
+        Class<? extends Options> optionsClass = options.getClass();
+        log.debug("Consolidating options for '{}' (Size: {})", optionsClass.getSimpleName(), options.size());
 
-            //1. Scan for 'Options' classes and initialize it's static field members
-            for (ClassPath.ClassInfo info : classes) {
-                //note: by manually loading the classses, we trigger Option#create() as a result, which populates the optionCache.
-                Class<? extends Options> containerClass;
-                try {
-                    //noinspection unchecked
-                    containerClass = (Class<? extends Options>) info.load();
-                    Console.println("Processing %s", containerClass.getSimpleName());
-                    Console.printLine();
-                } catch (LinkageError e) {
-                    error("Failed to load class '%s' (Error: %s)", info.getName(), e);
-                    continue;
-                }
-                //1.a Recursively initialize fields
-                initializeFields(containerClass);
-            }
+        assert !Option.getOptions().isEmpty();
 
-            //2. Display all registered options from the cache
-            int total = 1;
-            //Display registered options
-            for (Class<? extends Options> cls : cache.keySet()) {
-                printLine();
-                println(color(YELLOW, "%s (Default Values)"), cls.getSimpleName());
-                printLine();
-                int ctr = 1;
-                Set<CacheEntry> cacheEntries = cache.get(cls).stream().sorted().collect(Collectors.toCollection(LinkedHashSet::new));
-                for (CacheEntry cacheEntry : cacheEntries) {
-                    String defaultValue = StringUtils.abbreviate(Objects.toString(cacheEntry.getOption().getDefaultValue(), "<NULL>"), 30);
-                    println("%03d.%02d. " + color(CYAN, "%-50s") + ": " + color(WHITE, "%-30s (key: %s, context: %s, Id: %d)"), total++, ctr++, cacheEntry.getOption().getFieldName(), defaultValue, cacheEntry.getOption().getKey(), cacheEntry.getContext().getSimpleName(), cacheEntry.getOption().getId().getInteger());
-                }
-            }
+        //Initialize once
+        initialize(optionsClass);
 
-            //3. Display summary
-            printLine();
-            println("Done. Loaded a total of '%d' options from %d modules", cache.values().size(), cache.keySet().size());
-            printLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        //1. ensure all required configuration options are present in this container by cross-checking with the option cache
+        for (Option.CacheEntry cacheEntry : Option.getOptions().get(optionsClass)) {
+            Option<?> option = cacheEntry.getOption();
+            //Class<?> context = cacheEntry.getContext();
+            //noinspection unchecked
+            options.putIfAbsent((Option<Object>) option, option.getDefaultValue());
+        }
+
+        //2. Display consolidated/merged options
+        for (Map.Entry<Option<?>, Object> entry : options) {
+            Option<?> option = entry.getKey();
+            Object value = entry.getValue();
+            log.info(String.format("[%s] %-30s => %-50s : %-30s (%-15s)", source.getSimpleName(), option.getDeclaringClass().getSimpleName(), option.getFieldName(), value, option.getKey()));
         }
     }
 
-    private static void initializeFields(Class<? extends Options> containerClass) {
-        initializeFields(containerClass, null);
+    @ApiStatus.Internal
+    public static void initialize(Class<? extends Options> containerClass) {
+        initialize(containerClass, null);
     }
 
-    private static void initializeFields(Class<? extends Options> contextClass, Class<? extends Options> parentClass) {
+    private static void initialize(Class<? extends Options> contextClass, Class<? extends Options> parentClass) {
         if (parentClass == null)
             parentClass = contextClass;
         if (contextClass.isAnnotationPresent(Inherit.class)) {
             Class<? extends Options>[] optionClasses = contextClass.getDeclaredAnnotation(Inherit.class).options();
             for (Class<? extends Options> optionClass : optionClasses) {
-                initializeFields(optionClass, parentClass);
+                initialize(optionClass, parentClass);
             }
         }
         Field[] fields = contextClass.getFields(); //use getFields() to also include the fields declared from the parent
         if (fields.length == 0) {
             return;
         }
-        for (Field field : fields) {
-            try {
-                int mod = field.getModifiers();
-                if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
-                    continue;
-                Option<?> option = (Option<?>) field.get(null); //calling this method will force static field initialization (will trigger a call to Option#create)
-                //note: if option is null, then it means it has not yet been created.
-                assert option != null;
-                //update option field name
-                option.fieldName = field.getName();
+        synchronized (cache) {
+            for (Field field : fields) {
+                try {
+                    int mod = field.getModifiers();
+                    if (!Option.class.isAssignableFrom(field.getType()) || !Modifier.isPublic(mod))
+                        continue;
+                    Option<?> option = (Option<?>) field.get(null); //calling this method will force static field initialization (will trigger a call to Option#create)
+                    //note: if option is null, then it means it has not yet been created.
+                    assert option != null;
+                    //update option field name
+                    option.fieldName = field.getName();
 
-                //add to cache
-                CacheEntry cacheEntry = new CacheEntry(option, contextClass);
-                boolean registered = cache.put(parentClass, cacheEntry);
-                Console.println("%-30s :: %-30s -> %-30s = %-50s (Registered: %s, Declaring Class: %s, Context Class: %s, Id: %s)", parentClass.getSimpleName(), contextClass.getSimpleName(), option.getDeclaringClass().getSimpleName(), field.getName(), registered, option.getDeclaringClass().getSimpleName(), cacheEntry.getContext() != null ? cacheEntry.getContext().getSimpleName() : "N/A", option);
-                //assert option.getOwner().equals(declaringClass);
-            } catch (IllegalAccessException e) {
-                error(e.getMessage());
+                    //add to cache
+                    CacheEntry cacheEntry = new CacheEntry(option, contextClass);
+                    if (!cache.put(parentClass, cacheEntry))
+                        log.warn("initialize(): Skipped cache entry '{}' for parent class '{}'", cacheEntry, parentClass);
+                } catch (IllegalAccessException e) {
+                    error(e.getMessage());
+                }
             }
         }
-        printLine();
     }
 
     /**
@@ -384,7 +344,7 @@ public final class Option<T> {
             Class<? extends Options> declaringClass = findDelcaringClass();
             if (declaringClass == null)
                 throw new IllegalStateException("Failed to find declaring class for key " + key);
-            Console.println("create(): %s) %s = %s", declaringClass.getSimpleName(), key, defaultValue);
+            //Console.println("create(): %s) %s = %s", declaringClass.getSimpleName(), key, defaultValue);
             Option<?> option = Option.of(declaringClass, key);
             if (option != null)
                 throw new IllegalStateException(String.format("Key '%s' already exists", key));
@@ -602,6 +562,16 @@ public final class Option<T> {
     }
 
     @Override
+    public String toString() {
+        return "Option{" +
+                "id=" + id +
+                ", key='" + key + '\'' +
+                ", defaultValue=" + defaultValue +
+                ", fieldName='" + fieldName + '\'' +
+                '}';
+    }
+
+    @Override
     public int hashCode() {
         return new HashCodeBuilder(17, 37).append(getId()).toHashCode();
     }
@@ -665,6 +635,14 @@ public final class Option<T> {
         @Override
         public int compareTo(@NotNull Option.CacheEntry o) {
             return BOTH.compare(this, o);
+        }
+
+        @Override
+        public String toString() {
+            return "CacheEntry{" +
+                    "context=" + context +
+                    ", option=" + option +
+                    '}';
         }
     }
 }

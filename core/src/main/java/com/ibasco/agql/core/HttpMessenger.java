@@ -19,6 +19,7 @@ package com.ibasco.agql.core;
 import com.ibasco.agql.core.transport.http.AsyncHttpTransport;
 import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.HttpOptions;
+import com.ibasco.agql.core.util.Option;
 import com.ibasco.agql.core.util.Platform;
 import com.ibasco.agql.core.util.Properties;
 import io.netty.channel.EventLoopGroup;
@@ -61,7 +62,10 @@ public final class HttpMessenger implements Messenger<AbstractWebRequest, Abstra
      *         a {@link com.ibasco.agql.core.util.Options} object
      */
     public HttpMessenger(Function<Response, AbstractWebResponse> responseFactory, HttpOptions options) {
+        if (options == null)
+            options = new HttpOptions();
         this.options = options;
+        Option.consolidate(options, getClass());
         this.eventLoopGroup = initializeEventLoopGroup();
         DefaultAsyncHttpClientConfig.Builder configBuilder = new DefaultAsyncHttpClientConfig.Builder();
         configBuilder.setKeepAlive(options.getOrDefault(GeneralOptions.SOCKET_KEEP_ALIVE));

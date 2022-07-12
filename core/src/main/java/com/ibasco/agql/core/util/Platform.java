@@ -113,12 +113,10 @@ public final class Platform {
             if (verbose)
                 Console.println("Initializing Platform");
 
-            //we initialize options from here to ensure the order of initialization
-            Option.initialize();
-            //once we have created all available options, update it's field names via reflection
-            //Option.updateFieldNames();
-            //global
-            GeneralOptions.getInstance();
+            //Initialize global options
+            Option.initialize(GeneralOptions.class);
+            Option.initialize(ConnectOptions.class);
+            Option.initialize(FailsafeOptions.class);
 
             if (verbose) {
                 printLine();

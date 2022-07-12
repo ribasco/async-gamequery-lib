@@ -114,7 +114,7 @@ public interface Options extends Cloneable, Iterable<Map.Entry<Option<?>, Object
     default <X> X getOrDefault(String key, Class<? extends Options> context) {
         Option<X> option = Option.of(getClass(), context, key);
         if (option == null)
-            throw new IllegalStateException(String.format("Option key '%s' does not exists", key));
+            throw new IllegalStateException(String.format("Option key '%s' does not exists (context '%s')", key, context));
         X value = get(option, context);
         return value == null ? option.getDefaultValue() : value;
     }

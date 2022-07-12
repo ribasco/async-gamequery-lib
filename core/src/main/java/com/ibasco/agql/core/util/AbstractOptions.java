@@ -179,5 +179,12 @@ abstract public class AbstractOptions implements Options {
             this.value = value;
             this.locked = locked;
         }
+
+        @Override
+        public String toString() {
+            return "OptionValue{" +
+                    "value=" + value +
+                    '}';
+        }
     }
 }

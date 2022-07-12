@@ -20,7 +20,6 @@ import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.transport.DefaultNettyChannelFactoryProvider;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactoryProvider;
-import com.ibasco.agql.core.util.Console;
 import com.ibasco.agql.core.util.Errors;
 import com.ibasco.agql.core.util.Functions;
 import com.ibasco.agql.core.util.MessengerProperties;
@@ -32,7 +31,6 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +75,7 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
         this.options = options;
         //Apply messenger specific configuration
         configure(options);
-        consolidate();
+        Option.consolidate(options, getClass());
 
         //Initialize members
         this.factoryProvider = createFactoryProvider();
@@ -96,33 +94,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
      *         The {@link com.ibasco.agql.core.util.Options} instance holding the configuration data
      */
     abstract protected void configure(final Options options);
-
-    protected void consolidate() {
-        Options options = getOptions();
-        Class<? extends Options> optionsClass = getOptions().getClass();
-        Console.printLine();
-        Console.println("Consolidating options for '%s' (Size: %d)", optionsClass.getSimpleName(), options.size());
-        Console.printLine();
-        //1. ensure all required configuration options are present in this container by cross-check with the option cache
-        for (Option.CacheEntry cacheEntry : Option.getOptions().get(optionsClass)) {
-            Option<?> option = cacheEntry.getOption();
-            Class<?> context = cacheEntry.getContext();
-            //noinspection unchecked
-            options.putIfAbsent((Option<Object>) option, option.getDefaultValue());
-        }
-
-        //2. Process global options
-        if (options.isEmpty()) {
-            Console.println("[%s] No options available to process", getClass().getSimpleName());
-        } else {
-
-            for (Map.Entry<Option<?>, Object> entry : options) {
-                Option<?> option = entry.getKey();
-                Object value = entry.getValue();
-                Console.println("[%s] %-30s => %-50s : %-30s (%-15s)", getClass().getSimpleName(), option.getDeclaringClass().getSimpleName(), option.getFieldName(), value, option.getKey());
-            }
-        }
-    }
     //</editor-fold>
 
     //<editor-fold desc="Public methods">
@@ -413,12 +384,6 @@ abstract public class NettyMessenger<R extends AbstractRequest, S extends Abstra
     protected final <X> void applyDefault(Option<X> option, X value) {
         Options map = getOptions();
         map.putIfAbsent(option, value);
-        /*if (!map.contains(option)) {
-            map.put(option, value);
-            //Console.println("[%s]: Applied default value '%s' = '%s'", getClass().getSimpleName(), option.getFieldName(), value);
-        } else {
-            Console.println("[%s]: Skipped default value for '%s'. User provided value is '%s'", getClass().getSimpleName(), option.getFieldName(), map.get(option));
-        }*/
     }
     //</editor-fold>
 }

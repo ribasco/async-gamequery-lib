@@ -40,7 +40,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *  SourceQueryOptions queryOptions = SourceQueryOptions.builder() //this can be any class that implements the Options interface
  *                                      .option(GeneralOptions.READ_TIMEOUT, 3000)
  *                                      .option(GeneralOptions.THREAD_EXECUTOR_SERVICE, executor)
- *                                      .option(SourceQueryOptions.FAILSAFE_ENABLED, true)
+ *                                      .option(FailsafeOptions.FAILSAFE_ENABLED, true)
  *                                      .build();
  *
  *  SourceQueryClient client = new SourceQueryClient(queryOptions);

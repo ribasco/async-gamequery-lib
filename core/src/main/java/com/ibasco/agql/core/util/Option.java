@@ -152,8 +152,7 @@ public final class Option<T> {
 
                     //add to cache
                     CacheEntry cacheEntry = new CacheEntry(option, contextClass);
-                    if (!cache.put(parentClass, cacheEntry))
-                        log.warn("initialize(): Skipped cache entry '{}' for parent class '{}'", cacheEntry, parentClass);
+                    cache.put(parentClass, cacheEntry);
                 } catch (IllegalAccessException e) {
                     error(e.getMessage());
                 }

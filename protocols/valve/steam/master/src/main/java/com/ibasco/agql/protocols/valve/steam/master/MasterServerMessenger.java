@@ -203,6 +203,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
 
     /** {@inheritDoc} */
     @Override
+    @SuppressWarnings("rawtypes")
     protected void receive(@NotNull NettyChannelContext context, AbstractResponse response, Throwable error) {
         final MasterServerChannelContext masterContext = (MasterServerChannelContext) context;
 
@@ -268,7 +269,7 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
         if (rateLimiter != null) {
             Duration waitDuration = rateLimiter.reservePermit();
             long millis = waitDuration.toMillis();
-            log.debug("{} MASTER => Acquiring permit (Wait time: {}ms)", context.id(), millis);
+            log.debug("{} MASTER => Acquired permit (Wait time: {}ms)", context.id(), millis);
             if (millis > 0)
                 context.eventLoop().schedule(context::send, millis, TimeUnit.MILLISECONDS);
             else
@@ -308,10 +309,6 @@ public final class MasterServerMessenger extends NettyMessenger<MasterServerRequ
                 masterAddress = nextMasterAddress();
                 log.debug("{} MASTER => Selected new master server address '{}'", contextId, masterAddress);
             }
-
-            //Acquire a permit if rate limiter is enabled
-            if (rateLimiter != null)
-                rateLimiter.acquirePermit();
 
             log.debug("{} MASTER => Querying master server address '{}' (Attempts {} of {}, Address Index: {}, Seed Address: {}, Type: {}, Seed: {}, Delay: {})", contextId, masterAddress, executionContext.getAttemptCount() + 1, maxAttempts, index, request.getAddress(), request.getType(), request.getAddress(), request.getRequestDelay());
             return acquire(executionContext)

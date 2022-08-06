@@ -1,8 +1,12 @@
 Changelog
 -------------
+1.0.7 - Bug fixes/enhancements
+
+- Bug #106: Game Server Port should be read as unsigned Short
+
 1.0.5 - Bug fixes/enhancements
 
-- Fixed #87: Fixed invalid packet type exception thrown when executing commands on a Rust server
+- Bug #87: Fixed invalid packet type exception thrown when executing commands on a Rust server
 
 1.0.4 - Bug fixes/enhancements
 

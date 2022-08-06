@@ -16,20 +16,21 @@
 
 package com.ibasco.agql.protocols.valve.source.query.info;
 
-import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.util.Netty;
-import com.ibasco.agql.protocols.valve.source.query.common.handlers.SourceQueryAuthDecoder;
-import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
-import io.netty.buffer.ByteBuf;
-import io.netty.channel.ChannelHandlerContext;
-import java.nio.charset.StandardCharsets;
-import java.util.function.Function;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.A2S_INFO_EDF_GAMEID;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.A2S_INFO_EDF_PORT;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.A2S_INFO_EDF_SOURCETV;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.A2S_INFO_EDF_STEAMID;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.A2S_INFO_EDF_TAGS;
 import static com.ibasco.agql.protocols.valve.source.query.SourceQuery.SOURCE_QUERY_INFO_RES;
+import com.ibasco.agql.core.NettyChannelContext;
+import com.ibasco.agql.core.util.Netty;
+import com.ibasco.agql.protocols.valve.source.query.common.handlers.SourceQueryAuthDecoder;
+import com.ibasco.agql.protocols.valve.source.query.common.packets.SourceQuerySinglePacket;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+
+import java.nio.charset.StandardCharsets;
+import java.util.function.Function;
 
 /**
  * <p>SourceQueryInfoDecoder class.</p>
@@ -93,7 +94,7 @@ public class SourceQueryInfoDecoder extends SourceQueryAuthDecoder<SourceQueryIn
             }
 
             int flags = buf.readUnsignedByte();
-            decodeFlag("edfServerPort", buf, flags, A2S_INFO_EDF_PORT, buf::readShortLE, info::setGamePort, Short::intValue);
+            decodeFlag("edfServerPort", buf, flags, A2S_INFO_EDF_PORT, buf::readUnsignedShortLE, info::setGamePort, Integer::intValue);
             decodeFlag("edfServerSteamId", buf, flags, A2S_INFO_EDF_STEAMID, buf::readLongLE, info::setServerId);
             decodeFlag("edfSourceTvPort", buf, flags, A2S_INFO_EDF_SOURCETV, buf::readShortLE, info::setTvPort, Short::intValue);
             decodeFlag("edfSourceTvName", buf, flags, A2S_INFO_EDF_SOURCETV, Netty::readString, info::setTvName);

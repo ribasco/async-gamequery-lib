@@ -40,7 +40,7 @@
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <netty.version>4.1.80.Final</netty.version>
+        <netty.version>4.1.82.Final</netty.version>
     </properties>
 
     <!-- Profiles -->

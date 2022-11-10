@@ -1,0 +1,12 @@
+com.ibasco.agql.core
+com.ibasco.agql.core.enums
+com.ibasco.agql.core.exceptions
+com.ibasco.agql.core.reflect.types
+com.ibasco.agql.core.transport
+com.ibasco.agql.core.transport.enums
+com.ibasco.agql.core.transport.handlers
+com.ibasco.agql.core.transport.http
+com.ibasco.agql.core.transport.http.processors
+com.ibasco.agql.core.transport.pool
+com.ibasco.agql.core.util
+com.ibasco.agql.core.util.functions

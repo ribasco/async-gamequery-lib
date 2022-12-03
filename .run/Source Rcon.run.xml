@@ -1,0 +1,14 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Source Rcon" type="Application" factoryName="Application" folderName="Examples">
+    <option name="ALTERNATIVE_JRE_PATH" value="temurin-1.8" />
+    <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
+    <option name="MAIN_CLASS_NAME" value="com.ibasco.agql.examples.base.ExampleRunner" />
+    <module name="agql-lib-examples" />
+    <option name="PROGRAM_PARAMETERS" value="-e source-rcon" />
+    <option name="VM_PARAMETERS" value="-ea" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

@@ -19,11 +19,12 @@ package com.ibasco.agql.examples;
 import com.ibasco.agql.examples.base.BaseExample;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogEntry;
 import com.ibasco.agql.protocols.valve.source.query.logger.SourceLogListenService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.concurrent.CompletableFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>SourceLogListenerExample class.</p>
@@ -41,8 +42,11 @@ public class SourceLogListenerExample extends BaseExample {
     public void run(String[] args) throws Exception {
         String address = promptInput("Please enter server address to listen on: ", true, null, "listenAddress");
         int port = promptInputInt("Please enter the server port (default: 27500) : ", false, "27500");
-        logService = new SourceLogListenService(new InetSocketAddress(address, port), SourceLogListenerExample::processLogData);
+        InetSocketAddress listenAddress = new InetSocketAddress(address, port);
+        logService = new SourceLogListenService(listenAddress, SourceLogListenerExample::processLogData);
         CompletableFuture<Void> f = logService.listen();
+        System.out.printf("Listening on %s (listening: %s, future: %s)", listenAddress, logService.isListening(), logService.getListenFuture());
+        assert logService.isListening();
         f.join();
         System.out.println("Log service has been closed");
     }

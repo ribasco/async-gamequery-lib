@@ -21,14 +21,12 @@ import com.ibasco.agql.core.util.GeneralOptions;
 import com.ibasco.agql.core.util.Platform;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.socket.DatagramChannel;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.Closeable;
 import java.io.IOException;
 import java.net.InetSocketAddress;
@@ -38,8 +36,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>Listens for log messages produced by a Source Server.</p>
@@ -86,6 +82,8 @@ public class SourceLogListenService implements Closeable {
 
     private volatile boolean started;
 
+    private volatile CompletableFuture<Void> listenFuture;
+
     /**
      * <p>Creates a new service that will listen to any ip address
      * and bind to a random local port number (Similar to 0.0.0.0)</p>
@@ -97,8 +95,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
-     * @param listenAddress
-     *         An {@link java.net.InetSocketAddress} where the listen service will bind or listen on
+     * @param listenAddress An {@link java.net.InetSocketAddress} where the listen service will bind or listen on
      */
     public SourceLogListenService(InetSocketAddress listenAddress) {
         this(listenAddress, null);
@@ -107,10 +104,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
-     * @param listenAddress
-     *         The {@link java.net.InetSocketAddress} to listen on
-     * @param callback
-     *         The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
+     * @param listenAddress The {@link java.net.InetSocketAddress} to listen on
+     * @param callback      The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> callback) {
         this(listenAddress, callback, null, 0, true);
@@ -119,16 +114,11 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Creates a new listen service for the provided {@link java.net.InetSocketAddress}. You will need to explicitly call {@link #listen()} to start listening for source log events</p>
      *
-     * @param listenAddress
-     *         The {@link java.net.InetSocketAddress} to listen on
-     * @param callback
-     *         The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
-     * @param executorService
-     *         The {@link java.util.concurrent.ExecutorService} that will be used by the service. {@code null} to use the global executor provided by the library.
-     * @param nThreads
-     *         The number of threads that will be used by the underlying {@link io.netty.channel.EventLoopGroup} (a special executor servicee used by netty). The value should normally be less than or equals to the core pool size of the executor service.
-     * @param useNative
-     *         {@code true} if you prefer to use netty's <a href="https://netty.io/wiki/native-transports.html">native transports</a> over java's NIO (e.g. epoll on linux, kqueue on osx)
+     * @param listenAddress   The {@link java.net.InetSocketAddress} to listen on
+     * @param callback        The {@link java.util.function.Consumer} callback that will be notified once a log event has been received
+     * @param executorService The {@link java.util.concurrent.ExecutorService} that will be used by the service. {@code null} to use the global executor provided by the library.
+     * @param nThreads        The number of threads that will be used by the underlying {@link io.netty.channel.EventLoopGroup} (a special executor servicee used by netty). The value should normally be less than or equals to the core pool size of the executor service.
+     * @param useNative       {@code true} if you prefer to use netty's <a href="https://netty.io/wiki/native-transports.html">native transports</a> over java's NIO (e.g. epoll on linux, kqueue on osx)
      */
     public SourceLogListenService(InetSocketAddress listenAddress, Consumer<SourceLogEntry> callback, ExecutorService executorService, int nThreads, boolean useNative) {
         EventLoopGroup group;
@@ -175,8 +165,7 @@ public class SourceLogListenService implements Closeable {
     /**
      * <p>Sets the callback for listening on Raw Log Events</p>
      *
-     * @param callback
-     *         A {@link java.util.function.Consumer} callback for raw log events
+     * @param callback A {@link java.util.function.Consumer} callback for raw log events
      */
     public void setLogEventCallback(Consumer<SourceLogEntry> callback) {
         this.callbackRef.set(callback);
@@ -194,11 +183,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * Sets the listen address.
      *
-     * @param listenAddress
-     *         The {@link java.net.InetSocketAddress} to listen on
-     *
-     * @throws java.lang.IllegalStateException
-     *         If the service has been started already
+     * @param listenAddress The {@link java.net.InetSocketAddress} to listen on
+     * @throws java.lang.IllegalStateException If the service has been started already
      */
     public void setListenAddress(InetSocketAddress listenAddress) {
         if (started)
@@ -210,7 +196,6 @@ public class SourceLogListenService implements Closeable {
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
-     *
      * @see #setListenAddress(InetSocketAddress)
      * @see #close()
      */
@@ -222,11 +207,8 @@ public class SourceLogListenService implements Closeable {
     /**
      * Start listening for log messages. Please note that this is a non-blocking operation. If you need to block until the service is closed, then use the returned future which is notified once the underlying connection is closed.
      *
-     * @param address
-     *         The {@link java.net.InetSocketAddress} to listen on
-     *
+     * @param address The {@link java.net.InetSocketAddress} to listen on
      * @return A {@link java.util.concurrent.CompletableFuture} that is notified once the connection is closed. This is notified either by an interrupt signal (SIGINT) or by invoking {@link #close()}
-     *
      * @see #close()
      */
     public CompletableFuture<Void> listen(InetSocketAddress address) {
@@ -242,7 +224,21 @@ public class SourceLogListenService implements Closeable {
             initialize(bindFuture, promise);
         else
             bindFuture.addListener((ChannelFutureListener) future -> initialize(future, promise));
-        return promise.whenComplete((unused, throwable) -> bindInProgress = false);
+        return this.listenFuture = promise.whenComplete((unused, throwable) -> bindInProgress = false);
+    }
+
+    /**
+     * @return The current future instance returned by {@link #listen(InetSocketAddress)} or {@code null} if service is not bounded to an address yet.
+     */
+    public CompletableFuture<Void> getListenFuture() {
+        return this.listenFuture;
+    }
+
+    /**
+     * @return {@code true} if service is currently bounded to an address
+     */
+    public boolean isListening() {
+        return this.listenFuture != null && !this.listenFuture.isDone();
     }
 
     private void initialize(ChannelFuture future, CompletableFuture<Void> promise) {
@@ -276,7 +272,9 @@ public class SourceLogListenService implements Closeable {
         }
     }
 
-    /** {@inheritDoc} */
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() throws IOException {
         try {

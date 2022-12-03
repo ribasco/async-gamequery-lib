@@ -1,5 +1,11 @@
 Changelog
 -------------
+1.1.0 - Bug fixes/enhancements
+
+- Enhancement #132: (source-log) Add method for checking if the log service has already been started
+
+1.0.8 - Bump dependency version
+
 1.0.7 - Bug fixes/enhancements
 
 - Bug #106: Game Server Port should be read as unsigned Short

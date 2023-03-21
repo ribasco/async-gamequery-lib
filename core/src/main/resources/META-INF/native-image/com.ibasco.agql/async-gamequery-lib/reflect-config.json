@@ -1,0 +1,27 @@
+[
+  {
+    "name": "com.ibasco.agql.core.util.ConnectOptions",
+    "allPublicFields": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.ibasco.agql.core.util.FailsafeOptions",
+    "allPublicFields": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.ibasco.agql.core.util.GeneralOptions",
+    "allPublicFields": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.ibasco.agql.core.util.HttpOptions",
+    "allPublicFields": true,
+    "allPublicConstructors": true
+  },
+  {
+    "name": "com.ibasco.agql.protocols.valve.source.query.SourceQueryOptions",
+    "allPublicFields": true,
+    "allPublicConstructors": true
+  }
+]

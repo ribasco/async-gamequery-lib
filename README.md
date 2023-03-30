@@ -56,7 +56,7 @@ public class BlockingQueryExample {
         //You can instantiate the client from the try-with block as it implements the java.io.Closeable interface
         try (SourceQueryClient client = new SourceQueryClient(queryOptions)) {
             InetSocketAddress address = new InetSocketAddress("192.168.60.1", 27016);
-            SourceServer info = client.getInfo(address).join();
+            SourceServer info = client.getInfo(address).join().getResult();
             System.out.printf("INFO: %s\n", info);
         }
     }

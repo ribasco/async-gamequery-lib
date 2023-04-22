@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.steam.master;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
+import com.ibasco.agql.core.transport.DefaultChannelContextFactory;
 import io.netty.channel.Channel;
 
 /**
@@ -25,7 +25,7 @@ import io.netty.channel.Channel;
  *
  * @author Rafael Luis Ibasco
  */
-public class MasterServerChannelContextFactory extends DefaultChannlContextFactory<MasterServerMessenger> {
+public class MasterServerChannelContextFactory extends DefaultChannelContextFactory<MasterServerMessenger> {
 
     /**
      * <p>Constructor for MasterServerChannelContextFactory.</p>

@@ -17,7 +17,7 @@
 package com.ibasco.agql.protocols.valve.source.query.rcon;
 
 import com.ibasco.agql.core.NettyChannelContext;
-import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
+import com.ibasco.agql.core.transport.DefaultChannelContextFactory;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Rafael Luis Ibasco
  */
-public class SourceRconChannelContextFactory extends DefaultChannlContextFactory<SourceRconMessenger> {
+public class SourceRconChannelContextFactory extends DefaultChannelContextFactory<SourceRconMessenger> {
 
     private static final Logger log = LoggerFactory.getLogger(SourceRconChannelContextFactory.class);
 

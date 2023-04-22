@@ -24,7 +24,7 @@ import com.ibasco.agql.core.exceptions.MaxAttemptsReachedException;
 import com.ibasco.agql.core.exceptions.MessengerException;
 import com.ibasco.agql.core.exceptions.RejectedRequestException;
 import com.ibasco.agql.core.exceptions.TimeoutException;
-import com.ibasco.agql.core.transport.DefaultChannlContextFactory;
+import com.ibasco.agql.core.transport.DefaultChannelContextFactory;
 import com.ibasco.agql.core.transport.NettyChannelFactory;
 import com.ibasco.agql.core.transport.NettyContextChannelFactory;
 import com.ibasco.agql.core.transport.NettyPropertyResolver;
@@ -220,7 +220,7 @@ public final class SourceQueryMessenger extends NettyMessenger<SourceQueryReques
     /** {@inheritDoc} */
     @Override
     protected NettyChannelFactory createChannelFactory() {
-        NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP_CONNLESS, getOptions(), new DefaultChannlContextFactory<>(this));
+        NettyContextChannelFactory channelFactory = getFactoryProvider().getContextualFactory(TransportType.UDP_CONNLESS, getOptions(), new DefaultChannelContextFactory<>(this));
         channelFactory.setResolver(new PropertyResolver(channelFactory.getResolver()));
         return new SourceQueryChannelFactory(channelFactory);
     }

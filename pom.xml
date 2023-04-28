@@ -40,7 +40,7 @@
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <netty.version>4.1.91.Final</netty.version>
+        <netty.version>4.1.92.Final</netty.version>
     </properties>
 
     <!-- Profiles -->
@@ -408,7 +408,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-install-plugin</artifactId>
-                    <version>3.1.0</version>
+                    <version>3.1.1</version>
                     <configuration>
                         <installAtEnd>true</installAtEnd>
                     </configuration>
@@ -550,7 +550,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-project-info-reports-plugin</artifactId>
-                    <version>3.4.2</version>
+                    <version>3.4.3</version>
                 </plugin>
                 <!-- Versions Plugin -->
                 <plugin>
@@ -672,7 +672,7 @@
             <dependency>
                 <groupId>org.junit.jupiter</groupId>
                 <artifactId>junit-jupiter-api</artifactId>
-                <version>5.9.2</version>
+                <version>5.9.3</version>
                 <scope>test</scope>
             </dependency>
             <!-- Apache Commons -->

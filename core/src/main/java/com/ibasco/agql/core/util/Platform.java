@@ -32,35 +32,20 @@ import io.netty.channel.kqueue.KQueueSocketChannel;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.util.concurrent.DefaultEventExecutorChooserFactory;
-import io.netty.util.concurrent.DefaultThreadFactory;
 import io.netty.util.concurrent.Future;
-import io.netty.util.concurrent.GenericFutureListener;
-import io.netty.util.concurrent.RejectedExecutionHandlers;
+import io.netty.util.concurrent.*;
 import io.netty.util.internal.PlatformDependent;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.ApiStatus;
-import java.nio.channels.spi.SelectorProvider;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Queue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static com.ibasco.agql.core.util.Console.BLUE;
-import static com.ibasco.agql.core.util.Console.CYAN;
-import static com.ibasco.agql.core.util.Console.YELLOW;
-import static com.ibasco.agql.core.util.Console.color;
-import static com.ibasco.agql.core.util.Console.printLine;
-import static com.ibasco.agql.core.util.Console.println;
+
+import java.nio.channels.spi.SelectorProvider;
+import java.util.Objects;
+import java.util.Queue;
+import java.util.concurrent.*;
+
+import static com.ibasco.agql.core.util.Console.*;
 
 /**
  * Platform specific implementation
@@ -73,8 +58,6 @@ public final class Platform {
     public static final ThreadGroup DEFAULT_THREAD_GROUP = new ThreadGroup("agql");
 
     private static final Logger log = LoggerFactory.getLogger(Platform.class);
-
-    private static final List<Queue<Runnable>> TASK_QUEUE_LIST = new ArrayList<>();
 
     private static final Object lock = new Object();
 
@@ -344,7 +327,6 @@ public final class Platform {
                     DEFAULT_EVENT_QUEUE_TASKQUEUE_FACTORY = maxCapacity -> {
                         Queue<Runnable> queue = maxCapacity == Integer.MAX_VALUE ? PlatformDependent.newMpscQueue() : PlatformDependent.newMpscQueue(maxCapacity);
                         log.debug("Creating new task queue: {} ({})", queue, queue.hashCode());
-                        TASK_QUEUE_LIST.add(queue);
                         return queue;
                     };
                 }
@@ -382,15 +364,6 @@ public final class Platform {
         } else {
             return new ThreadGroup(parent, name);
         }
-    }
-
-    /**
-     * <p>getTaskQueueList.</p>
-     *
-     * @return a {@link java.util.List} object
-     */
-    public static List<Queue<Runnable>> getTaskQueueList() {
-        return TASK_QUEUE_LIST;
     }
 
     /**

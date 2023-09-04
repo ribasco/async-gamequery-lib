@@ -12,7 +12,7 @@ jobs:
       matrix:
         java: [ '8' ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up for Sonatype
         uses: actions/setup-java@v3
         with: # running setup-java again overwrites the settings.xml

@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Setup Java JDK
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
           java-version: ${{ matrix.java }}
@@ -41,7 +41,7 @@ jobs:
         run: mvn verify
 
       - name: Set up for Sonatype
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with: # running setup-java again overwrites the settings.xml
           distribution: 'temurin'
           java-version: ${{ matrix.java }}

@@ -312,7 +312,7 @@ Just add the following dependencies to your maven pom.xml. Only include the modu
 <dependency>
     <groupId>com.ibasco.agql</groupId>
   <artifactId>agql-csgo-webapi</artifactId>
-  <version>1.2.1</version>
+  <version>1.2.2</version>
 </dependency>
 ```
 

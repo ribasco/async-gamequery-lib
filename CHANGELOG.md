@@ -1,5 +1,8 @@
 Changelog
 -------------
+1.2.2 - Bump dependency version
+- Issue #219: Version 1.2.1 has dependencies with security vulnerabilities
+
 1.1.0 - Bug fixes/enhancements
 
 - Enhancement #132: (source-log) Add method for checking if the log service has already been started

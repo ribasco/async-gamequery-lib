@@ -30,7 +30,7 @@
 
     <!-- Properties -->
     <properties>
-        <revision>1.2.1</revision>
+        <revision>1.2.2</revision>
         <changelist>-SNAPSHOT</changelist>
         <sha1/>
         <maven.compiler.source>1.8</maven.compiler.source>
@@ -40,7 +40,7 @@
         <github.global.server>github</github.global.server>
         <site.dir>${project.basedir}/site</site.dir>
         <github.site.path>${project.version}</github.site.path>
-        <netty.version>4.1.94.Final</netty.version>
+        <netty.version>4.1.107.Final</netty.version>
     </properties>
 
     <!-- Profiles -->
@@ -660,7 +660,7 @@
             <dependency>
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>32.1.0-jre</version>
+                <version>33.0.0-jre</version>
             </dependency>
             <!-- Google GSON -->
             <dependency>
